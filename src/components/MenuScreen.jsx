@@ -1,6 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { db } from '../firebase';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { APP_VERSION, APP_VERSION_DATE } from '../App';
 
-const MenuScreen = ({ gameState, setCurrentView, setGameState }) => {
+const CURRENT_VERSION = APP_VERSION || '1.4';
+const VERSION_DATE = APP_VERSION_DATE || '2026-04-23';
+
+const MenuScreen = ({ gameState, setCurrentView, setGameState, user }) => {
+  const [updating, setUpdating] = useState(false);
+  const [forcing, setForcing] = useState(false);
+  const [updateDone, setUpdateDone] = useState(false);
+
+  // Botão manual: hard reload limpando cache
+  const handleUpdate = () => {
+    setUpdating(true);
+    // Salvar timestamp local para não re-triggerar o listener
+    localStorage.setItem('pokecraft_last_reload', String(Date.now()));
+    setTimeout(() => window.location.reload(true), 400);
+  };
+
+  // Forçar atualização em TODOS os dispositivos via Firestore
+  const handleForceAll = async () => {
+    if (!window.confirm('⚠️ Isso vai recarregar o jogo em TODOS os dispositivos logados agora. Continuar?')) return;
+    setForcing(true);
+    try {
+      const now = Date.now();
+      await setDoc(doc(db, 'config', 'app'), {
+        forceReloadAt: serverTimestamp(),
+        forceReloadAtMs: now,
+        version: CURRENT_VERSION,
+        updatedAt: new Date().toISOString(),
+      }, { merge: true });
+      setUpdateDone(true);
+      setTimeout(() => setUpdateDone(false), 4000);
+    } catch (e) {
+      console.error('Erro ao forçar atualização:', e);
+      alert('Erro ao enviar comando. Tente novamente.');
+    } finally {
+      setForcing(false);
+    }
+  };
+
+  const menuItems = [
+    { id: 'pokedex',  name: 'Pokédex',      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pokedex.png',         desc: 'Registro de Espécies',    color: 'bg-red-50 border-red-200 text-red-600' },
+    { id: 'backpack', name: 'Mochila',       icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/back-pack.png',        desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
+    { id: 'quests',   name: 'Missões',       icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png',          desc: 'Progresso da Jornada',    color: 'bg-blue-50 border-blue-200 text-blue-600' },
+    { id: 'save',     name: 'Salvar Jogo',   icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/computer-drive.png',    desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
+    { id: 'exit',     name: 'Sair do Jogo',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/escape-rope.png',       desc: 'Voltar para o Início',    color: 'bg-slate-50 border-slate-200 text-slate-600' },
+  ];
+
   return (
     <div className="h-full bg-slate-100 animate-fadeIn relative overflow-y-auto custom-scrollbar pt-12 pb-24">
        <div className="absolute inset-0 opacity-5 pointer-events-none fixed">
@@ -16,13 +64,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState }) => {
           </div>
 
           <div className="flex flex-col gap-4 text-left">
-             {[
-               { id: 'pokedex', name: 'Pokédex', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pokedex.png', desc: 'Registro de Espécies', color: 'bg-red-50 border-red-200 text-red-600' },
-               { id: 'backpack', name: 'Mochila', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/back-pack.png', desc: 'Itens e Equipamentos', color: 'bg-orange-50 border-orange-200 text-orange-600' },
-               { id: 'quests', name: 'Missões', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png', desc: 'Progresso da Jornada', color: 'bg-blue-50 border-blue-200 text-blue-600' },
-               { id: 'save', name: 'Salvar Jogo', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/computer-drive.png', desc: 'Progresso em Nuvem', color: 'bg-green-50 border-green-200 text-green-600' },
-               { id: 'exit', name: 'Sair do Jogo', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/escape-rope.png', desc: 'Voltar para o Início', color: 'bg-slate-50 border-slate-200 text-slate-600' },
-             ].map(item => (
+             {menuItems.map(item => (
                <button 
                  key={item.id} 
                  onClick={() => {
@@ -46,7 +88,70 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState }) => {
              ))}
           </div>
 
-          <div className="mt-10 p-6 bg-white rounded-[2.5rem] shadow-xl border-b-8 border-slate-200">
+          {/* SEÇÃO DE VERSÃO E ATUALIZAÇÃO */}
+          <div className="mt-6 rounded-[2.5rem] overflow-hidden shadow-xl border-b-8 border-indigo-300">
+            {/* Header da seção */}
+            <div className="bg-gradient-to-r from-indigo-600 to-violet-700 px-6 py-4 flex items-center gap-3">
+              <span className="text-2xl">🔄</span>
+              <div className="flex-1">
+                <p className="text-white font-black uppercase text-sm tracking-wider">Versão do Jogo</p>
+                <p className="text-indigo-200 text-[9px] font-bold uppercase tracking-widest">PokéCraft Idle v{CURRENT_VERSION} · {VERSION_DATE}</p>
+              </div>
+              <span className="bg-white/20 text-white text-[10px] font-black px-3 py-1 rounded-full">v{CURRENT_VERSION}</span>
+            </div>
+
+            <div className="bg-white p-5 flex flex-col gap-3">
+              {/* Botão: Atualizar meu dispositivo */}
+              <button
+                id="btn-update-version"
+                onClick={handleUpdate}
+                disabled={updating}
+                className={`w-full py-4 rounded-2xl font-black uppercase text-sm tracking-wider transition-all flex items-center justify-center gap-3 shadow-lg ${
+                  updating
+                    ? 'bg-indigo-100 text-indigo-300'
+                    : 'bg-gradient-to-r from-indigo-500 to-violet-600 text-white hover:scale-[1.02] active:scale-95 shadow-indigo-200'
+                }`}
+              >
+                {updating ? (
+                  <><span className="animate-spin">⏳</span> Recarregando...</>
+                ) : (
+                  <><span>🔄</span> Atualizar Meu Dispositivo</>
+                )}
+              </button>
+
+              {/* Botão: Forçar atualização em todos */}
+              {user && (
+                <button
+                  id="btn-force-all-update"
+                  onClick={handleForceAll}
+                  disabled={forcing || updateDone}
+                  className={`w-full py-4 rounded-2xl font-black uppercase text-sm tracking-wider transition-all flex items-center justify-center gap-3 shadow-lg ${
+                    updateDone
+                      ? 'bg-green-100 text-green-600 border-2 border-green-300'
+                      : forcing
+                        ? 'bg-orange-50 text-orange-300'
+                        : 'bg-gradient-to-r from-orange-500 to-red-600 text-white hover:scale-[1.02] active:scale-95 shadow-orange-200'
+                  }`}
+                >
+                  {updateDone ? (
+                    <><span>✅</span> Comando enviado a todos!</>
+                  ) : forcing ? (
+                    <><span className="animate-spin">⏳</span> Enviando...</>
+                  ) : (
+                    <><span>📡</span> Forçar Atualização em Todos</>
+                  )}
+                </button>
+              )}
+
+              <p className="text-[9px] text-slate-400 font-bold uppercase text-center tracking-widest leading-relaxed">
+                "Atualizar Meu Dispositivo" recarrega apenas esta sessão.<br />
+                "Forçar em Todos" envia um sinal via nuvem para todos os players online.
+              </p>
+            </div>
+          </div>
+
+          {/* CONFIGURAÇÕES DO SISTEMA */}
+          <div className="mt-6 p-6 bg-white rounded-[2.5rem] shadow-xl border-b-8 border-slate-200">
              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                 <span className="text-lg">⚙️</span> Configurações do Sistema
              </h4>

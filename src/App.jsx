@@ -21,7 +21,7 @@ import { MoveCategoryIcon, StatusBadges, QuickInventory, TrainerCard } from './c
 import { GYMS, ELITE_FOUR } from './data/gyms';
 import { auth, db } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { monitorAuthState } from './auth';
 
 const fixPath = (path) => {
@@ -90,6 +90,9 @@ const trainerAvatars = [
 
 
 
+export const APP_VERSION = '1.4';
+export const APP_VERSION_DATE = '2026-04-23';
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -148,6 +151,25 @@ export default function App() {
       unsubscribe();
       clearTimeout(loadTimeout);
     };
+  }, []);
+
+  // ===== LISTENER DE FORCE-UPDATE (Firestore config/app) =====
+  // Todos os dispositivos logados serão recarregados quando forceReloadAt mudar
+  useEffect(() => {
+    const configRef = doc(db, 'config', 'app');
+    const unsub = onSnapshot(configRef, (snap) => {
+      if (!snap.exists()) return;
+      const { forceReloadAt } = snap.data();
+      if (!forceReloadAt) return;
+      const serverTs = forceReloadAt?.toMillis ? forceReloadAt.toMillis() : forceReloadAt;
+      const localTs = parseInt(localStorage.getItem('pokecraft_last_reload') || '0', 10);
+      if (serverTs > localTs) {
+        localStorage.setItem('pokecraft_last_reload', String(serverTs));
+        // Pequeno delay para garantir que o Firestore persiste antes de recarregar
+        setTimeout(() => window.location.reload(true), 800);
+      }
+    }, (err) => console.warn('Config listener error:', err));
+    return () => unsub();
   }, []);
 
   const [activeBuildingModal, setActiveBuildingModal] = useState(null);
@@ -1892,7 +1914,8 @@ export default function App() {
         <MenuScreen 
           gameState={gameState} 
           setCurrentView={setCurrentView} 
-          setGameState={setGameState} 
+          setGameState={setGameState}
+          user={user}
         />
       );
 
