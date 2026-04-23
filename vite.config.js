@@ -7,16 +7,9 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('src/data/pokedex.js')) {
-            return 'pokedex';
-          }
-          if (id.includes('src/data/moves.js')) {
-            return 'moves';
-          }
-        }
+        // Desativando manualChunks temporariamente para depurar ReferenceError
       }
     },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 2000,
   }
 })
