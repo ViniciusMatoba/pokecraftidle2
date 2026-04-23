@@ -94,6 +94,19 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const { playBGM, stopBGM, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, toggleMute, isMuted, muted } = useSound();
 
+  const loadGameState = async (uid) => {
+    try {
+      const docRef = doc(db, "saves", uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return docSnap.data().gameState;
+      }
+    } catch (e) {
+      console.error("Error loading cloud save:", e);
+    }
+    return null;
+  };
+
   useEffect(() => {
     const unsubscribe = monitorAuthState(async (u) => {
       if (u) {
