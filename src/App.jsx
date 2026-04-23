@@ -90,8 +90,8 @@ const trainerAvatars = [
 
 
 
-export const APP_VERSION = '1.6.4';
-export const APP_VERSION_DATE = '2026-04-23 12:00';
+export const APP_VERSION = '1.6.5';
+export const APP_VERSION_DATE = '2026-04-23 12:10';
 
 // Estado padrão do jogo para novos jogadores e migrações
 const DEFAULT_GAME_STATE = {
@@ -605,7 +605,7 @@ export default function App() {
         trainerSprite: trainer.sprite,
         trainerReward: trainer.reward || 100,
         isRocket: trainer.isRocket || false,
-        trainerSpawnTime: Date.now(),
+        spawnTime: Date.now(),
       });
       setBattleLog([]);
       isProcessingVictory.current = false;
@@ -614,7 +614,7 @@ export default function App() {
     }
 
     if (!route.enemies || route.enemies.length === 0) {
-      setCurrentEnemy(null);
+      // Não seta null — apenas sai sem fazer nada para evitar loop infinito em cidades
       isProcessingVictory.current = false;
       return;
     }
@@ -692,19 +692,23 @@ export default function App() {
     setBattleLog([]);
     isProcessingVictory.current = false;
     playBGM('battle');
-  }, [gameState.currentRoute, gameState.speciesMastery, playBGM, addLog]);
+  }, [gameState.currentRoute, gameState.speciesMastery, playBGM, addLog, processedRoutes]);
 
   useEffect(() => {
-    if (currentView === 'battles' && (!currentEnemy || currentEnemy.hp <= 0)) {
+    const route = processedRoutes[gameState.currentRoute];
+    const hasEnemies = route?.enemies?.length > 0 || route?.trainers?.length > 0;
+    if (currentView === 'battles' && hasEnemies && (!currentEnemy || currentEnemy.hp <= 0)) {
       const delay = !currentEnemy ? 50 : 800;
       const timer = setTimeout(() => {
-        if (currentView === 'battles' && (!currentEnemy || currentEnemy.hp <= 0)) {
+        const routeNow = processedRoutes[gameState.currentRoute];
+        const hasEnemiesNow = routeNow?.enemies?.length > 0 || routeNow?.trainers?.length > 0;
+        if (currentView === 'battles' && hasEnemiesNow && (!currentEnemy || currentEnemy.hp <= 0)) {
           spawnEnemy();
         }
       }, delay);
       return () => clearTimeout(timer);
     }
-  }, [currentView, currentEnemy?.id, currentEnemy?.hp, spawnEnemy]);
+  }, [currentView, currentEnemy?.id, currentEnemy?.hp, spawnEnemy, gameState.currentRoute, processedRoutes]);
 
   // Ref para currentView — permite que handleBattleTick leia o valor atual
   // sem precisar estar nas deps do useCallback (o que recriaria o timer a cada mudança de view)
@@ -737,7 +741,7 @@ export default function App() {
           );
           return { ...prev, team: newTeam };
         } else {
-          if (currentEnemy.unlocks === 'rival_1_defeated' || currentEnemy.unlockFlag === 'rival_1_defeated') {
+          if (currentEnemy.isInitialRival || currentEnemy.unlocks === 'rival_1_defeated' || currentEnemy.unlockFlag === 'rival_1_defeated' || currentEnemy.unlockFlag === 'rival_lab_defeated') {
             setCurrentView('rival_post_battle');
           } else {
             stopBGM(300);
