@@ -34,7 +34,7 @@ const BattleScreen = ({
   );
 
   useEffect(() => {
-    const introDuration = currentEnemy?.isTrainer ? 2200 : 1000;
+    const introDuration = currentEnemy?.isTrainer ? 2500 : 1200;
     setShowTrainer(true);
     const t = setTimeout(() => setShowTrainer(false), introDuration);
     if (currentEnemy?.isShiny) {
@@ -191,6 +191,14 @@ const BattleScreen = ({
         {/* Inimigo — topo direito */}
         <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1">
           
+          {/* Nome do Treinador durante a Intro */}
+          {showTrainer && currentEnemy.isTrainer && (
+            <div className="animate-slideLeft bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-l-full border-l-4 border-pokeYellow shadow-2xl">
+              <span className="text-[10px] font-black text-pokeYellow uppercase tracking-[0.2em]">Desafiante</span>
+              <h4 className="text-white font-black text-sm uppercase italic leading-none">{currentEnemy.trainerName}</h4>
+            </div>
+          )}
+
           {/* HUD do Inimigo: Oculto durante a intro do treinador */}
           {!showTrainer && (
             <div className={`bg-white/95 backdrop-blur-sm px-3 py-2 rounded-xl shadow-lg border-l-4 border-slate-800 min-w-[140px] animate-fadeIn transition-opacity duration-300 ${currentEnemy.hp <= 0 ? 'opacity-0' : 'opacity-100'}`}>

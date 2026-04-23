@@ -144,6 +144,10 @@ body::after {
   from { transform: translateX(0);    opacity: 1; }
   to   { transform: translateX(60px); opacity: 0; }
 }
+@keyframes slideLeft {
+  from { transform: translateX(30px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
 
 @keyframes slideInUp {
   from { transform: translateY(100%); opacity: 0; }
@@ -160,6 +164,7 @@ body::after {
 .animate-slideInUp     { animation: slideInUp     0.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
 .animate-bounceIn      { animation: bounceIn      0.4s ease-out forwards; }
 .animate-floatUp       { animation: floatUp       1.2s ease-out forwards; }
+.animate-slideLeft     { animation: slideLeft     0.4s ease-out forwards; }
 .animate-spin-slow     { animation: spin          6s  linear    infinite; }
 
 .btn-poke { @apply bg-white border-b-4 border-slate-400 active:border-b-0 active:translate-y-1 transition-all rounded-lg shadow-md; }
