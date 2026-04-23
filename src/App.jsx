@@ -675,6 +675,8 @@ export default function App() {
 
     setGameState(prev => {
       const myPoke = prev.team[activeMemberIndex];
+      const updatedTeam = [...prev.team];
+      const updatedEnemy = { ...(prev.currentEnemy || {}) };
       if (!myPoke || myPoke.hp <= 0) {
         const nextAlive = prev.team.findIndex(p => p.hp > 0);
         if (nextAlive !== -1) {
