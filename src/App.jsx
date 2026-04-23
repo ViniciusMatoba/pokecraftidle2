@@ -178,6 +178,7 @@ export default function App() {
 
   const [gameState, setGameState] = useState(() => {
     const defaultState = {
+      version: 1.3,
       currency: 100,
       inventory: { 
         materials: { 
@@ -195,7 +196,8 @@ export default function App() {
       caughtData: {},
       speciesMastery: {},
       autoCapture: false,
-      settings: { battleSpeed: 1, displayMode: 'mobile' }
+      settings: { battleSpeed: 1, displayMode: 'mobile' },
+      autoConfig: { autoPokeball: true, autoPotion: false, autoPotionHpPct: 30, focusPokemonIndex: 0 }
     };
 
     try {
@@ -204,9 +206,10 @@ export default function App() {
         const parsed = JSON.parse(saved);
         if (parsed && parsed.gameState) {
           const loaded = parsed.gameState;
-          return {
-            ...defaultState,
-            ...loaded,
+          const merged = {
+            ...defaultState,           // novos campos com valores padrão
+            ...loaded,                  // progresso real do jogador
+            version: defaultState.version, // força versão atual
             team: loaded.team || defaultState.team,
             pc: loaded.pc || defaultState.pc,
             badges: loaded.badges || defaultState.badges,
@@ -220,8 +223,10 @@ export default function App() {
             stages: loaded.stages || defaultState.stages,
             caughtData: loaded.caughtData || defaultState.caughtData,
             speciesMastery: loaded.speciesMastery || defaultState.speciesMastery,
-            settings: loaded.settings || defaultState.settings,
+            settings: { ...defaultState.settings, ...(loaded.settings || {}) },
+            autoConfig: { ...defaultState.autoConfig, ...(loaded.autoConfig || {}) },
           };
+          return merged;
         }
       }
     } catch (e) {
@@ -692,6 +697,27 @@ export default function App() {
         return prev;
       }
 
+      // ─── AUTO-POÇÃO ────────────────────────────────────────────────
+      const autoConfig = prev.autoConfig || { autoPotion: false, autoPotionHpPct: 30, focusPokemonIndex: 0 };
+      if (autoConfig.autoPotion && (prev.inventory?.items?.potions || 0) > 0) {
+        const focusIdx = autoConfig.focusPokemonIndex ?? activeMemberIndex;
+        const focusPoke = prev.team[focusIdx];
+        if (focusPoke && focusPoke.hp > 0) {
+          const hpPct = (focusPoke.hp / focusPoke.maxHp) * 100;
+          if (hpPct <= autoConfig.autoPotionHpPct) {
+            const healed = Math.min(focusPoke.maxHp, focusPoke.hp + 20);
+            const newTeam = [...prev.team];
+            newTeam[focusIdx] = { ...focusPoke, hp: healed };
+            addLog(`💊 Auto-Poção usada em ${focusPoke.name}! (${focusPoke.hp}→${healed} HP)`, 'system');
+            return {
+              ...prev,
+              team: newTeam,
+              inventory: { ...prev.inventory, items: { ...prev.inventory.items, potions: prev.inventory.items.potions - 1 } }
+            };
+          }
+        }
+      }
+
       // Turno do Jogador
       const moves = myPoke.moves || [];
       const move = moves.length > 0 ? moves[moveIndex % moves.length] : { name: 'Investida', power: 40, type: 'Normal' };
@@ -748,34 +774,35 @@ export default function App() {
         
         if (enemyMove) {
           if (enemyMove.category === 'Status' || enemyMove.power === 0) {
-             // Buff Inimigo Genérico
-             const targetType = enemyMove.target === 'user' ? 'enemy' : 'player'; // Inverte pro ponto de vista do inimigo
              const changes = enemyMove.statChanges || [];
              
              if (changes.length > 0) {
                changes.forEach(c => {
                  const stat = c.stat;
                  const change = c.change;
-                 if (targetType === 'player' || enemyMove.target === 'enemy') {
-                    const current = updatedTeam[activeMemberIndex].stages?.[stat] || 0;
-                    updatedTeam[activeMemberIndex].stages = { ...updatedTeam[activeMemberIndex].stages, [stat]: Math.max(-6, current + change) };
-                    addLog(`⚠️ ${updatedEnemy.name} usou ${enemyMove.name}!`, 'enemy');
-                 } else {
+                 // change > 0 = buff no próprio inimigo; change < 0 = debuff no jogador
+                 if (change > 0) {
+                    // Inimigo se bufa
                     const current = updatedEnemy.stages?.[stat] || 0;
                     updatedEnemy.stages = { ...updatedEnemy.stages, [stat]: Math.min(6, current + change) };
-                    addLog(`⚠️ ${updatedEnemy.name} usou ${enemyMove.name}!`, 'enemy');
+                    addLog(`⚠️ ${updatedEnemy.name} usou ${enemyMove.name}! ${stat.toUpperCase()} subiu!`, 'enemy');
+                 } else {
+                    // Inimigo debuffa o jogador
+                    const current = updatedTeam[activeMemberIndex].stages?.[stat] || 0;
+                    updatedTeam[activeMemberIndex].stages = { ...updatedTeam[activeMemberIndex].stages, [stat]: Math.max(-6, current + change) };
+                    addLog(`⚠️ ${updatedEnemy.name} usou ${enemyMove.name}! ${stat.toUpperCase()} de ${updatedTeam[activeMemberIndex].name} caiu!`, 'enemy');
                  }
                });
              } else {
-               // Fallback
-               if (enemyMove.name === 'Chicote de Cauda' || enemyMove.name === 'Rosnado' || enemyMove.name === 'Encarar') {
-                  const myStages = updatedTeam[activeMemberIndex].stages || { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 };
-                  const statToLower = (enemyMove.name === 'Rosnado') ? 'attack' : 'defense';
-                  updatedTeam[activeMemberIndex].stages = { 
-                    ...myStages, 
-                    [statToLower]: Math.max(-6, (myStages[statToLower] || 0) - 1) 
-                  };
-                  addLog(`⚠️ ${updatedEnemy.name} usou ${enemyMove.name}!`, 'enemy');
+               // Fallback por nome
+               if (enemyMove.name === 'Chicote de Cauda' || enemyMove.name === 'Encarar') {
+                  const myStages = updatedTeam[activeMemberIndex].stages || {};
+                  updatedTeam[activeMemberIndex].stages = { ...myStages, defense: Math.max(-6, (myStages.defense || 0) - 1) };
+                  addLog(`⚠️ ${updatedEnemy.name} usou ${enemyMove.name}! Defesa de ${updatedTeam[activeMemberIndex].name} caiu!`, 'enemy');
+               } else if (enemyMove.name === 'Rosnado') {
+                  const myStages = updatedTeam[activeMemberIndex].stages || {};
+                  updatedTeam[activeMemberIndex].stages = { ...myStages, attack: Math.max(-6, (myStages.attack || 0) - 1) };
+                  addLog(`⚠️ ${updatedEnemy.name} usou ${enemyMove.name}! Ataque de ${updatedTeam[activeMemberIndex].name} caiu!`, 'enemy');
                }
              }
           } else {
@@ -1321,44 +1348,62 @@ export default function App() {
         ];
         
         const isLastStep = introStep === dialogues.length - 1;
+        const labBg = fixPath('/battle_bg_lab_1776866008842.png');
 
         return (
-          <div className="h-full flex flex-col items-center justify-center bg-slate-100 p-4 md:p-6 text-center animate-fadeIn relative overflow-hidden">
-            <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="h-48 md:h-72 mb-4 md:mb-8 drop-shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-float relative z-10" alt="Oak" />
-            
-            <div className="bg-white p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] shadow-2xl border-b-[8px] md:border-b-[12px] border-slate-800 max-w-xl w-full relative z-10">
-               <div className="min-h-[80px] md:min-h-[100px] flex items-center justify-center">
-                 <p className="text-lg md:text-2xl font-black text-slate-800 italic leading-tight uppercase tracking-tighter">
-                   "{dialogues[introStep]}"
-                 </p>
-               </div>
+          <div className="h-full flex flex-col items-center justify-end p-4 text-center animate-fadeIn relative overflow-hidden"
+            style={{ backgroundImage: `url(${labBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+          >
+            {/* overlay */}
+            <div className="absolute inset-0 bg-black/30" />
 
-               {isLastStep && (
-                 <div className="mt-6 md:mt-8 animate-bounceIn">
-                   <input 
-                     type="text" 
-                     placeholder="SEU NOME..." 
-                     value={gameState.trainer?.name || ''} 
-                     onChange={(e) => setGameState(prev => ({ ...prev, trainer: { ...prev.trainer, name: e.target.value.toUpperCase() } }))}
-                     className="w-full bg-slate-100 border-4 border-slate-200 p-4 md:p-5 rounded-2xl text-center font-black text-lg md:text-xl uppercase tracking-widest focus:border-pokeBlue outline-none transition-all"
-                     autoFocus
-                   />
-                 </div>
-               )}
+            {/* Professor */}
+            <div className="flex-1 flex items-center justify-center relative z-10">
+              <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png"
+                className="h-52 md:h-72 drop-shadow-[0_20px_50px_rgba(0,0,0,0.6)] animate-float"
+                alt="Oak" />
+            </div>
 
-               <button 
-                 onClick={() => {
-                   if (isLastStep) {
-                     if (!gameState.trainer?.name || gameState.trainer.name.length < 2) return alert("Diga-me seu nome!");
-                     setCurrentView('trainer_creation');
-                   } else {
-                     setIntroStep(s => s + 1);
-                   }
-                 }}
-                 className="w-full mt-6 md:mt-8 bg-slate-800 text-white py-4 md:py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg active:scale-95 text-sm md:text-base"
-               >
-                 {isLastStep ? 'Tudo Pronto!' : 'Próximo'}
-               </button>
+            {/* Diálogo box — estilo Game Boy */}
+            <div className="relative z-10 w-full max-w-xl mb-4">
+              <div className="bg-white/95 backdrop-blur-sm p-5 md:p-8 rounded-[2rem] shadow-2xl border-b-[8px] border-slate-800">
+                <div className="flex items-center gap-2 mb-3">
+                  <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-8 h-8 rounded-full object-contain bg-slate-100 p-0.5" alt="" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Prof. Carvalho</span>
+                </div>
+                <div className="min-h-[60px] md:min-h-[80px] flex items-center">
+                  <p className="text-base md:text-xl font-black text-slate-800 italic leading-tight uppercase tracking-tight">
+                    "{dialogues[introStep]}"
+                  </p>
+                </div>
+
+                {isLastStep && (
+                  <div className="mt-5 animate-bounceIn">
+                    <input 
+                      type="text" 
+                      placeholder="SEU NOME..." 
+                      value={gameState.trainer?.name || ''} 
+                      onChange={(e) => setGameState(prev => ({ ...prev, trainer: { ...prev.trainer, name: e.target.value.toUpperCase() } }))}
+                      className="w-full bg-slate-100 border-4 border-slate-200 p-4 rounded-2xl text-center font-black text-lg uppercase tracking-widest focus:border-pokeBlue outline-none transition-all"
+                      autoFocus
+                    />
+                  </div>
+                )}
+
+                <button 
+                  onClick={() => {
+                    if (isLastStep) {
+                      if (!gameState.trainer?.name || gameState.trainer.name.length < 2) return alert("Diga-me seu nome!");
+                      setCurrentView('trainer_creation');
+                    } else {
+                      setIntroStep(s => s + 1);
+                    }
+                  }}
+                  className="w-full mt-5 bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg active:scale-95"
+                >
+                  {isLastStep ? 'Tudo Pronto!' : 'Próximo ▶'}
+                </button>
+              </div>
             </div>
           </div>
         );
@@ -1590,36 +1635,47 @@ export default function App() {
           </div>
         </div>
       );
-      case 'quest_oak_starters': return (
-        <div className="h-full flex flex-col items-center bg-slate-100 animate-fadeIn relative overflow-hidden">
-          <div className="flex-1 flex items-center justify-center relative z-10">
-            <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="h-64 drop-shadow-2xl animate-float" alt="Oak" />
-          </div>
-          <div className="w-full relative z-10 p-4">
-            <div className="bg-white p-6 rounded-[2rem] shadow-2xl border-b-[10px] border-slate-800 w-full">
-              <h3 className="text-lg font-black text-slate-800 italic uppercase mb-2 tracking-tighter">Prof. Carvalho:</h3>
-              <p className="text-sm font-bold text-slate-600 mb-3 italic">"Veja só! Azul me contou que capturou Pokémon incríveis nestas rotas!"</p>
-              <p className="text-sm font-black text-pokeBlue mb-4 uppercase tracking-tighter leading-tight">
-                "Parece que Bulbasaur, Charmander e outros iniciais estão aparecendo raramente por aqui. Fique atento!"
-              </p>
-              <div className="bg-pokeGold/10 p-4 rounded-2xl border-2 border-pokeGold/20 mb-4">
-                 <p className="text-[10px] font-black text-pokeGold uppercase tracking-widest">Desbloqueio Especial:</p>
-                 <p className="text-xs font-bold text-slate-800 uppercase mt-1 italic">Iniciais Raríssimos agora aparecem nas Rotas 1, 22 e Floresta!</p>
+      case 'quest_oak_starters': {
+        const labBg = fixPath('/battle_bg_lab_1776866008842.png');
+        return (
+          <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden"
+            style={{ backgroundImage: `url(${labBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+          >
+            <div className="absolute inset-0 bg-black/35" />
+            <div className="flex-1 flex items-center justify-center relative z-10">
+              <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png"
+                className="h-64 drop-shadow-[0_20px_60px_rgba(0,0,0,0.8)] animate-float"
+                alt="Oak" />
+            </div>
+            <div className="w-full relative z-10 p-4">
+              <div className="bg-white/95 backdrop-blur-sm p-6 rounded-[2rem] shadow-2xl border-b-[10px] border-slate-800 w-full">
+                <div className="flex items-center gap-2 mb-3">
+                  <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-8 h-8 rounded-full object-contain bg-slate-100 p-0.5" alt="" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Prof. Carvalho</span>
+                </div>
+                <p className="text-sm font-bold text-slate-600 mb-2 italic">"Veja só! Azul me contou que capturou Pokémon incríveis nestas rotas!"</p>
+                <p className="text-sm font-black text-pokeBlue mb-4 uppercase tracking-tighter leading-tight">
+                  "Parece que Bulbasaur, Charmander e outros iniciais estão aparecendo raramente por aqui. Fique atento!"
+                </p>
+                <div className="bg-amber-50 p-4 rounded-2xl border-2 border-amber-200 mb-4">
+                   <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Desbloqueio Especial ★</p>
+                   <p className="text-xs font-bold text-slate-800 uppercase mt-1 italic">Iniciais Raríssimos agora aparecem nas Rotas 1, 22 e Floresta!</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setGameState(prev => ({
+                      ...prev,
+                      worldFlags: [...(prev.worldFlags || []), "starters_unlocked"]
+                    }));
+                    handleGoToCity();
+                  }}
+                  className="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg"
+                >Vou Procurá-los!</button>
               </div>
-              <button
-                onClick={() => {
-                  setGameState(prev => ({ 
-                    ...prev, 
-                    worldFlags: [...(prev.worldFlags || []), "starters_unlocked"] 
-                  })); 
-                  handleGoToCity();
-                }}
-                className="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg"
-              >Vou Procurá-los!</button>
             </div>
           </div>
-        </div>
-      );
+        );
+      }
       case 'navigation_hub': return (
         <div className="h-full flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-6 relative overflow-hidden">
            <div className="absolute top-0 left-0 w-full h-1 bg-pokeBlue"></div>
