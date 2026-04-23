@@ -404,6 +404,25 @@ export default function App() {
       }, { merge: true }).catch(e => console.error("Cloud Save Fail:", e));
     }
   }, [gameState]);
+  
+  const triggerSave = useCallback(async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("⚠️ Você precisa estar logado para salvar na nuvem!");
+      return;
+    }
+    try {
+      lastSyncRef.current = Date.now();
+      await setDoc(doc(db, "saves", user.uid), { 
+        gameState, 
+        updatedAt: serverTimestamp() 
+      }, { merge: true });
+      alert("✅ Jogo salvo na nuvem com sucesso!");
+    } catch (e) {
+      console.error("Manual Save Fail:", e);
+      alert("❌ Erro ao salvar: " + e.message);
+    }
+  }, [gameState]);
 
   // ─── FÓRMULA DE DANO (inspirada na Gen 1) ───────────────────────────────────
   const calcDamage = useCallback((attacker, move, defender) => {
@@ -1929,6 +1948,7 @@ export default function App() {
           setCurrentView={setCurrentView} 
           setGameState={setGameState}
           user={user}
+          onSave={triggerSave}
         />
       );
 

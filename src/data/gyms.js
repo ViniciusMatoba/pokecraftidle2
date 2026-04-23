@@ -63,7 +63,7 @@ export const GYMS = [
     name: 'Lt. Surge',
     city: 'Cidade Celadon',
     type: 'Electric',
-    sprite: '/trainer_surge_premium.png',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/ltsurge.png',
     typeIcon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/electric.svg',
     unlockAfterBadges: 2,
     reward: 2500,
