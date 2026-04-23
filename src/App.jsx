@@ -90,8 +90,8 @@ const trainerAvatars = [
 
 
 
-export const APP_VERSION = '1.6.7';
-export const APP_VERSION_DATE = '2026-04-23 12:20';
+export const APP_VERSION = '1.6.8';
+export const APP_VERSION_DATE = '2026-04-23 12:25';
 
 // Estado padrão do jogo para novos jogadores e migrações
 const DEFAULT_GAME_STATE = {
