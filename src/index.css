@@ -57,6 +57,18 @@ body::after {
   box-shadow: none;
 }
 
+.app-shell.pc-mode {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.app-shell.pc-mode::before {
+  display: none !important;
+}
+
 @media (min-width: 768px) {
   .app-shell {
     width: 430px;

@@ -16,6 +16,7 @@ import BattleScreen from './components/BattleScreen';
 import CityScreen from './components/CityScreen';
 import CraftingStation from './components/CraftingStation';
 import EvolutionScreen from './components/EvolutionScreen';
+import PokedexScreen from './components/PokedexScreen';
 import { MoveCategoryIcon, StatusBadges, QuickInventory, TrainerCard } from './components/CommonUI';
 import { auth, db } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -180,7 +181,8 @@ export default function App() {
       trainer: null, worldFlags: [],
       caughtData: {},
       speciesMastery: {},
-      autoCapture: false
+      autoCapture: false,
+      settings: { battleSpeed: 1, displayMode: 'mobile' }
     };
 
     try {
@@ -205,6 +207,7 @@ export default function App() {
             stages: loaded.stages || defaultState.stages,
             caughtData: loaded.caughtData || defaultState.caughtData,
             speciesMastery: loaded.speciesMastery || defaultState.speciesMastery,
+            settings: loaded.settings || defaultState.settings,
           };
         }
       }
@@ -645,10 +648,11 @@ export default function App() {
 
   // ─── TICK DE BATALHA ─────────────────────────────────────────────────────────
   const handleBattleTick = useCallback(() => {
-    if (!currentEnemy || currentViewRef.current !== 'battles' || currentEnemy.hp <= 0) return 1200;
-    if (currentEnemy.isTrainer && currentEnemy.trainerSpawnTime && Date.now() - currentEnemy.trainerSpawnTime < 2400) return 500;
+    const speedMultiplier = [1, 0.6, 0.3][(gameState.settings?.battleSpeed || 1) - 1] || 1;
+    if (!currentEnemy || currentViewRef.current !== 'battles' || currentEnemy.hp <= 0) return 1200 * speedMultiplier;
+    if (currentEnemy.isTrainer && currentEnemy.trainerSpawnTime && Date.now() - currentEnemy.trainerSpawnTime < 2400) return 500 * speedMultiplier;
 
-    let nextDelay = 1200;
+    let nextDelay = Math.floor(1200 * speedMultiplier);
 
     setGameState(prev => {
       const myPoke = prev.team[activeMemberIndex];
@@ -1813,6 +1817,13 @@ export default function App() {
            </div>
         </div>
       );
+      case 'pokedex': return (
+        <PokedexScreen 
+          POKEDEX={POKEDEX} 
+          caughtData={gameState.caughtData} 
+          onBack={() => setCurrentView('menu')} 
+        />
+      );
       case 'heal_after_defeat': return (
         <div className="h-full flex flex-col items-center justify-center bg-slate-100 p-6 text-center animate-fadeIn relative overflow-hidden">
           <div className="absolute inset-0 z-0">
@@ -1847,7 +1858,7 @@ export default function App() {
   };
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${gameState.settings?.displayMode === 'pc' ? 'pc-mode' : ''}`}>
       {(!loading && user) ? (
         <>
           <header className="bg-pokeRed p-3 text-white flex justify-between items-center shadow-md border-b-2 border-red-700 flex-shrink-0 relative z-50">
