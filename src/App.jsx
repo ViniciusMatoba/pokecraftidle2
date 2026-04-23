@@ -28,6 +28,7 @@ import {
   NATURE_LIST, NATURES, TYPE_COLORS, trainerAvatars 
 } from './data/constants';
 import { getMasteryPath, getEffectiveStat } from './utils/gameHelpers';
+import { getTypeEffectiveness } from './data/typeChart';
 
 const fixPath = (path) => {
   if (typeof path !== 'string') return path;
@@ -138,6 +139,15 @@ export default function App() {
 
   const [sessionStats, setSessionStats] = useState(null);
   const sessionRef = useRef({ kills: 0, coins: 0, trainers: 0, shinyKills: 0, drops: {}, captures: [] });
+
+  // Auto-dismiss de notificação de maestria
+  useEffect(() => {
+    if (masteryNotification) {
+      const timer = setTimeout(() => setMasteryNotification(null), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [masteryNotification]);
+
   const isProcessingVictory = useRef(false);
   const isProcessingTurn = useRef(false);
   const currentViewRef = useRef('landing');
@@ -417,7 +427,9 @@ export default function App() {
     const def = defBase * defMult;
 
     const stab = move.type === attacker.type ? 1.5 : 1.0;
-    const base = ((((2 * level) / 5 + 2) * power * (atk / def)) / 50 + 2) * stab;
+    const effectiveness = getTypeEffectiveness(move.type, defender.type);
+    
+    const base = ((((2 * level) / 5 + 2) * power * (atk / def)) / 50 + 2) * stab * effectiveness;
     const roll = 0.85 + Math.random() * 0.15; // Roll mais justo (85-100%)
     return Math.max(1, Math.floor(base * roll));
   }, []);
@@ -911,11 +923,17 @@ export default function App() {
 
   const startKeyBattle = useCallback((battleData) => {
     const bossPoke = battleData.team[0];
-    const maxHp = (bossPoke.maxHp || 50) * 1.5;
+    const maxHp = Math.floor((bossPoke.maxHp || 50) * 2.2); // Aumentado de 1.5x para 2.2x
+    const statBuff = 1.15; // +15% em todos os status
     
     setCurrentEnemy({
       ...bossPoke,
       hp: maxHp, maxHp,
+      attack: Math.floor((bossPoke.attack || 10) * statBuff),
+      defense: Math.floor((bossPoke.defense || 10) * statBuff),
+      spAtk: Math.floor((bossPoke.spAtk || 10) * statBuff),
+      spDef: Math.floor((bossPoke.spDef || 10) * statBuff),
+      speed: Math.floor((bossPoke.speed || 10) * statBuff),
       isShiny: false, status: [],
       stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
       isTrainer: true,
@@ -940,8 +958,8 @@ export default function App() {
     const base = POKEDEX[leaderPoke.id];
     if (!base) return;
     const lvl = leaderPoke.level || 20;
-    const maxHp = Math.floor((base.maxHp || base.hp || 50) * 2.5 * (lvl / 20));
-    const statScale = lvl / 10;
+    const maxHp = Math.floor((base.maxHp || base.hp || 50) * 3.5 * (lvl / 20)); // Aumentado de 2.5x para 3.5x
+    const statScale = (lvl / 10) * 1.25; // Aumentado de 1.0x para 1.25x
 
     // Golpes baseados no learnset do Pokémon até o nível do líder
     const learnset = base.learnset || [];

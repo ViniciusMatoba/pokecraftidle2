@@ -109,12 +109,13 @@ export const ROUTES = {
     unlockLevel: 5, requirements: ['has_starter', 'rival_1_defeated'],
     biome: 'forest',
     enemies: pk([10, 13, 25, 11, 14], 6),
-    trainerChance: 0.12,
+    trainerChance: 0.15,
     trainers: [
       { name: 'Bug Catcher Rick',    sprite: S.bugcatcher, team: pk([10, 13], 6),      reward: 90  },
       { name: 'Bug Catcher Doug',    sprite: S.bugcatcher, team: pk([13, 10, 10], 5),  reward: 75  },
       { name: 'Bug Catcher Anthony', sprite: S.bugcatcher, team: pk([11, 14], 7),      reward: 100 },
-      { name: 'Lass Crissy',         sprite: S.lass,       team: pk([25], 7),          reward: 140 },
+      { name: 'Bug Catcher Sammy',   sprite: S.bugcatcher, team: pk([10, 11, 14], 8),  reward: 120 },
+      { name: 'Bug Catcher Charlie', sprite: S.bugcatcher, team: pk([13, 14, 14], 7),  reward: 110 },
     ],
     keyBattles: [
       { id: 'forest_rocket_boss', name: 'Grunt Rocket — Saida da Floresta', type: 'rocket', sprite: S.rocket,

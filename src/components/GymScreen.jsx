@@ -137,8 +137,11 @@ const GymScreen = ({ gameState, onChallengeGym, onClose }) => {
   // Badgeds ganhos por ID
   const hasBadge = (badgeId) => badges.includes(badgeId);
 
-  // Desbloqueio sequencial: gym N requer N-1 badges
-  const gymLocked = (gym) => badgeCount < gym.unlockAfterBadges;
+  // Desbloqueio sequencial: gym N requer N-1 badges + Trava da Floresta para o Brock
+  const gymLocked = (gym) => {
+    if (gym.id === 'brock' && !worldFlags.includes('viridian_forest_cleared')) return true;
+    return badgeCount < gym.unlockAfterBadges;
+  };
 
   // Liga: requer 8 badges
   const leagueLocked = badgeCount < 8;
