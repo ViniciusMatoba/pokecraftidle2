@@ -7,29 +7,43 @@ export const MoveCategoryIcon = ({ category }) => {
 };
 
 export const StatusBadges = ({ status = [], stages = {} }) => {
-  const safeStatus = status || [];
+  const safeStatus = Array.isArray(status) ? status : [];
   const safeStages = stages || {};
-  const grouped = safeStatus.reduce((acc, s) => {
-    acc[s.label] = { count: (acc[s.label]?.count || 0) + 1, color: s.color };
-    return acc;
-  }, {});
+
+  const statusConfig = {
+    burn:     { label: 'BRN', color: 'bg-red-500',    icon: '🔥' },
+    poison:   { label: 'PSN', color: 'bg-purple-600', icon: '☠️' },
+    sleep:    { label: 'SLP', color: 'bg-slate-500',  icon: '💤' },
+    paralyze: { label: 'PAR', color: 'bg-yellow-500', icon: '⚡' },
+    confuse:  { label: 'CONF', color: 'bg-pink-500',   icon: '💫' },
+    freeze:   { label: 'FRZ', color: 'bg-cyan-500',   icon: '❄️' },
+  };
+
   const stageLabels = { attack: 'ATK', defense: 'DEF', spAtk: 'SATK', spDef: 'SDEF', speed: 'SPD' };
 
   return (
     <div className="flex flex-wrap gap-1 mt-1 justify-start items-center">
-      {Object.entries(grouped).map(([label, data], i) => (
-        <span key={i} className={`${data.color} text-white text-[7px] font-black px-1.5 py-0.5 rounded-md shadow-sm animate-bounce flex items-center gap-0.5 border border-white/20`}>
-          {data.count > 1 && <span className="opacity-70">{data.count}x</span>}
-          {label.toUpperCase()}
-        </span>
-      ))}
+      {/* Condições de Status */}
+      {safeStatus.map((s, i) => {
+        const config = statusConfig[s] || { label: s.toUpperCase(), color: 'bg-slate-400', icon: '❓' };
+        return (
+          <span key={`status-${i}`} 
+            className={`${config.color} text-white text-[7px] font-black px-1.5 py-0.5 rounded shadow-sm animate-pulse flex items-center gap-0.5 border border-white/20`}
+          >
+            <span>{config.icon}</span>
+            {config.label}
+          </span>
+        );
+      })}
+
+      {/* Buffs/Debuffs (Stages) */}
       {Object.entries(safeStages).map(([stat, val]) => {
         if (val === 0 || val === undefined) return null;
         const isPos = val > 0;
         const absVal = Math.abs(val);
-        const bgColor = isPos ? (absVal >= 3 ? 'bg-blue-600' : 'bg-blue-500') : 'bg-slate-500';
+        const bgColor = isPos ? (absVal >= 3 ? 'bg-blue-600' : 'bg-blue-500') : 'bg-orange-600';
         return (
-          <span key={stat} className={`${bgColor} text-white text-[7px] font-black px-1.5 py-0.5 rounded-md shadow-sm flex items-center gap-0.5 border border-white/10 ${isPos ? 'animate-pulse' : ''}`}>
+          <span key={`stage-${stat}`} className={`${bgColor} text-white text-[7px] font-black px-1.5 py-0.5 rounded shadow-sm flex items-center gap-0.5 border border-white/10 ${isPos ? 'animate-pulse' : ''}`}>
             <span className="opacity-70">{stageLabels[stat] || stat.toUpperCase()}</span>
             <span className="font-bold">{isPos ? '+' : ''}{val}</span>
           </span>
