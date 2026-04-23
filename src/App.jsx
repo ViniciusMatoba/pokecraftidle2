@@ -90,8 +90,32 @@ const trainerAvatars = [
 
 
 
-export const APP_VERSION = '1.6';
-export const APP_VERSION_DATE = '2026-04-23 11:50';
+export const APP_VERSION = '1.6.3';
+export const APP_VERSION_DATE = '2026-04-23 11:55';
+
+// Estado padrão do jogo para novos jogadores e migrações
+const DEFAULT_GAME_STATE = {
+  version: 1.6,
+  currency: 100,
+  inventory: { 
+    materials: { 
+      normal_essence: 0, fire_essence: 0, water_essence: 0, grass_essence: 0, 
+      electric_essence: 0, ice_essence: 0, fighting_essence: 0, poison_essence: 0, 
+      ground_essence: 0, flying_essence: 0, psychic_essence: 0, bug_essence: 0, 
+      rock_essence: 0, ghost_essence: 0, dragon_essence: 0, steel_essence: 0, 
+      fairy_essence: 0, dark_essence: 0, mystic_dust: 0, iron_ore: 0 
+    },
+    items: { pokeballs: 5, potions: 0, charcoal: 0 }
+  },
+  team: [], pc: [], badges: [], stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
+  currentRoute: 'pallet_town',
+  trainer: null, worldFlags: [],
+  caughtData: {},
+  speciesMastery: {},
+  autoCapture: false,
+  settings: { battleSpeed: 1, displayMode: 'mobile', levelCap: true },
+  autoConfig: { autoPokeball: true, autoPotion: false, autoPotionHpPct: 30, focusPokemonIndex: 0 }
+};
 
 // Mapeamento de Level Cap por quantidade de insígnias
 const GYM_LEVEL_CAPS = {
@@ -132,12 +156,12 @@ export default function App() {
         if (savedData) {
           // Migração de dados para evitar crashes com saves antigos
           const migratedData = {
-            ...defaultState,
+            ...DEFAULT_GAME_STATE,
             ...savedData,
             inventory: {
-              ...defaultState.inventory,
+              ...DEFAULT_GAME_STATE.inventory,
               ...(savedData.inventory || {}),
-              materials: { ...defaultState.inventory.materials, ...(savedData.inventory?.materials || {}) }
+              materials: { ...DEFAULT_GAME_STATE.inventory.materials, ...(savedData.inventory?.materials || {}) }
             },
             worldFlags: savedData.worldFlags || [],
             badges: savedData.badges || [],
@@ -146,11 +170,11 @@ export default function App() {
           };
           setGameState(migratedData);
         } else {
-          setGameState(defaultState);
+          setGameState(DEFAULT_GAME_STATE);
         }
       } else {
         setUser(null);
-        setGameState(defaultState);
+        setGameState(DEFAULT_GAME_STATE);
       }
       setLoading(false);
     });
@@ -213,29 +237,6 @@ export default function App() {
 
 
   const [gameState, setGameState] = useState(() => {
-    const defaultState = {
-      version: 1.3,
-      currency: 100,
-      inventory: { 
-        materials: { 
-          normal_essence: 0, fire_essence: 0, water_essence: 0, grass_essence: 0, 
-          electric_essence: 0, ice_essence: 0, fighting_essence: 0, poison_essence: 0, 
-          ground_essence: 0, flying_essence: 0, psychic_essence: 0, bug_essence: 0, 
-          rock_essence: 0, ghost_essence: 0, dragon_essence: 0, steel_essence: 0, 
-          fairy_essence: 0, dark_essence: 0, mystic_dust: 0, iron_ore: 0 
-        },
-        items: { pokeballs: 5, potions: 0, charcoal: 0 }
-      },
-      team: [], pc: [], badges: [], stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
-      currentRoute: 'pallet_town',
-      trainer: null, worldFlags: [],
-      caughtData: {},
-      speciesMastery: {},
-      autoCapture: false,
-      settings: { battleSpeed: 1, displayMode: 'mobile', levelCap: true },
-      autoConfig: { autoPokeball: true, autoPotion: false, autoPotionHpPct: 30, focusPokemonIndex: 0 }
-    };
-
     try {
       const saved = localStorage.getItem('poke_idle_save');
       if (saved) {
@@ -243,24 +244,24 @@ export default function App() {
         if (parsed && parsed.gameState) {
           const loaded = parsed.gameState;
           const merged = {
-            ...defaultState,           // novos campos com valores padrão
+            ...DEFAULT_GAME_STATE,           // novos campos com valores padrão
             ...loaded,                  // progresso real do jogador
-            version: defaultState.version, // força versão atual
-            team: loaded.team || defaultState.team,
-            pc: loaded.pc || defaultState.pc,
-            badges: loaded.badges || defaultState.badges,
-            worldFlags: loaded.worldFlags || defaultState.worldFlags,
+            version: DEFAULT_GAME_STATE.version, // força versão atual
+            team: loaded.team || DEFAULT_GAME_STATE.team,
+            pc: loaded.pc || DEFAULT_GAME_STATE.pc,
+            badges: loaded.badges || DEFAULT_GAME_STATE.badges,
+            worldFlags: loaded.worldFlags || DEFAULT_GAME_STATE.worldFlags,
             inventory: {
-                ...defaultState.inventory,
+                ...DEFAULT_GAME_STATE.inventory,
                 ...(loaded.inventory || {}),
-                materials: { ...defaultState.inventory.materials, ...(loaded.inventory?.materials || {}) },
-                items: { ...defaultState.inventory.items, ...(loaded.inventory?.items || {}) }
+                materials: { ...DEFAULT_GAME_STATE.inventory.materials, ...(loaded.inventory?.materials || {}) },
+                items: { ...DEFAULT_GAME_STATE.inventory.items, ...(loaded.inventory?.items || {}) }
             },
-            stages: loaded.stages || defaultState.stages,
-            caughtData: loaded.caughtData || defaultState.caughtData,
-            speciesMastery: loaded.speciesMastery || defaultState.speciesMastery,
-            settings: { ...defaultState.settings, ...(loaded.settings || {}) },
-            autoConfig: { ...defaultState.autoConfig, ...(loaded.autoConfig || {}) },
+            stages: loaded.stages || DEFAULT_GAME_STATE.stages,
+            caughtData: loaded.caughtData || DEFAULT_GAME_STATE.caughtData,
+            speciesMastery: loaded.speciesMastery || DEFAULT_GAME_STATE.speciesMastery,
+            settings: { ...DEFAULT_GAME_STATE.settings, ...(loaded.settings || {}) },
+            autoConfig: { ...DEFAULT_GAME_STATE.autoConfig, ...(loaded.autoConfig || {}) },
           };
           return merged;
         }
@@ -268,7 +269,7 @@ export default function App() {
     } catch (e) {
       console.error('Error parsing save', e);
     }
-    return defaultState;
+    return DEFAULT_GAME_STATE;
   });
 
   const processedRoutes = useMemo(() => {
