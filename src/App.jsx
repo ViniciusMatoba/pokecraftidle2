@@ -90,8 +90,8 @@ const trainerAvatars = [
 
 
 
-export const APP_VERSION = '1.4';
-export const APP_VERSION_DATE = '2026-04-23';
+export const APP_VERSION = '1.5';
+export const APP_VERSION_DATE = '2026-04-23 11:30';
 
 export default function App() {
   const [user, setUser] = useState(null);

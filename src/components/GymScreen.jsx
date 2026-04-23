@@ -76,31 +76,53 @@ const GymCard = ({ gym, earned, locked, onChallenge }) => {
 
 const EliteCard = ({ member, index, earned, locked, onChallenge }) => {
   const col = TYPE_COLOR_HEX[member.type] || '#333';
-  return (
-    <div className={`relative rounded-[1.5rem] overflow-hidden shadow-lg transition-all ${locked ? 'opacity-50' : 'hover:scale-[1.01]'}`}
-      style={{ background: `linear-gradient(135deg, ${col} 0%, ${col}88 60%, #0a0a1a 100%)` }}>
-      <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '14px 14px' }} />
+  const c2 = col + 'bb';
 
-      <div className="flex items-center gap-3 p-3 relative z-10">
-        <div className="relative flex-shrink-0">
-          <img src={member.sprite} alt={member.name} className="w-16 h-16 object-contain drop-shadow-xl" />
-          {locked && <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center text-xl">🔒</div>}
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-1.5 mb-0.5">
-            {member.typeIcon && <img src={member.typeIcon} className="w-4 h-4 invert" alt="" onError={e => e.target.style.display='none'} />}
-            <span className="text-white/60 text-[8px] font-black uppercase tracking-widest">{member.type}</span>
-          </div>
-          <p className="text-white font-black text-sm uppercase italic leading-none">{member.title}</p>
-          <p className="text-white/60 text-[8px] font-bold italic mt-0.5 line-clamp-1">{member.quote}</p>
+  return (
+    <div
+      className={`relative rounded-[1.5rem] overflow-hidden shadow-xl transition-all ${locked ? 'opacity-50' : 'hover:scale-[1.01] active:scale-[0.99] cursor-pointer'}`}
+      style={{ background: `linear-gradient(160deg, ${col} 0%, ${c2} 50%, #0d0d1a 100%)` }}
+    >
+      {/* Dots pattern */}
+      <div className="absolute inset-0 pointer-events-none"
+        style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.14) 1px, transparent 1px)', backgroundSize: '18px 18px' }} />
+
+      {/* Topo: Nome + Status */}
+      <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5">
+        <span className="bg-black/40 text-white text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest backdrop-blur-sm">Elite 4 #{index + 1}</span>
+        {locked && <span className="bg-black/50 text-white/70 text-[9px] font-black px-2 py-0.5 rounded-full backdrop-blur-sm">🔒</span>}
+        {earned && <span className="bg-yellow-400 text-yellow-900 text-[9px] font-black px-2 py-0.5 rounded-full">✅ VENCIDO</span>}
+      </div>
+
+      {/* Tipo */}
+      <div className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-black/30 px-2 py-0.5 rounded-full backdrop-blur-sm">
+        {member.typeIcon && <img src={member.typeIcon} className="w-3.5 h-3.5 invert" alt={member.type} onError={e => e.target.style.display='none'} />}
+        <span className="text-white text-[8px] font-black uppercase tracking-wide">{member.type}</span>
+      </div>
+
+      {/* Sprite do líder */}
+      <div className="flex justify-center pt-10 pb-2 relative z-10">
+        <img
+          src={member.sprite}
+          alt={member.name}
+          className="w-28 h-28 object-contain drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+          onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'; }}
+        />
+      </div>
+
+      {/* Footer */}
+      <div className="bg-black/30 backdrop-blur-sm px-4 py-3 flex items-center gap-3 relative z-10">
+        <div className="flex-1 min-w-0">
+          <p className="text-white font-black text-base uppercase italic leading-none drop-shadow truncate">{member.name}</p>
+          <p className="text-white/60 text-[8px] font-bold italic mt-1 line-clamp-1">"{member.quote}"</p>
         </div>
         <button
           disabled={locked || earned}
           onClick={() => !locked && !earned && onChallenge(member)}
-          className={`flex-shrink-0 px-3 py-2 rounded-xl font-black text-[9px] uppercase transition-all ${
-            earned ? 'bg-green-500/30 text-green-200' 
-            : locked ? 'bg-white/10 text-white/30'
-            : 'bg-white text-slate-800 hover:bg-yellow-300 active:scale-95'
+          className={`flex-shrink-0 px-4 py-2 rounded-xl font-black text-[10px] uppercase transition-all shadow-lg ${
+            earned ? 'bg-green-500/30 text-green-200 cursor-default'
+            : locked ? 'bg-white/10 text-white/30 cursor-not-allowed'
+            : 'bg-white text-slate-900 hover:bg-yellow-300 active:scale-95'
           }`}
         >
           {earned ? '✅' : locked ? '🔒' : '⚔️'}
