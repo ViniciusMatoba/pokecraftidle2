@@ -52,7 +52,8 @@ body::after {
   display: flex;
   flex-direction: column;
   background: #f8fafc;
-  overflow: hidden;
+  /* clip: mantém o visual mas não bloqueia position:sticky como overflow:hidden faz */
+  overflow: clip;
   width: 100vw;
   /* dvh respeita a barra de endereço do browser mobile */
   height: 100vh;
