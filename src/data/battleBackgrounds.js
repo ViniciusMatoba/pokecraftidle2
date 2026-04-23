@@ -7,7 +7,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── PALLET TOWN ──────────────────────────────────────────
   pallet_town: {
-    sky: 'linear-gradient(180deg, #87ceeb 0%, #b0e0ff 55%, #d4f0a0 55%, #7cb850 100%)',
+    sky: "url('/battle_bg_grass_1776863779024.png')",
     label: 'Cidade Pallet',
     ground: '#7cb850',
     groundAccent: '#5a9e3a',
@@ -17,7 +17,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── ROTA 1 ───────────────────────────────────────────────
   route_1: {
-    sky: 'linear-gradient(180deg, #74b8e8 0%, #a8d8f0 50%, #c8e88a 50%, #6ab040 100%)',
+    sky: "url('/battle_bg_grass_1776863779024.png')",
     label: 'Rota 1',
     ground: '#6ab040',
     groundAccent: '#52943a',
@@ -27,7 +27,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── VIRIDIAN CITY ────────────────────────────────────────
   viridian_city: {
-    sky: 'linear-gradient(180deg, #7ab5e0 0%, #a0cce0 50%, #bbd87e 50%, #82b844 100%)',
+    sky: "url('/battle_bg_grass_1776863779024.png')",
     label: 'Cidade Viridian',
     ground: '#82b844',
     groundAccent: '#6a9e36',
@@ -37,7 +37,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── ROTA 22 ──────────────────────────────────────────────
   route_22: {
-    sky: 'linear-gradient(180deg, #f4a460 0%, #e8916a 30%, #ffd700 60%, #8fbc8f 60%, #5a9e3a 100%)',
+    sky: "url('/battle_bg_grass_1776863779024.png')",
     label: 'Rota 22 — Pôr do Sol',
     ground: '#8fbc8f',
     groundAccent: '#5a9e3a',
@@ -47,7 +47,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── FLORESTA DE VIRIDIAN ────────────────────────────────
   viridian_forest: {
-    sky: 'linear-gradient(180deg, #2d5a27 0%, #3d7a32 30%, #4a9a3d 55%, #3a6e28 55%, #2a5020 100%)',
+    sky: "url('/battle_bg_forest_1776863795763.png')",
     label: 'Floresta de Viridian',
     ground: '#3a6e28',
     groundAccent: '#2a5020',
@@ -57,7 +57,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── PEWTER CITY ──────────────────────────────────────────
   pewter_city: {
-    sky: 'linear-gradient(180deg, #9ba4a8 0%, #b8c0c4 45%, #a89880 45%, #8a7860 100%)',
+    sky: "url('/battle_bg_gym_1776863824590.png')",
     label: 'Cidade Pewter',
     ground: '#a89880',
     groundAccent: '#8a7860',
@@ -67,7 +67,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── ROTA 3 ───────────────────────────────────────────────
   route_3: {
-    sky: 'linear-gradient(180deg, #87ceeb 0%, #a8d8ee 50%, #c0d880 50%, #8ab850 100%)',
+    sky: "url('/battle_bg_grass_1776863779024.png')",
     label: 'Rota 3',
     ground: '#c0d880',
     groundAccent: '#8ab850',
@@ -77,7 +77,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── MT. MOON ─────────────────────────────────────────────
   mt_moon: {
-    sky: 'linear-gradient(180deg, #1a1a2e 0%, #162040 40%, #2a2a4a 70%, #3a3050 70%, #252035 100%)',
+    sky: "url('/battle_bg_cave_1776863810604.png')",
     label: 'Mt. Moon',
     ground: '#3a3050',
     groundAccent: '#252035',
@@ -117,7 +117,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── S.S. ANNE ────────────────────────────────────────────
   ss_anne: {
-    sky: 'linear-gradient(180deg, #1a3a5c 0%, #1e4a70 40%, #2060a0 70%, #0a4878 70%, #053060 100%)',
+    sky: "url('/battle_bg_ship_1776863844924.png')",
     label: 'S.S. Anne',
     ground: '#0a4878',
     groundAccent: '#053060',
@@ -137,7 +137,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── ROTA 9/10 ─────────────────────────────────────────────
   route_9_10: {
-    sky: 'linear-gradient(180deg, #709880 0%, #90b898 40%, #a8c888 55%, #80a860 55%, #507840 100%)',
+    sky: "url('/battle_bg_grass_1776863779024.png')",
     label: 'Rota 9-10',
     ground: '#80a860',
     groundAccent: '#507840',
@@ -147,7 +147,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── ROCK TUNNEL ──────────────────────────────────────────
   rock_tunnel: {
-    sky: 'linear-gradient(180deg, #0d0d0d 0%, #1a1210 40%, #2a2018 60%, #1e1810 60%, #120e0a 100%)',
+    sky: "url('/battle_bg_cave_1776863810604.png')",
     label: 'Rock Tunnel — Escuridão',
     ground: '#1e1810',
     groundAccent: '#120e0a',
@@ -157,7 +157,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── TORRE POKÉMON ────────────────────────────────────────
   pokemon_tower: {
-    sky: 'linear-gradient(180deg, #1a0a2a 0%, #2a1040 40%, #3a1a50 65%, #200a38 65%, #10041e 100%)',
+    sky: "url('/battle_bg_cave_1776863810604.png')",
     label: 'Torre Pokémon',
     ground: '#200a38',
     groundAccent: '#10041e',
@@ -167,7 +167,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── ROTA 7/8 ─────────────────────────────────────────────
   route_7_8: {
-    sky: 'linear-gradient(180deg, #88b8e0 0%, #a8cce8 50%, #c8e890 50%, #88b850 100%)',
+    sky: "url('/battle_bg_grass_1776863779024.png')",
     label: 'Rota 7-8',
     ground: '#c8e890',
     groundAccent: '#88b850',
@@ -177,7 +177,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── QG DA EQUIPE ROCKET ──────────────────────────────────
   rocket_hideout: {
-    sky: 'linear-gradient(180deg, #1a1a1a 0%, #2a2020 35%, #3a2828 60%, #282020 60%, #181010 100%)',
+    sky: "url('/battle_bg_lab_1776866008842.png')",
     label: 'QG Rocket',
     ground: '#282020',
     groundAccent: '#181010',
@@ -187,7 +187,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── CELADON CITY ─────────────────────────────────────────
   celadon_city: {
-    sky: 'linear-gradient(180deg, #78b890 0%, #98c8a8 45%, #a8d890 45%, #68a860 100%)',
+    sky: "url('/battle_bg_grass_1776863779024.png')",
     label: 'Celadon — Jardins',
     ground: '#a8d890',
     groundAccent: '#68a860',
@@ -197,7 +197,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── ROTA 12-15 ────────────────────────────────────────────
   route_12_15: {
-    sky: 'linear-gradient(180deg, #5898c0 0%, #78b0d0 45%, #90d890 45%, #50a050 100%)',
+    sky: "url('/battle_bg_grass_1776863779024.png')",
     label: 'Rota Leste',
     ground: '#90d890',
     groundAccent: '#50a050',
@@ -207,7 +207,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── SAFARI ZONE ──────────────────────────────────────────
   safari_zone: {
-    sky: 'linear-gradient(180deg, #68b878 0%, #80d090 35%, #98e0a0 55%, #70b878 55%, #58a060 100%)',
+    sky: "url('/battle_bg_grass_1776863779024.png')",
     label: 'Zona Safari',
     ground: '#70b878',
     groundAccent: '#58a060',
@@ -217,7 +217,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── FUCHSIA CITY ─────────────────────────────────────────
   fuchsia_city: {
-    sky: 'linear-gradient(180deg, #c880c8 0%, #d8a0d0 40%, #e0c0e0 60%, #b870b0 60%, #903090 100%)',
+    sky: "url('/battle_bg_gym_1776863824590.png')",
     label: 'Fuchsia — Ginásio do Veneno',
     ground: '#b870b0',
     groundAccent: '#903090',
@@ -227,7 +227,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── SILPH CO. ─────────────────────────────────────────────
   silph_co: {
-    sky: 'linear-gradient(180deg, #1e2840 0%, #2a3a58 40%, #384878 65%, #243058 65%, #141e3a 100%)',
+    sky: "url('/battle_bg_lab_1776866008842.png')",
     label: 'Silph Co. — Arranha-Céu',
     ground: '#243058',
     groundAccent: '#141e3a',
@@ -237,7 +237,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── SAFFRON CITY ─────────────────────────────────────────
   saffron_city: {
-    sky: 'linear-gradient(180deg, #e040a0 0%, #f070b8 35%, #ffa0d0 60%, #d83090 60%, #a01870 100%)',
+    sky: "url('/battle_bg_gym_1776863824590.png')",
     label: 'Saffron — Arena Psíquica',
     ground: '#d83090',
     groundAccent: '#a01870',
@@ -247,7 +247,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── CYCLING ROAD (ROTA 16-18) ────────────────────────────
   route_16_18: {
-    sky: 'linear-gradient(180deg, #90c8e8 0%, #b0d8f0 45%, #d0e8a8 45%, #90c060 100%)',
+    sky: "url('/battle_bg_grass_1776863779024.png')",
     label: 'Cycling Road',
     ground: '#d0e8a8',
     groundAccent: '#90c060',
@@ -257,7 +257,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── MANSÃO POKÉMON ───────────────────────────────────────
   pokemon_mansion: {
-    sky: 'linear-gradient(180deg, #1a0808 0%, #2a1010 40%, #3a1818 65%, #281010 65%, #180808 100%)',
+    sky: "url('/battle_bg_lab_1776866008842.png')",
     label: 'Mansão Pokémon',
     ground: '#281010',
     groundAccent: '#180808',
@@ -267,7 +267,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── CINNABAR ISLAND ──────────────────────────────────────
   cinnabar_island: {
-    sky: 'linear-gradient(180deg, #c04000 0%, #e06820 35%, #ff9040 60%, #d06030 60%, #a04018 100%)',
+    sky: "url('/battle_bg_cave_1776863810604.png')",
     label: 'Ilha Cinnabar — Vulcão',
     ground: '#d06030',
     groundAccent: '#a04018',
@@ -277,7 +277,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── ROTA 23 (VICTORY ROAD EXTERIOR) ─────────────────────
   route_22_23: {
-    sky: 'linear-gradient(180deg, #6070a0 0%, #808ab8 40%, #9898c0 65%, #707098 65%, #505078 100%)',
+    sky: "url('/battle_bg_grass_1776863779024.png')",
     label: 'Rota 23 — Caminho da Vitória',
     ground: '#707098',
     groundAccent: '#505078',
@@ -287,7 +287,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── GINÁSIO DE VIRIDIAN ──────────────────────────────────
   viridian_gym: {
-    sky: 'linear-gradient(180deg, #3a2a1a 0%, #5a3a2a 40%, #7a4a30 65%, #4a3020 65%, #2a1a10 100%)',
+    sky: "url('/battle_bg_gym_1776863824590.png')",
     label: 'Ginásio de Viridian — Terra',
     ground: '#4a3020',
     groundAccent: '#2a1a10',
@@ -297,7 +297,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── VICTORY ROAD ─────────────────────────────────────────
   victory_road: {
-    sky: 'linear-gradient(180deg, #0a0a18 0%, #101828 35%, #181f38 60%, #0c1220 60%, #06080e 100%)',
+    sky: "url('/battle_bg_cave_1776863810604.png')",
     label: 'Victory Road',
     ground: '#0c1220',
     groundAccent: '#06080e',
@@ -307,7 +307,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── PLATEAU INDIGO ───────────────────────────────────────
   indigo_plateau: {
-    sky: 'linear-gradient(180deg, #0a0018 0%, #180030 40%, #280050 65%, #140028 65%, #080010 100%)',
+    sky: "url('/battle_bg_gym_1776863824590.png')",
     label: 'Plateau Indigo — Liga Pokémon',
     ground: '#140028',
     groundAccent: '#080010',
@@ -317,7 +317,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── CAVERNA CERULEAN ─────────────────────────────────────
   cerulean_cave: {
-    sky: 'linear-gradient(180deg, #080820 0%, #101030 40%, #181848 60%, #0c0c28 60%, #060614 100%)',
+    sky: "url('/battle_bg_cave_1776863810604.png')",
     label: 'Caverna Cerulean — Lair de Mewtwo',
     ground: '#0c0c28',
     groundAccent: '#060614',
