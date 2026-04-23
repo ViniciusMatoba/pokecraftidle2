@@ -91,34 +91,6 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState }) => {
              </div>
           </div>
 
-          <div className="mt-8 pt-8 border-t-2 border-slate-200">
-             <button 
-               onClick={() => {
-                 if(window.confirm('Isso vai transformar seu primeiro Pokémon de volta em Bulbasaur (Nv. 15) com XP quase cheio para testar a evolução. Continuar?')) {
-                   setGameState(prev => {
-                     const newTeam = [...prev.team];
-                     if (newTeam[0]) {
-                       newTeam[0] = { 
-                         ...newTeam[0], 
-                         id: 1, 
-                         name: 'Bulbasaur', 
-                         type: 'Grass',
-                         hp: 45, maxHp: 45,
-                         level: 15,
-                         xp: 15 * 25 - 1
-                       };
-                     }
-                     return { ...prev, team: newTeam };
-                   });
-                   alert('Bulbasaur restaurado! Vença uma batalha para evoluir para o nível 16.');
-                 }
-               }}
-               className="w-full p-4 rounded-2xl border-2 border-dashed border-slate-300 text-slate-400 font-bold uppercase text-[10px] hover:bg-white hover:text-pokeBlue hover:border-pokeBlue transition-all active:scale-95"
-             >
-               🔧 DEBUG: Testar Evolução
-             </button>
-           </div>
-
            <button 
              onClick={() => setCurrentView('city')}
              className="w-full mt-12 bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg border-b-8 border-slate-900"

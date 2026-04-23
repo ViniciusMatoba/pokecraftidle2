@@ -1391,41 +1391,41 @@ export default function App() {
         </div>
       );
       case 'starter_selection': return (
-        <div className="h-full bg-slate-100 flex flex-col items-center p-8 animate-fadeIn relative overflow-hidden">
-           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-slate-200 opacity-50"></div>
+        <div className="h-full bg-slate-100 flex flex-col items-center animate-fadeIn relative overflow-hidden">
+           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-slate-200 opacity-50 pointer-events-none"></div>
            
-           <div className="relative z-10 text-center mb-10">
-             <h2 className="text-5xl font-black text-slate-800 uppercase italic tracking-tighter mb-2">Escolha seu Parceiro</h2>
+           <div className="relative z-10 text-center pt-6 pb-3 px-6 flex-shrink-0">
+             <h2 className="text-3xl font-black text-slate-800 uppercase italic tracking-tighter mb-1">Escolha seu Parceiro</h2>
              <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Cada jornada começa com um único passo</p>
            </div>
 
-           <div className="flex flex-col gap-4 w-full max-w-2xl relative z-10">
+           <div className="flex flex-col gap-3 w-full max-w-2xl relative z-10 overflow-y-auto custom-scrollbar px-6 pb-6 flex-1" style={{ minHeight: 0 }}>
               {INITIAL_POKEMONS.map(p => {
                 const typeColors = {
-                  Grass: 'bg-green-500 shadow-green-200', Fire: 'bg-orange-500 shadow-orange-200',
-                  Water: 'bg-blue-500 shadow-blue-200', Electric: 'bg-yellow-400 shadow-yellow-100',
-                  Normal: 'bg-slate-400 shadow-slate-200'
+                  Grass: 'bg-green-500', Fire: 'bg-orange-500',
+                  Water: 'bg-blue-500', Electric: 'bg-yellow-400',
+                  Normal: 'bg-slate-400'
                 };
                 return (
                   <button 
                     key={p.id} 
                     onClick={() => setPreviewStarter(p)}
-                    className="group bg-white p-4 md:p-6 rounded-[2.5rem] shadow-xl border-4 border-transparent hover:border-pokeBlue transition-all flex items-center gap-4 md:gap-10 text-left relative overflow-hidden"
+                    className="group bg-white p-4 rounded-[2rem] shadow-lg border-4 border-transparent hover:border-pokeBlue transition-all flex items-center gap-3 text-left relative flex-shrink-0"
                   >
-                     <div className="w-20 h-20 md:w-24 md:h-24 bg-slate-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform relative z-10 border-2 border-slate-100 overflow-hidden flex-shrink-0">
-                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} className="w-full h-full object-contain drop-shadow-lg scale-[1.35] md:scale-125" alt={p.name} />
+                     <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform relative z-10 border-2 border-slate-100 flex-shrink-0">
+                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} className="w-full h-full object-contain drop-shadow-lg scale-125" alt={p.name} />
                      </div>
-                     <div className="flex-1 relative z-10">
-                        <h3 className="text-3xl font-black text-slate-800 uppercase italic leading-none mb-2">{p.name}</h3>
-                        <div className="flex items-center gap-3">
-                           <span className={`${typeColors[p.type] || 'bg-slate-400'} text-white text-[10px] px-4 py-1 rounded-full font-black uppercase tracking-widest shadow-md`}>
+                     <div className="flex-1 relative z-10 min-w-0">
+                        <h3 className="text-lg font-black text-slate-800 uppercase italic leading-none mb-1.5 truncate">{p.name}</h3>
+                        <div className="flex items-center gap-2">
+                           <span className={`${typeColors[p.type] || 'bg-slate-400'} text-white text-[9px] px-3 py-0.5 rounded-full font-black uppercase tracking-widest flex-shrink-0`}>
                              {p.type}
                            </span>
-                           <span className="text-slate-300 font-bold text-[9px] uppercase tracking-tighter">Clique para ver Detalhes</span>
+                           <span className="text-slate-300 font-bold text-[9px] uppercase">Ver detalhes</span>
                         </div>
                      </div>
-                     <div className="text-slate-100 font-black text-6xl italic absolute right-10 top-1/2 -translate-y-1/2 select-none group-hover:text-slate-200 transition-colors">
-                        #00{p.id}
+                     <div className="text-slate-200 font-black text-2xl italic select-none flex-shrink-0">
+                        #{String(p.id).padStart(3,'0')}
                      </div>
                   </button>
                 );
@@ -2069,121 +2069,152 @@ export default function App() {
               )}
 
               {activeBuildingModal === 'mart' && (
-                <div className="p-8 flex-1 flex flex-col overflow-hidden">
-                   <div className="flex items-center gap-4 mb-8">
-                      <div className="w-16 h-16 bg-blue-100 rounded-3xl flex items-center justify-center text-3xl">🏪</div>
-                      <div>
-                         <h2 className="text-2xl font-black text-slate-800 uppercase italic leading-none">Poké Mart</h2>
-                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Suprimentos de Viagem</p>
+                <div className="p-6 flex-1 flex flex-col overflow-hidden">
+                   <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">🏪</div>
+                      <div className="flex-1">
+                         <h2 className="text-xl font-black text-slate-800 uppercase italic leading-none">Poké Mart</h2>
+                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Suprimentos de Viagem</p>
                       </div>
-                      <div className="ml-auto bg-slate-100 px-4 py-2 rounded-2xl border-2 border-slate-200 font-black text-slate-800">
+                      <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm">
                          💰 {gameState.currency}
                       </div>
                    </div>
 
-                   <div className="grid grid-cols-1 gap-4 overflow-y-auto pr-2 custom-scrollbar flex-1 pb-8">
-
+                   <div className="flex flex-col gap-3 overflow-y-auto pr-1 custom-scrollbar flex-1 pb-4">
                       {[
-                        { id: 'pokeballs', name: 'Poké Bola', price: 200, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png' },
-                        { id: 'potions', name: 'Poção', price: 300, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png' },
-                        { id: 'revive', name: 'Revive', price: 1500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png' }
-                      ].map(item => (
-                        <div key={item.id} className="bg-slate-50 p-4 rounded-3xl border-2 border-slate-100 flex items-center gap-4 group">
-                           <div className="bg-white w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm border-2 border-slate-100 group-hover:border-blue-400 transition-all">
-                              <img src={item.img} className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" alt={item.name} />
-                           </div>
-                           <div className="flex-1">
-                              <h4 className="font-black text-slate-800 uppercase italic">{item.name}</h4>
-                              <p className="text-[10px] font-bold text-slate-400">Preço: 💰 {item.price}</p>
-                           </div>
-                           <button 
-                             disabled={gameState.currency < item.price}
-                             onClick={() => {
-                               setGameState(prev => ({
-                                 ...prev,
-                                 currency: prev.currency - item.price,
-                                 inventory: {
-                                   ...prev.inventory,
-                                   items: { ...prev.inventory.items, [item.id]: (prev.inventory.items[item.id] || 0) + 1 }
-                                 }
-                               }));
-                               addLog(`🏪 Comprado: 1x ${item.name}`, 'system');
-                             }}
-                             className="bg-blue-500 text-white px-6 py-3 rounded-xl font-black uppercase text-xs hover:bg-blue-600 transition-all disabled:opacity-30"
-                           >Comprar</button>
-                        </div>
-                      ))}
+                        { id: 'pokeballs', name: 'Poké Bola', price: 200, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', desc: 'Captura Pokémon selvagens' },
+                        { id: 'potions', name: 'Poção', price: 300, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png', desc: 'Restaura 20 HP' },
+                        { id: 'revive', name: 'Revive', price: 1500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', desc: 'Revive Pokémon desmaiado' }
+                      ].map(item => {
+                        const maxQty = Math.floor(gameState.currency / item.price);
+                        const buyFn = (qty) => {
+                          if (qty < 1) return;
+                          setGameState(prev => ({
+                            ...prev,
+                            currency: prev.currency - item.price * qty,
+                            inventory: {
+                              ...prev.inventory,
+                              items: { ...prev.inventory.items, [item.id]: (prev.inventory.items[item.id] || 0) + qty }
+                            }
+                          }));
+                          addLog(`🏪 Comprado: ${qty}x ${item.name}`, 'system');
+                        };
+                        return (
+                          <div key={item.id} className="bg-white p-4 rounded-2xl border-2 border-slate-100 shadow-sm">
+                             <div className="flex items-center gap-3 mb-3">
+                                <div className="bg-blue-50 w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
+                                   <img src={item.img} className="w-9 h-9 object-contain" alt={item.name} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                   <h4 className="font-black text-slate-800 uppercase italic text-sm leading-tight">{item.name}</h4>
+                                   <p className="text-[10px] text-slate-400 font-bold">{item.desc}</p>
+                                </div>
+                                <div className="text-right">
+                                   <p className="text-[10px] font-black text-slate-400 uppercase">Preço</p>
+                                   <p className="font-black text-amber-600 text-sm">💰 {item.price}</p>
+                                </div>
+                             </div>
+                             <div className="grid grid-cols-3 gap-2">
+                                {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'Máx',qty:maxQty}].map(opt => (
+                                  <button key={opt.label}
+                                    disabled={gameState.currency < item.price || (opt.qty < 1)}
+                                    onClick={() => buyFn(opt.qty)}
+                                    className="py-2 rounded-xl font-black text-xs uppercase transition-all bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                                  >
+                                    {opt.label}{opt.label==='Máx'&&maxQty>0?` (${maxQty})`:''}
+                                  </button>
+                                ))}
+                             </div>
+                          </div>
+                        );
+                      })}
                    </div>
                 </div>
               )}
 
               {activeBuildingModal === 'forge' && (
-                <div className="p-8 flex-1 flex flex-col overflow-hidden">
-                   <div className="flex items-center gap-4 mb-8">
-                      <div className="w-16 h-16 bg-orange-100 rounded-3xl flex items-center justify-center text-3xl">🔨</div>
-                      <div>
-                         <h2 className="text-2xl font-black text-slate-800 uppercase italic leading-none">Forja Pokémon</h2>
-                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Materiais e Equipamentos</p>
+                <div className="p-6 flex-1 flex flex-col overflow-hidden">
+                   <div className="flex items-center gap-4 mb-5">
+                      <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center text-2xl">🔨</div>
+                      <div className="flex-1">
+                         <h2 className="text-xl font-black text-slate-800 uppercase italic leading-none">Forja Pokémon</h2>
+                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Materiais e Equipamentos</p>
+                      </div>
+                      <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm">
+                         💰 {gameState.currency}
                       </div>
                    </div>
 
-                   <div className="space-y-8 overflow-y-auto pr-2 custom-scrollbar flex-1">
-
+                   <div className="space-y-6 overflow-y-auto pr-1 custom-scrollbar flex-1 pb-4">
                       {Object.entries(CRAFTING_RECIPES).map(([category, items]) => (
-                        <div key={category} className="space-y-4">
-                           <div className="flex items-center gap-3 border-b-2 border-slate-100 pb-2">
+                        <div key={category} className="space-y-3">
+                           <div className="flex items-center gap-2 border-b-2 border-slate-100 pb-2">
                               <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                              <h3 className="text-xs font-black uppercase text-slate-400 tracking-[0.2em]">{category.replace('_', ' ')}</h3>
+                              <h3 className="text-xs font-black uppercase text-slate-400 tracking-[0.2em]">{category.replace(/_/g, ' ')}</h3>
                            </div>
-                           <div className="grid grid-cols-1 gap-3">
+                           <div className="flex flex-col gap-3">
                               {items.map(item => {
-                                const canCraft = Object.entries(item.cost).every(([mat, amount]) => {
+                                const canCraftOne = Object.entries(item.cost).every(([mat, amount]) => {
                                   if (mat === 'currency') return gameState.currency >= amount;
                                   return (gameState.inventory.materials?.[mat] || 0) >= amount;
                                 });
-
+                                const getMaxCraft = () => {
+                                  let maxN = Infinity;
+                                  Object.entries(item.cost).forEach(([mat, amount]) => {
+                                    const have = mat === 'currency' ? gameState.currency : (gameState.inventory.materials?.[mat] || 0);
+                                    maxN = Math.min(maxN, Math.floor(have / amount));
+                                  });
+                                  return maxN === Infinity ? 0 : maxN;
+                                };
+                                const craftFn = (qty) => {
+                                  if (qty < 1) return;
+                                  setGameState(prev => {
+                                    const newInv = { ...prev.inventory, materials: { ...prev.inventory.materials } };
+                                    Object.entries(item.cost).forEach(([mat, amount]) => {
+                                      if (mat !== 'currency') newInv.materials[mat] = (newInv.materials[mat] || 0) - amount * qty;
+                                    });
+                                    return {
+                                      ...prev,
+                                      currency: prev.currency - (item.cost.currency || 0) * qty,
+                                      inventory: { ...newInv, items: { ...newInv.items, [item.id]: (newInv.items[item.id] || 0) + qty } }
+                                    };
+                                  });
+                                  addLog(`🔨 Forjado: ${qty}x ${item.name}`, 'system');
+                                };
+                                const maxCraft = getMaxCraft();
                                 return (
-                                  <div key={item.id} className="bg-slate-50 p-6 rounded-[2.5rem] border-2 border-slate-100 flex flex-col gap-4">
-                                     <div className="flex items-center gap-4">
-                                        <div className="bg-white w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm border-2 border-slate-200 shrink-0">
-                                           <img src={item.img} className="w-10 h-10 object-contain" alt={item.name} />
+                                  <div key={item.id} className="bg-white p-4 rounded-2xl border-2 border-slate-100 shadow-sm">
+                                     <div className="flex items-center gap-3 mb-3">
+                                        <div className="bg-orange-50 w-12 h-12 rounded-xl flex items-center justify-center shrink-0">
+                                           <img src={item.img} className="w-9 h-9 object-contain" alt={item.name} />
                                         </div>
-                                        <div className="flex-1">
-                                           <h4 className="font-black text-slate-800 uppercase italic">{item.name}</h4>
-                                           <p className="text-[10px] font-bold text-slate-400">{item.effect || 'Item de Crafting'}</p>
+                                        <div className="flex-1 min-w-0">
+                                           <h4 className="font-black text-slate-800 uppercase italic text-sm leading-tight">{item.name}</h4>
+                                           <p className="text-[10px] font-bold text-slate-400 truncate">{item.effect || 'Item de Crafting'}</p>
                                         </div>
-                                        <button 
-                                          disabled={!canCraft}
-                                          onClick={() => {
-                                            setGameState(prev => {
-                                              const newInv = { ...prev.inventory };
-                                              Object.entries(item.cost).forEach(([mat, amount]) => {
-                                                if (mat !== 'currency') {
-                                                  newInv.materials[mat] -= amount;
-                                                }
-                                              });
-                                              return {
-                                                ...prev,
-                                                currency: prev.currency - (item.cost.currency || 0),
-                                                inventory: {
-                                                  ...newInv,
-                                                  items: { ...newInv.items, [item.id]: (newInv.items[item.id] || 0) + 1 }
-                                                }
-                                              };
-                                            });
-                                            addLog(`🔨 Forjado: 1x ${item.name}`, 'system');
-                                          } }
-                                          className="bg-orange-500 text-white px-8 py-3 rounded-2xl font-black uppercase text-xs hover:bg-orange-600 transition-all shadow-lg shadow-orange-100 disabled:opacity-30"
-                                        >Forjar</button>
                                      </div>
-                                     <div className="flex flex-wrap gap-2">
-                                        {Object.entries(item.cost).map(([mat, amount]) => (
-                                          <button 
-                                            key={mat} 
-                                            onClick={() => setActiveMaterialModal(mat)}
-                                            className={`px-3 py-1.5 rounded-xl border-2 text-[9px] font-black uppercase transition-all hover:scale-105 active:scale-95 ${(gameState.inventory.materials?.[mat] >= amount || (mat === 'currency' && gameState.currency >= amount)) ? 'border-green-100 bg-green-50 text-green-600' : 'border-red-100 bg-red-50 text-red-600'}`}
+                                     <div className="flex flex-wrap gap-1.5 mb-3">
+                                        {Object.entries(item.cost).map(([mat, amount]) => {
+                                          const have = mat === 'currency' ? gameState.currency : (gameState.inventory.materials?.[mat] || 0);
+                                          const ok = have >= amount;
+                                          return (
+                                            <button key={mat} onClick={() => setActiveMaterialModal(mat)}
+                                              className={`px-2 py-1 rounded-lg border text-[9px] font-black uppercase ${ok ? 'border-green-200 bg-green-50 text-green-700' : 'border-red-200 bg-red-50 text-red-600'}`}
+                                            >
+                                              {mat.replace(/_/g,' ')}: {have}/{amount}
+                                            </button>
+                                          );
+                                        })}
+                                     </div>
+                                     <div className="grid grid-cols-3 gap-2">
+                                        {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'Máx',qty:maxCraft}].map(opt => (
+                                          <button key={opt.label}
+                                            disabled={!canCraftOne || opt.qty < 1}
+                                            onClick={() => craftFn(opt.qty)}
+                                            className="py-2 rounded-xl font-black text-xs uppercase transition-all bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-30 disabled:cursor-not-allowed"
                                           >
-                                             {mat.replace('_', ' ')}: {amount}
+                                            {opt.label}{opt.label==='Máx'&&maxCraft>0?` (${maxCraft})`:''}
                                           </button>
                                         ))}
                                      </div>
