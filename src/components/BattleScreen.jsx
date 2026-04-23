@@ -391,48 +391,50 @@ const BattleScreen = ({
 
       {/* ── MODAL AUTO-CONFIG ── */}
       {showAutoConfig && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowAutoConfig(false)}>
-          <div className="w-full max-w-md bg-white rounded-t-[2rem] p-6 shadow-2xl animate-slideUp" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="font-black text-slate-800 uppercase italic text-lg">⚙️ Auto-Itens</h3>
-              <button onClick={() => setShowAutoConfig(false)} className="text-slate-400 hover:text-slate-700 font-black text-xl">✕</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md" onClick={() => setShowAutoConfig(false)}>
+          <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl animate-bounceIn overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+            {/* Header Fixo */}
+            <div className="flex-shrink-0 px-8 pt-8 pb-4 flex items-center justify-between">
+              <h3 className="font-black text-slate-800 uppercase italic text-xl">⚙️ Auto-Itens</h3>
+              <button onClick={() => setShowAutoConfig(false)} className="text-slate-300 hover:text-slate-500 font-black text-2xl transition-colors">✕</button>
             </div>
 
-            <div className="flex flex-col gap-4">
+            {/* Conteúdo com Scroll */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar px-8 py-2 flex flex-col gap-5">
               {/* Auto Captura */}
-              <div className="flex items-center justify-between bg-blue-50 p-4 rounded-2xl border-2 border-blue-100">
+              <div className="flex items-center justify-between bg-blue-50 p-5 rounded-3xl border-2 border-blue-100 shadow-sm">
                 <div>
-                  <p className="font-black text-slate-800 text-sm uppercase">🎯 Auto-Captura</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">Usa Pokébolas automaticamente</p>
+                  <p className="font-black text-slate-800 text-sm uppercase tracking-tighter">🎯 Auto-Captura</p>
+                  <p className="text-[10px] text-slate-500 mt-1 font-bold">Usa Pokébolas automaticamente</p>
                 </div>
                 <div className="relative cursor-pointer" onClick={() => setGameState(prev => ({ ...prev, autoCapture: !prev.autoCapture }))}>
-                  <div className={`w-12 h-6 rounded-full transition-all ${gameState.autoCapture ? 'bg-pokeBlue' : 'bg-slate-200'}`}>
-                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${gameState.autoCapture ? 'translate-x-7' : 'translate-x-1'}`} />
+                  <div className={`w-14 h-7 rounded-full transition-all duration-300 ${gameState.autoCapture ? 'bg-pokeBlue' : 'bg-slate-200'}`}>
+                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-lg transition-all duration-300 ${gameState.autoCapture ? 'translate-x-8' : 'translate-x-1'}`} />
                   </div>
                 </div>
               </div>
 
               {/* Auto Poção */}
-              <div className="bg-green-50 p-4 rounded-2xl border-2 border-green-100">
-                <div className="flex items-center justify-between mb-3">
+              <div className="bg-green-50 p-5 rounded-3xl border-2 border-green-100 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
                   <div>
-                    <p className="font-black text-slate-800 text-sm uppercase">💊 Auto-Poção</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5">Usa poção quando HP baixo</p>
+                    <p className="font-black text-slate-800 text-sm uppercase tracking-tighter">💊 Auto-Poção</p>
+                    <p className="text-[10px] text-slate-500 mt-1 font-bold">Usa poção quando HP baixo</p>
                   </div>
                   <div className="relative cursor-pointer" onClick={() => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoPotion: !autoConfig.autoPotion } }))}>
-                    <div className={`w-12 h-6 rounded-full transition-all ${autoConfig.autoPotion ? 'bg-green-500' : 'bg-slate-200'}`}>
-                      <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${autoConfig.autoPotion ? 'translate-x-7' : 'translate-x-1'}`} />
+                    <div className={`w-14 h-7 rounded-full transition-all duration-300 ${autoConfig.autoPotion ? 'bg-green-500' : 'bg-slate-200'}`}>
+                      <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-lg transition-all duration-300 ${autoConfig.autoPotion ? 'translate-x-8' : 'translate-x-1'}`} />
                     </div>
                   </div>
                 </div>
                 {autoConfig.autoPotion && (
-                  <div className="mt-2">
-                    <p className="text-[10px] font-black text-slate-600 uppercase mb-1">Usar quando HP ≤ {autoConfig.autoPotionHpPct}%</p>
+                  <div className="mt-2 bg-white/50 p-3 rounded-2xl border border-green-200">
+                    <p className="text-[10px] font-black text-slate-600 uppercase mb-2">Usar quando HP ≤ {autoConfig.autoPotionHpPct}%</p>
                     <input type="range" min={10} max={80} step={5} value={autoConfig.autoPotionHpPct}
                       onChange={e => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoPotionHpPct: Number(e.target.value) } }))}
-                      className="w-full accent-green-500" />
-                    <div className="flex justify-between text-[8px] text-slate-400 font-bold mt-0.5">
-                      <span>10%</span><span>{autoConfig.autoPotionHpPct}%</span><span>80%</span>
+                      className="w-full accent-green-500 h-2 bg-green-100 rounded-lg appearance-none cursor-pointer" />
+                    <div className="flex justify-between text-[9px] text-slate-400 font-black mt-2 uppercase tracking-tighter">
+                      <span>Mínimo 10%</span><span>{autoConfig.autoPotionHpPct}%</span><span>Máximo 80%</span>
                     </div>
                   </div>
                 )}
@@ -440,15 +442,20 @@ const BattleScreen = ({
 
               {/* Pokémon-foco */}
               {autoConfig.autoPotion && gameState.team?.filter(Boolean).length > 0 && (
-                <div className="bg-slate-50 p-4 rounded-2xl border-2 border-slate-100">
-                  <p className="text-[10px] font-black text-slate-600 uppercase mb-2">Focar Poção em:</p>
-                  <div className="flex flex-col gap-1.5">
+                <div className="bg-slate-50 p-5 rounded-3xl border-2 border-slate-100 shadow-sm mb-2">
+                  <p className="text-[11px] font-black text-slate-800 uppercase mb-4 tracking-tighter">💉 Focar Poção em:</p>
+                  <div className="flex flex-col gap-2">
                     {gameState.team.map((p, i) => p ? (
                       <button key={i} onClick={() => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, focusPokemonIndex: i } }))}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all text-left ${autoConfig.focusPokemonIndex === i ? 'border-pokeBlue bg-blue-50' : 'border-slate-100 bg-white'}`}>
-                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} className="w-8 h-8 object-contain" alt={p.name} />
-                        <span className="text-[11px] font-black uppercase text-slate-800">{p.name}</span>
-                        <span className="text-[9px] text-slate-400 ml-auto">Nv.{p.level || 5}</span>
+                        className={`flex items-center gap-4 px-4 py-3 rounded-2xl border-2 transition-all text-left group ${autoConfig.focusPokemonIndex === i ? 'border-pokeBlue bg-blue-50 shadow-md scale-[1.02]' : 'border-slate-100 bg-white hover:border-slate-200'}`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${autoConfig.focusPokemonIndex === i ? 'bg-white' : 'bg-slate-50'}`}>
+                          <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} className="w-9 h-9 object-contain" alt={p.name} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-black uppercase text-slate-800 tracking-tighter">{p.name}</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase">Slot #{i+1} · Nv.{p.level || 5}</p>
+                        </div>
+                        {autoConfig.focusPokemonIndex === i && <div className="text-pokeBlue font-black text-xs">✓</div>}
                       </button>
                     ) : null)}
                   </div>
@@ -456,10 +463,13 @@ const BattleScreen = ({
               )}
             </div>
 
-            <button onClick={() => setShowAutoConfig(false)}
-              className="w-full mt-5 bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest">
-              Confirmar
-            </button>
+            {/* Footer Fixo */}
+            <div className="flex-shrink-0 p-8 pt-4">
+              <button onClick={() => setShowAutoConfig(false)}
+                className="w-full bg-slate-800 text-white py-5 rounded-3xl font-black uppercase tracking-[0.2em] shadow-xl hover:bg-slate-700 active:scale-95 transition-all">
+                Salvar Ajustes
+              </button>
+            </div>
           </div>
         </div>
       )}

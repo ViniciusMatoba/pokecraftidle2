@@ -16,59 +16,55 @@ const GymCard = ({ gym, earned, locked, onChallenge }) => {
 
   return (
     <div
-      className={`relative rounded-[1.5rem] overflow-hidden shadow-xl transition-all ${locked ? 'opacity-50' : 'hover:scale-[1.01] active:scale-[0.99] cursor-pointer'}`}
-      style={{ background: `linear-gradient(160deg, ${col} 0%, ${c2} 50%, #0d0d1a 100%)` }}
+      className={`relative rounded-[2.5rem] overflow-hidden shadow-2xl transition-all mb-4 ${locked ? 'opacity-40 grayscale-[0.5]' : 'hover:scale-[1.02] active:scale-[0.98] cursor-pointer'}`}
+      style={{ background: `linear-gradient(165deg, ${col} 0%, ${c2} 40%, #0a0a15 100%)`, minHeight: '220px' }}
+      onClick={() => !locked && !earned && onChallenge(gym)}
     >
       {/* Dots pattern */}
-      <div className="absolute inset-0 pointer-events-none"
-        style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.14) 1px, transparent 1px)', backgroundSize: '18px 18px' }} />
+      <div className="absolute inset-0 pointer-events-none opacity-20"
+        style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
-      {/* Topo: número + status */}
-      <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5">
-        <span className="bg-black/40 text-white text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest backdrop-blur-sm">#{gym.badgeOrder}</span>
-        {locked && <span className="bg-black/50 text-white/70 text-[9px] font-black px-2 py-0.5 rounded-full backdrop-blur-sm">🔒</span>}
-        {earned && <span className="bg-yellow-400 text-yellow-900 text-[9px] font-black px-2 py-0.5 rounded-full">✅ VENCIDO</span>}
-      </div>
-
-      {/* Tipos no canto superior direito */}
-      <div className="absolute top-3 right-3 z-20 flex flex-col gap-1 items-end">
-        <div className="flex items-center gap-1 bg-black/30 px-2 py-0.5 rounded-full backdrop-blur-sm">
-          {gym.typeIcon && <img src={gym.typeIcon} className="w-3.5 h-3.5 invert" alt={gym.type} onError={e => e.target.style.display='none'} />}
-          <span className="text-white text-[8px] font-black uppercase tracking-wide">{gym.type}</span>
+      {/* Topo: Texto do Líder solicitado */}
+      <div className="absolute top-5 left-6 z-20">
+        <h4 className="text-white font-black text-lg uppercase italic leading-none tracking-tighter drop-shadow-lg">
+          {gym.badgeOrder}° GYM - Líder {gym.name}
+        </h4>
+        <div className="flex items-center gap-2 mt-2">
+          {earned && <span className="bg-yellow-400 text-yellow-950 text-[10px] font-black px-3 py-1 rounded-full shadow-lg animate-pulse">✨ INSÍGNIA CONQUISTADA</span>}
+          {locked && <span className="bg-black/60 text-white/50 text-[10px] font-black px-3 py-1 rounded-full backdrop-blur-md">🔒 BLOQUEADO</span>}
         </div>
       </div>
 
-      {/* Sprite do líder — centralizado e grande */}
-      <div className="flex justify-center pt-10 pb-2 relative z-10">
+      {/* Tipo em destaque */}
+      <div className="absolute top-5 right-6 z-20 flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-2xl backdrop-blur-md border border-white/10">
+        {gym.typeIcon && <img src={gym.typeIcon} className="w-4 h-4 invert" alt={gym.type} />}
+        <span className="text-white text-[10px] font-black uppercase tracking-widest">{gym.type}</span>
+      </div>
+
+      {/* Sprite do líder — Muito maior e com sombra */}
+      <div className="flex justify-end pr-4 pt-12 relative z-10 pointer-events-none">
         <img
           src={gym.sprite}
           alt={gym.name}
-          className="w-28 h-28 object-contain drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+          className="w-44 h-44 object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)] scale-110 translate-y-4"
           onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'; }}
         />
       </div>
 
-      {/* Footer com info + badge + botão */}
-      <div className="bg-black/30 backdrop-blur-sm px-4 py-3 flex items-center gap-3 relative z-10">
-        {/* Badge */}
-        <BadgeIcon src={gym.badgeImg} earned={earned} />
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <p className="text-white font-black text-base uppercase italic leading-none drop-shadow truncate">{gym.name}</p>
-          <p className="text-white/60 text-[9px] font-bold uppercase mt-0.5 truncate">{gym.city} · Nv. {gym.team[0]?.level}–{gym.team[gym.team.length-1]?.level}</p>
-        </div>
-        {/* Botão */}
-        <button
-          disabled={locked || earned}
-          onClick={() => !locked && !earned && onChallenge(gym)}
-          className={`flex-shrink-0 px-4 py-2 rounded-xl font-black text-[10px] uppercase transition-all shadow-lg ${
-            earned ? 'bg-green-500/30 text-green-200 cursor-default'
-            : locked ? 'bg-white/10 text-white/30 cursor-not-allowed'
-            : 'bg-white text-slate-900 hover:bg-yellow-300 active:scale-95'
-          }`}
-        >
-          {earned ? '✅' : locked ? '🔒' : '⚔️ Desafiar'}
-        </button>
+      {/* Footer minimalista mas elegante */}
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-12 z-20">
+         <div className="flex items-center gap-4">
+            <BadgeIcon src={gym.badgeImg} earned={earned} />
+            <div className="flex-1">
+               <p className="text-white/50 text-[10px] font-black uppercase tracking-widest">{gym.city}</p>
+               <p className="text-white text-xs font-bold uppercase italic">Time Nv. {gym.team[0]?.level}–{gym.team[gym.team.length-1]?.level}</p>
+            </div>
+            {!earned && !locked && (
+               <div className="bg-white text-slate-900 px-6 py-3 rounded-2xl font-black text-xs uppercase shadow-xl group-hover:bg-yellow-400 transition-colors">
+                  ⚔️ Desafiar
+               </div>
+            )}
+         </div>
       </div>
     </div>
   );
@@ -80,53 +76,54 @@ const EliteCard = ({ member, index, earned, locked, onChallenge }) => {
 
   return (
     <div
-      className={`relative rounded-[1.5rem] overflow-hidden shadow-xl transition-all ${locked ? 'opacity-50' : 'hover:scale-[1.01] active:scale-[0.99] cursor-pointer'}`}
-      style={{ background: `linear-gradient(160deg, ${col} 0%, ${c2} 50%, #0d0d1a 100%)` }}
+      className={`relative rounded-[2.5rem] overflow-hidden shadow-2xl transition-all mb-4 ${locked ? 'opacity-40 grayscale-[0.5]' : 'hover:scale-[1.02] active:scale-[0.98] cursor-pointer'}`}
+      style={{ background: `linear-gradient(165deg, ${col} 0%, ${c2} 40%, #150a0a 100%)`, minHeight: '220px' }}
+      onClick={() => !locked && !earned && onChallenge(member)}
     >
       {/* Dots pattern */}
-      <div className="absolute inset-0 pointer-events-none"
-        style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.14) 1px, transparent 1px)', backgroundSize: '18px 18px' }} />
+      <div className="absolute inset-0 pointer-events-none opacity-20"
+        style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
-      {/* Topo: Nome + Status */}
-      <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5">
-        <span className="bg-black/40 text-white text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest backdrop-blur-sm">Elite 4 #{index + 1}</span>
-        {locked && <span className="bg-black/50 text-white/70 text-[9px] font-black px-2 py-0.5 rounded-full backdrop-blur-sm">🔒</span>}
-        {earned && <span className="bg-yellow-400 text-yellow-900 text-[9px] font-black px-2 py-0.5 rounded-full">✅ VENCIDO</span>}
+      {/* Topo */}
+      <div className="absolute top-5 left-6 z-20">
+        <h4 className="text-white font-black text-lg uppercase italic leading-none tracking-tighter drop-shadow-lg">
+          Elite 4 #{index + 1} - {member.name}
+        </h4>
+        <div className="flex items-center gap-2 mt-2">
+          {earned && <span className="bg-pokeGold text-yellow-950 text-[10px] font-black px-3 py-1 rounded-full shadow-lg">🏆 CAMPEÃO DA ELITE</span>}
+          {locked && <span className="bg-black/60 text-white/50 text-[10px] font-black px-3 py-1 rounded-full backdrop-blur-md">🔒 DESAFIO BLOQUEADO</span>}
+        </div>
       </div>
 
       {/* Tipo */}
-      <div className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-black/30 px-2 py-0.5 rounded-full backdrop-blur-sm">
-        {member.typeIcon && <img src={member.typeIcon} className="w-3.5 h-3.5 invert" alt={member.type} onError={e => e.target.style.display='none'} />}
-        <span className="text-white text-[8px] font-black uppercase tracking-wide">{member.type}</span>
+      <div className="absolute top-5 right-6 z-20 flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-2xl backdrop-blur-md border border-white/10">
+        {member.typeIcon && <img src={member.typeIcon} className="w-4 h-4 invert" alt={member.type} />}
+        <span className="text-white text-[10px] font-black uppercase tracking-widest">{member.type}</span>
       </div>
 
       {/* Sprite do líder */}
-      <div className="flex justify-center pt-10 pb-2 relative z-10">
+      <div className="flex justify-end pr-4 pt-12 relative z-10 pointer-events-none">
         <img
           src={member.sprite}
           alt={member.name}
-          className="w-28 h-28 object-contain drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+          className="w-44 h-44 object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)] scale-110 translate-y-4"
           onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'; }}
         />
       </div>
 
       {/* Footer */}
-      <div className="bg-black/30 backdrop-blur-sm px-4 py-3 flex items-center gap-3 relative z-10">
-        <div className="flex-1 min-w-0">
-          <p className="text-white font-black text-base uppercase italic leading-none drop-shadow truncate">{member.name}</p>
-          <p className="text-white/60 text-[8px] font-bold italic mt-1 line-clamp-1">"{member.quote}"</p>
-        </div>
-        <button
-          disabled={locked || earned}
-          onClick={() => !locked && !earned && onChallenge(member)}
-          className={`flex-shrink-0 px-4 py-2 rounded-xl font-black text-[10px] uppercase transition-all shadow-lg ${
-            earned ? 'bg-green-500/30 text-green-200 cursor-default'
-            : locked ? 'bg-white/10 text-white/30 cursor-not-allowed'
-            : 'bg-white text-slate-900 hover:bg-yellow-300 active:scale-95'
-          }`}
-        >
-          {earned ? '✅' : locked ? '🔒' : '⚔️'}
-        </button>
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-12 z-20">
+         <div className="flex items-center gap-4">
+            <div className="flex-1">
+               <p className="text-white/70 text-[11px] font-bold italic line-clamp-1 leading-tight pr-12">"{member.quote}"</p>
+               <p className="text-white text-[10px] font-black uppercase tracking-[0.2em] mt-2 opacity-50">Membro da Elite 4</p>
+            </div>
+            {!earned && !locked && (
+               <div className="bg-pokeGold text-yellow-950 px-6 py-3 rounded-2xl font-black text-xs uppercase shadow-xl">
+                  ⚔️ Desafiar
+               </div>
+            )}
+         </div>
       </div>
     </div>
   );
@@ -177,10 +174,10 @@ const GymScreen = ({ gameState, onChallengeGym, onClose }) => {
         </div>
 
         {/* Scroll content */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-4 flex flex-col gap-3">
+        <div className="flex-1 overflow-y-auto custom-scrollbar px-6 py-6 flex flex-col gap-6">
 
           {/* Seção Ginásios */}
-          <p className="text-white/40 text-[9px] font-black uppercase tracking-widest px-1">Ginásios de Kanto</p>
+          <p className="text-white/30 text-[10px] font-black uppercase tracking-[0.3em] px-2">Ginásios de Kanto</p>
           {GYMS.map((gym, i) => (
             <GymCard
               key={gym.id}
@@ -193,12 +190,12 @@ const GymScreen = ({ gameState, onChallengeGym, onClose }) => {
           ))}
 
           {/* Seção Liga */}
-          <div className="mt-4">
-            <div className="flex items-center gap-3 px-1 mb-3">
-              <p className="text-white/40 text-[9px] font-black uppercase tracking-widest flex-1">Liga Pokémon</p>
+          <div className="mt-8">
+            <div className="flex items-center gap-4 px-2 mb-6">
+              <p className="text-white/30 text-[10px] font-black uppercase tracking-[0.3em] flex-1">Liga Pokémon</p>
               {leagueLocked && (
-                <span className="bg-red-900/50 text-red-300 text-[8px] font-black px-2 py-0.5 rounded-full uppercase">
-                  🔒 Requer 8 insígnias ({badgeCount}/8)
+                <span className="bg-red-500/20 text-red-400 text-[9px] font-black px-4 py-1.5 rounded-full uppercase border border-red-500/30">
+                  🔒 {badgeCount}/8 INSÍGNIAS
                 </span>
               )}
             </div>
