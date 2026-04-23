@@ -59,7 +59,7 @@ const CityScreen = ({
   ];
 
   if (gameState.currentRoute === 'pallet_town') {
-    const rivalDefeated = gameState.worldFlags.includes('rival_defeated_1');
+    const rivalDefeated = gameState.worldFlags.includes('rival_lab_defeated');
     cityBuildings.push({
       id: 'oak_lab',
       name: 'Laboratório do Carvalho',

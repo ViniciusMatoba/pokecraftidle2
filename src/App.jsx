@@ -712,7 +712,7 @@ export default function App() {
           );
           return { ...prev, team: newTeam };
         } else {
-          if (currentEnemy.unlocks === 'rival_defeated_1') {
+          if (currentEnemy.unlocks === 'rival_1_defeated' || currentEnemy.unlockFlag === 'rival_1_defeated') {
             setCurrentView('rival_post_battle');
           } else {
             stopBGM(300);
@@ -1098,6 +1098,7 @@ export default function App() {
         trainerReward: battleData.reward || 1000,
         isBoss: true,
         unlockFlag: battleData.unlockFlag,
+        gymId: battleData.id,
         instanceId: Date.now()
       });
       setCurrentView('battles');
@@ -1129,7 +1130,8 @@ export default function App() {
       isTrainer: true,
       isBoss: true,
       background: fixPath('/battle_bg_lab_1776866008842.png'),
-      unlocks: 'rival_defeated_1',
+      unlockFlag: 'rival_lab_defeated',
+      isInitialRival: true,
       instanceId: Date.now()
     };
 
@@ -1185,7 +1187,13 @@ export default function App() {
         addLog(`🏅 Recebeu a Insígnia: ${currentEnemy.badgeToGive.replace(/_/g, ' ')}!`, 'system');
       }
 
-      // Salvar flag de vitória de Elite 4 / Líder de Ginásio
+      // Salvar flag de vitória específica do inimigo (Rival, Boss, etc)
+      if (currentEnemy.unlockFlag && !newFlags.includes(currentEnemy.unlockFlag)) {
+        newFlags.push(currentEnemy.unlockFlag);
+        addLog(`🚩 Progresso: ${currentEnemy.unlockFlag.replace(/_/g, ' ')}!`, 'system');
+      }
+
+      // Salvar flag de vitória de Elite 4 / Líder de Ginásio (Fallback)
       if (currentEnemy.gymId && !newFlags.includes(`defeated_elite_${currentEnemy.gymId}`)) {
         newFlags.push(`defeated_elite_${currentEnemy.gymId}`);
       }
@@ -1323,7 +1331,7 @@ export default function App() {
         return prev;
       });
       isProcessingVictory.current = false;
-      if (currentEnemy.unlocks === 'rival_defeated_1') {
+      if (currentEnemy.isInitialRival) {
         setCurrentView('rival_post_battle');
       } else if (currentEnemy.unlockFlag === 'rival_1_defeated') {
         setCurrentView('quest_oak_starters');

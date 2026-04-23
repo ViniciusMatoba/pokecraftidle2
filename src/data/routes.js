@@ -254,7 +254,7 @@ export const ROUTES = {
   vermilion_city: {
     id: 'vermilion_city', name: 'Cidade de Vermilion', type: 'city', group: 'Vermilion City',
     hasGym: true, gymLeader: GYM_LEADERS.ltsurge,
-    unlockLevel: 22, requirements: ['rival_3_defeated'],
+    unlockLevel: 22, requirements: ['cascade_badge'],
     enemies: [], trainers: [], trainerChance: 0,
     keyBattles: [
       { id: 'gym_ltsurge', name: 'Lider Lt. Surge — Ginasio de Vermilion', type: 'gym_leader', sprite: S.ltsurge,
@@ -362,7 +362,7 @@ export const ROUTES = {
   celadon_city: {
     id: 'celadon_city', name: 'Celadon City', type: 'city', group: 'Celadon City',
     hasGym: true, gymLeader: GYM_LEADERS.erika,
-    unlockLevel: 35, requirements: ['rocket_hideout_cleared'],
+    unlockLevel: 35, requirements: ['pokemon_tower_cleared'],
     enemies: [], trainers: [], trainerChance: 0,
     keyBattles: [
       { id: 'gym_erika', name: 'Lider Erika — Ginasio de Celadon', type: 'gym_leader', sprite: S.erika,
@@ -440,7 +440,7 @@ export const ROUTES = {
   saffron_city: {
     id: 'saffron_city', name: 'Saffron City', type: 'city', group: 'Saffron City',
     hasGym: true, gymLeader: GYM_LEADERS.sabrina,
-    unlockLevel: 42, requirements: ['silph_co_cleared'],
+    unlockLevel: 42, requirements: ['soul_badge'],
     enemies: [], trainers: [], trainerChance: 0,
     keyBattles: [
       { id: 'gym_sabrina', name: 'Lider Sabrina — Ginasio de Saffron', type: 'gym_leader', sprite: S.sabrina,
@@ -489,7 +489,7 @@ export const ROUTES = {
   cinnabar_island: {
     id: 'cinnabar_island', name: 'Cinnabar Island', type: 'city', group: 'Cinnabar Island',
     hasGym: true, gymLeader: GYM_LEADERS.blaine,
-    unlockLevel: 46, requirements: ['mansion_cleared'],
+    unlockLevel: 46, requirements: ['marsh_badge'],
     enemies: [], trainers: [], trainerChance: 0,
     keyBattles: [
       { id: 'gym_blaine', name: 'Lider Blaine — Ginasio de Cinnabar', type: 'gym_leader', sprite: S.blaine,
