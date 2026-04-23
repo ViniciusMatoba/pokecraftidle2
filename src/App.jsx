@@ -90,8 +90,8 @@ const trainerAvatars = [
 
 
 
-export const APP_VERSION = '1.6.6';
-export const APP_VERSION_DATE = '2026-04-23 12:15';
+export const APP_VERSION = '1.6.7';
+export const APP_VERSION_DATE = '2026-04-23 12:20';
 
 // Estado padrão do jogo para novos jogadores e migrações
 const DEFAULT_GAME_STATE = {
@@ -593,8 +593,11 @@ export default function App() {
 
     if (hasTrainers && Math.random() < trainerChance) {
       const trainer = route.trainers[Math.floor(Math.random() * route.trainers.length)];
-      const trainerPoke = trainer.team[0];
-      const maxHp = trainerPoke.maxHp || trainerPoke.hp || 30;
+      const trainerPokeRef = trainer.team[0];
+      const trainerPoke = trainerPokeRef.learnset
+        ? trainerPokeRef
+        : { ...(POKEDEX[Number(trainerPokeRef.id)] || trainerPokeRef), level: trainerPokeRef.level };
+      const maxHp = Math.floor((trainerPoke.maxHp || trainerPoke.hp || 30) * 1.3);
       setCurrentEnemy({
         ...trainerPoke,
         hp: maxHp, maxHp,
@@ -635,7 +638,11 @@ export default function App() {
       }
     }
 
-    const base = enemyPool[Math.floor(Math.random() * enemyPool.length)];
+    const baseRef = enemyPool[Math.floor(Math.random() * enemyPool.length)];
+    // Resolve dados completos do Pokédex (base pode ser apenas {id, level} vindo das rotas)
+    const base = baseRef.learnset
+      ? baseRef
+      : { ...(POKEDEX[Number(baseRef.id)] || POKEDEX[String(baseRef.id)] || baseRef), level: baseRef.level };
     
     // Sistema de Maestria: Chance de Shiny aumenta com as capturas
     const pokeId = Number(base.id);

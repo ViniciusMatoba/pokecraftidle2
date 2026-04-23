@@ -1,6 +1,5 @@
-import { POKEDEX } from './pokedex';
-
-const pk = (ids, level) => ids.map(id => ({ ...POKEDEX[id], level }));
+// POKEDEX resolvido em runtime pelo App — sem import circular
+const pk = (ids, level) => ids.map(id => ({ id: Number(id), level }));
 
 export const getRivalSprite = (playerAvatarImg) => {
   if (playerAvatarImg && playerAvatarImg.includes('blue.png')) {
