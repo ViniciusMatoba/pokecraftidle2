@@ -5,6 +5,7 @@
 
 html, body, #root {
   height: 100%;
+  height: 100dvh;
   margin: 0;
   padding: 0;
 }
@@ -41,6 +42,7 @@ body::after {
   align-items: center;
   justify-content: center;
   height: 100vh;
+  height: 100dvh;
   position: relative;
   z-index: 1;
 }
@@ -52,9 +54,13 @@ body::after {
   background: #f8fafc;
   overflow: hidden;
   width: 100vw;
+  /* dvh respeita a barra de endereço do browser mobile */
   height: 100vh;
+  height: 100dvh;
   border-radius: 0;
   box-shadow: none;
+  /* Safe area para iOS (notch/home indicator) */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .app-shell.pc-mode {

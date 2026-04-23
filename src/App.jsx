@@ -2012,24 +2012,26 @@ export default function App() {
       )}
 
       {(!loading && user) && (
-        <nav className="bg-white border-t-4 border-slate-200 grid grid-cols-4 h-20 shadow-lg flex-shrink-0 relative z-50">
-        <button onClick={() => setCurrentView('routes')} className={`flex flex-col items-center justify-center transition-all ${currentView === 'routes' ? 'text-pokeBlue scale-110' : 'text-slate-400 opacity-60'}`}>
-          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png" className="w-8 h-8 object-contain" alt="Routes" />
-          <span className="text-[9px] font-black uppercase mt-1">Rotas</span>
-        </button>
-        <button onClick={() => setCurrentView('pokemon_management')} className={`flex flex-col items-center justify-center transition-all ${currentView === 'pokemon_management' ? 'text-pokeRed scale-110' : 'text-slate-400 opacity-60'}`}>
-          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-8 h-8 object-contain" alt="Pokemons" />
-          <span className="text-[9px] font-black uppercase mt-1">Pokémons</span>
-        </button>
-        <button onClick={handleGoToCity} className={`flex flex-col items-center justify-center transition-all ${currentView === 'city' ? 'text-pokeGold scale-110' : 'text-slate-400 opacity-60'}`}>
-          <span className="text-2xl h-8 flex items-center">🏢</span>
-          <span className="text-[9px] font-black uppercase mt-1">Cidade</span>
-        </button>
-        <button onClick={() => setCurrentView('menu')} className={`flex flex-col items-center justify-center transition-all ${currentView === 'menu' ? 'text-slate-800 scale-110' : 'text-slate-400 opacity-60'}`}>
-          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png" className="w-8 h-8 object-contain" alt="Menu" />
-          <span className="text-[9px] font-black uppercase mt-1">Menu</span>
-        </button>
-      </nav>
+        <nav className="bg-white border-t-4 border-slate-200 grid grid-cols-4 flex-shrink-0 relative z-50 shadow-lg"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', minHeight: '4.5rem' }}
+        >
+          <button onClick={() => setCurrentView('routes')} className={`flex flex-col items-center justify-center py-2 transition-all ${currentView === 'routes' ? 'text-pokeBlue scale-110' : 'text-slate-400 opacity-60'}`}>
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png" className="w-7 h-7 object-contain" alt="Routes" />
+            <span className="text-[9px] font-black uppercase mt-0.5">Rotas</span>
+          </button>
+          <button onClick={() => setCurrentView('pokemon_management')} className={`flex flex-col items-center justify-center py-2 transition-all ${currentView === 'pokemon_management' ? 'text-pokeRed scale-110' : 'text-slate-400 opacity-60'}`}>
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-7 h-7 object-contain" alt="Pokemons" />
+            <span className="text-[9px] font-black uppercase mt-0.5">Pokémons</span>
+          </button>
+          <button onClick={handleGoToCity} className={`flex flex-col items-center justify-center py-2 transition-all ${currentView === 'city' ? 'text-pokeGold scale-110' : 'text-slate-400 opacity-60'}`}>
+            <span className="text-2xl h-7 flex items-center">🏢</span>
+            <span className="text-[9px] font-black uppercase mt-0.5">Cidade</span>
+          </button>
+          <button onClick={() => setCurrentView('menu')} className={`flex flex-col items-center justify-center py-2 transition-all ${currentView === 'menu' ? 'text-slate-800 scale-110' : 'text-slate-400 opacity-60'}`}>
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png" className="w-7 h-7 object-contain" alt="Menu" />
+            <span className="text-[9px] font-black uppercase mt-0.5">Menu</span>
+          </button>
+        </nav>
       )}
 
       {/* MODAIS DE CONSTRUÇÕES */}
