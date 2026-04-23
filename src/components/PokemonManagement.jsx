@@ -222,50 +222,91 @@ const PokemonManagement = ({
                </button>
                {(() => {
                  const poke = activePokemonDetails.pokemon;
-                 const TYPE_THEME = {
-                   Grass:    { grad: 'from-green-400 via-emerald-500 to-green-700',    icon: '🌿', badge: 'bg-green-600',   text: 'text-green-100', dots: 'bg-green-300/30' },
-                   Fire:     { grad: 'from-orange-400 via-red-500 to-rose-700',        icon: '🔥', badge: 'bg-red-600',     text: 'text-orange-100', dots: 'bg-orange-300/30' },
-                   Water:    { grad: 'from-sky-400 via-blue-500 to-blue-700',          icon: '💧', badge: 'bg-blue-600',    text: 'text-sky-100', dots: 'bg-blue-300/30' },
-                   Electric: { grad: 'from-yellow-300 via-amber-400 to-yellow-600',    icon: '⚡', badge: 'bg-yellow-500',  text: 'text-yellow-900', dots: 'bg-yellow-200/40' },
-                   Poison:   { grad: 'from-purple-400 via-violet-500 to-purple-800',   icon: '☠️', badge: 'bg-purple-700',  text: 'text-purple-100', dots: 'bg-purple-300/30' },
-                   Psychic:  { grad: 'from-pink-400 via-fuchsia-500 to-pink-700',      icon: '🔮', badge: 'bg-pink-600',    text: 'text-pink-100', dots: 'bg-pink-300/30' },
-                   Rock:     { grad: 'from-stone-400 via-stone-500 to-stone-700',      icon: '🪨', badge: 'bg-stone-600',   text: 'text-stone-100', dots: 'bg-stone-300/30' },
-                   Ground:   { grad: 'from-amber-400 via-yellow-600 to-amber-800',     icon: '⛰️', badge: 'bg-amber-700',   text: 'text-amber-100', dots: 'bg-amber-300/30' },
-                   Ice:      { grad: 'from-cyan-300 via-sky-400 to-cyan-600',          icon: '❄️', badge: 'bg-cyan-600',    text: 'text-cyan-100', dots: 'bg-cyan-200/30' },
-                   Fighting: { grad: 'from-red-500 via-rose-600 to-red-800',           icon: '🥊', badge: 'bg-red-700',     text: 'text-red-100', dots: 'bg-red-300/30' },
-                   Bug:      { grad: 'from-lime-400 via-green-500 to-lime-700',        icon: '🐛', badge: 'bg-lime-600',    text: 'text-lime-100', dots: 'bg-lime-300/30' },
-                   Ghost:    { grad: 'from-indigo-500 via-violet-700 to-slate-900',    icon: '👻', badge: 'bg-indigo-700',  text: 'text-indigo-100', dots: 'bg-indigo-300/20' },
-                   Dragon:   { grad: 'from-blue-600 via-indigo-700 to-violet-900',     icon: '🐉', badge: 'bg-indigo-800',  text: 'text-blue-100', dots: 'bg-blue-300/20' },
-                   Dark:     { grad: 'from-slate-600 via-slate-800 to-slate-950',      icon: '🌑', badge: 'bg-slate-800',   text: 'text-slate-200', dots: 'bg-slate-400/20' },
-                   Steel:    { grad: 'from-slate-400 via-zinc-500 to-slate-700',       icon: '⚙️', badge: 'bg-zinc-600',    text: 'text-zinc-100', dots: 'bg-zinc-300/30' },
-                   Fairy:    { grad: 'from-pink-300 via-rose-400 to-pink-600',         icon: '✨', badge: 'bg-pink-500',    text: 'text-pink-100', dots: 'bg-pink-200/40' },
-                   Flying:   { grad: 'from-sky-300 via-indigo-400 to-sky-600',         icon: '🪶', badge: 'bg-sky-600',     text: 'text-sky-100', dots: 'bg-sky-200/30' },
-                   Normal:   { grad: 'from-slate-300 via-slate-400 to-slate-600',      icon: '⭐', badge: 'bg-slate-500',   text: 'text-slate-100', dots: 'bg-slate-200/30' },
+                 // poke.types vem do POKEDEX (array), fallback para poke.type string
+                 const types = (poke.types && poke.types.length > 0) ? poke.types : [poke.type || 'Normal'];
+                 const t1 = types[0] || 'Normal';
+                 const t2 = types[1] || null;
+
+                 // Cores por tipo (hex para usar inline no gradiente)
+                 const TYPE_COLOR = {
+                   Normal: '#9ea0aa', Fire: '#ff9741', Water: '#3391d4', Grass: '#38bf4f',
+                   Electric: '#fbd100', Ice: '#70cbd4', Fighting: '#e0306a', Poison: '#b567ce',
+                   Ground: '#e87236', Flying: '#89aae3', Psychic: '#ff6675', Bug: '#83c300',
+                   Rock: '#c9bb8a', Ghost: '#4c6ab2', Dragon: '#006fc9', Dark: '#5b5466',
+                   Steel: '#5a8ea2', Fairy: '#fb89eb',
                  };
-                 const theme = TYPE_THEME[poke.type] || TYPE_THEME.Normal;
-                 const shinyGrad = poke.isShiny ? 'from-yellow-300 via-amber-400 to-yellow-600' : theme.grad;
+
+                 // Badge color per type (Tailwind bg)
+                 const TYPE_BADGE = {
+                   Normal: 'bg-[#9ea0aa]', Fire: 'bg-[#ff9741]', Water: 'bg-[#3391d4]',
+                   Grass: 'bg-[#38bf4f]', Electric: 'bg-[#fbd100]', Ice: 'bg-[#70cbd4]',
+                   Fighting: 'bg-[#e0306a]', Poison: 'bg-[#b567ce]', Ground: 'bg-[#e87236]',
+                   Flying: 'bg-[#89aae3]', Psychic: 'bg-[#ff6675]', Bug: 'bg-[#83c300]',
+                   Rock: 'bg-[#c9bb8a]', Ghost: 'bg-[#4c6ab2]', Dragon: 'bg-[#006fc9]',
+                   Dark: 'bg-[#5b5466]', Steel: 'bg-[#5a8ea2]', Fairy: 'bg-[#fb89eb]',
+                 };
+
+                 // Ícone de tipo SVG do PokeAPI (repositório oficial de ícones de tipo)
+                 const typeIconUrl = (t) => `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg`;
+
+                 const c1 = TYPE_COLOR[t1] || '#9ea0aa';
+                 const c2 = t2 ? (TYPE_COLOR[t2] || '#9ea0aa') : c1;
+
+                 // Gradiente inline suportando dual-type
+                 const bgStyle = poke.isShiny
+                   ? { background: 'linear-gradient(160deg, #fde68a 0%, #f59e0b 50%, #d97706 100%)' }
+                   : t2
+                     ? { background: `linear-gradient(160deg, ${c1} 0%, ${c1}bb 40%, ${c2}bb 60%, ${c2} 100%)` }
+                     : { background: `linear-gradient(160deg, ${c1}88 0%, ${c1} 60%, ${c1}dd 100%)` };
+
                  return (
-                   <div className={`h-40 w-full relative flex flex-col items-center justify-end bg-gradient-to-b ${shinyGrad} shadow-inner overflow-hidden`}>
-                     <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px)`, backgroundSize: '20px 20px' }} />
-                     <span className="absolute top-2 right-3 text-4xl opacity-30 select-none pointer-events-none">{poke.isShiny ? '✨' : theme.icon}</span>
-                     <span className="absolute top-2 left-12 text-5xl opacity-10 select-none pointer-events-none">{poke.isShiny ? '✨' : theme.icon}</span>
-                     <div className={`absolute top-3 right-3 ${poke.isShiny ? 'bg-yellow-500' : theme.badge} px-3 py-1 rounded-full flex items-center gap-1 shadow`}>
-                       <span className="text-xs">{poke.isShiny ? '⭐' : theme.icon}</span>
-                       <span className="text-[9px] font-black text-white uppercase tracking-widest">{poke.isShiny ? 'Shiny' : poke.type}</span>
+                   <div className="h-44 w-full relative flex flex-col items-center justify-end overflow-hidden shadow-inner" style={bgStyle}>
+                     {/* Padrão de pontos */}
+                     <div className="absolute inset-0 pointer-events-none"
+                       style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+
+                     {/* Ícones de tipo grandes no fundo (decoração) */}
+                     <img src={typeIconUrl(t1)} className="absolute -left-4 bottom-2 w-28 h-28 opacity-10 pointer-events-none select-none invert" alt="" />
+                     {t2 && <img src={typeIconUrl(t2)} className="absolute -right-2 top-2 w-24 h-24 opacity-10 pointer-events-none select-none invert" alt="" />}
+
+                     {/* Badges de tipo no topo */}
+                     <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-end z-10">
+                       {poke.isShiny && (
+                         <div className="bg-yellow-500 px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
+                           <span className="text-xs">⭐</span>
+                           <span className="text-[9px] font-black text-white uppercase tracking-widest">Shiny</span>
+                         </div>
+                       )}
+                       {types.map(t => (
+                         <div key={t} className={`${TYPE_BADGE[t] || 'bg-slate-500'} px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-md`}>
+                           <img src={typeIconUrl(t)} className="w-3.5 h-3.5 invert" alt={t}
+                             onError={e => { e.target.style.display = 'none'; }} />
+                           <span className="text-[9px] font-black text-white uppercase tracking-wider">{t}</span>
+                         </div>
+                       ))}
                      </div>
-                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`}
+
+                     {/* Sprite do Pokémon */}
+                     <img
+                       src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`}
                        className={`w-32 h-32 object-contain translate-y-8 relative z-10 drop-shadow-2xl ${poke.isShiny ? 'drop-shadow-[0_0_20px_rgba(234,179,8,0.9)]' : ''}`}
-                       alt={poke.name} />
+                       alt={poke.name}
+                     />
                    </div>
                  );
                })()}
                <div className="flex-1 overflow-y-auto px-8 pt-12 pb-4 custom-scrollbar">
                   <div className="text-center mb-6">
-                     <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">{activePokemonDetails.pokemon.name}{activePokemonDetails.pokemon.isShiny && <span className="ml-2 text-yellow-500">⭐</span>}</h3>
+                     <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">
+                       {activePokemonDetails.pokemon.name}
+                       {activePokemonDetails.pokemon.isShiny && <span className="ml-2 text-yellow-500">⭐</span>}
+                     </h3>
                      <div className="flex items-center justify-center gap-2 mt-2">
                         <span className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Nv. {activePokemonDetails.pokemon.level}</span>
                         <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
-                        <span className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">{activePokemonDetails.pokemon.type}</span>
+                        <span className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">
+                          {(activePokemonDetails.pokemon.types || [activePokemonDetails.pokemon.type]).join(' / ')}
+                        </span>
                      </div>
                   </div>
 
