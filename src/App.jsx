@@ -2026,7 +2026,7 @@ export default function App() {
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto overscroll-contain p-4 w-full relative z-10 custom-scrollbar" style={{ minHeight: 0 }}>
+          <main className="flex-1 overflow-y-auto overscroll-contain pt-4 px-4 pb-0 w-full relative z-10 custom-scrollbar" style={{ minHeight: 0 }}>
             {renderView()}
           </main>
         </>
@@ -2138,8 +2138,8 @@ export default function App() {
       )}
 
       {(!loading && user) && (
-        <nav className="bg-white border-t-4 border-slate-200 grid grid-cols-4 z-50 shadow-lg"
-          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', minHeight: '4.5rem', flexShrink: 0, position: 'sticky', bottom: 0 }}
+        <nav className="bg-white border-t-4 border-slate-200 grid grid-cols-4 z-50 shadow-lg relative"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', minHeight: '4.5rem', flexShrink: 0 }}
         >
           <button onClick={() => setCurrentView('routes')} className={`flex flex-col items-center justify-center py-2 transition-all ${currentView === 'routes' ? 'text-pokeBlue scale-110' : 'text-slate-400 opacity-60'}`}>
             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png" className="w-7 h-7 object-contain" alt="Routes" />
