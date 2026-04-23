@@ -692,13 +692,12 @@ export default function App() {
 
   useEffect(() => {
     if (currentView === 'battles' && (!currentEnemy || currentEnemy.hp <= 0)) {
-      // Se não houver inimigo ou o inimigo estiver derrotado mas o spawn não ocorreu
+      const delay = !currentEnemy ? 50 : 800;
       const timer = setTimeout(() => {
         if (currentView === 'battles' && (!currentEnemy || currentEnemy.hp <= 0)) {
-          if (isProcessingVictory.current && currentEnemy?.hp <= 0) return; // Espera o loop de vitória natural
           spawnEnemy();
         }
-      }, 800);
+      }, delay);
       return () => clearTimeout(timer);
     }
   }, [currentView, currentEnemy?.id, currentEnemy?.hp, spawnEnemy]);
