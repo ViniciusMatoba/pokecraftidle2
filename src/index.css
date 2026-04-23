@@ -145,6 +145,11 @@ body::after {
   to   { transform: translateX(60px); opacity: 0; }
 }
 
+@keyframes slideInUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
 .animate-float         { animation: float         3s  ease-in-out infinite; }
 .animate-float-slow    { animation: float-slow    8s  ease-in-out infinite; }
 .animate-float-delayed { animation: float-delayed 10s ease-in-out infinite 2s; }
@@ -152,6 +157,7 @@ body::after {
 .animate-fadeOutRight  { animation: fadeOutRight  0.5s ease-in  forwards; }
 .animate-slideUp       { animation: slideUp       0.5s ease-out forwards; }
 .animate-slideInRight  { animation: slideInRight  0.4s ease-out forwards; }
+.animate-slideInUp     { animation: slideInUp     0.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
 .animate-bounceIn      { animation: bounceIn      0.4s ease-out forwards; }
 .animate-floatUp       { animation: floatUp       1.2s ease-out forwards; }
 .animate-spin-slow     { animation: spin          6s  linear    infinite; }

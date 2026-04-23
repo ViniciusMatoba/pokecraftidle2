@@ -135,8 +135,9 @@ const TravelScreen = ({
       </div>
            {/* Modal de Detalhes da Rota */}
       {selectedRoute && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl overflow-y-auto max-h-[90vh] flex flex-col animate-bounceIn custom-scrollbar">
+        <div className="fixed inset-0 z-[200] flex items-end md:items-center justify-center p-3 md:p-4 bg-slate-900/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white w-full max-w-md rounded-t-[2.5rem] md:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col animate-slideInUp" style={{ maxHeight: '85dvh' }}>
+            <div className="overflow-y-auto custom-scrollbar flex-1">
             <div className="h-40 relative flex-shrink-0">
               <img src={fixPath(selectedRoute.background)} className="w-full h-full object-cover" alt="" />
               <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
@@ -245,7 +246,8 @@ const TravelScreen = ({
                 >Caminho Bloqueado</button>
               )}
             </div>
-          </div>
+          </div>{/* fecha scroll */}
+          </div>{/* fecha card */}
         </div>
       )}
 

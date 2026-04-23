@@ -749,40 +749,58 @@ export default function App() {
       let updatedEnemy = { ...currentEnemy };
 
       if (move.category === 'Status' || move.power === 0) {
-        // Lógica Genérica de Buff/Debuff
-        nextDelay = 600; 
-        const targetType = move.target || 'enemy';
+        nextDelay = 600;
         const changes = move.statChanges || [];
 
         changes.forEach(c => {
-          const stat = c.stat; // ja mapeado para attack, defense, spAtk, spDef, speed
+          const stat = c.stat;
           const change = c.change;
 
-          if (targetType === 'enemy') {
+          // Regra correta: change < 0 = debuff no INIMIGO (abaixar stats do oponente)
+          //                change > 0 = buff no PRÓPRIO pokémon
+          if (change < 0) {
+            // Debuff aplicado no inimigo
             const current = updatedEnemy.stages?.[stat] || 0;
             updatedEnemy.stages = { ...updatedEnemy.stages, [stat]: Math.max(-6, Math.min(6, current + change)) };
-            addLog(`💢 ${myPoke.name} usou ${move.name}! ${stat.toUpperCase()} de ${updatedEnemy.name} ${change > 0 ? 'subiu' : 'caiu'}!`, 'system');
-            addFloat(`${stat.toUpperCase()} ${change > 0 ? '▲' : '▼'}`, change > 0 ? '#3b82f6' : '#64748b');
+            addLog(`💢 ${myPoke.name} usou ${move.name}! ${stat === 'defense' ? 'Defesa' : stat === 'attack' ? 'Ataque' : stat === 'speed' ? 'Velocidade' : stat === 'spAtk' ? 'Atq.Esp' : 'Def.Esp'} de ${updatedEnemy.name} caiu!`, 'system');
+            addFloat(`▼ ${stat.toUpperCase()}`, '#64748b');
           } else {
+            // Buff aplicado no próprio pokémon
             const current = updatedTeam[activeMemberIndex].stages?.[stat] || 0;
-            updatedTeam[activeMemberIndex].stages = { ...updatedTeam[activeMemberIndex].stages, [stat]: Math.max(-6, Math.min(6, current + change)) };
-            addLog(`✨ ${myPoke.name} usou ${move.name}! ${stat.toUpperCase()} subiu!`, 'system');
-            addFloat(`${stat.toUpperCase()} ▲`, '#3b82f6');
+            updatedTeam[activeMemberIndex] = { ...updatedTeam[activeMemberIndex], stages: { ...updatedTeam[activeMemberIndex].stages, [stat]: Math.max(-6, Math.min(6, current + change)) } };
+            addLog(`✨ ${myPoke.name} usou ${move.name}! ${stat === 'defense' ? 'Defesa' : stat === 'attack' ? 'Ataque' : stat.toUpperCase()} subiu!`, 'system');
+            addFloat(`▲ ${stat.toUpperCase()}`, '#3b82f6');
           }
         });
 
-        // Caso especial para nomes que não tem statChanges definidos no banco ainda
-        if (changes.length === 0) {
-           if (move.name === 'Rosnado') {
-             const current = updatedEnemy.stages?.attack || 0;
-             updatedEnemy.stages = { ...updatedEnemy.stages, attack: Math.max(-6, current - 1) };
-             addLog(`💢 ${myPoke.name} usou ${move.name}! Ataque de ${updatedEnemy.name} caiu!`, 'system');
-           } else if (move.name === 'Chicote de Cauda' || move.name === 'Encarar') {
-             const current = updatedEnemy.stages?.defense || 0;
-             updatedEnemy.stages = { ...updatedEnemy.stages, defense: Math.max(-6, current - 1) };
-             addLog(`💢 ${myPoke.name} usou ${move.name}! Defesa de ${updatedEnemy.name} caiu!`, 'system');
-           }
+        // Status conditions (burn, poison, sleep, paralysis, confuse)
+        if (move.statusEffect) {
+          const effect = move.statusEffect; // 'burn'|'poison'|'sleep'|'paralyze'|'confuse'
+          const alreadyHas = (updatedEnemy.status || []).includes(effect);
+          if (!alreadyHas) {
+            updatedEnemy.status = [...(updatedEnemy.status || []), effect];
+            const effectNames = { burn: '🔥 Queimadura', poison: '☠️ Veneno', sleep: '💤 Sono', paralyze: '⚡ Paralisia', confuse: '💫 Confusão' };
+            addLog(`${effectNames[effect] || effect}: ${updatedEnemy.name} foi afetado!`, 'enemy');
+          }
         }
+
+        // Fallback por nome de golpe (sem statChanges definido)
+        if (changes.length === 0) {
+          if (move.name === 'Rosnado' || move.name === 'Growl') {
+            const current = updatedEnemy.stages?.attack || 0;
+            updatedEnemy.stages = { ...updatedEnemy.stages, attack: Math.max(-6, current - 1) };
+            addLog(`💢 ${myPoke.name} usou ${move.name}! Ataque de ${updatedEnemy.name} caiu!`, 'system');
+          } else if (move.name === 'Chicote de Cauda' || move.name === 'Tail Whip' || move.name === 'Encarar' || move.name === 'Leer') {
+            const current = updatedEnemy.stages?.defense || 0;
+            updatedEnemy.stages = { ...updatedEnemy.stages, defense: Math.max(-6, current - 1) };
+            addLog(`💢 ${myPoke.name} usou ${move.name}! Defesa de ${updatedEnemy.name} caiu!`, 'system');
+          } else if (move.name === 'Olhar Hipnótico' || move.name === 'Sand Attack') {
+            const current = updatedEnemy.stages?.speed || 0;
+            updatedEnemy.stages = { ...updatedEnemy.stages, speed: Math.max(-6, current - 1) };
+            addLog(`💢 ${myPoke.name} usou ${move.name}! Velocidade de ${updatedEnemy.name} caiu!`, 'system');
+          }
+        }
+
         setCurrentEnemy(updatedEnemy);
       } else {
         const playerDmg = calcDamage(myPoke, move, updatedEnemy);
@@ -803,28 +821,27 @@ export default function App() {
                changes.forEach(c => {
                  const stat = c.stat;
                  const change = c.change;
-                 // change > 0 = buff no próprio inimigo; change < 0 = debuff no jogador
+                 // Inimigo: change < 0 = debuffa o jogador; change > 0 = buffa si mesmo
                  if (change > 0) {
-                    // Inimigo se bufa
                     const current = updatedEnemy.stages?.[stat] || 0;
                     updatedEnemy.stages = { ...updatedEnemy.stages, [stat]: Math.min(6, current + change) };
-                    addLog(`⚠️ ${updatedEnemy.name} usou ${enemyMove.name}! ${stat.toUpperCase()} subiu!`, 'enemy');
+                    addLog(`⚠️ ${updatedEnemy.name} usou ${enemyMove.name}! ${stat === 'attack' ? 'Ataque' : stat === 'defense' ? 'Defesa' : stat.toUpperCase()} subiu!`, 'enemy');
                  } else {
-                    // Inimigo debuffa o jogador
+                    // Debuff aplica no jogador
                     const current = updatedTeam[activeMemberIndex].stages?.[stat] || 0;
-                    updatedTeam[activeMemberIndex].stages = { ...updatedTeam[activeMemberIndex].stages, [stat]: Math.max(-6, current + change) };
-                    addLog(`⚠️ ${updatedEnemy.name} usou ${enemyMove.name}! ${stat.toUpperCase()} de ${updatedTeam[activeMemberIndex].name} caiu!`, 'enemy');
+                    updatedTeam[activeMemberIndex] = { ...updatedTeam[activeMemberIndex], stages: { ...updatedTeam[activeMemberIndex].stages, [stat]: Math.max(-6, current + change) } };
+                    addLog(`⚠️ ${updatedEnemy.name} usou ${enemyMove.name}! ${stat === 'defense' ? 'Defesa' : stat === 'attack' ? 'Ataque' : stat.toUpperCase()} de ${updatedTeam[activeMemberIndex].name} caiu!`, 'enemy');
                  }
                });
              } else {
-               // Fallback por nome
-               if (enemyMove.name === 'Chicote de Cauda' || enemyMove.name === 'Encarar') {
+               // Fallback por nome — inimigos com Tail Whip derrubam defesa do jogador
+               if (enemyMove.name === 'Chicote de Cauda' || enemyMove.name === 'Tail Whip' || enemyMove.name === 'Encarar' || enemyMove.name === 'Leer') {
                   const myStages = updatedTeam[activeMemberIndex].stages || {};
-                  updatedTeam[activeMemberIndex].stages = { ...myStages, defense: Math.max(-6, (myStages.defense || 0) - 1) };
+                  updatedTeam[activeMemberIndex] = { ...updatedTeam[activeMemberIndex], stages: { ...myStages, defense: Math.max(-6, (myStages.defense || 0) - 1) } };
                   addLog(`⚠️ ${updatedEnemy.name} usou ${enemyMove.name}! Defesa de ${updatedTeam[activeMemberIndex].name} caiu!`, 'enemy');
-               } else if (enemyMove.name === 'Rosnado') {
+               } else if (enemyMove.name === 'Rosnado' || enemyMove.name === 'Growl') {
                   const myStages = updatedTeam[activeMemberIndex].stages || {};
-                  updatedTeam[activeMemberIndex].stages = { ...myStages, attack: Math.max(-6, (myStages.attack || 0) - 1) };
+                  updatedTeam[activeMemberIndex] = { ...updatedTeam[activeMemberIndex], stages: { ...myStages, attack: Math.max(-6, (myStages.attack || 0) - 1) } };
                   addLog(`⚠️ ${updatedEnemy.name} usou ${enemyMove.name}! Ataque de ${updatedTeam[activeMemberIndex].name} caiu!`, 'enemy');
                }
              }
