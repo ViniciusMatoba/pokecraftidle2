@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/',
   build: {
+    minify: false, // DESATIVADO PARA DEPURAÇÃO DE REFERENCEERROR
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -13,6 +14,6 @@ export default defineConfig({
         }
       }
     },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 2000,
   }
 })
