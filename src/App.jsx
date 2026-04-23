@@ -90,8 +90,8 @@ const trainerAvatars = [
 
 
 
-export const APP_VERSION = '1.6.3';
-export const APP_VERSION_DATE = '2026-04-23 11:55';
+export const APP_VERSION = '1.6.4';
+export const APP_VERSION_DATE = '2026-04-23 12:00';
 
 // Estado padrão do jogo para novos jogadores e migrações
 const DEFAULT_GAME_STATE = {
@@ -230,6 +230,10 @@ export default function App() {
 
   const [sessionStats, setSessionStats] = useState(null);
   const sessionRef = useRef({ kills: 0, coins: 0, trainers: 0, shinyKills: 0, drops: {}, captures: [] });
+  const isProcessingVictory = useRef(false);
+  const isProcessingTurn = useRef(false);
+  const currentViewRef = useRef('landing');
+  const lastSyncRef = useRef(0);
 
   const resetSession = () => {
     sessionRef.current = { kills: 0, coins: 0, trainers: 0, shinyKills: 0, drops: {}, captures: [] };
@@ -443,7 +447,6 @@ export default function App() {
 
 
   // ─── FIREBASE CLOUD SYNC ──────────────────────────────────────────────────
-  const lastSyncRef = useRef(0);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -705,7 +708,6 @@ export default function App() {
 
   // Ref para currentView — permite que handleBattleTick leia o valor atual
   // sem precisar estar nas deps do useCallback (o que recriaria o timer a cada mudança de view)
-  const currentViewRef = useRef(currentView);
   useEffect(() => { currentViewRef.current = currentView; }, [currentView]);
 
   // ─── TICK DE BATALHA ─────────────────────────────────────────────────────────
@@ -1164,7 +1166,6 @@ export default function App() {
     playBGM('rival');
   }, [gameState.team, gameState.trainer, playBGM, setCurrentEnemy, setCurrentView, addLog]);
 
-  const isProcessingVictory = useRef(false);
 
   useEffect(() => {
     if (!currentEnemy || currentEnemy.hp > 0) return;
