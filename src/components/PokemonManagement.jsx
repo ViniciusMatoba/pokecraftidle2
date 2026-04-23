@@ -17,7 +17,9 @@ const PokemonManagement = ({
   setEvolutionPending
 }) => {
   const translateMove = (moveName) => {
-    return MOVE_TRANSLATIONS[moveName.toLowerCase()] || moveName.replace(/-/g, ' ');
+    if (!moveName) return '---';
+    const key = String(moveName).toLowerCase();
+    return MOVE_TRANSLATIONS[key] || moveName.replace(/-/g, ' ');
   };
 
   const moveToPC = (index) => {
@@ -247,7 +249,7 @@ const PokemonManagement = ({
                  };
 
                  // Ícone de tipo SVG do PokeAPI (repositório oficial de ícones de tipo)
-                 const typeIconUrl = (t) => `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg`;
+                 const typeIconUrl = (t) => t ? `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg` : '';
 
                  const c1 = TYPE_COLOR[t1] || '#9ea0aa';
                  const c2 = t2 ? (TYPE_COLOR[t2] || '#9ea0aa') : c1;

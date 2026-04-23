@@ -284,8 +284,9 @@ export default function App() {
             .filter(m => m.level <= (p.level || 5))
             .map(m => {
               const moveData = MOVES[m.move] || { name: m.move, power: 40, type: 'Normal' };
+              const moveKey = (m.move || '').toLowerCase();
               return {
-                name: MOVE_TRANSLATIONS[m.move.toLowerCase()] || moveData.name || m.move,
+                name: MOVE_TRANSLATIONS[moveKey] || moveData.name || m.move,
                 power: moveData.power || 0,
                 type: moveData.type || 'Normal'
               };
@@ -426,14 +427,16 @@ export default function App() {
 
   // ─── FÓRMULA DE DANO (inspirada na Gen 1) ───────────────────────────────────
   const calcDamage = useCallback((attacker, move, defender) => {
-    if (!attacker || !defender || !move || move.power === 0) return 0;
+    if (!attacker || !defender || !move || !move.power) return 0;
     const level = attacker.level || 5;
     const power = move.power || 40;
 
     const getStatMult = (stage = 0) => (2 + Math.max(0, stage)) / (2 - Math.min(0, stage));
 
-    // Nova Categoria (Physical/Special) - Suporta moves da base global
-    const moveData = MOVES[move.name.toLowerCase().replace(/ /g, '-')] || move;
+    // Proteção contra move ou name undefined
+    const moveName = move?.name || 'Investida';
+    const moveKey = (moveName || '').toLowerCase();
+    const moveData = MOVES[moveKey.replace(/ /g, '-')] || move || {};
     const isPhysical = (moveData.category || 'Physical') === 'Physical';
     
     const atkBase = isPhysical ? getEffectiveStat(attacker, 'attack') : getEffectiveStat(attacker, 'spAtk');
@@ -466,7 +469,7 @@ export default function App() {
     // NOVA LÓGICA DE DROPS DO USUÁRIO
     // 1. Essência por Tipo (60% de chance)
     if (Math.random() < 0.6) {
-      const essenceType = `${enemy.type.toLowerCase()}_essence`;
+      const essenceType = `${(enemy.type || 'normal').toLowerCase()}_essence`;
       drops.materials[essenceType] = (drops.materials[essenceType] || 0) + 1;
       messages.push(`✨ 1x Essência ${enemy.type}`);
     }
@@ -604,8 +607,8 @@ export default function App() {
     const availableMoves = learnset
       .filter(m => m.level <= level)
       .map(m => {
-        const moveKey = m.move.toLowerCase();
-        const moveData = MOVES[moveKey] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
+        const moveKey = (m.move || '').toLowerCase();
+        const moveData = MOVES[moveKey] || { name: m.move || 'Investida', power: 40, type: 'Normal', category: 'Physical' };
         return {
           ...moveData,
           name: MOVE_TRANSLATIONS[moveKey] || moveData.name || m.move,
@@ -742,7 +745,7 @@ export default function App() {
 
       // Turno do Jogador
       const moves = myPoke.moves || [];
-      const move = moves.length > 0 ? moves[moveIndex % moves.length] : { name: 'Investida', power: 40, type: 'Normal' };
+      const move = (moves.length > 0 && moves[moveIndex % moves.length]) || { name: 'Investida', power: 40, type: 'Normal', category: 'Physical' };
       
       let updatedTeamFinal = [...updatedTeam];
       let updatedEnemyFinal = { ...updatedEnemy };
@@ -782,7 +785,7 @@ export default function App() {
         updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - playerDmg);
         addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
         if (eff > 1) addLog("💥 É super efetivo!", 'system');
-        if (eff > 0 && eff < 1) addLog("🛡️ Não é muito efetivo...", 'system');
+        if (eff > 0 && eff < 1) addLog("🛡️ Não é muito efetivo!", 'system');
         if (eff === 0) addLog("🚫 Não afetou o inimigo!", 'system');
       }
 
@@ -821,7 +824,7 @@ export default function App() {
                       addLog(`⚠️ ${updatedEnemyFinal.name} usou ${enemyMove.name}! ${stat.toUpperCase()} subiu!`, 'enemy');
                    } else {
                       const current = updatedTeamFinal[activeMemberIndex].stages?.[stat] || 0;
-                      updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, [stat]: Math.max(-6, current + change) } };
+                      updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, [stat]: Math.max(-6, Math.min(6, current + change)) } };
                       addLog(`⚠️ ${updatedEnemyFinal.name} usou ${enemyMove.name}! ${stat.toUpperCase()} de ${updatedTeamFinal[activeMemberIndex].name} caiu!`, 'enemy');
                    }
                  });
@@ -1000,7 +1003,7 @@ export default function App() {
     const availableMoves = learnset
       .filter(m => m.level <= lvl)
       .map(m => {
-        const mk = m.move.toLowerCase();
+        const mk = (m.move || '').toLowerCase();
         const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
         return { ...md, name: MOVE_TRANSLATIONS[mk] || md.name || m.move };
       });
@@ -1219,7 +1222,7 @@ export default function App() {
           if (pokeData?.learnset) {
             const movesToLearn = pokeData.learnset.filter(l => l.level === newLevel);
             movesToLearn.forEach(learn => {
-              const moveKey = learn.move.toLowerCase();
+              const moveKey = (learn.move || '').toLowerCase();
               const moveData = MOVES[moveKey];
               if (moveData && !newLearnedMoves.some(m => m.name === (MOVE_TRANSLATIONS[moveKey] || moveData.name))) {
                 const moveObj = { 

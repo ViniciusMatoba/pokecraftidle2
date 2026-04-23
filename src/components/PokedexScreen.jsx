@@ -11,8 +11,8 @@ const PokedexScreen = ({ POKEDEX, caughtData, onBack }) => {
   const filteredList = useMemo(() => {
     if (!searchTerm) return pokedexList;
     return pokedexList.filter(p => 
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      p.id.toString() === searchTerm
+      (p.name || '').toLowerCase().includes((searchTerm || '').toLowerCase()) || 
+      String(p.id).includes(searchTerm)
     );
   }, [pokedexList, searchTerm]);
 
