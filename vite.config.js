@@ -7,9 +7,12 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // Desativando manualChunks temporariamente para depurar ReferenceError
+        manualChunks(id) {
+          if (id.includes('data/pokedex')) return 'pokedex';
+          if (id.includes('data/moves'))   return 'moves';
+        }
       }
     },
-    chunkSizeWarningLimit: 2000,
+    chunkSizeWarningLimit: 1000,
   }
 })
