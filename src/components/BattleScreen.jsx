@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBadges } from './CommonUI';
+import { BATTLE_BACKGROUNDS } from '../data/battleBackgrounds';
 
 const BattleScreen = ({ 
   currentEnemy, gameState, activeMemberIndex, moveIndex, weather,
@@ -23,11 +24,6 @@ const BattleScreen = ({
 
   if (!currentEnemy) return <div className="h-full flex items-center justify-center"><p className="font-black uppercase text-slate-400 animate-pulse text-sm">Procurando...</p></div>;
 
-  const hpPercent = ((currentEnemy.hp || 0) / (currentEnemy.maxHp || 1)) * 100;
-  const route = ROUTES[gameState.currentRoute] || ROUTES.pallet_town;
-  const bgUrl = fixPath(currentEnemy.background || route.background || '');
-  const activePoke = gameState.team?.[activeMemberIndex];
-  const autoConfig = gameState.autoConfig || { autoPokeball: true, autoPotion: false, autoPotionHpPct: 30, focusPokemonIndex: 0 };
 
   const getMoveDesc = (move) => {
     if (!move) return '';
@@ -45,13 +41,114 @@ const BattleScreen = ({
     return descs[move.name] || 'Golpe de status — efeito especial.';
   };
 
+  const hpPercent = ((currentEnemy.hp || 0) / (currentEnemy.maxHp || 1)) * 100;
+  const route = ROUTES[gameState.currentRoute] || ROUTES.pallet_town;
+  
+  // Prioridade: Background do Inimigo (Gym/Boss) > Background da Rota > Default
+  const bgTheme = BATTLE_BACKGROUNDS[gameState.currentRoute];
+  const customBg = currentEnemy.background || route.background;
+  
+  // Se o background for um gradiente (começa com linear-gradient), usamos direto. 
+  // Caso contrário, tentamos o tema da rota ou o default.
+  const mainBackground = (customBg && customBg.includes('gradient')) 
+    ? customBg 
+    : (bgTheme?.sky || 'linear-gradient(180deg, #87ceeb 0%, #b0e0ff 55%, #d4f0a0 55%, #7cb850 100%)');
+
+  const activePoke = gameState.team?.[activeMemberIndex];
+  const autoConfig = gameState.autoConfig || { autoPokeball: true, autoPotion: false, autoPotionHpPct: 30, focusPokemonIndex: 0 };
+
   return (
     <div className="flex flex-col h-full animate-fadeIn pb-20 gap-2 overflow-y-auto custom-scrollbar">
 
       {/* ── ARENA ── */}
       <div className="relative overflow-hidden rounded-2xl shadow-xl flex-shrink-0"
-        style={{ height: 220, backgroundImage: `url(${bgUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        style={{ 
+          height: 220, 
+          background: mainBackground,
+          backgroundSize: 'cover', 
+          backgroundPosition: 'center' 
+        }}>
+        
+        {/* Elementos Decorativos Dinâmicos */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40">
+           {(bgTheme?.elements || (currentEnemy.isTrainer ? ['pillar', 'pillar'] : [])).map((el, i) => {
+             const left = (i * 25) % 100;
+             const delay = i * 0.5;
+             
+             // Clima e Atmosfera
+             if (el.includes('cloud')) {
+               return (
+                 <div key={i} className="absolute text-3xl animate-float" style={{ top: '15%', left: `${left}%`, animationDelay: `${delay}s` }}>
+                   {el === 'cloud_grey' ? '☁️' : el === 'cloud_orange' ? '🌥️' : '☁️'}
+                 </div>
+               );
+             }
+             
+             // Vegetação e Terreno
+             if (el === 'tree' || el === 'big_tree' || el === 'safari_tree') {
+               return (
+                 <div key={i} className="absolute text-5xl" style={{ bottom: '40%', left: `${left}%`, transform: 'scale(1.2)' }}>
+                   {el === 'big_tree' ? '🌳' : el === 'tree' ? '🌲' : '🌴'}
+                 </div>
+               );
+             }
+             if (el === 'tall_grass' || el === 'bush') {
+               return (
+                 <div key={i} className="absolute text-2xl" style={{ bottom: '42%', left: `${left}%` }}>{el === 'bush' ? '🌳' : '🌿'}</div>
+               );
+             }
+             if (el === 'rock' || el === 'mountain_small' || el === 'boulder') {
+               return (
+                 <div key={i} className="absolute text-3xl" style={{ bottom: '42%', left: `${left}%` }}>🪨</div>
+               );
+             }
+             
+             // Ambientes Especiais
+             if (el === 'stalactite') {
+               return (
+                 <div key={i} className="absolute text-3xl rotate-180" style={{ top: '0%', left: `${left}%` }}>⛰️</div>
+               );
+             }
+             if (el === 'lava_pool') {
+               return (
+                 <div key={i} className="absolute w-24 h-8 bg-orange-600/40 rounded-full blur-md animate-pulse" style={{ bottom: '40%', left: `${left}%` }}></div>
+               );
+             }
+             if (el === 'water' || el === 'ocean_wave') {
+               return (
+                 <div key={i} className="absolute w-full h-20 bg-blue-400/20 bottom-0 animate-pulse" style={{ bottom: '45%' }}></div>
+               );
+             }
+             if (el === 'ghost_mist') {
+               return (
+                 <div key={i} className="absolute w-full h-full bg-purple-900/20 blur-2xl animate-pulse" style={{ left: `${left}%` }}></div>
+               );
+             }
+             
+             // Estruturas Urbanas/Ginásios
+             if (el === 'pillar' || el === 'league_pillar') {
+               return (
+                 <div key={i} className="absolute w-6 h-32 bg-white/10 border-x border-white/20" style={{ bottom: '40%', left: `${left}%` }}></div>
+               );
+             }
+             if (el === 'fence') {
+               return (
+                 <div key={i} className="absolute text-2xl opacity-60" style={{ bottom: '42%', left: `${left}%` }}>🚧</div>
+               );
+             }
+
+             return null;
+           })}
+        </div>
+
         <div className="absolute inset-0 bg-black/10" />
+
+        {/* Chão Estilizado (Esconde se for Ginásio pois o gradiente já é completo) */}
+        {!currentEnemy.background?.includes('gradient') && (
+          <div className="absolute bottom-0 w-full h-[45%] opacity-80" 
+               style={{ background: bgTheme?.ground || '#7cb850', clipPath: 'polygon(0 20%, 100% 0, 100% 100%, 0% 100%)' }}>
+          </div>
+        )}
 
         {/* Shiny flash overlay */}
         {shinyFlash && <div className="absolute inset-0 bg-yellow-200/60 animate-ping rounded-2xl pointer-events-none z-30" />}

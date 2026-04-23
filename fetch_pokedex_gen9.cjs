@@ -3,7 +3,7 @@ const fs = require('fs');
 async function fetchPokedex() {
   console.log('Iniciando coleta completa da Pokédex (Geração 1 a 9)...');
   const pokedex = {};
-  
+
   // Total de Pokémon até Gen 9 é aprox 1025
   const TOTAL_POKEMON = 1025;
 
@@ -11,10 +11,10 @@ async function fetchPokedex() {
     try {
       const pokeRes = await fetch(`https://pokeapi.co/api/v2/pokemon/${i}`);
       const data = await pokeRes.json();
-      
+
       const speciesRes = await fetch(data.species.url);
       const speciesData = await speciesRes.json();
-      
+
       let evolution = null;
       if (speciesData.evolution_chain) {
         try {
@@ -35,9 +35,9 @@ async function fetchPokedex() {
               break;
             }
             if (current.evolves_to[0]) {
-                current = current.evolves_to[0];
+              current = current.evolves_to[0];
             } else {
-                break;
+              break;
             }
           }
         } catch (e) {
@@ -49,7 +49,7 @@ async function fetchPokedex() {
       data.stats.forEach(s => stats[s.stat.name] = s.base_stat);
       const type = data.types[0].type.name;
       const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
-      
+
       const dropMap = {
         normal: 'normal_essence', fire: 'fire_essence', water: 'water_essence', grass: 'grass_essence',
         electric: 'electric_essence', ice: 'ice_essence', fighting: 'fighting_essence', poison: 'poison_essence',
@@ -62,13 +62,13 @@ async function fetchPokedex() {
       const learnset = data.moves
         .filter(m => m.version_group_details.some(v => v.move_learn_method.name === 'level-up'))
         .map(m => {
-           const latest = m.version_group_details
-             .filter(v => v.move_learn_method.name === 'level-up')
-             .sort((a, b) => b.level_learned_at - a.level_learned_at)[0];
-           return {
-             level: latest.level_learned_at,
-             move: m.move.name
-           };
+          const latest = m.version_group_details
+            .filter(v => v.move_learn_method.name === 'level-up')
+            .sort((a, b) => b.level_learned_at - a.level_learned_at)[0];
+          return {
+            level: latest.level_learned_at,
+            move: m.move.name
+          };
         })
         .sort((a, b) => a.level - b.level);
 
@@ -91,12 +91,12 @@ async function fetchPokedex() {
         learnset: learnset,
         abilities: data.abilities.map(a => a.ability.name)
       };
-      
+
       process.stdout.write(`\rProgresso Pokédex: ${i}/${TOTAL_POKEMON} (${data.name})`);
     } catch (error) {
       console.error(`\nErro ao buscar Pokémon ${i}:`, error.message);
     }
-    
+
     // Pequena pausa para evitar ser bloqueado
     if (i % 50 === 0) await new Promise(r => setTimeout(r, 1000));
   }
