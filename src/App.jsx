@@ -90,8 +90,8 @@ const trainerAvatars = [
 
 
 
-export const APP_VERSION = '1.5';
-export const APP_VERSION_DATE = '2026-04-23 11:30';
+export const APP_VERSION = '1.6';
+export const APP_VERSION_DATE = '2026-04-23 11:50';
 
 // Mapeamento de Level Cap por quantidade de insígnias
 const GYM_LEVEL_CAPS = {
@@ -551,7 +551,8 @@ export default function App() {
 
   // ─── SPAWN ───────────────────────────────────────────────────────────────────
   const spawnEnemy = useCallback(() => {
-    const route = ROUTES[gameState.currentRoute] || ROUTES.pallet_town;
+    isProcessingVictory.current = false; // Reset de segurança
+    const route = processedRoutes[gameState.currentRoute] || processedRoutes.pallet_town;
 
     // Chance de encontrar um treinador NPC (~8% por padrão, configurável por rota)
     const trainerChance = route.trainerChance || 0.08;
@@ -608,7 +609,11 @@ export default function App() {
       return;
     }
 
-    if (!route.enemies || route.enemies.length === 0) return;
+    if (!route.enemies || route.enemies.length === 0) {
+      setCurrentEnemy(null);
+      isProcessingVictory.current = false;
+      return;
+    }
     
     let enemyPool = [...route.enemies];
     
@@ -670,13 +675,14 @@ export default function App() {
       maxHp, 
       hp: maxHp, 
       isShiny, 
+      spawnTime: Date.now(),
       status: [],
       stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
-      attack: Math.floor((base.attack || 10) * shinyMult),
-      defense: Math.floor((base.defense || 10) * shinyMult),
-      spAtk: Math.floor((base.spAtk || 10) * shinyMult),
-      spDef: Math.floor((base.spDef || 10) * shinyMult),
-      speed: Math.floor((base.speed || 10) * shinyMult),
+      attack: Math.floor((base.attack || 10) * hpScale * shinyMult),
+      defense: Math.floor((base.defense || 10) * hpScale * shinyMult),
+      spAtk: Math.floor((base.spAtk || 10) * hpScale * shinyMult),
+      spDef: Math.floor((base.spDef || 10) * hpScale * shinyMult),
+      speed: Math.floor((base.speed || 10) * hpScale * shinyMult),
       moves: finalMoves
     });
     setBattleLog([]);
@@ -685,15 +691,17 @@ export default function App() {
   }, [gameState.currentRoute, gameState.speciesMastery, playBGM, addLog]);
 
   useEffect(() => {
-    if (currentView === 'battles' && !currentEnemy) {
-      resetSession(); // Inicia nova sessão de batalha
-      // Pequeno delay para garantir que transições de vista não disparem spawn acidental
+    if (currentView === 'battles' && (!currentEnemy || currentEnemy.hp <= 0)) {
+      // Se não houver inimigo ou o inimigo estiver derrotado mas o spawn não ocorreu
       const timer = setTimeout(() => {
-        if (currentView === 'battles' && !currentEnemy) spawnEnemy();
-      }, 50);
+        if (currentView === 'battles' && (!currentEnemy || currentEnemy.hp <= 0)) {
+          if (isProcessingVictory.current && currentEnemy?.hp <= 0) return; // Espera o loop de vitória natural
+          spawnEnemy();
+        }
+      }, 800);
       return () => clearTimeout(timer);
     }
-  }, [currentView, currentEnemy, spawnEnemy]);
+  }, [currentView, currentEnemy?.id, currentEnemy?.hp, spawnEnemy]);
 
   // Ref para currentView — permite que handleBattleTick leia o valor atual
   // sem precisar estar nas deps do useCallback (o que recriaria o timer a cada mudança de view)
@@ -704,9 +712,11 @@ export default function App() {
   const handleBattleTick = useCallback(() => {
     const speedMultiplier = [1, 0.6, 0.3][(gameState.settings?.battleSpeed || 1) - 1] || 1;
     if (!currentEnemy || currentViewRef.current !== 'battles' || currentEnemy.hp <= 0) return 1200 * speedMultiplier;
-    if (currentEnemy.isTrainer && currentEnemy.trainerSpawnTime && Date.now() - currentEnemy.trainerSpawnTime < 2500) {
-       // Retorna um atraso curto para continuar verificando até que a intro termine
-       return 300 * speedMultiplier;
+    
+    // Atraso Cinematográfico para Início de Batalha (Intro)
+    const introTime = currentEnemy.isTrainer ? 2500 : 1200;
+    if (currentEnemy.spawnTime && Date.now() - currentEnemy.spawnTime < introTime) {
+       return 400 * speedMultiplier;
     }
 
     let nextDelay = Math.floor(1200 * speedMultiplier);
@@ -1355,8 +1365,6 @@ export default function App() {
       isProcessingVictory.current = false;
       if (currentEnemy.isInitialRival) {
         setCurrentView('rival_post_battle');
-      } else if (currentEnemy.unlockFlag === 'rival_1_defeated') {
-        setCurrentView('quest_oak_starters');
       } else if (currentEnemy.isGymLeader || currentEnemy.isBoss) {
         handleGoToCity();
       } else {

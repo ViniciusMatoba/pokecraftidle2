@@ -31,13 +31,14 @@ const BattleScreen = ({
   );
 
   useEffect(() => {
-    if (currentEnemy?.isTrainer) { setShowTrainer(true); const t = setTimeout(() => setShowTrainer(false), 2000); return () => clearTimeout(t); }
-    else setShowTrainer(false);
-  }, [currentEnemy?.isTrainer, currentEnemy?.id]);
-
-  // Sparkle ao aparecer shiny (Inimigo)
-  useEffect(() => {
-    if (currentEnemy?.isShiny) { setShinyFlash(true); const t = setTimeout(() => setShinyFlash(false), 1500); return () => clearTimeout(t); }
+    const introDuration = currentEnemy?.isTrainer ? 2200 : 1000;
+    setShowTrainer(true);
+    const t = setTimeout(() => setShowTrainer(false), introDuration);
+    if (currentEnemy?.isShiny) {
+      setShinyFlash(true);
+      setTimeout(() => setShinyFlash(false), 2000);
+    }
+    return () => clearTimeout(t);
   }, [currentEnemy?.id]);
 
   // Sparkle ao aparecer shiny (Jogador)
