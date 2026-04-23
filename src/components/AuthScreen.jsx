@@ -237,6 +237,10 @@ const AuthScreen = ({ onAuthSuccess }) => {
           >
             {isLogin ? 'Não tem conta? Cadastre-se grátis →' : '← Já possui conta? Faça Login'}
           </button>
+
+          <p className="mt-4 text-[9px] font-bold text-slate-300 uppercase tracking-[0.2em] text-center">
+            PokéCraft Idle v1.5 • 2026-04-23
+          </p>
         </div>
       </div>
     </div>

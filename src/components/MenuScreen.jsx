@@ -193,6 +193,27 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user }) => {
                    </div>
                    <p className="text-[8px] text-slate-400 font-bold uppercase text-center mt-1">Recomendado para monitores grandes</p>
                 </div>
+
+                {/* Level Cap */}
+                <div className="flex flex-col gap-3">
+                   <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Trava de Nível (Level Cap)</p>
+                   <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { id: true, name: 'Ativado', icon: '🔒' },
+                        { id: false, name: 'Desativado', icon: '🔓' }
+                      ].map(lc => (
+                        <button 
+                          key={String(lc.id)}
+                          onClick={() => setGameState(prev => ({ ...prev, settings: { ...prev.settings, levelCap: lc.id } }))}
+                          className={`py-3 rounded-xl font-black text-xs transition-all flex items-center justify-center gap-2 ${gameState.settings?.levelCap !== false && lc.id === true || gameState.settings?.levelCap === false && lc.id === false ? 'bg-indigo-600 text-white shadow-lg' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
+                        >
+                          <span>{lc.icon}</span>
+                          {lc.name}
+                        </button>
+                      ))}
+                   </div>
+                   <p className="text-[8px] text-slate-400 font-bold uppercase text-center mt-1">Limita seu nível ao próximo ginásio</p>
+                </div>
              </div>
           </div>
 

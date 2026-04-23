@@ -93,6 +93,19 @@ const trainerAvatars = [
 export const APP_VERSION = '1.5';
 export const APP_VERSION_DATE = '2026-04-23 11:30';
 
+// Mapeamento de Level Cap por quantidade de insígnias
+const GYM_LEVEL_CAPS = {
+  0: 14, // Próximo: Brock
+  1: 21, // Próximo: Misty
+  2: 26, // Próximo: Lt. Surge
+  3: 32, // Próximo: Erika
+  4: 43, // Próximo: Koga
+  5: 46, // Próximo: Sabrina
+  6: 50, // Próximo: Blaine
+  7: 55, // Próximo: Giovanni
+  8: 100 // Pós-Liga
+};
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -219,7 +232,7 @@ export default function App() {
       caughtData: {},
       speciesMastery: {},
       autoCapture: false,
-      settings: { battleSpeed: 1, displayMode: 'mobile' },
+      settings: { battleSpeed: 1, displayMode: 'mobile', levelCap: true },
       autoConfig: { autoPokeball: true, autoPotion: false, autoPotionHpPct: 30, focusPokemonIndex: 0 }
     };
 
@@ -1202,7 +1215,16 @@ export default function App() {
         if (i !== activeMemberIndex || p.hp <= 0) return p;
         const newXp = (p.xp || 0) + xpPerPoke;
         const xpNeeded = (p.level || 5) * 25;
+        const badgesCount = prev.badges?.length || 0;
+        const maxLevel = GYM_LEVEL_CAPS[badgesCount] || 100;
+        const isLevelCapped = gameState.settings?.levelCap !== false && (p.level || 5) >= maxLevel;
+
         if (newXp >= xpNeeded) {
+          if (isLevelCapped) {
+            // Se estiver no cap, apenas mantém o nível e zera o excesso de XP (ou mantém no limite)
+            return { ...p, level: maxLevel, xp: xpNeeded - 1 };
+          }
+
           const newLevel = (p.level || 5) + 1;
           const scale = newLevel / (p.level || 5);
           addLog(`🎉 ${p.name} subiu para Nv. ${newLevel}!`, 'system');
@@ -1411,7 +1433,11 @@ export default function App() {
                 >
                   {hasSave ? 'Reiniciar Jornada' : 'Nova Jornada'}
                 </button>
-             </div>
+
+                 <p className="mt-8 text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">
+                   PokéCraft Idle v{APP_VERSION} • {APP_VERSION_DATE}
+                 </p>
+              </div>
 
              {/* FOREGROUND DECOR - FRONT LAYER */}
              <div className="absolute inset-0 z-20 pointer-events-none opacity-40">

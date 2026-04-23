@@ -68,7 +68,16 @@ const CityScreen = ({
       desc: rivalDefeated ? 'O Prof. Carvalho está estudando novas espécies.' : 'Desafie seu Rival e receba dicas.',
       action: () => {
         if (rivalDefeated) {
-          alert('Prof. Carvalho: "Azul já saiu em sua própria jornada! Ele disse que vai ficar mais forte que você!"');
+          const oakTips = [
+            'Prof. Carvalho: "BULBASAUR é um Pokémon muito versátil. A semente em suas costas cresce junto com ele!"',
+            'Prof. Carvalho: "CHARMANDER prefere lugares quentes. Dizem que a chama na ponta de sua cauda indica sua saúde!"',
+            'Prof. Carvalho: "SQUIRTLE usa seu casco não apenas para proteção, mas também para reduzir a resistência na água!"',
+            'Prof. Carvalho: "Lembre-se, Treinador: o vínculo entre você e seu Pokémon é o que definirá sua força!"',
+            'Prof. Carvalho: "Azul já partiu para a Rota 1. Ele parece muito determinado a vencer o primeiro Ginásio!"'
+          ];
+          // Seleciona uma dica baseada no tempo ou aleatória
+          const tip = oakTips[Math.floor(Date.now() / 5000) % oakTips.length];
+          alert(tip);
         } else {
           if (window.confirm('Deseja desafiar seu Rival Azul para uma batalha?')) {
             onChallengeRival && onChallengeRival();
