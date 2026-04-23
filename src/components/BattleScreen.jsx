@@ -193,7 +193,7 @@ const BattleScreen = ({
           
           {/* HUD do Inimigo: Oculto durante a intro do treinador */}
           {!showTrainer && (
-            <div className="bg-white/95 backdrop-blur-sm px-3 py-2 rounded-xl shadow-lg border-l-4 border-slate-800 min-w-[140px] animate-fadeIn">
+            <div className={`bg-white/95 backdrop-blur-sm px-3 py-2 rounded-xl shadow-lg border-l-4 border-slate-800 min-w-[140px] animate-fadeIn transition-opacity duration-300 ${currentEnemy.hp <= 0 ? 'opacity-0' : 'opacity-100'}`}>
               <div className="flex justify-between items-center gap-1">
                 <span className="font-black text-[10px] uppercase text-slate-800 truncate max-w-[90px]">
                   {currentEnemy.isTrainer ? `${currentEnemy.trainerName}'s ` : ''}{currentEnemy.name}
@@ -217,9 +217,9 @@ const BattleScreen = ({
             {shinyFlash && !showTrainer && <ShinySparkles />}
 
             <img
-              src={currentEnemy.isTrainer && showTrainer ? currentEnemy.trainerSprite : (currentEnemy.sprite || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${currentEnemy.isShiny ? 'shiny/' : ''}${currentEnemy.id}.png`)}
+              src={currentEnemy.isTrainer && showTrainer ? currentEnemy.trainerSprite : (currentEnemy.sprite || (currentEnemy.id ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${currentEnemy.isShiny ? 'shiny/' : ''}${currentEnemy.id}.png` : ''))}
               alt="Enemy"
-              className={`w-24 h-24 object-contain drop-shadow-xl transition-all duration-500 ${showTrainer && currentEnemy.isTrainer ? 'scale-110' : 'animate-float'} ${currentEnemy.isShiny && !showTrainer ? 'drop-shadow-[0_0_16px_rgba(234,179,8,1)]' : ''}`}
+              className={`w-24 h-24 object-contain drop-shadow-xl transition-all duration-500 ${showTrainer && currentEnemy.isTrainer ? 'scale-110' : 'animate-float'} ${currentEnemy.isShiny && !showTrainer ? 'drop-shadow-[0_0_16px_rgba(234,179,8,1)]' : ''} ${currentEnemy.hp <= 0 ? 'opacity-0 scale-0' : 'opacity-100'}`}
             />
           </div>
         </div>
