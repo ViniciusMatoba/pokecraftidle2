@@ -220,12 +220,48 @@ const PokemonManagement = ({
                <button onClick={() => setActivePokemonDetails(null)} className="absolute top-4 left-4 bg-white/20 w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/30 backdrop-blur-md transition-all z-20 text-white font-black text-xs">
                   ✕
                </button>
-               <div className={`h-32 w-full relative flex items-end justify-center ${activePokemonDetails.pokemon.type === 'Grass' ? 'bg-gradient-to-b from-green-400 to-green-600' : activePokemonDetails.pokemon.type === 'Fire' ? 'bg-gradient-to-b from-orange-400 to-orange-600' : activePokemonDetails.pokemon.type === 'Water' ? 'bg-gradient-to-b from-blue-400 to-blue-600' : 'bg-gradient-to-b from-slate-400 to-slate-600'} shadow-inner`}>
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${activePokemonDetails.pokemon.isShiny ? 'shiny/' : ''}${activePokemonDetails.pokemon.id}.png`} className="w-28 h-28 object-contain translate-y-8 relative z-10 drop-shadow-2xl" alt={activePokemonDetails.pokemon.name} />
-               </div>
-               <div className="flex-1 overflow-y-auto px-8 pt-10 pb-24 custom-scrollbar">
+               {(() => {
+                 const poke = activePokemonDetails.pokemon;
+                 const TYPE_THEME = {
+                   Grass:    { grad: 'from-green-400 via-emerald-500 to-green-700',    icon: '🌿', badge: 'bg-green-600',   text: 'text-green-100', dots: 'bg-green-300/30' },
+                   Fire:     { grad: 'from-orange-400 via-red-500 to-rose-700',        icon: '🔥', badge: 'bg-red-600',     text: 'text-orange-100', dots: 'bg-orange-300/30' },
+                   Water:    { grad: 'from-sky-400 via-blue-500 to-blue-700',          icon: '💧', badge: 'bg-blue-600',    text: 'text-sky-100', dots: 'bg-blue-300/30' },
+                   Electric: { grad: 'from-yellow-300 via-amber-400 to-yellow-600',    icon: '⚡', badge: 'bg-yellow-500',  text: 'text-yellow-900', dots: 'bg-yellow-200/40' },
+                   Poison:   { grad: 'from-purple-400 via-violet-500 to-purple-800',   icon: '☠️', badge: 'bg-purple-700',  text: 'text-purple-100', dots: 'bg-purple-300/30' },
+                   Psychic:  { grad: 'from-pink-400 via-fuchsia-500 to-pink-700',      icon: '🔮', badge: 'bg-pink-600',    text: 'text-pink-100', dots: 'bg-pink-300/30' },
+                   Rock:     { grad: 'from-stone-400 via-stone-500 to-stone-700',      icon: '🪨', badge: 'bg-stone-600',   text: 'text-stone-100', dots: 'bg-stone-300/30' },
+                   Ground:   { grad: 'from-amber-400 via-yellow-600 to-amber-800',     icon: '⛰️', badge: 'bg-amber-700',   text: 'text-amber-100', dots: 'bg-amber-300/30' },
+                   Ice:      { grad: 'from-cyan-300 via-sky-400 to-cyan-600',          icon: '❄️', badge: 'bg-cyan-600',    text: 'text-cyan-100', dots: 'bg-cyan-200/30' },
+                   Fighting: { grad: 'from-red-500 via-rose-600 to-red-800',           icon: '🥊', badge: 'bg-red-700',     text: 'text-red-100', dots: 'bg-red-300/30' },
+                   Bug:      { grad: 'from-lime-400 via-green-500 to-lime-700',        icon: '🐛', badge: 'bg-lime-600',    text: 'text-lime-100', dots: 'bg-lime-300/30' },
+                   Ghost:    { grad: 'from-indigo-500 via-violet-700 to-slate-900',    icon: '👻', badge: 'bg-indigo-700',  text: 'text-indigo-100', dots: 'bg-indigo-300/20' },
+                   Dragon:   { grad: 'from-blue-600 via-indigo-700 to-violet-900',     icon: '🐉', badge: 'bg-indigo-800',  text: 'text-blue-100', dots: 'bg-blue-300/20' },
+                   Dark:     { grad: 'from-slate-600 via-slate-800 to-slate-950',      icon: '🌑', badge: 'bg-slate-800',   text: 'text-slate-200', dots: 'bg-slate-400/20' },
+                   Steel:    { grad: 'from-slate-400 via-zinc-500 to-slate-700',       icon: '⚙️', badge: 'bg-zinc-600',    text: 'text-zinc-100', dots: 'bg-zinc-300/30' },
+                   Fairy:    { grad: 'from-pink-300 via-rose-400 to-pink-600',         icon: '✨', badge: 'bg-pink-500',    text: 'text-pink-100', dots: 'bg-pink-200/40' },
+                   Flying:   { grad: 'from-sky-300 via-indigo-400 to-sky-600',         icon: '🪶', badge: 'bg-sky-600',     text: 'text-sky-100', dots: 'bg-sky-200/30' },
+                   Normal:   { grad: 'from-slate-300 via-slate-400 to-slate-600',      icon: '⭐', badge: 'bg-slate-500',   text: 'text-slate-100', dots: 'bg-slate-200/30' },
+                 };
+                 const theme = TYPE_THEME[poke.type] || TYPE_THEME.Normal;
+                 const shinyGrad = poke.isShiny ? 'from-yellow-300 via-amber-400 to-yellow-600' : theme.grad;
+                 return (
+                   <div className={`h-40 w-full relative flex flex-col items-center justify-end bg-gradient-to-b ${shinyGrad} shadow-inner overflow-hidden`}>
+                     <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px)`, backgroundSize: '20px 20px' }} />
+                     <span className="absolute top-2 right-3 text-4xl opacity-30 select-none pointer-events-none">{poke.isShiny ? '✨' : theme.icon}</span>
+                     <span className="absolute top-2 left-12 text-5xl opacity-10 select-none pointer-events-none">{poke.isShiny ? '✨' : theme.icon}</span>
+                     <div className={`absolute top-3 right-3 ${poke.isShiny ? 'bg-yellow-500' : theme.badge} px-3 py-1 rounded-full flex items-center gap-1 shadow`}>
+                       <span className="text-xs">{poke.isShiny ? '⭐' : theme.icon}</span>
+                       <span className="text-[9px] font-black text-white uppercase tracking-widest">{poke.isShiny ? 'Shiny' : poke.type}</span>
+                     </div>
+                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`}
+                       className={`w-32 h-32 object-contain translate-y-8 relative z-10 drop-shadow-2xl ${poke.isShiny ? 'drop-shadow-[0_0_20px_rgba(234,179,8,0.9)]' : ''}`}
+                       alt={poke.name} />
+                   </div>
+                 );
+               })()}
+               <div className="flex-1 overflow-y-auto px-8 pt-12 pb-4 custom-scrollbar">
                   <div className="text-center mb-6">
-                     <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">{activePokemonDetails.pokemon.name}</h3>
+                     <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">{activePokemonDetails.pokemon.name}{activePokemonDetails.pokemon.isShiny && <span className="ml-2 text-yellow-500">⭐</span>}</h3>
                      <div className="flex items-center justify-center gap-2 mt-2">
                         <span className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Nv. {activePokemonDetails.pokemon.level}</span>
                         <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
@@ -430,8 +466,8 @@ const PokemonManagement = ({
                   })()}
                </div>
                
-               {/* BOTÃO DE AÇÃO NO RODAPÉ */}
-               <div className="absolute bottom-0 left-0 w-full p-6 bg-white/80 backdrop-blur-md border-t border-slate-100 flex gap-3">
+               {/* BOTÃO DE AÇÃO NO RODAPÉ — dentro do flex column */}
+               <div className="flex-shrink-0 px-6 py-4 bg-white border-t border-slate-100 flex gap-3">
                   {activePokemonDetails.location === 'team' ? (
                     <>
                       <div className="flex flex-col gap-1 w-20">
@@ -440,7 +476,7 @@ const PokemonManagement = ({
                       </div>
                       <button 
                         onClick={() => { moveToPC(activePokemonDetails.index); setActivePokemonDetails(null); }}
-                        className="flex-1 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-[2rem] shadow-lg shadow-slate-200 flex items-center justify-center gap-3 font-black uppercase text-xs hover:scale-[1.02] active:scale-95 transition-all py-5"
+                        className="flex-1 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-[2rem] shadow-lg flex items-center justify-center gap-2 font-black uppercase text-xs hover:scale-[1.02] active:scale-95 transition-all py-4"
                       >
                          <span className="text-lg">💻</span>
                          Enviar para o PC
@@ -449,7 +485,7 @@ const PokemonManagement = ({
                   ) : (
                     <button 
                       onClick={() => { moveToTeam(activePokemonDetails.index); setActivePokemonDetails(null); }}
-                      className="w-full bg-gradient-to-r from-pokeBlue to-blue-600 text-white py-5 rounded-[2rem] shadow-lg shadow-blue-200/50 flex items-center justify-center gap-3 font-black uppercase text-xs hover:scale-[1.02] active:scale-95 transition-all"
+                      className="w-full bg-gradient-to-r from-pokeBlue to-blue-600 text-white py-4 rounded-[2rem] shadow-lg flex items-center justify-center gap-3 font-black uppercase text-xs hover:scale-[1.02] active:scale-95 transition-all"
                     >
                        ➕ Adicionar ao Time
                     </button>
