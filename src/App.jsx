@@ -763,8 +763,14 @@ export default function App() {
         setCurrentEnemy(updatedEnemy);
       } else {
         const playerDmg = calcDamage(myPoke, move, updatedEnemy);
+        const eff = getTypeEffectiveness(move.type, updatedEnemy.type);
+        
         updatedEnemy.hp = Math.max(0, updatedEnemy.hp - playerDmg);
-        addFloat(`-${playerDmg}`, '#ef4444');
+        addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
+        
+        if (eff > 1) addLog("💥 É super efetivo!", 'system');
+        if (eff > 0 && eff < 1) addLog("🛡️ Não é muito efetivo...", 'system');
+        if (eff === 0) addLog("🚫 Não afetou o inimigo!", 'system');
       }
 
       // Turno do Inimigo (apenas se ainda estiver vivo)
@@ -807,7 +813,13 @@ export default function App() {
           } else {
             const enemyDmgRaw = calcDamage(updatedEnemy, enemyMove, updatedTeam[activeMemberIndex]);
             const enemyDmg = Math.max(1, Math.floor(enemyDmgRaw * 0.35));
+            const eff = getTypeEffectiveness(enemyMove.type, updatedTeam[activeMemberIndex].type);
+
             updatedTeam[activeMemberIndex].hp = Math.max(0, updatedTeam[activeMemberIndex].hp - enemyDmg);
+            
+            if (eff > 1) addLog(`💥 Golpe de ${updatedEnemy.name} foi super efetivo!`, 'enemy');
+            if (eff > 0 && eff < 1) addLog(`🛡️ Golpe de ${updatedEnemy.name} não foi muito efetivo...`, 'enemy');
+            if (eff === 0) addLog(`🚫 ${updatedTeam[activeMemberIndex].name} é imune!`, 'enemy');
           }
         }
       }
