@@ -66,7 +66,7 @@ const TravelScreen = ({
   };
 
   return (
-    <div className="flex flex-col gap-6 animate-fadeIn pb-24 h-full text-left">
+    <div className="flex flex-col gap-6 animate-fadeIn pb-10 h-full text-left">
       <div className="bg-white rounded-2xl p-4 shadow-md border-2 border-slate-100 flex-shrink-0">
          <h2 className="text-xl font-black text-slate-800 uppercase italic">Mapa da Região</h2>
          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Clique para ver detalhes ou viajar</p>
@@ -245,6 +245,9 @@ const TravelScreen = ({
                   className="w-full bg-slate-200 text-slate-400 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] cursor-not-allowed border-b-8 border-slate-300"
                 >Caminho Bloqueado</button>
               )}
+              
+              {/* Espaço extra para garantir que o scroll chegue ao fim */}
+              <div className="h-24"></div>
             </div>
           </div>{/* fecha scroll */}
           </div>{/* fecha card */}

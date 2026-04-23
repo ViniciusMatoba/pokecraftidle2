@@ -17,6 +17,38 @@ const CityScreen = ({
   onBackToBattle
 }) => {
   const [showGymScreen, setShowGymScreen] = useState(false);
+  const [activeOakModal, setActiveOakModal] = useState(false);
+  const [oakTipIndex, setOakTipIndex] = useState(0);
+
+  const starterInfo = [
+    { 
+      id: 1, 
+      name: "Bulbasaur", 
+      desc: "Há uma semente de planta em suas costas desde o dia em que o Pokémon nasce. A semente cresce lentamente.",
+      img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png"
+    },
+    { 
+      id: 4, 
+      name: "Charmander", 
+      desc: "Tem preferência por coisas quentes. Quando chove, diz-se que o vapor jorra da ponta de sua cauda.",
+      img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png"
+    },
+    { 
+      id: 7, 
+      name: "Squirtle", 
+      desc: "Após o nascimento, suas costas incham e endurecem formando uma concha. Ele espalha espuma poderosamente pela boca.",
+      img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png"
+    }
+  ];
+
+  const oakTips = [
+    'O vínculo entre você e seu Pokémon é o que definirá sua força!',
+    'Azul já partiu para a Rota 1. Ele parece muito determinado a vencer o primeiro Ginásio!',
+    'Pokémons de tipos diferentes têm vantagens e desvantagens. Estude-os bem!',
+    'Capturar muitos Pokémons da mesma espécie aumenta sua Mestria com eles!',
+    'Não esqueça de curar sua equipe no Centro Pokémon após batalhas difíceis.'
+  ];
+
   const route = ROUTES[gameState.currentRoute] || ROUTES.pallet_town;
 
   const cityBuildings = [
@@ -68,16 +100,7 @@ const CityScreen = ({
       desc: rivalDefeated ? 'O Prof. Carvalho está estudando novas espécies.' : 'Desafie seu Rival e receba dicas.',
       action: () => {
         if (rivalDefeated) {
-          const oakTips = [
-            'Prof. Carvalho: "BULBASAUR é um Pokémon muito versátil. A semente em suas costas cresce junto com ele!"',
-            'Prof. Carvalho: "CHARMANDER prefere lugares quentes. Dizem que a chama na ponta de sua cauda indica sua saúde!"',
-            'Prof. Carvalho: "SQUIRTLE usa seu casco não apenas para proteção, mas também para reduzir a resistência na água!"',
-            'Prof. Carvalho: "Lembre-se, Treinador: o vínculo entre você e seu Pokémon é o que definirá sua força!"',
-            'Prof. Carvalho: "Azul já partiu para a Rota 1. Ele parece muito determinado a vencer o primeiro Ginásio!"'
-          ];
-          // Seleciona uma dica baseada no tempo ou aleatória
-          const tip = oakTips[Math.floor(Date.now() / 5000) % oakTips.length];
-          alert(tip);
+          setActiveOakModal(true);
         } else {
           if (window.confirm('Deseja desafiar seu Rival Azul para uma batalha?')) {
             onChallengeRival && onChallengeRival();
@@ -124,6 +147,55 @@ const CityScreen = ({
               onClick={() => setGameState(prev => ({ ...prev, worldFlags: [...(prev.worldFlags || []), 'quest_capture_done_ack'] }))}
               className="bg-white/20 text-white font-black text-xs px-3 py-2 rounded-xl hover:bg-white/30 transition-all shrink-0"
             >OK!</button>
+          </div>
+        )}
+
+        {activeOakModal && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
+             <div className="bg-white rounded-[3rem] p-8 max-w-lg w-full shadow-2xl border-b-[12px] border-slate-800 animate-slideInUp overflow-hidden flex flex-col max-h-[85vh]">
+                <div className="flex justify-between items-center mb-6">
+                   <div className="flex items-center gap-4">
+                      <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-16 h-16 drop-shadow-md" alt="Oak" />
+                      <div>
+                         <h3 className="text-xl font-black text-slate-800 uppercase italic leading-none">Laboratório</h3>
+                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Prof. Carvalho</p>
+                      </div>
+                   </div>
+                   <button onClick={() => setActiveOakModal(false)} className="text-slate-300 hover:text-slate-800 transition-colors text-2xl">✕</button>
+                </div>
+
+                <div className="bg-slate-50 p-6 rounded-3xl border-2 border-slate-100 mb-6 italic text-slate-600 font-bold text-sm relative">
+                   <div className="absolute -top-3 -left-2 text-4xl text-slate-200 opacity-50">"</div>
+                   <p className="">{oakTips[oakTipIndex]}</p>
+                   <button 
+                     onClick={() => setOakTipIndex((oakTipIndex + 1) % oakTips.length)}
+                     className="mt-4 text-[9px] font-black uppercase text-pokeBlue flex items-center gap-2 hover:underline"
+                   >
+                     Ver outra dica ➜
+                   </button>
+                </div>
+
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2 text-center">Registros dos Iniciais</p>
+                
+                <div className="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-1 mb-6">
+                   {starterInfo.map(poke => (
+                     <div key={poke.id} className="bg-white border-2 border-slate-100 rounded-[2rem] p-5 flex items-center gap-5 hover:border-slate-200 transition-all group">
+                        <div className="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
+                           <img src={poke.img} className="w-16 h-16 object-contain" alt={poke.name} />
+                        </div>
+                        <div className="text-left">
+                           <h4 className="font-black text-slate-800 uppercase italic text-lg leading-none mb-2">{poke.name}</h4>
+                           <p className="text-[11px] font-bold text-slate-500 leading-relaxed italic line-clamp-3">"{poke.desc}"</p>
+                        </div>
+                     </div>
+                   ))}
+                </div>
+
+                <button 
+                  onClick={() => setActiveOakModal(false)}
+                  className="w-full bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg active:scale-95"
+                >Obrigado, Professor!</button>
+             </div>
           </div>
         )}
 

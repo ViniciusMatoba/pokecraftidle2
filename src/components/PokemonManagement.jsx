@@ -163,7 +163,7 @@ const PokemonManagement = ({
   const path = activePokemonDetails ? getMasteryPath(activePokemonDetails.pokemon.id) : null;
 
   return (
-    <div className="flex flex-col gap-6 animate-fadeIn pb-24 h-full text-left">
+    <div className="flex flex-col gap-6 animate-fadeIn pb-10 h-full text-left">
       <div className="flex bg-white rounded-2xl p-1 shadow-md border-2 border-slate-100">
          <button onClick={() => setActiveTab('team')} className={`flex-1 py-3 rounded-xl font-black uppercase text-xs transition-all ${activeTab === 'team' ? 'bg-pokeBlue text-white shadow-lg' : 'text-slate-400'}`}>Meu Time ({gameState.team.length}/6)</button>
          <button onClick={() => setActiveTab('pc')} className={`flex-1 py-3 rounded-xl font-black uppercase text-xs transition-all ${activeTab === 'pc' ? 'bg-pokeGold text-white shadow-lg' : 'text-slate-400'}`}>PC Storage ({gameState.pc?.length || 0})</button>

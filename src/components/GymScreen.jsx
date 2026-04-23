@@ -6,7 +6,9 @@ const typeIconUrl = (t) =>
 
 const BadgeIcon = ({ src, earned }) => (
   <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${earned ? 'border-yellow-400 bg-yellow-50 shadow-md shadow-yellow-200' : 'border-slate-200 bg-slate-100 grayscale opacity-40'}`}>
-    <img src={src} className="w-7 h-7 object-contain" alt="badge" onError={e => e.target.style.display = 'none'} />
+    <img src={src} className="w-7 h-7 object-contain" alt="badge" onError={e => {
+       e.target.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/badge-case.png';
+    }} />
   </div>
 );
 
@@ -119,7 +121,7 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose }) => {
         {/* Header Colorido */}
         <div className="p-8 pb-4 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${col} 0%, #0f172a 100%)` }}>
           <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12">
-             <img src={gym.typeIcon || gym.badgeImg} className="w-32 h-32" alt="" />
+             <img src={gym.badgeImg || gym.typeIcon} className="w-32 h-32" alt="" />
           </div>
           
           <button onClick={onClose} className="absolute top-6 right-6 text-white/40 hover:text-white text-2xl font-black transition-all">✕</button>
