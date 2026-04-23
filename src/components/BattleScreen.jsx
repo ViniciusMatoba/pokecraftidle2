@@ -7,6 +7,9 @@ const BattleScreen = ({
   setActiveMemberIndex, addLog, battleLog, floatingTexts,
   onUseItem, setGameState, ROUTES, fixPath, TYPE_COLORS, onGoToCity, onChallengeBoss
 }) => {
+  const activePoke = gameState.team?.[activeMemberIndex];
+  const autoConfig = gameState.autoConfig || { autoPokeball: true, autoPotion: false, autoPotionHpPct: 30, focusPokemonIndex: 0 };
+
   const [showTrainer, setShowTrainer] = useState(true);
   const [selectedMove, setSelectedMove] = useState(null);
   const [showAutoConfig, setShowAutoConfig] = useState(false);
@@ -79,8 +82,6 @@ const BattleScreen = ({
     ? customBg 
     : (bgTheme?.sky || 'linear-gradient(180deg, #87ceeb 0%, #b0e0ff 55%, #d4f0a0 55%, #7cb850 100%)');
 
-  const activePoke = gameState.team?.[activeMemberIndex];
-  const autoConfig = gameState.autoConfig || { autoPokeball: true, autoPotion: false, autoPotionHpPct: 30, focusPokemonIndex: 0 };
 
   return (
     <div className="flex flex-col h-full animate-fadeIn pb-20 gap-2 overflow-y-auto custom-scrollbar">
