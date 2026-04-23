@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TrainerCard } from './CommonUI';
+import GymScreen from './GymScreen';
 
 const CityScreen = ({ 
   gameState, 
@@ -12,10 +13,12 @@ const CityScreen = ({
   setCurrentView,
   setCurrentEnemy,
   onChallengeRival,
+  onChallengeGym,
   onBackToBattle
 }) => {
+  const [showGymScreen, setShowGymScreen] = useState(false);
   const route = ROUTES[gameState.currentRoute] || ROUTES.pallet_town;
-  const isCityHub = route.type === 'city' || route.type === 'gym';
+
   const cityBuildings = [
     { 
       id: 'pokecenter', 
@@ -43,10 +46,18 @@ const CityScreen = ({
       desc: 'Crie itens raros com materiais.',
       action: () => setActiveBuildingModal('forge'),
       color: 'border-slate-500 bg-slate-50'
-    }
+    },
+    {
+      id: 'gyms',
+      name: 'Ginásios & Liga',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/boulder-badge.png',
+      emoji: '🏆',
+      desc: `${(gameState.badges || []).length}/8 insígnias conquistadas. Desafie os Líderes!`,
+      action: () => setShowGymScreen(true),
+      color: 'border-pokeGold bg-yellow-50'
+    },
   ];
 
-  // Adicionar Laboratório do Carvalho em Pallet
   if (gameState.currentRoute === 'pallet_town') {
     const rivalDefeated = gameState.worldFlags.includes('rival_defeated_1');
     cityBuildings.push({
@@ -68,34 +79,8 @@ const CityScreen = ({
     });
   }
 
-  // Adicionar Ginásio se a cidade tiver
-  if (route.hasGym && route.gymLeader) {
-    const hasBadge = (gameState.badges || []).includes(route.gymLeader.badge);
-    cityBuildings.push({
-      id: 'gym',
-      name: `Ginásio de ${route.gymLeader.name}`,
-      icon: route.gymLeader.badge === 1 ? 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/boulder-badge.png' :
-            route.gymLeader.badge === 2 ? 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/cascade-badge.png' :
-            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-badge.png',
-      emoji: '🏆',
-      desc: hasBadge ? `Você já possui a ${route.gymLeader.badgeName}!` : `Desafie ${route.gymLeader.name} pela insígnia.`,
-      action: () => {
-        if (hasBadge) {
-          alert(`Você já derrotou ${route.gymLeader.name} e possui a ${route.gymLeader.badgeName}!`);
-        } else {
-          if (window.confirm(`Deseja desafiar o Líder ${route.gymLeader.name}? Prepare-se para uma batalha difícil!`)) {
-            setCurrentView('battles');
-            onChallengeGym && onChallengeGym(route.gymLeader);
-          }
-        }
-      },
-      color: hasBadge ? 'border-green-500 bg-green-50' : 'border-pokeGold bg-yellow-50'
-    });
-  }
-
   return (
     <div className="h-full flex flex-col animate-fadeIn pb-24 relative overflow-y-auto custom-scrollbar">
-
       <div className="relative z-10 p-4 md:p-6 flex flex-col gap-4 md:gap-6">
         <TrainerCard trainer={gameState.trainer} badges={gameState.badges || []} caughtCount={Object.keys(gameState.caughtData || {}).length} />
         
@@ -118,7 +103,6 @@ const CityScreen = ({
           </button>
         )}
 
-        {/* MISSÃO CONCLUÍDA — Prof Carvalho */}
         {(gameState.worldFlags || []).includes('quest_capture_done') && !(gameState.worldFlags || []).includes('quest_capture_done_ack') && (
           <div className="w-full bg-gradient-to-r from-green-400 to-emerald-500 p-4 rounded-2xl shadow-xl border-b-4 border-green-700 animate-bounceIn flex items-center gap-4">
             <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-14 h-14 drop-shadow-lg shrink-0" alt="Oak" />
@@ -130,13 +114,10 @@ const CityScreen = ({
             <button
               onClick={() => setGameState(prev => ({ ...prev, worldFlags: [...(prev.worldFlags || []), 'quest_capture_done_ack'] }))}
               className="bg-white/20 text-white font-black text-xs px-3 py-2 rounded-xl hover:bg-white/30 transition-all shrink-0"
-            >
-              OK!
-            </button>
+            >OK!</button>
           </div>
         )}
 
-        {/* MODAL DE MISSÃO */}
         {activeQuestModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-fadeIn">
              <div className="bg-white rounded-[3rem] p-8 max-w-md w-full shadow-2xl border-b-[12px] border-pokeBlue animate-bounceIn">
@@ -199,7 +180,6 @@ const CityScreen = ({
           ))}
         </div>
 
-        {/* BOTÃO DE RETORNO À BATALHA (Apenas se veio de um treino) */}
         {gameState.lastFarmingRoute && (
           <button 
             onClick={() => onBackToBattle && onBackToBattle()}
@@ -210,6 +190,17 @@ const CityScreen = ({
           </button>
         )}
       </div>
+
+      {showGymScreen && (
+        <GymScreen
+          gameState={gameState}
+          onChallengeGym={(gymData) => {
+            setShowGymScreen(false);
+            onChallengeGym && onChallengeGym(gymData);
+          }}
+          onClose={() => setShowGymScreen(false)}
+        />
+      )}
     </div>
   );
 };

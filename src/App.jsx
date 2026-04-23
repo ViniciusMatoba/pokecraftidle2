@@ -18,6 +18,7 @@ import CraftingStation from './components/CraftingStation';
 import EvolutionScreen from './components/EvolutionScreen';
 import PokedexScreen from './components/PokedexScreen';
 import { MoveCategoryIcon, StatusBadges, QuickInventory, TrainerCard } from './components/CommonUI';
+import { GYMS, ELITE_FOUR } from './data/gyms';
 import { auth, db } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -946,26 +947,54 @@ export default function App() {
   }, [setCurrentEnemy, setCurrentView, addLog]);
 
   const handleChallengeGym = useCallback((gymData) => {
-    const leaderPoke = gymData.team[0];
+    // Usa o Pokémon mais forte (last) do time do líder
+    const teamList = gymData.team || [];
+    const leaderPoke = teamList[teamList.length - 1] || teamList[0];
+    if (!leaderPoke) return;
     const base = POKEDEX[leaderPoke.id];
-    const maxHp = (base.maxHp || 50) * 2; // Líderes têm mais HP
-    
+    if (!base) return;
+    const lvl = leaderPoke.level || 20;
+    const maxHp = Math.floor((base.maxHp || base.hp || 50) * 2.5 * (lvl / 20));
+    const statScale = lvl / 10;
+
+    // Golpes baseados no learnset do Pokémon até o nível do líder
+    const learnset = base.learnset || [];
+    const availableMoves = learnset
+      .filter(m => m.level <= lvl)
+      .map(m => {
+        const mk = m.move.toLowerCase();
+        const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
+        return { ...md, name: MOVE_TRANSLATIONS[mk] || md.name || m.move };
+      });
+    const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
+
     setCurrentEnemy({
       ...base,
-      level: leaderPoke.level,
+      level: lvl,
       hp: maxHp, maxHp,
+      attack: Math.floor((base.attack || 10) * statScale),
+      defense: Math.floor((base.defense || 10) * statScale),
+      spAtk: Math.floor((base.spAtk || 10) * statScale),
+      spDef: Math.floor((base.spDef || 10) * statScale),
+      speed: Math.floor((base.speed || 10) * statScale),
       isShiny: false, status: [],
       stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
+      moves: finalMoves,
       isTrainer: true,
-      trainerName: gymData.name,
+      trainerName: gymData.title || gymData.name,
       trainerSprite: gymData.sprite,
       trainerReward: gymData.reward || 1000,
       isGymLeader: true,
-      badgeToGive: gymData.badge
+      gymId: gymData.id,
+      badgeToGive: gymData.badge || null,
+      background: gymData.background || null,
+      instanceId: Date.now()
     });
-    addLog(`🏆 GINÁSIO: Líder ${gymData.name} enviou ${base.name}!`, 'system');
+    setCurrentView('battles');
+    playBGM('rival');
+    addLog(`🏆 GINÁSIO: Líder ${gymData.name} enviou ${base.name}! Nv.${lvl}`, 'system');
     isProcessingVictory.current = false;
-  }, [setCurrentEnemy]);
+  }, [setCurrentEnemy, setCurrentView, addLog, playBGM]);
 
   const handleCraft = (recipe) => {
     setGameState(prev => {
@@ -1111,7 +1140,12 @@ export default function App() {
 
       if (currentEnemy.badgeToGive && !newBadges.includes(currentEnemy.badgeToGive)) {
         newBadges.push(currentEnemy.badgeToGive);
-        addLog(`🏅 Recebeu a Insígnia #${currentEnemy.badgeToGive}!`, 'system');
+        addLog(`🏅 Recebeu a Insígnia: ${currentEnemy.badgeToGive.replace(/_/g, ' ')}!`, 'system');
+      }
+
+      // Salvar flag de vitória de Elite 4 / Líder de Ginásio
+      if (currentEnemy.gymId && !newFlags.includes(`defeated_elite_${currentEnemy.gymId}`)) {
+        newFlags.push(`defeated_elite_${currentEnemy.gymId}`);
       }
 
       const newTeam = prev.team.map((p, i) => {
