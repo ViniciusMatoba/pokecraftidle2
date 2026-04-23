@@ -12,15 +12,39 @@ const BattleScreen = ({
   const [showAutoConfig, setShowAutoConfig] = useState(false);
   const [shinyFlash, setShinyFlash] = useState(false);
 
+  // Componente de Estrelas para o Brilho Shiny
+  const ShinySparkles = () => (
+    <div className="absolute inset-0 pointer-events-none z-30 flex items-center justify-center">
+       {[...Array(6)].map((_, i) => (
+         <div key={i} 
+              className="absolute text-yellow-400 text-xl animate-bounceIn" 
+              style={{ 
+                left: `${50 + Math.cos(i * 60 * Math.PI / 180) * 40}%`, 
+                top: `${50 + Math.sin(i * 60 * Math.PI / 180) * 40}%`,
+                animationDelay: `${i * 0.1}s`,
+                opacity: 0.8
+              }}>
+           ⭐
+         </div>
+       ))}
+    </div>
+  );
+
   useEffect(() => {
     if (currentEnemy?.isTrainer) { setShowTrainer(true); const t = setTimeout(() => setShowTrainer(false), 2000); return () => clearTimeout(t); }
     else setShowTrainer(false);
   }, [currentEnemy?.isTrainer, currentEnemy?.id]);
 
-  // Sparkle ao aparecer shiny
+  // Sparkle ao aparecer shiny (Inimigo)
   useEffect(() => {
-    if (currentEnemy?.isShiny) { setShinyFlash(true); const t = setTimeout(() => setShinyFlash(false), 1200); return () => clearTimeout(t); }
+    if (currentEnemy?.isShiny) { setShinyFlash(true); const t = setTimeout(() => setShinyFlash(false), 1500); return () => clearTimeout(t); }
   }, [currentEnemy?.id]);
+
+  // Sparkle ao aparecer shiny (Jogador)
+  const [playerShinyFlash, setPlayerShinyFlash] = useState(false);
+  useEffect(() => {
+    if (activePoke?.isShiny) { setPlayerShinyFlash(true); const t = setTimeout(() => setPlayerShinyFlash(false), 1500); return () => clearTimeout(t); }
+  }, [activePoke?.uniqueId, activePoke?.id]);
 
   if (!currentEnemy) return <div className="h-full flex items-center justify-center"><p className="font-black uppercase text-slate-400 animate-pulse text-sm">Procurando...</p></div>;
 
@@ -150,8 +174,8 @@ const BattleScreen = ({
           </div>
         )}
 
-        {/* Shiny flash overlay */}
-        {shinyFlash && <div className="absolute inset-0 bg-yellow-200/60 animate-ping rounded-2xl pointer-events-none z-30" />}
+        {/* Shiny sparkles ao redor do Pokémon */}
+        {shinyFlash && !showTrainer && <ShinySparkles />}
 
         {/* Auto Config button */}
         <button
@@ -164,27 +188,36 @@ const BattleScreen = ({
 
         {/* Inimigo — topo direito */}
         <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1">
-          <div className="bg-white/95 backdrop-blur-sm px-3 py-2 rounded-xl shadow-lg border-l-4 border-slate-800 min-w-[140px]">
-            <div className="flex justify-between items-center gap-1">
-              <span className="font-black text-[10px] uppercase text-slate-800 truncate max-w-[90px]">
-                {currentEnemy.isTrainer ? `${currentEnemy.trainerName}'s ` : ''}{currentEnemy.name}
-                {currentEnemy.isShiny && <span className="ml-1 text-yellow-500">⭐</span>}
-              </span>
-              <span className="text-[9px] font-bold text-slate-500 ml-1 flex-shrink-0">Nv.{currentEnemy.level}</span>
+          
+          {/* HUD do Inimigo: Oculto durante a intro do treinador */}
+          {!showTrainer && (
+            <div className="bg-white/95 backdrop-blur-sm px-3 py-2 rounded-xl shadow-lg border-l-4 border-slate-800 min-w-[140px] animate-fadeIn">
+              <div className="flex justify-between items-center gap-1">
+                <span className="font-black text-[10px] uppercase text-slate-800 truncate max-w-[90px]">
+                  {currentEnemy.isTrainer ? `${currentEnemy.trainerName}'s ` : ''}{currentEnemy.name}
+                  {currentEnemy.isShiny && <span className="ml-1 text-yellow-500">⭐</span>}
+                </span>
+                <span className="text-[9px] font-bold text-slate-500 ml-1 flex-shrink-0">Nv.{currentEnemy.level}</span>
+              </div>
+              <div className="w-full bg-slate-200 h-1.5 rounded-full mt-1 overflow-hidden">
+                <div className={`h-full transition-all duration-300 ${hpPercent > 50 ? 'bg-green-500' : hpPercent > 20 ? 'bg-yellow-400' : 'bg-red-500'}`} style={{ width: `${hpPercent}%` }} />
+              </div>
+              <StatusBadges status={currentEnemy.status || []} stages={currentEnemy.stages || {}} />
             </div>
-            <div className="w-full bg-slate-200 h-1.5 rounded-full mt-1 overflow-hidden">
-              <div className={`h-full transition-all duration-300 ${hpPercent > 50 ? 'bg-green-500' : hpPercent > 20 ? 'bg-yellow-400' : 'bg-red-500'}`} style={{ width: `${hpPercent}%` }} />
-            </div>
-            <StatusBadges status={currentEnemy.status || []} stages={currentEnemy.stages || {}} />
-          </div>
-          <div className="relative">
+          )}
+
+          <div className="relative mt-2">
             <div className="absolute -top-6 left-1/2 -translate-x-1/2 pointer-events-none z-20 whitespace-nowrap">
               {(floatingTexts || []).map(f => <span key={f.id} className="block text-center font-black text-base animate-floatUp" style={{ color: f.color, textShadow: '1px 1px 0 #000' }}>{f.text}</span>)}
             </div>
+            
+            {/* Brilho Shiny Localizado */}
+            {shinyFlash && !showTrainer && <ShinySparkles />}
+
             <img
               src={currentEnemy.isTrainer && showTrainer ? currentEnemy.trainerSprite : (currentEnemy.sprite || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${currentEnemy.isShiny ? 'shiny/' : ''}${currentEnemy.id}.png`)}
               alt="Enemy"
-              className={`w-24 h-24 object-contain drop-shadow-xl ${showTrainer && currentEnemy.isTrainer ? 'scale-110' : 'animate-float'} ${currentEnemy.isShiny ? 'drop-shadow-[0_0_16px_rgba(234,179,8,1)]' : ''}`}
+              className={`w-24 h-24 object-contain drop-shadow-xl transition-all duration-500 ${showTrainer && currentEnemy.isTrainer ? 'scale-110' : 'animate-float'} ${currentEnemy.isShiny && !showTrainer ? 'drop-shadow-[0_0_16px_rgba(234,179,8,1)]' : ''}`}
             />
           </div>
         </div>
@@ -193,11 +226,16 @@ const BattleScreen = ({
         <div className="absolute bottom-2 left-2 z-10 flex items-end gap-2">
           {activePoke ? (
             <>
-              <img
-                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.gif`}
-                className={`w-20 h-20 object-contain drop-shadow-xl ${activePoke.isShiny ? 'drop-shadow-[0_0_10px_rgba(234,179,8,0.9)]' : ''}`}
-                alt="Player"
-              />
+              <div className="relative">
+                {/* Brilho Shiny do Jogador */}
+                {playerShinyFlash && <ShinySparkles />}
+                
+                <img
+                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.gif`}
+                  className={`w-20 h-20 object-contain drop-shadow-xl ${activePoke.isShiny ? 'drop-shadow-[0_0_10px_rgba(234,179,8,0.9)]' : ''}`}
+                  alt="Player"
+                />
+              </div>
               <div className="bg-white/95 backdrop-blur-sm px-3 py-2 rounded-xl shadow-lg border-r-4 border-pokeBlue min-w-[140px] mb-1">
                 <div className="flex justify-between items-center">
                   <span className="font-black text-[10px] uppercase text-slate-800 truncate max-w-[90px]">

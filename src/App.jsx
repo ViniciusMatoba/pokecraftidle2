@@ -691,7 +691,10 @@ export default function App() {
   const handleBattleTick = useCallback(() => {
     const speedMultiplier = [1, 0.6, 0.3][(gameState.settings?.battleSpeed || 1) - 1] || 1;
     if (!currentEnemy || currentViewRef.current !== 'battles' || currentEnemy.hp <= 0) return 1200 * speedMultiplier;
-    if (currentEnemy.isTrainer && currentEnemy.trainerSpawnTime && Date.now() - currentEnemy.trainerSpawnTime < 2400) return 500 * speedMultiplier;
+    if (currentEnemy.isTrainer && currentEnemy.trainerSpawnTime && Date.now() - currentEnemy.trainerSpawnTime < 2500) {
+       // Retorna um atraso curto para continuar verificando até que a intro termine
+       return 300 * speedMultiplier;
+    }
 
     let nextDelay = Math.floor(1200 * speedMultiplier);
 
