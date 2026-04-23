@@ -1,19 +1,16 @@
 // Dados dos Ginásios de Kanto + Liga Pokémon
 
 export const GYM_BG = {
-  Rock:     'linear-gradient(160deg, #8B7355 0%, #6B5B45 40%, #4a3f35 100%)',
-  Water:    'linear-gradient(160deg, #1a6b9a 0%, #0d4d7a 40%, #093a5e 100%)',
-  Electric: 'linear-gradient(160deg, #f5c400 0%, #e8a000 40%, #b37a00 100%)',
+  Rock:     "url('/battle_bg_gym_rock.png') center/cover no-repeat",
+  Water:    "url('/battle_bg_gym_water.png') center/cover no-repeat",
+  Electric: "url('/battle_bg_gym_electric.png') center/cover no-repeat",
+  Elite:    "url('/battle_bg_elite_four.png') center/cover no-repeat",
+  // Mantendo gradientes como fallback para os outros por enquanto
   Grass:    'linear-gradient(160deg, #1a7a2a 0%, #145e20 40%, #0d4016 100%)',
   Poison:   'linear-gradient(160deg, #6a1a9a 0%, #4e1272 40%, #350c50 100%)',
   Psychic:  'linear-gradient(160deg, #d4006a 0%, #a8004f 40%, #7a0038 100%)',
   Fire:     'linear-gradient(160deg, #c84000 0%, #9e2e00 40%, #6e1800 100%)',
   Ground:   'linear-gradient(160deg, #8B6914 0%, #6B500E 40%, #4a3608 100%)',
-  Ice:      'linear-gradient(160deg, #1a9aaa 0%, #0d7a8a 40%, #08556a 100%)',
-  Fighting: 'linear-gradient(160deg, #8B1a1a 0%, #6B0e0e 40%, #4a0808 100%)',
-  Ghost:    'linear-gradient(160deg, #1a0a4a 0%, #120634 40%, #0a0320 100%)',
-  Dragon:   'linear-gradient(160deg, #0a2a8B 0%, #081e6B 40%, #05124a 100%)',
-  Mixed:    'linear-gradient(160deg, #1a1a3a 0%, #0d0d28 40%, #080818 100%)',
 };
 
 export const GYMS = [
@@ -66,7 +63,7 @@ export const GYMS = [
     name: 'Lt. Surge',
     city: 'Cidade Celadon',
     type: 'Electric',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/surge.png',
+    sprite: '/trainer_surge_premium.png',
     typeIcon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/electric.svg',
     unlockAfterBadges: 2,
     reward: 2500,
@@ -197,7 +194,7 @@ export const ELITE_FOUR = [
     type: 'Ice',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/lorelei.png',
     typeIcon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/ice.svg',
-    background: GYM_BG.Ice,
+    background: GYM_BG.Elite,
     reward: 6000,
     quote: '"Ninguém pode derrotar meu gelo!"',
     team: [{ id: 87, level: 54 }, { id: 91, level: 53 }, { id: 80, level: 54 }, { id: 124, level: 54 }, { id: 131, level: 56 }]
@@ -209,7 +206,7 @@ export const ELITE_FOUR = [
     type: 'Fighting',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/bruno.png',
     typeIcon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/fighting.svg',
-    background: GYM_BG.Fighting,
+    background: GYM_BG.Elite,
     reward: 6000,
     quote: '"Meus punhos são mais duros que pedra!"',
     team: [{ id: 95, level: 53 }, { id: 107, level: 55 }, { id: 107, level: 55 }, { id: 95, level: 56 }, { id: 68, level: 58 }]
@@ -221,7 +218,7 @@ export const ELITE_FOUR = [
     type: 'Ghost',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/agatha.png',
     typeIcon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/ghost.svg',
-    background: GYM_BG.Ghost,
+    background: GYM_BG.Elite,
     reward: 6000,
     quote: '"Meus espíritos te envolvem!"',
     team: [{ id: 94, level: 54 }, { id: 42, level: 54 }, { id: 94, level: 58 }, { id: 42, level: 56 }, { id: 94, level: 60 }]
@@ -233,7 +230,7 @@ export const ELITE_FOUR = [
     type: 'Dragon',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/lance.png',
     typeIcon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/dragon.svg',
-    background: GYM_BG.Dragon,
+    background: GYM_BG.Elite,
     reward: 7000,
     quote: '"Dragões são a força máxima!"',
     team: [{ id: 148, level: 56 }, { id: 148, level: 56 }, { id: 130, level: 58 }, { id: 149, level: 60 }, { id: 149, level: 62 }]
@@ -245,7 +242,7 @@ export const ELITE_FOUR = [
     type: 'Mixed',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/blue.png',
     typeIcon: null,
-    background: GYM_BG.Mixed,
+    background: GYM_BG.Elite,
     reward: 10000,
     quote: '"Snorkel! Você está atrasado para a derrota!"',
     team: [{ id: 18, level: 59 }, { id: 103, level: 60 }, { id: 65, level: 63 }, { id: 112, level: 62 }, { id: 59, level: 61 }, { id: 6, level: 65 }]
