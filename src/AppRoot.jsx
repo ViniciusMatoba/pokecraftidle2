@@ -173,6 +173,7 @@ export default function App() {
   const [previewStarter, setPreviewStarter] = useState(null);
   const [activeQuestModal, setActiveQuestModal] = useState(null);
   const [pendingQuest, setPendingQuest] = useState(null);
+  const [battleReady, setBattleReady] = useState(false);
   const [timeOfDay, setTimeOfDay] = useState(getTimeOfDay());
   const [vsInitialTab, setVsInitialTab] = useState('challenges'); // 'challenges', 'gyms', 'legendary'
   const [vsInitialCategory, setVsInitialCategory] = useState(null); // 'rival', 'boss', 'rocket', 'legendary'
@@ -1028,6 +1029,19 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
+  // Delay antes de iniciar golpes contra treinador
+  useEffect(() => {
+    if (!currentEnemy) {
+      setBattleReady(false);
+      return;
+    }
+    // Treinador: aguardar 2800ms (tempo da intro)
+    // Inimigo normal: 0ms delay
+    const delay = currentEnemy.isTrainer ? 2800 : 0;
+    const t = setTimeout(() => setBattleReady(true), delay);
+    return () => clearTimeout(t);
+  }, [currentEnemy?.instanceId]);
+
   // ─── TICK DE BATALHA ─────────────────────────────────────────────────────────
   // ⛔ PROTECTED: handleBattleTick — NÃO EDITAR SEM AUTORIZAÇÃO EXPLÍCITA
   const handleBattleTick = useCallback(() => {
@@ -1502,7 +1516,7 @@ export default function App() {
     return nextDelay;
   }, [currentEnemy, activeMemberIndex, moveIndex, calcDamage, addFloat, setCurrentEnemy]);
 
-  useAutoFarm(gameState.team[activeMemberIndex], gameState.currentRoute, handleBattleTick);
+  useAutoFarm(gameState.team[activeMemberIndex], gameState.currentRoute, handleBattleTick, battleReady);
 
   const handleUseItem = useCallback((itemId, source = 'items') => {
     if (currentViewRef.current !== 'battles' || !currentEnemy) return;
@@ -3015,31 +3029,35 @@ export default function App() {
       );
     }
       case 'rival_post_battle': {
-        const labBg = fixPath('/battle_bg_lab_1776866008842.png');
         return (
-          <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden"
-            style={{ backgroundImage: `url(${labBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-          >
-             <div className="absolute inset-0 bg-black/30"></div>
-             {/* Sprite centrado */}
-           <div className="flex-1 flex items-center justify-center relative z-10">
-             <img src="https://play.pokemonshowdown.com/sprites/trainers/blue.png" className="h-72 drop-shadow-2xl animate-fadeOutRight" alt="Rival" />
-           </div>
-           {/* Balão na parte inferior */}
-           <div className="w-full relative z-10 p-4">
-             <div className="bg-white p-6 rounded-[2rem] shadow-2xl border-b-[10px] border-blue-600 w-full">
-               <h3 className="text-lg font-black text-slate-800 italic uppercase mb-3 tracking-tighter">Rival Azul:</h3>
-               <p className="text-sm font-bold text-slate-600 mb-3 italic">"Beleza! Vou fazer meu POKÉMON lutar para deixá-lo mais forte!"</p>
-               <p className="text-sm font-black text-blue-500 mb-4 uppercase tracking-widest">"Vovô! Fui!"</p>
-               <button
-                 onClick={() => setCurrentView('quest_oak')}
-                 className="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg"
-               >Continuar</button>
-             </div>
-           </div>
-        </div>
-      );
-    }
+          <div className="fixed inset-0 z-[100] flex flex-col items-center justify-end pb-10 bg-black/50 backdrop-blur-sm">
+
+            {/* Sprite do rival — fica até clicar */}
+            <img
+              src={getRivalSprite(gameState.trainer?.avatarImg)}
+              alt="Rival"
+              className="w-36 h-36 object-contain drop-shadow-2xl mb-6"
+              onError={e => { e.target.style.display='none'; }}
+            />
+
+            {/* Balão de fala */}
+            <div className="bg-white rounded-[2rem] p-5 mx-4 max-w-sm w-full shadow-2xl">
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
+                Rival — Azul
+              </p>
+              <p className="text-slate-700 text-sm font-bold leading-relaxed mb-5">
+                "Beleza... Vou fazer meu Pokémon lutar para deixá-lo mais forte. Da próxima vez não vou perder!"
+              </p>
+              <button
+                onClick={() => setCurrentView('city')}
+                className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-sm hover:bg-blue-500 transition-all active:scale-95 shadow-lg"
+              >
+                Continuar →
+              </button>
+            </div>
+          </div>
+        );
+      }
       case 'quest_oak': {
         const labBg = fixPath('/battle_bg_lab_1776866008842.png');
         return (
@@ -3806,51 +3824,65 @@ export default function App() {
         </div>
       )}
 
-      {currentView !== 'landing' && (!loading && user && gameState.worldFlags?.includes('has_starter')) && (
-        <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-slate-200 flex items-center justify-around px-2 py-2 z-50 shadow-xl">
+      {currentView !== 'landing' && (!loading && user && gameState.worldFlags?.includes('has_starter')) && (() => {
+        const menuUnlocked = gameState.oakTutorialShown === true;
+        return (
+          <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-slate-200 flex items-center justify-around px-2 py-2 z-50 shadow-xl">
 
-          <button onClick={() => setCurrentView('routes')}
-            className={`flex flex-col items-center py-1 px-3 ${['routes','battles'].includes(currentView) ? 'text-blue-600' : 'text-slate-400'}`}>
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png"
-              className="w-7 h-7 object-contain" alt=""
-              onError={e => e.target.style.display='none'} />
-            <span className="text-[9px] font-black uppercase mt-0.5">Rotas</span>
-          </button>
+            <button onClick={() => menuUnlocked && setCurrentView('routes')}
+              disabled={!menuUnlocked}
+              className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${['routes','battles'].includes(currentView) ? 'text-blue-600' : 'text-slate-400'}`}>
+              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png"
+                className="w-7 h-7 object-contain" alt=""
+                onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML += '<span style="font-size:24px">🗺️</span>'; }} />
+              <span className="text-[9px] font-black uppercase mt-0.5">Rotas</span>
+            </button>
 
-          <button onClick={() => setCurrentView('pokemon_management')}
-            className={`flex flex-col items-center py-1 px-3 ${currentView === 'pokemon_management' ? 'text-red-600' : 'text-slate-400'}`}>
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
-              className="w-7 h-7 object-contain" alt=""
-              onError={e => e.target.style.display='none'} />
-            <span className="text-[9px] font-black uppercase mt-0.5">Equipe</span>
-          </button>
+            <button onClick={() => menuUnlocked && setCurrentView('pokemon_management')}
+              disabled={!menuUnlocked}
+              className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${currentView === 'pokemon_management' ? 'text-red-600' : 'text-slate-400'}`}>
+              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
+                className="w-7 h-7 object-contain" alt=""
+                onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML += '<span style="font-size:24px">🎒</span>'; }} />
+              <span className="text-[9px] font-black uppercase mt-0.5">Equipe</span>
+            </button>
 
-          <button onClick={() => setCurrentView('vs')}
-            className={`flex flex-col items-center py-1 px-3 ${['vs','gyms','challenges'].includes(currentView) ? 'text-yellow-600' : 'text-slate-400'}`}>
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/antidote.png"
-              className="w-7 h-7 object-contain" alt=""
-              onError={e => e.target.style.display='none'} />
-            <span className="text-[9px] font-black uppercase mt-0.5">VS</span>
-          </button>
+            <button onClick={() => menuUnlocked && setCurrentView('vs')}
+              disabled={!menuUnlocked}
+              className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${['vs','gyms','challenges'].includes(currentView) ? 'text-yellow-600' : 'text-slate-400'}`}>
+              <img
+                src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/boulder-badge.png"
+                className="w-7 h-7 object-contain" alt=""
+                onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML += '<span style="font-size:24px">⚔️</span>'; }}
+              />
+              <span className="text-[9px] font-black uppercase mt-0.5">Modo VS</span>
+            </button>
 
-          <button onClick={() => handleGoToCity()}
-            className={`flex flex-col items-center py-1 px-3 ${currentView === 'city' ? 'text-indigo-600' : 'text-slate-400'}`}>
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/heal-ball.png"
-              className="w-7 h-7 object-contain" alt=""
-              onError={e => e.target.style.display='none'} />
-            <span className="text-[9px] font-black uppercase mt-0.5">Cidade</span>
-          </button>
+            <button onClick={() => menuUnlocked && handleGoToCity()}
+              disabled={!menuUnlocked}
+              className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${currentView === 'city' ? 'text-indigo-600' : 'text-slate-400'}`}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 21h18"/>
+                <path d="M3 7l9-4 9 4"/>
+                <path d="M4 7v14M20 7v14"/>
+                <path d="M9 21V12h6v9"/>
+                <path d="M9 7h.01M15 7h.01"/>
+              </svg>
+              <span className="text-[9px] font-black uppercase mt-0.5">Cidade</span>
+            </button>
 
-          <button onClick={() => setCurrentView('menu')}
-            className={`flex flex-col items-center py-1 px-3 ${currentView === 'menu' ? 'text-slate-800' : 'text-slate-400'}`}>
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png"
-              className="w-7 h-7 object-contain" alt=""
-              onError={e => e.target.style.display='none'} />
-            <span className="text-[9px] font-black uppercase mt-0.5">Menu</span>
-          </button>
+            <button onClick={() => menuUnlocked && setCurrentView('menu')}
+              disabled={!menuUnlocked}
+              className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${currentView === 'menu' ? 'text-slate-800' : 'text-slate-400'}`}>
+              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pokedex.png"
+                className="w-7 h-7 object-contain" alt=""
+                onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML += '<span style="font-size:22px">📱</span>'; }} />
+              <span className="text-[9px] font-black uppercase mt-0.5">Menu</span>
+            </button>
 
-        </nav>
-      )}
+          </nav>
+        );
+      })()}
 
       {/* MODAIS DE CONSTRUÇÕES */}
       {/* MODAL DE MISSÃO ATIVA */}
