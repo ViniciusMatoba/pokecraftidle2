@@ -890,15 +890,10 @@ export default function App() {
           name: (POKEDEX[Number(baseRef.id)] || POKEDEX[String(baseRef.id)])?.name || baseRef.name || 'Pokémon Selvagem'
         };
     
-    // Sistema de Maestria: Chance de Shiny aumenta com as capturas
+    // Sistema de Maestria: Chance de Shiny
     const pokeId = Number(base.id);
     const masteryCount = (gameState.speciesMastery || {})[pokeId] || (gameState.speciesMastery || {})[base.id] || 0;
-    const shinyChanceBase = 0.01; // 1% base
-    const shinyBonus = Math.min(0.04, (masteryCount / 100) * 0.05); // Até +4% de bí­íƒÂ‚í‚Â´nus
-    
-    // Aplicar rarityBonus do período do dia ao shiny
-    const timeShinyBonus = (timeConfig?.rarityBonus?.[base.type] || timeConfig?.rarityBonus?.[base.types?.[0]]) || 1.0;
-    const isShiny = Math.random() < (shinyChanceBase + shinyBonus) * timeShinyBonus;
+    const isShiny = Math.floor(Math.random() * 4096) === 0;
 
     const levelVariance = Math.floor(Math.random() * 3) - 1;
     const level = Math.max(1, (base.level || 5) + levelVariance);
