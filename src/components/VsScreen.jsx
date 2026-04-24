@@ -18,7 +18,7 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
   ];
 
   return (
-    <div className="fixed inset-0 z-[110] flex flex-col bg-slate-950/50 backdrop-blur-sm animate-fadeIn items-center justify-center" onClick={onClose}>
+    <div className="absolute inset-0 z-[110] flex flex-col bg-slate-950/50 backdrop-blur-sm animate-fadeIn items-center justify-center" onClick={onClose}>
       <div 
         className="w-full max-w-md h-full bg-slate-950 flex flex-col relative shadow-2xl overflow-hidden"
         onClick={e => e.stopPropagation()}

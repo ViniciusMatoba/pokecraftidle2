@@ -4,7 +4,7 @@ const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setE
   if (!evolutionPending) return null;
 
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-slate-900/98 backdrop-blur-3xl animate-fadeIn">
+    <div className="absolute inset-0 z-[150] flex items-center justify-center p-6 bg-slate-900/98 backdrop-blur-3xl animate-fadeIn">
        <div className="max-w-2xl w-full text-center relative">
           {/* Efeitos de Luz de Fundo */}
           <div className="absolute inset-0 bg-blue-500/10 blur-[120px] animate-pulse"></div>

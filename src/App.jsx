@@ -84,7 +84,7 @@ export default function App() {
         setUser(u);
         const savedData = await loadGameState(u.uid);
         if (savedData) {
-          // Migração de dados para evitar crashes com saves antigos
+          // MigraÃ§Ã£o de dados para evitar crashes com saves antigos
           const migratedData = {
             ...DEFAULT_GAME_STATE,
             ...savedData,
@@ -109,7 +109,7 @@ export default function App() {
       setLoading(false);
     });
 
-    // Fallback de segurança: Se carregar demorar mais de 8s, libera a tela
+    // Fallback de seguranÃ§a: Se carregar demorar mais de 8s, libera a tela
     const loadTimeout = setTimeout(() => {
       setLoading(false);
     }, 8000);
@@ -121,7 +121,7 @@ export default function App() {
   }, []);
 
   // ===== LISTENER DE FORCE-UPDATE (Firestore config/app) =====
-  // Todos os dispositivos logados serão recarregados quando forceReloadAt mudar
+  // Todos os dispositivos logados serÃ£o recarregados quando forceReloadAt mudar
   useEffect(() => {
     const configRef = doc(db, 'config', 'app');
     const unsub = onSnapshot(configRef, (snap) => {
@@ -168,7 +168,7 @@ export default function App() {
   const [sessionStats, setSessionStats] = useState(null);
   const sessionRef = useRef({ kills: 0, coins: 0, trainers: 0, shinyKills: 0, drops: {}, captures: [] });
 
-  // Auto-dismiss de notificação de maestria
+  // Auto-dismiss de notificaÃ§Ã£o de maestria
   useEffect(() => {
     if (masteryNotification) {
       const timer = setTimeout(() => setMasteryNotification(null), 1500);
@@ -194,9 +194,9 @@ export default function App() {
         if (parsed && parsed.gameState) {
           const loaded = parsed.gameState;
           const merged = {
-            ...DEFAULT_GAME_STATE,           // novos campos com valores padrão
+            ...DEFAULT_GAME_STATE,           // novos campos com valores padrÃ£o
             ...loaded,                  // progresso real do jogador
-            version: DEFAULT_GAME_STATE.version, // força versão atual
+            version: DEFAULT_GAME_STATE.version, // forÃ§a versÃ£o atual
             team: loaded.team || DEFAULT_GAME_STATE.team,
             pc: loaded.pc || DEFAULT_GAME_STATE.pc,
             badges: loaded.badges || DEFAULT_GAME_STATE.badges,
@@ -312,14 +312,14 @@ export default function App() {
     setTimeout(() => setFloatingTexts(prev => prev.filter(f => f.id !== id)), 1200);
   }, []);
 
-  // ─── UNIFICAÇÃO DE COLEÇÃO ──────────────────────────────────────────────────
+  // â”€â”€â”€ UNIFICAÃ‡ÃƒO DE COLEÃ‡ÃƒO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const unifyDuplicates = useCallback((prev) => {
     const all = [...(prev.team || []), ...(prev.pc || [])];
     const uniqueMap = {};
     all.forEach(p => {
       const id = Number(p.id);
       
-      // Garante que o pokémon processado tenha ataques e todos os 6 status
+      // Garante que o pokÃ©mon processado tenha ataques e todos os 6 status
       let processed = p;
       const needsMoves = !processed.moves || processed.moves.length === 0;
       const needsStats = !processed.spAtk || !processed.spDef;
@@ -376,7 +376,7 @@ export default function App() {
       const needsMoves = all.some(p => !p.moves || p.moves.length === 0);
       const uniqueIds = new Set(all.map(p => Number(p.id)));
       
-      // Sincroniza Pokedex (caughtData) com Pokémons que o jogador possui
+      // Sincroniza Pokedex (caughtData) com PokÃ©mons que o jogador possui
       let caughtChanged = false;
       const newCaughtData = { ...(prev.caughtData || {}) };
       all.forEach(p => {
@@ -387,10 +387,10 @@ export default function App() {
       });
 
       if (uniqueIds.size < all.length || needsMoves || caughtChanged) {
-        // Se houver duplicatas ou precisar de golpes, unifica. Caso contrário, usa o estado atual.
+        // Se houver duplicatas ou precisar de golpes, unifica. Caso contrÃ¡rio, usa o estado atual.
         const nextState = (uniqueIds.size < all.length || needsMoves) ? unifyDuplicates(prev) : prev;
         
-        // Aplica a mudança de caughtData se necessário
+        // Aplica a mudanÃ§a de caughtData se necessÃ¡rio
         if (caughtChanged) {
           return { ...nextState, caughtData: newCaughtData };
         }
@@ -421,11 +421,11 @@ export default function App() {
       }
     }
 
-    if (newCount === 100) { addLog(`✨ Domínio de ${pokemon.name}: Chance Shiny 2x!`, 'system'); reward = { type: 'Bônus Passivo', val: 'Chance Shiny 2x' }; }
-    if (newCount === 200) { addLog(`✨ Domínio de ${pokemon.name}: Chance Shiny 5x!`, 'system'); reward = { type: 'Bônus Passivo', val: 'Chance Shiny 5x' }; }
+    if (newCount === 100) { addLog(`âœ¨ DomÃ­nio de ${pokemon.name}: Chance Shiny 2x!`, 'system'); reward = { type: 'BÃ´nus Passivo', val: 'Chance Shiny 2x' }; }
+    if (newCount === 200) { addLog(`âœ¨ DomÃ­nio de ${pokemon.name}: Chance Shiny 5x!`, 'system'); reward = { type: 'BÃ´nus Passivo', val: 'Chance Shiny 5x' }; }
 
     if (reward) {
-      addLog(`🌟 Domínio de ${pokemon.name}: ${reward.val} liberado!`, 'system');
+      addLog(`ðŸŒŸ DomÃ­nio de ${pokemon.name}: ${reward.val} liberado!`, 'system');
       setTimeout(() => setMasteryNotification({ pokemon, reward }), 0);
     }
 
@@ -433,12 +433,12 @@ export default function App() {
   }, [addLog]);
 
 
-  // ─── FIREBASE CLOUD SYNC ──────────────────────────────────────────────────
+  // â”€â”€â”€ FIREBASE CLOUD SYNC â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        addLog(`👤 Logado como ${user.email}`, 'system');
+        addLog(`ðŸ‘¤ Logado como ${user.email}`, 'system');
         try {
           const docRef = doc(db, "saves", user.uid);
           const docSnap = await getDoc(docRef);
@@ -446,7 +446,7 @@ export default function App() {
             const data = docSnap.data();
             if (data?.gameState) {
               setGameState(prev => ({ ...prev, ...data.gameState }));
-              addLog("☁️ Progresso sincronizado com a nuvem!", "system");
+              addLog("â˜ï¸ Progresso sincronizado com a nuvem!", "system");
             }
           }
         } catch (err) {
@@ -457,9 +457,9 @@ export default function App() {
     return () => unsubscribe();
   }, [addLog]);
 
-  // Sincronização de Estado (Vários destinos)
+  // SincronizaÃ§Ã£o de Estado (VÃ¡rios destinos)
   useEffect(() => {
-    // 1. LocalStorage (Instantâneo)
+    // 1. LocalStorage (InstantÃ¢neo)
     localStorage.setItem('poke_idle_save', JSON.stringify({ gameState }));
     
     // 2. Firestore (Throttled - 30s)
@@ -477,7 +477,7 @@ export default function App() {
   const triggerSave = useCallback(async () => {
     const user = auth.currentUser;
     if (!user) {
-      alert("⚠️ Você precisa estar logado para salvar na nuvem!");
+      alert("âš ï¸ VocÃª precisa estar logado para salvar na nuvem!");
       return;
     }
     try {
@@ -486,15 +486,15 @@ export default function App() {
         gameState, 
         updatedAt: serverTimestamp() 
       }, { merge: true });
-      alert("✅ Jogo salvo na nuvem com sucesso!");
+      alert("âœ… Jogo salvo na nuvem com sucesso!");
     } catch (e) {
       console.error("Manual Save Fail:", e);
-      alert("❌ Erro ao salvar: " + e.message);
+      alert("âŒ Erro ao salvar: " + e.message);
     }
   }, [gameState]);
 
-  // ─── INTERPRETADOR DE EFEITOS DE GOLPE ──────────────────────────────────────
-  // Lê o campo "effect" do moves.js e retorna o que o golpe deve fazer
+  // â”€â”€â”€ INTERPRETADOR DE EFEITOS DE GOLPE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // LÃª o campo "effect" do moves.js e retorna o que o golpe deve fazer
   const interpretMoveEffect = (move) => {
     const e = (move.effect || '').toLowerCase();
     const name = (move.name || '').toLowerCase();
@@ -502,15 +502,15 @@ export default function App() {
       statChanges: [],   // [{ stat, change, target: 'enemy'|'self' }]
       statusEffect: null, // 'burn'|'poison'|'sleep'|'paralyze'|'confuse'|'freeze'
       statusTarget: 'enemy',
-      heal: false,       // se cura o próprio pokémon
+      heal: false,       // se cura o prÃ³prio pokÃ©mon
       fixedDamage: null, // dano fixo (seismic-toss, dragon-rage, etc)
       ohko: false,       // one-hit KO
       accuracy_change: null, // { target, change }
       evasion_change: null,
-      noEffect: false,   // teleport, roar, etc — sem efeito em batalha idle
+      noEffect: false,   // teleport, roar, etc â€” sem efeito em batalha idle
     };
 
-    // ── Efeitos Especiais de Dano ──
+    // â”€â”€ Efeitos Especiais de Dano â”€â”€
     if (e.includes('one-hit ko') || e.includes('causes a one-hit ko')) {
       result.ohko = true; return result;
     }
@@ -524,14 +524,14 @@ export default function App() {
       result.fixedDamage = 20; return result;
     }
 
-    // ── Heal ──
+    // â”€â”€ Heal â”€â”€
     if (e.includes('restores') || (e.includes('heals') && e.includes('user')) ||
         ['recover','soft-boiled','milk drink','morning sun','synthesis','moonlight',
          'rest','slack off','roost','shore up','heal order'].some(n => name.includes(n))) {
       result.heal = true; return result;
     }
 
-    // ── Accuracy / Evasion ──
+    // â”€â”€ Accuracy / Evasion â”€â”€
     if ((e.includes('accuracy') && e.includes('lower')) || e.includes("lowers the target's accuracy")) {
       result.accuracy_change = { target: 'enemy', change: -1 };
     }
@@ -539,7 +539,7 @@ export default function App() {
       result.evasion_change = { target: 'self', change: +1 };
     }
 
-    // ── Debuffs no inimigo ──
+    // â”€â”€ Debuffs no inimigo â”€â”€
     if ((e.includes('special defense') && e.includes('lower')) || name === 'metal sound' || name === 'fake tears') {
       const stages = e.includes('two') || e.includes('2') ? -2 : -1;
       result.statChanges.push({ stat: 'spDef', change: stages, target: 'enemy' });
@@ -560,7 +560,7 @@ export default function App() {
       result.statChanges.push({ stat: 'speed', change: stages, target: 'enemy' });
     }
 
-    // ── Buffs no usuário ──
+    // â”€â”€ Buffs no usuÃ¡rio â”€â”€
     if (e.includes('attack') && e.includes('raise') && !e.includes('special')) {
       const stages = (e.includes('two') || e.includes('sharply') || e.includes('by 2')) ? +2 : +1;
       result.statChanges.push({ stat: 'attack', change: stages, target: 'self' });
@@ -582,7 +582,7 @@ export default function App() {
       result.statChanges.push({ stat: 'speed', change: stages, target: 'self' });
     }
 
-    // ── Condições de Status no inimigo ──
+    // â”€â”€ CondiÃ§Ãµes de Status no inimigo â”€â”€
     if (e.includes('sleep') && !e.includes('user') && !name.includes('rest')) {
       result.statusEffect = 'sleep'; result.statusTarget = 'enemy';
     }
@@ -601,7 +601,7 @@ export default function App() {
       result.statusEffect = 'confuse'; result.statusTarget = 'enemy';
     }
 
-    // ── Sem efeito em idle (teleport, roar, baton pass, etc) ──
+    // â”€â”€ Sem efeito em idle (teleport, roar, baton pass, etc) â”€â”€
     if (['teleport','roar','whirlwind','splash'].includes(name)) {
       result.noEffect = true;
     }
@@ -609,7 +609,7 @@ export default function App() {
     return result;
   };
 
-  // ─── FÓRMULA DE DANO (inspirada na Gen 1) ───────────────────────────────────
+  // â”€â”€â”€ FÃ“RMULA DE DANO (inspirada na Gen 1) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const calcDamage = useCallback((attacker, move, defender) => {
     if (!attacker || !defender || !move || !move.power) return 0;
     const level = attacker.level || 5;
@@ -617,7 +617,7 @@ export default function App() {
 
     const getStatMult = (stage = 0) => (2 + Math.max(0, stage)) / (2 - Math.min(0, stage));
 
-    // Proteção contra move ou name undefined
+    // ProteÃ§Ã£o contra move ou name undefined
     const moveName = move?.name || 'Investida';
     const moveKey = (moveName || '').toLowerCase();
     const moveData = MOVES[moveKey.replace(/ /g, '-')] || move || {};
@@ -638,7 +638,7 @@ export default function App() {
     const base = ((((2 * level) / 5 + 2) * power * (atk / def)) / 50 + 2) * stab * effectiveness;
     const roll = 0.85 + Math.random() * 0.15; // Roll mais justo (85-100%)
     
-    // Verificar accuracy — se o atacante tem accuracy reduzida, o golpe pode errar
+    // Verificar accuracy â€” se o atacante tem accuracy reduzida, o golpe pode errar
     const accStage = attacker.stages?.accuracy || 0;
     const evaStage = defender.stages?.evasion || 0;
     const finalAccStage = accStage - evaStage;
@@ -651,7 +651,7 @@ export default function App() {
     return Math.max(1, Math.ceil(base * roll));
   }, []);
 
-  // ─── PROCESSAMENTO DE DROPS ──────────────────────────────────────────────────
+  // â”€â”€â”€ PROCESSAMENTO DE DROPS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const processDrops = useCallback((enemy) => {
     const drops = { materials: {}, items: {}, currency: 0 };
     const messages = [];
@@ -659,7 +659,7 @@ export default function App() {
     // Moedas base
     let coinAmount = (enemy.level || 5) * 3 * (enemy.isShiny ? 2 : 1);
     
-    // ── EFEITOS ATIVOS (TIMED) ────────────────────────────────────────
+    // â”€â”€ EFEITOS ATIVOS (TIMED) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const now = Date.now();
     const effects = gameState.activeEffects || {};
 
@@ -668,16 +668,16 @@ export default function App() {
     if (effects.activeAmuletCoin?.endsAt > now) coinMult *= (effects.activeAmuletCoin.coinMult || 2.0);
     if (effects.activeIncenseLuck?.endsAt > now) coinMult *= (effects.activeIncenseLuck.coinMult || 2.0);
     
-    // Moeda Amuleto (Antiga Lógica Hold - Mantida para compatibilidade se necessário, mas priorizando timed)
+    // Moeda Amuleto (Antiga LÃ³gica Hold - Mantida para compatibilidade se necessÃ¡rio, mas priorizando timed)
     const activePoke = gameState.team[activeMemberIndex];
     if (activePoke?.heldItem === 'amulet_coin' && !(effects.activeAmuletCoin?.endsAt > now)) {
       coinMult *= 2;
     }
 
     drops.currency = Math.floor(coinAmount * coinMult);
-    messages.push(`💰 +${drops.currency} coins`);
+    messages.push(`ðŸ’° +${drops.currency} coins`);
 
-    // ── CANDY DROP ──────────────────────────────────────────────────────
+    // â”€â”€ CANDY DROP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const candyId = POKEMON_TO_CANDY[Number(enemy.id)];
     if (candyId) {
        const mastery = (gameState.speciesMastery || {})[Number(enemy.id)] || 0;
@@ -685,15 +685,15 @@ export default function App() {
        if (Math.random() < bonusChance) {
          const qty = 1;
          drops.candies = { [candyId]: qty }; 
-         messages.push(`🍬 1x ${CANDY_FAMILIES[candyId].name}`);
+         messages.push(`ðŸ¬ 1x ${CANDY_FAMILIES[candyId].name}`);
        }
     }
 
-    // NOVA LÓGICA DE DROPS DO USUÁRIO
-    // 1. Essência por Tipo (60% de chance)
+    // NOVA LÃ“GICA DE DROPS DO USUÃRIO
+    // 1. EssÃªncia por Tipo (60% de chance)
     if (Math.random() < 0.6) {
       const essenceType = `${(enemy.type || 'normal').toLowerCase()}_essence`;
-      const essenceData = ITEM_LABELS[essenceType] || { icon: '✨', name: `Essência ${enemy.type}` };
+      const essenceData = ITEM_LABELS[essenceType] || { icon: 'âœ¨', name: `EssÃªncia ${enemy.type}` };
       drops.materials[essenceType] = (drops.materials[essenceType] || 0) + 1;
       messages.push(`${essenceData.icon} 1x ${essenceData.name}`);
     }
@@ -701,17 +701,17 @@ export default function App() {
     // 2. Mystic Dust para Shinies (100% se for shiny)
     if (enemy.isShiny) {
       drops.materials.mystic_dust = (drops.materials.mystic_dust || 0) + 5;
-      messages.push(`⭐ 5x Pó Místico`);
+      messages.push(`â­ 5x PÃ³ MÃ­stico`);
     }
 
-    // Drops antigos (suporte para itens específicos de rota/pokemon)
+    // Drops antigos (suporte para itens especÃ­ficos de rota/pokemon)
     if (enemy.drop && enemy.dropChance && Math.random() < (enemy.isShiny ? enemy.dropChance * 3 : enemy.dropChance)) {
-      // Aqui determinamos se o drop antigo é material ou item (maioria é material)
+      // Aqui determinamos se o drop antigo Ã© material ou item (maioria Ã© material)
       const materialList = [
         'iron_ore', 'apricorn', 'electric_chip', 'moon_stone_shard', 'pink_dust', 'gold_nugget', 'silk', 'feather',
         'fire_stone', 'water_stone', 'leaf_stone', 'thunder_stone', 'moon_stone'
       ];
-      const dropData = ITEM_LABELS[enemy.drop] || { icon: '📦', name: enemy.drop.toUpperCase() };
+      const dropData = ITEM_LABELS[enemy.drop] || { icon: 'ðŸ“¦', name: enemy.drop.toUpperCase() };
       if (materialList.includes(enemy.drop)) {
         drops.materials[enemy.drop] = (drops.materials[enemy.drop] || 0) + 1;
       } else {
@@ -720,28 +720,28 @@ export default function App() {
       messages.push(`${dropData.icon} 1x ${dropData.name}`);
     }
 
-    // 4. Poké Ball Drop Chance (20% chance)
+    // 4. PokÃ© Ball Drop Chance (20% chance)
     if (Math.random() < 0.20) {
       drops.items.pokeballs = (drops.items.pokeballs || 0) + 1;
-      messages.push(`🔴 +1 Poké Bola`);
+      messages.push(`ðŸ”´ +1 PokÃ© Bola`);
     }
 
     return { drops, messages };
   }, []);
 
-  // ─── SPAWN ───────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ SPAWN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const spawnEnemy = useCallback(() => {
-    isProcessingVictory.current = false; // Reset de segurança
+    isProcessingVictory.current = false; // Reset de seguranÃ§a
     const route = processedRoutes[gameState.currentRoute] || processedRoutes.pallet_town;
 
-    // Chance de encontrar um treinador NPC (~3% por padrão, configurável por rota)
+    // Chance de encontrar um treinador NPC (~3% por padrÃ£o, configurÃ¡vel por rota)
     const trainerChance = route.trainerChance || 0.03;
     const hasTrainers = route.trainers && route.trainers.length > 0;
 
-    // ── 1. EMBOSCADA VILÃ (Chance Global reduzida para ~1% para focar em selvagens) ──
+    // â”€â”€ 1. EMBOSCADA VILÃƒ (Chance Global reduzida para ~1% para focar em selvagens) â”€â”€
     if (Math.random() < 0.01 && route.type === 'farm') {
       const teamKeys = Object.keys(VILLAIN_TEAMS);
-      // Filtra por bioma se aplicável
+      // Filtra por bioma se aplicÃ¡vel
       const possibleTeams = teamKeys.filter(k => !VILLAIN_TEAMS[k].biome || VILLAIN_TEAMS[k].biome === route.biome);
       const chosenKey = possibleTeams[Math.floor(Math.random() * possibleTeams.length)] || 'rocket';
       const teamData = VILLAIN_TEAMS[chosenKey];
@@ -766,7 +766,7 @@ export default function App() {
         villainColor: teamData.color,
         instanceId: Date.now()
       });
-      addLog(`⚠️ EMBOSCADA! ${teamData.name} ${reason}`, 'enemy');
+      addLog(`âš ï¸ EMBOSCADA! ${teamData.name} ${reason}`, 'enemy');
       return;
     }
 
@@ -783,7 +783,7 @@ export default function App() {
             level: trainerPokeRef.level || 5 
           };
       
-      const enemyName = trainerPoke.name || `Pokémon de ${trainer.name}`;
+      const enemyName = trainerPoke.name || `PokÃ©mon de ${trainer.name}`;
       const maxHp = Math.ceil((((2 * (trainerPoke.maxHp || trainerPoke.hp || 30) * trainerPoke.level) / 100) + trainerPoke.level + 10) * 1.3);
       
       setCurrentEnemy({
@@ -802,27 +802,27 @@ export default function App() {
       });
       setBattleLog([]);
       isProcessingVictory.current = false;
-      addLog(`⚔️ ${trainer.name} quer batalhar!`, 'system');
+      addLog(`âš”ï¸ ${trainer.name} quer batalhar!`, 'system');
       return;
     }
 
     if (!route.enemies || route.enemies.length === 0) {
-      // Não seta null — apenas sai sem fazer nada para evitar loop infinito em cidades
+      // NÃ£o seta null â€” apenas sai sem fazer nada para evitar loop infinito em cidades
       isProcessingVictory.current = false;
       return;
     }
     
     let enemyPool = [...route.enemies];
     
-    // ── 3. VARAS DE PESCA (Fishing Rods) ──────────────────────────────
-    // Se a rota tem bioma de água e o jogador possui uma vara, aumenta chance de água
+    // â”€â”€ 3. VARAS DE PESCA (Fishing Rods) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Se a rota tem bioma de Ã¡gua e o jogador possui uma vara, aumenta chance de Ã¡gua
     if (route.biome === 'water' || route.name.toLowerCase().includes('oceano') || route.name.toLowerCase().includes('praia')) {
       const rods = ['super_rod', 'good_rod', 'old_rod'];
       const ownedRod = rods.find(r => (gameState.inventory?.items?.[r] || 0) > 0);
       if (ownedRod) {
         const rodData = CRAFTING_RECIPES.fishing_rods.find(r => r.id === ownedRod);
         const waterBonus = rodData?.effect?.waterBonus || 0;
-        // Filtra pokémons de água e duplica sua presença no pool proporcionalmente ao bônus
+        // Filtra pokÃ©mons de Ã¡gua e duplica sua presenÃ§a no pool proporcionalmente ao bÃ´nus
         const waterEnemies = enemyPool.filter(e => {
           const p = POKEDEX[e.id];
           return p?.type === 'Water' || p?.types?.includes('Water');
@@ -837,30 +837,30 @@ export default function App() {
     }
     
     const baseRef = enemyPool[Math.floor(Math.random() * enemyPool.length)] || { id: 16, level: 3 };
-    // Resolve dados completos do Pokédex
+    // Resolve dados completos do PokÃ©dex
     const base = baseRef.learnset
       ? baseRef
       : { 
           ...(POKEDEX[Number(baseRef.id)] || POKEDEX[String(baseRef.id)] || {}), 
           id: Number(baseRef.id || 16),
           level: baseRef.level || 5,
-          name: (POKEDEX[Number(baseRef.id)] || POKEDEX[String(baseRef.id)])?.name || baseRef.name || 'Pokémon Selvagem'
+          name: (POKEDEX[Number(baseRef.id)] || POKEDEX[String(baseRef.id)])?.name || baseRef.name || 'PokÃ©mon Selvagem'
         };
     
     // Sistema de Maestria: Chance de Shiny aumenta com as capturas
     const pokeId = Number(base.id);
     const masteryCount = (gameState.speciesMastery || {})[pokeId] || (gameState.speciesMastery || {})[base.id] || 0;
     const shinyChanceBase = 0.01; // 1% base
-    const shinyBonus = Math.min(0.04, (masteryCount / 100) * 0.05); // Até +4% de bônus
+    const shinyBonus = Math.min(0.04, (masteryCount / 100) * 0.05); // AtÃ© +4% de bÃ´nus
     const isShiny = Math.random() < (shinyChanceBase + shinyBonus);
 
     const levelVariance = Math.floor(Math.random() * 3) - 1;
     const level = Math.max(1, (base.level || 5) + levelVariance);
     
-    // Bônus Shiny: 20% mais forte
+    // BÃ´nus Shiny: 20% mais forte
     const shinyMult = isShiny ? 1.2 : 1.0;
 
-    // ── 4. REPEL (Enfraquecer Inimigos) ──────────────────────────────
+    // â”€â”€ 4. REPEL (Enfraquecer Inimigos) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const effects = gameState.activeEffects || {};
     const now = Date.now();
     let repelMult = 1.0;
@@ -870,7 +870,7 @@ export default function App() {
 
     const maxHp = Math.ceil((((2 * (base.maxHp || base.hp || 30) * level) / 100) + level + 10) * shinyMult * repelMult);
     
-    // Seleção de Golpes baseada no Learnset
+    // SeleÃ§Ã£o de Golpes baseada no Learnset
     const learnset = base.learnset || [];
     const availableMoves = learnset
       .filter(m => m.level <= level)
@@ -886,7 +886,7 @@ export default function App() {
         };
       });
 
-    // Se não tiver golpes, dá pelo menos Investida (Tackle)
+    // Se nÃ£o tiver golpes, dÃ¡ pelo menos Investida (Tackle)
     const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
     // Atk Mult do Repel
@@ -912,7 +912,7 @@ export default function App() {
     });
     setBattleLog([]);
     isProcessingVictory.current = false;
-    // BGM agora gerenciado pelas configurações
+    // BGM agora gerenciado pelas configuraÃ§Ãµes
   }, [gameState.currentRoute, gameState.speciesMastery, playBGM, addLog, processedRoutes]);
 
   useEffect(() => {
@@ -920,7 +920,7 @@ export default function App() {
     const hasEnemies = route?.enemies?.length > 0 || route?.trainers?.length > 0;
     
     // As batalhas agora continuam mesmo se estiver em outras telas (management),
-    // mas param se estiver na Cidade (City) ou em algum modal de construção.
+    // mas param se estiver na Cidade (City) ou em algum modal de construÃ§Ã£o.
     const viewsAllowingBattle = ['battles', 'pokemon_management', 'pokedex', 'menu', 'vs'];
     const isPaused = activeBuildingModal !== null;
 
@@ -937,11 +937,11 @@ export default function App() {
     }
   }, [currentView, currentEnemy?.id, currentEnemy?.hp, spawnEnemy, gameState.currentRoute, processedRoutes, activeBuildingModal]);
 
-  // Ref para currentView — permite que handleBattleTick leia o valor atual
-  // sem precisar estar nas deps do useCallback (o que recriaria o timer a cada mudança de view)
+  // Ref para currentView â€” permite que handleBattleTick leia o valor atual
+  // sem precisar estar nas deps do useCallback (o que recriaria o timer a cada mudanÃ§a de view)
   useEffect(() => { currentViewRef.current = currentView; }, [currentView]);
 
-  // ─── TICK DE BATALHA ─────────────────────────────────────────────────────────
+  // â”€â”€â”€ TICK DE BATALHA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleBattleTick = useCallback(() => {
     const speedMultiplier = [1, 0.6, 0.3][(gameState.settings?.battleSpeed || 1) - 1] || 1;
     
@@ -952,7 +952,7 @@ export default function App() {
       return 1200 * speedMultiplier;
     }
     
-    // Atraso Cinematográfico para Início de Batalha (Intro)
+    // Atraso CinematogrÃ¡fico para InÃ­cio de Batalha (Intro)
     const introTime = currentEnemy.isTrainer ? 2500 : 1200;
     if (currentEnemy.spawnTime && Date.now() - currentEnemy.spawnTime < introTime) {
        return 400 * speedMultiplier;
@@ -960,7 +960,7 @@ export default function App() {
 
     let nextDelay = Math.floor(1200 * speedMultiplier);
     
-    // ── 5. ISCA / LURE (Acelerar Spawn) ──────────────────────────────
+    // â”€â”€ 5. ISCA / LURE (Acelerar Spawn) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const effects = gameState.activeEffects || {};
     const now = Date.now();
     if (effects.activeLure?.endsAt > now) {
@@ -975,7 +975,7 @@ export default function App() {
         const nextAlive = prev.team.findIndex(p => p.hp > 0);
         if (nextAlive !== -1) {
           setActiveMemberIndex(nextAlive);
-          // Reseta stages do Pokémon que entra em campo
+          // Reseta stages do PokÃ©mon que entra em campo
           const newTeam = prev.team.map((p, i) =>
             i === nextAlive
               ? { ...p, stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 } }
@@ -994,7 +994,7 @@ export default function App() {
         return prev;
       }
 
-      // ─── AUTO-POÇÃO ────────────────────────────────────────────────
+      // â”€â”€â”€ AUTO-POÃ‡ÃƒO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       const autoConfig = prev.autoConfig || { autoPotion: false, autoPotionHpPct: 30, focusPokemonIndex: 0 };
       if (autoConfig.autoPotion && (prev.inventory?.items?.potions || 0) > 0) {
         const focusIdx = autoConfig.focusPokemonIndex ?? activeMemberIndex;
@@ -1005,7 +1005,7 @@ export default function App() {
             const healed = Math.min(focusPoke.maxHp, focusPoke.hp + 20);
             const newTeam = [...prev.team];
             newTeam[focusIdx] = { ...focusPoke, hp: healed };
-            addLog(`💊 Auto-Poção usada em ${focusPoke.name}! (${focusPoke.hp}→${healed} HP)`, 'system');
+            addLog(`ðŸ’Š Auto-PoÃ§Ã£o usada em ${focusPoke.name}! (${focusPoke.hp}â†’${healed} HP)`, 'system');
             return {
               ...prev,
               team: newTeam,
@@ -1015,34 +1015,34 @@ export default function App() {
         }
       }
 
-      // ─── PROCESSAMENTO DE STATUS (DANO/SKIP) ───────────────────────
+      // â”€â”€â”€ PROCESSAMENTO DE STATUS (DANO/SKIP) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       const myStatus = myPoke.status || [];
       const enemyStatus = updatedEnemy.status || [];
 
       // Confuse Skip (Jogador)
       if (myStatus.includes('confuse')) {
-        addLog(`💫 ${myPoke.name} está confuso...`, 'system');
+        addLog(`ðŸ’« ${myPoke.name} estÃ¡ confuso...`, 'system');
         if (Math.random() < 0.3) {
            updatedTeam[activeMemberIndex].status = myStatus.filter(s => s !== 'confuse');
-           addLog(`✨ ${myPoke.name} não está mais confuso!`, 'system');
+           addLog(`âœ¨ ${myPoke.name} nÃ£o estÃ¡ mais confuso!`, 'system');
         } else if (Math.random() < 0.5) {
            const selfDmg = Math.max(1, Math.floor(myPoke.maxHp / 10));
            updatedTeam[activeMemberIndex].hp = Math.max(0, myPoke.hp - selfDmg);
-           addLog(`💥 ${myPoke.name} feriu-se em sua confusão!`, 'system');
+           addLog(`ðŸ’¥ ${myPoke.name} feriu-se em sua confusÃ£o!`, 'system');
            return { ...prev, team: updatedTeam };
         }
       }
 
       // Paralyze/Sleep Skip (Jogador)
       if (myStatus.includes('paralyze') && Math.random() < 0.25) {
-        addLog(`⚡ ${myPoke.name} está paralisado e não conseguiu atacar!`, 'system');
+        addLog(`âš¡ ${myPoke.name} estÃ¡ paralisado e nÃ£o conseguiu atacar!`, 'system');
         return prev; 
       }
       if (myStatus.includes('sleep')) {
-        addLog(`💤 ${myPoke.name} está dormindo profundamente...`, 'system');
+        addLog(`ðŸ’¤ ${myPoke.name} estÃ¡ dormindo profundamente...`, 'system');
         if (Math.random() < 0.3) {
           updatedTeam[activeMemberIndex].status = myStatus.filter(s => s !== 'sleep');
-          addLog(`☀️ ${myPoke.name} acordou!`, 'system');
+          addLog(`â˜€ï¸ ${myPoke.name} acordou!`, 'system');
         } else {
           return { ...prev, team: updatedTeam }; 
         }
@@ -1064,7 +1064,7 @@ export default function App() {
 
         } else if (fx.ohko) {
           updatedEnemyFinal.hp = 0;
-          addLog(`💀 ${myPoke.name} usou ${move.name}! Golpe decisivo!`, 'system');
+          addLog(`ðŸ’€ ${myPoke.name} usou ${move.name}! Golpe decisivo!`, 'system');
           addFloat('OHKO!', '#ef4444');
 
         } else if (fx.fixedDamage !== null) {
@@ -1079,7 +1079,7 @@ export default function App() {
             ...updatedTeamFinal[activeMemberIndex],
             hp: Math.min(myPoke.maxHp, myPoke.hp + healed)
           };
-          addLog(`💚 ${myPoke.name} usou ${move.name}! Recuperou ${healed} HP!`, 'system');
+          addLog(`ðŸ’š ${myPoke.name} usou ${move.name}! Recuperou ${healed} HP!`, 'system');
           addFloat(`+${healed} HP`, '#22c55e');
 
         } else {
@@ -1089,7 +1089,7 @@ export default function App() {
               const cur = updatedEnemyFinal.stages?.[c.stat] || 0;
               const newVal = Math.max(-6, Math.min(6, cur + c.change));
               updatedEnemyFinal.stages = { ...updatedEnemyFinal.stages, [c.stat]: newVal };
-              const arrow = c.change < 0 ? '▼' : '▲';
+              const arrow = c.change < 0 ? 'â–¼' : 'â–²';
               const statNames = { attack:'ATK', defense:'DEF', spAtk:'SATK', spDef:'SDEF', speed:'SPD' };
               addLog(`${myPoke.name} usou ${move.name}! ${statNames[c.stat]||c.stat} de ${updatedEnemyFinal.name} ${c.change < 0 ? 'caiu' : 'subiu'}!`, 'system');
               addFloat(`${arrow} ${statNames[c.stat]||c.stat}`, c.change < 0 ? '#64748b' : '#3b82f6');
@@ -1097,7 +1097,7 @@ export default function App() {
               const cur = updatedTeamFinal[activeMemberIndex].stages?.[c.stat] || 0;
               const newVal = Math.max(-6, Math.min(6, cur + c.change));
               updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, [c.stat]: newVal } };
-              const arrow = c.change > 0 ? '▲' : '▼';
+              const arrow = c.change > 0 ? 'â–²' : 'â–¼';
               const statNames = { attack:'ATK', defense:'DEF', spAtk:'SATK', spDef:'SDEF', speed:'SPD' };
               addLog(`${myPoke.name} usou ${move.name}! ${statNames[c.stat]||c.stat} ${c.change > 0 ? 'subiu' : 'caiu'}!`, 'system');
               addFloat(`${arrow} ${statNames[c.stat]||c.stat}`, c.change > 0 ? '#3b82f6' : '#64748b');
@@ -1114,8 +1114,8 @@ export default function App() {
             } else {
               updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, accuracy: newVal } };
             }
-            addLog(`${myPoke.name} usou ${move.name}! Precisão de ${updatedEnemyFinal.name} caiu!`, 'system');
-            addFloat(`▼ ACC`, '#64748b');
+            addLog(`${myPoke.name} usou ${move.name}! PrecisÃ£o de ${updatedEnemyFinal.name} caiu!`, 'system');
+            addFloat(`â–¼ ACC`, '#64748b');
           }
           if (fx.evasion_change) {
             const target = fx.evasion_change.target === 'enemy' ? updatedEnemyFinal : updatedTeamFinal[activeMemberIndex];
@@ -1126,18 +1126,18 @@ export default function App() {
             } else {
               updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, evasion: newVal } };
             }
-            addLog(`${myPoke.name} usou ${move.name}! Evasão subiu!`, 'system');
-            addFloat(`▲ EVA`, '#3b82f6');
+            addLog(`${myPoke.name} usou ${move.name}! EvasÃ£o subiu!`, 'system');
+            addFloat(`â–² EVA`, '#3b82f6');
           }
 
           // Status condition
           if (fx.statusEffect) {
-            const statusNames = { burn:'🔥 Queimadura', poison:'☠️ Veneno', toxic:'☠️ Veneno Grave', sleep:'💤 Sono', paralyze:'⚡ Paralisia', confuse:'💫 Confusão', freeze:'❄️ Congelado' };
+            const statusNames = { burn:'ðŸ”¥ Queimadura', poison:'â˜ ï¸ Veneno', toxic:'â˜ ï¸ Veneno Grave', sleep:'ðŸ’¤ Sono', paralyze:'âš¡ Paralisia', confuse:'ðŸ’« ConfusÃ£o', freeze:'â„ï¸ Congelado' };
             if (!(updatedEnemyFinal.status || []).includes(fx.statusEffect)) {
               updatedEnemyFinal.status = [...(updatedEnemyFinal.status || []), fx.statusEffect];
               addLog(`${statusNames[fx.statusEffect]||fx.statusEffect}: ${updatedEnemyFinal.name} foi afetado!`, 'enemy');
             } else {
-              addLog(`${myPoke.name} usou ${move.name}... mas não surtiu efeito!`, 'system');
+              addLog(`${myPoke.name} usou ${move.name}... mas nÃ£o surtiu efeito!`, 'system');
             }
           }
 
@@ -1152,42 +1152,42 @@ export default function App() {
         const eff = getTypeEffectiveness(move.type, updatedEnemyFinal.type);
         updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - playerDmg);
         addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
-        if (eff > 1) addLog("💥 É super efetivo!", 'system');
-        if (eff > 0 && eff < 1) addLog("🛡️ Não é muito efetivo!", 'system');
-        if (eff === 0) addLog("🚫 Não afetou o inimigo!", 'system');
+        if (eff > 1) addLog("ðŸ’¥ Ã‰ super efetivo!", 'system');
+        if (eff > 0 && eff < 1) addLog("ðŸ›¡ï¸ NÃ£o Ã© muito efetivo!", 'system');
+        if (eff === 0) addLog("ðŸš« NÃ£o afetou o inimigo!", 'system');
       }
 
       // Dano de Status (Inimigo)
       if (enemyStatus.includes('poison') || enemyStatus.includes('burn')) {
         const dot = Math.max(1, Math.floor(updatedEnemyFinal.maxHp / 16));
         updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - dot);
-        addLog(`💢 ${updatedEnemyFinal.name} sofreu dano por status!`, 'enemy');
+        addLog(`ðŸ’¢ ${updatedEnemyFinal.name} sofreu dano por status!`, 'enemy');
       }
 
       // Turno do Inimigo (apenas se ainda estiver vivo)
       if (updatedEnemyFinal.hp > 0) {
         // Skip Inimigo
         if (enemyStatus.includes('confuse')) {
-          addLog(`💫 ${updatedEnemyFinal.name} está confuso...`, 'enemy');
+          addLog(`ðŸ’« ${updatedEnemyFinal.name} estÃ¡ confuso...`, 'enemy');
           if (Math.random() < 0.3) {
             updatedEnemyFinal.status = enemyStatus.filter(s => s !== 'confuse');
-            addLog(`✨ ${updatedEnemyFinal.name} não está mais confuso!`, 'enemy');
+            addLog(`âœ¨ ${updatedEnemyFinal.name} nÃ£o estÃ¡ mais confuso!`, 'enemy');
           } else if (Math.random() < 0.5) {
             const selfDmg = Math.max(1, Math.floor(updatedEnemyFinal.maxHp / 10));
             updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - selfDmg);
-            addLog(`💥 ${updatedEnemyFinal.name} feriu-se em sua confusão!`, 'enemy');
+            addLog(`ðŸ’¥ ${updatedEnemyFinal.name} feriu-se em sua confusÃ£o!`, 'enemy');
             setCurrentEnemy(updatedEnemyFinal);
             return prev;
           }
         }
 
         if (enemyStatus.includes('paralyze') && Math.random() < 0.25) {
-          addLog(`⚡ ${updatedEnemyFinal.name} está paralisado!`, 'enemy');
+          addLog(`âš¡ ${updatedEnemyFinal.name} estÃ¡ paralisado!`, 'enemy');
         } else if (enemyStatus.includes('sleep')) {
-          addLog(`💤 ${updatedEnemyFinal.name} está dormindo...`, 'enemy');
+          addLog(`ðŸ’¤ ${updatedEnemyFinal.name} estÃ¡ dormindo...`, 'enemy');
           if (Math.random() < 0.35) {
             updatedEnemyFinal.status = enemyStatus.filter(s => s !== 'sleep');
-            addLog(`☀️ ${updatedEnemyFinal.name} acordou!`, 'enemy');
+            addLog(`â˜€ï¸ ${updatedEnemyFinal.name} acordou!`, 'enemy');
           }
         } else {
           const enemyMoves = updatedEnemyFinal.moves || [];
@@ -1201,11 +1201,11 @@ export default function App() {
                 if (fxE.heal) {
                   const healed = Math.floor((updatedEnemyFinal.maxHp || 30) * 0.5);
                   updatedEnemyFinal.hp = Math.min(updatedEnemyFinal.maxHp, updatedEnemyFinal.hp + healed);
-                  addLog(`💚 ${updatedEnemyFinal.name} usou ${enemyMove.name}! Recuperou ${healed} HP!`, 'enemy');
+                  addLog(`ðŸ’š ${updatedEnemyFinal.name} usou ${enemyMove.name}! Recuperou ${healed} HP!`, 'enemy');
                 }
               } else if (fxE.ohko) {
                 updatedTeamFinal[activeMemberIndex].hp = 0;
-                addLog(`💀 ${updatedEnemyFinal.name} usou ${enemyMove.name}! Golpe decisivo!`, 'enemy');
+                addLog(`ðŸ’€ ${updatedEnemyFinal.name} usou ${enemyMove.name}! Golpe decisivo!`, 'enemy');
               } else if (fxE.fixedDamage !== null) {
                 const dmg = fxE.fixedDamage === 'level' ? (updatedEnemyFinal.level || 5) : fxE.fixedDamage;
                 updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - dmg);
@@ -1216,22 +1216,22 @@ export default function App() {
                   if (c.target === 'self') {
                     const cur = updatedEnemyFinal.stages?.[c.stat] || 0;
                     updatedEnemyFinal.stages = { ...updatedEnemyFinal.stages, [c.stat]: Math.max(-6, Math.min(6, cur + c.change)) };
-                    addLog(`⚠️ ${updatedEnemyFinal.name} usou ${enemyMove.name}! ${statNames[c.stat]||c.stat} ${c.change > 0 ? 'subiu' : 'caiu'}!`, 'enemy');
+                    addLog(`âš ï¸ ${updatedEnemyFinal.name} usou ${enemyMove.name}! ${statNames[c.stat]||c.stat} ${c.change > 0 ? 'subiu' : 'caiu'}!`, 'enemy');
                   } else {
                     const cur = updatedTeamFinal[activeMemberIndex].stages?.[c.stat] || 0;
                     updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, [c.stat]: Math.max(-6, Math.min(6, cur + c.change)) } };
-                    addLog(`⚠️ ${updatedEnemyFinal.name} usou ${enemyMove.name}! ${statNames[c.stat]||c.stat} de ${updatedTeamFinal[activeMemberIndex].name} ${c.change < 0 ? 'caiu' : 'subiu'}!`, 'enemy');
+                    addLog(`âš ï¸ ${updatedEnemyFinal.name} usou ${enemyMove.name}! ${statNames[c.stat]||c.stat} de ${updatedTeamFinal[activeMemberIndex].name} ${c.change < 0 ? 'caiu' : 'subiu'}!`, 'enemy');
                   }
                 });
 
                 if (fxE.accuracy_change) {
                   const cur = updatedTeamFinal[activeMemberIndex].stages?.accuracy || 0;
                   updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, accuracy: Math.max(-6, Math.min(6, cur + fxE.accuracy_change.change)) } };
-                  addLog(`⚠️ ${updatedEnemyFinal.name} usou ${enemyMove.name}! Precisão de ${updatedTeamFinal[activeMemberIndex].name} caiu!`, 'enemy');
+                  addLog(`âš ï¸ ${updatedEnemyFinal.name} usou ${enemyMove.name}! PrecisÃ£o de ${updatedTeamFinal[activeMemberIndex].name} caiu!`, 'enemy');
                 }
 
                 if (fxE.statusEffect) {
-                  const statusNames = { burn:'🔥 Queimadura', poison:'☠️ Veneno', sleep:'💤 Sono', paralyze:'⚡ Paralisia', confuse:'💫 Confusão' };
+                  const statusNames = { burn:'ðŸ”¥ Queimadura', poison:'â˜ ï¸ Veneno', sleep:'ðŸ’¤ Sono', paralyze:'âš¡ Paralisia', confuse:'ðŸ’« ConfusÃ£o' };
                   const myStatusList = updatedTeamFinal[activeMemberIndex].status || [];
                   if (!myStatusList.includes(fxE.statusEffect)) {
                     updatedTeamFinal[activeMemberIndex].status = [...myStatusList, fxE.statusEffect];
@@ -1244,9 +1244,9 @@ export default function App() {
               const enemyDmg = Math.max(1, Math.floor(enemyDmgRaw * 0.75));
               const eff = getTypeEffectiveness(enemyMove.type, updatedTeamFinal[activeMemberIndex].type);
               updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - enemyDmg);
-              if (eff > 1) addLog(`💥 Golpe de ${updatedEnemyFinal.name} foi super efetivo!`, 'enemy');
-              if (eff > 0 && eff < 1) addLog(`🛡️ Golpe de ${updatedEnemyFinal.name} não foi muito efetivo...`, 'enemy');
-              if (eff === 0) addLog(`🚫 ${updatedTeamFinal[activeMemberIndex].name} é imune!`, 'enemy');
+              if (eff > 1) addLog(`ðŸ’¥ Golpe de ${updatedEnemyFinal.name} foi super efetivo!`, 'enemy');
+              if (eff > 0 && eff < 1) addLog(`ðŸ›¡ï¸ Golpe de ${updatedEnemyFinal.name} nÃ£o foi muito efetivo...`, 'enemy');
+              if (eff === 0) addLog(`ðŸš« ${updatedTeamFinal[activeMemberIndex].name} Ã© imune!`, 'enemy');
             }
           }
         }
@@ -1256,10 +1256,10 @@ export default function App() {
       if (myStatus.includes('poison') || myStatus.includes('burn')) {
         const dot = Math.max(1, Math.floor(updatedTeamFinal[activeMemberIndex].maxHp / 16));
         updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - dot);
-        addLog(`💢 ${myPoke.name} sofreu dano por status!`, 'system');
+        addLog(`ðŸ’¢ ${myPoke.name} sofreu dano por status!`, 'system');
       }
 
-      // ── SISTEMA DE EXAUSTÃO ──────────────────────────────────────────
+      // â”€â”€ SISTEMA DE EXAUSTÃƒO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       const STAMINA_DRAIN  = 0.4;   // % perdida por tick
       const EXHAUSTION_DMG = 0.02;  // % do maxHp perdida por tick quando exausto
       const FEED_THRESHOLD = 25;    // auto-alimenta quando abaixo deste %
@@ -1277,7 +1277,7 @@ export default function App() {
           hp: Math.max(0, (updatedTeamFinal[activeMemberIndex].hp || 0) - hpDrain),
         };
         if (Math.random() < 0.25) {
-          addLog(`😵 ${myPoke.name} está exausto! Perdendo vida por falta de comida!`, 'system');
+          addLog(`ðŸ˜µ ${myPoke.name} estÃ¡ exausto! Perdendo vida por falta de comida!`, 'system');
         }
       }
 
@@ -1286,7 +1286,7 @@ export default function App() {
 
       // Auto-alimentar quando abaixo do limiar
       if (newStamina < FEED_THRESHOLD) {
-        // Prioridade: bebidas nutritivas > berries > ração básica
+        // Prioridade: bebidas nutritivas > berries > raÃ§Ã£o bÃ¡sica
         const feedPriority = [
           { key: 'moomoo_milk',       src: 'items'     },
           { key: 'lemonade',          src: 'items'     },
@@ -1325,9 +1325,9 @@ export default function App() {
 
           staminaEntry = { value: newStamina, lastFed: Date.now() };
           const itemName = ITEM_LABELS[food.key]?.name || food.key;
-          addLog(`🍽️ ${myPoke.name} comeu ${itemName} e recuperou energia!`, 'system');
+          addLog(`ðŸ½ï¸ ${myPoke.name} comeu ${itemName} e recuperou energia!`, 'system');
         } else if (newStamina < 10 && Math.random() < 0.2) {
-          addLog(`⚠️ ${myPoke.name} está faminto! Compre bebidas no Poké Mart ou cultive Berries!`, 'system');
+          addLog(`âš ï¸ ${myPoke.name} estÃ¡ faminto! Compre bebidas no PokÃ© Mart ou cultive Berries!`, 'system');
         }
       }
 
@@ -1363,7 +1363,7 @@ export default function App() {
       
       if (itemId === 'pokeballs' || itemId === 'great_ball' || itemId === 'ultra_ball') {
         if (currentEnemy.isTrainer) {
-          addLog("🚫 Você não pode capturar Pokémons de outros treinadores!", 'enemy');
+          addLog("ðŸš« VocÃª nÃ£o pode capturar PokÃ©mons de outros treinadores!", 'enemy');
           return prev;
         }
         
@@ -1373,7 +1373,7 @@ export default function App() {
 
         const catchRate = ((1 - (currentEnemy.hp / currentEnemy.maxHp)) + 0.1) * multiplier;
         if (Math.random() < catchRate) {
-          addLog(`✨ Capturado! ${currentEnemy.name} agora é seu!`, 'system');
+          addLog(`âœ¨ Capturado! ${currentEnemy.name} agora Ã© seu!`, 'system');
           sfxCapture();
           sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
 
@@ -1391,21 +1391,21 @@ export default function App() {
           let questUpdate = {};
           if (prev.worldFlags.includes('quest_capture_active')) {
             newInventory.items = { ...newInventory.items, pokeballs: (newInventory.items.pokeballs || 0) + 10 };
-            addLog('🎁 Carvalho: "Ótimo trabalho! Tome estas 10 Pokébolas!"', 'drop');
+            addLog('ðŸŽ Carvalho: "Ã“timo trabalho! Tome estas 10 PokÃ©bolas!"', 'drop');
             questUpdate = { worldFlags: prev.worldFlags.filter(f => f !== 'quest_capture_active').concat(['quest_capture_done']) };
           }
 
-          // Unificação por Espécie: Se já tem na caughtData (antes dessa captura), apenas aumenta maestria
+          // UnificaÃ§Ã£o por EspÃ©cie: Se jÃ¡ tem na caughtData (antes dessa captura), apenas aumenta maestria
           const alreadyCaught = !!(prev.caughtData || {})[currentEnemy.id];
           if (alreadyCaught) {
-            addLog(`📊 ${currentEnemy.name} já capturado! Maestria aumentada.`, 'system');
+            addLog(`ðŸ“Š ${currentEnemy.name} jÃ¡ capturado! Maestria aumentada.`, 'system');
             const findAndReplace = (list) => {
               let updated = false;
               const newList = list.map(p => {
                 if (Number(p.id) === Number(currentEnemy.id)) {
                   updated = true;
                   if (currentEnemy.isShiny && !p.isShiny) {
-                    addLog(`✨ Upgrade Shiny: Seu ${p.name} agora é Brilhante!`, 'system');
+                    addLog(`âœ¨ Upgrade Shiny: Seu ${p.name} agora Ã© Brilhante!`, 'system');
                     return { ...p, isShiny: true, hp: p.maxHp };
                   }
                 }
@@ -1434,18 +1434,18 @@ export default function App() {
           return { ...prev, inventory: newInventory, team: newTeam, pc: newPC, caughtData: newCaughtData, speciesMastery: newMastery, ...questUpdate };
         } else {
           const enemyName = currentEnemy.name || 'Desconhecido';
-          addLog(`💨 O ${enemyName} escapou da Pokébola!`, 'enemy');
+          addLog(`ðŸ’¨ O ${enemyName} escapou da PokÃ©bola!`, 'enemy');
         }
       } else if (itemId === 'potions') {
         const activePoke = prev.team[activeMemberIndex];
         if (activePoke) {
           const newTeam = prev.team.map((p, i) => i === activeMemberIndex ? { ...p, hp: Math.min(p.maxHp, p.hp + 20) } : p);
-          addLog(`🧪 Usou Poção em ${activePoke.name}!`, 'system');
+          addLog(`ðŸ§ª Usou PoÃ§Ã£o em ${activePoke.name}!`, 'system');
           return { ...prev, inventory: newInventory, team: newTeam };
         }
       }
       
-      // ── 3. EFEITOS TEMPORÁRIOS (TIMED EFFECTS) ──────────────────────
+      // â”€â”€ 3. EFEITOS TEMPORÃRIOS (TIMED EFFECTS) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       const allRecipes = Object.values(CRAFTING_RECIPES).flat();
       const recipe = allRecipes.find(r => r.id === itemId);
       
@@ -1465,7 +1465,7 @@ export default function App() {
           },
         };
 
-        addLog(`✨ ${recipe.name} ativado por ${recipe.durationLabel}!`, 'system');
+        addLog(`âœ¨ ${recipe.name} ativado por ${recipe.durationLabel}!`, 'system');
 
         return {
           ...prev,
@@ -1525,13 +1525,13 @@ export default function App() {
       opponentTeamIndex: 0
     });
     setCurrentView('battles');
-    // BGM agora gerenciado pelas configurações
-    addLog(`🔥 DESAFIO: ${battleData.name} iniciou a batalha!`, 'system');
+    // BGM agora gerenciado pelas configuraÃ§Ãµes
+    addLog(`ðŸ”¥ DESAFIO: ${battleData.name} iniciou a batalha!`, 'system');
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
 
   const handleChallengeGym = useCallback((gymData) => {
-    // Começa sempre pelo primeiro Pokémon do time
+    // ComeÃ§a sempre pelo primeiro PokÃ©mon do time
     const teamList = gymData.team || [];
     const leaderPoke = teamList[0];
     if (!leaderPoke) return;
@@ -1541,7 +1541,7 @@ export default function App() {
     const maxHp = Math.ceil((base.maxHp || base.hp || 50) * 1.6 * (lvl / 20)); 
     const statScale = (lvl / 10) * 0.85; 
 
-    // Golpes baseados no learnset do Pokémon até o nível do líder
+    // Golpes baseados no learnset do PokÃ©mon atÃ© o nÃ­vel do lÃ­der
     const learnset = base.learnset || [];
     const availableMoves = learnset
       .filter(m => m.level <= lvl)
@@ -1578,8 +1578,8 @@ export default function App() {
       opponentTeamIndex: 0
     });
     setCurrentView('battles');
-    // BGM agora gerenciado pelas configurações
-    addLog(`🏆 GINÁSIO: Líder ${gymData.name} enviou ${base.name}! Nv.${lvl}`, 'system');
+    // BGM agora gerenciado pelas configuraÃ§Ãµes
+    addLog(`ðŸ† GINÃSIO: LÃ­der ${gymData.name} enviou ${base.name}! Nv.${lvl}`, 'system');
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, playBGM, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
 
@@ -1592,7 +1592,7 @@ export default function App() {
       });
 
       if (!hasMaterials) {
-        addLog("❌ Materiais ou Moedas insuficientes!", 'system');
+        addLog("âŒ Materiais ou Moedas insuficientes!", 'system');
         return prev;
       }
 
@@ -1608,11 +1608,11 @@ export default function App() {
         }
       });
 
-      // 3. Adicionar o item ao inventário
+      // 3. Adicionar o item ao inventÃ¡rio
       const newItems = { ...prev.inventory.items };
       newItems[recipe.id] = (newItems[recipe.id] || 0) + 1;
 
-      addLog(`🛠️ Você fabricou: ${recipe.name}!`, 'drop');
+      addLog(`ðŸ› ï¸ VocÃª fabricou: ${recipe.name}!`, 'drop');
 
       return {
         ...prev,
@@ -1636,7 +1636,7 @@ export default function App() {
       const currentCount = candies[candyId] || 0;
       
       if (currentCount < use.cost) {
-        addLog(`❌ Candies insuficientes (${currentCount}/${use.cost})`, 'system');
+        addLog(`âŒ Candies insuficientes (${currentCount}/${use.cost})`, 'system');
         return prev;
       }
 
@@ -1654,30 +1654,30 @@ export default function App() {
       if (use.effect === 'xp_boost') {
         const xpNeeded = (p.level || 5) * 25;
         p.xp = xpNeeded; 
-        addLog(`🍬 ${p.name} consumiu candies e ganhou experiência!`, 'system');
+        addLog(`ðŸ¬ ${p.name} consumiu candies e ganhou experiÃªncia!`, 'system');
       } else if (use.effect === 'stat_atk') {
         p.attack = (p.attack || 10) + 2;
-        addLog(`🍬 ${p.name} aumentou o Ataque permanentemente!`, 'system');
+        addLog(`ðŸ¬ ${p.name} aumentou o Ataque permanentemente!`, 'system');
       } else if (use.effect === 'stat_def') {
         p.defense = (p.defense || 10) + 2;
-        addLog(`🍬 ${p.name} aumentou a Defesa permanentemente!`, 'system');
+        addLog(`ðŸ¬ ${p.name} aumentou a Defesa permanentemente!`, 'system');
       } else if (use.effect === 'stat_hp') {
         p.maxHp = (p.maxHp || 40) + 5;
         p.hp = Math.min(p.maxHp, p.hp + 5);
-        addLog(`🍬 ${p.name} aumentou o HP permanentemente!`, 'system');
+        addLog(`ðŸ¬ ${p.name} aumentou o HP permanentemente!`, 'system');
       } else if (use.effect === 'stat_speed') {
         p.speed = (p.speed || 10) + 2;
-        addLog(`🍬 ${p.name} aumentou a Velocidade permanentemente!`, 'system');
+        addLog(`ðŸ¬ ${p.name} aumentou a Velocidade permanentemente!`, 'system');
       } else if (use.effect === 'stat_spatk') {
         p.spAtk = (p.spAtk || 10) + 2;
-        addLog(`🍬 ${p.name} aumentou o Ataque Especial!`, 'system');
+        addLog(`ðŸ¬ ${p.name} aumentou o Ataque Especial!`, 'system');
       } else if (use.effect === 'force_evolve') {
         const pokeData = POKEDEX[p.id];
         if (pokeData?.evolution && pokeData.evolution.id <= 151) {
           setEvolutionPending({ ...p, teamIndex: location === 'team' ? pokemonIndex : null, pcIndex: location === 'pc' ? pokemonIndex : null });
           return { ...prev, inventory: newInventory };
         } else {
-           addLog(`❌ ${p.name} não pode evoluir mais.`, 'system');
+           addLog(`âŒ ${p.name} nÃ£o pode evoluir mais.`, 'system');
            return prev;
         }
       }
@@ -1712,7 +1712,7 @@ export default function App() {
         },
       };
     });
-    addLog(`🚀 Expedição para ${biome.name} iniciada! Duração: ~${Math.floor(duration / 60000)}min`, 'system');
+    addLog(`ðŸš€ ExpediÃ§Ã£o para ${biome.name} iniciada! DuraÃ§Ã£o: ~${Math.floor(duration / 60000)}min`, 'system');
   }, [addLog]);
 
   const handleClaimExpedition = useCallback((biomeId) => {
@@ -1722,7 +1722,7 @@ export default function App() {
       const biome = EXPEDITION_BIOMES[biomeId];
       const duration = Date.now() - exp.startedAt;
       const rawDrops = calcExpeditionDrops(exp.team, biome, duration);
-      // Candies são exclusivos do farm nas rotas — remover das expedições
+      // Candies sÃ£o exclusivos do farm nas rotas â€” remover das expediÃ§Ãµes
       const drops = Object.fromEntries(
         Object.entries(rawDrops).filter(([key]) => !key.includes('_candy'))
       );
@@ -1741,12 +1741,12 @@ export default function App() {
         .map(([k, v]) => `${v}x ${k}`)
         .join(', ');
       addLog(
-        `✅ Expedição em ${biome.name} concluída! Coletou: ${dropSummary || 'nada desta vez'}`,
+        `âœ… ExpediÃ§Ã£o em ${biome.name} concluÃ­da! Coletou: ${dropSummary || 'nada desta vez'}`,
         'drop'
       );
       teamWithXP.forEach(p => {
         if (p.xpGained > 0)
-          addLog(`⭐ ${p.name} ganhou ${p.xpGained} XP na expedição!`, 'system');
+          addLog(`â­ ${p.name} ganhou ${p.xpGained} XP na expediÃ§Ã£o!`, 'system');
       });
       return {
         ...prev,
@@ -1757,15 +1757,15 @@ export default function App() {
     });
   }, [addLog]);
 
-  // ── HOUSE SYSTEM HANDLERS ──────────────────────────────────────────
+  // â”€â”€ HOUSE SYSTEM HANDLERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // Comprar a casa
   const handleBuyHouse = useCallback(() => {
     setGameState(prev => {
       if ((prev.currency || 0) < HOUSE_PURCHASE_COST) {
-        addLog(`❌ Coins insuficientes! A casa custa ${HOUSE_PURCHASE_COST} coins.`, 'system');
+        addLog(`âŒ Coins insuficientes! A casa custa ${HOUSE_PURCHASE_COST} coins.`, 'system');
         return prev;
       }
-      addLog(`🏠 Casa comprada! Prof. Carvalho ficou orgulhoso!`, 'system');
+      addLog(`ðŸ  Casa comprada! Prof. Carvalho ficou orgulhoso!`, 'system');
       return {
         ...prev,
         currency: prev.currency - HOUSE_PURCHASE_COST,
@@ -1787,14 +1787,14 @@ export default function App() {
 
       // Descontar coins do custo da semente
       if ((prev.currency || 0) < plant.cost) {
-        addLog(`❌ Coins insuficientes para plantar ${plant.name}!`, 'system');
+        addLog(`âŒ Coins insuficientes para plantar ${plant.name}!`, 'system');
         return prev;
       }
 
       const newSlots = [...(prev.house?.slots || [])];
       newSlots[slotIndex] = { plantId, plantedAt: Date.now(), growthTime };
 
-      addLog(`🌱 ${plant.name} plantado! Pronto em ${Math.floor(growthTime / 60000)} min.`, 'system');
+      addLog(`ðŸŒ± ${plant.name} plantado! Pronto em ${Math.floor(growthTime / 60000)} min.`, 'system');
       return {
         ...prev,
         currency: prev.currency - plant.cost,
@@ -1823,7 +1823,7 @@ export default function App() {
       }
 
       const dropSummary = Object.entries(drops).map(([k, v]) => `${v}x ${k}`).join(', ');
-      addLog(`🌾 Colheu ${plant.name}: ${dropSummary}`, 'drop');
+      addLog(`ðŸŒ¾ Colheu ${plant.name}: ${dropSummary}`, 'drop');
 
       return {
         ...prev,
@@ -1833,11 +1833,11 @@ export default function App() {
     });
   }, [addLog]);
 
-  // Comprar expansão de slots
+  // Comprar expansÃ£o de slots
   const handleBuySlot = useCallback((expansion) => {
     setGameState(prev => {
       if ((prev.currency || 0) < expansion.cost) return prev;
-      addLog(`🏗️ Jardim expandido para ${expansion.totalSlots} canteiros!`, 'system');
+      addLog(`ðŸ—ï¸ Jardim expandido para ${expansion.totalSlots} canteiros!`, 'system');
       return {
         ...prev,
         currency: prev.currency - expansion.cost,
@@ -1851,7 +1851,7 @@ export default function App() {
     setGameState(prev => {
       const newPC         = (prev.pc || []).filter(p => p.instanceId !== pokemon.instanceId);
       const newCaretakers = [...(prev.house?.caretakers || []), pokemon];
-      addLog(`🐾 ${pokemon.name} agora cuida do jardim!`, 'system');
+      addLog(`ðŸ¾ ${pokemon.name} agora cuida do jardim!`, 'system');
       return {
         ...prev,
         pc: newPC,
@@ -1866,7 +1866,7 @@ export default function App() {
       const pokemon       = (prev.house?.caretakers || []).find(p => p.instanceId === instanceId);
       const newCaretakers = (prev.house?.caretakers || []).filter(p => p.instanceId !== instanceId);
       const newPC         = [...(prev.pc || []), pokemon].filter(Boolean);
-      if (pokemon) addLog(`🐾 ${pokemon.name} voltou ao PC.`, 'system');
+      if (pokemon) addLog(`ðŸ¾ ${pokemon.name} voltou ao PC.`, 'system');
       return {
         ...prev,
         pc: newPC,
@@ -1876,7 +1876,7 @@ export default function App() {
   }, [addLog]);
 
   const startBattleAgainstRival = useCallback((battleData) => {
-    // Se for um objeto de evento (clique direto sem argumentos do intro), battleData.team será undefined
+    // Se for um objeto de evento (clique direto sem argumentos do intro), battleData.team serÃ¡ undefined
     if (battleData && battleData.team) {
       const bossPoke = battleData.team[0];
       const maxHp = (bossPoke.maxHp || 50) * 1.5;
@@ -1900,12 +1900,12 @@ export default function App() {
         opponentTeamIndex: 0
       });
       setCurrentView('battles');
-      addLog(`⚔️ RIVAL: ${battleData.name} desafiou você!`, 'system');
+      addLog(`âš”ï¸ RIVAL: ${battleData.name} desafiou vocÃª!`, 'system');
       isProcessingVictory.current = false;
       return;
     }
 
-    // Lógica padrão do Rival Inicial (Azul)
+    // LÃ³gica padrÃ£o do Rival Inicial (Azul)
     const myPoke = gameState.team[0];
     if (!myPoke) return;
 
@@ -1937,7 +1937,7 @@ export default function App() {
     isProcessingVictory.current = false;
     setCurrentEnemy(rivalEnemy);
     setCurrentView('battles');
-    // BGM agora gerenciado pelas configurações
+    // BGM agora gerenciado pelas configuraÃ§Ãµes
   }, [gameState.team, gameState.trainer, playBGM, setCurrentEnemy, setCurrentView, addLog]);
 
 
@@ -1945,7 +1945,7 @@ export default function App() {
     if (!currentEnemy || currentEnemy.hp > 0) return;
     if (isProcessingVictory.current) return;
 
-    // Lógica de Próximo Pokémon do Treinador (Time Multi-Pokemon)
+    // LÃ³gica de PrÃ³ximo PokÃ©mon do Treinador (Time Multi-Pokemon)
     if (currentEnemy.opponentTeam && currentEnemy.opponentTeamIndex < currentEnemy.opponentTeam.length - 1) {
       const nextIdx = currentEnemy.opponentTeamIndex + 1;
       const nextMember = currentEnemy.opponentTeam[nextIdx];
@@ -1969,7 +1969,7 @@ export default function App() {
           });
         const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
-        addLog(`📢 ${currentEnemy.trainerName} enviou ${base.name}!`, 'enemy');
+        addLog(`ðŸ“¢ ${currentEnemy.trainerName} enviou ${base.name}!`, 'enemy');
         
         setCurrentEnemy(prev => ({
           ...prev,
@@ -1995,7 +1995,7 @@ export default function App() {
 
     isProcessingVictory.current = true;
 
-    // Vitória! O som de GYM tocará apenas se ganhar insígnia
+    // VitÃ³ria! O som de GYM tocarÃ¡ apenas se ganhar insÃ­gnia
 
     const { drops, messages } = processDrops(currentEnemy);
     const baseXpGain = currentEnemy.baseExp || (currentEnemy.level || 5) * 5;
@@ -2026,7 +2026,7 @@ export default function App() {
           unlocks.forEach(u => {
             if (!newFlags.includes(u)) {
                newFlags.push(u);
-               addLog(`✨ Desbloqueado: ${u.replace('_', ' ')}!`, 'system');
+               addLog(`âœ¨ Desbloqueado: ${u.replace('_', ' ')}!`, 'system');
             }
           });
         }
@@ -2034,11 +2034,11 @@ export default function App() {
 
       if (currentEnemy.badgeToGive && !newBadges.includes(currentEnemy.badgeToGive)) {
         newBadges.push(currentEnemy.badgeToGive);
-        addLog(`🏅 Recebeu a Insígnia: ${currentEnemy.badgeToGive.replace(/_/g, ' ')}!`, 'system');
+        addLog(`ðŸ… Recebeu a InsÃ­gnia: ${currentEnemy.badgeToGive.replace(/_/g, ' ')}!`, 'system');
         sfxGym();
         
         const newShare = newBadges.length * 10;
-        addLog(`✨ Exp Share aumentado! Sua equipe agora recebe ${newShare}% da experiência compartilhada!`, 'system');
+        addLog(`âœ¨ Exp Share aumentado! Sua equipe agora recebe ${newShare}% da experiÃªncia compartilhada!`, 'system');
         
         // Show Oak House modal after 1st badge
         if (newBadges.length === 1 && !prev.worldFlags?.includes('house_owned') && !prev.worldFlags?.includes('oak_house_shown')) {
@@ -2047,20 +2047,20 @@ export default function App() {
         }
       }
 
-      // Salvar flag de vitória específica do inimigo (Rival, Boss, etc)
+      // Salvar flag de vitÃ³ria especÃ­fica do inimigo (Rival, Boss, etc)
       if (currentEnemy.unlockFlag && !newFlags.includes(currentEnemy.unlockFlag)) {
         newFlags.push(currentEnemy.unlockFlag);
-        addLog(`🚩 Progresso: ${currentEnemy.unlockFlag.replace(/_/g, ' ')}!`, 'system');
+        addLog(`ðŸš© Progresso: ${currentEnemy.unlockFlag.replace(/_/g, ' ')}!`, 'system');
       }
 
-      // Salvar flag de vitória de Elite 4 / Líder de Ginásio (Fallback)
+      // Salvar flag de vitÃ³ria de Elite 4 / LÃ­der de GinÃ¡sio (Fallback)
       if (currentEnemy.gymId && !newFlags.includes(`defeated_elite_${currentEnemy.gymId}`)) {
         newFlags.push(`defeated_elite_${currentEnemy.gymId}`);
       }
 
       const badgesCount = prev.badges?.length || 0;
       
-      // ── EFEITOS ATIVOS (TIMED) ────────────────────────────────────────
+      // â”€â”€ EFEITOS ATIVOS (TIMED) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       const now = Date.now();
       const effects = prev.activeEffects || {};
       
@@ -2082,13 +2082,13 @@ export default function App() {
           xpToAdd = Math.floor(baseXpGain * sharedXpRatio * xpMult); // Others get % + bonuses
         }
 
-        // Lucky Egg (Antiga Lógica Hold - Mantida para compatibilidade se necessário)
+        // Lucky Egg (Antiga LÃ³gica Hold - Mantida para compatibilidade se necessÃ¡rio)
         if (p.heldItem === 'lucky_egg' && !(effects.activeLuckyEgg?.endsAt > now)) {
           xpToAdd = Math.floor(xpToAdd * 1.5);
         }
 
         if (xpToAdd <= 0) {
-           // Se não ganhou XP, apenas reseta estágios e remove status voláteis (confusão)
+           // Se nÃ£o ganhou XP, apenas reseta estÃ¡gios e remove status volÃ¡teis (confusÃ£o)
            if (p.hp > 0) return { 
              ...p, 
              status: (p.status || []).filter(s => s !== 'confuse'),
@@ -2108,7 +2108,7 @@ export default function App() {
           }
 
           const newLevel = (p.level || 5) + 1;
-          addLog(`🎉 ${p.name} subiu para Nv. ${newLevel}!`, 'system');
+          addLog(`ðŸŽ‰ ${p.name} subiu para Nv. ${newLevel}!`, 'system');
           sfxLevelUp();
 
           let newMoves = [...(p.moves || [])];
@@ -2128,9 +2128,9 @@ export default function App() {
                 newLearnedMoves.push(moveObj);
                 if (newMoves.length < 4 && !newMoves.some(m => m.name === moveObj.name)) {
                   newMoves.push(moveObj);
-                  addLog(`✨ ${p.name} aprendeu ${moveObj.name}!`, 'system');
+                  addLog(`âœ¨ ${p.name} aprendeu ${moveObj.name}!`, 'system');
                 } else {
-                  addLog(`✨ ${p.name} aprendeu ${moveObj.name}! (Salvo na Memória)`, 'system');
+                  addLog(`âœ¨ ${p.name} aprendeu ${moveObj.name}! (Salvo na MemÃ³ria)`, 'system');
                 }
               }
             });
@@ -2176,10 +2176,10 @@ export default function App() {
 
     messages.forEach(m => addLog(m, 'drop'));
     if (currentEnemy.isTrainer && currentEnemy.trainerReward) {
-      addLog(`🏆 ${currentEnemy.trainerName} derrotado! +${currentEnemy.trainerReward} coins`, 'system');
+      addLog(`ðŸ† ${currentEnemy.trainerName} derrotado! +${currentEnemy.trainerReward} coins`, 'system');
     }
-    if (currentEnemy.isRocket) addLog('🚀 Grunt da Equipe Rocket derrotado!', 'system');
-    if (currentEnemy.isShiny) addLog('✨ Pokémon shiny derrotado!', 'system');
+    if (currentEnemy.isRocket) addLog('ðŸš€ Grunt da Equipe Rocket derrotado!', 'system');
+    if (currentEnemy.isShiny) addLog('âœ¨ PokÃ©mon shiny derrotado!', 'system');
 
     sessionRef.current.kills += 1;
     sessionRef.current.coins += (drops.currency || 0) + (currentEnemy.trainerReward || 0);
@@ -2196,7 +2196,7 @@ export default function App() {
           const catchRate = (1 - (currentEnemy.hp / currentEnemy.maxHp)) + 0.3;
           if (Math.random() < catchRate) {
             sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
-            // Reutiliza a lógica de captura
+            // Reutiliza a lÃ³gica de captura
             const newInventory = { 
               ...prev.inventory,
               items: { ...prev.inventory.items, pokeballs: prev.inventory.items.pokeballs - 1 }
@@ -2209,16 +2209,16 @@ export default function App() {
             let questUpdate = {};
             if (prev.worldFlags.includes('quest_capture_active')) {
               newInventory.items = { ...newInventory.items, pokeballs: (newInventory.items.pokeballs || 0) + 10 };
-              addLog('🎁 Carvalho: "Ótimo trabalho! Tome estas 10 Pokébolas!"', 'drop');
+              addLog('ðŸŽ Carvalho: "Ã“timo trabalho! Tome estas 10 PokÃ©bolas!"', 'drop');
               questUpdate = { worldFlags: prev.worldFlags.filter(f => f !== 'quest_capture_active').concat(['quest_capture_done']) };
             }
 
             if (alreadyCaught) {
-              addLog(`📊 Auto-captura: ${currentEnemy.name} já capturado! Maestria aumentada.`, 'system');
+              addLog(`ðŸ“Š Auto-captura: ${currentEnemy.name} jÃ¡ capturado! Maestria aumentada.`, 'system');
               const findAndReplace = (list) => list.map(p => {
                 if (Number(p.id) === Number(currentEnemy.id)) {
                   if (currentEnemy.isShiny && !p.isShiny) {
-                    addLog(`✨ Upgrade Shiny: Seu ${p.name} agora é Brilhante!`, 'system');
+                    addLog(`âœ¨ Upgrade Shiny: Seu ${p.name} agora Ã© Brilhante!`, 'system');
                     return { ...p, isShiny: true, hp: p.maxHp };
                   }
                 }
@@ -2228,7 +2228,7 @@ export default function App() {
             }
 
             // Primeira Captura via Auto
-            addLog(`✨ Auto-capturado! ${currentEnemy.name} agora é seu!`, 'system');
+            addLog(`âœ¨ Auto-capturado! ${currentEnemy.name} agora Ã© seu!`, 'system');
             sfxCapture();
             const newPoke = { ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() };
             const newTeam = [...prev.team];
@@ -2237,7 +2237,7 @@ export default function App() {
 
             return { ...prev, team: newTeam, pc: newPC, inventory: { ...prev.inventory, items: newInventory.items }, speciesMastery: newMastery, caughtData: newCaughtData, ...questUpdate };
           } else {
-            addLog(`💨 Auto-captura falhou para ${currentEnemy.name}!`, 'enemy');
+            addLog(`ðŸ’¨ Auto-captura falhou para ${currentEnemy.name}!`, 'enemy');
           }
         }
         return prev;
@@ -2276,7 +2276,7 @@ export default function App() {
                     className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter drop-shadow-md text-[#FFCB05]"
                     style={{ WebkitTextStroke: '2px #CC0000' }}
                   >
-                    POKÉCRAFT <span className="text-slate-800" style={{ WebkitTextStroke: '0px' }}>IDLE</span>
+                    POKÃ‰CRAFT <span className="text-slate-800" style={{ WebkitTextStroke: '0px' }}>IDLE</span>
                   </h1>
                   <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/143.png" className="w-24 h-24 mt-2 animate-float-slow drop-shadow-xl" alt="Snorlax" />
                 </div>
@@ -2291,33 +2291,30 @@ export default function App() {
                 )}
 
                 <button 
-                  onClick={() => {
-                    if (hasSave && !confirm("Deseja iniciar uma NOVA jornada? Isso apagará seu progresso atual.")) return;
-                    setGameState({
-                      currency: 0,
-                      inventory: {
-                        materials: {
-                          normal_essence: 0, fire_essence: 0, water_essence: 0, grass_essence: 0,
-                          electric_essence: 0, ice_essence: 0, fighting_essence: 0, poison_essence: 0,
-                          ground_essence: 0, flying_essence: 0, psychic_essence: 0, bug_essence: 0,
-                          rock_essence: 0, ghost_essence: 0, dragon_essence: 0, steel_essence: 0,
-                          fairy_essence: 0, dark_essence: 0, mystic_dust: 0, iron_ore: 0
-                        },
-                        items: { pokeballs: 5, potions: 2, charcoal: 0 }
-                      },
-                      team: [],
-                      pc: [],
-                      currentRoute: 'pallet_town',
-                      worldFlags: [],
-                      badges: [],
-                      caughtData: {},
-                      speciesMastery: {},
-                      autoCapture: false,
-                      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
-                      trainer: { name: '', avatarImg: '', level: 1, xp: 0 }
-                    });
+                  onClick={async () => {
+                    if (hasSave && !confirm("Deseja iniciar uma NOVA jornada? Isso apagará permanentemente todo seu progresso atual na nuvem.")) return;
+                    
+                    const freshState = JSON.parse(JSON.stringify(DEFAULT_GAME_STATE));
+                    setGameState(freshState);
+                    resetSession();
                     setIntroStep(0);
                     setCurrentView('intro');
+                    
+                    // Force immediate cloud reset
+                    const u = auth.currentUser;
+                    if (u) {
+                      try {
+                        lastSyncRef.current = Date.now();
+                        await setDoc(doc(db, "saves", u.uid), { 
+                          gameState: freshState, 
+                          updatedAt: serverTimestamp(),
+                          resetAt: serverTimestamp()
+                        }, { merge: false }); // merge: false ensures we overwrite EVERYTHING
+                        console.log("Cloud reset successful");
+                      } catch (e) {
+                        console.error("Cloud reset fail:", e);
+                      }
+                    }
                   }} 
                   className={`w-full max-w-xs md:max-w-md ${hasSave ? 'bg-blue-400/20 border-2 border-white/30 text-white' : 'bg-white text-pokeBlue'} px-8 py-4 md:py-5 rounded-[2rem] md:rounded-[2.5rem] font-black uppercase tracking-widest shadow-xl hover:translate-y-1 transition-all text-sm md:text-lg`}
                 >
@@ -2325,7 +2322,7 @@ export default function App() {
                 </button>
 
                  <p className="mt-8 text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">
-                   PokéCraft Idle v{APP_VERSION} • {APP_VERSION_DATE}
+                   PokÃ©Craft Idle v{APP_VERSION} â€¢ {APP_VERSION_DATE}
                  </p>
               </div>
 
@@ -2339,12 +2336,12 @@ export default function App() {
       }
       case 'intro': {
         const dialogues = [
-          "Olá! Bem-vindo ao mundo POKÉMON!",
-          "Meu nome é CARVALHO. As pessoas me chamam de PROFESSOR POKÉMON.",
-          "Este mundo é habitado por criaturas chamadas POKÉMON!",
-          "Para alguns, POKÉMON são animais de estimação. Outros os usam para lutar.",
-          "Eu... Eu estudo POKÉMON como profissão.",
-          "Mas primeiro, diga-me... Qual é o seu nome?"
+          "OlÃ¡! Bem-vindo ao mundo POKÃ‰MON!",
+          "Meu nome Ã© CARVALHO. As pessoas me chamam de PROFESSOR POKÃ‰MON.",
+          "Este mundo Ã© habitado por criaturas chamadas POKÃ‰MON!",
+          "Para alguns, POKÃ‰MON sÃ£o animais de estimaÃ§Ã£o. Outros os usam para lutar.",
+          "Eu... Eu estudo POKÃ‰MON como profissÃ£o.",
+          "Mas primeiro, diga-me... Qual Ã© o seu nome?"
         ];
         
         const isLastStep = introStep === dialogues.length - 1;
@@ -2364,7 +2361,7 @@ export default function App() {
                 alt="Oak" />
             </div>
 
-            {/* Diálogo box — estilo Game Boy */}
+            {/* DiÃ¡logo box â€” estilo Game Boy */}
             <div className="relative z-10 w-full max-w-xl mb-4">
               <div className="bg-white/95 backdrop-blur-sm p-5 md:p-8 rounded-[2rem] shadow-2xl border-b-[8px] border-slate-800">
                 <div className="flex items-center gap-2 mb-3">
@@ -2401,7 +2398,7 @@ export default function App() {
                   }}
                   className="w-full mt-5 bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg active:scale-95"
                 >
-                  {isLastStep ? 'Tudo Pronto!' : 'Próximo ▶'}
+                  {isLastStep ? 'Tudo Pronto!' : 'PrÃ³ximo â–¶'}
                 </button>
               </div>
             </div>
@@ -2441,7 +2438,7 @@ export default function App() {
            
            <div className="relative z-10 text-center pt-6 pb-3 px-6 flex-shrink-0">
              <h2 className="text-3xl font-black text-slate-800 uppercase italic tracking-tighter mb-1">Escolha seu Parceiro</h2>
-             <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Cada jornada começa com um único passo</p>
+             <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Cada jornada comeÃ§a com um Ãºnico passo</p>
            </div>
 
            <div className="flex flex-col gap-3 w-full max-w-2xl relative z-10 overflow-y-auto custom-scrollbar px-6 pb-6 flex-1" style={{ minHeight: 0 }}>
@@ -2479,10 +2476,10 @@ export default function App() {
 
            {/* MODAL DE PREVIEW */}
            {previewStarter && (
-             <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
+            <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
                 <div className="bg-white w-full max-w-xl rounded-[4rem] shadow-2xl border-b-[16px] border-slate-200 overflow-hidden relative animate-bounceIn">
                    <button onClick={() => setPreviewStarter(null)} className="absolute top-8 right-8 bg-slate-100 p-4 rounded-full hover:bg-red-50 hover:text-red-500 transition-all z-20">
-                      <span className="font-black">✕</span>
+                      <span className="font-black">âœ•</span>
                    </button>
 
                    <div className={`h-40 w-full relative flex items-end justify-center ${previewStarter.type === 'Grass' ? 'bg-green-500' : previewStarter.type === 'Fire' ? 'bg-orange-500' : previewStarter.type === 'Water' ? 'bg-blue-500' : 'bg-slate-400'}`}>
@@ -2495,7 +2492,7 @@ export default function App() {
                    <div className="p-10 pt-20">
                       <div className="text-center mb-8">
                          <h3 className="text-5xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">{previewStarter.name}</h3>
-                         <span className="text-slate-400 font-bold uppercase tracking-widest text-xs mt-2 block">Status Nível 5</span>
+                         <span className="text-slate-400 font-bold uppercase tracking-widest text-xs mt-2 block">Status NÃ­vel 5</span>
                       </div>
 
                       <div className="grid grid-cols-2 gap-8">
@@ -2568,7 +2565,7 @@ export default function App() {
                         }}
                         className="w-full mt-10 bg-pokeBlue text-white py-6 rounded-3xl font-black uppercase tracking-widest text-lg shadow-xl shadow-blue-200 hover:bg-blue-600 transition-all active:scale-95"
                       >
-                        EU ESCOLHO VOCÊ!
+                        EU ESCOLHO VOCÃŠ!
                       </button>
                    </div>
                 </div>
@@ -2587,12 +2584,12 @@ export default function App() {
            <div className="flex-1 flex items-center justify-center relative z-10">
              <img src="https://play.pokemonshowdown.com/sprites/trainers/blue.png" className="h-72 drop-shadow-2xl animate-slideInRight" alt="Rival" />
            </div>
-           {/* Balão na parte inferior */}
+           {/* BalÃ£o na parte inferior */}
            <div className="w-full relative z-10 p-4">
              <div className="bg-white p-6 rounded-[2rem] shadow-2xl border-b-[10px] border-blue-600 w-full">
                <h3 className="text-lg font-black text-slate-800 italic uppercase mb-3 tracking-tighter">Rival Azul:</h3>
-               <p className="text-sm font-bold text-slate-600 mb-4 italic">"Ei, espere aí! Eu também quero um POKÉMON! E eu vou escolher este aqui!"</p>
-               <p className="text-sm font-black text-blue-500 mb-4 uppercase tracking-widest animate-pulse">"Vejamos quem é o melhor treinador!"</p>
+               <p className="text-sm font-bold text-slate-600 mb-4 italic">"Ei, espere aÃ­! Eu tambÃ©m quero um POKÃ‰MON! E eu vou escolher este aqui!"</p>
+               <p className="text-sm font-black text-blue-500 mb-4 uppercase tracking-widest animate-pulse">"Vejamos quem Ã© o melhor treinador!"</p>
                <button
                  onClick={startBattleAgainstRival}
                  className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
@@ -2613,12 +2610,12 @@ export default function App() {
            <div className="flex-1 flex items-center justify-center relative z-10">
              <img src="https://play.pokemonshowdown.com/sprites/trainers/blue.png" className="h-72 drop-shadow-2xl animate-fadeOutRight" alt="Rival" />
            </div>
-           {/* Balão na parte inferior */}
+           {/* BalÃ£o na parte inferior */}
            <div className="w-full relative z-10 p-4">
              <div className="bg-white p-6 rounded-[2rem] shadow-2xl border-b-[10px] border-blue-600 w-full">
                <h3 className="text-lg font-black text-slate-800 italic uppercase mb-3 tracking-tighter">Rival Azul:</h3>
-               <p className="text-sm font-bold text-slate-600 mb-3 italic">"Beleza! Vou fazer meu POKÉMON lutar para deixá-lo mais forte!"</p>
-               <p className="text-sm font-black text-blue-500 mb-4 uppercase tracking-widest">"Vovô! Fui!"</p>
+               <p className="text-sm font-bold text-slate-600 mb-3 italic">"Beleza! Vou fazer meu POKÃ‰MON lutar para deixÃ¡-lo mais forte!"</p>
+               <p className="text-sm font-black text-blue-500 mb-4 uppercase tracking-widest">"VovÃ´! Fui!"</p>
                <button
                  onClick={() => setCurrentView('quest_oak')}
                  className="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg"
@@ -2639,18 +2636,18 @@ export default function App() {
           <div className="flex-1 flex items-center justify-center relative z-10">
             <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="h-64 drop-shadow-2xl animate-float" alt="Oak" />
           </div>
-          {/* Balão na parte inferior */}
+          {/* BalÃ£o na parte inferior */}
           <div className="w-full relative z-10 p-4">
             <div className="bg-white p-5 rounded-[2rem] shadow-2xl border-b-[10px] border-slate-800 w-full">
               <h3 className="text-lg font-black text-slate-800 italic uppercase mb-2 tracking-tighter">Prof. Carvalho:</h3>
-              <p className="text-sm font-bold text-slate-600 mb-2 italic">"Que batalha incrível! Vocês dois têm muito talento."</p>
+              <p className="text-sm font-bold text-slate-600 mb-2 italic">"Que batalha incrÃ­vel! VocÃªs dois tÃªm muito talento."</p>
               <p className="text-sm font-black text-pokeBlue mb-4 uppercase tracking-tighter leading-tight">
-                "Agora, preciso que você aprenda a capturar POKÉMONS. Vá até a ROTA 1 e capture seu primeiro parceiro!"
+                "Agora, preciso que vocÃª aprenda a capturar POKÃ‰MONS. VÃ¡ atÃ© a ROTA 1 e capture seu primeiro parceiro!"
               </p>
               <div className="bg-blue-50 p-4 rounded-2xl border-2 border-blue-100 mb-4">
-                 <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Nova Missão:</p>
-                 <p className="text-xs font-bold text-slate-800 uppercase mt-1 italic">Capture 1 Pokémon na Rota 1</p>
-                 <p className="text-[9px] font-black text-slate-400 mt-1 uppercase">Recompensa: 10 Pokébolas</p>
+                 <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Nova MissÃ£o:</p>
+                 <p className="text-xs font-bold text-slate-800 uppercase mt-1 italic">Capture 1 PokÃ©mon na Rota 1</p>
+                 <p className="text-[9px] font-black text-slate-400 mt-1 uppercase">Recompensa: 10 PokÃ©bolas</p>
               </div>
               <button
                 onClick={() => {
@@ -2681,13 +2678,13 @@ export default function App() {
                   <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-8 h-8 rounded-full object-contain bg-slate-100 p-0.5" alt="" />
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Prof. Carvalho</span>
                 </div>
-                <p className="text-sm font-bold text-slate-600 mb-2 italic">"Veja só! Azul me contou que capturou Pokémon incríveis nestas rotas!"</p>
+                <p className="text-sm font-bold text-slate-600 mb-2 italic">"Veja sÃ³! Azul me contou que capturou PokÃ©mon incrÃ­veis nestas rotas!"</p>
                 <p className="text-sm font-black text-pokeBlue mb-4 uppercase tracking-tighter leading-tight">
-                  "Parece que Bulbasaur, Charmander e outros iniciais estão aparecendo raramente por aqui. Fique atento!"
+                  "Parece que Bulbasaur, Charmander e outros iniciais estÃ£o aparecendo raramente por aqui. Fique atento!"
                 </p>
                 <div className="bg-amber-50 p-4 rounded-2xl border-2 border-amber-200 mb-4">
-                   <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Desbloqueio Especial ★</p>
-                   <p className="text-xs font-bold text-slate-800 uppercase mt-1 italic">Iniciais Raríssimos agora aparecem nas Rotas 1, 22 e Floresta!</p>
+                   <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Desbloqueio Especial â˜…</p>
+                   <p className="text-xs font-bold text-slate-800 uppercase mt-1 italic">Iniciais RarÃ­ssimos agora aparecem nas Rotas 1, 22 e Floresta!</p>
                 </div>
                 <button
                   onClick={() => {
@@ -2698,7 +2695,7 @@ export default function App() {
                     handleGoToCity();
                   }}
                   className="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg"
-                >Vou Procurá-los!</button>
+                >Vou ProcurÃ¡-los!</button>
               </div>
             </div>
           </div>
@@ -2719,7 +2716,7 @@ export default function App() {
                    }}
                    className="group bg-white p-8 rounded-[3rem] border-4 border-slate-200 hover:border-red-400 transition-all shadow-xl hover:shadow-red-100 flex flex-col items-center gap-4 active:scale-95"
                  >
-                    <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">🏘️</div>
+                    <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">ðŸ˜ï¸</div>
                     <div>
                        <h3 className="font-black text-xl text-slate-800 uppercase italic">Cidade de Pallet</h3>
                        <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Descansar e Preparar</p>
@@ -2734,7 +2731,7 @@ export default function App() {
                    }}
                    className="group bg-white p-8 rounded-[3rem] border-4 border-slate-200 hover:border-green-400 transition-all shadow-xl hover:shadow-green-100 flex flex-col items-center gap-4 active:scale-95"
                  >
-                    <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">🌿</div>
+                    <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">ðŸŒ¿</div>
                     <div>
                        <h3 className="font-black text-xl text-slate-800 uppercase italic">Rota 1</h3>
                        <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Iniciar Capturas</p>
@@ -2745,7 +2742,7 @@ export default function App() {
               <div className="mt-12 flex justify-center">
                  <div className="bg-slate-100 px-6 py-3 rounded-full flex items-center gap-3">
                     <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-6 h-6" alt="Pokeball" />
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Você recebeu 10 Pokébolas!</span>
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">VocÃª recebeu 10 PokÃ©bolas!</span>
                  </div>
               </div>
            </div>
@@ -2779,53 +2776,56 @@ export default function App() {
 
           {/* Modal do Prof. Carvalho sobre a Casa */}
           {showOakHouseModal && (
-            <div className="fixed inset-0 z-[120] flex items-end justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-              <div className="w-full max-w-md bg-white rounded-[2.5rem] overflow-hidden shadow-2xl">
-                <div className="bg-amber-50 p-6">
-                  <div className="flex items-center gap-4 mb-4">
+            <div className="absolute inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
+              <div className="w-full max-w-xl bg-white rounded-[4rem] overflow-hidden shadow-2xl animate-bounceIn border-b-[12px] border-slate-200">
+                <div className="bg-amber-50 p-10">
+                  <div className="flex items-center gap-6 mb-6">
                     <img
                       src="https://play.pokemonshowdown.com/sprites/trainers/oak.png"
-                      className="w-20 h-20 object-contain"
+                      className="w-24 h-24 object-contain"
                       alt="Prof. Carvalho"
                     />
                     <div>
                       <p className="text-amber-900 text-[10px] font-black uppercase tracking-widest">Professor Carvalho</p>
-                      <p className="text-amber-800 font-black text-base italic leading-tight">
+                      <p className="text-amber-800 font-black text-2xl italic leading-tight">
                         "Sua jornada merece uma base!"
                       </p>
                     </div>
                   </div>
-                  <p className="text-amber-900 text-sm leading-relaxed mb-4">
-                    Parabéns por vencer o Ginásio de Pewter! Você está crescendo como treinador.
-                    Que tal ter sua própria casa? Lá você pode cultivar Berries e Apricorns para
-                    fabricar Pokébolas especiais e itens raros. Com Pokémon de Grama e Água como
-                    cuidadores, suas plantações crescerão muito mais rápido!
+                  <p className="text-amber-900 text-sm leading-relaxed mb-6 font-medium">
+                    ParabÃ©ns por vencer o GinÃ¡sio de Pewter! VocÃª estÃ¡ crescendo como treinador.
+                    Que tal ter sua prÃ³pria casa? LÃ¡ vocÃª pode cultivar Berries e Apricorns para
+                    fabricar PokÃ©bolas especiais e itens raros. Com PokÃ©mon de Grama e Ãgua como
+                    cuidadores, suas plantaÃ§Ãµes crescerÃ£o muito mais rÃ¡pido!
                   </p>
-                  <div className="bg-amber-100 rounded-2xl p-3 mb-4 border border-amber-200">
-                    <p className="text-amber-800 font-black text-sm">🏠 Custo da Casa</p>
-                    <p className="text-amber-900 text-xs mt-1">
-                      💰 {HOUSE_PURCHASE_COST.toLocaleString()} coins • 4 canteiros iniciais
-                    </p>
-                    <p className={`text-xs mt-1 font-bold ${(gameState.currency || 0) >= HOUSE_PURCHASE_COST ? 'text-green-600' : 'text-red-500'}`}>
+                  <div className="bg-white/60 rounded-3xl p-5 mb-6 border-2 border-amber-200 shadow-inner">
+                    <p className="text-amber-800 font-black text-lg flex items-center gap-2">ðŸ  Custo da Casa</p>
+                    <div className="flex justify-between items-center mt-2">
+                       <p className="text-amber-900 text-sm font-bold">
+                          💰 {HOUSE_PURCHASE_COST.toLocaleString()} coins
+                       </p>
+                       <p className="text-amber-700 text-xs font-black uppercase tracking-widest">4 canteiros iniciais</p>
+                    </div>
+                    <div className={`mt-3 p-3 rounded-xl font-black text-xs uppercase text-center ${(gameState.currency || 0) >= HOUSE_PURCHASE_COST ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
                       {(gameState.currency || 0) >= HOUSE_PURCHASE_COST
-                        ? '✅ Você tem coins suficientes!'
-                        : `❌ Você tem ${(gameState.currency || 0).toLocaleString()} coins — falta ${(HOUSE_PURCHASE_COST - (gameState.currency || 0)).toLocaleString()}`}
-                    </p>
+                        ? "✅ Você tem coins suficientes!"
+                        : `❌ Falta ${(HOUSE_PURCHASE_COST - (gameState.currency || 0)).toLocaleString()} coins`}
+                    </div>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex gap-4">
                     <button
                       onClick={() => setShowOakHouseModal(false)}
-                      className="flex-1 bg-slate-200 text-slate-700 py-4 rounded-2xl font-black uppercase text-sm"
+                      className="flex-1 bg-slate-200 text-slate-700 py-5 rounded-2xl font-black uppercase text-sm hover:bg-slate-300 transition-all"
                     >
                       Depois
                     </button>
                     <button
                       onClick={handleBuyHouse}
                       disabled={(gameState.currency || 0) < HOUSE_PURCHASE_COST}
-                      className={`flex-2 flex-grow py-4 rounded-2xl font-black uppercase text-sm shadow-xl transition-all active:scale-95 ${
+                      className={`flex-[2] py-5 rounded-2xl font-black uppercase text-sm shadow-xl transition-all active:scale-95 ${
                         (gameState.currency || 0) >= HOUSE_PURCHASE_COST
-                          ? 'bg-amber-500 text-white hover:bg-amber-400'
-                          : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                          ? "bg-amber-500 text-white hover:bg-amber-400"
+                          : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
                       }`}
                     >
                       🏠 Comprar Casa!
@@ -2836,7 +2836,6 @@ export default function App() {
             </div>
           )}
 
-          {/* Tela da Casa */}
           {showHouse && (
             <HouseScreen
               gameState={gameState}
@@ -2850,75 +2849,118 @@ export default function App() {
           )}
 
           {showOakStaminaModal && (
-            <div className="fixed inset-0 z-[130] flex items-end justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-              <div className="w-full max-w-md bg-white rounded-[2.5rem] overflow-hidden shadow-2xl">
-                <div className="bg-green-50 p-6">
-                  <div className="flex items-center gap-4 mb-4">
+              <div className="w-full max-w-xl bg-white rounded-[4rem] overflow-hidden shadow-2xl animate-bounceIn border-b-[16px] border-slate-200">
+                <div className="bg-green-50 p-10">
+                  <div className="flex items-center gap-6 mb-8">
                     <img
                       src="https://play.pokemonshowdown.com/sprites/trainers/oak.png"
-                      className="w-20 h-20 object-contain"
+                      className="w-24 h-24 object-contain"
                       alt="Prof. Carvalho"
                     />
                     <div>
-                      <p className="text-green-900 text-[10px] font-black uppercase tracking-widest">Professor Carvalho</p>
-                      <p className="text-green-800 font-black text-base italic leading-tight">
-                        "Antes de partir — muito importante!"
+                      <p className="text-green-900 text-[10px] font-black uppercase tracking-widest leading-none">Professor Carvalho</p>
+                      <p className="text-green-800 font-black text-3xl italic leading-tight mt-1">
+                        "Antes de partir!"
                       </p>
                     </div>
                   </div>
 
-                  <div className="space-y-3 mb-5">
-                    <p className="text-green-900 text-sm leading-relaxed">
-                      Seus Pokémon precisam se <strong>alimentar</strong> durante as batalhas. Quanto mais lutam, mais energia gastam!
+                  <div className="space-y-4 mb-8">
+                    <p className="text-green-900 text-base font-medium leading-relaxed italic">
+                      Seus PokÃ©mon precisam se <strong>alimentar</strong> durante as batalhas. Quanto mais lutam, mais energia gastam!
                     </p>
 
-                    <div className="bg-white rounded-2xl p-3 border border-green-200">
-                      <p className="text-green-800 text-xs font-bold mb-2">🍽️ O que alimenta seus Pokémon:</p>
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2">
-                          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png" className="w-5 h-5 object-contain" alt="berry" />
-                          <p className="text-green-700 text-xs"><strong>Berries</strong> — cultive na sua casa. Oran e Sitrus Berry são essenciais</p>
+                    <div className="bg-white/80 rounded-[2.5rem] p-6 border-2 border-green-200 shadow-inner">
+                      <p className="text-green-800 text-xs font-black uppercase tracking-[0.2em] mb-4">ðŸ½ï¸ O que alimenta seus PokÃ©mon:</p>
+                      <div className="grid grid-cols-1 gap-3">
+                        <div className="flex items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-green-100">
+                          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png" className="w-8 h-8 object-contain" alt="berry" />
+                          <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>Berries</strong> â€” cultive na sua casa. Oran e Sitrus Berry sÃ£o essenciais.</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png" className="w-5 h-5 object-contain" alt="agua" />
-                          <p className="text-green-700 text-xs"><strong>Água Fresca, Soda Pop, Limonada</strong> — compre no Poké Mart</p>
+                        <div className="flex items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-green-100">
+                          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png" className="w-8 h-8 object-contain" alt="agua" />
+                          <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>Ãguas e Soda</strong> â€” compre no PokÃ© Mart para restaurar energia rÃ¡pido.</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moomoo-milk.png" className="w-5 h-5 object-contain" alt="leite" />
-                          <p className="text-green-700 text-xs"><strong>Leite MooMoo</strong> — o mais nutritivo, disponível depois do 4º ginásio</p>
+                        <div className="flex items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-green-100">
+                          <span className="text-2xl w-8 text-center">ðŸ–</span>
+                          <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>RaÃ§Ã£o PokÃ©mon</strong> â€” pode ser fabricada na Forja com materiais simples.</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">🍖</span>
-                          <p className="text-green-700 text-xs"><strong>Ração Pokémon</strong> — fabricável na Forja com materiais</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-4">
+                       <div className="flex-1 bg-red-50 rounded-3xl p-4 border-2 border-red-100">
+                         <p className="text-red-700 text-[10px] font-black uppercase tracking-widest mb-1">âš ï¸ Perigo!</p>
+                         <p className="text-red-600 text-[10px] font-bold leading-tight">
+                           Energia zerada causa exaustÃ£o e perda constante de vida.
+                         </p>
+                       </div>
+                       <div className="flex-1 bg-blue-50 rounded-3xl p-4 border-2 border-blue-100">
+                         <p className="text-blue-700 text-[10px] font-black uppercase tracking-widest mb-1">ðŸ’¡ Dica!</p>
+                         <p className="text-blue-600 text-[10px] font-bold leading-tight">
+                           O sistema alimenta automaticamente com o melhor item disponÃ­vel.
+                         </p>
+                       </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-[2.5rem] p-6 border-2 border-amber-200 mb-8 shadow-xl">
+                    <p className="text-amber-800 text-[10px] font-black uppercase tracking-widest">ðŸŽ Presente do Professor:</p>
+                    <div className="flex items-center gap-4 mt-2">
+                      <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-lg border-2 border-amber-100 rotate-3">
+                        <img
+                          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png"
+                          className="w-10 h-10 object-contain"
+                          alt="Ãgua Fresca"
+                        />
+                      </div>
+                      <div>
+                        <p className="text-amber-800 font-black text-xl italic leading-none">10x Ãgua Fresca</p>
+                        <p className="text-amber-700 text-[10px] font-bold mt-1 uppercase">Para comeÃ§ar sua jornada!</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setShowOakStaminaModal(false)}
+                    className="w-full bg-green-600 text-white py-6 rounded-3xl font-black uppercase text-sm tracking-widest hover:bg-green-500 transition-all shadow-xl shadow-green-200 active:scale-95"
+                  >
+                    Obrigado, Professor! ðŸ½ï¸
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+g> â€” fabricÃ¡vel na Forja com materiais</p>
                         </div>
                       </div>
                     </div>
 
                     <div className="bg-red-50 rounded-2xl p-3 border border-red-200">
-                      <p className="text-red-700 text-xs font-bold mb-1">⚠️ Sem comida = Perigo!</p>
+                      <p className="text-red-700 text-xs font-bold mb-1">âš ï¸ Sem comida = Perigo!</p>
                       <p className="text-red-600 text-xs leading-relaxed">
-                        Quando a energia zera, seu Pokémon fica <strong>exausto</strong> e começa a perder HP. Se desmaiar assim — conta como derrota!
+                        Quando a energia zera, seu PokÃ©mon fica <strong>exausto</strong> e comeÃ§a a perder HP. Se desmaiar assim â€” conta como derrota!
                       </p>
                     </div>
 
                     <div className="bg-blue-50 rounded-2xl p-3 border border-blue-200">
-                      <p className="text-blue-700 text-xs font-bold mb-1">💡 Dica:</p>
+                      <p className="text-blue-700 text-xs font-bold mb-1">ðŸ’¡ Dica:</p>
                       <p className="text-blue-600 text-xs leading-relaxed">
-                        O sistema alimenta automaticamente com o melhor item disponível. Sempre tenha estoque! Compre <strong>Água Fresca</strong> no Poké Mart antes de qualquer rota.
+                        O sistema alimenta automaticamente com o melhor item disponÃ­vel. Sempre tenha estoque! Compre <strong>Ãgua Fresca</strong> no PokÃ© Mart antes de qualquer rota.
                       </p>
                     </div>
                   </div>
 
                   <div className="bg-amber-50 rounded-2xl p-3 border border-amber-200 mb-4">
-                    <p className="text-amber-800 text-xs font-bold">🎁 Presente do Professor Carvalho:</p>
+                    <p className="text-amber-800 text-xs font-bold">ðŸŽ Presente do Professor Carvalho:</p>
                     <div className="flex items-center gap-2 mt-1">
                       <img
                         src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png"
                         className="w-6 h-6 object-contain"
-                        alt="Água Fresca"
+                        alt="Ãgua Fresca"
                       />
                       <p className="text-amber-700 text-xs">
-                        <strong>10x Água Fresca</strong> — para começar sua jornada com segurança!
+                        <strong>10x Ãgua Fresca</strong> â€” para comeÃ§ar sua jornada com seguranÃ§a!
                       </p>
                     </div>
                   </div>
@@ -2927,7 +2969,7 @@ export default function App() {
                     onClick={() => setShowOakStaminaModal(false)}
                     className="w-full bg-green-600 text-white py-4 rounded-2xl font-black uppercase text-sm hover:bg-green-500 transition-all active:scale-95"
                   >
-                    Obrigado, Professor! 🍽️
+                    Obrigado, Professor! ðŸ½ï¸
                   </button>
                 </div>
               </div>
@@ -2986,10 +3028,10 @@ export default function App() {
 
               <div className="bg-white/5 rounded-2xl p-6 mb-8 border border-white/5">
                 <p className="text-white/80 text-sm font-bold leading-relaxed italic">
-                  "Incrível! Meus parabéns por derrotar o Azul na Rota 1! Acabo de receber relatos fantásticos... os Pokémon iniciais <span className="text-green-400">Bulbasaur</span>, <span className="text-orange-400">Charmander</span> e <span className="text-blue-400">Squirtle</span> foram avistados selvagens na Rota 1 e na Floresta!"
+                  "IncrÃ­vel! Meus parabÃ©ns por derrotar o Azul na Rota 1! Acabo de receber relatos fantÃ¡sticos... os PokÃ©mon iniciais <span className="text-green-400">Bulbasaur</span>, <span className="text-orange-400">Charmander</span> e <span className="text-blue-400">Squirtle</span> foram avistados selvagens na Rota 1 e na Floresta!"
                 </p>
                 <p className="text-white/80 text-sm font-bold leading-relaxed italic mt-4">
-                  "Parece que eles decidiram se aventurar além do meu laboratório. Agora você pode encontrá-los e capturá-los! Boa sorte na sua jornada!"
+                  "Parece que eles decidiram se aventurar alÃ©m do meu laboratÃ³rio. Agora vocÃª pode encontrÃ¡-los e capturÃ¡-los! Boa sorte na sua jornada!"
                 </p>
               </div>
 
@@ -3088,18 +3130,18 @@ export default function App() {
            <div className="relative z-10 w-full max-w-2xl">
               <div className="flex items-center gap-4 mb-8">
                  <button onClick={() => setCurrentView('city')} className="bg-slate-800 p-4 rounded-3xl shadow-xl hover:bg-slate-700 transition-all">
-                    <span className="text-xl text-white">←</span>
+                    <span className="text-xl text-white">â†</span>
                  </button>
                  <div>
-                    <h2 className="text-4xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">Forja Pokémon</h2>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">Transforme essências em poder</p>
+                    <h2 className="text-4xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">Forja PokÃ©mon</h2>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">Transforme essÃªncias em poder</p>
                  </div>
               </div>
 
               <div className="bg-white/50 backdrop-blur-md p-6 rounded-[2.5rem] border-2 border-white shadow-inner mb-6">
                  <div className="flex justify-between items-center mb-4">
                     <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Seus Materiais</h4>
-                    <span className="text-[10px] font-black text-pokeBlue uppercase bg-blue-50 px-3 py-1 rounded-full">💰 {gameState.currency} Coins</span>
+                    <span className="text-[10px] font-black text-pokeBlue uppercase bg-blue-50 px-3 py-1 rounded-full">ðŸ’° {gameState.currency} Coins</span>
                  </div>
                  <div className="flex flex-wrap justify-center gap-3">
                     {Object.entries(gameState.inventory.materials)
@@ -3140,7 +3182,7 @@ export default function App() {
 
       case 'defeat_screen': return (
         <div className="h-full flex flex-col items-center justify-center bg-slate-900 p-8 relative overflow-hidden animate-fadeIn">
-           {/* Efeito de Nevoeiro Fantasmagórico */}
+           {/* Efeito de Nevoeiro FantasmagÃ³rico */}
            <div className="absolute inset-0 opacity-30 pointer-events-none bg-gradient-to-t from-purple-900 to-transparent"></div>
            
            <div className="relative z-10 flex flex-col items-center max-w-lg w-full text-center">
@@ -3152,7 +3194,7 @@ export default function App() {
               <div className="bg-slate-800/80 backdrop-blur-md p-10 rounded-[3rem] border-2 border-purple-500/30 shadow-[0_0_50px_rgba(168,85,247,0.2)]">
                 <h2 className="text-4xl font-black text-purple-400 uppercase italic mb-6 tracking-tighter">Hehehe...</h2>
                 <p className="text-white font-bold text-lg mb-10 italic leading-tight">
-                  "Vimos você cair... Não se preocupe, treinador. Nós o levamos para um lugar seguro."
+                  "Vimos vocÃª cair... NÃ£o se preocupe, treinador. NÃ³s o levamos para um lugar seguro."
                 </p>
                 <button 
                   onClick={() => {
@@ -3185,7 +3227,7 @@ export default function App() {
             <div className="bg-white p-10 rounded-[3rem] shadow-2xl border-b-[12px] border-red-100 w-full">
                <h3 className="text-2xl font-black text-slate-800 italic uppercase mb-4 tracking-tighter">Enfermeira Chansey:</h3>
                <p className="text-lg font-bold text-slate-600 mb-8 italic leading-tight">
-                 "Oh céus! Você e seus POKÉMONS parecem exaustos. Deixe-me cuidar de tudo rapidamente!"
+                 "Oh cÃ©us! VocÃª e seus POKÃ‰MONS parecem exaustos. Deixe-me cuidar de tudo rapidamente!"
                </p>
                <button 
                  onClick={() => { 
@@ -3217,14 +3259,14 @@ export default function App() {
                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/escape-rope.png" className="w-5 h-5" alt="back" />
                </button>
                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-6 h-6 animate-spin-slow" alt="ball" />
-               <span className="font-black uppercase italic tracking-tighter">PokéCraft Idle</span>
+               <span className="font-black uppercase italic tracking-tighter">PokÃ©Craft Idle</span>
             </div>
             <div className="flex gap-4 items-center">
                 <button
                  onClick={() => toggleMute()}
                  className="flex items-center gap-1 bg-black/20 px-2 py-1.5 rounded-full hover:bg-black/30 transition-all border border-white/10"
                >
-                 <span className="text-sm">{muted ? '🔇' : '🔊'}</span>
+                 <span className="text-sm">{muted ? 'ðŸ”‡' : 'ðŸ”Š'}</span>
                </button>
                <button onClick={() => { if(window.confirm('Deseja realmente sair? Seu progresso foi salvo.')) setCurrentView('landing'); }} className="flex items-center gap-1.5 bg-black/20 px-3 py-1.5 rounded-full hover:bg-black/30 transition-all border border-white/10">
                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png" className="w-4 h-4" alt="Home" />
@@ -3246,22 +3288,22 @@ export default function App() {
       )}
 
       {sessionStats && (
-        <div className="absolute inset-0 z-[100] flex items-end justify-center pb-24 px-4" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
+        <div className="absolute inset-0 z-[100] flex items-end justify-center pb-20 px-4" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
           <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl border-b-8 border-slate-200 overflow-hidden animate-bounceIn">
             <div className="bg-pokeRed px-5 py-4 flex items-center gap-3">
               <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-8 h-8" alt="" />
               <div>
                 <h2 className="text-white font-black uppercase italic tracking-tighter text-lg leading-none">Resumo da Jornada</h2>
-                <p className="text-red-200 text-[10px] font-bold uppercase tracking-widest">Sessão de batalha</p>
+                <p className="text-red-200 text-[10px] font-bold uppercase tracking-widest">SessÃ£o de batalha</p>
               </div>
             </div>
             <div className="p-5 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { icon: '⚔️', label: 'Nocautes', value: sessionStats.kills },
-                  { icon: '✨', label: 'Shinies', value: sessionStats.shinyKills + sessionStats.captures.filter(c => c.isShiny).length },
-                  { icon: '🏆', label: 'Trainers', value: sessionStats.trainers },
-                  { icon: '💰', label: 'Coins',    value: sessionStats.coins  },
+                  { icon: 'âš”ï¸', label: 'Nocautes', value: sessionStats.kills },
+                  { icon: 'âœ¨', label: 'Shinies', value: sessionStats.shinyKills + sessionStats.captures.filter(c => c.isShiny).length },
+                  { icon: 'ðŸ†', label: 'Trainers', value: sessionStats.trainers },
+                  { icon: 'ðŸ’°', label: 'Coins',    value: sessionStats.coins  },
                 ].map(s => (
                   <div key={s.label} className="bg-slate-50 rounded-2xl p-3 text-center border border-slate-100">
                     <div className="text-xl mb-1">{s.icon}</div>
@@ -3275,11 +3317,11 @@ export default function App() {
               {Object.keys(sessionStats.drops).length > 0 && (
                 <div className="bg-amber-50/50 p-4 rounded-3xl border border-amber-100">
                   <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <span className="text-sm">📦</span> Itens Coletados
+                    <span className="text-sm">ðŸ“¦</span> Itens Coletados
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(sessionStats.drops).map(([mat, qty]) => {
-                      const item = ITEM_LABELS[mat] || { icon: '💎', name: mat.split('_').pop() };
+                      const item = ITEM_LABELS[mat] || { icon: 'ðŸ’Ž', name: mat.split('_').pop() };
                       return (
                         <div key={mat} className="flex items-center gap-1.5 bg-white border border-amber-200 rounded-xl px-2.5 py-1 shadow-sm">
                           <span className="text-xs">{item.icon}</span>
@@ -3296,14 +3338,14 @@ export default function App() {
               {sessionStats.captures.length > 0 && (
                 <div className="bg-blue-50/50 p-4 rounded-3xl border border-blue-100">
                    <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <span className="text-sm">🎾</span> Capturados ({sessionStats.captures.length})
+                    <span className="text-sm">ðŸŽ¾</span> Capturados ({sessionStats.captures.length})
                   </p>
                   <div className="grid grid-cols-1 gap-2">
                     {sessionStats.captures.map((cap, i) => (
                       <div key={i} className="flex items-center gap-3 bg-white border border-blue-100 rounded-2xl px-3 py-1.5 shadow-sm">
                         <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${cap.isShiny ? 'shiny/' : ''}${cap.id}.png`} className="w-8 h-8 object-contain" alt={cap.name} />
                         <span className="font-black text-slate-800 text-[11px] uppercase tracking-tighter">{cap.name}</span>
-                        {cap.isShiny && <span className="ml-auto text-[8px] bg-yellow-100 text-yellow-700 font-extrabold px-2 py-0.5 rounded-full border border-yellow-200">✨ SHINY</span>}
+                        {cap.isShiny && <span className="ml-auto text-[8px] bg-yellow-100 text-yellow-700 font-extrabold px-2 py-0.5 rounded-full border border-yellow-200">âœ¨ SHINY</span>}
                       </div>
                     ))}
                   </div>
@@ -3311,7 +3353,7 @@ export default function App() {
               )}
               
               {sessionStats.kills === 0 && sessionStats.captures.length === 0 && (
-                <p className="text-center text-slate-400 font-bold italic text-sm py-8 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100">Nenhum progresso nesta sessão.</p>
+                <p className="text-center text-slate-400 font-bold italic text-sm py-8 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100">Nenhum progresso nesta sessÃ£o.</p>
               )}
             </div>
             <div className="px-5 pb-5">
@@ -3330,7 +3372,7 @@ export default function App() {
                 className="w-full bg-pokeRed text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-red-600 transition-all active:scale-95 border-b-8 border-red-700 flex items-center justify-center gap-3"
               >
                 Continuar para Cidade
-                <span>➜</span>
+                <span>âžœ</span>
               </button>
             </div>
           </div>
@@ -3346,15 +3388,15 @@ export default function App() {
             const isFarming = currentR && currentR.type === 'farm';
             
             if (currentView === 'battles') {
-              // Se já está na batalha, abrir o mapa requer confirmação
-              if (window.confirm("Deseja abrir o mapa das Rotas? Isso interromperá seu treino atual.")) {
+              // Se jÃ¡ estÃ¡ na batalha, abrir o mapa requer confirmaÃ§Ã£o
+              if (window.confirm("Deseja abrir o mapa das Rotas? Isso interromperÃ¡ seu treino atual.")) {
                 setCurrentView('routes');
               }
             } else if (isFarming) {
-              // Se está em qualquer outra tela (Menu, Pokemon, etc) e estava treinando, volta para a batalha
+              // Se estÃ¡ em qualquer outra tela (Menu, Pokemon, etc) e estava treinando, volta para a batalha
               setCurrentView('battles');
             } else {
-              // Comportamento padrão (ir para o mapa)
+              // Comportamento padrÃ£o (ir para o mapa)
               setCurrentView('routes');
             }
           }} className={`flex flex-col items-center justify-center py-2 transition-all ${['routes', 'battles'].includes(currentView) ? 'text-pokeBlue scale-110' : 'text-slate-400 opacity-60'}`}>
@@ -3363,10 +3405,10 @@ export default function App() {
           </button>
           <button onClick={() => setCurrentView('pokemon_management')} className={`flex flex-col items-center justify-center py-2 transition-all ${currentView === 'pokemon_management' ? 'text-pokeRed scale-110' : 'text-slate-400 opacity-60'}`}>
             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-7 h-7 object-contain" alt="Pokemons" />
-            <span className="text-[9px] font-black uppercase mt-0.5">Pokémons</span>
+            <span className="text-[9px] font-black uppercase mt-0.5">PokÃ©mons</span>
           </button>
           <button onClick={() => setCurrentView('vs')} className={`flex flex-col items-center justify-center py-2 transition-all ${['vs', 'gyms', 'challenges'].includes(currentView) ? 'text-pokeGold scale-110' : 'text-slate-400 opacity-60'}`}>
-            <span className="text-2xl h-7 flex items-center">⚔️</span>
+            <span className="text-2xl h-7 flex items-center">âš”ï¸</span>
             <span className="text-[9px] font-black uppercase mt-0.5">Modo VS</span>
           </button>
           <button onClick={() => {
@@ -3375,7 +3417,7 @@ export default function App() {
             }
             handleGoToCity();
           }} className={`flex flex-col items-center justify-center py-2 transition-all ${currentView === 'city' ? 'text-indigo-500 scale-110' : 'text-slate-400 opacity-60'}`}>
-            <span className="text-2xl h-7 flex items-center">🏢</span>
+            <span className="text-2xl h-7 flex items-center">ðŸ¢</span>
             <span className="text-[9px] font-black uppercase mt-0.5">Cidade</span>
           </button>
           <button onClick={() => setCurrentView('menu')} className={`flex flex-col items-center justify-center py-2 transition-all ${currentView === 'menu' ? 'text-slate-800 scale-110' : 'text-slate-400 opacity-60'}`}>
@@ -3385,16 +3427,16 @@ export default function App() {
         </nav>
       )}
 
-      {/* MODAIS DE CONSTRUÇÕES */}
+      {/* MODAIS DE CONSTRUÃ‡Ã•ES */}
       {activeBuildingModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
+        <div className="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
            <div className="max-w-2xl w-full bg-white rounded-[3rem] shadow-2xl flex flex-col max-h-[90vh] relative border-b-[12px] border-slate-800 animate-slideInUp overflow-hidden">
 
               
               <button 
                 onClick={() => setActiveBuildingModal(null)}
                 className="absolute top-6 right-6 z-20 bg-white/80 backdrop-blur-md w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:rotate-90 transition-all border-2 border-slate-100"
-              >✕</button>
+              >âœ•</button>
 
               {activeBuildingModal === 'pokecenter' && (
                 <div className="flex-1 flex flex-col overflow-hidden">
@@ -3404,8 +3446,8 @@ export default function App() {
                       <img src="https://play.pokemonshowdown.com/sprites/ani/chansey.gif" className="absolute bottom-4 left-1/2 -translate-x-1/2 h-24 drop-shadow-lg" alt="Chansey" />
                    </div>
                    <div className="p-10 text-center overflow-y-auto custom-scrollbar">
-                      <h2 className="text-3xl font-black text-slate-800 uppercase italic tracking-tighter mb-4">Centro Pokémon</h2>
-                      <p className="text-slate-500 font-bold mb-8 italic">"Bem-vindo! Podemos curar seus Pokémon?"</p>
+                      <h2 className="text-3xl font-black text-slate-800 uppercase italic tracking-tighter mb-4">Centro PokÃ©mon</h2>
+                      <p className="text-slate-500 font-bold mb-8 italic">"Bem-vindo! Podemos curar seus PokÃ©mon?"</p>
                       <button 
                         onClick={() => {
                           if (isHealing) return;
@@ -3421,7 +3463,7 @@ export default function App() {
                               stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 } 
                             })) 
                           }));
-                          addLog("🏥 Todos os Pokémon da equipe foram curados!", "system");
+                          addLog("ðŸ¥ Todos os PokÃ©mon da equipe foram curados!", "system");
                           
                           setTimeout(() => {
                             setActiveBuildingModal(null);
@@ -3439,21 +3481,21 @@ export default function App() {
               {activeBuildingModal === 'mart' && (
                 <div className="p-6 flex-1 flex flex-col overflow-hidden">
                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">🏪</div>
+                      <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">ðŸª</div>
                       <div className="flex-1">
-                         <h2 className="text-xl font-black text-slate-800 uppercase italic leading-none">Poké Mart</h2>
+                         <h2 className="text-xl font-black text-slate-800 uppercase italic leading-none">PokÃ© Mart</h2>
                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Suprimentos de Viagem</p>
                       </div>
                       <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm">
-                         💰 {gameState.currency}
+                         ðŸ’° {gameState.currency}
                       </div>
                    </div>
 
                    <div className="flex flex-col gap-3 overflow-y-auto pr-1 custom-scrollbar flex-1 pb-4">
                       {[
-                        { id: 'pokeballs', name: 'Poké Bola', price: 200, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', desc: 'Captura Pokémon selvagens' },
-                        { id: 'potions', name: 'Poção', price: 300, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png', desc: 'Restaura 20 HP' },
-                        { id: 'revive', name: 'Revive', price: 1500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', desc: 'Revive Pokémon desmaiado' },
+                        { id: 'pokeballs', name: 'PokÃ© Bola', price: 200, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', desc: 'Captura PokÃ©mon selvagens' },
+                        { id: 'potions', name: 'PoÃ§Ã£o', price: 300, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png', desc: 'Restaura 20 HP' },
+                        { id: 'revive', name: 'Revive', price: 1500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', desc: 'Revive PokÃ©mon desmaiado' },
                         ...POKE_MART_DRINKS.filter(drink => {
                            if (!drink.availableFrom) return true;
                            const badgeMap = { boulder_badge: 1, cascade_badge: 2, thunder_badge: 3, rainbow_badge: 4 };
@@ -3472,7 +3514,7 @@ export default function App() {
                               items: { ...prev.inventory.items, [item.id]: (prev.inventory.items[item.id] || 0) + qty }
                             }
                           }));
-                          addLog(`🏪 Comprado: ${qty}x ${item.name}`, 'system');
+                          addLog(`ðŸª Comprado: ${qty}x ${item.name}`, 'system');
                         };
                         return (
                           <div key={item.id} className="bg-white p-4 rounded-2xl border-2 border-slate-100 shadow-sm">
@@ -3485,18 +3527,18 @@ export default function App() {
                                    <p className="text-[10px] text-slate-400 font-bold">{item.desc}</p>
                                 </div>
                                 <div className="text-right">
-                                   <p className="text-[10px] font-black text-slate-400 uppercase">Preço</p>
-                                   <p className="font-black text-amber-600 text-sm">💰 {item.price}</p>
+                                   <p className="text-[10px] font-black text-slate-400 uppercase">PreÃ§o</p>
+                                   <p className="font-black text-amber-600 text-sm">ðŸ’° {item.price}</p>
                                 </div>
                              </div>
                              <div className="grid grid-cols-3 gap-2">
-                                {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'Máx',qty:maxQty}].map(opt => (
+                                {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'MÃ¡x',qty:maxQty}].map(opt => (
                                   <button key={opt.label}
                                     disabled={gameState.currency < item.price || (opt.qty < 1)}
                                     onClick={() => buyFn(opt.qty)}
                                     className="py-2 rounded-xl font-black text-xs uppercase transition-all bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-30 disabled:cursor-not-allowed"
                                   >
-                                    {opt.label}{opt.label==='Máx'&&maxQty>0?` (${maxQty})`:''}
+                                    {opt.label}{opt.label==='MÃ¡x'&&maxQty>0?` (${maxQty})`:''}
                                   </button>
                                 ))}
                              </div>
@@ -3510,13 +3552,13 @@ export default function App() {
               {activeBuildingModal === 'forge' && (
                 <div className="p-6 flex-1 flex flex-col overflow-hidden">
                    <div className="flex items-center gap-4 mb-5">
-                      <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center text-2xl">🔨</div>
+                      <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center text-2xl">ðŸ”¨</div>
                       <div className="flex-1">
-                         <h2 className="text-xl font-black text-slate-800 uppercase italic leading-none">Forja Pokémon</h2>
+                         <h2 className="text-xl font-black text-slate-800 uppercase italic leading-none">Forja PokÃ©mon</h2>
                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Materiais e Equipamentos</p>
                       </div>
                       <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm">
-                         💰 {gameState.currency}
+                         ðŸ’° {gameState.currency}
                       </div>
                    </div>
 
@@ -3554,7 +3596,7 @@ export default function App() {
                                       inventory: { ...newInv, items: { ...newInv.items, [item.id]: (newInv.items[item.id] || 0) + qty } }
                                     };
                                   });
-                                  addLog(`🔨 Forjado: ${qty}x ${item.name}`, 'system');
+                                  addLog(`ðŸ”¨ Forjado: ${qty}x ${item.name}`, 'system');
                                 };
                                 const maxCraft = getMaxCraft();
                                 return (
@@ -3582,13 +3624,13 @@ export default function App() {
                                         })}
                                      </div>
                                      <div className="grid grid-cols-3 gap-2">
-                                        {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'Máx',qty:maxCraft}].map(opt => (
+                                        {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'MÃ¡x',qty:maxCraft}].map(opt => (
                                           <button key={opt.label}
                                             disabled={!canCraftOne || opt.qty < 1}
                                             onClick={() => craftFn(opt.qty)}
                                             className="py-2 rounded-xl font-black text-xs uppercase transition-all bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-30 disabled:cursor-not-allowed"
                                           >
-                                            {opt.label}{opt.label==='Máx'&&maxCraft>0?` (${maxCraft})`:''}
+                                            {opt.label}{opt.label==='MÃ¡x'&&maxCraft>0?` (${maxCraft})`:''}
                                           </button>
                                         ))}
                                      </div>
@@ -3606,18 +3648,20 @@ export default function App() {
       )}
       {/* MODAL DE DICA DE MATERIAL */}
       {activeMaterialModal && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-fadeIn">
-           <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-8 border-b-8 border-slate-800 animate-slideInUp">
-              <div className="flex justify-between items-center mb-6">
-                 <h3 className="text-xl font-black text-slate-800 uppercase italic tracking-tighter">Onde encontrar?</h3>
-                 <button onClick={() => setActiveMaterialModal(null)} className="text-slate-300 hover:text-slate-800 transition-colors">✕</button>
+        <div className="absolute inset-0 z-[110] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
+           <div className="max-w-lg w-full bg-white rounded-[3.5rem] shadow-2xl p-10 border-b-[12px] border-slate-800 animate-bounceIn overflow-hidden relative">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 opacity-20"></div>
+              
+              <div className="flex justify-between items-center mb-8">
+                 <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter">Onde encontrar?</h3>
+                 <button onClick={() => setActiveMaterialModal(null)} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 transition-colors">âœ•</button>
               </div>
               
-              <div className="flex items-center gap-4 bg-slate-50 p-6 rounded-3xl border-2 border-slate-100 mb-6">
-                 <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm text-2xl">💎</div>
+              <div className="flex items-center gap-6 bg-slate-50 p-6 rounded-[2.5rem] border-2 border-slate-100 mb-8 shadow-inner">
+                 <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg text-3xl">ðŸ’Ž</div>
                  <div>
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none">Material:</p>
-                    <h4 className="text-lg font-black text-slate-800 uppercase italic mt-1">{activeMaterialModal.replace('_', ' ')}</h4>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Recurso:</p>
+                    <h4 className="text-xl font-black text-slate-800 uppercase italic mt-1">{activeMaterialModal.replace(/_/g, ' ')}</h4>
                  </div>
               </div>
 
@@ -3625,26 +3669,26 @@ export default function App() {
                  <p className="text-sm font-medium text-slate-600 leading-relaxed">
                     {(() => {
                        switch(activeMaterialModal) {
-                          case 'currency': return 'Obtido derrotando Pokémons em qualquer rota ou vendendo itens raros.';
-                          case 'normal_essence': return 'Dropado por Pokémons tipo NORMAL (ex: Pidgey, Rattata) na Rota 1 e Pallet.';
-                          case 'fire_essence': return 'Dropado por Pokémons tipo FOGO. Procure em áreas vulcânicas ou raramente na Rota 1.';
-                          case 'water_essence': return 'Dropado por Pokémons tipo ÁGUA em rios, lagos e oceanos.';
-                          case 'grass_essence': return 'Dropado por Pokémons tipo PLANTA na Rota 1 e Floresta de Viridian.';
-                          case 'electric_essence': return 'Dropado por Pokémons tipo ELÉTRICO. Tente a Usina de Energia.';
-                          case 'ice_essence': return 'Dropado por Pokémons tipo GELO em cavernas geladas ou Ilhas Seafoam.';
-                          case 'fighting_essence': return 'Dropado por Pokémons tipo LUTADOR na Rota 22 ou Victory Road.';
-                          case 'poison_essence': return 'Dropado por Pokémons tipo VENENO na Floresta de Viridian e pântanos.';
-                          case 'ground_essence': return 'Dropado por Pokémons tipo TERRA em cavernas, como a Caverna Diglett.';
-                          case 'flying_essence': return 'Dropado por Pokémons tipo VOADOR em rotas abertas e céus.';
-                          case 'psychic_essence': return 'Dropado por Pokémons tipo PSÍQUICO em locais misteriosos ou Mansões.';
-                          case 'bug_essence': return 'Dropado por Pokémons tipo INSETO na Floresta de Viridian.';
-                          case 'rock_essence': return 'Dropado por Pokémons tipo PEDRA em túneis de rocha e cavernas.';
-                          case 'ghost_essence': return 'Dropado por Pokémons tipo FANTASMA na Torre Pokémon de Lavender.';
-                          case 'dragon_essence': return 'Dropado por Pokémons tipo DRAGÃO em locais sagrados ou Victory Road.';
-                          case 'steel_essence': return 'Dropado por Pokémons tipo AÇO em áreas industriais ou usinas.';
-                          case 'fairy_essence': return 'Dropado por Pokémons tipo FADA no Monte Lua.';
-                          case 'dark_essence': return 'Dropado por Pokémons tipo SOMBRIO em locais escuros ou mansões.';
-                          default: return 'Explore diferentes rotas e derrote Pokémons de tipos variados para coletar este material.';
+                          case 'currency': return 'Obtido derrotando PokÃ©mons em qualquer rota ou vendendo itens raros.';
+                          case 'normal_essence': return 'Dropado por PokÃ©mons tipo NORMAL (ex: Pidgey, Rattata) na Rota 1 e Pallet.';
+                          case 'fire_essence': return 'Dropado por PokÃ©mons tipo FOGO. Procure em Ã¡reas vulcÃ¢nicas ou raramente na Rota 1.';
+                          case 'water_essence': return 'Dropado por PokÃ©mons tipo ÃGUA em rios, lagos e oceanos.';
+                          case 'grass_essence': return 'Dropado por PokÃ©mons tipo PLANTA na Rota 1 e Floresta de Viridian.';
+                          case 'electric_essence': return 'Dropado por PokÃ©mons tipo ELÃ‰TRICO. Tente a Usina de Energia.';
+                          case 'ice_essence': return 'Dropado por PokÃ©mons tipo GELO em cavernas geladas ou Ilhas Seafoam.';
+                          case 'fighting_essence': return 'Dropado por PokÃ©mons tipo LUTADOR na Rota 22 ou Victory Road.';
+                          case 'poison_essence': return 'Dropado por PokÃ©mons tipo VENENO na Floresta de Viridian e pÃ¢ntanos.';
+                          case 'ground_essence': return 'Dropado por PokÃ©mons tipo TERRA em cavernas, como a Caverna Diglett.';
+                          case 'flying_essence': return 'Dropado por PokÃ©mons tipo VOADOR em rotas abertas e cÃ©us.';
+                          case 'psychic_essence': return 'Dropado por PokÃ©mons tipo PSÃQUICO em locais misteriosos ou MansÃµes.';
+                          case 'bug_essence': return 'Dropado por PokÃ©mons tipo INSETO na Floresta de Viridian.';
+                          case 'rock_essence': return 'Dropado por PokÃ©mons tipo PEDRA em tÃºneis de rocha e cavernas.';
+                          case 'ghost_essence': return 'Dropado por PokÃ©mons tipo FANTASMA na Torre PokÃ©mon de Lavender.';
+                          case 'dragon_essence': return 'Dropado por PokÃ©mons tipo DRAGÃƒO em locais sagrados ou Victory Road.';
+                          case 'steel_essence': return 'Dropado por PokÃ©mons tipo AÃ‡O em Ã¡reas industriais ou usinas.';
+                          case 'fairy_essence': return 'Dropado por PokÃ©mons tipo FADA no Monte Lua.';
+                          case 'dark_essence': return 'Dropado por PokÃ©mons tipo SOMBRIO em locais escuros ou mansÃµes.';
+                          default: return 'Explore diferentes rotas e derrote PokÃ©mons de tipos variados para coletar este material.';
                        }
                     })()}
                  </p>
@@ -3664,9 +3708,9 @@ export default function App() {
         setEvolutionPending={setEvolutionPending} 
       />
 
-      {/* NOTIFICAÇÃO DE MESTRIA */}
+      {/* NOTIFICAÃ‡ÃƒO DE MESTRIA */}
       {masteryNotification && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[200] w-full max-w-sm animate-slideInDown p-4">
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-[200] w-full max-w-sm animate-slideInDown p-4">
            <div className="bg-white/90 backdrop-blur-md rounded-[2.5rem] p-6 shadow-2xl border-4 border-pokeGold flex items-center gap-6 relative overflow-hidden">
               <div className="absolute -right-4 -bottom-4 opacity-10">
                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${masteryNotification.pokemon.isShiny ? 'shiny/' : ''}${masteryNotification.pokemon.id}.png`} className="w-24 h-24" alt="" />
@@ -3675,7 +3719,7 @@ export default function App() {
                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${masteryNotification.pokemon.isShiny ? 'shiny/' : ''}${masteryNotification.pokemon.id}.png`} className="w-16 h-16 object-contain" alt="Mastery" />
               </div>
               <div className="flex-1">
-                 <h4 className="text-xs font-black text-pokeGold uppercase tracking-[0.2em] mb-1">Mestria Alcançada!</h4>
+                 <h4 className="text-xs font-black text-pokeGold uppercase tracking-[0.2em] mb-1">Mestria AlcanÃ§ada!</h4>
                  <p className="text-sm font-bold text-slate-800 leading-tight">
                     Novas recompensas para <span className="uppercase">{masteryNotification.pokemon.name}</span>:
                  </p>
@@ -3683,7 +3727,7 @@ export default function App() {
                     {masteryNotification.reward.val}
                  </div>
               </div>
-              <button onClick={() => setMasteryNotification(null)} className="absolute top-4 right-4 text-slate-300 hover:text-slate-800 transition-colors text-xs font-black">✕</button>
+              <button onClick={() => setMasteryNotification(null)} className="absolute top-4 right-4 text-slate-300 hover:text-slate-800 transition-colors text-xs font-black">âœ•</button>
            </div>
         </div>
       )}

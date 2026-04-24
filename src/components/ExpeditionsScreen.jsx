@@ -20,6 +20,27 @@ const EfficiencyBadge = ({ value }) => {
   );
 };
 
+const ExpeditionAlertModal = ({ req, onClose }) => (
+  <div className="absolute inset-0 z-[400] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md animate-fadeIn">
+    <div className="bg-slate-900 w-full max-w-xs rounded-[2.5rem] p-8 border border-white/10 shadow-2xl animate-bounceIn text-center">
+      <div className="text-4xl mb-4">🔒</div>
+      <h3 className="text-white font-black uppercase italic tracking-tighter text-xl mb-4">Caminho Bloqueado!</h3>
+      <p className="text-white/60 text-sm font-bold mb-8 leading-relaxed">
+        Para explorar esta área, você precisa primeiro:<br/>
+        <span className="text-yellow-400 font-black">"Derrotar {req}"</span>
+      </p>
+      <div className="flex flex-col gap-3">
+        <button 
+          onClick={onClose}
+          className="w-full bg-white text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-yellow-400 transition-all shadow-xl active:scale-95"
+        >
+          Entendido!
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
 const formatTime = (ms) => {
   const totalSeconds = Math.floor(ms / 1000);
   const h = Math.floor(totalSeconds / 3600);
@@ -38,6 +59,7 @@ const ExpeditionsScreen = ({
 }) => {
   const [selectedBiome, setSelectedBiome] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState([]);
+  const [alertReq, setAlertReq] = useState(null);
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
@@ -82,7 +104,13 @@ const ExpeditionsScreen = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[110] flex flex-col bg-slate-950 animate-fadeIn">
+    <div className="absolute inset-0 z-[110] flex flex-col bg-slate-950 animate-fadeIn">
+      {alertReq && (
+        <ExpeditionAlertModal 
+          req={alertReq} 
+          onClose={() => setAlertReq(null)} 
+        />
+      )}
 
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b border-white/10 shrink-0">
@@ -160,7 +188,13 @@ const ExpeditionsScreen = ({
               return (
                 <div
                   key={biome.id}
-                  onClick={() => unlocked && !active && setSelectedBiome(biome)}
+                  onClick={() => {
+                    if (!unlocked) {
+                      setAlertReq(biome.leaderName);
+                    } else if (!active) {
+                      setSelectedBiome(biome);
+                    }
+                  }}
                   className={`relative rounded-[1.5rem] overflow-hidden shadow-xl transition-all ${
                     unlocked && !active
                       ? 'cursor-pointer hover:scale-[1.03] active:scale-[0.97]'

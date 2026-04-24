@@ -88,7 +88,7 @@ const BattleScreen = ({
 
 
   return (
-    <div className="flex flex-col h-full animate-fadeIn pb-20 gap-2 overflow-y-auto custom-scrollbar">
+    <div className="flex flex-col h-full animate-fadeIn pb-4 gap-2 overflow-y-auto custom-scrollbar">
       {/* ── BARRA DE EFEITOS ATIVOS ── */}
       <ActiveEffectsBar activeEffects={gameState.activeEffects} />
 
@@ -359,7 +359,7 @@ const BattleScreen = ({
 
       {/* ── MODAL AUTO-CONFIG ── */}
       {showAutoConfig && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md" onClick={() => setShowAutoConfig(false)}>
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md" onClick={() => setShowAutoConfig(false)}>
           <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl animate-bounceIn overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
             {/* Header Fixo */}
             <div className="flex-shrink-0 px-8 pt-8 pb-4 flex items-center justify-between">

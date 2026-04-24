@@ -248,7 +248,7 @@ const TravelScreen = ({
       </div>
            {/* Modal de Detalhes da Rota */}
       {selectedRoute && (
-        <div className="fixed inset-0 z-[200] flex items-end md:items-center justify-center p-3 md:p-4 bg-slate-900/80 backdrop-blur-sm animate-fadeIn">
+        <div className="absolute inset-0 z-[200] flex items-end md:items-center justify-center p-3 md:p-4 bg-slate-900/80 backdrop-blur-sm animate-fadeIn">
           <div className="bg-white w-full max-w-md rounded-t-[2.5rem] md:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col animate-slideInUp" style={{ maxHeight: '85dvh' }}>
             <div className="overflow-y-auto custom-scrollbar flex-1">
             <div className="h-40 relative flex-shrink-0">
@@ -382,7 +382,7 @@ const TravelScreen = ({
 
       {/* Modal Detalhado do Pokémon */}
       {selectedPoke && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
+        <div className="absolute inset-0 z-[300] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
            <div className="bg-white w-full max-w-sm rounded-[3rem] shadow-2xl overflow-y-auto max-h-[85vh] animate-bounceIn relative custom-scrollbar">
               <div 
                 className="h-48 w-full flex items-center justify-center relative overflow-hidden transition-all duration-500"
@@ -471,7 +471,7 @@ const TravelScreen = ({
 
       {/* Modal de Detalhes do Drop */}
       {selectedDrop && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
+        <div className="absolute inset-0 z-[300] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
            <div className="bg-white w-full max-w-sm rounded-[3rem] shadow-2xl overflow-hidden animate-bounceIn relative max-h-[85vh] flex flex-col">
               <button 
                 onClick={() => setSelectedDrop(null)}

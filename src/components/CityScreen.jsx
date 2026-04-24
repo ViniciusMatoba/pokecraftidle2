@@ -160,7 +160,7 @@ const CityScreen = ({
         )}
 
         {activeOakModal && (
-          <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
+          <div className="absolute inset-0 z-[120] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
              <div className="bg-white rounded-[3rem] p-8 max-w-lg w-full shadow-2xl border-b-[12px] border-slate-800 animate-slideInUp overflow-hidden flex flex-col max-h-[85vh]">
                 <div className="flex justify-between items-center mb-6">
                    <div className="flex items-center gap-4">

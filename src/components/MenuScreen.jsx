@@ -160,7 +160,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
 
   return (
     <div className="h-full bg-slate-100 animate-fadeIn relative overflow-y-auto custom-scrollbar pt-12 pb-24">
-      <div className="absolute inset-0 opacity-5 pointer-events-none fixed">
+      <div className="absolute inset-0 opacity-5 pointer-events-none">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png" className="absolute top-10 left-10 w-64 h-64 rotate-12" alt="" />
       </div>
       

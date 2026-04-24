@@ -108,7 +108,7 @@ const HouseScreen = ({ gameState, onClose, onPlant, onHarvest, onBuySlot, onAssi
   const readyCount = slots.filter(s => s && now >= s.plantedAt + s.growthTime).length;
 
   return (
-    <div className="fixed inset-0 z-[110] flex flex-col bg-amber-950 animate-fadeIn">
+    <div className="absolute inset-0 z-[110] flex flex-col bg-amber-950 animate-fadeIn">
 
       {/* Header */}
       <div
@@ -333,7 +333,7 @@ const HouseScreen = ({ gameState, onClose, onPlant, onHarvest, onBuySlot, onAssi
 
       {/* Modal: Escolher planta */}
       {showPlantPicker !== null && (
-        <div className="fixed inset-0 z-[120] flex items-end justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div className="absolute inset-0 z-[120] flex items-end justify-center p-4 bg-black/70 backdrop-blur-sm">
           <div className="w-full max-w-md bg-amber-950 rounded-[2.5rem] overflow-hidden shadow-2xl max-h-[80vh] flex flex-col">
             <div className="flex items-center justify-between p-5 border-b border-white/10 shrink-0">
               <p className="text-white font-black text-base uppercase">Escolha o que plantar</p>
@@ -395,7 +395,7 @@ const HouseScreen = ({ gameState, onClose, onPlant, onHarvest, onBuySlot, onAssi
 
       {/* Modal: Escolher cuidador */}
       {showCaretakerPicker && (
-        <div className="fixed inset-0 z-[120] flex items-end justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div className="absolute inset-0 z-[120] flex items-end justify-center p-4 bg-black/70 backdrop-blur-sm">
           <div className="w-full max-w-md bg-slate-950 rounded-[2.5rem] overflow-hidden shadow-2xl max-h-[70vh] flex flex-col">
             <div className="flex items-center justify-between p-5 border-b border-white/10 shrink-0">
               <p className="text-white font-black text-base uppercase">Escolher Cuidador</p>

@@ -76,7 +76,7 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], onBack }) => 
 
       {/* Detail Modal */}
       {selectedPoke && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
+        <div className="absolute inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
            <div className="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden relative animate-bounceIn border-b-[12px] border-slate-200">
                {(() => {
                  const poke = selectedPoke;

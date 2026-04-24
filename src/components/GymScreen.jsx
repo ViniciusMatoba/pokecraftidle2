@@ -109,7 +109,7 @@ const EliteCard = ({ member, index, earned, locked, onClick }) => {
 };
 
 const GymAlertModal = ({ req, onGo, onClose }) => (
-  <div className="fixed inset-0 z-[400] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md animate-fadeIn">
+  <div className="absolute inset-0 z-[400] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md animate-fadeIn">
     <div className="bg-slate-900 w-full max-w-xs rounded-[2.5rem] p-8 border border-white/10 shadow-2xl animate-bounceIn text-center">
       <div className="text-4xl mb-4">🔒</div>
       <h3 className="text-white font-black uppercase italic tracking-tighter text-xl mb-4">Caminho Bloqueado!</h3>
@@ -183,7 +183,7 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
   };
   
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-fadeIn" onClick={onClose}>
+    <div className="absolute inset-0 z-[300] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-fadeIn" onClick={onClose}>
       {alertReq && (
         <GymAlertModal 
           req={formatReq(alertReq)} 
@@ -339,7 +339,7 @@ const GymScreen = ({ gameState, onChallengeGym, onClose, initialSection, isEmbed
   };
 
   return (
-    <div className={isEmbedded ? "h-full flex flex-col bg-slate-950" : "fixed inset-0 z-[110] flex items-end justify-center bg-black/80 backdrop-blur-sm animate-fadeIn"} onClick={!isEmbedded ? onClose : undefined}>
+    <div className={isEmbedded ? "h-full flex flex-col bg-slate-950" : "absolute inset-0 z-[110] flex items-end justify-center bg-black/80 backdrop-blur-sm animate-fadeIn"} onClick={!isEmbedded ? onClose : undefined}>
       <div 
         className={isEmbedded ? "flex-1 flex flex-col overflow-hidden" : "w-full max-w-md bg-slate-950 rounded-t-[2rem] shadow-2xl flex flex-col animate-slideUp overflow-hidden"}
         style={!isEmbedded ? { height: '92dvh' } : {}}

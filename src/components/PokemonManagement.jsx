@@ -219,7 +219,7 @@ const PokemonManagement = ({
       </div>
 
       {activePokemonDetails && (
-        <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fadeIn">
+        <div className="absolute inset-0 z-[100] flex items-end md:items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fadeIn">
            <div className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl border-b-[12px] border-slate-200 overflow-hidden relative animate-slideInUp h-[85vh] flex flex-col">
                <button onClick={() => setActivePokemonDetails(null)} className="absolute top-4 left-4 bg-white/20 w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/30 backdrop-blur-md transition-all z-20 text-white font-black text-xs">
                   ✕

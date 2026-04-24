@@ -256,7 +256,7 @@ const ChallengesScreen = ({
   const filtered = CHALLENGES.filter(c => c.category === selectedCategory);
 
   return (
-    <div className={isEmbedded ? "h-full flex flex-col bg-slate-950" : "fixed inset-0 z-[110] flex items-end justify-center bg-black/80 backdrop-blur-sm animate-fadeIn"} onClick={!isEmbedded ? onClose : undefined}>
+    <div className={isEmbedded ? "h-full flex flex-col bg-slate-950" : "absolute inset-0 z-[110] flex items-end justify-center bg-black/80 backdrop-blur-sm animate-fadeIn"} onClick={!isEmbedded ? onClose : undefined}>
       <div 
         className={isEmbedded ? "flex-1 flex flex-col overflow-hidden" : "w-full max-w-md bg-slate-950 rounded-t-[2rem] shadow-2xl flex flex-col animate-slideUp overflow-hidden"}
         style={!isEmbedded ? { height: '90dvh' } : {}}
@@ -357,7 +357,7 @@ const ChallengesScreen = ({
       </div>
 
       {selectedChallenge && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setSelectedChallenge(null)}>
+        <div className="absolute inset-0 z-[120] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setSelectedChallenge(null)}>
           <div className="w-full max-w-md rounded-[3rem] overflow-hidden shadow-2xl animate-bounceIn border-2 border-white/10" style={{ background: selectedChallenge.bg }} onClick={e => e.stopPropagation()}>
             <div className="absolute inset-0 pointer-events-none opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
             <div className="relative z-10 p-6">
