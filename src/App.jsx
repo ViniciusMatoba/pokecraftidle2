@@ -1152,7 +1152,7 @@ export default function App() {
         const eff = getTypeEffectiveness(move.type, updatedEnemyFinal.type);
         updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - playerDmg);
         addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
-        if (eff > 1) addLog("ð¥ í super efetivo!", 'system');
+        if (eff > 1) addLog("ð¥ É super efetivo!", 'system');
         if (eff > 0 && eff < 1) addLog("í°Å¸âºÂ¡í¯Â¸Â Não é muito efetivo!", 'system');
         if (eff === 0) addLog("ð« Não afetou o inimigo!", 'system');
       }
@@ -2321,7 +2321,7 @@ export default function App() {
                     className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter drop-shadow-md text-[#FFCB05]"
                     style={{ WebkitTextStroke: '2px #CC0000' }}
                   >
-                    POKíCRAFT <span className="text-slate-800" style={{ WebkitTextStroke: '0px' }}>IDLE</span>
+                    POKÉCRAFT <span className="text-slate-800" style={{ WebkitTextStroke: '0px' }}>IDLE</span>
                   </h1>
                   <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/143.png" className="w-24 h-24 mt-2 animate-float-slow drop-shadow-xl" alt="Snorlax" />
                 </div>
@@ -2381,11 +2381,11 @@ export default function App() {
       }
       case 'intro': {
         const dialogues = [
-          "Olá! Bem-vindo ao mundo POKíMON!",
-          "Meu nome é CARVALHO. As pessoas me chamam de PROFESSOR POKíMON.",
-          "Este mundo é habitado por criaturas chamadas POKíMON!",
-          "Para alguns, POKíMON são animais de estimação. Outros os usam para lutar.",
-          "Eu... Eu estudo POKíMON como profissão.",
+          "Olá! Bem-vindo ao mundo POKÉMON!",
+          "Meu nome é CARVALHO. As pessoas me chamam de PROFESSOR POKÉMON.",
+          "Este mundo é habitado por criaturas chamadas POKÉMON!",
+          "Para alguns, POKÉMON são animais de estimação. Outros os usam para lutar.",
+          "Eu... Eu estudo POKÉMON como profissão.",
           "Mas primeiro, diga-me... Qual é o seu nome?"
         ];
         
@@ -2443,7 +2443,7 @@ export default function App() {
                   }}
                   className="w-full mt-5 bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg active:scale-95"
                 >
-                  {isLastStep ? 'Tudo Pronto!' : 'Próximo â¶'}
+                  {isLastStep ? 'Tudo Pronto!' : 'Próximo ▶'}
                 </button>
               </div>
             </div>
@@ -2633,7 +2633,7 @@ export default function App() {
            <div className="w-full relative z-10 p-4">
              <div className="bg-white p-6 rounded-[2rem] shadow-2xl border-b-[10px] border-blue-600 w-full">
                <h3 className="text-lg font-black text-slate-800 italic uppercase mb-3 tracking-tighter">Rival Azul:</h3>
-               <p className="text-sm font-bold text-slate-600 mb-4 italic">"Ei, espere aí! Eu também quero um POKíMON! E eu vou escolher este aqui!"</p>
+               <p className="text-sm font-bold text-slate-600 mb-4 italic">"Ei, espere aí! Eu também quero um POKÉMON! E eu vou escolher este aqui!"</p>
                <p className="text-sm font-black text-blue-500 mb-4 uppercase tracking-widest animate-pulse">"Vejamos quem é o melhor treinador!"</p>
                <button
                  onClick={startBattleAgainstRival}
@@ -2659,7 +2659,7 @@ export default function App() {
            <div className="w-full relative z-10 p-4">
              <div className="bg-white p-6 rounded-[2rem] shadow-2xl border-b-[10px] border-blue-600 w-full">
                <h3 className="text-lg font-black text-slate-800 italic uppercase mb-3 tracking-tighter">Rival Azul:</h3>
-               <p className="text-sm font-bold text-slate-600 mb-3 italic">"Beleza! Vou fazer meu POKíMON lutar para deixá-lo mais forte!"</p>
+               <p className="text-sm font-bold text-slate-600 mb-3 italic">"Beleza! Vou fazer meu POKÉMON lutar para deixá-lo mais forte!"</p>
                <p className="text-sm font-black text-blue-500 mb-4 uppercase tracking-widest">"VovíÂ´! Fui!"</p>
                <button
                  onClick={() => setCurrentView('quest_oak')}
@@ -2687,7 +2687,7 @@ export default function App() {
               <h3 className="text-lg font-black text-slate-800 italic uppercase mb-2 tracking-tighter">Prof. Carvalho:</h3>
               <p className="text-sm font-bold text-slate-600 mb-2 italic">"Que batalha incrível! Vocês dois têm muito talento."</p>
               <p className="text-sm font-black text-pokeBlue mb-4 uppercase tracking-tighter leading-tight">
-                "Agora, preciso que você aprenda a capturar POKíMONS. Vá até a ROTA 1 e capture seu primeiro parceiro!"
+                "Agora, preciso que você aprenda a capturar POKÉMONS. Vá até a ROTA 1 e capture seu primeiro parceiro!"
               </p>
               <div className="bg-blue-50 p-4 rounded-2xl border-2 border-blue-100 mb-4">
                  <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Nova Missão:</p>
@@ -3240,7 +3240,7 @@ export default function App() {
             <div className="bg-white p-10 rounded-[3rem] shadow-2xl border-b-[12px] border-red-100 w-full">
                <h3 className="text-2xl font-black text-slate-800 italic uppercase mb-4 tracking-tighter">Enfermeira Chansey:</h3>
                <p className="text-lg font-bold text-slate-600 mb-8 italic leading-tight">
-                 "Oh céus! Você e seus POKíMONS parecem exaustos. Deixe-me cuidar de tudo rapidamente!"
+                 "Oh céus! Você e seus POKÉMONS parecem exaustos. Deixe-me cuidar de tudo rapidamente!"
                </p>
                <button 
                  onClick={() => { 
@@ -3687,7 +3687,7 @@ export default function App() {
                           case 'fire_essence': return 'Dropado por Pokémons tipo FOGO. Procure em áreas vulcíÂ¢nicas ou raramente na Rota 1.';
                           case 'water_essence': return 'Dropado por Pokémons tipo íÂGUA em rios, lagos e oceanos.';
                           case 'grass_essence': return 'Dropado por Pokémons tipo PLANTA na Rota 1 e Floresta de Viridian.';
-                          case 'electric_essence': return 'Dropado por Pokémons tipo ELíTRICO. Tente a Usina de Energia.';
+                          case 'electric_essence': return 'Dropado por Pokémons tipo ELÉTRICO. Tente a Usina de Energia.';
                           case 'ice_essence': return 'Dropado por Pokémons tipo GELO em cavernas geladas ou Ilhas Seafoam.';
                           case 'fighting_essence': return 'Dropado por Pokémons tipo LUTADOR na Rota 22 ou Victory Road.';
                           case 'poison_essence': return 'Dropado por Pokémons tipo VENENO na Floresta de Viridian e píÂ¢ntanos.';
