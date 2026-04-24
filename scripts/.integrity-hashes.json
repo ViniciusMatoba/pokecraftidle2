@@ -1,0 +1,13 @@
+{
+  "handleBattleTick": "f7684dce8467f1701a0efd1d0d500d39",
+  "spawnEnemy": "259b3c278a02139f7f8511a8fea6eedc",
+  "Shiny 1/4096": "522171da05d83e934a110537d59e3391",
+  "XP divisor": "12d5c15511bc6b805bb9242110c975f2",
+  "FEED_THRESHOLD": "075a9194bebf34df2e9b239c438cb344",
+  "handleGoToCity": "9efc17ef27a9136d39484b51e0c4616d",
+  "handleStartExpedition": "278ad54852652d5a9fcf4dbff53cab07",
+  "handleBuyHouse": "7073d104ab5626fb29d4d8e0337845a8",
+  "handleUseCandy": "2725cd657714906f92df66f08f5ae674",
+  "manualChunks": "c694a275d5d1866ffbcab12b4e526768",
+  "currentView guard spawn": "c6043c837eea339b6845ca468fce91df"
+}
