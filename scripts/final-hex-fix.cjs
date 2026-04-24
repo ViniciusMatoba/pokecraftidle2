@@ -11,8 +11,8 @@ const REPLACEMENTS = [
     { hex: 'c3a2cb9ce280a6', correct: '★' },
     { hex: 'c3a2e28093e28094', correct: '—' },
     { hex: 'c3a2e28093c2a2', correct: '•' },
-    { hex: 'c3b0c29fc294c2b4', correct: '🔴' }, // Added
-    { hex: 'c3b0c29fc2a7c2aa', correct: '🧪' }, // Added
+    { hex: 'c3b0c29fc294c2b4', correct: '🔴' },
+    { hex: 'c3b0c29fc2a7c2aa', correct: '🧪' },
     { hex: 'c3b0c29fc292c2b0', correct: '💰' },
     { hex: 'c3b0c29fc293c2a6', correct: '📦' },
     { hex: 'c3adc2b0c385c2b8c382c29fc385c2bdc2a0', correct: '🎁' },
@@ -27,7 +27,10 @@ const REPLACEMENTS = [
     { hex: 'c3adc2ba', correct: 'ú' },
     { hex: 'c3b0c29fc294c287', correct: '🔇' },
     { hex: 'c3b0c29fc294c28a', correct: '🔊' },
-    { hex: 'c3a2c5a1e2809dc3afc2b8c28fc3adc2afc382c2b8c382c28f', correct: '⚔️' }
+    { hex: 'c3a2c5a1e2809dc3afc2b8c28fc3adc2afc382c2b8c382c28f', correct: '⚔️' },
+    { hex: 'c3b0c29fc28cc29f', correct: '🌟' },
+    { hex: 'c3b0c29fc292c2a5', correct: '💥' },
+    { hex: 'c3b0c29fc28cc28a', correct: '🌊' }
 ];
 
 function walkDir(dir, callback) {

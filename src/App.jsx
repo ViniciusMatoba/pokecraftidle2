@@ -425,7 +425,7 @@ export default function App() {
     if (newCount === 200) { addLog(`✨ Domínio de ${pokemon.name}: Chance Shiny 5x!`, 'system'); reward = { type: 'BíÂ´nus Passivo', val: 'Chance Shiny 5x' }; }
 
     if (reward) {
-      addLog(`ð Domínio de ${pokemon.name}: ${reward.val} liberado!`, 'system');
+      addLog(`🌟 Domínio de ${pokemon.name}: ${reward.val} liberado!`, 'system');
       setTimeout(() => setMasteryNotification({ pokemon, reward }), 0);
     }
 
@@ -1152,7 +1152,7 @@ export default function App() {
         const eff = getTypeEffectiveness(move.type, updatedEnemyFinal.type);
         updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - playerDmg);
         addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
-        if (eff > 1) addLog("ð¥ É super efetivo!", 'system');
+        if (eff > 1) addLog("💥 É super efetivo!", 'system');
         if (eff > 0 && eff < 1) addLog("Ã­Â°ÃÂ¸Ã¢ÂÂºÃÂ¡Ã­Â¯ÃÂ¸ÃÂ Não é muito efetivo!", 'system');
         if (eff === 0) addLog("Ã°ÂÂÂ« Não afetou o inimigo!", 'system');
       }

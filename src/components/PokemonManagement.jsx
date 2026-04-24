@@ -562,7 +562,7 @@ const PokemonManagement = ({
                                      }}
                                      className="w-full bg-gradient-to-r from-pokeBlue to-blue-600 text-white font-black text-[10px] py-2.5 rounded-xl shadow-lg uppercase animate-pulse hover:scale-[1.02] transition-transform"
                                    >
-                                     ð Evolução Disponível! Clique aqui
+                                     🌟 Evolução Disponível! Clique aqui
                                    </button>
                                  )}
                                </div>
