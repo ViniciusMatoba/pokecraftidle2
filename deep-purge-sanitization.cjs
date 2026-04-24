@@ -56,6 +56,13 @@ const STR_MAPPINGS = [
     { m: 'íÅ¡', c: 'Ú' },
     { m: 'í°Å¸Â Â½', c: '🍽️' },
     { m: 'í°Å¸Â Â¨', c: '🍖' },
+    { m: 'âÅ“•', c: '✖' },
+    { m: 'í gua', c: 'Água' },
+    { m: 'í GUA', c: 'ÁGUA' },
+    { m: 'í QUICO', c: 'PSÍQUICO' },
+    { m: 'í°Ã…Â¸Ã‚Â Ã‚Â¥', c: '🏥' },
+    { m: 'VOCíÅ ', c: 'VOCÊ' },
+    { m: 'í‡O', c: 'ÇO' },
 ];
 
 function walkDir(dir, callback) {

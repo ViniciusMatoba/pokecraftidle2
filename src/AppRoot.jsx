@@ -179,6 +179,7 @@ export default function App() {
   const isProcessingVictory = useRef(false);
   const isProcessingTurn = useRef(false);
   const currentViewRef = useRef('landing');
+  const lastNonMenuView = useRef('city');
   const lastSyncRef = useRef(0);
 
   const resetSession = () => {
@@ -477,7 +478,7 @@ export default function App() {
   const triggerSave = useCallback(async () => {
     const user = auth.currentUser;
     if (!user) {
-      alert("Ã¢ÃÂ¡ÃÂ í¯ÃÂ¸ÃÂ Você precisa estar logado para salvar na nuvem!");
+      alert("Ã¢ÃÂ¡Ã í¯ÃÂ¸ÃÂ Você precisa estar logado para salvar na nuvem!");
       return;
     }
     try {
@@ -689,7 +690,7 @@ export default function App() {
        }
     }
 
-    // NOVA LÓGICA DE DROPS DO USUíRIO
+    // NOVA LÓGICA DE DROPS DO USUÁRIO
     // 1. Essência por Tipo (60% de chance)
     if (Math.random() < 0.6) {
       const essenceType = `${(enemy.type || 'normal').toLowerCase()}_essence`;
@@ -939,7 +940,10 @@ export default function App() {
 
   // Ref para currentView  permite que handleBattleTick leia o valor atual
   // sem precisar estar nas deps do useCallback (o que recriaria o timer a cada mudança de view)
-  useEffect(() => { currentViewRef.current = currentView; }, [currentView]);
+  useEffect(() => { 
+    currentViewRef.current = currentView;
+    if (currentView !== 'menu') lastNonMenuView.current = currentView;
+  }, [currentView]);
 
   // âââ¬âââ¬âââ¬ TICK DE BATALHA âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
   const handleBattleTick = useCallback(() => {
@@ -1005,7 +1009,7 @@ export default function App() {
             const healed = Math.min(focusPoke.maxHp, focusPoke.hp + 20);
             const newTeam = [...prev.team];
             newTeam[focusIdx] = { ...focusPoke, hp: healed };
-            addLog(`Ã°ÂÂÂ Auto-Poção usada em ${focusPoke.name}! (${focusPoke.hp}Ã¢Ã¢ÂÂ Ã¢ÂÂ${healed} HP)`, 'system');
+            addLog(`Ã°ÂÂÂ Auto-Poção usada em ${focusPoke.name}! (${focusPoke.hp}Ã¢Ã¢Â Ã¢ÂÂ${healed} HP)`, 'system');
             return {
               ...prev,
               team: newTeam,
@@ -1132,7 +1136,7 @@ export default function App() {
 
           // Status condition
           if (fx.statusEffect) {
-            const statusNames = { burn:'Ã°ÂÂÂ¥ Queimadura', poison:'Ã¢ÃÂÃÂ í¯ÃÂ¸ÃÂ Veneno', toxic:'Ã¢ÃÂÃÂ í¯ÃÂ¸ÃÂ Veneno Grave', sleep:'Ã°ÂÂÂ¤ Sono', paralyze:'Ã¢ÂÂ¡ Paralisia', confuse:'Ã°ÂÂÂ« Confusão', freeze:'Ã¢ÃÂÃ¢ÂÂí¯ÃÂ¸ÃÂ Congelado' };
+            const statusNames = { burn:'Ã°ÂÂÂ¥ Queimadura', poison:'Ã¢ÃÂÃ í¯ÃÂ¸ÃÂ Veneno', toxic:'Ã¢ÃÂÃ í¯ÃÂ¸ÃÂ Veneno Grave', sleep:'Ã°ÂÂÂ¤ Sono', paralyze:'Ã¢ÂÂ¡ Paralisia', confuse:'Ã°ÂÂÂ« Confusão', freeze:'Ã¢ÃÂÃ¢ÂÂí¯ÃÂ¸ÃÂ Congelado' };
             if (!(updatedEnemyFinal.status || []).includes(fx.statusEffect)) {
               updatedEnemyFinal.status = [...(updatedEnemyFinal.status || []), fx.statusEffect];
               addLog(`${statusNames[fx.statusEffect]||fx.statusEffect}: ${updatedEnemyFinal.name} foi afetado!`, 'enemy');
@@ -1624,7 +1628,7 @@ export default function App() {
     });
     setCurrentView('battles');
     // BGM agora gerenciado pelas configuraçíÃÂµes
-    addLog(`â  GINíSIO: Líder ${gymData.name} enviou ${base.name}! Nv.${lvl}`, 'system');
+    addLog(`â  GINÁSIO: Líder ${gymData.name} enviou ${base.name}! Nv.${lvl}`, 'system');
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, playBGM, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
 
@@ -1657,7 +1661,7 @@ export default function App() {
       const newItems = { ...prev.inventory.items };
       newItems[recipe.id] = (newItems[recipe.id] || 0) + 1;
 
-      addLog(`í°ÃÂ¸Ã¢ÂÂºÃÂ í¯ÃÂ¸ÃÂ Você fabricou: ${recipe.name}!`, 'drop');
+      addLog(`í°ÃÂ¸Ã¢ÂÂºÃ í¯ÃÂ¸ÃÂ Você fabricou: ${recipe.name}!`, 'drop');
 
       return {
         ...prev,
@@ -1810,7 +1814,7 @@ export default function App() {
         addLog(`âÂÅ Coins insuficientes! A casa custa ${HOUSE_PURCHASE_COST} coins.`, 'system');
         return prev;
       }
-      addLog(`Â  Casa comprada! Prof. Carvalho ficou orgulhoso!`, 'system');
+      addLog(`  Casa comprada! Prof. Carvalho ficou orgulhoso!`, 'system');
       return {
         ...prev,
         currency: prev.currency - HOUSE_PURCHASE_COST,
@@ -2451,7 +2455,7 @@ export default function App() {
         );
       }
       case 'trainer_creation': return (
-        <div className="h-full bg-slate-50 flex flex-col items-center justify-center p-6 animate-fadeIn">
+        <div className="h-full bg-slate-50 flex flex-col items-center justify-start pt-24 p-6 animate-fadeIn relative">
            <h2 className="text-5xl font-black text-slate-800 uppercase italic mb-2 tracking-tighter text-center">Muito bem, {gameState.trainer?.name}!</h2>
            <p className="text-slate-400 font-bold uppercase tracking-widest mb-12">Escolha seu Avatar</p>
            
@@ -2524,7 +2528,7 @@ export default function App() {
             <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
                 <div className="bg-white w-full max-w-xl rounded-[4rem] shadow-2xl border-b-[16px] border-slate-200 overflow-hidden relative animate-bounceIn">
                    <button onClick={() => setPreviewStarter(null)} className="absolute top-8 right-8 bg-slate-100 p-4 rounded-full hover:bg-red-50 hover:text-red-500 transition-all z-20">
-                      <span className="font-black">âÅ•</span>
+                      <span className="font-black">✖</span>
                    </button>
 
                    <div className={`h-40 w-full relative flex items-end justify-center ${previewStarter.type === 'Grass' ? 'bg-green-500' : previewStarter.type === 'Fire' ? 'bg-orange-500' : previewStarter.type === 'Water' ? 'bg-blue-500' : 'bg-slate-400'}`}>
@@ -2610,7 +2614,7 @@ export default function App() {
                         }}
                         className="w-full mt-10 bg-pokeBlue text-white py-6 rounded-3xl font-black uppercase tracking-widest text-lg shadow-xl shadow-blue-200 hover:bg-blue-600 transition-all active:scale-95"
                       >
-                        EU ESCOLHO VOCíÅ !
+                        EU ESCOLHO VOCÊ!
                       </button>
                    </div>
                 </div>
@@ -2747,7 +2751,7 @@ export default function App() {
         );
       }
       case 'navigation_hub': return (
-        <div className="h-full flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-6 relative overflow-hidden">
+        <div className="h-full flex flex-col items-center justify-start pt-16 bg-gradient-to-b from-blue-50 to-white p-6 relative overflow-y-auto custom-scrollbar">
            <div className="absolute top-0 left-0 w-full h-1 bg-pokeBlue"></div>
            <div className="max-w-2xl w-full animate-fadeInUp text-center">
               <h2 className="text-3xl font-black text-slate-800 uppercase italic tracking-tighter mb-2">Para onde vamos agora?</h2>
@@ -2907,7 +2911,7 @@ export default function App() {
 
           {showOakStaminaModal && (
             <div className="absolute inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
-              <div className="w-full max-w-xl bg-white rounded-[4rem] overflow-hidden shadow-2xl animate-bounceIn border-b-[16px] border-slate-200">
+              <div className="w-full max-w-md bg-white rounded-[3rem] overflow-hidden shadow-2xl animate-bounceIn border-b-[12px] border-slate-200">
                 <div className="bg-green-50 p-10">
                   <div className="flex items-center gap-6 mb-8">
                     <img
@@ -2969,11 +2973,11 @@ export default function App() {
                         <img
                           src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png"
                           className="w-10 h-10 object-contain"
-                          alt="ígua Fresca"
+                          alt="Água Fresca"
                         />
                       </div>
                       <div>
-                        <p className="text-amber-800 font-black text-xl italic leading-none">10x ígua Fresca</p>
+                        <p className="text-amber-800 font-black text-xl italic leading-none">10x Água Fresca</p>
                         <p className="text-amber-700 text-[10px] font-bold mt-1 uppercase">Para começar sua jornada!</p>
                       </div>
                     </div>
@@ -3190,6 +3194,7 @@ export default function App() {
           user={user}
           onSave={triggerSave}
           MUSIC_LIST={MUSIC_LIST}
+          onBack={() => setCurrentView(lastNonMenuView.current)}
         />
       );
 
@@ -3225,7 +3230,7 @@ export default function App() {
           caughtData={gameState.caughtData} 
           team={gameState.team}
           box={gameState.pc}
-          onBack={() => setCurrentView('menu')} 
+          onBack={() => setCurrentView(lastNonMenuView.current)} 
         />
       );
       case 'heal_after_defeat': return (
@@ -3392,7 +3397,7 @@ export default function App() {
         </div>
       )}
 
-      {(!loading && user) && (
+      {(!loading && user && gameState.worldFlags?.includes('has_starter')) && (
         <nav className="bg-white border-t-4 border-slate-200 grid grid-cols-5 z-50 shadow-lg relative"
           style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', minHeight: '4.5rem', flexShrink: 0 }}
         >
@@ -3441,6 +3446,40 @@ export default function App() {
       )}
 
       {/* MODAIS DE CONSTRUííES */}
+      {/* MODAL DE MISSÃO ATIVA */}
+      {activeQuestModal && (
+        <div className="absolute inset-0 z-[150] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
+           <div className="bg-white rounded-[3rem] p-8 max-w-lg w-full shadow-2xl border-b-[12px] border-pokeBlue animate-bounceIn overflow-hidden relative">
+              <div className="flex justify-between items-center mb-6">
+                 <div className="flex items-center gap-4">
+                    <img src={activeQuestModal.icon} className="w-16 h-16 drop-shadow-md" alt="Quest" />
+                    <div>
+                       <h3 className="text-xl font-black text-slate-800 uppercase italic leading-none">{activeQuestModal.title}</h3>
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Missão Ativa</p>
+                    </div>
+                 </div>
+                 <button onClick={() => setActiveQuestModal(null)} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 transition-colors">✖</button>
+              </div>
+
+              <div className="bg-blue-50 p-6 rounded-3xl border-2 border-blue-100 mb-6 italic text-slate-600 font-bold text-sm">
+                 <p>"{activeQuestModal.desc}"</p>
+              </div>
+
+              <div className="space-y-3 mb-8">
+                 <div className="flex justify-between items-center px-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase">Recompensa:</span>
+                    <span className="text-sm font-black text-pokeGold uppercase tracking-tighter">{activeQuestModal.reward}</span>
+                 </div>
+              </div>
+
+              <button 
+                onClick={() => setActiveQuestModal(null)}
+                className="w-full bg-pokeBlue text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95"
+              >Entendido!</button>
+           </div>
+        </div>
+      )}
+
       {activeBuildingModal && (
         <div className="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
            <div className="max-w-2xl w-full bg-white rounded-[3rem] shadow-2xl flex flex-col max-h-[90vh] relative border-b-[12px] border-slate-800 animate-slideInUp overflow-hidden">
@@ -3449,7 +3488,7 @@ export default function App() {
               <button 
                 onClick={() => setActiveBuildingModal(null)}
                 className="absolute top-6 right-6 z-20 bg-white/80 backdrop-blur-md w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:rotate-90 transition-all border-2 border-slate-100"
-              >âÅ•</button>
+              >✖</button>
 
               {activeBuildingModal === 'pokecenter' && (
                 <div className="flex-1 flex flex-col overflow-hidden">
@@ -3667,7 +3706,7 @@ export default function App() {
               
               <div className="flex justify-between items-center mb-8">
                  <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter">Onde encontrar?</h3>
-                 <button onClick={() => setActiveMaterialModal(null)} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 transition-colors">âÅ•</button>
+                 <button onClick={() => setActiveMaterialModal(null)} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 transition-colors">✖</button>
               </div>
               
               <div className="flex items-center gap-6 bg-slate-50 p-6 rounded-[2.5rem] border-2 border-slate-100 mb-8 shadow-inner">
@@ -3740,7 +3779,7 @@ export default function App() {
                     {masteryNotification.reward.val}
                  </div>
               </div>
-              <button onClick={() => setMasteryNotification(null)} className="absolute top-4 right-4 text-slate-300 hover:text-slate-800 transition-colors text-xs font-black">âÅ•</button>
+              <button onClick={() => setMasteryNotification(null)} className="absolute top-4 right-4 text-slate-300 hover:text-slate-800 transition-colors text-xs font-black">✖</button>
            </div>
         </div>
       )}

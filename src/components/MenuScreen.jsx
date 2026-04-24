@@ -4,7 +4,7 @@ import { APP_VERSION, APP_VERSION_DATE } from '../data/constants';
 const CURRENT_VERSION = APP_VERSION || '1.4';
 const VERSION_DATE = APP_VERSION_DATE || '2026-04-23';
 
-const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUSIC_LIST }) => {
+const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUSIC_LIST, onBack }) => {
   const [updating, setUpdating] = useState(false);
   const [subView, setSubView] = useState('main'); // 'main' ou 'settings'
 
@@ -178,7 +178,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
 
         {subView === 'main' && (
           <button 
-            onClick={() => setCurrentView('city')}
+            onClick={() => onBack ? onBack() : setCurrentView('city')}
             className="w-full mt-8 bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg border-b-8 border-slate-900"
           >
             Voltar ao Jogo

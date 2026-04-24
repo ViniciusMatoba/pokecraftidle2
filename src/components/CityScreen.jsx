@@ -71,7 +71,7 @@ const CityScreen = ({
       id: 'forge', 
       name: 'Forja Pokémon', 
       icon: fixPath('/icon_forge_building_1776876610240.png'),
-      emoji: '=(',
+      emoji: '🔨',
       desc: 'Crie itens raros com materiais.',
       action: () => setActiveBuildingModal('forge'),
       color: 'border-slate-500 bg-slate-50'
@@ -80,7 +80,7 @@ const CityScreen = ({
       id: 'expeditions',
       name: 'ExpediçÃµes',
       icon: null,
-      emoji: '🚀',
+      emoji: '🧭',
       desc: 'Envie Pokémon do PC para coletar recursos em biomas.',
       action: () => onOpenExpeditions && onOpenExpeditions(),
       color: 'border-purple-500 bg-purple-50',
@@ -99,26 +99,6 @@ const CityScreen = ({
     });
   }
 
-  if (gameState.currentRoute === 'pallet_town') {
-    const rivalDefeated = (gameState.worldFlags || []).includes('rival_lab_defeated');
-    cityBuildings.push({
-      id: 'oak_lab',
-      name: 'Laboratório do Carvalho',
-      icon: 'https://play.pokemonshowdown.com/sprites/trainers/oak.png',
-      emoji: '🧪',
-      desc: rivalDefeated ? 'O Prof. Carvalho está estudando novas espécies.' : 'Desafie seu Rival e receba dicas.',
-      action: () => {
-        if (rivalDefeated) {
-          setActiveOakModal(true);
-        } else {
-          if (window.confirm('Deseja desafiar seu Rival Azul para uma batalha?')) {
-            onChallengeRival && onChallengeRival();
-          }
-        }
-      },
-      color: 'border-pokeBlue bg-blue-50'
-    });
-  }
 
   return (
     <div className="h-full flex flex-col animate-fadeIn pb-24 relative overflow-y-auto custom-scrollbar">
