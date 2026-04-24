@@ -2552,7 +2552,14 @@ export default function App() {
                             team: [myPoke],
                             caughtData: { ...prev.caughtData, [p.id]: true },
                             worldFlags: [...(prev.worldFlags || []), 'has_starter'],
-                            oakTutorialShown: true
+                             inventory: {
+                               ...prev.inventory,
+                               items: {
+                                 ...prev.inventory.items,
+                                 fresh_water: (prev.inventory.items?.fresh_water || 0) + 10,
+                               },
+                             },
+                             oakTutorialShown: true
                           })); 
                           
                           setTimeout(() => setShowOakStaminaModal(true), 600);
@@ -2902,11 +2909,25 @@ export default function App() {
                     </div>
                   </div>
 
+                  <div className="bg-amber-50 rounded-2xl p-3 border border-amber-200 mb-4">
+                    <p className="text-amber-800 text-xs font-bold">🎁 Presente do Professor Carvalho:</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <img
+                        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png"
+                        className="w-6 h-6 object-contain"
+                        alt="Água Fresca"
+                      />
+                      <p className="text-amber-700 text-xs">
+                        <strong>10x Água Fresca</strong> — para começar sua jornada com segurança!
+                      </p>
+                    </div>
+                  </div>
+
                   <button
                     onClick={() => setShowOakStaminaModal(false)}
                     className="w-full bg-green-600 text-white py-4 rounded-2xl font-black uppercase text-sm hover:bg-green-500 transition-all active:scale-95"
                   >
-                    Entendi, Professor! 🍽️
+                    Obrigado, Professor! 🍽️
                   </button>
                 </div>
               </div>
