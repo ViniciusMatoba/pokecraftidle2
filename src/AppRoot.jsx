@@ -266,7 +266,7 @@ export default function App() {
     return newRoutes;
   }, [gameState.worldFlags]);
 
-  // â›” PROTECTED: handleGoToCity â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
+  // ⛏️” PROTECTED: handleGoToCity â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
   const handleGoToCity = useCallback(() => {
     const currentR = ROUTES[gameState.currentRoute];
     const isFarm = currentR && currentR.type === 'farm';
@@ -440,7 +440,7 @@ export default function App() {
     if (newCount === 200) { addLog(`✨ Domínio de ${pokemon.name}: Chance Shiny 5x!`, 'system'); reward = { type: 'Bônus Passivo', val: 'Chance Shiny 5x' }; }
 
     if (reward) {
-      addLog(`ðŸŒŸ Domínio de ${pokemon.name}: ${reward.val} liberado!`, 'system');
+      addLog(`🌟 Domínio de ${pokemon.name}: ${reward.val} liberado!`, 'system');
       setTimeout(() => setMasteryNotification({ pokemon, reward }), 0);
     }
 
@@ -763,7 +763,7 @@ export default function App() {
     setPendingQuest(null);
   }, []);
 
-  // â›” PROTECTED: spawnEnemy â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
+  // ⛏️” PROTECTED: spawnEnemy â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
   const spawnEnemy = useCallback(() => {
     isProcessingVictory.current = false; // Reset de segurança
     const route = processedRoutes[gameState.currentRoute] || processedRoutes.pallet_town;
@@ -896,7 +896,7 @@ export default function App() {
     // Sistema de Maestria: Chance de Shiny
     const pokeId = Number(base.id);
     const masteryCount = (gameState.speciesMastery || {})[pokeId] || (gameState.speciesMastery || {})[base.id] || 0;
-    // â›” PROTECTED: Shiny 1/4096 â€” NíO ALTERAR FÓRMULA
+    // ⛏️” PROTECTED: Shiny 1/4096 â€” NíO ALTERAR FÓRMULA
     const isShiny = Math.floor(Math.random() * 4096) === 0;
 
     const levelVariance = Math.floor(Math.random() * 3) - 1;
@@ -1043,7 +1043,7 @@ export default function App() {
   }, [currentEnemy?.instanceId]);
 
   // ─Â─Â─Â TICK DE BATALHA ─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â─Â
-  // â›” PROTECTED: handleBattleTick â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
+  // ⛏️” PROTECTED: handleBattleTick â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
   const handleBattleTick = useCallback(() => {
     const speedMultiplier = [1, 0.6, 0.3][(gameState.settings?.battleSpeed || 1) - 1] || 1;
     
@@ -1063,7 +1063,7 @@ export default function App() {
         // Trocar automaticamente para o próximo viável
         setActiveMemberIndex(nextViable);
         addLog(
-          `ðŸš€ËœÂµ ${myPoke.name} está exausto demais para combater! ` +
+          `🚀ËœÂµ ${myPoke.name} está exausto demais para combater! ` +
           `${gameState.team[nextViable].name} entrou em campo!`,
           'system'
         );
@@ -1074,7 +1074,7 @@ export default function App() {
         stopBGM(300);
         sfxDefeat();
         addLog(
-          'ðŸš€â€™â‚¬ Todo o time está exausto! Volte ao Centro Pokémon para recuperar seus Pokémon!',
+          '🚀â€™â‚¬ Todo o time está exausto! Volte ao Centro Pokémon para recuperar seus Pokémon!',
           'system'
         );
         setTimeout(() => {
@@ -1205,7 +1205,7 @@ export default function App() {
 
         } else if (fx.ohko) {
           updatedEnemyFinal.hp = 0;
-          addLog(`ðŸš€â€™â‚¬ ${myPoke.name} usou ${move.name}! Golpe decisivo!`, 'system');
+          addLog(`🚀â€™â‚¬ ${myPoke.name} usou ${move.name}! Golpe decisivo!`, 'system');
           addFloat('OHKO!', '#ef4444');
 
         } else if (fx.fixedDamage !== null) {
@@ -1220,7 +1220,7 @@ export default function App() {
             ...updatedTeamFinal[activeMemberIndex],
             hp: Math.min(myPoke.maxHp, myPoke.hp + healed)
           };
-          addLog(`ðŸš€â€™Å¡ ${myPoke.name} usou ${move.name}! Recuperou ${healed} HP!`, 'system');
+          addLog(`🚀â€™Å¡ ${myPoke.name} usou ${move.name}! Recuperou ${healed} HP!`, 'system');
           addFloat(`+${healed} HP`, '#22c55e');
 
         } else {
@@ -1293,7 +1293,7 @@ export default function App() {
         const eff = getTypeEffectiveness(move.type, updatedEnemyFinal.type);
         updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - playerDmg);
         addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
-        if (eff > 1) addLog("ðŸš€â€™Â¥ É super efetivo!", 'system');
+        if (eff > 1) addLog("🚀â€™Â¥ É super efetivo!", 'system');
         if (eff > 0 && eff < 1) addLog("ðŸ’–ðŸ’–íÂ¢íâ€šâ‚¬íâ€šÂºíâ€šíâ€šÂ¡íÂ¯íâ€šðŸ’–íâ€šíâ€šÂ Não é muito efetivo!", 'system');
         if (eff === 0) addLog("ðŸš« Não afetou o inimigo!", 'system');
       }
@@ -1302,7 +1302,7 @@ export default function App() {
       if (enemyStatus.includes('poison') || enemyStatus.includes('burn')) {
         const dot = Math.max(1, Math.floor(updatedEnemyFinal.maxHp / 16));
         updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - dot);
-        addLog(`ðŸš€â€™Â¢ ${updatedEnemyFinal.name} sofreu dano por status!`, 'enemy');
+        addLog(`🚀â€™Â¢ ${updatedEnemyFinal.name} sofreu dano por status!`, 'enemy');
       }
 
       // Turno do Inimigo (apenas se ainda estiver vivo)
@@ -1342,11 +1342,11 @@ export default function App() {
                 if (fxE.heal) {
                   const healed = Math.floor((updatedEnemyFinal.maxHp || 30) * 0.5);
                   updatedEnemyFinal.hp = Math.min(updatedEnemyFinal.maxHp, updatedEnemyFinal.hp + healed);
-                  addLog(`ðŸš€â€™Å¡ ${updatedEnemyFinal.name} usou ${enemyMove.name}! Recuperou ${healed} HP!`, 'enemy');
+                  addLog(`🚀â€™Å¡ ${updatedEnemyFinal.name} usou ${enemyMove.name}! Recuperou ${healed} HP!`, 'enemy');
                 }
               } else if (fxE.ohko) {
                 updatedTeamFinal[activeMemberIndex].hp = 0;
-                addLog(`ðŸš€â€™â‚¬ ${updatedEnemyFinal.name} usou ${enemyMove.name}! Golpe decisivo!`, 'enemy');
+                addLog(`🚀â€™â‚¬ ${updatedEnemyFinal.name} usou ${enemyMove.name}! Golpe decisivo!`, 'enemy');
               } else if (fxE.fixedDamage !== null) {
                 const dmg = fxE.fixedDamage === 'level' ? (updatedEnemyFinal.level || 5) : fxE.fixedDamage;
                 updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - dmg);
@@ -1385,7 +1385,7 @@ export default function App() {
               const enemyDmg = Math.max(1, Math.floor(enemyDmgRaw * 0.75));
               const eff = getTypeEffectiveness(enemyMove.type, updatedTeamFinal[activeMemberIndex].type);
               updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - enemyDmg);
-              if (eff > 1) addLog(`ðŸš€â€™Â¥ Golpe de ${updatedEnemyFinal.name} foi super efetivo!`, 'enemy');
+              if (eff > 1) addLog(`🚀â€™Â¥ Golpe de ${updatedEnemyFinal.name} foi super efetivo!`, 'enemy');
               if (eff > 0 && eff < 1) addLog(`íÂ°íâ€šÅ¸íâ€šâ€ºíâ€šÂ¡íÂ¯ðŸ’–íâ€šÂ Golpe de ${updatedEnemyFinal.name} não foi muito efetivo...`, 'enemy');
               if (eff === 0) addLog(`ðŸš« ${updatedTeamFinal[activeMemberIndex].name} é imune!`, 'enemy');
             }
@@ -1397,14 +1397,14 @@ export default function App() {
       if (myStatus.includes('poison') || myStatus.includes('burn')) {
         const dot = Math.max(1, Math.floor(updatedTeamFinal[activeMemberIndex].maxHp / 16));
         updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - dot);
-        addLog(`ðŸš€â€™Â¢ ${myPoke.name} sofreu dano por status!`, 'system');
+        addLog(`🚀â€™Â¢ ${myPoke.name} sofreu dano por status!`, 'system');
       }
 
       // ── SISTEMA DE EXAUSTíO ──────────────────────────────────────────────────
       const STAMINA_DRAIN  = 0.4;   // % perdida por tick
       const EXHAUSTION_DMG = 0.02;  // % do maxHp perdida por tick quando exausto
       const autoStamEnabled = prev.autoConfig?.autoStamina;
-      // â›” PROTECTED: Sistema de Exaustão â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
+      // ⛏️” PROTECTED: Sistema de Exaustão â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
       const FEED_THRESHOLD = prev.autoConfig?.autoStaminaThreshold || 30;
 
       const currentStamina = prev.stamina?.[myPoke.instanceId]?.value ?? 100;
@@ -1487,7 +1487,7 @@ export default function App() {
             // O bloco no início do tick vai cuidar da troca/derrota
             if (Math.random() < 0.3) {
               addLog(
-                `ðŸš€ËœÂµ ${myPoke.name} colapsou de fome! Sem itens para alimentá-lo!`,
+                `🚀ËœÂµ ${myPoke.name} colapsou de fome! Sem itens para alimentá-lo!`,
                 'system'
               );
             }
@@ -1610,7 +1610,7 @@ export default function App() {
         const activePoke = prev.team[activeMemberIndex];
         if (activePoke) {
           const newTeam = prev.team.map((p, i) => i === activeMemberIndex ? { ...p, hp: Math.min(p.maxHp, p.hp + 20) } : p);
-          addLog(`íÂ°íâ€šÅ¸íâ€šÂ§ðŸš€ÂÂª Usou Poção em ${activePoke.name}!`, 'system');
+          addLog(`íÂ°íâ€šÅ¸íâ€šÂ§🚀ÂÂª Usou Poção em ${activePoke.name}!`, 'system');
           return { ...prev, inventory: newInventory, team: newTeam };
         }
       } else if (STAMINA_RESTORE_TABLE[itemId]) {
@@ -1728,7 +1728,7 @@ export default function App() {
     });
     setCurrentView('battles');
     // BGM agora gerenciado pelas configuraçííµes
-    addLog(`ðŸš€â€Â¥ DESAFIO: ${battleData.name} iniciou a batalha!`, 'system');
+    addLog(`🚀â€Â¥ DESAFIO: ${battleData.name} iniciou a batalha!`, 'system');
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
 
@@ -1828,7 +1828,7 @@ export default function App() {
     });
   };
 
-  // â›” PROTECTED: handleUseCandy â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
+  // ⛏️” PROTECTED: handleUseCandy â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
   const handleUseCandy = useCallback((pokemonInstanceId, candyId, useId) => {
     const use = CANDY_USES[useId];
     if (!use) return;
@@ -1892,7 +1892,7 @@ export default function App() {
     });
   }, [addLog, setEvolutionPending]);
 
-  // â›” PROTECTED: handleStartExpedition â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
+  // ⛏️” PROTECTED: handleStartExpedition â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
   const handleStartExpedition = useCallback((biomeId, team) => {
     const biome = EXPEDITION_BIOMES[biomeId];
     if (!biome || !team.length) return;
@@ -1964,7 +1964,7 @@ export default function App() {
 
   // íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬ HOUSE SYSTEM HANDLERS íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬íÂ¢íÂ¢í¢â€šÂ¬ íÂ¢í¢â‚¬Å¡Â¬
   // ── AUTO-CAPTURA HANDLERS ──────────────────────────────────────────
-  // â›” PROTECTED: AutoCapture â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
+  // ⛏️” PROTECTED: AutoCapture â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
   const handleSaveAutoCaptureConfig = useCallback((config) => {
     const route = processedRoutes[gameState.currentRoute];
     setGameState(prev => ({
@@ -2005,7 +2005,7 @@ export default function App() {
       },
     }));
     setShowAutoCaptureModal(false);
-    addLog('ðŸš€â€Â´ Auto-captura desativada nesta rota.', 'system');
+    addLog('🚀â€Â´ Auto-captura desativada nesta rota.', 'system');
   }, [gameState.currentRoute, addLog]);
 
   // Disparar modal ao entrar em nova rota
@@ -2027,7 +2027,7 @@ export default function App() {
   // ───────────────────────────────────────────────────────────────────
 
   // Comprar a casa
-  // â›” PROTECTED: handleBuyHouse â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
+  // ⛏️” PROTECTED: handleBuyHouse â€” NíO EDITAR SEM AUTORIZAí‡íO EXPLíCITA
   const handleBuyHouse = useCallback(() => {
     setGameState(prev => {
       if ((prev.currency || 0) < HOUSE_PURCHASE_COST) {
@@ -2063,7 +2063,7 @@ export default function App() {
       const newSlots = [...(prev.house?.slots || [])];
       newSlots[slotIndex] = { plantId, plantedAt: Date.now(), growthTime };
 
-      addLog(`ðŸš€Å’Â± ${plant.name} plantado! Pronto em ${Math.floor(growthTime / 60000)} min.`, 'system');
+      addLog(`🚀Å’Â± ${plant.name} plantado! Pronto em ${Math.floor(growthTime / 60000)} min.`, 'system');
       return {
         ...prev,
         currency: prev.currency - plant.cost,
@@ -2238,7 +2238,7 @@ export default function App() {
           });
         const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
-        addLog(`ðŸš€â€œÂ¢ ${currentEnemy.trainerName} enviou ${base.name}!`, 'enemy');
+        addLog(`🚀â€œÂ¢ ${currentEnemy.trainerName} enviou ${base.name}!`, 'enemy');
         
         setCurrentEnemy(prev => ({
           ...prev,
@@ -2267,7 +2267,7 @@ export default function App() {
     // Vitória! O som de GYM tocará apenas se ganhar insígnia
 
     const { drops, messages } = processDrops(currentEnemy);
-    // â›” PROTECTED: Fórmula XP â€” NíO ALTERAR DIVISOR SEM AUTORIZAí‡íO
+    // ⛏️” PROTECTED: Fórmula XP â€” NíO ALTERAR DIVISOR SEM AUTORIZAí‡íO
     const baseXpGain = Math.floor(((currentEnemy.level || 1) * 1.5 * (POKEDEX[Number(currentEnemy.id)]?.baseXp || 50)) / 7);
 
     setGameState(prev => {
@@ -2318,7 +2318,7 @@ export default function App() {
       // Salvar flag de vitória específica do inimigo (Rival, Boss, etc)
       if (currentEnemy.unlockFlag && !newFlags.includes(currentEnemy.unlockFlag)) {
         newFlags.push(currentEnemy.unlockFlag);
-        addLog(`ðŸš€Å¡Â© Progresso: ${currentEnemy.unlockFlag.replace(/_/g, ' ')}!`, 'system');
+        addLog(`🚀Å¡Â© Progresso: ${currentEnemy.unlockFlag.replace(/_/g, ' ')}!`, 'system');
       }
 
       // Salvar flag de vitória de Elite 4 / Líder de Ginásio (Fallback)
@@ -2444,7 +2444,7 @@ export default function App() {
     if (currentEnemy.isTrainer && currentEnemy.trainerReward) {
       addLog(` íÂ¢í¢â€šÂ¬Â  ${currentEnemy.trainerName} derrotado! +${currentEnemy.trainerReward} coins`, 'system');
     }
-    if (currentEnemy.isRocket) addLog('ðŸš€Å¡â‚¬ Grunt da Equipe Rocket derrotado!', 'system');
+    if (currentEnemy.isRocket) addLog('🚀Å¡â‚¬ Grunt da Equipe Rocket derrotado!', 'system');
     if (currentEnemy.isShiny) addLog('íÂ¢íâ€ší…â€œíâ€šÂ¨ Pokémon shiny derrotado!', 'system');
 
     sessionRef.current.kills += 1;
@@ -3158,7 +3158,7 @@ export default function App() {
                    }}
                    className="group bg-white p-8 rounded-[3rem] border-4 border-slate-200 hover:border-red-400 transition-all shadow-xl hover:shadow-red-100 flex flex-col items-center gap-4 active:scale-95"
                  >
-                    <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">ðŸš€ÂËœ</div>
+                    <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">🚀ÂËœ</div>
                     <div>
                        <h3 className="font-black text-xl text-slate-800 uppercase italic">Cidade de Pallet</h3>
                        <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Descansar e Preparar</p>
@@ -3173,7 +3173,7 @@ export default function App() {
                    }}
                    className="group bg-white p-8 rounded-[3rem] border-4 border-slate-200 hover:border-green-400 transition-all shadow-xl hover:shadow-green-100 flex flex-col items-center gap-4 active:scale-95"
                  >
-                    <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">ðŸŒ¿</div>
+                    <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">🌿</div>
                     <div>
                        <h3 className="font-black text-xl text-slate-800 uppercase italic">Rota 1</h3>
                        <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Iniciar Capturas</p>
@@ -3242,7 +3242,7 @@ export default function App() {
                     cuidadores, suas plantaçííµes crescerão muito mais rápido!
                   </p>
                   <div className="bg-white/60 rounded-3xl p-5 mb-6 border-2 border-amber-200 shadow-inner">
-                    <p className="text-amber-800 font-black text-lg flex items-center gap-2">ðŸš€ÂÂ  Custo da Casa</p>
+                    <p className="text-amber-800 font-black text-lg flex items-center gap-2">🚀ÂÂ  Custo da Casa</p>
                     <div className="flex justify-between items-center mt-2">
                        <p className="text-amber-900 text-sm font-bold">
                           ðŸ’° {HOUSE_PURCHASE_COST.toLocaleString()} coins
@@ -3271,7 +3271,7 @@ export default function App() {
                           : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
                       }`}
                     >
-                      ðŸš€ÂÂ  Comprar Casa!
+                      🚀ÂÂ  Comprar Casa!
                     </button>
                   </div>
                 </div>
@@ -4014,7 +4014,7 @@ export default function App() {
                               items: { ...prev.inventory.items, [item.id]: (prev.inventory.items[item.id] || 0) + qty }
                             }
                           }));
-                          addLog(`ÂðŸš€ÂÂª Comprado: ${qty}x ${item.name}`, 'system');
+                          addLog(`Â🚀ÂÂª Comprado: ${qty}x ${item.name}`, 'system');
                         };
                         return (
                           <div key={item.id} className="bg-white p-4 rounded-2xl border-2 border-slate-100 shadow-sm">
