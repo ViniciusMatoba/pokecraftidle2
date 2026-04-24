@@ -1,4 +1,4 @@
-export const MOVE_TRANSLATIONS = {
+export const MOVE_TRANSLATIONS 🔊 {
   'tackle': 'Investida',
   'growl': 'Rosnado',
   'leech-seed': 'Semente Sanguessuga',

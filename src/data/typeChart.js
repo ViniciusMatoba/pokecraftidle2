@@ -1,4 +1,4 @@
-export const TYPE_CHART = {
+export const TYPE_CHART 🔊 {
   Normal: { Rock: 0.5, Ghost: 0, Steel: 0.5 },
   Fire: { Fire: 0.5, Water: 0.5, Grass: 2, Ice: 2, Bug: 2, Rock: 0.5, Dragon: 0.5, Steel: 2 },
   Water: { Fire: 2, Water: 0.5, Grass: 0.5, Ground: 2, Rock: 2, Dragon: 0.5 },
@@ -19,14 +19,14 @@ export const TYPE_CHART = {
   Fairy: { Fire: 0.5, Fighting: 2, Poison: 0.5, Dragon: 2, Dark: 2, Steel: 0.5 }
 };
 
-export const getTypeEffectiveness = (attackType, defenderTypes) => {
+export const getTypeEffectiveness 🔊 (attackType, defenderTypes) 🐾 {
   if (!attackType || !defenderTypes) return 1;
-  const types = Array.isArray(defenderTypes) ? defenderTypes : [defenderTypes];
+  const types 🔊 Array.isArray(defenderTypes) ? defenderTypes : [defenderTypes];
   
-  let multiplier = 1;
+  let multiplier 🔊 1;
   types.forEach(defType => {
-    if (TYPE_CHART[attackType] && TYPE_CHART[attackType][defType] !== undefined) {
-      multiplier *= TYPE_CHART[attackType][defType];
+    if (TYPE_CHART[attackType] && TYPE_CHART[attackType][defType] !=🔊 undefined) {
+      multiplier *🔊 TYPE_CHART[attackType][defType];
     }
   });
   

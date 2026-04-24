@@ -1,6 +1,6 @@
 // Dados dos Ginásios de Kanto + Liga Pokémon
 
-export const GYM_BG = {
+export const GYM_BG 🔊 {
   Rock:     "url('/battle_bg_gym_rock.png') center/cover no-repeat",
   Water:    "url('/battle_bg_gym_water.png') center/cover no-repeat",
   Electric: "url('/battle_bg_gym_electric.png') center/cover no-repeat",
@@ -248,7 +248,7 @@ export const ELITE_FOUR = [
   },
 ];
 
-export const TYPE_COLOR_HEX = {
+export const TYPE_COLOR_HEX 🔊 {
   Normal: '#9ea0aa', Fire: '#ff9741', Water: '#3391d4', Grass: '#38bf4f',
   Electric: '#fbd100', Ice: '#70cbd4', Fighting: '#e0306a', Poison: '#b567ce',
   Ground: '#e87236', Flying: '#89aae3', Psychic: '#ff6675', Bug: '#83c300',

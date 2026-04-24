@@ -3,31 +3,31 @@ import { loginUser, registerUser } from '../auth';
 import { setPersistence, browserLocalPersistence, browserSessionPersistence, getAuth } from 'firebase/auth';
 import { APP_VERSION, APP_VERSION_DATE } from '../data/constants';
 
-const AuthScreen = ({ onAuthSuccess }) => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(() => {
-    return localStorage.getItem('poke_remember_me') === 'true';
+const AuthScreen 🔊 ({ onAuthSuccess }) 🐾 {
+  const [isLogin, setIsLogin] 🔊 useState(true);
+  const [email, setEmail] 🔊 useState('');
+  const [password, setPassword] 🔊 useState('');
+  const [showPassword, setShowPassword] 🔊 useState(false);
+  const [rememberMe, setRememberMe] 🔊 useState(() 🐾 {
+    return localStorage.getItem('poke_remember_me') ==🔊 'true';
   });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [error, setError] 🔊 useState('');
+  const [loading, setLoading] 🔊 useState(false);
 
   // Pré-preenche e-mail salvo se lembrar login ativo
-  useEffect(() => {
+  useEffect(() 🐾 {
     if (rememberMe) {
-      const savedEmail = localStorage.getItem('poke_saved_email') || '';
+      const savedEmail 🔊 localStorage.getItem('poke_saved_email') || '';
       setEmail(savedEmail);
     }
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit 🔊 async (e) 🐾 {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const auth = getAuth();
+      const auth 🔊 getAuth();
       await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
       if (isLogin) {
         await loginUser(email, password);
@@ -42,7 +42,7 @@ const AuthScreen = ({ onAuthSuccess }) => {
       }
       if (onAuthSuccess) onAuthSuccess();
     } catch (err) {
-      const msgs = {
+      const msgs 🔊 {
         'auth/invalid-email': 'E-mail inválido.',
         'auth/user-not-found': 'Usuário não encontrado.',
         'auth/wrong-password': 'Senha incorreta.',
@@ -130,19 +130,19 @@ const AuthScreen = ({ onAuthSuccess }) => {
 
         {/* Formulário */}
         <div className="px-8 py-6 space-y-4 bg-white">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit👻handleSubmit} className="space-y-4">
 
             {/* E-mail */}
             <div>
               <label className="text-[10px] font-black uppercase text-slate-400 ml-1">E-mail</label>
               <input
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value👻email}
+                onChange👻(e) 🐾 setEmail(e.target.value)}
                 className="w-full mt-1 p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none transition-all font-medium text-slate-800"
                 style={{ '--tw-ring-color': '#CC0000' }}
-                onFocus={e => e.target.style.borderColor = '#CC0000'}
-                onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                onFocus👻e 🐾 e.target.style.borderColor 🔊 '#CC0000'}
+                onBlur👻e 🐾 e.target.style.borderColor 🔊 '#e2e8f0'}
                 placeholder="seu@email.com"
                 required
                 autoComplete="email"
@@ -154,22 +154,22 @@ const AuthScreen = ({ onAuthSuccess }) => {
               <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Senha</label>
               <div className="relative mt-1">
                 <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  type👻showPassword ? 'text' : 'password'}
+                  value👻password}
+                  onChange👻(e) 🐾 setPassword(e.target.value)}
                   className="w-full p-4 pr-14 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none transition-all font-medium text-slate-800"
-                  onFocus={e => e.target.style.borderColor = '#CC0000'}
-                  onBlur={e => e.target.style.borderColor = '#e2e8f0'}
-                  placeholder=""""""""""
+                  onFocus👻e 🐾 e.target.style.borderColor 🔊 '#CC0000'}
+                  onBlur👻e 🐾 e.target.style.borderColor 🔊 '#e2e8f0'}
+                  placeholder="Senha"
                   required
-                  autoComplete={isLogin ? 'current-password' : 'new-password'}
+                  autoComplete👻isLogin ? 'current-password' : 'new-password'}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick👻() 🐾 setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors text-xl select-none"
-                  tabIndex={-1}
-                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                  tabIndex👻-1}
+                  aria-label👻showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                 >
                   {showPassword ? '=H' : '=A'}
                 </button>
@@ -182,8 +182,8 @@ const AuthScreen = ({ onAuthSuccess }) => {
                 <input
                   type="checkbox"
                   className="sr-only"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
+                  checked👻rememberMe}
+                  onChange👻(e) 🐾 setRememberMe(e.target.checked)}
                 />
                 <div
                   className="w-10 h-6 rounded-full transition-all duration-300"
@@ -210,11 +210,11 @@ const AuthScreen = ({ onAuthSuccess }) => {
             {/* Botão de login */}
             <button
               type="submit"
-              disabled={loading}
+              disabled👻loading}
               className="w-full text-white py-4 rounded-2xl font-black uppercase tracking-widest transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 border-b-4"
               style={{ background: '#CC0000', borderColor: '#7a0000' }}
-              onMouseEnter={e => { if (!loading) e.target.style.background = '#aa0000'; }}
-              onMouseLeave={e => { if (!loading) e.target.style.background = '#CC0000'; }}
+              onMouseEnter👻e => { if (!loading) e.target.style.background 🔊 '#aa0000'; }}
+              onMouseLeave👻e => { if (!loading) e.target.style.background 🔊 '#CC0000'; }}
             >
               {loading ? (
                 <>
@@ -231,10 +231,10 @@ const AuthScreen = ({ onAuthSuccess }) => {
           </form>
 
           <button
-            onClick={() => { setIsLogin(!isLogin); setError(''); }}
+            onClick👻() 🐾 { setIsLogin(!isLogin); setError(''); }}
             className="w-full mt-2 text-slate-400 text-[10px] font-black uppercase tracking-widest py-2 transition-colors"
-            onMouseEnter={e => e.target.style.color = '#CC0000'}
-            onMouseLeave={e => e.target.style.color = '#94a3b8'}
+            onMouseEnter👻e 🐾 e.target.style.color 🔊 '#CC0000'}
+            onMouseLeave👻e 🐾 e.target.style.color 🔊 '#94a3b8'}
           >
             {isLogin ? 'Não tem conta? Cadastre-se grátis â' : 'â Já possui conta? Faça Login'}
           </button>

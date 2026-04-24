@@ -1,9 +1,9 @@
-export const APP_VERSION = '1.8.9';
-export const APP_VERSION_DATE = '24/04/2026';
+export const APP_VERSION 🔊 '1.8.9';
+export const APP_VERSION_DATE 🔊 '24/04/2026';
 
 export const NATURE_LIST = ['Adamant', 'Modest', 'Jolly', 'Timid', 'Bold', 'Calm', 'Impish', 'Careful', 'Brave', 'Quiet'];
 
-export const TYPE_COLORS = {
+export const TYPE_COLORS 🔊 {
   Normal:'bg-slate-400', Fire:'bg-orange-500', Water:'bg-blue-500',
   Electric:'bg-yellow-400', Grass:'bg-green-500', Poison:'bg-purple-500',
   Bug:'bg-lime-500', Flying:'bg-sky-400', Rock:'bg-amber-600',
@@ -12,7 +12,7 @@ export const TYPE_COLORS = {
   Dragon:'bg-indigo-500', Fairy:'bg-pink-400', Ice:'bg-cyan-400',
 };
 
-export const NATURES = {
+export const NATURES 🔊 {
   Adamant: { plus: 'attack', minus: 'spAtk' },
   Modest: { plus: 'spAtk', minus: 'attack' },
   Jolly: { plus: 'speed', minus: 'spAtk' },
@@ -25,7 +25,7 @@ export const NATURES = {
   Quiet: { plus: 'spAtk', minus: 'speed' },
 };
 
-export const GYM_LEVEL_CAPS = {
+export const GYM_LEVEL_CAPS 🔊 {
   boulder_badge: 14,
   cascade_badge: 21,
   thunder_badge: 24,
@@ -58,7 +58,7 @@ export const trainerAvatars = [
   { id: 'moon', name: 'Moon', img: 'https://play.pokemonshowdown.com/sprites/trainers/moon.png' }
 ];
 
-export const DEFAULT_GAME_STATE = {
+export const DEFAULT_GAME_STATE 🔊 {
   currency: 0,
   inventory: {
     materials: {
@@ -94,7 +94,7 @@ export const DEFAULT_GAME_STATE = {
   }
 };
 
-export const ITEM_LABELS = {
+export const ITEM_LABELS 🔊 {
   // Materiais
   silk: { icon: '🧵', name: 'Seda' },
   feather: { icon: '🪶', name: 'Pena' },
@@ -161,7 +161,7 @@ export const ITEM_LABELS = {
 };
 
 
-export const STAMINA_RESTORE_TABLE = {
+export const STAMINA_RESTORE_TABLE 🔊 {
   // Berries (source: materials)
   oran_berry:        { restore: 20, source: 'materials' },
   sitrus_berry:      { restore: 35, source: 'materials' },

@@ -1,6 +1,6 @@
 export const SHOP_ITEMS = [
   { id: 'pokeball', name: 'Poké Ball', price: 200, description: 'Básico para capturar Pokémon.', icon: '🔴' },
-  { id: 'greatball', name: 'Great Ball', price: 600, description: 'Melhor taxa de captura.', icon: '=5' },
+  { id: 'greatball', name: 'Great Ball', price: 600, description: 'Melhor taxa de captura.', icon: '💀' },
   { id: 'potion', name: 'Poção', price: 300, description: 'Cura 20 HP do Pokémon ativo.', icon: '🧪' },
   { id: 'antidote', name: 'Antídoto', price: 100, description: 'Cura envenenamento.', icon: '💊' }
 ];

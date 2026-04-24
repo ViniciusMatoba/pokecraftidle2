@@ -1,7 +1,7 @@
 import { POKEDEX } from '../data/pokedex';
 
-export const getMasteryPath = (pokemonId) => {
-  const p = POKEDEX[pokemonId];
+export const getMasteryPath 🔊 (pokemonId) 🐾 {
+  const p 🔊 POKEDEX[pokemonId];
   if (!p) return { abilities: [], rareMoves: [], hiddenAbility: null };
   return {
     abilities: [
@@ -16,12 +16,12 @@ export const getMasteryPath = (pokemonId) => {
   };
 };
 
-export const getEffectiveStat = (pokemon, stat) => {
+export const getEffectiveStat 🔊 (pokemon, stat) 🐾 {
   // Se o pokémon já tem o status calculado (ex: no time do jogador), usa ele.
   // Caso contrário, tenta calcular (fallback para NPCs/Enemies simples).
-  if (pokemon[stat] !== undefined) return Math.ceil(pokemon[stat]);
+  if (pokemon[stat] !=🔊 undefined) return Math.ceil(pokemon[stat]);
   
-  const base = (pokemon.baseStats ? pokemon.baseStats[stat] : pokemon[stat]) || 10;
-  const level = pokemon.level || 5;
+  const base 🔊 (pokemon.baseStats ? pokemon.baseStats[stat] : pokemon[stat]) || 10;
+  const level 🔊 pokemon.level || 5;
   return Math.ceil((base * level) / 50) + 5;
 };

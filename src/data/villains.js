@@ -1,4 +1,4 @@
-export const VILLAIN_TEAMS = {
+export const VILLAIN_TEAMS 🔊 {
   rocket: {
     name: "Equipe Rocket",
     gruntName: "Recruta da Equipe Rocket",
