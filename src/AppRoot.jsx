@@ -949,6 +949,45 @@ export default function App() {
   const handleBattleTick = useCallback(() => {
     const speedMultiplier = [1, 0.6, 0.3][(gameState.settings?.battleSpeed || 1) - 1] || 1;
     
+    // ── REGRA DE EXAUSTÃO — INÍCIO DO TICK ──────────────────────────────
+    const myPoke = gameState.team?.[activeMemberIndex];
+    const myPokeStamina = gameState.stamina?.[myPoke?.instanceId]?.value ?? 100;
+
+    if (myPokeStamina <= 0 && myPoke?.hp > 0) {
+      // Buscar próximo Pokémon com HP > 0 E stamina > 0
+      const nextViable = gameState.team.findIndex((p, idx) =>
+        idx !== activeMemberIndex &&
+        (p?.hp ?? 0) > 0 &&
+        (gameState.stamina?.[p?.instanceId]?.value ?? 100) > 0
+      );
+
+      if (nextViable !== -1) {
+        // Trocar automaticamente para o próximo viável
+        setActiveMemberIndex(nextViable);
+        addLog(
+          `😵 ${myPoke.name} está exausto demais para combater! ` +
+          `${gameState.team[nextViable].name} entrou em campo!`,
+          'system'
+        );
+      } else {
+        // Todos exaustos ou desmaiados — derrota por exaustão
+        isProcessingVictory.current = true;
+        setCurrentEnemy(null);
+        stopBGM(300);
+        sfxDefeat();
+        addLog(
+          '💀 Todo o time está exausto! Volte ao Centro Pokémon para recuperar seus Pokémon!',
+          'system'
+        );
+        setTimeout(() => {
+          isProcessingVictory.current = false;
+          setCurrentView('defeat_screen');
+        }, 300);
+      }
+      return 1200 * speedMultiplier;
+    }
+    // ── FIM DA REGRA DE EXAUSTÃO ─────────────────────────────────────────
+    
     const viewsAllowingBattle = ['battles', 'pokemon_management', 'pokedex', 'menu', 'vs'];
     const isPaused = activeBuildingModal !== null;
     
@@ -1343,8 +1382,22 @@ export default function App() {
                addLog(`( ${myPoke.name} recuperou-se!`, 'system');
              }
           }
-        } else if (newStamina < 10 && Math.random() < 0.2) {
-          addLog(`⚠️ ${myPoke.name} está faminto! Compre bebidas no Poké Mart ou cultive Berries!`, 'system');
+        } else {
+          if (newStamina <= 0) {
+            // Sem comida e chegou a 0 — forçar troca no próximo tick
+            // O bloco no início do tick vai cuidar da troca/derrota
+            if (Math.random() < 0.3) {
+              addLog(
+                `😵 ${myPoke.name} colapsou de fome! Sem itens para alimentá-lo!`,
+                'system'
+              );
+            }
+          } else if (newStamina < 20 && Math.random() < 0.25) {
+            addLog(
+              `⚠️ ${myPoke.name} está faminto! Compre bebidas no Poké Mart ou cultive Berries!`,
+              'system'
+            );
+          }
         }
       }
 
