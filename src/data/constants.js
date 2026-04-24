@@ -38,24 +38,18 @@ export const GYM_LEVEL_CAPS = {
 };
 
 export const trainerAvatars = [
-  { id: 'red', name: 'Red', img: 'https://play.pokemonshowdown.com/sprites/trainers/red.png' },
-  { id: 'blue', name: 'Blue', img: 'https://play.pokemonshowdown.com/sprites/trainers/blue.png' },
-  { id: 'leaf', name: 'Leaf', img: 'https://play.pokemonshowdown.com/sprites/trainers/leaf.png' },
-  { id: 'ethan', name: 'Ethan', img: 'https://play.pokemonshowdown.com/sprites/trainers/ethan.png' },
-  { id: 'lyra', name: 'Lyra', img: 'https://play.pokemonshowdown.com/sprites/trainers/lyra.png' },
-  { id: 'kris', name: 'Kris', img: 'https://play.pokemonshowdown.com/sprites/trainers/kris.png' },
+  { id: 'red',     name: 'Red',     img: 'https://play.pokemonshowdown.com/sprites/trainers/red.png'     },
+  { id: 'leaf',    name: 'Leaf',    img: 'https://play.pokemonshowdown.com/sprites/trainers/leaf.png'    },
+  { id: 'ethan',   name: 'Ethan',   img: 'https://play.pokemonshowdown.com/sprites/trainers/ethan.png'   },
+  { id: 'lyra',    name: 'Lyra',    img: 'https://play.pokemonshowdown.com/sprites/trainers/lyra.png'    },
   { id: 'brendan', name: 'Brendan', img: 'https://play.pokemonshowdown.com/sprites/trainers/brendan.png' },
-  { id: 'may', name: 'May', img: 'https://play.pokemonshowdown.com/sprites/trainers/may.png' },
-  { id: 'lucas', name: 'Lucas', img: 'https://play.pokemonshowdown.com/sprites/trainers/lucas.png' },
-  { id: 'dawn', name: 'Dawn', img: 'https://play.pokemonshowdown.com/sprites/trainers/dawn.png' },
+  { id: 'may',     name: 'May',     img: 'https://play.pokemonshowdown.com/sprites/trainers/may.png'     },
+  { id: 'lucas',   name: 'Lucas',   img: 'https://play.pokemonshowdown.com/sprites/trainers/lucas.png'   },
+  { id: 'dawn',    name: 'Dawn',    img: 'https://play.pokemonshowdown.com/sprites/trainers/dawn.png'    },
   { id: 'hilbert', name: 'Hilbert', img: 'https://play.pokemonshowdown.com/sprites/trainers/hilbert.png' },
-  { id: 'hilda', name: 'Hilda', img: 'https://play.pokemonshowdown.com/sprites/trainers/hilda.png' },
-  { id: 'nate', name: 'Nate', img: 'https://play.pokemonshowdown.com/sprites/trainers/nate.png' },
-  { id: 'rosa', name: 'Rosa', img: 'https://play.pokemonshowdown.com/sprites/trainers/rosa.png' },
-  { id: 'calem', name: 'Calem', img: 'https://play.pokemonshowdown.com/sprites/trainers/calem.png' },
-  { id: 'serena', name: 'Serena', img: 'https://play.pokemonshowdown.com/sprites/trainers/serena.png' },
-  { id: 'sun', name: 'Sun', img: 'https://play.pokemonshowdown.com/sprites/trainers/sun.png' },
-  { id: 'moon', name: 'Moon', img: 'https://play.pokemonshowdown.com/sprites/trainers/moon.png' }
+  { id: 'hilda',   name: 'Hilda',   img: 'https://play.pokemonshowdown.com/sprites/trainers/hilda.png'   },
+  { id: 'calem',   name: 'Calem',   img: 'https://play.pokemonshowdown.com/sprites/trainers/calem.png'   },
+  { id: 'serena',  name: 'Serena',  img: 'https://play.pokemonshowdown.com/sprites/trainers/serena.png'  },
 ];
 
 export const DEFAULT_GAME_STATE = {

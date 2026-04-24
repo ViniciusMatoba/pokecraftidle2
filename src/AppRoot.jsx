@@ -439,7 +439,7 @@ export default function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        addLog(`í°Å¸âÂ¤ Logado como ${user.email}`, 'system');
+        addLog(`Å¸âÂ¤ Logado como ${user.email}`, 'system');
         try {
           const docRef = doc(db, "saves", user.uid);
           const docSnap = await getDoc(docRef);
@@ -853,7 +853,7 @@ export default function App() {
     const masteryCount = (gameState.speciesMastery || {})[pokeId] || (gameState.speciesMastery || {})[base.id] || 0;
     const shinyChanceBase = 0.01; // 1% base
     const shinyBonus = Math.min(0.04, (masteryCount / 100) * 0.05); // Até +4% de bíÃÂ´nus
-    const isShiny = Math.random() < (shinyChanceBase + shinyBonus);
+    const isShiny = Math.floor(Math.random() * 4096) === 0;
 
     const levelVariance = Math.floor(Math.random() * 3) - 1;
     const level = Math.max(1, (base.level || 5) + levelVariance);
@@ -1157,7 +1157,7 @@ export default function App() {
         updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - playerDmg);
         addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
         if (eff > 1) addLog("💥 É super efetivo!", 'system');
-        if (eff > 0 && eff < 1) addLog("í°ÃÂ¸Ã¢ÂÂºÃÂ¡í¯ÃÂ¸ÃÂ Não é muito efetivo!", 'system');
+        if (eff > 0 && eff < 1) addLog("ÃÂ¸Ã¢ÂÂºÃÂ¡í¯ÃÂ¸ÃÂ Não é muito efetivo!", 'system');
         if (eff === 0) addLog("Ã°ÂÂÂ« Não afetou o inimigo!", 'system');
       }
 
@@ -1661,7 +1661,7 @@ export default function App() {
       const newItems = { ...prev.inventory.items };
       newItems[recipe.id] = (newItems[recipe.id] || 0) + 1;
 
-      addLog(`í°ÃÂ¸Ã¢ÂÂºÃ í¯ÃÂ¸ÃÂ Você fabricou: ${recipe.name}!`, 'drop');
+      addLog(`ÃÂ¸Ã¢ÂÂºÃ í¯ÃÂ¸ÃÂ Você fabricou: ${recipe.name}!`, 'drop');
 
       return {
         ...prev,
@@ -1701,9 +1701,9 @@ export default function App() {
       };
 
       if (use.effect === 'xp_boost') {
-        const xpNeeded = (p.level || 5) * 25;
+        const n = p.level || 1; const xpNeeded = Math.pow(n + 1, 3) - Math.pow(n, 3);
         p.xp = xpNeeded; 
-        addLog(`í°ÃÂ¸ÃÂÃÂ¬ ${p.name} consumiu candies e ganhou experiência!`, 'system');
+        addLog(`ÃÂ¸ÃÂÃÂ¬ ${p.name} consumiu candies e ganhou experiência!`, 'system');
       } else if (use.effect === 'stat_atk') {
         p.attack = (p.attack || 10) + 2;
         addLog(`Â¬ ${p.name} aumentou o Ataque permanentemente!`, 'system');
@@ -2047,9 +2047,7 @@ export default function App() {
     // Vitória! O som de GYM tocará apenas se ganhar insígnia
 
     const { drops, messages } = processDrops(currentEnemy);
-    const baseXpGain = currentEnemy.baseExp || (currentEnemy.level || 5) * 5;
-    const aliveCount = gameState.team.filter(p => p.hp > 0).length || 1;
-    const xpPerPoke = Math.max(1, Math.floor(baseXpGain / aliveCount));
+    const baseXpGain = Math.floor(((currentEnemy.level || 1) * 1.5 * (POKEDEX[Number(currentEnemy.id)]?.baseXp || 50)) / 7);
 
     setGameState(prev => {
       const newInventory = { ...prev.inventory };
@@ -2113,22 +2111,19 @@ export default function App() {
       const now = Date.now();
       const effects = prev.activeEffects || {};
       
-      let xpMult = 1.0;
-      if (effects.activeLuckyEgg?.endsAt > now) xpMult *= (effects.activeLuckyEgg.xpMult || 1.50);
-      if (effects.activeSootheBell?.endsAt > now) xpMult *= (effects.activeSootheBell.xpMult || 1.20);
-
-      // Exp Share (Timed vs Badge)
-      const expShareTimed = effects.activeExpShare?.endsAt > now;
-      const sharedXpRatio = expShareTimed ? (effects.activeExpShare.xpShare || 0.50) : (badgesCount * 0.10);
+      const xpMult = (effects.activeLuckyEgg?.endsAt > now ? (effects.activeLuckyEgg.xpMult || 1.5) : 1.0) * 
+                    (effects.activeSootheBell?.endsAt > now ? (effects.activeSootheBell.xpMult || 1.2) : 1.0);
 
       const newTeam = prev.team.map((p, i) => {
         const isLead = (i === activeMemberIndex);
         let xpToAdd = 0;
 
         if (isLead && p.hp > 0) {
-          xpToAdd = Math.floor(baseXpGain * xpMult); // Lead gets bonuses
-        } else if (p.hp > 0 && sharedXpRatio > 0) {
-          xpToAdd = Math.floor(baseXpGain * sharedXpRatio * xpMult); // Others get % + bonuses
+          xpToAdd = Math.floor(baseXpGain * xpMult);
+        } else if (p.hp > 0 && effects.activeExpShare?.endsAt > now) {
+          xpToAdd = Math.floor(baseXpGain * (effects.activeExpShare.xpShare || 0.5) * xpMult);
+        } else if (p.hp > 0 && badgesCount > 0) {
+          xpToAdd = Math.floor(baseXpGain * (badgesCount * 0.10) * xpMult);
         }
 
         // Lucky Egg (Antiga Lógica Hold - Mantida para compatibilidade se necessário)
@@ -2147,7 +2142,7 @@ export default function App() {
         }
 
         const newXp = (p.xp || 0) + xpToAdd;
-        const xpNeeded = (p.level || 5) * 25;
+        const n = p.level || 1; const xpNeeded = Math.pow(n + 1, 3) - Math.pow(n, 3);
         const maxLevel = GYM_LEVEL_CAPS[badgesCount] || 100;
         const isLevelCapped = gameState.settings?.levelCap !== false && (p.level || 5) >= maxLevel;
 
@@ -2258,7 +2253,7 @@ export default function App() {
             let questUpdate = {};
             if (prev.worldFlags.includes('quest_capture_active')) {
               newInventory.items = { ...newInventory.items, pokeballs: (newInventory.items.pokeballs || 0) + 10 };
-              addLog('í°ÃÂ¸ÃÃÂ Carvalho: "Ótimo trabalho! Tome estas 10 Pokébolas!"', 'drop');
+              addLog('ÃÂ¸ÃÃÂ Carvalho: "Ótimo trabalho! Tome estas 10 Pokébolas!"', 'drop');
               questUpdate = { worldFlags: prev.worldFlags.filter(f => f !== 'quest_capture_active').concat(['quest_capture_done']) };
             }
 
@@ -2473,7 +2468,12 @@ export default function App() {
                   className="bg-slate-50 p-4 rounded-[2rem] border-4 border-transparent hover:border-pokeBlue hover:bg-blue-50 transition-all group flex flex-col items-center gap-2"
                 >
                    <div className="w-20 h-20 flex items-center justify-center">
-                     <img src={a.img} onError={(e) => e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'} className="w-full h-full object-contain group-hover:scale-125 transition-transform" alt={a.name} />
+                     <img 
+                       src={a.img} 
+                       onError={e => { e.target.closest('button')?.style.setProperty('display', 'none'); }}
+                       className="w-full h-full object-contain group-hover:scale-125 transition-transform" 
+                       alt={a.name} 
+                     />
                    </div>
                    <span className="text-[8px] font-black uppercase text-slate-400 group-hover:text-pokeBlue">{a.name}</span>
                 </button>
@@ -3506,16 +3506,25 @@ export default function App() {
                           stopSFX();
                           sfxHeal();
                           setIsHealing(true);
-                          setGameState(prev => ({ 
-                            ...prev, 
-                            team: prev.team.map(p => ({ 
-                              ...p, 
-                              hp: p.maxHp, 
-                              status: [], 
-                              stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 } 
-                            })) 
-                          }));
-                          addLog("í°ÃÂ¸ÃÂÃÂ¥ Todos os Pokémon da equipe foram curados!", "system");
+                          setGameState(prev => {
+                            const newStamina = { ...prev.stamina };
+                            prev.team.forEach(p => {
+                              if (p?.instanceId) {
+                                newStamina[p.instanceId] = { value: 100, lastFed: Date.now() };
+                              }
+                            });
+                            return {
+                              ...prev,
+                              team: prev.team.map(p => ({
+                                ...p,
+                                hp: p.maxHp,
+                                status: [],
+                                stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
+                              })),
+                              stamina: newStamina,
+                            };
+                          });
+                          addLog("ÃÂ¸ÃÂÃÂ¥ Todos os Pokémon da equipe foram curados!", "system");
                           
                           setTimeout(() => {
                             setActiveBuildingModal(null);
