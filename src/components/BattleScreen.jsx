@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { StatusBadges } from './CommonUI';
 import { BATTLE_BACKGROUNDS } from '../data/battleBackgrounds';
 import ActiveEffectsBar from './ActiveEffectsBar';
+import { TIME_CONFIG } from '../utils/timeSystem';
 
 const BattleScreen = ({ 
   currentEnemy, gameState, activeMemberIndex, moveIndex, weather,
   setActiveMemberIndex, addLog, battleLog, floatingTexts,
-  onUseItem, setGameState, setShowAutoCaptureModal, ROUTES, fixPath, TYPE_COLORS, onGoToCity, onChallengeBoss
+  onUseItem, setGameState, setShowAutoCaptureModal, ROUTES, fixPath, TYPE_COLORS, onGoToCity, onChallengeBoss,
+  timeOfDay
 }) => {
   const activePoke = gameState.team?.[activeMemberIndex];
   const autoConfig = gameState.autoConfig || { autoPokeball: true, autoPotion: false, autoPotionHpPct: 30, focusPokemonIndex: 0 };
@@ -114,13 +116,23 @@ const BattleScreen = ({
       </div>
 
       {/*    ARENA    */}
-      <div className="relative overflow-hidden rounded-2xl shadow-xl flex-shrink-0"
-        style={{ 
-          height: 220, 
-          background: mainBackground,
-          backgroundSize: 'cover', 
-          backgroundPosition: 'center' 
-        }}>
+      <div className="relative overflow-hidden rounded-2xl shadow-xl flex-shrink-0" style={{ height: 220 }}>
+        {/* Background com Filtro de Tempo */}
+        <div
+          className="absolute inset-0"
+          style={{ 
+            background: mainBackground,
+            backgroundSize: 'cover', 
+            backgroundPosition: 'center',
+            filter: TIME_CONFIG[timeOfDay]?.skyFilter || 'none',
+            transition: 'filter 2s ease',
+          }}
+        />
+        {/* Overlay de cor do tempo */}
+        <div
+          className="absolute inset-0 pointer-events-none z-[5]"
+          style={{ background: TIME_CONFIG[timeOfDay]?.overlayColor || 'transparent', transition: 'background 2s ease' }}
+        />
 
 
         {/* Shiny sparkles ao redor do Pokémon */}

@@ -480,7 +480,152 @@ export const ROUTES = {
     enemies: pk([42, 47, 67, 75, 95, 132, 113], 60),
     trainerChance: 0, trainers: [],
     background: '/battle_bg_cave_1776863810604.png',
-    description: 'Caverna proibida  lar de uma lenda..',
+    description: 'Caverna proibida   lar de uma lenda..',
+  },
+
+  // ── GRUPO: CERULEAN CITY ─────────────────────────────────────────
+  route_4: {
+    id: 'route_4', name: 'Rota 4', type: 'farm', group: 'Cerulean City',
+    unlockLevel: 15, requirements: ['boulder_badge'],
+    biome: 'grass',
+    enemies: pk([16, 21, 39, 74, 56], 12),
+    trainerChance: 0.05,
+    trainers: [
+      { name: 'Youngster Chad',   sprite: S.youngster, team: pk([21, 16], 12),  reward: 220 },
+      { name: 'Hiker Bob',        sprite: S.hiker,     team: pk([74, 56], 12),  reward: 260 },
+      { name: 'Lass Crissy',      sprite: S.lass,      team: pk([39, 39], 12),  reward: 220 },
+    ],
+    background: '/battle_bg_route4.png',
+    description: 'Rota ao leste de Mt. Moon, com acesso a Cerulean.',
+  },
+
+  // ── GRUPO: LAVENDER TOWN ─────────────────────────────────────────
+  lavender_town: {
+    id: 'lavender_town', name: 'Lavender Town', type: 'city', group: 'Lavender Town',
+    unlockLevel: 28, requirements: ['thunder_badge'],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: '/battle_bg_lavender.png',
+    description: 'Cidade sombria lar da Torre Pokémon.',
+  },
+
+  route_8: {
+    id: 'route_8', name: 'Rota 8', type: 'farm', group: 'Lavender Town',
+    unlockLevel: 28, requirements: ['thunder_badge'],
+    biome: 'grass',
+    enemies: pk([19, 41, 96, 63, 52], 22),
+    trainerChance: 0.05,
+    trainers: [
+      { name: 'Gambler Rich',       sprite: S.gambler,   team: pk([52, 96], 22),   reward: 500 },
+      { name: 'Lass Paige',         sprite: S.lass,      team: pk([19, 39], 21),   reward: 380 },
+      { name: 'Juggler Kirk',       sprite: S.juggler,   team: pk([100, 81], 23),  reward: 520 },
+      { name: 'Ace Trainer Brian',  sprite: S.aceM,      team: pk([63, 96], 23),   reward: 620 },
+    ],
+    background: '/battle_bg_route8.png',
+    description: 'Rota entre Saffron e Lavender.',
+  },
+
+  route_11: {
+    id: 'route_11', name: 'Rota 11', type: 'farm', group: 'Lavender Town',
+    unlockLevel: 22, requirements: ['cascade_badge'],
+    biome: 'grass',
+    enemies: pk([21, 23, 19, 60, 84], 20),
+    trainerChance: 0.05,
+    trainers: [
+      { name: 'Youngster Albert',  sprite: S.youngster, team: pk([21, 21], 20),   reward: 340 },
+      { name: 'Ace Trainer Gaven', sprite: S.aceM,      team: pk([84, 60], 21),   reward: 520 },
+      { name: 'Picnicker Edna',    sprite: S.picnicker, team: pk([60, 19], 20),   reward: 360 },
+      { name: 'Hiker Yoshi',       sprite: S.hiker,     team: pk([23, 95], 21),   reward: 460 },
+    ],
+    background: '/battle_bg_route11.png',
+    description: 'Rota leste de Vermilion, caminho para Lavender.',
+  },
+
+  // ── GRUPO: FUCHSIA CITY ──────────────────────────────────────────
+  route_16_17_18: {
+    id: 'route_16_17_18', name: 'Rotas 16, 17 e 18', type: 'farm', group: 'Fuchsia City',
+    unlockLevel: 36, requirements: ['rainbow_badge'],
+    biome: 'grass',
+    enemies: pk([84, 22, 128, 39, 101], 33),
+    trainerChance: 0.05,
+    trainers: [
+      { name: 'Biker Jaren',        sprite: S.cooltrainer, team: pk([22, 84], 33),    reward: 800 },
+      { name: 'Biker Virgil',       sprite: S.cooltrainer, team: pk([84, 22, 22], 32),reward: 760 },
+      { name: 'Cooltrainer Mitch',  sprite: S.cooltrainer, team: pk([128, 101], 34),  reward: 920 },
+      { name: 'Ace Trainer Parker', sprite: S.aceF,        team: pk([22, 128], 35),   reward: 1000 },
+    ],
+    background: '/battle_bg_route16_17_18.png',
+    description: 'Cycling Road e rotas sul de Celadon até Fuchsia.',
+  },
+
+  route_19_20: {
+    id: 'route_19_20', name: 'Rotas 19 e 20', type: 'farm', group: 'Fuchsia City',
+    unlockLevel: 38, requirements: ['soul_badge'],
+    biome: 'water',
+    enemies: pk([72, 73, 60, 61, 86, 90], 32),
+    trainerChance: 0.05,
+    trainers: [
+      { name: 'Swimmer David',   sprite: S.cooltrainer, team: pk([72, 60], 32),  reward: 720 },
+      { name: 'Swimmer Sharon',  sprite: S.aceF,        team: pk([86, 72], 33),  reward: 760 },
+      { name: 'Beauty Sheila',   sprite: S.beauty,      team: pk([90, 73], 34),  reward: 840 },
+      { name: 'Swimmer Kevin',   sprite: S.cooltrainer, team: pk([61, 86], 33),  reward: 740 },
+    ],
+    background: '/battle_bg_route19_20.png',
+    description: 'Rotas aquáticas entre Fuchsia e Cinnabar.',
+  },
+
+  seafoam_islands: {
+    id: 'seafoam_islands', name: 'Ilhas Seafoam', type: 'farm', group: 'Fuchsia City',
+    unlockLevel: 40, requirements: ['soul_badge'],
+    biome: 'water',
+    enemies: pk([86, 87, 90, 91, 37, 38, 144], 38),
+    trainerChance: 0,
+    trainers: [],
+    background: '/battle_bg_seafoam.png',
+    description: 'Cavernas geladas. Lenda diz que Articuno vive aqui.',
+  },
+
+  // ── GRUPO: CINNABAR ISLAND ───────────────────────────────────────
+  route_21: {
+    id: 'route_21', name: 'Rota 21', type: 'farm', group: 'Cinnabar Island',
+    unlockLevel: 44, requirements: ['marsh_badge'],
+    biome: 'water',
+    enemies: pk([72, 73, 90, 91, 132, 129], 36),
+    trainerChance: 0.05,
+    trainers: [
+      { name: 'Swimmer Nash',   sprite: S.cooltrainer, team: pk([90, 72], 36),   reward: 940 },
+      { name: 'Swimmer Elaine', sprite: S.aceF,        team: pk([73, 132], 36),  reward: 940 },
+      { name: 'Fisher Gilbert', sprite: S.cooltrainer, team: pk([129, 90], 37),  reward: 1000 },
+    ],
+    background: '/battle_bg_route21.png',
+    description: 'Rota aquática entre Pallet e Cinnabar.',
+  },
+
+  power_plant: {
+    id: 'power_plant', name: 'Usina Elétrica', type: 'farm', group: 'Cerulean City',
+    unlockLevel: 25, requirements: ['thunder_badge'],
+    biome: 'mountain',
+    enemies: pk([81, 82, 100, 101, 125, 145], 32),
+    trainerChance: 0,
+    trainers: [],
+    background: '/battle_bg_power_plant.png',
+    description: 'Usina abandonada. Zapdos dizem que habita aqui.',
+  },
+
+  // ── GRUPO: VICTORY ROAD ─────────────────────────────────────────
+  route_23: {
+    id: 'route_23', name: 'Rota 23', type: 'farm', group: 'Victory Road',
+    unlockLevel: 50, requirements: ['earth_badge'],
+    biome: 'grass',
+    enemies: pk([22, 23, 67, 105, 148, 147], 44),
+    trainerChance: 0.05,
+    trainers: [
+      { name: 'Cooltrainer Kate',   sprite: S.cooltrainer, team: pk([22, 105], 45),  reward: 2000 },
+      { name: 'Cooltrainer Warren', sprite: S.cooltrainer, team: pk([67, 23], 46),   reward: 2000 },
+      { name: 'Ace Trainer Parker', sprite: S.aceM,        team: pk([148, 22], 47),  reward: 2500 },
+      { name: 'Ace Trainer Cybil',  sprite: S.aceF,        team: pk([147, 67], 47),  reward: 2500 },
+    ],
+    background: '/battle_bg_route23.png',
+    description: 'O caminho final para o Plateau Indigo.',
   },
 };
 

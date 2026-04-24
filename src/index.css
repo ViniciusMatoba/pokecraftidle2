@@ -137,7 +137,7 @@ body::after {
   100% { transform: translateY(-40px); opacity: 0; }
 }
 @keyframes slideInRight {
-  from { transform: translateX(60px); opacity: 0; }
+  from { transform: translateX(120%); opacity: 0; }
   to   { transform: translateX(0);    opacity: 1; }
 }
 @keyframes fadeOutRight {
@@ -160,7 +160,7 @@ body::after {
 .animate-fadeIn        { animation: fadeIn        0.4s ease-out forwards; }
 .animate-fadeOutRight  { animation: fadeOutRight  0.5s ease-in  forwards; }
 .animate-slideUp       { animation: slideUp       0.5s ease-out forwards; }
-.animate-slideInRight  { animation: slideInRight  0.4s ease-out forwards; }
+.animate-slideInRight  { animation: slideInRight  0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 .animate-slideInUp     { animation: slideInUp     0.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
 .animate-bounceIn      { animation: bounceIn      0.4s ease-out forwards; }
 .animate-floatUp       { animation: floatUp       1.2s ease-out forwards; }

@@ -41,8 +41,9 @@ import ExpeditionsScreen from './components/ExpeditionsScreen';
 import AutoCaptureModal from './components/AutoCaptureModal';
 import ConfirmModal from './components/ConfirmModal';
 
-import QuestModal from './components/QuestModal';
 import { QUESTS, getActiveQuest, updateQuestProgress, getAvailableQuest } from './data/quests';
+import NotificationSystem, { notify } from './components/NotificationSystem';
+import { getTimeOfDay, TIME_CONFIG, NIGHT_ONLY_POKEMON } from './utils/timeSystem';
 
 const fixPath = (path) => {
   if (typeof path !== 'string') return path;
@@ -172,6 +173,7 @@ export default function App() {
   const [previewStarter, setPreviewStarter] = useState(null);
   const [activeQuestModal, setActiveQuestModal] = useState(null);
   const [pendingQuest, setPendingQuest] = useState(null);
+  const [timeOfDay, setTimeOfDay] = useState(getTimeOfDay());
   const [vsInitialTab, setVsInitialTab] = useState('challenges'); // 'challenges', 'gyms', 'legendary'
   const [vsInitialCategory, setVsInitialCategory] = useState(null); // 'rival', 'boss', 'rocket', 'legendary'
 
@@ -843,15 +845,27 @@ export default function App() {
     
     let enemyPool = [...route.enemies];
     
-    // í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬ 3. VARAS DE PESCA (Fishing Rods) í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬
-    // Se a rota tem bioma de água e o jogador possui uma vara, aumenta chance de água
+    // Bônus de Horário
+    const currentTime = getTimeOfDay();
+    const timeConfig = TIME_CONFIG[currentTime];
+    
+    // Chance de spawnar Pokémon especial de noite
+    if (currentTime === 'night' && Math.random() < 0.15) {
+      const nightPool = NIGHT_ONLY_POKEMON.filter(id => POKEDEX[id]);
+      if (nightPool.length > 0) {
+        const nightId = nightPool[Math.floor(Math.random() * nightPool.length)];
+        const nightBase = POKEDEX[nightId];
+        enemyPool.push({ ...nightBase, level: enemyPool[0]?.level || 5 });
+      }
+    }
+    
+    // ⎯⎯⎯⎯ 3. VARAS DE PESCA (Fishing Rods) ⎯⎯⎯⎯
     if (route.biome === 'water' || route.name.toLowerCase().includes('oceano') || route.name.toLowerCase().includes('praia')) {
       const rods = ['super_rod', 'good_rod', 'old_rod'];
       const ownedRod = rods.find(r => (gameState.inventory?.items?.[r] || 0) > 0);
       if (ownedRod) {
         const rodData = CRAFTING_RECIPES.fishing_rods.find(r => r.id === ownedRod);
         const waterBonus = rodData?.effect?.waterBonus || 0;
-        // Filtra pokémons de água e duplica sua presença no pool proporcionalmente ao bí­íƒÂ‚í‚Â´nus
         const waterEnemies = enemyPool.filter(e => {
           const p = POKEDEX[e.id];
           return p?.type === 'Water' || p?.types?.includes('Water');
@@ -881,7 +895,10 @@ export default function App() {
     const masteryCount = (gameState.speciesMastery || {})[pokeId] || (gameState.speciesMastery || {})[base.id] || 0;
     const shinyChanceBase = 0.01; // 1% base
     const shinyBonus = Math.min(0.04, (masteryCount / 100) * 0.05); // Até +4% de bí­íƒÂ‚í‚Â´nus
-    const isShiny = Math.floor(Math.random() * 4096) === 0;
+    
+    // Aplicar rarityBonus do período do dia ao shiny
+    const timeShinyBonus = (timeConfig?.rarityBonus?.[base.type] || timeConfig?.rarityBonus?.[base.types?.[0]]) || 1.0;
+    const isShiny = Math.random() < (shinyChanceBase + shinyBonus) * timeShinyBonus;
 
     const levelVariance = Math.floor(Math.random() * 3) - 1;
     const level = Math.max(1, (base.level || 5) + levelVariance);
@@ -979,11 +996,39 @@ export default function App() {
       if (route?.type === 'farm') {
         const quest = getAvailableQuest(gameState, gameState.currentRoute, gameState.lastQuestTime);
         if (quest) {
+          notify({ type: 'quest', title: 'Nova missão!', message: quest.title });
           setTimeout(() => setPendingQuest(quest), 3000);
         }
       }
     }
   }, [currentView, gameState.currentRoute, gameState.lastQuestTime, processedRoutes]);
+
+  // useEffect para notificações de plantação
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const slots = gameState.house?.slots || [];
+      slots.forEach((slot, i) => {
+        if (slot && now >= slot.plantedAt + slot.growthTime) {
+          const plant = PLANTABLE_ITEMS[slot.plantId];
+          if (plant && !slot.notified) {
+            notify({ type: 'harvest', title: 'Plantação pronta!', message: `${plant.name} está pronta para colher!` });
+            setGameState(prev => {
+              const newSlots = [...(prev.house?.slots || [])];
+              if (newSlots[i]) newSlots[i] = { ...newSlots[i], notified: true };
+              return { ...prev, house: { ...prev.house, slots: newSlots } };
+            });
+          }
+        }
+      });
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [gameState.house?.slots]);
+
+  useEffect(() => {
+    const interval = setInterval(() => setTimeOfDay(getTimeOfDay()), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬ TICK DE BATALHA í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬
   const handleBattleTick = useCallback(() => {
@@ -1483,7 +1528,10 @@ export default function App() {
 
         const catchRate = ((1 - (currentEnemy.hp / currentEnemy.maxHp)) + 0.1) * multiplier;
         if (Math.random() < catchRate) {
-          addLog(`íƒÂ¢í‚Âœí‚Â¨ Capturado! ${currentEnemy.name} agora é seu!`, 'system');
+          addLog(`✨ Capturado! ${currentEnemy.name} agora é seu!`, 'system');
+          if (currentEnemy.isShiny) {
+            notify({ type: 'capture', title: '✨ SHINY capturado!', message: `${currentEnemy.name} brilhante foi capturado!`, duration: 6000 });
+          }
           sfxCapture();
           sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
 
@@ -1860,6 +1908,7 @@ export default function App() {
       const exp = prev.expeditions?.[biomeId];
       if (!exp || Date.now() < exp.endsAt) return prev;
       const biome = EXPEDITION_BIOMES[biomeId];
+      notify({ type: 'expedition', title: 'Expedição concluída!', message: `${biome.name} retornou com itens!` });
       const duration = Date.now() - exp.startedAt;
       const rawDrops = calcExpeditionDrops(exp.team, biome, duration);
       // Candies são exclusivos do farm nas rotas â€” remover das expediçí­íƒÂ‚í‚Âµes
@@ -2306,6 +2355,7 @@ export default function App() {
 
           const newLevel = (p.level || 5) + 1;
           addLog(`ðŸŽ‰ ${p.name} subiu para Nv. ${newLevel}!`, 'system');
+          notify({ type: 'level_up', title: `${poke.name} subiu para Nv.${newLevel}!`, message: 'Continue treinando!' });
           sfxLevelUp();
 
           let newMoves = [...(p.moves || [])];
@@ -2452,6 +2502,9 @@ export default function App() {
                   `${currentEnemy.isShiny ? 'âœ¨ SHINY ' : ''}${currentEnemy.name} capturado automaticamente com ${ITEM_LABELS[selectedBall]?.name || selectedBall}!`,
                   'system'
                 );
+                if (currentEnemy.isShiny) {
+                  notify({ type: 'capture', title: '✨ SHINY capturado!', message: `${currentEnemy.name} brilhante foi capturado!`, duration: 6000 });
+                }
                 sfxCapture();
 
                 if (alreadyCaught) {
@@ -3319,6 +3372,7 @@ export default function App() {
 
       case 'battles': return (
         <BattleScreen 
+          timeOfDay={timeOfDay}
           currentEnemy={currentEnemy} 
           gameState={gameState} 
           activeMemberIndex={activeMemberIndex} 
@@ -3542,6 +3596,10 @@ export default function App() {
                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png" className="w-4 h-4" alt="Home" />
                  <span className="text-[10px] font-black uppercase">Home</span>
                </button>
+               <div className="flex items-center gap-1 bg-black/20 px-2 py-1 rounded-full border border-white/10">
+                 <span className="text-sm">{TIME_CONFIG[timeOfDay]?.emoji}</span>
+                 <span className="text-white text-[9px] font-black uppercase">{TIME_CONFIG[timeOfDay]?.label}</span>
+               </div>
                <div className="flex items-center gap-1">
                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-4 h-4" alt="currency" />
                  <span className="text-xs font-black">{gameState.currency}</span>
@@ -4047,6 +4105,7 @@ export default function App() {
            </div>
         </div>
       )}
+      <NotificationSystem />
     </div>
   );
 }
