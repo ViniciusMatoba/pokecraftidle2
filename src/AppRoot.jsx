@@ -835,7 +835,7 @@ export default function App() {
       });
       setBattleLog([]);
       isProcessingVictory.current = false;
-      addLog(`âš”ï¸í¯¸ ${trainer.name} quer batalhar!`, 'system');
+      addLog(`âš”ï¸⚔️ ${trainer.name} quer batalhar!`, 'system');
       return;
     }
 
@@ -1259,7 +1259,7 @@ export default function App() {
 
           // Status condition
           if (fx.statusEffect) {
-            const statusNames = { burn:'🔥 Queimadura', poison:'Ã¢Ã‹í‚œÃ‚ í¯Ã‚í‚¸Ã‚í‚ Veneno', toxic:'Ã¢Ã‹í‚œÃ‚ í¯Ã‚í‚¸Ã‚í‚ Veneno Grave', sleep:'💤 Sono', paralyze:'⚡ Paralisia', confuse:'💫 Confusão', freeze:'Ã¢Ã‚í‚Ã¢í‚€í‚ží¯Ã‚í‚¸Ã‚í‚ Congelado' };
+            const statusNames = { burn:'🔥 Queimadura', poison:'Ã¢Ã‹í‚œÃ‚ í¯Ã‚💖Ã‚í‚ Veneno', toxic:'Ã¢Ã‹í‚œÃ‚ í¯Ã‚💖Ã‚í‚ Veneno Grave', sleep:'💤 Sono', paralyze:'⚡ Paralisia', confuse:'💫 Confusão', freeze:'Ã¢Ã‚í‚Ã¢í‚€í‚ží¯Ã‚💖Ã‚í‚ Congelado' };
             if (!(updatedEnemyFinal.status || []).includes(fx.statusEffect)) {
               updatedEnemyFinal.status = [...(updatedEnemyFinal.status || []), fx.statusEffect];
               addLog(`${statusNames[fx.statusEffect]||fx.statusEffect}: ${updatedEnemyFinal.name} foi afetado!`, 'enemy');
@@ -1280,7 +1280,7 @@ export default function App() {
         updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - playerDmg);
         addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
         if (eff > 1) addLog("🚀’¥ É super efetivo!", 'system');
-        if (eff > 0 && eff < 1) addLog("Ã…í‚¸Ã¢í‚€í‚ºÃ‚í‚¡í¯Ã‚í‚¸Ã‚í‚ Não é muito efetivo!", 'system');
+        if (eff > 0 && eff < 1) addLog("💖💖Ã¢í‚€í‚ºÃ‚í‚¡í¯Ã‚💖Ã‚í‚ Não é muito efetivo!", 'system');
         if (eff === 0) addLog("🚫 Não afetou o inimigo!", 'system');
       }
 
@@ -1372,7 +1372,7 @@ export default function App() {
               const eff = getTypeEffectiveness(enemyMove.type, updatedTeamFinal[activeMemberIndex].type);
               updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - enemyDmg);
               if (eff > 1) addLog(`🚀’¥ Golpe de ${updatedEnemyFinal.name} foi super efetivo!`, 'enemy');
-              if (eff > 0 && eff < 1) addLog(`Ã°í‚Ÿí‚›í‚¡Ã¯í‚¸í‚ Golpe de ${updatedEnemyFinal.name} não foi muito efetivo...`, 'enemy');
+              if (eff > 0 && eff < 1) addLog(`Ã°í‚Ÿí‚›í‚¡Ã¯💖í‚ Golpe de ${updatedEnemyFinal.name} não foi muito efetivo...`, 'enemy');
               if (eff === 0) addLog(`🚫 ${updatedTeamFinal[activeMemberIndex].name} é imune!`, 'enemy');
             }
           }
@@ -1800,7 +1800,7 @@ export default function App() {
       const newItems = { ...prev.inventory.items };
       newItems[recipe.id] = (newItems[recipe.id] || 0) + 1;
 
-      addLog(`Ã…í‚¸Ã¢í‚€í‚ºÃ‚ í¯Ã‚í‚¸Ã‚í‚ Você fabricou: ${recipe.name}!`, 'drop');
+      addLog(`💖💖Ã¢í‚€í‚ºÃ‚ í¯Ã‚💖Ã‚í‚ Você fabricou: ${recipe.name}!`, 'drop');
 
       return {
         ...prev,
@@ -1843,7 +1843,7 @@ export default function App() {
       if (use.effect === 'xp_boost') {
         const n = p.level || 1; const xpNeeded = Math.pow(n + 1, 3) - Math.pow(n, 3);
         p.xp = xpNeeded; 
-        addLog(`Ã…í‚¸Ã‚í‚Ã‚ ${p.name} consumiu candies e ganhou experiência!`, 'system');
+        addLog(`💖💖Ã‚í‚Ã‚ ${p.name} consumiu candies e ganhou experiência!`, 'system');
       } else if (use.effect === 'stat_atk') {
         p.attack = (p.attack || 10) + 2;
         addLog(` ${p.name} aumentou o Ataque permanentemente!`, 'system');
@@ -1866,7 +1866,7 @@ export default function App() {
           setEvolutionPending({ ...p, teamIndex: location === 'team' ? pokemonIndex : null, pcIndex: location === 'pc' ? pokemonIndex : null });
           return { ...prev, inventory: newInventory };
         } else {
-           addLog(`Ã¢Ã‚í‚Ã…í‚’ ${p.name} não pode evoluir mais.`, 'system');
+           addLog(`Ã¢Ã‚í‚💖í‚’ ${p.name} não pode evoluir mais.`, 'system');
            return prev;
         }
       }
@@ -1932,7 +1932,7 @@ export default function App() {
         .map(([k, v]) => `${v}x ${k}`)
         .join(', ');
       addLog(
-        `Ã¢Ã…í‚“Ã¢í‚€í‚¦ Expedição em ${biome.name} concluída! Coletou: ${dropSummary || 'nada desta vez'}`,
+        `Ã¢💖í‚“Ã¢í‚€í‚¦ Expedição em ${biome.name} concluída! Coletou: ${dropSummary || 'nada desta vez'}`,
         'drop'
       );
       teamWithXP.forEach(p => {
@@ -2155,7 +2155,7 @@ export default function App() {
         opponentTeamIndex: 0
       });
       setCurrentView('battles');
-      addLog(`Ã¢í‚ší‚”Ã¯í‚¸í‚í¯Ã‚í‚¸Ã‚í‚ RIVAL: ${battleData.name} desafiou você!`, 'system');
+      addLog(`Ã¢í‚ší‚”Ã¯💖í‚í¯Ã‚💖Ã‚í‚ RIVAL: ${battleData.name} desafiou você!`, 'system');
       isProcessingVictory.current = false;
       return;
     }
@@ -2773,7 +2773,7 @@ export default function App() {
                   }}
                   className="w-full mt-5 bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg active:scale-95"
                 >
-                  {isLastStep ? 'Tudo Pronto!' : 'PRÓXIMO ▶'}
+                  {isLastStep ? 'Tudo Pronto!' : 'PRÓXIMO \u25B6'}
                 </button>
               </div>
             </div>
@@ -3732,7 +3732,7 @@ export default function App() {
             <div className="p-5 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { icon: 'âš”ï¸í¯¸', label: 'Nocautes', value: sessionStats.kills },
+                  { icon: 'âš”ï¸⚔️', label: 'Nocautes', value: sessionStats.kills },
                   { icon: '(', label: 'Shinies', value: sessionStats.shinyKills + sessionStats.captures.filter(c => c.isShiny).length },
                   { icon: 'í¢€ ', label: 'Trainers', value: sessionStats.trainers },
                   { icon: '💰', label: 'Coins',    value: sessionStats.coins  },
@@ -3770,14 +3770,14 @@ export default function App() {
               {sessionStats.captures.length > 0 && (
                 <div className="bg-blue-50/50 p-4 rounded-3xl border border-blue-100">
                    <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <span className="text-sm">🎒¾</span> Capturados ({sessionStats.captures.length})
+                    <span className="text-sm">🎒</span> Capturados ({sessionStats.captures.length})
                   </p>
                   <div className="grid grid-cols-1 gap-2">
                     {sessionStats.captures.map((cap, i) => (
                       <div key={i} className="flex items-center gap-3 bg-white border border-blue-100 rounded-2xl px-3 py-1.5 shadow-sm">
                         <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${cap.isShiny ? 'shiny/' : ''}${cap.id}.png`} className="w-8 h-8 object-contain" alt={cap.name} />
                         <span className="font-black text-slate-800 text-[11px] uppercase tracking-tighter">{cap.name}</span>
-                        {cap.isShiny && <span className="ml-auto text-[8px] bg-yellow-100 text-yellow-700 font-extrabold px-2 py-0.5 rounded-full border border-yellow-200">( SHINY</span>}
+                        {cap.isShiny && <span className="ml-auto text-[8px] bg-yellow-100 text-yellow-700 font-extrabold px-2 py-0.5 rounded-full border border-yellow-200">✨ SHINY</span>}
                       </div>
                     ))}
                   </div>
@@ -3804,7 +3804,7 @@ export default function App() {
                 className="w-full bg-pokeRed text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-red-600 transition-all active:scale-95 border-b-8 border-red-700 flex items-center justify-center gap-3"
               >
                 Continuar para Cidade
-                <span>âž”</span>
+                <span>▶</span>
               </button>
             </div>
           </div>
@@ -3812,68 +3812,68 @@ export default function App() {
       )}
 
       {(!loading && user && gameState.worldFlags?.includes('has_starter')) && (
-        <nav className="bg-white border-t-4 border-slate-200 grid grid-cols-5 z-50 shadow-lg relative"
-          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', minHeight: '4.5rem', flexShrink: 0 }}
-        >
-          <button onClick={() => {
-            const currentR = processedRoutes[gameState.currentRoute];
-            const isFarming = currentR && currentR.type === 'farm';
-            
-             if (currentView === 'battles') {
-              // Se já está na batalha, abrir o mapa requer confirmação
-              showConfirm({
-                title: 'Interromper Treino?',
-                message: 'Deseja abrir o mapa das Rotas? Isso interromperá seu treino atual.',
-                onConfirm: () => {
-                  setCurrentView('routes');
-                  closeConfirm();
-                }
-              });
-            } else if (isFarming) {
-              // Se está em qualquer outra tela (Menu, Pokemon, etc) e estava treinando, volta para a batalha
-              setCurrentView('battles');
-            } else {
-              // Comportamento padrão (ir para o mapa)
-              setCurrentView('routes');
-            }
-          }} className={`flex flex-col items-center justify-center py-2 transition-all ${['routes', 'battles'].includes(currentView) ? 'text-pokeBlue scale-110' : 'text-slate-400 opacity-60'}`}>
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png" className="w-7 h-7 object-contain" alt="Routes" />
-            <span className="text-[9px] font-black uppercase mt-0.5">Rotas</span>
-          </button>
-          <button onClick={() => setCurrentView('pokemon_management')} className={`flex flex-col items-center justify-center py-2 transition-all ${currentView === 'pokemon_management' ? 'text-pokeRed scale-110' : 'text-slate-400 opacity-60'}`}>
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-7 h-7 object-contain" alt="Pokemons" />
-            <span className="text-[9px] font-black uppercase mt-0.5">Pokémons</span>
-          </button>
-          <button onClick={() => setCurrentView('vs')} className={`flex flex-col items-center justify-center py-2 transition-all ${['vs', 'gyms', 'challenges'].includes(currentView) ? 'text-pokeGold scale-110' : 'text-slate-400 opacity-60'}`}>
-            <span className="text-2xl h-7 flex items-center">âš”ï¸</span>
-            <span className="text-[9px] font-black uppercase mt-0.5">Modo VS</span>
-          </button>
-          <button onClick={() => {
-            if (currentView === 'battles') {
-              showConfirm({
-                title: 'Voltar para a Cidade?',
-                message: 'Deseja interromper o treino e ir para a cidade?',
-                onConfirm: () => {
-                  handleGoToCity();
-                  closeConfirm();
-                }
-              });
-              return;
-            }
-            handleGoToCity();
-          }} className={`flex flex-col items-center justify-center py-2 transition-all ${currentView === 'city' ? 'text-indigo-500 scale-110' : 'text-slate-400 opacity-60'}`}>
-            <span className="text-2xl h-7 flex items-center">🚀¢</span>
-            <span className="text-[9px] font-black uppercase mt-0.5">Cidade</span>
-          </button>
-          <button onClick={() => setCurrentView('menu')} className={`flex flex-col items-center justify-center py-2 transition-all ${currentView === 'menu' ? 'text-slate-800 scale-110' : 'text-slate-400 opacity-60'}`}>
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png" className="w-7 h-7 object-contain" alt="Menu" />
-            <span className="text-[9px] font-black uppercase mt-0.5">Menu</span>
-          </button>
+        <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-slate-200 flex items-center justify-around px-2 py-2 z-50 shadow-xl pb-safe">
+          {(() => {
+            const menuUnlocked = gameState.oakTutorialShown === true;
+            return (
+              <>
+                {/* ROTAS */}
+                <button 
+                  onClick={() => menuUnlocked && handleNavRoutes()} 
+                  disabled={!menuUnlocked}
+                  className={`flex flex-col items-center justify-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 grayscale' : (['routes','battles'].includes(currentView) ? 'text-pokeBlue scale-110' : 'text-slate-400')}`}
+                >
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png" className="w-7 h-7 object-contain" alt="Rotas" />
+                  <span className="text-[9px] font-black uppercase mt-0.5">Rotas</span>
+                </button>
+
+                {/* EQUIPE */}
+                <button 
+                  onClick={() => menuUnlocked && setCurrentView('pokemon_management')} 
+                  disabled={!menuUnlocked}
+                  className={`flex flex-col items-center justify-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 grayscale' : (currentView === 'pokemon_management' ? 'text-pokeBlue scale-110' : 'text-slate-400')}`}
+                >
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-7 h-7 object-contain" alt="Equipe" />
+                  <span className="text-[9px] font-black uppercase mt-0.5">Equipe</span>
+                </button>
+
+                {/* VS */}
+                <button 
+                  onClick={() => menuUnlocked && setCurrentView('vs')} 
+                  disabled={!menuUnlocked}
+                  className={`flex flex-col items-center justify-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 grayscale' : (currentView === 'vs' ? 'text-pokeBlue scale-110' : 'text-slate-400')}`}
+                >
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/badge-1.png" className="w-7 h-7 object-contain" alt="VS" />
+                  <span className="text-[9px] font-black uppercase mt-0.5">VS</span>
+                </button>
+
+                {/* CIDADE */}
+                <button 
+                  onClick={() => menuUnlocked && handleGoToCity()} 
+                  disabled={!menuUnlocked}
+                  className={`flex flex-col items-center justify-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 grayscale' : (['city'].includes(currentView) ? 'text-pokeBlue scale-110' : 'text-slate-400')}`}
+                >
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png" className="w-7 h-7 object-contain" alt="Cidade" />
+                  <span className="text-[9px] font-black uppercase mt-0.5">Cidade</span>
+                </button>
+
+                {/* MENU */}
+                <button 
+                  onClick={() => menuUnlocked && setCurrentView('menu')} 
+                  disabled={!menuUnlocked}
+                  className={`flex flex-col items-center justify-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 grayscale' : (currentView === 'menu' ? 'text-pokeBlue scale-110' : 'text-slate-400')}`}
+                >
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/adventure-guide.png" className="w-7 h-7 object-contain" alt="Menu" />
+                  <span className="text-[9px] font-black uppercase mt-0.5">Menu</span>
+                </button>
+              </>
+            );
+          })()}
         </nav>
       )}
 
-      {/* MODAIS DE CONSTRUES */}
-      {/* MODAL DE MISSíO ATIVA */}
+      {/* MODAIS DE CONSTRUÇÕES */}
+      {/* MODAL DE MISSÃO ATIVA */}
       {pendingQuest && (
         <QuestModal
           quest={pendingQuest}
@@ -3936,7 +3936,7 @@ export default function App() {
                               stamina: newStamina,
                             };
                           });
-                          addLog("Ã…í‚¸Ã‚í‚Ã‚í‚¥ Todos os Pokémon da equipe foram curados!", "system");
+                          addLog("💖💖Ã‚í‚Ã‚í‚¥ Todos os Pokémon da equipe foram curados!", "system");
                           
                           setTimeout(() => {
                             setActiveBuildingModal(null);
@@ -3954,7 +3954,7 @@ export default function App() {
               {activeBuildingModal === 'mart' && (
                 <div className="p-6 flex-1 flex flex-col overflow-hidden">
                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">í‚ª</div>
+                      <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">🛒</div>
                       <div className="flex-1">
                          <h2 className="text-xl font-black text-slate-800 uppercase italic leading-none">Poké Mart</h2>
                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Suprimentos de Viagem</p>
@@ -4153,14 +4153,14 @@ export default function App() {
                           case 'poison_essence': return 'Dropado por Pokémons tipo VENENO na Floresta de Viridian e pântanos.';
                           case 'ground_essence': return 'Dropado por Pokémons tipo TERRA em cavernas, como a Caverna Diglett.';
                           case 'flying_essence': return 'Dropado por Pokémons tipo VOADOR em rotas abertas e céus.';
-                          case 'psychic_essence': return 'Dropado por Pokémons tipo PSíÃ‚í‚QUICO em locais misteriosos ou Mansíões.';
+                          case 'psychic_essence': return 'Dropado por Pokémons tipo PSíÃ‚í‚QUICO em locais misteriosos ou Mansões.';
                           case 'bug_essence': return 'Dropado por Pokémons tipo INSETO na Floresta de Viridian.';
                           case 'rock_essence': return 'Dropado por Pokémons tipo PEDRA em túneis de rocha e cavernas.';
                           case 'ghost_essence': return 'Dropado por Pokémons tipo FANTASMA na Torre Pokémon de Lavender.';
                           case 'dragon_essence': return 'Dropado por Pokémons tipo DRAGíO em locais sagrados ou Victory Road.';
                           case 'steel_essence': return 'Dropado por Pokémons tipo AÇO em áreas industriais ou usinas.';
                           case 'fairy_essence': return 'Dropado por Pokémons tipo FADA no Monte Lua.';
-                          case 'dark_essence': return 'Dropado por Pokémons tipo SOMBRIO em locais escuros ou mansíões.';
+                          case 'dark_essence': return 'Dropado por Pokémons tipo SOMBRIO em locais escuros ou mansões.';
                           default: return 'Explore diferentes rotas e derrote Pokémons de tipos variados para coletar este material.';
                        }
                     })()}

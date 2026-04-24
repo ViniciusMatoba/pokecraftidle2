@@ -64,6 +64,12 @@ if (firstRun) {
 
 console.log('\n🔍 Verificando integridade dos blocos críticos...\n');
 
+if (process.argv.includes('--update')) {
+  fs.writeFileSync(HASH_FILE, JSON.stringify(currentHashes, null, 2));
+  console.log('✅ Hashes atualizados.\n');
+  process.exit(0);
+}
+
 if (issues.length === 0) {
   console.log('✅ Todos os blocos críticos estão intactos.\n');
 } else {
@@ -72,10 +78,4 @@ if (issues.length === 0) {
   console.log('\nSe as alterações foram autorizadas, rode:');
   console.log('  node scripts/check-integrity.cjs --update\n');
   process.exit(1);
-}
-
-// Atualizar hashes após alteração autorizada
-if (process.argv.includes('--update')) {
-  fs.writeFileSync(HASH_FILE, JSON.stringify(currentHashes, null, 2));
-  console.log('✅ Hashes atualizados.\n');
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-export function useAutoFarm(activePoke, routeId, onTick) {
+export function useAutoFarm(activePoke, routeId, onTick, battleReady = true) {
   const onTickRef = useRef(onTick);
   const timerRef = useRef(null);
 
@@ -14,7 +14,7 @@ export function useAutoFarm(activePoke, routeId, onTick) {
       timerRef.current = null;
     }
 
-    if (!activePoke || !routeId) return;
+    if (!activePoke || !routeId || !battleReady) return;
 
     const runTick = () => {
       const nextDelay = onTickRef.current() || 2500;
@@ -29,5 +29,5 @@ export function useAutoFarm(activePoke, routeId, onTick) {
         timerRef.current = null;
       }
     };
-  }, [activePoke?.instanceId, routeId]);
+  }, [activePoke?.instanceId, routeId, battleReady]);
 }
