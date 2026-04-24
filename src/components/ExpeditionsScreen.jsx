@@ -122,7 +122,7 @@ const ExpeditionsScreen = ({
         </button>
         <div>
           <h2 className="text-xl font-black text-white uppercase italic tracking-tighter leading-none">
-            ExpediçÃµes
+            Expediçíµes
           </h2>
           <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
             Envie Pokémon do PC para coletar recursos
@@ -130,7 +130,7 @@ const ExpeditionsScreen = ({
         </div>
       </div>
 
-      {/* ExpediçÃµes ativas */}
+      {/* Expediçíµes ativas */}
       {Object.keys(activeExpeditions).length > 0 && (
         <div className="px-4 py-3 border-b border-white/10 shrink-0">
           <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">

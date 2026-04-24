@@ -36,3 +36,23 @@ export const updateQuestProgress = (prev, type, payload) => {
 
   return { questUpdate, log };
 };
+
+export const getAvailableQuest = (gameState, currentRoute, lastQuestTime) => {
+  // Só libera novas quests após concluir o tutorial do Carvalho
+  if (!(gameState.worldFlags || []).includes('quest_capture_done')) return null;
+  
+  const now = Date.now();
+  const cooldown = 5 * 60 * 1000; // 5 minutos entre quests
+  if (lastQuestTime && (now - lastQuestTime < cooldown)) return null;
+
+  // Lógica simples: 20% de chance de spawnar uma quest ao entrar em rota de farm
+  if (Math.random() > 0.2) return null;
+
+  return {
+    id: 'bounty_' + now,
+    title: 'Missão de Exploração',
+    desc: 'Um pesquisador local precisa de dados sobre os Pokémon desta rota. Capture ou vença 5 Pokémon para ajudar!',
+    reward: '1000 Moedas',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png'
+  };
+};

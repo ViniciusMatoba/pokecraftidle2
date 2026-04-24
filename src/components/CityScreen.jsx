@@ -78,7 +78,7 @@ const CityScreen = ({
     },
     {
       id: 'expeditions',
-      name: 'ExpediçÃµes',
+      name: 'Expediçíµes',
       icon: null,
       emoji: '🧭',
       desc: 'Envie Pokémon do PC para coletar recursos em biomas.',
