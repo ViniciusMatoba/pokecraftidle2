@@ -421,8 +421,8 @@ export default function App() {
       }
     }
 
-    if (newCount === 100) { addLog(`✨ Domínio de ${pokemon.name}: Chance Shiny 2x!`, 'system'); reward = { type: 'BíÂ´nus Passivo', val: 'Chance Shiny 2x' }; }
-    if (newCount === 200) { addLog(`✨ Domínio de ${pokemon.name}: Chance Shiny 5x!`, 'system'); reward = { type: 'BíÂ´nus Passivo', val: 'Chance Shiny 5x' }; }
+    if (newCount === 100) { addLog(`✨ Domínio de ${pokemon.name}: Chance Shiny 2x!`, 'system'); reward = { type: 'Bí´nus Passivo', val: 'Chance Shiny 2x' }; }
+    if (newCount === 200) { addLog(`✨ Domínio de ${pokemon.name}: Chance Shiny 5x!`, 'system'); reward = { type: 'Bí´nus Passivo', val: 'Chance Shiny 5x' }; }
 
     if (reward) {
       addLog(`🌟 Domínio de ${pokemon.name}: ${reward.val} liberado!`, 'system');
@@ -446,7 +446,7 @@ export default function App() {
             const data = docSnap.data();
             if (data?.gameState) {
               setGameState(prev => ({ ...prev, ...data.gameState }));
-              addLog("âËÂí¯Â¸Â Progresso sincronizado com a nuvem!", "system");
+              addLog("âËÂ Progresso sincronizado com a nuvem!", "system");
             }
           }
         } catch (err) {
@@ -459,7 +459,7 @@ export default function App() {
 
   // Sincronização de Estado (Vários destinos)
   useEffect(() => {
-    // 1. LocalStorage (InstantíÂ¢neo)
+    // 1. LocalStorage (Instantí¢neo)
     localStorage.setItem('poke_idle_save', JSON.stringify({ gameState }));
     
     // 2. Firestore (Throttled - 30s)
@@ -477,7 +477,7 @@ export default function App() {
   const triggerSave = useCallback(async () => {
     const user = auth.currentUser;
     if (!user) {
-      alert("Ã¢ÃÂ¡ÃÂ íÂ¯ÃÂ¸ÃÂ Você precisa estar logado para salvar na nuvem!");
+      alert("Ã¢ÃÂ¡ÃÂ í¯ÃÂ¸ÃÂ Você precisa estar logado para salvar na nuvem!");
       return;
     }
     try {
@@ -689,7 +689,7 @@ export default function App() {
        }
     }
 
-    // NOVA LÓGICA DE DROPS DO USUíÂRIO
+    // NOVA LÓGICA DE DROPS DO USUíRIO
     // 1. Essência por Tipo (60% de chance)
     if (Math.random() < 0.6) {
       const essenceType = `${(enemy.type || 'normal').toLowerCase()}_essence`;
@@ -766,7 +766,7 @@ export default function App() {
         villainColor: teamData.color,
         instanceId: Date.now()
       });
-      addLog(`âÅ¡Â í¯Â¸Â EMBOSCADA! ${teamData.name} ${reason}`, 'enemy');
+      addLog(`⚠️ EMBOSCADA! ${teamData.name} ${reason}`, 'enemy');
       return;
     }
 
@@ -802,7 +802,7 @@ export default function App() {
       });
       setBattleLog([]);
       isProcessingVictory.current = false;
-      addLog(`âï¸í¯Â¸Â ${trainer.name} quer batalhar!`, 'system');
+      addLog(`⚔️ï¸ ${trainer.name} quer batalhar!`, 'system');
       return;
     }
 
@@ -857,7 +857,7 @@ export default function App() {
     const levelVariance = Math.floor(Math.random() * 3) - 1;
     const level = Math.max(1, (base.level || 5) + levelVariance);
     
-    // BíÂ´nus Shiny: 20% mais forte
+    // Bí´nus Shiny: 20% mais forte
     const shinyMult = isShiny ? 1.2 : 1.0;
 
     // âââ¬âââ¬ 4. REPEL (Enfraquecer Inimigos) âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
@@ -1042,7 +1042,7 @@ export default function App() {
         addLog(`Ã°ÂÂÂ¤ ${myPoke.name} está dormindo profundamente...`, 'system');
         if (Math.random() < 0.3) {
           updatedTeam[activeMemberIndex].status = myStatus.filter(s => s !== 'sleep');
-          addLog(`âËâ¬í¯Â¸Â ${myPoke.name} acordou!`, 'system');
+          addLog(`âËâ¬ ${myPoke.name} acordou!`, 'system');
         } else {
           return { ...prev, team: updatedTeam }; 
         }
@@ -1089,7 +1089,7 @@ export default function App() {
               const cur = updatedEnemyFinal.stages?.[c.stat] || 0;
               const newVal = Math.max(-6, Math.min(6, cur + c.change));
               updatedEnemyFinal.stages = { ...updatedEnemyFinal.stages, [c.stat]: newVal };
-              const arrow = c.change < 0 ? 'â–Â¼' : 'â–Â²';
+              const arrow = c.change < 0 ? '▼' : '▲';
               const statNames = { attack:'ATK', defense:'DEF', spAtk:'SATK', spDef:'SDEF', speed:'SPD' };
               addLog(`${myPoke.name} usou ${move.name}! ${statNames[c.stat]||c.stat} de ${updatedEnemyFinal.name} ${c.change < 0 ? 'caiu' : 'subiu'}!`, 'system');
               addFloat(`${arrow} ${statNames[c.stat]||c.stat}`, c.change < 0 ? '#64748b' : '#3b82f6');
@@ -1097,7 +1097,7 @@ export default function App() {
               const cur = updatedTeamFinal[activeMemberIndex].stages?.[c.stat] || 0;
               const newVal = Math.max(-6, Math.min(6, cur + c.change));
               updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, [c.stat]: newVal } };
-              const arrow = c.change > 0 ? 'â–Â²' : 'â–Â¼';
+              const arrow = c.change > 0 ? '▲' : '▼';
               const statNames = { attack:'ATK', defense:'DEF', spAtk:'SATK', spDef:'SDEF', speed:'SPD' };
               addLog(`${myPoke.name} usou ${move.name}! ${statNames[c.stat]||c.stat} ${c.change > 0 ? 'subiu' : 'caiu'}!`, 'system');
               addFloat(`${arrow} ${statNames[c.stat]||c.stat}`, c.change > 0 ? '#3b82f6' : '#64748b');
@@ -1115,7 +1115,7 @@ export default function App() {
               updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, accuracy: newVal } };
             }
             addLog(`${myPoke.name} usou ${move.name}! Precisão de ${updatedEnemyFinal.name} caiu!`, 'system');
-            addFloat(`â–Â¼ ACC`, '#64748b');
+            addFloat(`▼ ACC`, '#64748b');
           }
           if (fx.evasion_change) {
             const target = fx.evasion_change.target === 'enemy' ? updatedEnemyFinal : updatedTeamFinal[activeMemberIndex];
@@ -1127,12 +1127,12 @@ export default function App() {
               updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, evasion: newVal } };
             }
             addLog(`${myPoke.name} usou ${move.name}! Evasão subiu!`, 'system');
-            addFloat(`â–Â² EVA`, '#3b82f6');
+            addFloat(`▲ EVA`, '#3b82f6');
           }
 
           // Status condition
           if (fx.statusEffect) {
-            const statusNames = { burn:'Ã°ÂÂÂ¥ Queimadura', poison:'Ã¢ÃÂÃÂ íÂ¯ÃÂ¸ÃÂ Veneno', toxic:'Ã¢ÃÂÃÂ íÂ¯ÃÂ¸ÃÂ Veneno Grave', sleep:'Ã°ÂÂÂ¤ Sono', paralyze:'Ã¢ÂÂ¡ Paralisia', confuse:'Ã°ÂÂÂ« Confusão', freeze:'Ã¢ÃÂÃ¢ÂÂíÂ¯ÃÂ¸ÃÂ Congelado' };
+            const statusNames = { burn:'Ã°ÂÂÂ¥ Queimadura', poison:'Ã¢ÃÂÃÂ í¯ÃÂ¸ÃÂ Veneno', toxic:'Ã¢ÃÂÃÂ í¯ÃÂ¸ÃÂ Veneno Grave', sleep:'Ã°ÂÂÂ¤ Sono', paralyze:'Ã¢ÂÂ¡ Paralisia', confuse:'Ã°ÂÂÂ« Confusão', freeze:'Ã¢ÃÂÃ¢ÂÂí¯ÃÂ¸ÃÂ Congelado' };
             if (!(updatedEnemyFinal.status || []).includes(fx.statusEffect)) {
               updatedEnemyFinal.status = [...(updatedEnemyFinal.status || []), fx.statusEffect];
               addLog(`${statusNames[fx.statusEffect]||fx.statusEffect}: ${updatedEnemyFinal.name} foi afetado!`, 'enemy');
@@ -1153,7 +1153,7 @@ export default function App() {
         updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - playerDmg);
         addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
         if (eff > 1) addLog("💥 É super efetivo!", 'system');
-        if (eff > 0 && eff < 1) addLog("íÂ°ÃÂ¸Ã¢ÂÂºÃÂ¡íÂ¯ÃÂ¸ÃÂ Não é muito efetivo!", 'system');
+        if (eff > 0 && eff < 1) addLog("í°ÃÂ¸Ã¢ÂÂºÃÂ¡í¯ÃÂ¸ÃÂ Não é muito efetivo!", 'system');
         if (eff === 0) addLog("Ã°ÂÂÂ« Não afetou o inimigo!", 'system');
       }
 
@@ -1187,7 +1187,7 @@ export default function App() {
           addLog(`Ã°ÂÂÂ¤ ${updatedEnemyFinal.name} está dormindo...`, 'enemy');
           if (Math.random() < 0.35) {
             updatedEnemyFinal.status = enemyStatus.filter(s => s !== 'sleep');
-            addLog(`âËâ¬í¯Â¸Â ${updatedEnemyFinal.name} acordou!`, 'enemy');
+            addLog(`âËâ¬ ${updatedEnemyFinal.name} acordou!`, 'enemy');
           }
         } else {
           const enemyMoves = updatedEnemyFinal.moves || [];
@@ -1259,7 +1259,7 @@ export default function App() {
         addLog(`💢 ${myPoke.name} sofreu dano por status!`, 'system');
       }
 
-      // ââ SISTEMA DE EXAUSTíO ââââââââââââââââââââââââââââââââââââââââââââââââââ
+      // ââ SISTEMA DE EXAUSTÃO ââââââââââââââââââââââââââââââââââââââââââââââââââ
       const STAMINA_DRAIN  = 0.4;   // % perdida por tick
       const EXHAUSTION_DMG = 0.02;  // % do maxHp perdida por tick quando exausto
       const autoStamEnabled = prev.autoConfig?.autoStamina;
@@ -1624,7 +1624,7 @@ export default function App() {
     });
     setCurrentView('battles');
     // BGM agora gerenciado pelas configuraçíÃÂµes
-    addLog(`â  GINíÂSIO: Líder ${gymData.name} enviou ${base.name}! Nv.${lvl}`, 'system');
+    addLog(`â  GINíSIO: Líder ${gymData.name} enviou ${base.name}! Nv.${lvl}`, 'system');
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, playBGM, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
 
@@ -1657,7 +1657,7 @@ export default function App() {
       const newItems = { ...prev.inventory.items };
       newItems[recipe.id] = (newItems[recipe.id] || 0) + 1;
 
-      addLog(`íÂ°ÃÂ¸Ã¢ÂÂºÃÂ íÂ¯ÃÂ¸ÃÂ Você fabricou: ${recipe.name}!`, 'drop');
+      addLog(`í°ÃÂ¸Ã¢ÂÂºÃÂ í¯ÃÂ¸ÃÂ Você fabricou: ${recipe.name}!`, 'drop');
 
       return {
         ...prev,
@@ -1699,7 +1699,7 @@ export default function App() {
       if (use.effect === 'xp_boost') {
         const xpNeeded = (p.level || 5) * 25;
         p.xp = xpNeeded; 
-        addLog(`íÂ°ÃÂ¸ÃÂÃÂ¬ ${p.name} consumiu candies e ganhou experiência!`, 'system');
+        addLog(`í°ÃÂ¸ÃÂÃÂ¬ ${p.name} consumiu candies e ganhou experiência!`, 'system');
       } else if (use.effect === 'stat_atk') {
         p.attack = (p.attack || 10) + 2;
         addLog(`Â¬ ${p.name} aumentou o Ataque permanentemente!`, 'system');
@@ -1882,7 +1882,7 @@ export default function App() {
   const handleBuySlot = useCallback((expansion) => {
     setGameState(prev => {
       if ((prev.currency || 0) < expansion.cost) return prev;
-      addLog(`—í¯Â¸Â Jardim expandido para ${expansion.totalSlots} canteiros!`, 'system');
+      addLog(`— Jardim expandido para ${expansion.totalSlots} canteiros!`, 'system');
       return {
         ...prev,
         currency: prev.currency - expansion.cost,
@@ -1945,7 +1945,7 @@ export default function App() {
         opponentTeamIndex: 0
       });
       setCurrentView('battles');
-      addLog(`Ã¢ÂÂÃ¯Â¸ÂíÂ¯ÃÂ¸ÃÂ RIVAL: ${battleData.name} desafiou você!`, 'system');
+      addLog(`Ã¢ÂÂÃ¯Â¸Âí¯ÃÂ¸ÃÂ RIVAL: ${battleData.name} desafiou você!`, 'system');
       isProcessingVictory.current = false;
       return;
     }
@@ -2254,7 +2254,7 @@ export default function App() {
             let questUpdate = {};
             if (prev.worldFlags.includes('quest_capture_active')) {
               newInventory.items = { ...newInventory.items, pokeballs: (newInventory.items.pokeballs || 0) + 10 };
-              addLog('íÂ°ÃÂ¸ÃÂ½ÃÂ Carvalho: "Ótimo trabalho! Tome estas 10 Pokébolas!"', 'drop');
+              addLog('í°ÃÂ¸ÃÃÂ Carvalho: "Ótimo trabalho! Tome estas 10 Pokébolas!"', 'drop');
               questUpdate = { worldFlags: prev.worldFlags.filter(f => f !== 'quest_capture_active').concat(['quest_capture_done']) };
             }
 
@@ -2443,7 +2443,7 @@ export default function App() {
                   }}
                   className="w-full mt-5 bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg active:scale-95"
                 >
-                  {isLastStep ? 'Tudo Pronto!' : 'Próximo â¶'}
+                  {isLastStep ? 'Tudo Pronto!' : 'Próximo ▶'}
                 </button>
               </div>
             </div>
@@ -2840,7 +2840,7 @@ export default function App() {
                   <p className="text-amber-900 text-sm leading-relaxed mb-6 font-medium">
                     Parabéns por vencer o Ginásio de Pewter! Você está crescendo como treinador.
                     Que tal ter sua própria casa? Lá você pode cultivar Berries e Apricorns para
-                    fabricar Pokébolas especiais e itens raros. Com Pokémon de Grama e íÂ gua como
+                    fabricar Pokébolas especiais e itens raros. Com Pokémon de Grama e í gua como
                     cuidadores, suas plantaçíÃÂµes crescerão muito mais rápido!
                   </p>
                   <div className="bg-white/60 rounded-3xl p-5 mb-6 border-2 border-amber-200 shadow-inner">
@@ -2969,11 +2969,11 @@ export default function App() {
                         <img
                           src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png"
                           className="w-10 h-10 object-contain"
-                          alt="íÂgua Fresca"
+                          alt="ígua Fresca"
                         />
                       </div>
                       <div>
-                        <p className="text-amber-800 font-black text-xl italic leading-none">10x íÂgua Fresca</p>
+                        <p className="text-amber-800 font-black text-xl italic leading-none">10x ígua Fresca</p>
                         <p className="text-amber-700 text-[10px] font-bold mt-1 uppercase">Para começar sua jornada!</p>
                       </div>
                     </div>
@@ -2983,7 +2983,7 @@ export default function App() {
                     onClick={() => setShowOakStaminaModal(false)}
                     className="w-full bg-green-600 text-white py-6 rounded-3xl font-black uppercase text-sm tracking-widest hover:bg-green-500 transition-all shadow-xl shadow-green-200 active:scale-95"
                   >
-                    Obrigado, Professor! Â½í¯Â¸Â
+                    Obrigado, Professor! 
                   </button>
                 </div>
               </div>
@@ -3313,7 +3313,7 @@ export default function App() {
             <div className="p-5 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { icon: 'âï¸í¯Â¸Â', label: 'Nocautes', value: sessionStats.kills },
+                  { icon: '⚔️ï¸', label: 'Nocautes', value: sessionStats.kills },
                   { icon: '(', label: 'Shinies', value: sessionStats.shinyKills + sessionStats.captures.filter(c => c.isShiny).length },
                   { icon: 'â ', label: 'Trainers', value: sessionStats.trainers },
                   { icon: '💰', label: 'Coins',    value: sessionStats.coins  },
@@ -3476,7 +3476,7 @@ export default function App() {
                               stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 } 
                             })) 
                           }));
-                          addLog("íÂ°ÃÂ¸ÃÂÃÂ¥ Todos os Pokémon da equipe foram curados!", "system");
+                          addLog("í°ÃÂ¸ÃÂÃÂ¥ Todos os Pokémon da equipe foram curados!", "system");
                           
                           setTimeout(() => {
                             setActiveBuildingModal(null);
@@ -3698,7 +3698,7 @@ export default function App() {
                           case 'rock_essence': return 'Dropado por Pokémons tipo PEDRA em túneis de rocha e cavernas.';
                           case 'ghost_essence': return 'Dropado por Pokémons tipo FANTASMA na Torre Pokémon de Lavender.';
                           case 'dragon_essence': return 'Dropado por Pokémons tipo DRAGÃO em locais sagrados ou Victory Road.';
-                          case 'steel_essence': return 'Dropado por Pokémons tipo AíÂO em áreas industriais ou usinas.';
+                          case 'steel_essence': return 'Dropado por Pokémons tipo AíO em áreas industriais ou usinas.';
                           case 'fairy_essence': return 'Dropado por Pokémons tipo FADA no Monte Lua.';
                           case 'dark_essence': return 'Dropado por Pokémons tipo SOMBRIO em locais escuros ou mansíÃÂµes.';
                           default: return 'Explore diferentes rotas e derrote Pokémons de tipos variados para coletar este material.';

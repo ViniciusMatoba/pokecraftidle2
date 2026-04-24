@@ -121,7 +121,7 @@ const AuthScreen = ({ onAuthSuccess }) => {
 
           {/* Subtítulo */}
           <p className="text-red-100 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">
-            {isLogin ? 'â¦ Bem-vindo de volta, Treinador! â¦' : 'â¦ Inicie sua Jornada Pokémon! â¦'}
+            {isLogin ? '✦ Bem-vindo de volta, Treinador! ✦' : '✦ Inicie sua Jornada Pokémon! ✦'}
           </p>
         </div>
 
@@ -236,7 +236,7 @@ const AuthScreen = ({ onAuthSuccess }) => {
             onMouseEnter={e => e.target.style.color = '#CC0000'}
             onMouseLeave={e => e.target.style.color = '#94a3b8'}
           >
-            {isLogin ? 'Não tem conta? Cadastre-se grátis â' : 'â Já possui conta? Faça Login'}
+            {isLogin ? 'Não tem conta? Cadastre-se grátis →' : '← Já possui conta? Faça Login'}
           </button>
 
           <p className="mt-4 text-[9px] font-bold text-slate-300 uppercase tracking-[0.2em] text-center">

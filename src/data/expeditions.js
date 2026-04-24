@@ -3,10 +3,10 @@
 // Badge 2 (Misty)    → Oceano Cerulean
 // Badge 3 (Surge)    → Campo Lutador
 // Badge 4 (Erika)    → Safari Zone
-// Badge 5 (Koga)     â Torre Pokémon
+// Badge 5 (Koga)     → Torre Pokémon
 // Badge 6 (Sabrina)  → Templo Psíquico
-// Badge 7 (Blaine)   â Vulcão de Cinnabar
-// Badge 8 (Giovanni) â Selva do Dragão
+// Badge 7 (Blaine)   → Vulcão de Cinnabar
+// Badge 8 (Giovanni) → Selva do Dragão
 
 export const EXPEDITION_BIOMES = {
 
