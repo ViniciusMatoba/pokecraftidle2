@@ -104,11 +104,11 @@ const TravelScreen = ({
       'has_starter': 'Ter um Pokémon inicial',
       'boulder_badge': 'Insígnia da Rocha (Brock)',
       'cascade_badge': 'Insígnia da Cascata (Misty)',
-      'thunder_badge': 'Insígnia do Trovão (Lt. Surge)',
+      'thunder_badge': 'InsÃ­gnia do Trovão (Lt. Surge)',
       'rainbow_badge': 'Insígnia do Arco-Íris (Erika)',
       'soul_badge': 'Insígnia da Alma (Koga)',
       'marsh_badge': 'Insígnia do Pântano (Sabrina)',
-      'volcano_badge': 'Insígnia do Vulcão (Blaine)',
+      'volcano_badge': 'InsÃ­gnia do Vulcão (Blaine)',
       'earth_badge': 'Insígnia da Terra (Giovanni)',
       'rival_1_defeated': 'Derrotar o Rival na Rota 1',
       'viridian_forest_cleared': 'Vencer o Recruta Rocket na Floresta',
@@ -218,7 +218,7 @@ const TravelScreen = ({
                              <img src={fixPath(route.background)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={route.name} />
                              {!unlocked && (
                                <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex items-center justify-center">
-                                 <span className="text-lg">🔒</span>
+                                 <span className="text-lg">=</span>
                                </div>
                              )}
                            </div>
@@ -237,7 +237,7 @@ const TravelScreen = ({
                          {isCurrent && (
                            <div className="absolute right-0 top-0 bottom-0 w-1.5 bg-pokeBlue"></div>
                          )}
-                         <div className="text-xl opacity-20 group-hover:opacity-100 group-hover:translate-x-1 transition-all">🔍</div>
+                         <div className="text-xl opacity-20 group-hover:opacity-100 group-hover:translate-x-1 transition-all">=</div>
                       </button>
                     );
                   })}
@@ -257,7 +257,7 @@ const TravelScreen = ({
               <button 
                 onClick={() => setSelectedRoute(null)}
                 className="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform z-30"
-              >✕</button>
+              ></button>
             </div>
 
             <div className="p-8 -mt-10 relative z-10">
@@ -272,7 +272,7 @@ const TravelScreen = ({
               {!isRouteUnlocked(selectedRoute) && (
                 <div className="bg-red-50 border-2 border-red-100 rounded-3xl p-5 mb-6">
                   <h4 className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                    <span>🔒</span> Requisitos Necessários
+                    <span>ð</span> Requisitos Necessários
                   </h4>
                   <ul className="flex flex-col gap-2">
                     {selectedRoute.requirements.map(req => {
@@ -283,7 +283,7 @@ const TravelScreen = ({
                           className={`text-xs font-bold flex items-center gap-2 italic p-2 rounded-xl transition-all ${met ? 'text-green-600 bg-green-50/50' : 'text-red-600 hover:bg-red-100/50 cursor-pointer'}`}
                         >
                           <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow-sm ${met ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                            {met ? '✓' : '🔒'}
+                            {met ? '' : '='}
                           </div>
                           <span className="flex-1">{formatRequirement(req)}</span>
                           {met ? (
@@ -419,7 +419,7 @@ const TravelScreen = ({
                   <button 
                     onClick={() => setSelectedPoke(null)}
                     className="absolute top-4 left-4 w-9 h-9 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center z-20 font-black hover:bg-white/40 transition-all border border-white/30"
-                  >✕</button>
+                  ></button>
 
                   <img 
                     src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${selectedPoke.id}.png`} 
@@ -457,7 +457,7 @@ const TravelScreen = ({
                    </div>
                  ) : (
                    <div className="mt-8 p-8 bg-slate-100/50 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-slate-400 font-bold italic text-sm leading-snug">
-                      Derrote e capture esta espécie para liberar informações completas de combate e biologia!
+                      Derrote e capture esta espécie para liberar informaçÃµes completas de combate e biologia!
                    </div>
                  )}
                  <button 
@@ -476,7 +476,7 @@ const TravelScreen = ({
               <button 
                 onClick={() => setSelectedDrop(null)}
                 className="absolute top-4 right-4 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center z-20 font-black hover:bg-red-50 hover:text-red-500 transition-all"
-              >✕</button>
+              ></button>
 
               <div className="p-10 flex-1 overflow-y-auto custom-scrollbar pt-12">
                   <div className="flex items-center gap-5 bg-pokeBlue/5 p-6 rounded-[2.5rem] border-2 border-pokeBlue/10 mb-10">

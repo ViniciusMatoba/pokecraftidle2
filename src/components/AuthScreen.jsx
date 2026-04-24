@@ -121,7 +121,7 @@ const AuthScreen = ({ onAuthSuccess }) => {
 
           {/* Subtítulo */}
           <p className="text-red-100 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">
-            {isLogin ? '✦ Bem-vindo de volta, Treinador! ✦' : '✦ Inicie sua Jornada Pokémon! ✦'}
+            {isLogin ? 'â¦ Bem-vindo de volta, Treinador! â¦' : 'â¦ Inicie sua Jornada Pokémon! â¦'}
           </p>
         </div>
 
@@ -160,7 +160,7 @@ const AuthScreen = ({ onAuthSuccess }) => {
                   className="w-full p-4 pr-14 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none transition-all font-medium text-slate-800"
                   onFocus={e => e.target.style.borderColor = '#CC0000'}
                   onBlur={e => e.target.style.borderColor = '#e2e8f0'}
-                  placeholder="••••••••"
+                  placeholder=""""""""""
                   required
                   autoComplete={isLogin ? 'current-password' : 'new-password'}
                 />
@@ -171,12 +171,12 @@ const AuthScreen = ({ onAuthSuccess }) => {
                   tabIndex={-1}
                   aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                 >
-                  {showPassword ? '🙈' : '👁️'}
+                  {showPassword ? '=H' : '=A'}
                 </button>
               </div>
             </div>
 
-            {/* Toggle — Lembrar login */}
+            {/* Toggle  Lembrar login */}
             <label className="flex items-center gap-3 cursor-pointer group select-none">
               <div className="relative flex-shrink-0">
                 <input
@@ -236,7 +236,7 @@ const AuthScreen = ({ onAuthSuccess }) => {
             onMouseEnter={e => e.target.style.color = '#CC0000'}
             onMouseLeave={e => e.target.style.color = '#94a3b8'}
           >
-            {isLogin ? 'Não tem conta? Cadastre-se grátis →' : '← Já possui conta? Faça Login'}
+            {isLogin ? 'Não tem conta? Cadastre-se grátis â' : 'â Já possui conta? Faça Login'}
           </button>
 
           <p className="mt-4 text-[9px] font-bold text-slate-300 uppercase tracking-[0.2em] text-center">

@@ -17,7 +17,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
   const menuItems = [
     { id: 'pokedex',  name: 'Pokédex',      icon: '/assets/menu/pokedex.png',         desc: 'Registro de Espécies',    color: 'bg-red-50 border-red-200 text-red-600' },
     { id: 'backpack', name: 'Mochila',       icon: '/assets/menu/backpack.png',        desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
-    { id: 'settings', name: 'Configurações', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png', desc: 'Ajustes do Sistema', color: 'bg-indigo-50 border-indigo-200 text-indigo-600' },
+    { id: 'settings', name: 'ConfiguraçÃµes', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png', desc: 'Ajustes do Sistema', color: 'bg-indigo-50 border-indigo-200 text-indigo-600' },
     { id: 'save',     name: 'Salvar Jogo',   icon: '/assets/menu/save.png',            desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
     { id: 'exit',     name: 'Sair do Jogo',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/escape-rope.png',       desc: 'Voltar para o Início',    color: 'bg-slate-50 border-slate-200 text-slate-600' },
   ];
@@ -117,8 +117,8 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
             <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Trava de Nível (Level Cap)</p>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { id: true, name: 'Ativado', icon: '🔒' },
-                { id: false, name: 'Desativado', icon: '🔓' }
+                { id: true, name: 'Ativado', icon: '=' },
+                { id: false, name: 'Desativado', icon: '=' }
               ].map(lc => (
                 <button 
                   key={String(lc.id)}
@@ -170,7 +170,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
             <img src={subView === 'settings' ? 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png' : 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png'} className="w-8 h-8 object-contain" alt="Menu" />
           </div>
           <h2 className="text-4xl font-black text-slate-800 uppercase italic tracking-tighter">
-            {subView === 'settings' ? 'Configurações' : 'Menu Principal'}
+            {subView === 'settings' ? 'ConfiguraçÃµes' : 'Menu Principal'}
           </h2>
         </div>
 

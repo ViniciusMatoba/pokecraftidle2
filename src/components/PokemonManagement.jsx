@@ -178,7 +178,7 @@ const PokemonManagement = ({
               <div key={p.instanceId || i} onClick={() => setActivePokemonDetails({ pokemon: p, index: i, location: 'team' })} className="bg-white p-4 rounded-3xl border-2 border-slate-100 flex items-center gap-4 group cursor-pointer hover:border-pokeBlue transition-all">
                 <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center relative">
                   <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className="w-14 h-14 object-contain" alt={p.name} />
-                  {p.isShiny && <span className="absolute -top-1 -right-1 text-xs">✨</span>}
+                  {p.isShiny && <span className="absolute -top-1 -right-1 text-xs">(</span>}
                 </div>
                 <div className="flex-1">
                   <div className="flex justify-between items-start">
@@ -222,7 +222,7 @@ const PokemonManagement = ({
         <div className="absolute inset-0 z-[100] flex items-end md:items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fadeIn">
            <div className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl border-b-[12px] border-slate-200 overflow-hidden relative animate-slideInUp h-[85vh] flex flex-col">
                <button onClick={() => setActivePokemonDetails(null)} className="absolute top-4 left-4 bg-white/20 w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/30 backdrop-blur-md transition-all z-20 text-white font-black text-xs">
-                  ✕
+                  
                </button>
                {(() => {
                  const poke = activePokemonDetails.pokemon;
@@ -250,7 +250,7 @@ const PokemonManagement = ({
                    Dark: 'bg-[#5b5466]', Steel: 'bg-[#5a8ea2]', Fairy: 'bg-[#fb89eb]',
                  };
 
-                 // Ícone de tipo SVG do PokeAPI (repositório oficial de ícones de tipo)
+                 // Ãcone de tipo SVG do PokeAPI (repositório oficial de Ã­cones de tipo)
                  const typeIconUrl = (t) => t ? `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg` : '';
 
                  const c1 = TYPE_COLOR[t1] || '#9ea0aa';
@@ -269,7 +269,7 @@ const PokemonManagement = ({
                      <div className="absolute inset-0 pointer-events-none"
                        style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
 
-                     {/* Ícones de tipo grandes no fundo (decoração) */}
+                     {/* Ãcones de tipo grandes no fundo (decoração) */}
                      <img src={typeIconUrl(t1)} className="absolute -left-4 bottom-2 w-28 h-28 opacity-10 pointer-events-none select-none invert" alt="" />
                      {t2 && <img src={typeIconUrl(t2)} className="absolute -right-2 top-2 w-24 h-24 opacity-10 pointer-events-none select-none invert" alt="" />}
 
@@ -277,7 +277,7 @@ const PokemonManagement = ({
                      <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-end z-10">
                        {poke.isShiny && (
                          <div className="bg-yellow-500 px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
-                           <span className="text-xs">⭐</span>
+                           <span className="text-xs">P</span>
                            <span className="text-[9px] font-black text-white uppercase tracking-widest">Shiny</span>
                          </div>
                        )}
@@ -303,7 +303,7 @@ const PokemonManagement = ({
                   <div className="text-center mb-6">
                      <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">
                        {activePokemonDetails.pokemon.name}
-                       {activePokemonDetails.pokemon.isShiny && <span className="ml-2 text-yellow-500">⭐</span>}
+                       {activePokemonDetails.pokemon.isShiny && <span className="ml-2 text-yellow-500">P</span>}
                      </h3>
                      <div className="flex items-center justify-center gap-2 mt-2">
                         <span className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Nv. {activePokemonDetails.pokemon.level}</span>
@@ -350,7 +350,7 @@ const PokemonManagement = ({
                           })}
                         </select>
                         {masteryCount < 5 && (
-                          <div className="bg-slate-200 rounded-lg p-2 text-[10px] font-bold text-slate-400 text-center italic">🔒 Bloqueado</div>
+                          <div className="bg-slate-200 rounded-lg p-2 text-[10px] font-bold text-slate-400 text-center italic">= Bloqueado</div>
                         )}
                      </div>
                    </div>
@@ -365,8 +365,8 @@ const PokemonManagement = ({
                          return (
                            <div key={idx} className={`flex justify-between items-center p-2 rounded-lg border border-slate-200 bg-white ${isEquipped ? 'ring-2 ring-pokeYellow' : ''}`}>
                              <div>
-                               <p className="text-[10px] font-black uppercase text-slate-800 flex items-center gap-1">{rm.name} {isEquipped && <span className="text-pokeYellow">★</span>}</p>
-                               <p className="text-[8px] font-bold text-slate-400 uppercase">{rm.type} • PWR {rm.power}</p>
+                               <p className="text-[10px] font-black uppercase text-slate-800 flex items-center gap-1">{rm.name} {isEquipped && <span className="text-pokeYellow"></span>}</p>
+                               <p className="text-[8px] font-bold text-slate-400 uppercase">{rm.type} " PWR {rm.power}</p>
                              </div>
                              {isUnlocked ? (
                                <button onClick={() => equipRareMove(rm)} disabled={isEquipped} className={`text-[8px] font-black uppercase px-3 py-1.5 rounded-lg transition-all ${isEquipped ? 'bg-slate-100 text-slate-400' : 'bg-pokeYellow text-white hover:bg-yellow-500 shadow-md'}`}>
@@ -427,7 +427,7 @@ const PokemonManagement = ({
                                   <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">{use.description}</p>
                                 </div>
                                 <div className="text-right">
-                                  <p className={`text-[10px] font-black ${canAfford ? 'text-pokeBlue' : 'text-slate-400'}`}>{use.cost} 🍬</p>
+                                  <p className={`text-[10px] font-black ${canAfford ? 'text-pokeBlue' : 'text-slate-400'}`}>{use.cost} <l</p>
                                 </div>
                               </button>
                             );
@@ -484,20 +484,20 @@ const PokemonManagement = ({
                                 >
                                   {isEquipped && <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>}
                                   <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm shrink-0 shadow-sm ${isEquipped ? 'bg-white/30 text-white' : 'bg-slate-50 text-slate-400'}`}>
-                                    {isEquipped ? slotIdx + 1 : '—'}
+                                    {isEquipped ? slotIdx + 1 : ''}
                                   </div>
                                   <div className="flex-1">
                                     <p className={`text-xs font-black uppercase ${isEquipped ? 'text-white' : 'text-slate-700'}`}>{mov.name}</p>
                                     <div className="flex items-center gap-2">
                                        <p className={`text-[8px] font-bold uppercase ${isEquipped ? 'text-white/80' : 'text-slate-400'}`}>{mov.type}</p>
                                        <span className={`w-1 h-1 rounded-full ${isEquipped ? 'bg-white/40' : 'bg-slate-200'}`}></span>
-                                       <p className={`text-[8px] font-black ${isEquipped ? 'text-white' : 'text-slate-500'}`}>PWR {mov.power || '—'}</p>
+                                       <p className={`text-[8px] font-black ${isEquipped ? 'text-white' : 'text-slate-500'}`}>PWR {mov.power || ''}</p>
                                     </div>
                                   </div>
                                   <div className={`transition-all ${isEquipped ? 'scale-110' : 'scale-90 opacity-0 group-hover:opacity-100'}`}>
                                      {isEquipped ? (
                                        <div className="bg-white/20 p-1.5 rounded-lg border border-white/30">
-                                          <span className="text-[10px]">✅</span>
+                                          <span className="text-[10px]"></span>
                                        </div>
                                      ) : (
                                        <div className="bg-slate-50 p-1.5 rounded-lg border border-slate-100 text-[10px] font-black text-slate-400 uppercase">
@@ -562,7 +562,7 @@ const PokemonManagement = ({
                                      }}
                                      className="w-full bg-gradient-to-r from-pokeBlue to-blue-600 text-white font-black text-[10px] py-2.5 rounded-xl shadow-lg uppercase animate-pulse hover:scale-[1.02] transition-transform"
                                    >
-                                     🌟 Evolução Disponível! Clique aqui
+                                     ð Evolução Disponível! Clique aqui
                                    </button>
                                  )}
                                </div>
@@ -580,7 +580,7 @@ const PokemonManagement = ({
                                )}
                                {pokeData?.learnset?.filter(m => m.level > poke.level).sort((a,b) => a.level - b.level).slice(0, 3).map((m, idx) => (
                                  <div key={idx} className="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-100">
-                                    <span className="text-[10px] font-black text-slate-700 uppercase italic">Nv. {m.level} — {translateMove(m.move)}</span>
+                                    <span className="text-[10px] font-black text-slate-700 uppercase italic">Nv. {m.level}  {translateMove(m.move)}</span>
                                     <span className="text-[8px] font-bold text-slate-400 uppercase">Aprenderá</span>
                                  </div>
                                ))}
@@ -597,8 +597,8 @@ const PokemonManagement = ({
                   {activePokemonDetails.location === 'team' ? (
                     <>
                       <div className="flex flex-col gap-1 w-20">
-                         <button onClick={() => moveUp(activePokemonDetails.index)} disabled={activePokemonDetails.index === 0} className="w-full bg-slate-100 text-slate-500 py-2 rounded-xl font-black text-xs hover:bg-slate-200 disabled:opacity-50 transition-all">⬆️</button>
-                         <button onClick={() => moveDown(activePokemonDetails.index)} disabled={activePokemonDetails.index === gameState.team.length - 1} className="w-full bg-slate-100 text-slate-500 py-2 rounded-xl font-black text-xs hover:bg-slate-200 disabled:opacity-50 transition-all">⬇️</button>
+                         <button onClick={() => moveUp(activePokemonDetails.index)} disabled={activePokemonDetails.index === 0} className="w-full bg-slate-100 text-slate-500 py-2 rounded-xl font-black text-xs hover:bg-slate-200 disabled:opacity-50 transition-all"></button>
+                         <button onClick={() => moveDown(activePokemonDetails.index)} disabled={activePokemonDetails.index === gameState.team.length - 1} className="w-full bg-slate-100 text-slate-500 py-2 rounded-xl font-black text-xs hover:bg-slate-200 disabled:opacity-50 transition-all"></button>
                       </div>
                       <button 
                         onClick={() => { moveToPC(activePokemonDetails.index); setActivePokemonDetails(null); }}

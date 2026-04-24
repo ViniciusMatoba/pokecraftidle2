@@ -1,12 +1,12 @@
-// Sistema de Expedições — desbloqueadas por badge de ginásio
+// Sistema de ExpediçÃµes — desbloqueadas por badge de ginásio
 // Badge 1 (Brock)    → Floresta de Viridian
 // Badge 2 (Misty)    → Oceano Cerulean
 // Badge 3 (Surge)    → Campo Lutador
 // Badge 4 (Erika)    → Safari Zone
-// Badge 5 (Koga)     → Torre Pokémon
+// Badge 5 (Koga)     â Torre Pokémon
 // Badge 6 (Sabrina)  → Templo Psíquico
-// Badge 7 (Blaine)   → Vulcão de Cinnabar
-// Badge 8 (Giovanni) → Selva do Dragão
+// Badge 7 (Blaine)   â Vulcão de Cinnabar
+// Badge 8 (Giovanni) â Selva do Dragão
 
 export const EXPEDITION_BIOMES = {
 
@@ -16,7 +16,7 @@ export const EXPEDITION_BIOMES = {
     badge: 1,
     badgeName: 'Insígnia da Rocha',
     leaderName: 'Brock',
-    icon: '🌲',
+    icon: '<2',
     imagePrompt: 'floresta_viridian',
     bg: "url('/expedition_floresta.png') center/cover",
     description: 'Rica em Seda, Apricorns e Essências de Inseto.',
@@ -39,7 +39,8 @@ export const EXPEDITION_BIOMES = {
     badge: 2,
     badgeName: 'Insígnia da Cascata',
     leaderName: 'Misty',
-    icon: '🌊',
+    icon: '<
+',
     imagePrompt: 'oceano_cerulean',
     bg: "url('/expedition_oceano.png') center/cover",
     description: 'Essências de Água, Pérolas e itens marinhos.',
@@ -60,9 +61,9 @@ export const EXPEDITION_BIOMES = {
     id: 'campo_lutador',
     name: 'Dojo de Saffron',
     badge: 3,
-    badgeName: 'Insígnia do Trovão',
+    badgeName: 'InsÃ­gnia do Trovão',
     leaderName: 'Lt. Surge',
-    icon: '🥊',
+    icon: '>J',
     imagePrompt: 'dojo_lutador',
     bg: "url('/expedition_campo_lutador.png') center/cover",
     description: 'Itens de Luta, Black Belt e Muscle Band.',
@@ -85,7 +86,7 @@ export const EXPEDITION_BIOMES = {
     badge: 4,
     badgeName: 'Insígnia do Arco-Íris',
     leaderName: 'Erika',
-    icon: '🌾',
+    icon: '<>',
     imagePrompt: 'safari_zone',
     bg: "url('/expedition_pradaria.png') center/cover",
     description: 'Penas, Pó Rosa e itens raros de safári.',
@@ -108,7 +109,7 @@ export const EXPEDITION_BIOMES = {
     badge: 5,
     badgeName: 'Insígnia da Alma',
     leaderName: 'Koga',
-    icon: '👻',
+    icon: '={',
     imagePrompt: 'torre_pokemon_fantasma',
     bg: "url('/expedition_torre_fantasma.png') center/cover",
     description: 'Fragmentos Espectrais e Itens Amaldiçoados.',
@@ -131,10 +132,10 @@ export const EXPEDITION_BIOMES = {
     badge: 6,
     badgeName: 'Insígnia do Pântano',
     leaderName: 'Sabrina',
-    icon: '🔮',
+    icon: '=.',
     imagePrompt: 'templo_psiquico_saffron',
     bg: "url('/expedition_templo_psiquico.png') center/cover",
-    description: 'Essências Psíquicas, TM Shards e Itens Mentais.',
+    description: 'Essências PsÃ­quicas, TM Shards e Itens Mentais.',
     enemyType: ['Psychic', 'Fairy'],
     favoredTypes: ['Ghost', 'Dark', 'Bug', 'Steel'],
     neutralTypes: ['Normal', 'Ground'],
@@ -152,9 +153,9 @@ export const EXPEDITION_BIOMES = {
     id: 'vulcao',
     name: 'Vulcão de Cinnabar',
     badge: 7,
-    badgeName: 'Insígnia do Vulcão',
+    badgeName: 'InsÃ­gnia do Vulcão',
     leaderName: 'Blaine',
-    icon: '🌋',
+    icon: '<',
     imagePrompt: 'vulcao_cinnabar',
     bg: "url('/expedition_vulcao.png') center/cover",
     description: 'Essências de Fogo, Pedras Fogo e Carvão.',
@@ -177,7 +178,7 @@ export const EXPEDITION_BIOMES = {
     badge: 8,
     badgeName: 'Insígnia da Terra',
     leaderName: 'Giovanni',
-    icon: '🐉',
+    icon: '=	',
     imagePrompt: 'selva_dragao_victory_road',
     bg: "url('/expedition_selva_dragao.png') center/cover",
     description: 'Escamas de Dragão e itens lendários.',

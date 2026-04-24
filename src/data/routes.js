@@ -1,4 +1,4 @@
-// POKEDEX resolvido em runtime pelo App — sem import circular
+// POKEDEX resolvido em runtime pelo App  sem import circular
 const pk = (ids, level) => ids.map(id => ({ id: Number(id), level }));
 
 export const getRivalSprite = (playerAvatarImg) => {
@@ -470,7 +470,7 @@ export const ROUTES = {
     hasGym: false,
     enemies: [], trainers: [], trainerChance: 0,
     background: '/battle_bg_gym_1776863824590.png',
-    description: 'Plateau Indigo — sede da Liga Pokemon de Kanto.',
+    description: 'Plateau Indigo  sede da Liga Pokemon de Kanto.',
   },
 
   cerulean_cave: {
@@ -480,7 +480,7 @@ export const ROUTES = {
     enemies: pk([42, 47, 67, 75, 95, 132, 113], 60),
     trainerChance: 0, trainers: [],
     background: '/battle_bg_cave_1776863810604.png',
-    description: 'Caverna proibida — lar de uma lenda.',
+    description: 'Caverna proibida  lar de uma lenda.',
   },
 };
 

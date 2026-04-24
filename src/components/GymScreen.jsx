@@ -29,8 +29,8 @@ const GymCard = ({ gym, earned, locked, onClick }) => {
           {gym.badgeOrder}° GYM - Líder {gym.name}
         </h4>
         <div className="flex items-center gap-2 mt-2">
-          {earned && <span className="bg-yellow-400 text-yellow-950 text-[10px] font-black px-3 py-1 rounded-full shadow-lg animate-pulse">✨ CONQUISTADA</span>}
-          {locked && <span className="bg-black/60 text-white/50 text-[10px] font-black px-3 py-1 rounded-full backdrop-blur-md">🔒 BLOQUEADO</span>}
+          {earned && <span className="bg-yellow-400 text-yellow-950 text-[10px] font-black px-3 py-1 rounded-full shadow-lg animate-pulse">( CONQUISTADA</span>}
+          {locked && <span className="bg-black/60 text-white/50 text-[10px] font-black px-3 py-1 rounded-full backdrop-blur-md">= BLOQUEADO</span>}
         </div>
       </div>
 
@@ -57,7 +57,7 @@ const GymCard = ({ gym, earned, locked, onClick }) => {
             </div>
             {!earned && !locked && (
                <div className="bg-white/20 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase backdrop-blur-md border border-white/10">
-                  🔍 INFO
+                  = INFO
                </div>
             )}
          </div>
@@ -101,7 +101,7 @@ const EliteCard = ({ member, index, earned, locked, onClick }) => {
       <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
          <div className="flex items-center gap-3">
             <p className="text-white/40 text-[9px] font-black uppercase tracking-widest">Nv. {member.team[0]?.level}+</p>
-            {earned && <span className="bg-pokeGold text-yellow-950 text-[8px] font-black px-2 py-0.5 rounded-full">✓ VENCIDO</span>}
+            {earned && <span className="bg-pokeGold text-yellow-950 text-[8px] font-black px-2 py-0.5 rounded-full"> VENCIDO</span>}
          </div>
       </div>
     </div>
@@ -111,10 +111,10 @@ const EliteCard = ({ member, index, earned, locked, onClick }) => {
 const GymAlertModal = ({ req, onGo, onClose }) => (
   <div className="absolute inset-0 z-[400] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md animate-fadeIn">
     <div className="bg-slate-900 w-full max-w-xs rounded-[2.5rem] p-8 border border-white/10 shadow-2xl animate-bounceIn text-center">
-      <div className="text-4xl mb-4">🔒</div>
+      <div className="text-4xl mb-4">=</div>
       <h3 className="text-white font-black uppercase italic tracking-tighter text-xl mb-4">Caminho Bloqueado!</h3>
       <p className="text-white/60 text-sm font-bold mb-8 leading-relaxed">
-        Para desafiar este Líder, você precisa primeiro:<br/>
+        Para desafiar este LÃ­der, você precisa primeiro:<br/>
         <span className="text-red-400 font-black">"{req}"</span>
       </p>
       <div className="flex flex-col gap-3">
@@ -201,7 +201,7 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
              <img src={gym.badgeImg || gym.typeIcon} className="w-32 h-32" alt="" />
           </div>
           
-          <button onClick={onClose} className="absolute top-6 right-6 text-white/40 hover:text-white text-2xl font-black transition-all">✕</button>
+          <button onClick={onClose} className="absolute top-6 right-6 text-white/40 hover:text-white text-2xl font-black transition-all"></button>
           
           <div className="relative z-10 text-left">
             <h3 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-none mb-2">{gym.name}</h3>
@@ -252,7 +252,7 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
            {locked && (
              <div className="mt-6 bg-red-500/10 border border-red-500/20 rounded-2xl p-5">
                 <h4 className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <span>🔒</span> Requisitos Necessários
+                  <span>ð</span> Requisitos Necessários
                 </h4>
                 <div className="space-y-2">
                    {getRequirements().map(req => {
@@ -264,7 +264,7 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
                          className={`w-full text-left text-[10px] font-bold flex items-center gap-3 p-2 rounded-xl transition-all ${met ? 'text-green-400' : 'text-red-400 hover:bg-white/5 cursor-pointer'}`}
                        >
                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${met ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                           {met ? '✓' : '🔒'}
+                           {met ? '' : '='}
                          </div>
                          <span className="flex-1">{formatReq(req)}</span>
                          {met ? <span className="text-[8px] uppercase opacity-50">OK</span> : <span className="text-[8px] uppercase opacity-50">Ir →</span>}
@@ -297,7 +297,7 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
                    }}
                    className="w-full bg-slate-800 text-slate-400 py-5 rounded-2xl font-black uppercase tracking-widest text-sm text-center border border-white/5 hover:bg-slate-700 transition-all active:scale-95"
                  >
-                   🔒 Bloqueado (Ver Requisito)
+                   = Bloqueado (Ver Requisito)
                  </button>
                )}
             </div>
@@ -350,10 +350,10 @@ const GymScreen = ({ gameState, onChallengeGym, onClose, initialSection, isEmbed
         /* Header */
         <div className="flex-shrink-0 px-6 pt-5 pb-3 flex items-center justify-between border-b border-white/10">
           <div>
-            <h2 className="text-white font-black text-xl uppercase italic tracking-tighter">🏆 Ginásios & Liga</h2>
+            <h2 className="text-white font-black text-xl uppercase italic tracking-tighter">ð Ginásios & Liga</h2>
             <p className="text-white/40 text-[9px] font-bold uppercase tracking-widest mt-0.5">Kanto · {badgeCount}/8 insígnias</p>
           </div>
-          <button onClick={onClose} className="text-white/40 hover:text-white font-black text-lg w-8 h-8 flex items-center justify-center">✕</button>
+          <button onClick={onClose} className="text-white/40 hover:text-white font-black text-lg w-8 h-8 flex items-center justify-center"></button>
         </div>
       )}
 

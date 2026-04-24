@@ -312,7 +312,7 @@ export default function App() {
     setTimeout(() => setFloatingTexts(prev => prev.filter(f => f.id !== id)), 1200);
   }, []);
 
-  // í¢ââ¬í¢ââ¬í¢ââ¬ UNIFICAííO DE COLEííO í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+  // âââ¬âââ¬âââ¬ UNIFICAííO DE COLEííO âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
   const unifyDuplicates = useCallback((prev) => {
     const all = [...(prev.team || []), ...(prev.pc || [])];
     const uniqueMap = {};
@@ -421,8 +421,8 @@ export default function App() {
       }
     }
 
-    if (newCount === 100) { addLog(`â¨ Domínio de ${pokemon.name}: Chance Shiny 2x!`, 'system'); reward = { type: 'BíÂ´nus Passivo', val: 'Chance Shiny 2x' }; }
-    if (newCount === 200) { addLog(`â¨ Domínio de ${pokemon.name}: Chance Shiny 5x!`, 'system'); reward = { type: 'BíÂ´nus Passivo', val: 'Chance Shiny 5x' }; }
+    if (newCount === 100) { addLog(`✨ Domínio de ${pokemon.name}: Chance Shiny 2x!`, 'system'); reward = { type: 'BíÂ´nus Passivo', val: 'Chance Shiny 2x' }; }
+    if (newCount === 200) { addLog(`✨ Domínio de ${pokemon.name}: Chance Shiny 5x!`, 'system'); reward = { type: 'BíÂ´nus Passivo', val: 'Chance Shiny 5x' }; }
 
     if (reward) {
       addLog(`ð Domínio de ${pokemon.name}: ${reward.val} liberado!`, 'system');
@@ -433,7 +433,7 @@ export default function App() {
   }, [addLog]);
 
 
-  // í¢ââ¬í¢ââ¬í¢ââ¬ FIREBASE CLOUD SYNC í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+  // âââ¬âââ¬âââ¬ FIREBASE CLOUD SYNC âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -446,7 +446,7 @@ export default function App() {
             const data = docSnap.data();
             if (data?.gameState) {
               setGameState(prev => ({ ...prev, ...data.gameState }));
-              addLog("í¢ËÂí¯Â¸Â Progresso sincronizado com a nuvem!", "system");
+              addLog("âËÂí¯Â¸Â Progresso sincronizado com a nuvem!", "system");
             }
           }
         } catch (err) {
@@ -477,7 +477,7 @@ export default function App() {
   const triggerSave = useCallback(async () => {
     const user = auth.currentUser;
     if (!user) {
-      alert("í¢Å¡Â í¯Â¸Â Você precisa estar logado para salvar na nuvem!");
+      alert("Ã¢ÃÂ¡ÃÂ Ã­Â¯ÃÂ¸ÃÂ Você precisa estar logado para salvar na nuvem!");
       return;
     }
     try {
@@ -486,14 +486,14 @@ export default function App() {
         gameState, 
         updatedAt: serverTimestamp() 
       }, { merge: true });
-      alert("í¢Åâ¦ Jogo salvo na nuvem com sucesso!");
+      alert("âÅâ¦ Jogo salvo na nuvem com sucesso!");
     } catch (e) {
       console.error("Manual Save Fail:", e);
-      alert("í¢ÂÅ Erro ao salvar: " + e.message);
+      alert("âÂÅ Erro ao salvar: " + e.message);
     }
   }, [gameState]);
 
-  // í¢ââ¬í¢ââ¬í¢ââ¬ INTERPRETADOR DE EFEITOS DE GOLPE í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+  // âââ¬âââ¬âââ¬ INTERPRETADOR DE EFEITOS DE GOLPE âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
   // Lê o campo "effect" do moves.js e retorna o que o golpe deve fazer
   const interpretMoveEffect = (move) => {
     const e = (move.effect || '').toLowerCase();
@@ -507,10 +507,10 @@ export default function App() {
       ohko: false,       // one-hit KO
       accuracy_change: null, // { target, change }
       evasion_change: null,
-      noEffect: false,   // teleport, roar, etc â sem efeito em batalha idle
+      noEffect: false,   // teleport, roar, etc  sem efeito em batalha idle
     };
 
-    // í¢ââ¬í¢ââ¬ Efeitos Especiais de Dano í¢ââ¬í¢ââ¬
+    // âââ¬âââ¬ Efeitos Especiais de Dano âââ¬âââ¬
     if (e.includes('one-hit ko') || e.includes('causes a one-hit ko')) {
       result.ohko = true; return result;
     }
@@ -524,14 +524,14 @@ export default function App() {
       result.fixedDamage = 20; return result;
     }
 
-    // í¢ââ¬í¢ââ¬ Heal í¢ââ¬í¢ââ¬
+    // âââ¬âââ¬ Heal âââ¬âââ¬
     if (e.includes('restores') || (e.includes('heals') && e.includes('user')) ||
         ['recover','soft-boiled','milk drink','morning sun','synthesis','moonlight',
          'rest','slack off','roost','shore up','heal order'].some(n => name.includes(n))) {
       result.heal = true; return result;
     }
 
-    // í¢ââ¬í¢ââ¬ Accuracy / Evasion í¢ââ¬í¢ââ¬
+    // âââ¬âââ¬ Accuracy / Evasion âââ¬âââ¬
     if ((e.includes('accuracy') && e.includes('lower')) || e.includes("lowers the target's accuracy")) {
       result.accuracy_change = { target: 'enemy', change: -1 };
     }
@@ -539,7 +539,7 @@ export default function App() {
       result.evasion_change = { target: 'self', change: +1 };
     }
 
-    // í¢ââ¬í¢ââ¬ Debuffs no inimigo í¢ââ¬í¢ââ¬
+    // âââ¬âââ¬ Debuffs no inimigo âââ¬âââ¬
     if ((e.includes('special defense') && e.includes('lower')) || name === 'metal sound' || name === 'fake tears') {
       const stages = e.includes('two') || e.includes('2') ? -2 : -1;
       result.statChanges.push({ stat: 'spDef', change: stages, target: 'enemy' });
@@ -560,7 +560,7 @@ export default function App() {
       result.statChanges.push({ stat: 'speed', change: stages, target: 'enemy' });
     }
 
-    // í¢ââ¬í¢ââ¬ Buffs no usuário í¢ââ¬í¢ââ¬
+    // Ã¢Ã¢ÂÂÃ¢ÂÂ¬Ã¢Ã¢ÂÂÃ¢ÂÂ¬ Buffs no usuário Ã¢Ã¢ÂÂÃ¢ÂÂ¬Ã¢Ã¢ÂÂÃ¢ÂÂ¬
     if (e.includes('attack') && e.includes('raise') && !e.includes('special')) {
       const stages = (e.includes('two') || e.includes('sharply') || e.includes('by 2')) ? +2 : +1;
       result.statChanges.push({ stat: 'attack', change: stages, target: 'self' });
@@ -582,7 +582,7 @@ export default function App() {
       result.statChanges.push({ stat: 'speed', change: stages, target: 'self' });
     }
 
-    // í¢ââ¬í¢ââ¬ CondiçíÂµes de Status no inimigo í¢ââ¬í¢ââ¬
+    // Ã¢Ã¢ÂÂÃ¢ÂÂ¬Ã¢Ã¢ÂÂÃ¢ÂÂ¬ CondiçÃ­ÃÂµes de Status no inimigo Ã¢Ã¢ÂÂÃ¢ÂÂ¬Ã¢Ã¢ÂÂÃ¢ÂÂ¬
     if (e.includes('sleep') && !e.includes('user') && !name.includes('rest')) {
       result.statusEffect = 'sleep'; result.statusTarget = 'enemy';
     }
@@ -601,7 +601,7 @@ export default function App() {
       result.statusEffect = 'confuse'; result.statusTarget = 'enemy';
     }
 
-    // í¢ââ¬í¢ââ¬ Sem efeito em idle (teleport, roar, baton pass, etc) í¢ââ¬í¢ââ¬
+    // âââ¬âââ¬ Sem efeito em idle (teleport, roar, baton pass, etc) âââ¬âââ¬
     if (['teleport','roar','whirlwind','splash'].includes(name)) {
       result.noEffect = true;
     }
@@ -609,7 +609,7 @@ export default function App() {
     return result;
   };
 
-  // í¢ââ¬í¢ââ¬í¢ââ¬ FíRMULA DE DANO (inspirada na Gen 1) í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+  // âââ¬âââ¬âââ¬ FÓRMULA DE DANO (inspirada na Gen 1) âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
   const calcDamage = useCallback((attacker, move, defender) => {
     if (!attacker || !defender || !move || !move.power) return 0;
     const level = attacker.level || 5;
@@ -638,7 +638,7 @@ export default function App() {
     const base = ((((2 * level) / 5 + 2) * power * (atk / def)) / 50 + 2) * stab * effectiveness;
     const roll = 0.85 + Math.random() * 0.15; // Roll mais justo (85-100%)
     
-    // Verificar accuracy â se o atacante tem accuracy reduzida, o golpe pode errar
+    // Verificar accuracy  se o atacante tem accuracy reduzida, o golpe pode errar
     const accStage = attacker.stages?.accuracy || 0;
     const evaStage = defender.stages?.evasion || 0;
     const finalAccStage = accStage - evaStage;
@@ -651,7 +651,7 @@ export default function App() {
     return Math.max(1, Math.ceil(base * roll));
   }, []);
 
-  // í¢ââ¬í¢ââ¬í¢ââ¬ PROCESSAMENTO DE DROPS í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+  // âââ¬âââ¬âââ¬ PROCESSAMENTO DE DROPS âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
   const processDrops = useCallback((enemy) => {
     const drops = { materials: {}, items: {}, currency: 0 };
     const messages = [];
@@ -659,7 +659,7 @@ export default function App() {
     // Moedas base
     let coinAmount = (enemy.level || 5) * 3 * (enemy.isShiny ? 2 : 1);
     
-    // í¢ââ¬í¢ââ¬ EFEITOS ATIVOS (TIMED) í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+    // âââ¬âââ¬ EFEITOS ATIVOS (TIMED) âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
     const now = Date.now();
     const effects = gameState.activeEffects || {};
 
@@ -675,9 +675,9 @@ export default function App() {
     }
 
     drops.currency = Math.floor(coinAmount * coinMult);
-    messages.push(`ð° +${drops.currency} coins`);
+    messages.push(`💰 +${drops.currency} coins`);
 
-    // í¢ââ¬í¢ââ¬ CANDY DROP í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+    // âââ¬âââ¬ CANDY DROP âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
     const candyId = POKEMON_TO_CANDY[Number(enemy.id)];
     if (candyId) {
        const mastery = (gameState.speciesMastery || {})[Number(enemy.id)] || 0;
@@ -689,11 +689,11 @@ export default function App() {
        }
     }
 
-    // NOVA LíGICA DE DROPS DO USUíÂRIO
+    // NOVA LÓGICA DE DROPS DO USUíÂRIO
     // 1. Essência por Tipo (60% de chance)
     if (Math.random() < 0.6) {
       const essenceType = `${(enemy.type || 'normal').toLowerCase()}_essence`;
-      const essenceData = ITEM_LABELS[essenceType] || { icon: 'â¨', name: `Essência ${enemy.type}` };
+      const essenceData = ITEM_LABELS[essenceType] || { icon: 'Ã¢ÂÂ¨', name: `Essência ${enemy.type}` };
       drops.materials[essenceType] = (drops.materials[essenceType] || 0) + 1;
       messages.push(`${essenceData.icon} 1x ${essenceData.name}`);
     }
@@ -701,7 +701,7 @@ export default function App() {
     // 2. Mystic Dust para Shinies (100% se for shiny)
     if (enemy.isShiny) {
       drops.materials.mystic_dust = (drops.materials.mystic_dust || 0) + 5;
-      messages.push(`í¢Â­Â 5x Pó Místico`);
+      messages.push(`Ã¢ÃÂ­ÃÂ 5x Pó MÃ­stico`);
     }
 
     // Drops antigos (suporte para itens específicos de rota/pokemon)
@@ -711,7 +711,7 @@ export default function App() {
         'iron_ore', 'apricorn', 'electric_chip', 'moon_stone_shard', 'pink_dust', 'gold_nugget', 'silk', 'feather',
         'fire_stone', 'water_stone', 'leaf_stone', 'thunder_stone', 'moon_stone'
       ];
-      const dropData = ITEM_LABELS[enemy.drop] || { icon: 'ð¦', name: enemy.drop.toUpperCase() };
+      const dropData = ITEM_LABELS[enemy.drop] || { icon: '📦', name: enemy.drop.toUpperCase() };
       if (materialList.includes(enemy.drop)) {
         drops.materials[enemy.drop] = (drops.materials[enemy.drop] || 0) + 1;
       } else {
@@ -723,13 +723,13 @@ export default function App() {
     // 4. Poké Ball Drop Chance (20% chance)
     if (Math.random() < 0.20) {
       drops.items.pokeballs = (drops.items.pokeballs || 0) + 1;
-      messages.push(`ð´ +1 Poké Bola`);
+      messages.push(`Ã°ÂÂÂ´ +1 Poké Bola`);
     }
 
     return { drops, messages };
   }, []);
 
-  // í¢ââ¬í¢ââ¬í¢ââ¬ SPAWN í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+  // âââ¬âââ¬âââ¬ SPAWN âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
   const spawnEnemy = useCallback(() => {
     isProcessingVictory.current = false; // Reset de segurança
     const route = processedRoutes[gameState.currentRoute] || processedRoutes.pallet_town;
@@ -738,7 +738,7 @@ export default function App() {
     const trainerChance = route.trainerChance || 0.03;
     const hasTrainers = route.trainers && route.trainers.length > 0;
 
-    // í¢ââ¬í¢ââ¬ 1. EMBOSCADA VILí (Chance Global reduzida para ~1% para focar em selvagens) í¢ââ¬í¢ââ¬
+    // âââ¬âââ¬ 1. EMBOSCADA VILí (Chance Global reduzida para ~1% para focar em selvagens) âââ¬âââ¬
     if (Math.random() < 0.01 && route.type === 'farm') {
       const teamKeys = Object.keys(VILLAIN_TEAMS);
       // Filtra por bioma se aplicável
@@ -766,7 +766,7 @@ export default function App() {
         villainColor: teamData.color,
         instanceId: Date.now()
       });
-      addLog(`í¢Å¡Â í¯Â¸Â EMBOSCADA! ${teamData.name} ${reason}`, 'enemy');
+      addLog(`âÅ¡Â í¯Â¸Â EMBOSCADA! ${teamData.name} ${reason}`, 'enemy');
       return;
     }
 
@@ -807,14 +807,14 @@ export default function App() {
     }
 
     if (!route.enemies || route.enemies.length === 0) {
-      // Não seta null â apenas sai sem fazer nada para evitar loop infinito em cidades
+      // Não seta null — apenas sai sem fazer nada para evitar loop infinito em cidades
       isProcessingVictory.current = false;
       return;
     }
     
     let enemyPool = [...route.enemies];
     
-    // í¢ââ¬í¢ââ¬ 3. VARAS DE PESCA (Fishing Rods) í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+    // âââ¬âââ¬ 3. VARAS DE PESCA (Fishing Rods) âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
     // Se a rota tem bioma de água e o jogador possui uma vara, aumenta chance de água
     if (route.biome === 'water' || route.name.toLowerCase().includes('oceano') || route.name.toLowerCase().includes('praia')) {
       const rods = ['super_rod', 'good_rod', 'old_rod'];
@@ -822,7 +822,7 @@ export default function App() {
       if (ownedRod) {
         const rodData = CRAFTING_RECIPES.fishing_rods.find(r => r.id === ownedRod);
         const waterBonus = rodData?.effect?.waterBonus || 0;
-        // Filtra pokémons de água e duplica sua presença no pool proporcionalmente ao bíÂ´nus
+        // Filtra pokémons de água e duplica sua presença no pool proporcionalmente ao bÃ­ÃÂ´nus
         const waterEnemies = enemyPool.filter(e => {
           const p = POKEDEX[e.id];
           return p?.type === 'Water' || p?.types?.includes('Water');
@@ -851,7 +851,7 @@ export default function App() {
     const pokeId = Number(base.id);
     const masteryCount = (gameState.speciesMastery || {})[pokeId] || (gameState.speciesMastery || {})[base.id] || 0;
     const shinyChanceBase = 0.01; // 1% base
-    const shinyBonus = Math.min(0.04, (masteryCount / 100) * 0.05); // Até +4% de bíÂ´nus
+    const shinyBonus = Math.min(0.04, (masteryCount / 100) * 0.05); // Até +4% de bÃ­ÃÂ´nus
     const isShiny = Math.random() < (shinyChanceBase + shinyBonus);
 
     const levelVariance = Math.floor(Math.random() * 3) - 1;
@@ -860,7 +860,7 @@ export default function App() {
     // BíÂ´nus Shiny: 20% mais forte
     const shinyMult = isShiny ? 1.2 : 1.0;
 
-    // í¢ââ¬í¢ââ¬ 4. REPEL (Enfraquecer Inimigos) í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+    // âââ¬âââ¬ 4. REPEL (Enfraquecer Inimigos) âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
     const effects = gameState.activeEffects || {};
     const now = Date.now();
     let repelMult = 1.0;
@@ -912,7 +912,7 @@ export default function App() {
     });
     setBattleLog([]);
     isProcessingVictory.current = false;
-    // BGM agora gerenciado pelas configuraçíÂµes
+    // BGM agora gerenciado pelas configuraçÃ­ÃÂµes
   }, [gameState.currentRoute, gameState.speciesMastery, playBGM, addLog, processedRoutes]);
 
   useEffect(() => {
@@ -937,11 +937,11 @@ export default function App() {
     }
   }, [currentView, currentEnemy?.id, currentEnemy?.hp, spawnEnemy, gameState.currentRoute, processedRoutes, activeBuildingModal]);
 
-  // Ref para currentView â permite que handleBattleTick leia o valor atual
+  // Ref para currentView  permite que handleBattleTick leia o valor atual
   // sem precisar estar nas deps do useCallback (o que recriaria o timer a cada mudança de view)
   useEffect(() => { currentViewRef.current = currentView; }, [currentView]);
 
-  // í¢ââ¬í¢ââ¬í¢ââ¬ TICK DE BATALHA í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+  // âââ¬âââ¬âââ¬ TICK DE BATALHA âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
   const handleBattleTick = useCallback(() => {
     const speedMultiplier = [1, 0.6, 0.3][(gameState.settings?.battleSpeed || 1) - 1] || 1;
     
@@ -952,7 +952,7 @@ export default function App() {
       return 1200 * speedMultiplier;
     }
     
-    // Atraso Cinematográfico para Início de Batalha (Intro)
+    // Atraso Cinematográfico para InÃ­cio de Batalha (Intro)
     const introTime = currentEnemy.isTrainer ? 2500 : 1200;
     if (currentEnemy.spawnTime && Date.now() - currentEnemy.spawnTime < introTime) {
        return 400 * speedMultiplier;
@@ -960,7 +960,7 @@ export default function App() {
 
     let nextDelay = Math.floor(1200 * speedMultiplier);
     
-    // í¢ââ¬í¢ââ¬ 5. ISCA / LURE (Acelerar Spawn) í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+    // âââ¬âââ¬ 5. ISCA / LURE (Acelerar Spawn) âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
     const effects = gameState.activeEffects || {};
     const now = Date.now();
     if (effects.activeLure?.endsAt > now) {
@@ -994,7 +994,7 @@ export default function App() {
         return prev;
       }
 
-      // í¢ââ¬í¢ââ¬í¢ââ¬ AUTO-POííO í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+      // âââ¬âââ¬âââ¬ AUTO-POííO âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
       const autoConfig = prev.autoConfig || { autoPotion: false, autoPotionHpPct: 30, focusPokemonIndex: 0 };
       if (autoConfig.autoPotion && (prev.inventory?.items?.potions || 0) > 0) {
         const focusIdx = autoConfig.focusPokemonIndex ?? activeMemberIndex;
@@ -1005,7 +1005,7 @@ export default function App() {
             const healed = Math.min(focusPoke.maxHp, focusPoke.hp + 20);
             const newTeam = [...prev.team];
             newTeam[focusIdx] = { ...focusPoke, hp: healed };
-            addLog(`ð Auto-Poção usada em ${focusPoke.name}! (${focusPoke.hp}í¢â â${healed} HP)`, 'system');
+            addLog(`Ã°ÂÂÂ Auto-Poção usada em ${focusPoke.name}! (${focusPoke.hp}Ã¢Ã¢ÂÂ Ã¢ÂÂ${healed} HP)`, 'system');
             return {
               ...prev,
               team: newTeam,
@@ -1015,34 +1015,34 @@ export default function App() {
         }
       }
 
-      // í¢ââ¬í¢ââ¬í¢ââ¬ PROCESSAMENTO DE STATUS (DANO/SKIP) í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+      // âââ¬âââ¬âââ¬ PROCESSAMENTO DE STATUS (DANO/SKIP) âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
       const myStatus = myPoke.status || [];
       const enemyStatus = updatedEnemy.status || [];
 
       // Confuse Skip (Jogador)
       if (myStatus.includes('confuse')) {
-        addLog(`ð« ${myPoke.name} está confuso...`, 'system');
+        addLog(`Ã°ÂÂÂ« ${myPoke.name} está confuso...`, 'system');
         if (Math.random() < 0.3) {
            updatedTeam[activeMemberIndex].status = myStatus.filter(s => s !== 'confuse');
-           addLog(`â¨ ${myPoke.name} não está mais confuso!`, 'system');
+           addLog(`Ã¢ÂÂ¨ ${myPoke.name} não está mais confuso!`, 'system');
         } else if (Math.random() < 0.5) {
            const selfDmg = Math.max(1, Math.floor(myPoke.maxHp / 10));
            updatedTeam[activeMemberIndex].hp = Math.max(0, myPoke.hp - selfDmg);
-           addLog(`ð¥ ${myPoke.name} feriu-se em sua confusão!`, 'system');
+           addLog(`Ã°ÂÂÂ¥ ${myPoke.name} feriu-se em sua confusão!`, 'system');
            return { ...prev, team: updatedTeam };
         }
       }
 
       // Paralyze/Sleep Skip (Jogador)
       if (myStatus.includes('paralyze') && Math.random() < 0.25) {
-        addLog(`â¡ ${myPoke.name} está paralisado e não conseguiu atacar!`, 'system');
+        addLog(`Ã¢ÂÂ¡ ${myPoke.name} está paralisado e não conseguiu atacar!`, 'system');
         return prev; 
       }
       if (myStatus.includes('sleep')) {
-        addLog(`ð¤ ${myPoke.name} está dormindo profundamente...`, 'system');
+        addLog(`Ã°ÂÂÂ¤ ${myPoke.name} está dormindo profundamente...`, 'system');
         if (Math.random() < 0.3) {
           updatedTeam[activeMemberIndex].status = myStatus.filter(s => s !== 'sleep');
-          addLog(`í¢Ëâ¬í¯Â¸Â ${myPoke.name} acordou!`, 'system');
+          addLog(`âËâ¬í¯Â¸Â ${myPoke.name} acordou!`, 'system');
         } else {
           return { ...prev, team: updatedTeam }; 
         }
@@ -1064,7 +1064,7 @@ export default function App() {
 
         } else if (fx.ohko) {
           updatedEnemyFinal.hp = 0;
-          addLog(`ð ${myPoke.name} usou ${move.name}! Golpe decisivo!`, 'system');
+          addLog(`💀 ${myPoke.name} usou ${move.name}! Golpe decisivo!`, 'system');
           addFloat('OHKO!', '#ef4444');
 
         } else if (fx.fixedDamage !== null) {
@@ -1079,7 +1079,7 @@ export default function App() {
             ...updatedTeamFinal[activeMemberIndex],
             hp: Math.min(myPoke.maxHp, myPoke.hp + healed)
           };
-          addLog(`ð ${myPoke.name} usou ${move.name}! Recuperou ${healed} HP!`, 'system');
+          addLog(`💚 ${myPoke.name} usou ${move.name}! Recuperou ${healed} HP!`, 'system');
           addFloat(`+${healed} HP`, '#22c55e');
 
         } else {
@@ -1089,7 +1089,7 @@ export default function App() {
               const cur = updatedEnemyFinal.stages?.[c.stat] || 0;
               const newVal = Math.max(-6, Math.min(6, cur + c.change));
               updatedEnemyFinal.stages = { ...updatedEnemyFinal.stages, [c.stat]: newVal };
-              const arrow = c.change < 0 ? 'í¢âÂ¼' : 'í¢âÂ²';
+              const arrow = c.change < 0 ? 'â–Â¼' : 'â–Â²';
               const statNames = { attack:'ATK', defense:'DEF', spAtk:'SATK', spDef:'SDEF', speed:'SPD' };
               addLog(`${myPoke.name} usou ${move.name}! ${statNames[c.stat]||c.stat} de ${updatedEnemyFinal.name} ${c.change < 0 ? 'caiu' : 'subiu'}!`, 'system');
               addFloat(`${arrow} ${statNames[c.stat]||c.stat}`, c.change < 0 ? '#64748b' : '#3b82f6');
@@ -1097,7 +1097,7 @@ export default function App() {
               const cur = updatedTeamFinal[activeMemberIndex].stages?.[c.stat] || 0;
               const newVal = Math.max(-6, Math.min(6, cur + c.change));
               updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, [c.stat]: newVal } };
-              const arrow = c.change > 0 ? 'í¢âÂ²' : 'í¢âÂ¼';
+              const arrow = c.change > 0 ? 'â–Â²' : 'â–Â¼';
               const statNames = { attack:'ATK', defense:'DEF', spAtk:'SATK', spDef:'SDEF', speed:'SPD' };
               addLog(`${myPoke.name} usou ${move.name}! ${statNames[c.stat]||c.stat} ${c.change > 0 ? 'subiu' : 'caiu'}!`, 'system');
               addFloat(`${arrow} ${statNames[c.stat]||c.stat}`, c.change > 0 ? '#3b82f6' : '#64748b');
@@ -1115,7 +1115,7 @@ export default function App() {
               updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, accuracy: newVal } };
             }
             addLog(`${myPoke.name} usou ${move.name}! Precisão de ${updatedEnemyFinal.name} caiu!`, 'system');
-            addFloat(`í¢âÂ¼ ACC`, '#64748b');
+            addFloat(`â–Â¼ ACC`, '#64748b');
           }
           if (fx.evasion_change) {
             const target = fx.evasion_change.target === 'enemy' ? updatedEnemyFinal : updatedTeamFinal[activeMemberIndex];
@@ -1127,12 +1127,12 @@ export default function App() {
               updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, evasion: newVal } };
             }
             addLog(`${myPoke.name} usou ${move.name}! Evasão subiu!`, 'system');
-            addFloat(`í¢âÂ² EVA`, '#3b82f6');
+            addFloat(`â–Â² EVA`, '#3b82f6');
           }
 
           // Status condition
           if (fx.statusEffect) {
-            const statusNames = { burn:'ð¥ Queimadura', poison:'í¢ËÂ í¯Â¸Â Veneno', toxic:'í¢ËÂ í¯Â¸Â Veneno Grave', sleep:'ð¤ Sono', paralyze:'â¡ Paralisia', confuse:'ð« Confusão', freeze:'í¢Ââí¯Â¸Â Congelado' };
+            const statusNames = { burn:'Ã°ÂÂÂ¥ Queimadura', poison:'Ã¢ÃÂÃÂ Ã­Â¯ÃÂ¸ÃÂ Veneno', toxic:'Ã¢ÃÂÃÂ Ã­Â¯ÃÂ¸ÃÂ Veneno Grave', sleep:'Ã°ÂÂÂ¤ Sono', paralyze:'Ã¢ÂÂ¡ Paralisia', confuse:'Ã°ÂÂÂ« Confusão', freeze:'Ã¢ÃÂÃ¢ÂÂÃ­Â¯ÃÂ¸ÃÂ Congelado' };
             if (!(updatedEnemyFinal.status || []).includes(fx.statusEffect)) {
               updatedEnemyFinal.status = [...(updatedEnemyFinal.status || []), fx.statusEffect];
               addLog(`${statusNames[fx.statusEffect]||fx.statusEffect}: ${updatedEnemyFinal.name} foi afetado!`, 'enemy');
@@ -1153,41 +1153,41 @@ export default function App() {
         updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - playerDmg);
         addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
         if (eff > 1) addLog("ð¥ É super efetivo!", 'system');
-        if (eff > 0 && eff < 1) addLog("í°Å¸âºÂ¡í¯Â¸Â Não é muito efetivo!", 'system');
-        if (eff === 0) addLog("ð« Não afetou o inimigo!", 'system');
+        if (eff > 0 && eff < 1) addLog("Ã­Â°ÃÂ¸Ã¢ÂÂºÃÂ¡Ã­Â¯ÃÂ¸ÃÂ Não é muito efetivo!", 'system');
+        if (eff === 0) addLog("Ã°ÂÂÂ« Não afetou o inimigo!", 'system');
       }
 
       // Dano de Status (Inimigo)
       if (enemyStatus.includes('poison') || enemyStatus.includes('burn')) {
         const dot = Math.max(1, Math.floor(updatedEnemyFinal.maxHp / 16));
         updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - dot);
-        addLog(`ð¢ ${updatedEnemyFinal.name} sofreu dano por status!`, 'enemy');
+        addLog(`💢 ${updatedEnemyFinal.name} sofreu dano por status!`, 'enemy');
       }
 
       // Turno do Inimigo (apenas se ainda estiver vivo)
       if (updatedEnemyFinal.hp > 0) {
         // Skip Inimigo
         if (enemyStatus.includes('confuse')) {
-          addLog(`ð« ${updatedEnemyFinal.name} está confuso...`, 'enemy');
+          addLog(`Ã°ÂÂÂ« ${updatedEnemyFinal.name} está confuso...`, 'enemy');
           if (Math.random() < 0.3) {
             updatedEnemyFinal.status = enemyStatus.filter(s => s !== 'confuse');
-            addLog(`â¨ ${updatedEnemyFinal.name} não está mais confuso!`, 'enemy');
+            addLog(`Ã¢ÂÂ¨ ${updatedEnemyFinal.name} não está mais confuso!`, 'enemy');
           } else if (Math.random() < 0.5) {
             const selfDmg = Math.max(1, Math.floor(updatedEnemyFinal.maxHp / 10));
             updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - selfDmg);
-            addLog(`ð¥ ${updatedEnemyFinal.name} feriu-se em sua confusão!`, 'enemy');
+            addLog(`Ã°ÂÂÂ¥ ${updatedEnemyFinal.name} feriu-se em sua confusão!`, 'enemy');
             setCurrentEnemy(updatedEnemyFinal);
             return prev;
           }
         }
 
         if (enemyStatus.includes('paralyze') && Math.random() < 0.25) {
-          addLog(`â¡ ${updatedEnemyFinal.name} está paralisado!`, 'enemy');
+          addLog(`Ã¢ÂÂ¡ ${updatedEnemyFinal.name} está paralisado!`, 'enemy');
         } else if (enemyStatus.includes('sleep')) {
-          addLog(`ð¤ ${updatedEnemyFinal.name} está dormindo...`, 'enemy');
+          addLog(`Ã°ÂÂÂ¤ ${updatedEnemyFinal.name} está dormindo...`, 'enemy');
           if (Math.random() < 0.35) {
             updatedEnemyFinal.status = enemyStatus.filter(s => s !== 'sleep');
-            addLog(`í¢Ëâ¬í¯Â¸Â ${updatedEnemyFinal.name} acordou!`, 'enemy');
+            addLog(`âËâ¬í¯Â¸Â ${updatedEnemyFinal.name} acordou!`, 'enemy');
           }
         } else {
           const enemyMoves = updatedEnemyFinal.moves || [];
@@ -1201,11 +1201,11 @@ export default function App() {
                 if (fxE.heal) {
                   const healed = Math.floor((updatedEnemyFinal.maxHp || 30) * 0.5);
                   updatedEnemyFinal.hp = Math.min(updatedEnemyFinal.maxHp, updatedEnemyFinal.hp + healed);
-                  addLog(`ð ${updatedEnemyFinal.name} usou ${enemyMove.name}! Recuperou ${healed} HP!`, 'enemy');
+                  addLog(`💚 ${updatedEnemyFinal.name} usou ${enemyMove.name}! Recuperou ${healed} HP!`, 'enemy');
                 }
               } else if (fxE.ohko) {
                 updatedTeamFinal[activeMemberIndex].hp = 0;
-                addLog(`ð ${updatedEnemyFinal.name} usou ${enemyMove.name}! Golpe decisivo!`, 'enemy');
+                addLog(`💀 ${updatedEnemyFinal.name} usou ${enemyMove.name}! Golpe decisivo!`, 'enemy');
               } else if (fxE.fixedDamage !== null) {
                 const dmg = fxE.fixedDamage === 'level' ? (updatedEnemyFinal.level || 5) : fxE.fixedDamage;
                 updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - dmg);
@@ -1216,22 +1216,22 @@ export default function App() {
                   if (c.target === 'self') {
                     const cur = updatedEnemyFinal.stages?.[c.stat] || 0;
                     updatedEnemyFinal.stages = { ...updatedEnemyFinal.stages, [c.stat]: Math.max(-6, Math.min(6, cur + c.change)) };
-                    addLog(`â ï¸ ${updatedEnemyFinal.name} usou ${enemyMove.name}! ${statNames[c.stat]||c.stat} ${c.change > 0 ? 'subiu' : 'caiu'}!`, 'enemy');
+                    addLog(`⚠️ ${updatedEnemyFinal.name} usou ${enemyMove.name}! ${statNames[c.stat]||c.stat} ${c.change > 0 ? 'subiu' : 'caiu'}!`, 'enemy');
                   } else {
                     const cur = updatedTeamFinal[activeMemberIndex].stages?.[c.stat] || 0;
                     updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, [c.stat]: Math.max(-6, Math.min(6, cur + c.change)) } };
-                    addLog(`â ï¸ ${updatedEnemyFinal.name} usou ${enemyMove.name}! ${statNames[c.stat]||c.stat} de ${updatedTeamFinal[activeMemberIndex].name} ${c.change < 0 ? 'caiu' : 'subiu'}!`, 'enemy');
+                    addLog(`⚠️ ${updatedEnemyFinal.name} usou ${enemyMove.name}! ${statNames[c.stat]||c.stat} de ${updatedTeamFinal[activeMemberIndex].name} ${c.change < 0 ? 'caiu' : 'subiu'}!`, 'enemy');
                   }
                 });
 
                 if (fxE.accuracy_change) {
                   const cur = updatedTeamFinal[activeMemberIndex].stages?.accuracy || 0;
                   updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, accuracy: Math.max(-6, Math.min(6, cur + fxE.accuracy_change.change)) } };
-                  addLog(`â ï¸ ${updatedEnemyFinal.name} usou ${enemyMove.name}! Precisão de ${updatedTeamFinal[activeMemberIndex].name} caiu!`, 'enemy');
+                  addLog(`⚠️ ${updatedEnemyFinal.name} usou ${enemyMove.name}! Precisão de ${updatedTeamFinal[activeMemberIndex].name} caiu!`, 'enemy');
                 }
 
                 if (fxE.statusEffect) {
-                  const statusNames = { burn:'ð¥ Queimadura', poison:'ð Veneno', sleep:'ð¤ Sono', paralyze:'â¡ Paralisia', confuse:'ð« Confusão' };
+                  const statusNames = { burn:'Ã°ÂÂÂ¥ Queimadura', poison:'Ã°ÂÂÂ Veneno', sleep:'Ã°ÂÂÂ¤ Sono', paralyze:'Ã¢ÂÂ¡ Paralisia', confuse:'Ã°ÂÂÂ« Confusão' };
                   const myStatusList = updatedTeamFinal[activeMemberIndex].status || [];
                   if (!myStatusList.includes(fxE.statusEffect)) {
                     updatedTeamFinal[activeMemberIndex].status = [...myStatusList, fxE.statusEffect];
@@ -1244,9 +1244,9 @@ export default function App() {
               const enemyDmg = Math.max(1, Math.floor(enemyDmgRaw * 0.75));
               const eff = getTypeEffectiveness(enemyMove.type, updatedTeamFinal[activeMemberIndex].type);
               updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - enemyDmg);
-              if (eff > 1) addLog(`ð¥ Golpe de ${updatedEnemyFinal.name} foi super efetivo!`, 'enemy');
-              if (eff > 0 && eff < 1) addLog(`ð¡ï¸ Golpe de ${updatedEnemyFinal.name} não foi muito efetivo...`, 'enemy');
-              if (eff === 0) addLog(`ð« ${updatedTeamFinal[activeMemberIndex].name} é imune!`, 'enemy');
+              if (eff > 1) addLog(`💥 Golpe de ${updatedEnemyFinal.name} foi super efetivo!`, 'enemy');
+              if (eff > 0 && eff < 1) addLog(`Ã°ÂÂÂ¡Ã¯Â¸Â Golpe de ${updatedEnemyFinal.name} não foi muito efetivo...`, 'enemy');
+              if (eff === 0) addLog(`Ã°ÂÂÂ« ${updatedTeamFinal[activeMemberIndex].name} é imune!`, 'enemy');
             }
           }
         }
@@ -1256,7 +1256,7 @@ export default function App() {
       if (myStatus.includes('poison') || myStatus.includes('burn')) {
         const dot = Math.max(1, Math.floor(updatedTeamFinal[activeMemberIndex].maxHp / 16));
         updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - dot);
-        addLog(`ð¢ ${myPoke.name} sofreu dano por status!`, 'system');
+        addLog(`💢 ${myPoke.name} sofreu dano por status!`, 'system');
       }
 
       // ââ SISTEMA DE EXAUSTíO ââââââââââââââââââââââââââââââââââââââââââââââââââ
@@ -1278,7 +1278,7 @@ export default function App() {
           hp: Math.max(0, (updatedTeamFinal[activeMemberIndex].hp || 0) - hpDrain),
         };
         if (Math.random() < 0.25) {
-          addLog(`ðµ ${myPoke.name} está exausto! Perdendo vida por falta de comida!`, 'system');
+          addLog(`Ã°ÂÂÂµ ${myPoke.name} está exausto! Perdendo vida por falta de comida!`, 'system');
         }
       }
 
@@ -1287,7 +1287,7 @@ export default function App() {
 
       // Auto-alimentar quando abaixo do limiar (apenas se autoStamina estiver ON)
       if (autoStamEnabled && newStamina < FEED_THRESHOLD) {
-        // Prioridade: moomoo_milk â lemonade â soda_pop â berry_juice â poke_food_premium â fresh_water â poke_food â berries
+        // Prioridade: moomoo_milk → lemonade → soda_pop → berry_juice → poke_food_premium → fresh_water → poke_food → berries
         const feedPriority = [
           { key: 'moomoo_milk',       src: 'items'     },
           { key: 'lemonade',          src: 'items'     },
@@ -1326,21 +1326,21 @@ export default function App() {
 
           staminaEntry = { value: newStamina, lastFed: Date.now() };
           const itemName = ITEM_LABELS[food.key]?.name || food.key;
-          addLog(`ð´ ${myPoke.name} comeu ${itemName} e recuperou energia!`, 'system');
+          addLog(`<t ${myPoke.name} comeu ${itemName} e recuperou energia!`, 'system');
 
           // Se curar status
           if (restoreData?.cureStatus) {
             updatedTeamFinal[activeMemberIndex].status = [];
-            addLog(`â¨ ${myPoke.name} foi curado de problemas de status!`, 'system');
+            addLog(`( ${myPoke.name} foi curado de problemas de status!`, 'system');
           } else if (restoreData?.cureStatus && Array.isArray(restoreData.cureStatus)) {
              const newStatus = updatedTeamFinal[activeMemberIndex].status.filter(s => !restoreData.cureStatus.includes(s));
              if (newStatus.length < updatedTeamFinal[activeMemberIndex].status.length) {
                updatedTeamFinal[activeMemberIndex].status = newStatus;
-               addLog(`â¨ ${myPoke.name} recuperou-se!`, 'system');
+               addLog(`( ${myPoke.name} recuperou-se!`, 'system');
              }
           }
         } else if (newStamina < 10 && Math.random() < 0.2) {
-          addLog(`â ï¸ ${myPoke.name} está faminto! Compre bebidas no Poké Mart ou cultive Berries!`, 'system');
+          addLog(`⚠️ ${myPoke.name} está faminto! Compre bebidas no Poké Mart ou cultive Berries!`, 'system');
         }
       }
 
@@ -1376,7 +1376,7 @@ export default function App() {
       
       if (itemId === 'pokeballs' || itemId === 'great_ball' || itemId === 'ultra_ball') {
         if (currentEnemy.isTrainer) {
-          addLog("ð« Você não pode capturar Pokémons de outros treinadores!", 'enemy');
+          addLog("Ã°ÂÂÂ« Você não pode capturar Pokémons de outros treinadores!", 'enemy');
           return prev;
         }
         
@@ -1386,7 +1386,7 @@ export default function App() {
 
         const catchRate = ((1 - (currentEnemy.hp / currentEnemy.maxHp)) + 0.1) * multiplier;
         if (Math.random() < catchRate) {
-          addLog(`â¨ Capturado! ${currentEnemy.name} agora é seu!`, 'system');
+          addLog(`Ã¢ÂÂ¨ Capturado! ${currentEnemy.name} agora é seu!`, 'system');
           sfxCapture();
           sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
 
@@ -1404,21 +1404,21 @@ export default function App() {
           let questUpdate = {};
           if (prev.worldFlags.includes('quest_capture_active')) {
             newInventory.items = { ...newInventory.items, pokeballs: (newInventory.items.pokeballs || 0) + 10 };
-            addLog('ð Carvalho: "ítimo trabalho! Tome estas 10 Pokébolas!"', 'drop');
+            addLog('Ã°ÂÂÂ Carvalho: "Ótimo trabalho! Tome estas 10 Pokébolas!"', 'drop');
             questUpdate = { worldFlags: prev.worldFlags.filter(f => f !== 'quest_capture_active').concat(['quest_capture_done']) };
           }
 
           // Unificação por Espécie: Se já tem na caughtData (antes dessa captura), apenas aumenta maestria
           const alreadyCaught = !!(prev.caughtData || {})[currentEnemy.id];
           if (alreadyCaught) {
-            addLog(`ð ${currentEnemy.name} já capturado! Maestria aumentada.`, 'system');
+            addLog(`Ã°ÂÂÂ ${currentEnemy.name} já capturado! Maestria aumentada.`, 'system');
             const findAndReplace = (list) => {
               let updated = false;
               const newList = list.map(p => {
                 if (Number(p.id) === Number(currentEnemy.id)) {
                   updated = true;
                   if (currentEnemy.isShiny && !p.isShiny) {
-                    addLog(`â¨ Upgrade Shiny: Seu ${p.name} agora é Brilhante!`, 'system');
+                    addLog(`Ã¢ÂÂ¨ Upgrade Shiny: Seu ${p.name} agora é Brilhante!`, 'system');
                     return { ...p, isShiny: true, hp: p.maxHp };
                   }
                 }
@@ -1447,13 +1447,13 @@ export default function App() {
           return { ...prev, inventory: newInventory, team: newTeam, pc: newPC, caughtData: newCaughtData, speciesMastery: newMastery, ...questUpdate };
         } else {
           const enemyName = currentEnemy.name || 'Desconhecido';
-          addLog(`ð¨ O ${enemyName} escapou da Pokébola!`, 'enemy');
+          addLog(`Ã°ÂÂÂ¨ O ${enemyName} escapou da Pokébola!`, 'enemy');
         }
       } else if (itemId === 'potions') {
         const activePoke = prev.team[activeMemberIndex];
         if (activePoke) {
           const newTeam = prev.team.map((p, i) => i === activeMemberIndex ? { ...p, hp: Math.min(p.maxHp, p.hp + 20) } : p);
-          addLog(`ð§ª Usou Poção em ${activePoke.name}!`, 'system');
+          addLog(`Ã°ÂÂ§Âª Usou Poção em ${activePoke.name}!`, 'system');
           return { ...prev, inventory: newInventory, team: newTeam };
         }
       } else if (STAMINA_RESTORE_TABLE[itemId]) {
@@ -1472,7 +1472,7 @@ export default function App() {
 
           const newTeam = prev.team.map((p, i) => i === activeMemberIndex ? updatedPoke : p);
           const itemName = ITEM_LABELS[itemId]?.name || itemId;
-          addLog(`ð´ ${activePoke.name} consumiu ${itemName}! Energia restaurada.`, 'system');
+          addLog(`<t ${activePoke.name} consumiu ${itemName}! Energia restaurada.`, 'system');
 
           return { 
             ...prev, 
@@ -1490,7 +1490,7 @@ export default function App() {
         }
       }
       
-      // ââ 3. EFEITOS TEMPORíRIOS (TIMED EFFECTS) ââââââââââââââââââââââââââ
+      // ââ 3. EFEITOS TEMPORÁRIOS (TIMED EFFECTS) ââââââââââââââââââââââââââ
       const allRecipes = Object.values(CRAFTING_RECIPES).flat();
       const recipe = allRecipes.find(r => r.id === itemId);
       
@@ -1510,7 +1510,7 @@ export default function App() {
           },
         };
 
-        addLog(`â¨ ${recipe.name} ativado por ${recipe.durationLabel}!`, 'system');
+        addLog(`( ${recipe.name} ativado por ${recipe.durationLabel}!`, 'system');
 
         return {
           ...prev,
@@ -1570,8 +1570,8 @@ export default function App() {
       opponentTeamIndex: 0
     });
     setCurrentView('battles');
-    // BGM agora gerenciado pelas configuraçíÂµes
-    addLog(`ð¥ DESAFIO: ${battleData.name} iniciou a batalha!`, 'system');
+    // BGM agora gerenciado pelas configuraçÃ­ÃÂµes
+    addLog(`=% DESAFIO: ${battleData.name} iniciou a batalha!`, 'system');
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
 
@@ -1586,7 +1586,7 @@ export default function App() {
     const maxHp = Math.ceil((base.maxHp || base.hp || 50) * 1.6 * (lvl / 20)); 
     const statScale = (lvl / 10) * 0.85; 
 
-    // Golpes baseados no learnset do Pokémon até o nível do líder
+    // Golpes baseados no learnset do Pokémon até o nível do lÃ­der
     const learnset = base.learnset || [];
     const availableMoves = learnset
       .filter(m => m.level <= lvl)
@@ -1623,7 +1623,7 @@ export default function App() {
       opponentTeamIndex: 0
     });
     setCurrentView('battles');
-    // BGM agora gerenciado pelas configuraçíÂµes
+    // BGM agora gerenciado pelas configuraçÃ­ÃÂµes
     addLog(`í°Å¸Ââ  GINíÂSIO: Líder ${gymData.name} enviou ${base.name}! Nv.${lvl}`, 'system');
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, playBGM, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
@@ -1637,7 +1637,7 @@ export default function App() {
       });
 
       if (!hasMaterials) {
-        addLog("í¢ÂÅ Materiais ou Moedas insuficientes!", 'system');
+        addLog("âÂÅ Materiais ou Moedas insuficientes!", 'system');
         return prev;
       }
 
@@ -1657,7 +1657,7 @@ export default function App() {
       const newItems = { ...prev.inventory.items };
       newItems[recipe.id] = (newItems[recipe.id] || 0) + 1;
 
-      addLog(`í°Å¸âºÂ í¯Â¸Â Você fabricou: ${recipe.name}!`, 'drop');
+      addLog(`Ã­Â°ÃÂ¸Ã¢ÂÂºÃÂ Ã­Â¯ÃÂ¸ÃÂ Você fabricou: ${recipe.name}!`, 'drop');
 
       return {
         ...prev,
@@ -1681,7 +1681,7 @@ export default function App() {
       const currentCount = candies[candyId] || 0;
       
       if (currentCount < use.cost) {
-        addLog(`í¢ÂÅ Candies insuficientes (${currentCount}/${use.cost})`, 'system');
+        addLog(`âÂÅ Candies insuficientes (${currentCount}/${use.cost})`, 'system');
         return prev;
       }
 
@@ -1699,7 +1699,7 @@ export default function App() {
       if (use.effect === 'xp_boost') {
         const xpNeeded = (p.level || 5) * 25;
         p.xp = xpNeeded; 
-        addLog(`í°Å¸ÂÂ¬ ${p.name} consumiu candies e ganhou experiência!`, 'system');
+        addLog(`Ã­Â°ÃÂ¸ÃÂÃÂ¬ ${p.name} consumiu candies e ganhou experiência!`, 'system');
       } else if (use.effect === 'stat_atk') {
         p.attack = (p.attack || 10) + 2;
         addLog(`í°Å¸ÂÂ¬ ${p.name} aumentou o Ataque permanentemente!`, 'system');
@@ -1722,7 +1722,7 @@ export default function App() {
           setEvolutionPending({ ...p, teamIndex: location === 'team' ? pokemonIndex : null, pcIndex: location === 'pc' ? pokemonIndex : null });
           return { ...prev, inventory: newInventory };
         } else {
-           addLog(`í¢ÂÅ ${p.name} não pode evoluir mais.`, 'system');
+           addLog(`Ã¢ÃÂÃÂ ${p.name} não pode evoluir mais.`, 'system');
            return prev;
         }
       }
@@ -1757,7 +1757,7 @@ export default function App() {
         },
       };
     });
-    addLog(`ð Expedição para ${biome.name} iniciada! Duração: ~${Math.floor(duration / 60000)}min`, 'system');
+    addLog(`Ã°ÂÂÂ Expedição para ${biome.name} iniciada! Duração: ~${Math.floor(duration / 60000)}min`, 'system');
   }, [addLog]);
 
   const handleClaimExpedition = useCallback((biomeId) => {
@@ -1767,7 +1767,7 @@ export default function App() {
       const biome = EXPEDITION_BIOMES[biomeId];
       const duration = Date.now() - exp.startedAt;
       const rawDrops = calcExpeditionDrops(exp.team, biome, duration);
-      // Candies são exclusivos do farm nas rotas â remover das expediçíÂµes
+      // Candies são exclusivos do farm nas rotas — remover das expediçÃ­ÃÂµes
       const drops = Object.fromEntries(
         Object.entries(rawDrops).filter(([key]) => !key.includes('_candy'))
       );
@@ -1786,12 +1786,12 @@ export default function App() {
         .map(([k, v]) => `${v}x ${k}`)
         .join(', ');
       addLog(
-        `í¢Åâ¦ Expedição em ${biome.name} concluída! Coletou: ${dropSummary || 'nada desta vez'}`,
+        `Ã¢ÃÂÃ¢ÂÂ¦ Expedição em ${biome.name} concluÃ­da! Coletou: ${dropSummary || 'nada desta vez'}`,
         'drop'
       );
       teamWithXP.forEach(p => {
         if (p.xpGained > 0)
-          addLog(`í¢Â­Â ${p.name} ganhou ${p.xpGained} XP na expedição!`, 'system');
+          addLog(`Ã¢ÃÂ­ÃÂ ${p.name} ganhou ${p.xpGained} XP na expedição!`, 'system');
       });
       return {
         ...prev,
@@ -1802,12 +1802,12 @@ export default function App() {
     });
   }, [addLog]);
 
-  // í¢ââ¬í¢ââ¬ HOUSE SYSTEM HANDLERS í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+  // âââ¬âââ¬ HOUSE SYSTEM HANDLERS âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
   // Comprar a casa
   const handleBuyHouse = useCallback(() => {
     setGameState(prev => {
       if ((prev.currency || 0) < HOUSE_PURCHASE_COST) {
-        addLog(`í¢ÂÅ Coins insuficientes! A casa custa ${HOUSE_PURCHASE_COST} coins.`, 'system');
+        addLog(`âÂÅ Coins insuficientes! A casa custa ${HOUSE_PURCHASE_COST} coins.`, 'system');
         return prev;
       }
       addLog(`í°Å¸ÂÂ  Casa comprada! Prof. Carvalho ficou orgulhoso!`, 'system');
@@ -1832,14 +1832,14 @@ export default function App() {
 
       // Descontar coins do custo da semente
       if ((prev.currency || 0) < plant.cost) {
-        addLog(`í¢ÂÅ Coins insuficientes para plantar ${plant.name}!`, 'system');
+        addLog(`âÂÅ Coins insuficientes para plantar ${plant.name}!`, 'system');
         return prev;
       }
 
       const newSlots = [...(prev.house?.slots || [])];
       newSlots[slotIndex] = { plantId, plantedAt: Date.now(), growthTime };
 
-      addLog(`ð± ${plant.name} plantado! Pronto em ${Math.floor(growthTime / 60000)} min.`, 'system');
+      addLog(`<1 ${plant.name} plantado! Pronto em ${Math.floor(growthTime / 60000)} min.`, 'system');
       return {
         ...prev,
         currency: prev.currency - plant.cost,
@@ -1868,7 +1868,7 @@ export default function App() {
       }
 
       const dropSummary = Object.entries(drops).map(([k, v]) => `${v}x ${k}`).join(', ');
-      addLog(`ð¾ Colheu ${plant.name}: ${dropSummary}`, 'drop');
+      addLog(`<> Colheu ${plant.name}: ${dropSummary}`, 'drop');
 
       return {
         ...prev,
@@ -1882,7 +1882,7 @@ export default function App() {
   const handleBuySlot = useCallback((expansion) => {
     setGameState(prev => {
       if ((prev.currency || 0) < expansion.cost) return prev;
-      addLog(`í°Å¸Ââí¯Â¸Â Jardim expandido para ${expansion.totalSlots} canteiros!`, 'system');
+      addLog(`í°Å¸Â—í¯Â¸Â Jardim expandido para ${expansion.totalSlots} canteiros!`, 'system');
       return {
         ...prev,
         currency: prev.currency - expansion.cost,
@@ -1945,7 +1945,7 @@ export default function App() {
         opponentTeamIndex: 0
       });
       setCurrentView('battles');
-      addLog(`âï¸í¯Â¸Â RIVAL: ${battleData.name} desafiou você!`, 'system');
+      addLog(`Ã¢ÂÂÃ¯Â¸ÂÃ­Â¯ÃÂ¸ÃÂ RIVAL: ${battleData.name} desafiou você!`, 'system');
       isProcessingVictory.current = false;
       return;
     }
@@ -1982,7 +1982,7 @@ export default function App() {
     isProcessingVictory.current = false;
     setCurrentEnemy(rivalEnemy);
     setCurrentView('battles');
-    // BGM agora gerenciado pelas configuraçíÂµes
+    // BGM agora gerenciado pelas configuraçÃ­ÃÂµes
   }, [gameState.team, gameState.trainer, playBGM, setCurrentEnemy, setCurrentView, addLog]);
 
 
@@ -2014,7 +2014,7 @@ export default function App() {
           });
         const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
-        addLog(`ð¢ ${currentEnemy.trainerName} enviou ${base.name}!`, 'enemy');
+        addLog(`📢 ${currentEnemy.trainerName} enviou ${base.name}!`, 'enemy');
         
         setCurrentEnemy(prev => ({
           ...prev,
@@ -2040,7 +2040,7 @@ export default function App() {
 
     isProcessingVictory.current = true;
 
-    // Vitória! O som de GYM tocará apenas se ganhar insígnia
+    // Vitória! O som de GYM tocará apenas se ganhar insÃ­gnia
 
     const { drops, messages } = processDrops(currentEnemy);
     const baseXpGain = currentEnemy.baseExp || (currentEnemy.level || 5) * 5;
@@ -2071,7 +2071,7 @@ export default function App() {
           unlocks.forEach(u => {
             if (!newFlags.includes(u)) {
                newFlags.push(u);
-               addLog(`â¨ Desbloqueado: ${u.replace('_', ' ')}!`, 'system');
+               addLog(`( Desbloqueado: ${u.replace('_', ' ')}!`, 'system');
             }
           });
         }
@@ -2083,7 +2083,7 @@ export default function App() {
         sfxGym();
         
         const newShare = newBadges.length * 10;
-        addLog(`â¨ Exp Share aumentado! Sua equipe agora recebe ${newShare}% da experiência compartilhada!`, 'system');
+        addLog(`Ã¢ÂÂ¨ Exp Share aumentado! Sua equipe agora recebe ${newShare}% da experiência compartilhada!`, 'system');
         
         // Show Oak House modal after 1st badge
         if (newBadges.length === 1 && !prev.worldFlags?.includes('house_owned') && !prev.worldFlags?.includes('oak_house_shown')) {
@@ -2092,20 +2092,20 @@ export default function App() {
         }
       }
 
-      // Salvar flag de vitória específica do inimigo (Rival, Boss, etc)
+      // Salvar flag de vitória especÃ­fica do inimigo (Rival, Boss, etc)
       if (currentEnemy.unlockFlag && !newFlags.includes(currentEnemy.unlockFlag)) {
         newFlags.push(currentEnemy.unlockFlag);
-        addLog(`ð© Progresso: ${currentEnemy.unlockFlag.replace(/_/g, ' ')}!`, 'system');
+        addLog(`🚩 Progresso: ${currentEnemy.unlockFlag.replace(/_/g, ' ')}!`, 'system');
       }
 
-      // Salvar flag de vitória de Elite 4 / Líder de Ginásio (Fallback)
+      // Salvar flag de vitória de Elite 4 / LÃ­der de Ginásio (Fallback)
       if (currentEnemy.gymId && !newFlags.includes(`defeated_elite_${currentEnemy.gymId}`)) {
         newFlags.push(`defeated_elite_${currentEnemy.gymId}`);
       }
 
       const badgesCount = prev.badges?.length || 0;
       
-      // í¢ââ¬í¢ââ¬ EFEITOS ATIVOS (TIMED) í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬í¢ââ¬
+      // âââ¬âââ¬ EFEITOS ATIVOS (TIMED) âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
       const now = Date.now();
       const effects = prev.activeEffects || {};
       
@@ -2153,7 +2153,7 @@ export default function App() {
           }
 
           const newLevel = (p.level || 5) + 1;
-          addLog(`ð ${p.name} subiu para Nv. ${newLevel}!`, 'system');
+          addLog(`🎉 ${p.name} subiu para Nv. ${newLevel}!`, 'system');
           sfxLevelUp();
 
           let newMoves = [...(p.moves || [])];
@@ -2173,9 +2173,9 @@ export default function App() {
                 newLearnedMoves.push(moveObj);
                 if (newMoves.length < 4 && !newMoves.some(m => m.name === moveObj.name)) {
                   newMoves.push(moveObj);
-                  addLog(`â¨ ${p.name} aprendeu ${moveObj.name}!`, 'system');
+                  addLog(`( ${p.name} aprendeu ${moveObj.name}!`, 'system');
                 } else {
-                  addLog(`â¨ ${p.name} aprendeu ${moveObj.name}! (Salvo na Memória)`, 'system');
+                  addLog(`Ã¢ÂÂ¨ ${p.name} aprendeu ${moveObj.name}! (Salvo na Memória)`, 'system');
                 }
               }
             });
@@ -2223,8 +2223,8 @@ export default function App() {
     if (currentEnemy.isTrainer && currentEnemy.trainerReward) {
       addLog(`í°Å¸Ââ  ${currentEnemy.trainerName} derrotado! +${currentEnemy.trainerReward} coins`, 'system');
     }
-    if (currentEnemy.isRocket) addLog('ð Grunt da Equipe Rocket derrotado!', 'system');
-    if (currentEnemy.isShiny) addLog('â¨ Pokémon shiny derrotado!', 'system');
+    if (currentEnemy.isRocket) addLog('🚀 Grunt da Equipe Rocket derrotado!', 'system');
+    if (currentEnemy.isShiny) addLog('Ã¢ÂÂ¨ Pokémon shiny derrotado!', 'system');
 
     sessionRef.current.kills += 1;
     sessionRef.current.coins += (drops.currency || 0) + (currentEnemy.trainerReward || 0);
@@ -2254,16 +2254,16 @@ export default function App() {
             let questUpdate = {};
             if (prev.worldFlags.includes('quest_capture_active')) {
               newInventory.items = { ...newInventory.items, pokeballs: (newInventory.items.pokeballs || 0) + 10 };
-              addLog('í°Å¸Å½Â Carvalho: "ítimo trabalho! Tome estas 10 Pokébolas!"', 'drop');
+              addLog('Ã­Â°ÃÂ¸ÃÂ½ÃÂ Carvalho: "Ótimo trabalho! Tome estas 10 Pokébolas!"', 'drop');
               questUpdate = { worldFlags: prev.worldFlags.filter(f => f !== 'quest_capture_active').concat(['quest_capture_done']) };
             }
 
             if (alreadyCaught) {
-              addLog(`ð Auto-captura: ${currentEnemy.name} já capturado! Maestria aumentada.`, 'system');
+              addLog(`Ã°ÂÂÂ Auto-captura: ${currentEnemy.name} já capturado! Maestria aumentada.`, 'system');
               const findAndReplace = (list) => list.map(p => {
                 if (Number(p.id) === Number(currentEnemy.id)) {
                   if (currentEnemy.isShiny && !p.isShiny) {
-                    addLog(`â¨ Upgrade Shiny: Seu ${p.name} agora é Brilhante!`, 'system');
+                    addLog(`Ã¢ÂÂ¨ Upgrade Shiny: Seu ${p.name} agora é Brilhante!`, 'system');
                     return { ...p, isShiny: true, hp: p.maxHp };
                   }
                 }
@@ -2273,7 +2273,7 @@ export default function App() {
             }
 
             // Primeira Captura via Auto
-            addLog(`â¨ Auto-capturado! ${currentEnemy.name} agora é seu!`, 'system');
+            addLog(`Ã¢ÂÂ¨ Auto-capturado! ${currentEnemy.name} agora é seu!`, 'system');
             sfxCapture();
             const newPoke = { ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() };
             const newTeam = [...prev.team];
@@ -2282,7 +2282,7 @@ export default function App() {
 
             return { ...prev, team: newTeam, pc: newPC, inventory: { ...prev.inventory, items: newInventory.items }, speciesMastery: newMastery, caughtData: newCaughtData, ...questUpdate };
           } else {
-            addLog(`ð¨ Auto-captura falhou para ${currentEnemy.name}!`, 'enemy');
+            addLog(`💨 Auto-captura falhou para ${currentEnemy.name}!`, 'enemy');
           }
         }
         return prev;
@@ -2406,7 +2406,7 @@ export default function App() {
                 alt="Oak" />
             </div>
 
-            {/* Diálogo box â estilo Game Boy */}
+            {/* Diálogo box — estilo Game Boy */}
             <div className="relative z-10 w-full max-w-xl mb-4">
               <div className="bg-white/95 backdrop-blur-sm p-5 md:p-8 rounded-[2rem] shadow-2xl border-b-[8px] border-slate-800">
                 <div className="flex items-center gap-2 mb-3">
@@ -2443,7 +2443,7 @@ export default function App() {
                   }}
                   className="w-full mt-5 bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg active:scale-95"
                 >
-                  {isLastStep ? 'Tudo Pronto!' : 'Próximo ▶'}
+                  {isLastStep ? 'Tudo Pronto!' : 'Próximo â¶'}
                 </button>
               </div>
             </div>
@@ -2524,7 +2524,7 @@ export default function App() {
             <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
                 <div className="bg-white w-full max-w-xl rounded-[4rem] shadow-2xl border-b-[16px] border-slate-200 overflow-hidden relative animate-bounceIn">
                    <button onClick={() => setPreviewStarter(null)} className="absolute top-8 right-8 bg-slate-100 p-4 rounded-full hover:bg-red-50 hover:text-red-500 transition-all z-20">
-                      <span className="font-black">í¢Å•</span>
+                      <span className="font-black">âÅ•</span>
                    </button>
 
                    <div className={`h-40 w-full relative flex items-end justify-center ${previewStarter.type === 'Grass' ? 'bg-green-500' : previewStarter.type === 'Fire' ? 'bg-orange-500' : previewStarter.type === 'Water' ? 'bg-blue-500' : 'bg-slate-400'}`}>
@@ -2633,7 +2633,7 @@ export default function App() {
            <div className="w-full relative z-10 p-4">
              <div className="bg-white p-6 rounded-[2rem] shadow-2xl border-b-[10px] border-blue-600 w-full">
                <h3 className="text-lg font-black text-slate-800 italic uppercase mb-3 tracking-tighter">Rival Azul:</h3>
-               <p className="text-sm font-bold text-slate-600 mb-4 italic">"Ei, espere aí! Eu também quero um POKÉMON! E eu vou escolher este aqui!"</p>
+               <p className="text-sm font-bold text-slate-600 mb-4 italic">"Ei, espere aÃ­! Eu também quero um POKÉMON! E eu vou escolher este aqui!"</p>
                <p className="text-sm font-black text-blue-500 mb-4 uppercase tracking-widest animate-pulse">"Vejamos quem é o melhor treinador!"</p>
                <button
                  onClick={startBattleAgainstRival}
@@ -2660,7 +2660,7 @@ export default function App() {
              <div className="bg-white p-6 rounded-[2rem] shadow-2xl border-b-[10px] border-blue-600 w-full">
                <h3 className="text-lg font-black text-slate-800 italic uppercase mb-3 tracking-tighter">Rival Azul:</h3>
                <p className="text-sm font-bold text-slate-600 mb-3 italic">"Beleza! Vou fazer meu POKÉMON lutar para deixá-lo mais forte!"</p>
-               <p className="text-sm font-black text-blue-500 mb-4 uppercase tracking-widest">"VovíÂ´! Fui!"</p>
+               <p className="text-sm font-black text-blue-500 mb-4 uppercase tracking-widest">"Vovô! Fui!"</p>
                <button
                  onClick={() => setCurrentView('quest_oak')}
                  className="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg"
@@ -2685,7 +2685,7 @@ export default function App() {
           <div className="w-full relative z-10 p-4">
             <div className="bg-white p-5 rounded-[2rem] shadow-2xl border-b-[10px] border-slate-800 w-full">
               <h3 className="text-lg font-black text-slate-800 italic uppercase mb-2 tracking-tighter">Prof. Carvalho:</h3>
-              <p className="text-sm font-bold text-slate-600 mb-2 italic">"Que batalha incrível! Vocês dois têm muito talento."</p>
+              <p className="text-sm font-bold text-slate-600 mb-2 italic">"Que batalha incrÃ­vel! Vocês dois têm muito talento."</p>
               <p className="text-sm font-black text-pokeBlue mb-4 uppercase tracking-tighter leading-tight">
                 "Agora, preciso que você aprenda a capturar POKÉMONS. Vá até a ROTA 1 e capture seu primeiro parceiro!"
               </p>
@@ -2723,12 +2723,12 @@ export default function App() {
                   <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-8 h-8 rounded-full object-contain bg-slate-100 p-0.5" alt="" />
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Prof. Carvalho</span>
                 </div>
-                <p className="text-sm font-bold text-slate-600 mb-2 italic">"Veja só! Azul me contou que capturou Pokémon incríveis nestas rotas!"</p>
+                <p className="text-sm font-bold text-slate-600 mb-2 italic">"Veja só! Azul me contou que capturou Pokémon incrÃ­veis nestas rotas!"</p>
                 <p className="text-sm font-black text-pokeBlue mb-4 uppercase tracking-tighter leading-tight">
                   "Parece que Bulbasaur, Charmander e outros iniciais estão aparecendo raramente por aqui. Fique atento!"
                 </p>
                 <div className="bg-amber-50 p-4 rounded-2xl border-2 border-amber-200 mb-4">
-                   <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Desbloqueio Especial â</p>
+                   <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Desbloqueio Especial </p>
                    <p className="text-xs font-bold text-slate-800 uppercase mt-1 italic">Iniciais Raríssimos agora aparecem nas Rotas 1, 22 e Floresta!</p>
                 </div>
                 <button
@@ -2761,7 +2761,7 @@ export default function App() {
                    }}
                    className="group bg-white p-8 rounded-[3rem] border-4 border-slate-200 hover:border-red-400 transition-all shadow-xl hover:shadow-red-100 flex flex-col items-center gap-4 active:scale-95"
                  >
-                    <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">í°Å¸ÂËí¯Â¸Â</div>
+                    <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">🏘️</div>
                     <div>
                        <h3 className="font-black text-xl text-slate-800 uppercase italic">Cidade de Pallet</h3>
                        <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Descansar e Preparar</p>
@@ -2776,7 +2776,7 @@ export default function App() {
                    }}
                    className="group bg-white p-8 rounded-[3rem] border-4 border-slate-200 hover:border-green-400 transition-all shadow-xl hover:shadow-green-100 flex flex-col items-center gap-4 active:scale-95"
                  >
-                    <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">ð¿</div>
+                    <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center text-4xl group-hover:scale-110 transition-transform"><?</div>
                     <div>
                        <h3 className="font-black text-xl text-slate-800 uppercase italic">Rota 1</h3>
                        <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Iniciar Capturas</p>
@@ -2840,21 +2840,21 @@ export default function App() {
                   <p className="text-amber-900 text-sm leading-relaxed mb-6 font-medium">
                     Parabéns por vencer o Ginásio de Pewter! Você está crescendo como treinador.
                     Que tal ter sua própria casa? Lá você pode cultivar Berries e Apricorns para
-                    fabricar Pokébolas especiais e itens raros. Com Pokémon de Grama e í gua como
-                    cuidadores, suas plantaçíÂµes crescerão muito mais rápido!
+                    fabricar Pokébolas especiais e itens raros. Com Pokémon de Grama e Ã­Â gua como
+                    cuidadores, suas plantaçÃ­ÃÂµes crescerão muito mais rápido!
                   </p>
                   <div className="bg-white/60 rounded-3xl p-5 mb-6 border-2 border-amber-200 shadow-inner">
-                    <p className="text-amber-800 font-black text-lg flex items-center gap-2">ð  Custo da Casa</p>
+                    <p className="text-amber-800 font-black text-lg flex items-center gap-2">🏠 Custo da Casa</p>
                     <div className="flex justify-between items-center mt-2">
                        <p className="text-amber-900 text-sm font-bold">
-                          ð° {HOUSE_PURCHASE_COST.toLocaleString()} coins
+                          💰 {HOUSE_PURCHASE_COST.toLocaleString()} coins
                        </p>
                        <p className="text-amber-700 text-xs font-black uppercase tracking-widest">4 canteiros iniciais</p>
                     </div>
                     <div className={`mt-3 p-3 rounded-xl font-black text-xs uppercase text-center ${(gameState.currency || 0) >= HOUSE_PURCHASE_COST ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
                       {(gameState.currency || 0) >= HOUSE_PURCHASE_COST
-                        ? "â Você tem coins suficientes!"
-                        : `â Falta ${(HOUSE_PURCHASE_COST - (gameState.currency || 0)).toLocaleString()} coins`}
+                        ? "Ã¢ÂÂ Você tem coins suficientes!"
+                        : `L Falta ${(HOUSE_PURCHASE_COST - (gameState.currency || 0)).toLocaleString()} coins`}
                     </div>
                   </div>
                   <div className="flex gap-4">
@@ -2873,7 +2873,7 @@ export default function App() {
                           : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
                       }`}
                     >
-                      ð  Comprar Casa!
+                      🏠 Comprar Casa!
                     </button>
                   </div>
                 </div>
@@ -2929,32 +2929,32 @@ export default function App() {
                     </p>
 
                     <div className="bg-white/80 rounded-[2.5rem] p-6 border-2 border-green-200 shadow-inner">
-                      <p className="text-green-800 text-xs font-black uppercase tracking-[0.2em] mb-4">ð´ O que alimenta seus Pokémon:</p>
+                      <p className="text-green-800 text-xs font-black uppercase tracking-[0.2em] mb-4">🍴 O que alimenta seus Pokémon:</p>
                       <div className="grid grid-cols-1 gap-3">
                         <div className="flex items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-green-100">
                           <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png" className="w-8 h-8 object-contain" alt="berry" />
-                          <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>Berries</strong> â cultive na sua casa. Oran e Sitrus Berry são essenciais.</p>
+                          <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>Berries</strong> — cultive na sua casa. Oran e Sitrus Berry são essenciais.</p>
                         </div>
                         <div className="flex items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-green-100">
                           <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png" className="w-8 h-8 object-contain" alt="agua" />
-                          <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>íguas e Soda</strong> â compre no Poké Mart para restaurar energia rápido.</p>
+                          <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>Águas e Soda</strong> — compre no Poké Mart para restaurar energia rápido.</p>
                         </div>
                         <div className="flex items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-green-100">
-                          <span className="text-2xl w-8 text-center">ð</span>
-                          <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>Ração Pokémon</strong> â pode ser fabricada na Forja com materiais simples.</p>
+                          <span className="text-2xl w-8 text-center"><V</span>
+                          <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>Ração Pokémon</strong> — pode ser fabricada na Forja com materiais simples.</p>
                         </div>
                       </div>
                     </div>
 
                     <div className="flex gap-4">
                        <div className="flex-1 bg-red-50 rounded-3xl p-4 border-2 border-red-100">
-                         <p className="text-red-700 text-[10px] font-black uppercase tracking-widest mb-1">â ï¸ Perigo!</p>
+                         <p className="text-red-700 text-[10px] font-black uppercase tracking-widest mb-1">⚠️ Perigo!</p>
                          <p className="text-red-600 text-[10px] font-bold leading-tight">
                            Energia zerada causa exaustão e perda constante de vida.
                          </p>
                        </div>
                        <div className="flex-1 bg-blue-50 rounded-3xl p-4 border-2 border-blue-100">
-                         <p className="text-blue-700 text-[10px] font-black uppercase tracking-widest mb-1">ð¡ Dica!</p>
+                         <p className="text-blue-700 text-[10px] font-black uppercase tracking-widest mb-1">💡 Dica!</p>
                          <p className="text-blue-600 text-[10px] font-bold leading-tight">
                            O sistema alimenta automaticamente com o melhor item disponível.
                          </p>
@@ -3041,7 +3041,7 @@ export default function App() {
 
               <div className="bg-white/5 rounded-2xl p-6 mb-8 border border-white/5">
                 <p className="text-white/80 text-sm font-bold leading-relaxed italic">
-                  "Incrível! Meus parabéns por derrotar o Azul na Rota 1! Acabo de receber relatos fantásticos... os Pokémon iniciais <span className="text-green-400">Bulbasaur</span>, <span className="text-orange-400">Charmander</span> e <span className="text-blue-400">Squirtle</span> foram avistados selvagens na Rota 1 e na Floresta!"
+                  "IncrÃ­vel! Meus parabéns por derrotar o Azul na Rota 1! Acabo de receber relatos fantásticos... os Pokémon iniciais <span className="text-green-400">Bulbasaur</span>, <span className="text-orange-400">Charmander</span> e <span className="text-blue-400">Squirtle</span> foram avistados selvagens na Rota 1 e na Floresta!"
                 </p>
                 <p className="text-white/80 text-sm font-bold leading-relaxed italic mt-4">
                   "Parece que eles decidiram se aventurar além do meu laboratório. Agora você pode encontrá-los e capturá-los! Boa sorte na sua jornada!"
@@ -3143,7 +3143,7 @@ export default function App() {
            <div className="relative z-10 w-full max-w-2xl">
               <div className="flex items-center gap-4 mb-8">
                  <button onClick={() => setCurrentView('city')} className="bg-slate-800 p-4 rounded-3xl shadow-xl hover:bg-slate-700 transition-all">
-                    <span className="text-xl text-white">í¢â Â</span>
+                    <span className="text-xl text-white">ââ Â</span>
                  </button>
                  <div>
                     <h2 className="text-4xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">Forja Pokémon</h2>
@@ -3154,7 +3154,7 @@ export default function App() {
               <div className="bg-white/50 backdrop-blur-md p-6 rounded-[2.5rem] border-2 border-white shadow-inner mb-6">
                  <div className="flex justify-between items-center mb-4">
                     <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Seus Materiais</h4>
-                    <span className="text-[10px] font-black text-pokeBlue uppercase bg-blue-50 px-3 py-1 rounded-full">ð° {gameState.currency} Coins</span>
+                    <span className="text-[10px] font-black text-pokeBlue uppercase bg-blue-50 px-3 py-1 rounded-full">💰 {gameState.currency} Coins</span>
                  </div>
                  <div className="flex flex-wrap justify-center gap-3">
                     {Object.entries(gameState.inventory.materials)
@@ -3279,7 +3279,8 @@ export default function App() {
                  onClick={() => toggleMute()}
                  className="flex items-center gap-1 bg-black/20 px-2 py-1.5 rounded-full hover:bg-black/30 transition-all border border-white/10"
                >
-                 <span className="text-sm">{muted ? '🔇' : '🔊'}</span>
+                 <span className="text-sm">{muted ? '=' : '=
+'}</span>
                </button>
                <button onClick={() => { if(window.confirm('Deseja realmente sair? Seu progresso foi salvo.')) setCurrentView('landing'); }} className="flex items-center gap-1.5 bg-black/20 px-3 py-1.5 rounded-full hover:bg-black/30 transition-all border border-white/10">
                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png" className="w-4 h-4" alt="Home" />
@@ -3314,9 +3315,9 @@ export default function App() {
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { icon: 'âï¸í¯Â¸Â', label: 'Nocautes', value: sessionStats.kills },
-                  { icon: 'â¨', label: 'Shinies', value: sessionStats.shinyKills + sessionStats.captures.filter(c => c.isShiny).length },
+                  { icon: '(', label: 'Shinies', value: sessionStats.shinyKills + sessionStats.captures.filter(c => c.isShiny).length },
                   { icon: 'í°Å¸Ââ ', label: 'Trainers', value: sessionStats.trainers },
-                  { icon: 'ð°', label: 'Coins',    value: sessionStats.coins  },
+                  { icon: '💰', label: 'Coins',    value: sessionStats.coins  },
                 ].map(s => (
                   <div key={s.label} className="bg-slate-50 rounded-2xl p-3 text-center border border-slate-100">
                     <div className="text-xl mb-1">{s.icon}</div>
@@ -3330,11 +3331,11 @@ export default function App() {
               {Object.keys(sessionStats.drops).length > 0 && (
                 <div className="bg-amber-50/50 p-4 rounded-3xl border border-amber-100">
                   <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <span className="text-sm">ð¦</span> Itens Coletados
+                    <span className="text-sm">📦</span> Itens Coletados
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(sessionStats.drops).map(([mat, qty]) => {
-                      const item = ITEM_LABELS[mat] || { icon: 'ð', name: mat.split('_').pop() };
+                      const item = ITEM_LABELS[mat] || { icon: '💎', name: mat.split('_').pop() };
                       return (
                         <div key={mat} className="flex items-center gap-1.5 bg-white border border-amber-200 rounded-xl px-2.5 py-1 shadow-sm">
                           <span className="text-xs">{item.icon}</span>
@@ -3351,14 +3352,14 @@ export default function App() {
               {sessionStats.captures.length > 0 && (
                 <div className="bg-blue-50/50 p-4 rounded-3xl border border-blue-100">
                    <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <span className="text-sm">ð¾</span> Capturados ({sessionStats.captures.length})
+                    <span className="text-sm">🎾</span> Capturados ({sessionStats.captures.length})
                   </p>
                   <div className="grid grid-cols-1 gap-2">
                     {sessionStats.captures.map((cap, i) => (
                       <div key={i} className="flex items-center gap-3 bg-white border border-blue-100 rounded-2xl px-3 py-1.5 shadow-sm">
                         <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${cap.isShiny ? 'shiny/' : ''}${cap.id}.png`} className="w-8 h-8 object-contain" alt={cap.name} />
                         <span className="font-black text-slate-800 text-[11px] uppercase tracking-tighter">{cap.name}</span>
-                        {cap.isShiny && <span className="ml-auto text-[8px] bg-yellow-100 text-yellow-700 font-extrabold px-2 py-0.5 rounded-full border border-yellow-200">â¨ SHINY</span>}
+                        {cap.isShiny && <span className="ml-auto text-[8px] bg-yellow-100 text-yellow-700 font-extrabold px-2 py-0.5 rounded-full border border-yellow-200">( SHINY</span>}
                       </div>
                     ))}
                   </div>
@@ -3385,7 +3386,7 @@ export default function App() {
                 className="w-full bg-pokeRed text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-red-600 transition-all active:scale-95 border-b-8 border-red-700 flex items-center justify-center gap-3"
               >
                 Continuar para Cidade
-                <span>â</span>
+                <span>➔</span>
               </button>
             </div>
           </div>
@@ -3449,7 +3450,7 @@ export default function App() {
               <button 
                 onClick={() => setActiveBuildingModal(null)}
                 className="absolute top-6 right-6 z-20 bg-white/80 backdrop-blur-md w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:rotate-90 transition-all border-2 border-slate-100"
-              >í¢Å•</button>
+              >âÅ•</button>
 
               {activeBuildingModal === 'pokecenter' && (
                 <div className="flex-1 flex flex-col overflow-hidden">
@@ -3476,7 +3477,7 @@ export default function App() {
                               stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 } 
                             })) 
                           }));
-                          addLog("í°Å¸ÂÂ¥ Todos os Pokémon da equipe foram curados!", "system");
+                          addLog("Ã­Â°ÃÂ¸ÃÂÃÂ¥ Todos os Pokémon da equipe foram curados!", "system");
                           
                           setTimeout(() => {
                             setActiveBuildingModal(null);
@@ -3500,7 +3501,7 @@ export default function App() {
                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Suprimentos de Viagem</p>
                       </div>
                       <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm">
-                         ð° {gameState.currency}
+                         💰 {gameState.currency}
                       </div>
                    </div>
 
@@ -3541,7 +3542,7 @@ export default function App() {
                                 </div>
                                 <div className="text-right">
                                    <p className="text-[10px] font-black text-slate-400 uppercase">Preço</p>
-                                   <p className="font-black text-amber-600 text-sm">ð° {item.price}</p>
+                                   <p className="font-black text-amber-600 text-sm">💰 {item.price}</p>
                                 </div>
                              </div>
                              <div className="grid grid-cols-3 gap-2">
@@ -3571,7 +3572,7 @@ export default function App() {
                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Materiais e Equipamentos</p>
                       </div>
                       <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm">
-                         ð° {gameState.currency}
+                         💰 {gameState.currency}
                       </div>
                    </div>
 
@@ -3667,11 +3668,11 @@ export default function App() {
               
               <div className="flex justify-between items-center mb-8">
                  <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter">Onde encontrar?</h3>
-                 <button onClick={() => setActiveMaterialModal(null)} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 transition-colors">í¢Å•</button>
+                 <button onClick={() => setActiveMaterialModal(null)} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 transition-colors">âÅ•</button>
               </div>
               
               <div className="flex items-center gap-6 bg-slate-50 p-6 rounded-[2.5rem] border-2 border-slate-100 mb-8 shadow-inner">
-                 <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg text-3xl">ð</div>
+                 <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg text-3xl">💎</div>
                  <div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Recurso:</p>
                     <h4 className="text-xl font-black text-slate-800 uppercase italic mt-1">{activeMaterialModal.replace(/_/g, ' ')}</h4>
@@ -3684,23 +3685,23 @@ export default function App() {
                        switch(activeMaterialModal) {
                           case 'currency': return 'Obtido derrotando Pokémons em qualquer rota ou vendendo itens raros.';
                           case 'normal_essence': return 'Dropado por Pokémons tipo NORMAL (ex: Pidgey, Rattata) na Rota 1 e Pallet.';
-                          case 'fire_essence': return 'Dropado por Pokémons tipo FOGO. Procure em áreas vulcíÂ¢nicas ou raramente na Rota 1.';
-                          case 'water_essence': return 'Dropado por Pokémons tipo íÂGUA em rios, lagos e oceanos.';
+                          case 'fire_essence': return 'Dropado por Pokémons tipo FOGO. Procure em áreas vulcÃ­ÃÂ¢nicas ou raramente na Rota 1.';
+                          case 'water_essence': return 'Dropado por Pokémons tipo Ã­ÃÂGUA em rios, lagos e oceanos.';
                           case 'grass_essence': return 'Dropado por Pokémons tipo PLANTA na Rota 1 e Floresta de Viridian.';
                           case 'electric_essence': return 'Dropado por Pokémons tipo ELÉTRICO. Tente a Usina de Energia.';
                           case 'ice_essence': return 'Dropado por Pokémons tipo GELO em cavernas geladas ou Ilhas Seafoam.';
                           case 'fighting_essence': return 'Dropado por Pokémons tipo LUTADOR na Rota 22 ou Victory Road.';
-                          case 'poison_essence': return 'Dropado por Pokémons tipo VENENO na Floresta de Viridian e píÂ¢ntanos.';
+                          case 'poison_essence': return 'Dropado por Pokémons tipo VENENO na Floresta de Viridian e pÃ­ÃÂ¢ntanos.';
                           case 'ground_essence': return 'Dropado por Pokémons tipo TERRA em cavernas, como a Caverna Diglett.';
                           case 'flying_essence': return 'Dropado por Pokémons tipo VOADOR em rotas abertas e céus.';
-                          case 'psychic_essence': return 'Dropado por Pokémons tipo PSíÂQUICO em locais misteriosos ou MansíÂµes.';
+                          case 'psychic_essence': return 'Dropado por Pokémons tipo PSÃ­ÃÂQUICO em locais misteriosos ou MansÃ­ÃÂµes.';
                           case 'bug_essence': return 'Dropado por Pokémons tipo INSETO na Floresta de Viridian.';
                           case 'rock_essence': return 'Dropado por Pokémons tipo PEDRA em túneis de rocha e cavernas.';
                           case 'ghost_essence': return 'Dropado por Pokémons tipo FANTASMA na Torre Pokémon de Lavender.';
-                          case 'dragon_essence': return 'Dropado por Pokémons tipo DRAGíO em locais sagrados ou Victory Road.';
-                          case 'steel_essence': return 'Dropado por Pokémons tipo AíO em áreas industriais ou usinas.';
+                          case 'dragon_essence': return 'Dropado por Pokémons tipo DRAGÃ­O em locais sagrados ou Victory Road.';
+                          case 'steel_essence': return 'Dropado por Pokémons tipo AÃ­ÂO em áreas industriais ou usinas.';
                           case 'fairy_essence': return 'Dropado por Pokémons tipo FADA no Monte Lua.';
-                          case 'dark_essence': return 'Dropado por Pokémons tipo SOMBRIO em locais escuros ou mansíÂµes.';
+                          case 'dark_essence': return 'Dropado por Pokémons tipo SOMBRIO em locais escuros ou mansÃ­ÃÂµes.';
                           default: return 'Explore diferentes rotas e derrote Pokémons de tipos variados para coletar este material.';
                        }
                     })()}
@@ -3740,7 +3741,7 @@ export default function App() {
                     {masteryNotification.reward.val}
                  </div>
               </div>
-              <button onClick={() => setMasteryNotification(null)} className="absolute top-4 right-4 text-slate-300 hover:text-slate-800 transition-colors text-xs font-black">í¢Å•</button>
+              <button onClick={() => setMasteryNotification(null)} className="absolute top-4 right-4 text-slate-300 hover:text-slate-800 transition-colors text-xs font-black">âÅ•</button>
            </div>
         </div>
       )}

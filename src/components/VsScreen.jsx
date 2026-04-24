@@ -13,7 +13,7 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
 
   const tabs = [
     { id: 'challenges', name: 'Desafios', icon: '⚔️', desc: 'Rivais & Rocket' },
-    { id: 'gyms', name: 'Ginásios & Liga', icon: '🏆', desc: 'Caminho do Mestre' },
+    { id: 'gyms', name: 'Ginásios & Liga', icon: 'ð', desc: 'Caminho do Mestre' },
     { id: 'legendary', name: 'Lendários', icon: '✨', desc: 'Encontros Raros' },
   ];
 
@@ -30,7 +30,7 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
               <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter leading-none">MODO VS</h2>
               <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Sua jornada competitiva</p>
             </div>
-            <button onClick={onClose} className="text-white/40 hover:text-white text-xl font-black w-10 h-10 flex items-center justify-center">✕</button>
+            <button onClick={onClose} className="text-white/40 hover:text-white text-xl font-black w-10 h-10 flex items-center justify-center"></button>
           </div>
 
           <div className="flex gap-2">

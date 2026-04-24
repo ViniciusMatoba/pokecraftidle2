@@ -2,9 +2,9 @@
 // Cada família evolutiva tem seu Candy exclusivo
 //
 // VISUAL: Como o Pokémon GO não disponibiliza sprites de candy publicamente,
-// o candy de cada família usa o sprite do Pokémon base (id) com fundo colorido
+// o candy de cada famÃ­lia usa o sprite do Pokémon base (id) com fundo colorido
 // por tipo — fiel ao estilo GO onde o candy tem a "cara" do Pokémon.
-// O campo `spriteId` é o id do Pokémon que aparece no ícone do candy.
+// O campo `spriteId` é o id do Pokémon que aparece no Ã­cone do candy.
 // O campo `rareCandySprite` é o Rare Candy clássico dos jogos principais.
 
 const RARE_CANDY = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png';
@@ -21,8 +21,8 @@ export const CANDY_FAMILIES = {
   ekans_candy:       { ids:[23,24],            name:'Candy Ekans',      spriteId:23,  color:'#c4b5fd', rareCandySprite: RARE_CANDY },
   pikachu_candy:     { ids:[25,26],            name:'Candy Pikachu',    spriteId:25,  color:'#fef08a', rareCandySprite: RARE_CANDY },
   sandshrew_candy:   { ids:[27,28],            name:'Candy Sandshrew',  spriteId:27,  color:'#fef3c7', rareCandySprite: RARE_CANDY },
-  nidoran_f_candy:   { ids:[29,30,31],         name:'Candy Nidoran♀',   spriteId:29,  color:'#fbcfe8', rareCandySprite: RARE_CANDY },
-  nidoran_m_candy:   { ids:[32,33,34],         name:'Candy Nidoran♂',   spriteId:32,  color:'#ddd6fe', rareCandySprite: RARE_CANDY },
+  nidoran_f_candy:   { ids:[29,30,31],         name:'Candy Nidoran@',   spriteId:29,  color:'#fbcfe8', rareCandySprite: RARE_CANDY },
+  nidoran_m_candy:   { ids:[32,33,34],         name:'Candy NidoranB',   spriteId:32,  color:'#ddd6fe', rareCandySprite: RARE_CANDY },
   clefairy_candy:    { ids:[35,36],            name:'Candy Clefairy',   spriteId:35,  color:'#fce7f3', rareCandySprite: RARE_CANDY },
   vulpix_candy:      { ids:[37,38],            name:'Candy Vulpix',     spriteId:37,  color:'#fed7aa', rareCandySprite: RARE_CANDY },
   jigglypuff_candy:  { ids:[39,40],            name:'Candy Jigglypuff', spriteId:39,  color:'#fce7f3', rareCandySprite: RARE_CANDY },

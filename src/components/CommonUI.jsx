@@ -89,7 +89,7 @@ export const BadgeSVG = ({ badgeId, earned, size = 20 }) => {
 
 export const MoveCategoryIcon = ({ category }) => {
   if (category === 'Physical') return <span className="bg-red-600 text-[8px] px-1.5 py-0.5 rounded-md font-black text-white shadow-sm" title="Physical">⚔️</span>;
-  if (category === 'Special') return <span className="bg-indigo-600 text-[8px] px-1.5 py-0.5 rounded-md font-black text-white shadow-sm" title="Special">🔮</span>;
+  if (category === 'Special') return <span className="bg-indigo-600 text-[8px] px-1.5 py-0.5 rounded-md font-black text-white shadow-sm" title="Special">=.</span>;
   return <span className="bg-slate-400 text-[8px] px-1.5 py-0.5 rounded-md font-black text-white shadow-sm" title="Status">🛡️</span>;
 };
 
@@ -98,21 +98,21 @@ export const StatusBadges = ({ status = [], stages = {} }) => {
   const safeStages = stages || {};
 
   const statusConfig = {
-    burn:     { label: 'BRN', color: 'bg-red-500',    icon: '🔥' },
-    poison:   { label: 'PSN', color: 'bg-purple-600', icon: '☠️' },
+    burn:     { label: 'BRN', color: 'bg-red-500',    icon: '=%' },
+    poison:   { label: 'PSN', color: 'bg-purple-600', icon: ' ' },
     sleep:    { label: 'SLP', color: 'bg-slate-500',  icon: '💤' },
     paralyze: { label: 'PAR', color: 'bg-yellow-500', icon: '⚡' },
     confuse:  { label: 'CONF', color: 'bg-pink-500',   icon: '💫' },
-    freeze:   { label: 'FRZ', color: 'bg-cyan-500',   icon: '❄️' },
+    freeze:   { label: 'FRZ', color: 'bg-cyan-500',   icon: 'D' },
   };
 
   const stageLabels = { attack: 'ATK', defense: 'DEF', spAtk: 'SATK', spDef: 'SDEF', speed: 'SPD' };
 
   return (
     <div className="flex flex-wrap gap-1 mt-1 justify-start items-center">
-      {/* Condições de Status */}
+      {/* CondiçÃµes de Status */}
       {safeStatus.map((s, i) => {
-        const config = statusConfig[s] || { label: s.toUpperCase(), color: 'bg-slate-400', icon: '❓' };
+        const config = statusConfig[s] || { label: s.toUpperCase(), color: 'bg-slate-400', icon: 'S' };
         return (
           <span key={`status-${i}`} 
             className={`${config.color} text-white text-[7px] font-black px-1.5 py-0.5 rounded shadow-sm animate-pulse flex items-center gap-0.5 border border-white/20`}

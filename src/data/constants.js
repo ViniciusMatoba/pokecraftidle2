@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.8.5';
+export const APP_VERSION = '1.8.9';
 export const APP_VERSION_DATE = '24/04/2026';
 
 export const NATURE_LIST = ['Adamant', 'Modest', 'Jolly', 'Timid', 'Bold', 'Calm', 'Impish', 'Careful', 'Brave', 'Quiet'];
@@ -98,64 +98,64 @@ export const ITEM_LABELS = {
   // Materiais
   silk: { icon: '🧵', name: 'Seda' },
   feather: { icon: '🪶', name: 'Pena' },
-  apricorn: { icon: '🌰', name: 'Apricorn' },
+  apricorn: { icon: '<0', name: 'Apricorn' },
   electric_chip: { icon: '⚡', name: 'Chip Eletr.' },
-  moon_stone_shard: { icon: '🌙', name: 'Fragmento Lua' },
-  pink_dust: { icon: '🩷', name: 'Pó Rosa' },
+  moon_stone_shard: { icon: '<', name: 'Fragmento Lua' },
+  pink_dust: { icon: 'ð©·', name: 'Pó Rosa' },
   gold_nugget: { icon: '🪙', name: 'Pepita' },
-  iron_ore: { icon: '⛏️', name: 'Minério Ferro' },
-  mystic_dust: { icon: '✨', name: 'Pó Místico' },
+  iron_ore: { icon: '⛏️ï¸', name: 'Minério Ferro' },
+  mystic_dust: { icon: '✨', name: 'Pó MÃ­stico' },
   
   // Bebidas
   fresh_water:       { icon: '💧', name: 'Água Fresca'    },
-  soda_pop:          { icon: '🥤', name: 'Soda Pop'       },
-  lemonade:          { icon: '🍋', name: 'Limonada'       },
-  moomoo_milk:       { icon: '🥛', name: 'Leite MooMoo'   },
+  soda_pop:          { icon: '>d', name: 'Soda Pop'       },
+  lemonade:          { icon: '<K', name: 'Limonada'       },
+  moomoo_milk:       { icon: '>[', name: 'Leite MooMoo'   },
   berry_juice:       { icon: '🧃', name: 'Suco de Berry'  },
   // Berries
   oran_berry:        { icon: '🫐', name: 'Oran Berry'     },
-  sitrus_berry:      { icon: '🍊', name: 'Sitrus Berry'   },
-  lum_berry:         { icon: '🌿', name: 'Lum Berry'      },
-  cheri_berry:       { icon: '🍒', name: 'Cheri Berry'    },
+  sitrus_berry:      { icon: '<J', name: 'Sitrus Berry'   },
+  lum_berry:         { icon: '<?', name: 'Lum Berry'      },
+  cheri_berry:       { icon: '<R', name: 'Cheri Berry'    },
   chesto_berry:      { icon: '🫐', name: 'Chesto Berry'   },
-  pecha_berry:       { icon: '🍑', name: 'Pecha Berry'    },
-  rawst_berry:       { icon: '🍃', name: 'Rawst Berry'    },
-  aspear_berry:      { icon: '🍋', name: 'Aspear Berry'   },
-  leppa_berry:       { icon: '🍎', name: 'Leppa Berry'    },
+  pecha_berry:       { icon: '<Q', name: 'Pecha Berry'    },
+  rawst_berry:       { icon: '<C', name: 'Rawst Berry'    },
+  aspear_berry:      { icon: '<K', name: 'Aspear Berry'   },
+  leppa_berry:       { icon: '<N', name: 'Leppa Berry'    },
   // Ração
-  poke_food:         { icon: '🍖', name: 'Ração Pokémon'  },
-  poke_food_premium: { icon: '🥩', name: 'Ração Premium'  },
+  poke_food:         { icon: 'ð', name: 'Ração Pokémon'  },
+  poke_food_premium: { icon: 'ð¥©', name: 'Ração Premium'  },
 
   // Pedras de Evolução
-  fire_stone: { icon: '🔥', name: 'Pedra Fogo' },
+  fire_stone: { icon: '=%', name: 'Pedra Fogo' },
   water_stone: { icon: '💧', name: 'Pedra Água' },
-  leaf_stone: { icon: '🌿', name: 'Pedra Folha' },
-  thunder_stone: { icon: '⚡', name: 'Pedra Trovão' },
-  moon_stone: { icon: '🌙', name: 'Pedra Lua' },
+  leaf_stone: { icon: '<?', name: 'Pedra Folha' },
+  thunder_stone: { icon: 'â¡', name: 'Pedra Trovão' },
+  moon_stone: { icon: '<', name: 'Pedra Lua' },
   
   // Essências
   normal_essence: { icon: '⚪', name: 'Ess. Normal' },
-  fire_essence: { icon: '🔥', name: 'Ess. Fogo' },
+  fire_essence: { icon: '=%', name: 'Ess. Fogo' },
   water_essence: { icon: '💧', name: 'Ess. Água' },
-  grass_essence: { icon: '🌿', name: 'Ess. Planta' },
+  grass_essence: { icon: '<?', name: 'Ess. Planta' },
   electric_essence: { icon: '⚡', name: 'Ess. Elet.' },
-  ice_essence: { icon: '❄️', name: 'Ess. Gelo' },
-  fighting_essence: { icon: '🥊', name: 'Ess. Luta' },
-  poison_essence: { icon: '☠️', name: 'Ess. Veneno' },
+  ice_essence: { icon: 'D', name: 'Ess. Gelo' },
+  fighting_essence: { icon: '>J', name: 'Ess. Luta' },
+  poison_essence: { icon: ' ', name: 'Ess. Veneno' },
   ground_essence: { icon: '⛰️', name: 'Ess. Terra' },
   flying_essence: { icon: '🦅', name: 'Ess. Voador' },
   psychic_essence: { icon: '🔮', name: 'Ess. Psíqu.' },
   bug_essence: { icon: '🪲', name: 'Ess. Inseto' },
   rock_essence: { icon: '🪨', name: 'Ess. Pedra' },
-  ghost_essence: { icon: '👻', name: 'Ess. Fantas.' },
-  dragon_essence: { icon: '🐲', name: 'Ess. Dragão' },
-  steel_essence: { icon: '⚙️', name: 'Ess. Aço' },
-  dark_essence: { icon: '🌑', name: 'Ess. Sombrio' },
-  fairy_essence: { icon: '✨', name: 'Ess. Fada' },
+  ghost_essence: { icon: '={', name: 'Ess. Fantas.' },
+  dragon_essence: { icon: '🐉', name: 'Ess. Dragão' },
+  steel_essence: { icon: '⚙️ï¸', name: 'Ess. Aço' },
+  dark_essence: { icon: '<', name: 'Ess. Sombrio' },
+  fairy_essence: { icon: '(', name: 'Ess. Fada' },
   
   // Itens de Consumo
   pokeballs: { icon: '🎾', name: 'Pokébolas' },
-  great_ball: { icon: '🔵', name: 'Great Ball' },
+  great_ball: { icon: '=5', name: 'Great Ball' },
   ultra_ball: { icon: '🟡', name: 'Ultra Ball' },
   potions: { icon: '🧪', name: 'Poção' }
 };

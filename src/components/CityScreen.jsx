@@ -41,11 +41,11 @@ const CityScreen = ({
   ];
 
   const oakTips = [
-    'O vínculo entre você e seu Pokémon é o que definirá sua força!',
+    'O vÃ­nculo entre você e seu Pokémon é o que definirá sua força!',
     'Azul já partiu para a Rota 1. Ele parece muito determinado a vencer o primeiro Ginásio!',
     'Pokémons de tipos diferentes têm vantagens e desvantagens. Estude-os bem!',
     'Capturar muitos Pokémons da mesma espécie aumenta sua Mestria com eles!',
-    'Não esqueça de curar sua equipe no Centro Pokémon após batalhas difíceis.'
+    'Não esqueça de curar sua equipe no Centro Pokémon após batalhas difÃ­ceis.'
   ];
 
   const cityBuildings = [
@@ -71,14 +71,14 @@ const CityScreen = ({
       id: 'forge', 
       name: 'Forja Pokémon', 
       icon: fixPath('/icon_forge_building_1776876610240.png'),
-      emoji: '🔨',
+      emoji: '=(',
       desc: 'Crie itens raros com materiais.',
       action: () => setActiveBuildingModal('forge'),
       color: 'border-slate-500 bg-slate-50'
     },
     {
       id: 'expeditions',
-      name: 'Expedições',
+      name: 'ExpediçÃµes',
       icon: null,
       emoji: '🚀',
       desc: 'Envie Pokémon do PC para coletar recursos em biomas.',
@@ -148,7 +148,7 @@ const CityScreen = ({
           <div className="w-full bg-gradient-to-r from-green-400 to-emerald-500 p-4 rounded-2xl shadow-xl border-b-4 border-green-700 animate-bounceIn flex items-center gap-4">
             <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-14 h-14 drop-shadow-lg shrink-0" alt="Oak" />
             <div className="flex-1 text-left">
-              <p className="text-[10px] font-black text-white/80 uppercase tracking-widest">✅ Missão Concluída!</p>
+              <p className="text-[10px] font-black text-white/80 uppercase tracking-widest">â Missão ConcluÃ­da!</p>
               <p className="text-xs font-bold text-white italic">"Parabéns! Você capturou seu primeiro Pokémon! Seu percurso começa agora!"</p>
               <p className="text-[9px] font-black text-white/70 mt-1 uppercase">+ 10 Pokébolas recebidas</p>
             </div>
@@ -170,7 +170,7 @@ const CityScreen = ({
                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Prof. Carvalho</p>
                       </div>
                    </div>
-                   <button onClick={() => setActiveOakModal(false)} className="text-slate-300 hover:text-slate-800 transition-colors text-2xl">✕</button>
+                   <button onClick={() => setActiveOakModal(false)} className="text-slate-300 hover:text-slate-800 transition-colors text-2xl"></button>
                 </div>
 
                 <div className="bg-slate-50 p-6 rounded-3xl border-2 border-slate-100 mb-6 italic text-slate-600 font-bold text-sm relative">
