@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBadges } from './CommonUI';
 import { BATTLE_BACKGROUNDS } from '../data/battleBackgrounds';
+import ActiveEffectsBar from './ActiveEffectsBar';
+import { TIME_CONFIG } from '../utils/timeSystem';
 
 const BattleScreen = ({ 
   currentEnemy, gameState, activeMemberIndex, moveIndex, weather,
   setActiveMemberIndex, addLog, battleLog, floatingTexts,
-  onUseItem, setGameState, ROUTES, fixPath, TYPE_COLORS, onGoToCity, onChallengeBoss
+  onUseItem, setGameState, setShowAutoCaptureModal, ROUTES, fixPath, TYPE_COLORS, onGoToCity, onChallengeBoss,
+  timeOfDay
 }) => {
   const activePoke = gameState.team?.[activeMemberIndex];
   const autoConfig = gameState.autoConfig || { autoPokeball: true, autoPotion: false, autoPotionHpPct: 30, focusPokemonIndex: 0 };
@@ -17,19 +20,22 @@ const BattleScreen = ({
 
   // Componente de Estrelas para o Brilho Shiny
   const ShinySparkles = () => (
-    <div className="absolute inset-0 pointer-events-none z-30 flex items-center justify-center">
-       {[...Array(6)].map((_, i) => (
-         <div key={i} 
-              className="absolute text-yellow-400 text-xl animate-bounceIn" 
-              style={{ 
-                left: `${50 + Math.cos(i * 60 * Math.PI / 180) * 40}%`, 
-                top: `${50 + Math.sin(i * 60 * Math.PI / 180) * 40}%`,
-                animationDelay: `${i * 0.1}s`,
-                opacity: 0.8
-              }}>
-           ⭐
-         </div>
-       ))}
+    <div className="absolute inset-0 pointer-events-none z-30">
+      {[...Array(6)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute animate-bounceIn"
+          style={{
+            left: `${50 + Math.cos(i * 60 * Math.PI / 180) * 40}%`,
+            top: `${50 + Math.sin(i * 60 * Math.PI / 180) * 40}%`,
+            animationDelay: `${i * 0.1}s`,
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 0 L9 7 L16 8 L9 9 L8 16 L7 9 L0 8 L7 7 Z" fill="#EAB308" opacity="0.9"/>
+          </svg>
+        </div>
+      ))}
     </div>
   );
 
@@ -66,7 +72,7 @@ const BattleScreen = ({
       'Cantar': 'Faz o inimigo dormir (reduz eficiência).',
       'Crescimento': 'Aumenta Ataque Especial do usuário.',
     };
-    return descs[move.name] || 'Golpe de status — efeito especial.';
+    return descs[move.name] || 'Golpe de status  efeito especial.';
   };
 
   const hpPercent = ((currentEnemy.hp || 0) / (currentEnemy.maxHp || 1)) * 100;
@@ -87,97 +93,32 @@ const BattleScreen = ({
 
 
   return (
-    <div className="flex flex-col h-full animate-fadeIn pb-20 gap-2 overflow-y-auto custom-scrollbar">
+    <div className="flex flex-col h-full animate-fadeIn pb-4 gap-2 overflow-y-auto custom-scrollbar">
+      {/*    BARRA DE EFEITOS ATIVOS    */}
+      <ActiveEffectsBar activeEffects={gameState.activeEffects} />
 
-      {/* ── ARENA ── */}
-      <div className="relative overflow-hidden rounded-2xl shadow-xl flex-shrink-0"
-        style={{ 
-          height: 220, 
-          background: mainBackground,
-          backgroundSize: 'cover', 
-          backgroundPosition: 'center' 
-        }}>
-        
-        {/* Elementos Decorativos Dinâmicos */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40">
-           {(bgTheme?.elements || (currentEnemy.isTrainer ? ['pillar', 'pillar'] : [])).map((el, i) => {
-             const left = (i * 25) % 100;
-             const delay = i * 0.5;
-             
-             // Clima e Atmosfera
-             if (el.includes('cloud')) {
-               return (
-                 <div key={i} className="absolute text-3xl animate-float" style={{ top: '15%', left: `${left}%`, animationDelay: `${delay}s` }}>
-                   {el === 'cloud_grey' ? '☁️' : el === 'cloud_orange' ? '🌥️' : '☁️'}
-                 </div>
-               );
-             }
-             
-             // Vegetação e Terreno
-             if (el === 'tree' || el === 'big_tree' || el === 'safari_tree') {
-               return (
-                 <div key={i} className="absolute text-5xl" style={{ bottom: '40%', left: `${left}%`, transform: 'scale(1.2)' }}>
-                   {el === 'big_tree' ? '🌳' : el === 'tree' ? '🌲' : '🌴'}
-                 </div>
-               );
-             }
-             if (el === 'tall_grass' || el === 'bush') {
-               return (
-                 <div key={i} className="absolute text-2xl" style={{ bottom: '42%', left: `${left}%` }}>{el === 'bush' ? '🌳' : '🌿'}</div>
-               );
-             }
-             if (el === 'rock' || el === 'mountain_small' || el === 'boulder') {
-               return (
-                 <div key={i} className="absolute text-3xl" style={{ bottom: '42%', left: `${left}%` }}>🪨</div>
-               );
-             }
-             
-             // Ambientes Especiais
-             if (el === 'stalactite') {
-               return (
-                 <div key={i} className="absolute text-3xl rotate-180" style={{ top: '0%', left: `${left}%` }}>⛰️</div>
-               );
-             }
-             if (el === 'lava_pool') {
-               return (
-                 <div key={i} className="absolute w-24 h-8 bg-orange-600/40 rounded-full blur-md animate-pulse" style={{ bottom: '40%', left: `${left}%` }}></div>
-               );
-             }
-             if (el === 'water' || el === 'ocean_wave') {
-               return (
-                 <div key={i} className="absolute w-full h-20 bg-blue-400/20 bottom-0 animate-pulse" style={{ bottom: '45%' }}></div>
-               );
-             }
-             if (el === 'ghost_mist') {
-               return (
-                 <div key={i} className="absolute w-full h-full bg-purple-900/20 blur-2xl animate-pulse" style={{ left: `${left}%` }}></div>
-               );
-             }
-             
-             // Estruturas Urbanas/Ginásios
-             if (el === 'pillar' || el === 'league_pillar') {
-               return (
-                 <div key={i} className="absolute w-6 h-32 bg-white/10 border-x border-white/20" style={{ bottom: '40%', left: `${left}%` }}></div>
-               );
-             }
-             if (el === 'fence') {
-               return (
-                 <div key={i} className="absolute text-2xl opacity-60" style={{ bottom: '42%', left: `${left}%` }}>🚧</div>
-               );
-             }
+      {/*    AÇÕES RÁPIDAS / CONFIGS    */}
+      
 
-             return null;
-           })}
-        </div>
+      {/*    ARENA    */}
+      <div className="relative overflow-hidden rounded-2xl shadow-xl flex-shrink-0" style={{ height: 220 }}>
+        {/* Background com Filtro de Tempo */}
+        <div
+          className="absolute inset-0"
+          style={{ 
+            background: mainBackground,
+            backgroundSize: 'cover', 
+            backgroundPosition: 'center',
+            filter: TIME_CONFIG[timeOfDay]?.skyFilter || 'none',
+            transition: 'filter 2s ease',
+          }}
+        />
+        {/* Overlay de cor do tempo */}
+        <div
+          className="absolute inset-0 pointer-events-none z-[5]"
+          style={{ background: TIME_CONFIG[timeOfDay]?.overlayColor || 'transparent', transition: 'background 2s ease' }}
+        />
 
-        <div className="absolute inset-0 bg-black/10" />
-
-        {/* Chão Estilizado (Esconde se for Ginásio pois o gradiente já é completo) */}
-        {!currentEnemy.background?.includes('gradient') && (
-          <div className="absolute bottom-0 w-full h-[45%] opacity-80" 
-               style={{ background: bgTheme?.ground || '#7cb850', clipPath: 'polygon(0 20%, 100% 0, 100% 100%, 0% 100%)' }}>
-          </div>
-        )}
 
         {/* Shiny sparkles ao redor do Pokémon */}
         {shinyFlash && !showTrainer && <ShinySparkles />}
@@ -191,37 +132,45 @@ const BattleScreen = ({
           Auto {gameState.autoCapture || autoConfig.autoPotion ? 'ON' : 'OFF'}
         </button>
 
-        {/* Inimigo — topo direito */}
-        <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1">
-          
-          {/* Nome do Treinador durante a Intro */}
-          {showTrainer && currentEnemy.isTrainer && (
-            <div className="animate-slideLeft bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-l-full border-l-4 border-pokeYellow shadow-2xl">
-              <span className="text-[10px] font-black text-pokeYellow uppercase tracking-[0.2em]">Desafiante</span>
-              <h4 className="text-white font-black text-sm uppercase italic leading-none">{currentEnemy.trainerName}</h4>
+      {/* HUD do Inimigo: Nome, Nível e HP (Delay: Só aparece após o treinador sair) */}
+      <div className={`absolute top-2 right-4 min-w-[140px] transition-all duration-700 ${currentEnemy.hp > 0 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
+        <div className="bg-white/95 backdrop-blur-md rounded-xl px-3 py-2 shadow-2xl border-l-4 border-slate-200 relative overflow-hidden">
+          {showTrainer && currentEnemy.isTrainer ? (
+            <div className="animate-fadeIn">
+               <span className="text-[8px] font-black text-pokeGold uppercase tracking-widest block mb-0.5">Desafiante</span>
+               <h4 className="text-slate-800 font-black text-[11px] uppercase truncate italic">{currentEnemy.trainerName}</h4>
             </div>
+          ) : (
+            <>
+              <div className="flex justify-between items-center gap-2 mb-1">
+                 <span className="font-black text-[10px] uppercase text-slate-800 truncate max-w-[120px]">
+                    {currentEnemy.isTrainer 
+                      ? `${currentEnemy.trainerName || 'Treinador'}'s ${currentEnemy.name || 'Pokémon'}` 
+                      : (currentEnemy.name || 'Pokémon Selvagem')}
+                    {currentEnemy.isShiny && (
+                      <svg className="inline ml-1 mb-0.5" width="10" height="10" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 0 L9 7 L16 8 L9 9 L8 16 L7 9 L0 8 L7 7 Z" fill="#EAB308"/>
+                      </svg>
+                    )}
+                 </span>
+                 <span className="text-[9px] font-black text-slate-400 shrink-0">Nv.{currentEnemy.level || '??'}</span>
+              </div>
+              <div className="w-full bg-slate-200 h-1.5 rounded-full mt-1.5 overflow-hidden shadow-inner">
+                <div className={`h-full transition-all duration-500 ${hpPercent > 50 ? 'bg-green-500' : hpPercent > 20 ? 'bg-yellow-400' : 'bg-red-500'}`} style={{ width: `${hpPercent}%` }} />
+              </div>
+              <div className="mt-1 flex justify-end">
+                 <StatusBadges status={currentEnemy.status || []} stages={currentEnemy.stages || {}} />
+              </div>
+            </>
           )}
+        </div>
+      </div>
 
-          {/* HUD do Inimigo — Sempre visível após spawn para evitar confusão */}
-          <div className={`bg-white/95 backdrop-blur-sm px-3 py-2 rounded-xl shadow-lg border-l-4 border-slate-800 min-w-[140px] animate-fadeIn transition-opacity duration-300 ${currentEnemy.hp > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <div className="flex justify-between items-center gap-1">
-              <span className="font-black text-[10px] uppercase text-slate-800 truncate max-w-[90px]">
-                {currentEnemy.isTrainer 
-                  ? `${currentEnemy.trainerName || 'Treinador'}'s ${currentEnemy.name || 'Pokémon'}` 
-                  : (currentEnemy.name || 'Pokémon Selvagem')}
-                {currentEnemy.isShiny && <span className="ml-1 text-yellow-500">⭐</span>}
-              </span>
-              <span className="text-[9px] font-bold text-slate-500 ml-1 flex-shrink-0">Nv.{currentEnemy.level || '??'}</span>
-            </div>
-            <div className="w-full bg-slate-200 h-1.5 rounded-full mt-1 overflow-hidden">
-              <div className={`h-full transition-all duration-300 ${hpPercent > 50 ? 'bg-green-500' : hpPercent > 20 ? 'bg-yellow-400' : 'bg-red-500'}`} style={{ width: `${hpPercent}%` }} />
-            </div>
-            <StatusBadges status={currentEnemy.status || []} stages={currentEnemy.stages || {}} />
-          </div>
-
-          <div className="relative mt-2">
-            <div className="absolute -top-6 left-1/2 -translate-x-1/2 pointer-events-none z-20 whitespace-nowrap">
-              {(floatingTexts || []).map(f => <span key={f.id} className="block text-center font-black text-base animate-floatUp" style={{ color: f.color, textShadow: '1px 1px 0 #000' }}>{f.text}</span>)}
+        {/* Inimigo/Treinador — Posicionado mais embaixo para não parecer no céu */}
+        <div className="absolute top-24 right-10 z-10">
+          <div className="relative">
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none z-20 whitespace-nowrap">
+              {(floatingTexts || []).map(f => <span key={f.id} className="block text-center font-black text-lg animate-floatUp" style={{ color: f.color, textShadow: '2px 2px 0 #000' }}>{f.text}</span>)}
             </div>
             
             {/* Brilho Shiny Localizado */}
@@ -236,15 +185,14 @@ const BattleScreen = ({
               alt={currentEnemy.name || "Pokémon"}
               onError={(e) => {
                 e.target.onerror = null;
-                // Fallback robusto para evitar o texto "Enemy"
                 e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png';
               }}
-              className={`w-24 h-24 object-contain drop-shadow-xl transition-all duration-500 ${showTrainer && currentEnemy.isTrainer ? 'scale-110' : 'animate-float'} ${currentEnemy.isShiny && !showTrainer ? 'drop-shadow-[0_0_16px_rgba(234,179,8,1)]' : ''} ${currentEnemy.hp <= 0 ? 'opacity-0 scale-0' : 'opacity-100'}`}
+              className={`w-20 h-20 object-contain drop-shadow-xl transition-all duration-500 ${showTrainer && currentEnemy.isTrainer ? 'scale-110' : 'animate-float'} ${currentEnemy.isShiny && !showTrainer ? 'drop-shadow-[0_0_16px_rgba(234,179,8,1)]' : ''} ${currentEnemy.hp <= 0 ? 'opacity-0 scale-0' : 'opacity-100'}`}
             />
           </div>
         </div>
 
-        {/* Jogador — base esquerda */}
+        {/* Jogador  base esquerda */}
         <div className="absolute bottom-2 left-2 z-10 flex items-end gap-2">
           {activePoke ? (
             <>
@@ -261,7 +209,11 @@ const BattleScreen = ({
               <div className="bg-white/95 backdrop-blur-sm px-3 py-2 rounded-xl shadow-lg border-r-4 border-pokeBlue min-w-[140px] mb-1">
                 <div className="flex justify-between items-center">
                   <span className="font-black text-[10px] uppercase text-slate-800 truncate max-w-[90px]">
-                    {activePoke.name}{activePoke.isShiny && <span className="ml-1 text-yellow-500">⭐</span>}
+                    {activePoke.name}{activePoke.isShiny && (
+                      <svg className="inline ml-1 mb-0.5" width="10" height="10" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 0 L9 7 L16 8 L9 9 L8 16 L7 9 L0 8 L7 7 Z" fill="#EAB308"/>
+                      </svg>
+                    )}
                   </span>
                   <span className="text-[9px] font-bold text-pokeBlue ml-1">Nv.{activePoke.level || 5}</span>
                 </div>
@@ -278,6 +230,37 @@ const BattleScreen = ({
                     <div className="bg-pokeBlue h-full transition-all duration-300" style={{ width: `${Math.min(100, ((activePoke.xp || 0) / ((activePoke.level || 5) * 50)) * 100)}%` }} />
                   </div>
                 </div>
+
+                {/* Barra de Estamina  abaixo da barra de HP do jogador */}
+                {(() => {
+                  const stamina = gameState.stamina?.[activePoke?.instanceId]?.value ?? 100;
+                  const color  = stamina > 60 ? '#22c55e' : stamina > 30 ? '#f59e0b' : '#ef4444';
+                  const emoji  = stamina > 60 ? '🟢' : stamina > 30 ? '🟡' : stamina > 0 ? '🔴' : '💀';
+                  return (
+                    <div className="mt-1">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-[8px] font-bold text-slate-400 uppercase">Energia {emoji}</span>
+                        <span className="text-[8px] font-bold" style={{ color }}>{Math.floor(stamina)}%</span>
+                      </div>
+                      <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${stamina}%`, background: color }}
+                        />
+                      </div>
+                      
+                      {/* Aviso de exaustão total — abaixo da barra de stamina */}
+                      {stamina <= 0 && (
+                        <div className="mt-1 bg-red-500/20 border border-red-500/40 rounded-xl px-2 py-1.5">
+                          <p className="text-red-400 text-[8px] font-black uppercase text-center animate-pulse">
+                            😵 Exausto — trocando automaticamente...
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 <StatusBadges status={activePoke.status || []} stages={activePoke.stages || {}} />
               </div>
             </>
@@ -285,9 +268,9 @@ const BattleScreen = ({
         </div>
       </div>
 
-      {/* ── ITENS ── */}
+      {/*    ITENS    */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-3 py-2.5 flex-shrink-0">
-        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Itens</p>
+        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Itens de Combate</p>
         <div className="flex gap-2">
           {[
             { id: 'pokeballs', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', label: 'Pokébolas' },
@@ -309,7 +292,40 @@ const BattleScreen = ({
         </div>
       </div>
 
-      {/* ── GOLPES ── */}
+      {/* ── ALIMENTAÇíO ── */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-3 py-2.5 flex-shrink-0">
+        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Alimentação</p>
+        <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+          {[
+            { id: 'moomoo_milk', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moomoo-milk.png', label: 'Leite', src: 'items' },
+            { id: 'lemonade', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lemonade.png', label: 'Limo.', src: 'items' },
+            { id: 'soda_pop', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/soda-pop.png', label: 'Soda', src: 'items' },
+            { id: 'berry_juice', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/berry-juice.png', label: 'Suco', src: 'items' },
+            { id: 'fresh_water', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png', label: 'Água', src: 'items' },
+            { id: 'poke_food_premium', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png', label: 'Ração P.', src: 'items', isEmoji: '🥩' },
+            { id: 'poke_food', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', label: 'Ração', src: 'items', isEmoji: '🍖' },
+            { id: 'oran_berry', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png', label: 'Oran', src: 'materials' },
+            { id: 'sitrus_berry', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sitrus-berry.png', label: 'Sitrus', src: 'materials' },
+            { id: 'lum_berry', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lum-berry.png', label: 'Lum', src: 'materials' },
+          ].map(item => {
+            const qty = (gameState.inventory?.[item.src] || {})[item.id] || 0;
+            return (
+              <button key={item.id} disabled={qty <= 0} onClick={() => onUseItem && onUseItem(item.id, item.src)}
+                className={`flex flex-col items-center gap-1 min-w-[60px] py-2 rounded-xl border-2 transition-all active:scale-95 ${qty <= 0 ? 'opacity-30 grayscale border-slate-100 bg-slate-50' : 'border-slate-200 bg-white hover:border-green-500 hover:bg-green-50'}`}>
+                {item.isEmoji ? (
+                  <span className="text-2xl h-9 flex items-center justify-center">{item.isEmoji}</span>
+                ) : (
+                  <img src={item.img} alt={item.label} className="w-9 h-9 object-contain drop-shadow-sm" />
+                )}
+                <span className="text-[10px] font-black text-slate-700">{qty}</span>
+                <span className="text-[8px] font-bold text-slate-400 uppercase">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/*    GOLPES    */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-3 py-2.5 flex-shrink-0">
         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Ataques <span className="normal-case font-normal">(toque para detalhes)</span></p>
         <div className="grid grid-cols-2 gap-2">
@@ -342,45 +358,73 @@ const BattleScreen = ({
         </div>
       </div>
 
-      {/* ── TIME ── */}
+      {/*    TIME    */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-3 py-2.5 flex-shrink-0">
         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Time</p>
         <div className="flex flex-col gap-1.5">
           {[0,1,2,3,4,5].map(i => {
             const p = gameState.team[i];
             if (!p) return <div key={i} className="flex items-center gap-3 px-2 py-1.5 rounded-xl border-2 border-dashed border-slate-150 opacity-30"><div className="w-10 h-10 bg-slate-100 rounded-lg" /><span className="text-[9px] text-slate-400 font-bold">Vazio</span></div>;
+            
             const isActive = activeMemberIndex === i;
+            const stamina   = gameState.stamina?.[p?.instanceId]?.value ?? 100;
+            const exhausted = stamina <= 0;
+            const fainted   = (p?.hp ?? 0) <= 0;
+            const blocked   = exhausted || fainted;
+            
             const hpPct = (p.hp / p.maxHp) * 100;
             const xpPct = Math.min(100, ((p.xp || 0) / ((p.level || 5) * 50)) * 100);
-            const fainted = p.hp <= 0;
+
             return (
-              <div key={i} onClick={() => { if (!fainted && !isActive) { setGameState(prev => ({ ...prev, team: prev.team.map((pk, idx) => idx === i || idx === activeMemberIndex ? { ...pk, stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 } } : pk) })); setActiveMemberIndex(i); } }}
-                className={`flex items-center gap-3 px-2 py-1.5 rounded-xl border-2 cursor-pointer transition-all active:scale-[0.98] ${isActive ? 'border-pokeBlue bg-blue-50' : fainted ? 'border-red-100 bg-red-50/50 opacity-50' : 'border-slate-100 bg-slate-50 hover:border-slate-300'}`}>
+              <div 
+                key={p?.instanceId || i} 
+                onClick={() => { if (!blocked && !isActive) { setGameState(prev => ({ ...prev, team: prev.team.map((pk, idx) => idx === i || idx === activeMemberIndex ? { ...pk, stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 } } : pk) })); setActiveMemberIndex(i); } }}
+                className={`flex items-center gap-3 px-2 py-1.5 rounded-xl border-2 transition-all active:scale-[0.98] ${
+                  isActive 
+                    ? 'border-pokeBlue bg-blue-50 shadow-sm' 
+                    : blocked 
+                    ? 'border-red-500/30 bg-red-500/10 opacity-60 cursor-not-allowed' 
+                    : 'border-slate-100 bg-slate-50 hover:border-slate-300'
+                }`}
+              >
                 <div className="relative flex-shrink-0">
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className={`w-10 h-10 object-contain ${fainted ? 'grayscale' : ''} ${p.isShiny ? 'drop-shadow-[0_0_6px_rgba(234,179,8,0.8)]' : ''}`} alt={p.name} />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className={`w-10 h-10 object-contain ${blocked ? 'grayscale' : ''} ${p.isShiny ? 'drop-shadow-[0_0_6px_rgba(234,179,8,0.8)]' : ''}`} alt={p.name} />
                   {isActive && <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-pokeBlue rounded-full border-2 border-white" />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-center">
                     <span className="text-[11px] font-black uppercase text-slate-800 truncate">
-                      {p.name}{p.isShiny && <span className="ml-1 text-yellow-500 text-[9px]">⭐</span>}
+                      {p.name}{p.isShiny && (
+                        <svg className="inline ml-1 mb-0.5" width="8" height="8" viewBox="0 0 16 16" fill="none">
+                          <path d="M8 0 L9 7 L16 8 L9 9 L8 16 L7 9 L0 8 L7 7 Z" fill="#EAB308"/>
+                        </svg>
+                      )}
                     </span>
                     <span className={`text-[9px] font-bold ml-1 flex-shrink-0 ${isActive ? 'text-pokeBlue' : 'text-slate-400'}`}>Nv. {p.level || 5}</span>
                   </div>
-                  <div className="flex items-center gap-1 mt-1">
-                    <span className="text-[7px] font-black text-slate-400 w-4 flex-shrink-0">HP</span>
-                    <div className="flex-1 bg-slate-200 h-1.5 rounded-full overflow-hidden">
-                      <div className={`h-full transition-all ${hpPct > 50 ? 'bg-green-500' : hpPct > 20 ? 'bg-yellow-400' : 'bg-red-500'}`} style={{ width: `${hpPct}%` }} />
-                    </div>
-                    <span className="text-[7px] font-bold text-slate-400 flex-shrink-0">{p.hp}/{p.maxHp}</span>
-                  </div>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <span className="text-[7px] font-black text-slate-400 w-4 flex-shrink-0">XP</span>
-                    <div className="flex-1 bg-slate-200 h-1 rounded-full overflow-hidden">
-                      <div className="bg-pokeBlue h-full transition-all" style={{ width: `${xpPct}%` }} />
-                    </div>
-                    <span className="text-[7px] font-bold text-slate-400 flex-shrink-0">{p.xp || 0}/{(p.level || 5) * 50}</span>
-                  </div>
+                  
+                  {fainted ? (
+                    <p className="text-red-400 text-[8px] font-black uppercase tracking-tighter mt-1">💀 Desmaiado</p>
+                  ) : exhausted ? (
+                    <p className="text-orange-400 text-[8px] font-black uppercase tracking-tighter mt-1">😵 Exausto</p>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-1 mt-1">
+                        <span className="text-[7px] font-black text-slate-400 w-4 flex-shrink-0">HP</span>
+                        <div className="flex-1 bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                          <div className={`h-full transition-all ${hpPct > 50 ? 'bg-green-500' : hpPct > 20 ? 'bg-yellow-400' : 'bg-red-500'}`} style={{ width: `${hpPct}%` }} />
+                        </div>
+                        <span className="text-[7px] font-bold text-slate-400 flex-shrink-0">{p.hp}/{p.maxHp}</span>
+                      </div>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <span className="text-[7px] font-black text-slate-400 w-4 flex-shrink-0">EN</span>
+                        <div className="flex-1 bg-slate-200 h-1 rounded-full overflow-hidden">
+                          <div className="h-full transition-all" style={{ width: `${stamina}%`, background: stamina > 60 ? '#22c55e' : stamina > 30 ? '#f59e0b' : '#ef4444' }} />
+                        </div>
+                        <span className="text-[7px] font-bold text-slate-400 flex-shrink-0">{Math.floor(stamina)}%</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             );
@@ -388,7 +432,7 @@ const BattleScreen = ({
         </div>
       </div>
 
-      {/* ── BATALHAS ESPECIAIS ── */}
+      {/*    BATALHAS ESPECIAIS    */}
       {route?.keyBattles?.length > 0 && (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-3 py-2.5 flex-shrink-0 animate-fadeIn">
           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Desafios Disponíveis</p>
@@ -409,29 +453,42 @@ const BattleScreen = ({
         </div>
       )}
 
-      {/* ── MODAL AUTO-CONFIG ── */}
+      {/*    MODAL AUTO-CONFIG    */}
       {showAutoConfig && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md" onClick={() => setShowAutoConfig(false)}>
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md" onClick={() => setShowAutoConfig(false)}>
           <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl animate-bounceIn overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
             {/* Header Fixo */}
             <div className="flex-shrink-0 px-8 pt-8 pb-4 flex items-center justify-between">
-              <h3 className="font-black text-slate-800 uppercase italic text-xl">⚙️ Auto-Itens</h3>
-              <button onClick={() => setShowAutoConfig(false)} className="text-slate-300 hover:text-slate-500 font-black text-2xl transition-colors">✕</button>
+              <h3 className="font-black text-slate-800 uppercase italic text-xl">⚙️ Painel Automático</h3>
+              <button onClick={() => setShowAutoConfig(false)} className="text-slate-300 hover:text-slate-500 font-black text-2xl transition-colors"></button>
             </div>
 
             {/* Conteúdo com Scroll */}
             <div className="flex-1 overflow-y-auto custom-scrollbar px-8 py-2 flex flex-col gap-5">
-              {/* Auto Captura */}
-              <div className="flex items-center justify-between bg-blue-50 p-5 rounded-3xl border-2 border-blue-100 shadow-sm">
-                <div>
-                  <p className="font-black text-slate-800 text-sm uppercase tracking-tighter">🎯 Auto-Captura</p>
-                  <p className="text-[10px] text-slate-500 mt-1 font-bold">Usa Pokébolas automaticamente</p>
-                </div>
-                <div className="relative cursor-pointer" onClick={() => setGameState(prev => ({ ...prev, autoCapture: !prev.autoCapture }))}>
-                  <div className={`w-14 h-7 rounded-full transition-all duration-300 ${gameState.autoCapture ? 'bg-pokeBlue' : 'bg-slate-200'}`}>
-                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-lg transition-all duration-300 ${gameState.autoCapture ? 'translate-x-8' : 'translate-x-1'}`} />
+                            {/* Auto Captura */}
+              <div className="bg-blue-50 p-5 rounded-3xl border-2 border-blue-100 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="font-black text-slate-800 text-sm uppercase tracking-tighter">🎯 Auto-Captura</p>
+                    <p className="text-[10px] text-slate-500 mt-1 font-bold">Usa Pokébolas automaticamente</p>
+                  </div>
+                  <div className="relative cursor-pointer" onClick={() => setGameState(prev => ({ ...prev, autoCapture: !prev.autoCapture }))}>
+                    <div className={`w-14 h-7 rounded-full transition-all duration-300 ${gameState.autoCapture ? 'bg-pokeBlue' : 'bg-slate-200'}`}>
+                      <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-lg transition-all duration-300 ${gameState.autoCapture ? 'translate-x-8' : 'translate-x-1'}`} />
+                    </div>
                   </div>
                 </div>
+                {gameState.autoCapture && (
+                  <button 
+                    onClick={() => {
+                      setShowAutoConfig(false);
+                      setShowAutoCaptureModal(true);
+                    }}
+                    className="w-full bg-white border-2 border-blue-200 text-blue-600 py-2 rounded-xl font-black text-[10px] uppercase hover:bg-blue-50 transition-all"
+                  >
+                    ⚙️ Configurar Critérios de Captura
+                  </button>
+                )}
               </div>
 
               {/* Auto Poção */}
@@ -449,12 +506,40 @@ const BattleScreen = ({
                 </div>
                 {autoConfig.autoPotion && (
                   <div className="mt-2 bg-white/50 p-3 rounded-2xl border border-green-200">
-                    <p className="text-[10px] font-black text-slate-600 uppercase mb-2">Usar quando HP ≤ {autoConfig.autoPotionHpPct}%</p>
+                    <p className="text-[10px] font-black text-slate-600 uppercase mb-2">Usar quando HP {'<'} {autoConfig.autoPotionHpPct}%</p>
                     <input type="range" min={10} max={80} step={5} value={autoConfig.autoPotionHpPct}
                       onChange={e => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoPotionHpPct: Number(e.target.value) } }))}
                       className="w-full accent-green-500 h-2 bg-green-100 rounded-lg appearance-none cursor-pointer" />
                     <div className="flex justify-between text-[9px] text-slate-400 font-black mt-2 uppercase tracking-tighter">
                       <span>Mínimo 10%</span><span>{autoConfig.autoPotionHpPct}%</span><span>Máximo 80%</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Auto Estamina */}
+              <div className="bg-amber-50 p-5 rounded-3xl border-2 border-amber-100 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="font-black text-slate-800 text-sm uppercase tracking-tighter">Auto-Estamina</p>
+                    <p className="text-[10px] text-slate-500 mt-1 font-bold">Usa comida quando energia baixa</p>
+                  </div>
+                  <div className="relative cursor-pointer" onClick={() => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoStamina: !autoConfig.autoStamina } }))}>
+                    <div className={`w-14 h-7 rounded-full transition-all duration-300 ${autoConfig.autoStamina ? 'bg-amber-500' : 'bg-slate-200'}`}>
+                      <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-lg transition-all duration-300 ${autoConfig.autoStamina ? 'translate-x-8' : 'translate-x-1'}`} />
+                    </div>
+                  </div>
+                </div>
+                {autoConfig.autoStamina && (
+                  <div className="mt-2 bg-white/50 p-3 rounded-2xl border border-amber-200">
+                    <p className="text-[10px] font-black text-slate-600 uppercase mb-2">Usar quando Energia {'<'} {autoConfig.autoStaminaThreshold || 30}%</p>
+                    <div className="flex justify-between gap-2">
+                      {[10, 20, 30, 40, 50].map(val => (
+                        <button key={val} onClick={() => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoStaminaThreshold: val } }))}
+                          className={`flex-1 py-2 rounded-xl font-black text-[10px] transition-all ${ (autoConfig.autoStaminaThreshold || 30) === val ? 'bg-amber-500 text-white shadow-md scale-110' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                          {val}%
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -475,7 +560,7 @@ const BattleScreen = ({
                           <p className="text-xs font-black uppercase text-slate-800 tracking-tighter">{p.name}</p>
                           <p className="text-[9px] font-bold text-slate-400 uppercase">Slot #{i+1} · Nv.{p.level || 5}</p>
                         </div>
-                        {autoConfig.focusPokemonIndex === i && <div className="text-pokeBlue font-black text-xs">✓</div>}
+                        {autoConfig.focusPokemonIndex === i && <div className="text-pokeBlue font-black text-xs"></div>}
                       </button>
                     ) : null)}
                   </div>

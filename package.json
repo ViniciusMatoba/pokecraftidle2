@@ -1,15 +1,19 @@
 {
   "name": "poke-craft-idle",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.9.6",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "fix-encoding": "node scripts/fix-encoding.cjs",
+    "prebuild": "node scripts/check-circulars.cjs",
+    "deploy": "gh-pages -d dist",
+    "check": "node scripts/check-circulars.cjs",
+    "check-integrity": "node scripts/check-integrity.cjs",
+    "update-integrity": "node scripts/check-integrity.cjs --update"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.2.4",

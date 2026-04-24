@@ -5,12 +5,11 @@ export const GYM_BG = {
   Water:    "url('/battle_bg_gym_water.png') center/cover no-repeat",
   Electric: "url('/battle_bg_gym_electric.png') center/cover no-repeat",
   Elite:    "url('/battle_bg_elite_four.png') center/cover no-repeat",
-  // Mantendo gradientes como fallback para os outros por enquanto
-  Grass:    'linear-gradient(160deg, #1a7a2a 0%, #145e20 40%, #0d4016 100%)',
-  Poison:   'linear-gradient(160deg, #6a1a9a 0%, #4e1272 40%, #350c50 100%)',
-  Psychic:  'linear-gradient(160deg, #d4006a 0%, #a8004f 40%, #7a0038 100%)',
-  Fire:     'linear-gradient(160deg, #c84000 0%, #9e2e00 40%, #6e1800 100%)',
-  Ground:   'linear-gradient(160deg, #8B6914 0%, #6B500E 40%, #4a3608 100%)',
+  Grass:    "url('/battle_bg_grass_1776863779024.png') center/cover no-repeat",
+  Poison:   "url('/battle_bg_gym_1776863824590.png') center/cover no-repeat",
+  Psychic:  "url('/battle_bg_gym_1776863824590.png') center/cover no-repeat",
+  Fire:     "url('/battle_bg_gym_1776863824590.png') center/cover no-repeat",
+  Ground:   "url('/battle_bg_gym_1776863824590.png') center/cover no-repeat",
 };
 
 export const GYMS = [
@@ -71,7 +70,7 @@ export const GYMS = [
     quote: '"Eletricidade: o melhor tipo de batalha!"',
     team: [
       { id: 100, level: 21 }, // Voltorb
-      { id: 100, level: 21 }, // Voltorb
+      { id: 25,  level: 21 }, // Pikachu
       { id: 26,  level: 24 }, // Raichu
     ]
   },
@@ -232,7 +231,7 @@ export const ELITE_FOUR = [
     typeIcon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/dragon.svg',
     background: GYM_BG.Elite,
     reward: 7000,
-    quote: '"Dragões são a força máxima!"',
+    quote: '"Dragíµes são a força máxima!"',
     team: [{ id: 148, level: 56 }, { id: 148, level: 56 }, { id: 130, level: 58 }, { id: 149, level: 60 }, { id: 149, level: 62 }]
   },
   {

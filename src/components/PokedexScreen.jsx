@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { TYPE_COLOR_HEX } from '../data/gyms';
 
 const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], onBack }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,22 +76,64 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], onBack }) => 
 
       {/* Detail Modal */}
       {selectedPoke && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
+        <div className="absolute inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
            <div className="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden relative animate-bounceIn border-b-[12px] border-slate-200">
-              <button onClick={() => setSelectedPoke(null)} className="absolute top-6 right-6 bg-slate-100 p-3 rounded-full hover:bg-red-50 hover:text-red-500 transition-all z-20">
-                 <span className="font-black">✕</span>
-              </button>
+               {(() => {
+                 const poke = selectedPoke;
+                 const types = poke.types || [poke.type || 'Normal'];
+                 const t1 = types[0] || 'Normal';
+                 const t2 = types[1] || null;
 
-              <div className="h-40 bg-slate-100 relative flex items-center justify-center">
-                 <div className="absolute inset-0 opacity-5 pointer-events-none overflow-hidden">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-64 h-64 absolute -top-10 -left-10 rotate-12" alt="" />
-                 </div>
-                 <img 
-                   src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${selectedPoke.id}.png`} 
-                   className="w-48 h-48 object-contain drop-shadow-2xl relative z-10" 
-                   alt={selectedPoke.name} 
-                 />
-              </div>
+                 const TYPE_COLORS = {
+                   Normal: '#9ea0aa', Fire: '#ff9741', Water: '#3391d4', Grass: '#38bf4f',
+                   Electric: '#fbd100', Ice: '#70cbd4', Fighting: '#e0306a', Poison: '#b567ce',
+                   Ground: '#e87236', Flying: '#89aae3', Psychic: '#ff6675', Bug: '#83c300',
+                   Rock: '#c9bb8a', Ghost: '#4c6ab2', Dragon: '#006fc9', Dark: '#5b5466',
+                   Steel: '#5a8ea2', Fairy: '#fb89eb',
+                 };
+
+                 const c1 = TYPE_COLORS[t1] || '#9ea0aa';
+                 const c2 = t2 ? (TYPE_COLORS[t2] || '#9ea0aa') : c1;
+
+                 const bgStyle = t2
+                   ? { background: `linear-gradient(160deg, ${c1} 0%, ${c1}bb 40%, ${c2}bb 60%, ${c2} 100%)` }
+                   : { background: `linear-gradient(160deg, ${c1}88 0%, ${c1} 60%, ${c1}dd 100%)` };
+
+                 const typeIconUrl = (t) => t ? `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg` : '';
+
+                 return (
+                   <div className="h-48 w-full relative flex flex-col items-center justify-center overflow-hidden" style={bgStyle}>
+                      {/* Padrão de pontos */}
+                      <div className="absolute inset-0 pointer-events-none"
+                        style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+
+                      {/* ícones de tipo grandes no fundo (decoração) */}
+                      <img src={typeIconUrl(t1)} className="absolute -left-4 bottom-2 w-28 h-28 opacity-10 pointer-events-none select-none invert" alt="" />
+                      {t2 && <img src={typeIconUrl(t2)} className="absolute -right-2 top-2 w-24 h-24 opacity-10 pointer-events-none select-none invert" alt="" />}
+
+                      {/* Badges de tipo no topo */}
+                      <div className="absolute top-4 right-4 flex flex-col gap-1.5 items-end z-20">
+                        {types.map(t => (
+                          <div key={t} className="bg-black/20 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/20 flex items-center gap-1.5 shadow-md">
+                            <img src={typeIconUrl(t)} className="w-3 h-3 invert" alt={t} />
+                            <span className="text-[9px] font-black text-white uppercase tracking-wider">{t}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <button 
+                         onClick={() => setSelectedPoke(null)}
+                         className="absolute top-4 left-4 w-9 h-9 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center z-30 font-black hover:bg-white/40 transition-all border border-white/30 shadow-lg"
+                      ></button>
+
+                      <img
+                        src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.id}.png`}
+                        className={`h-40 object-contain relative z-10 transition-all duration-700 ${possessedIds.has(poke.id) ? 'scale-110 drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)]' : 'brightness-0 opacity-20 grayscale blur-[2px]'}`}
+                        alt={poke.name}
+                      />
+                   </div>
+                 );
+               })()}
 
               <div className="p-8">
                  <div className="text-center mb-6">
@@ -127,7 +170,7 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], onBack }) => 
                         </div>
                      </div>
                      <p className="text-[10px] text-slate-500 italic text-center">
-                        "Explora o mundo e coleta mais informações sobre esta espécie."
+                        "Explora o mundo e coleta mais informaçíµes sobre esta espécie."
                      </p>
                    </>
                  ) : (

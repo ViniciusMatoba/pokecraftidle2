@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { loginUser, registerUser } from '../auth';
 import { setPersistence, browserLocalPersistence, browserSessionPersistence, getAuth } from 'firebase/auth';
+import { APP_VERSION, APP_VERSION_DATE } from '../data/constants';
 
 const AuthScreen = ({ onAuthSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -159,7 +160,7 @@ const AuthScreen = ({ onAuthSuccess }) => {
                   className="w-full p-4 pr-14 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none transition-all font-medium text-slate-800"
                   onFocus={e => e.target.style.borderColor = '#CC0000'}
                   onBlur={e => e.target.style.borderColor = '#e2e8f0'}
-                  placeholder="••••••••"
+                  placeholder="Senha"
                   required
                   autoComplete={isLogin ? 'current-password' : 'new-password'}
                 />
@@ -170,12 +171,12 @@ const AuthScreen = ({ onAuthSuccess }) => {
                   tabIndex={-1}
                   aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                 >
-                  {showPassword ? '🙈' : '👁️'}
+                  {showPassword ? '👁️' : '👁️‍🗨️'}
                 </button>
               </div>
             </div>
 
-            {/* Toggle — Lembrar login */}
+            {/* Toggle   Lembrar login */}
             <label className="flex items-center gap-3 cursor-pointer group select-none">
               <div className="relative flex-shrink-0">
                 <input
@@ -239,7 +240,7 @@ const AuthScreen = ({ onAuthSuccess }) => {
           </button>
 
           <p className="mt-4 text-[9px] font-bold text-slate-300 uppercase tracking-[0.2em] text-center">
-            PokéCraft Idle v1.5 • 2026-04-23
+            PokéCraft Idle v{APP_VERSION} • {APP_VERSION_DATE}
           </p>
         </div>
       </div>

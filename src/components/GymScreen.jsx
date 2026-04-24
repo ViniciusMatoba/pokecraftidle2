@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { GYMS, ELITE_FOUR, TYPE_COLOR_HEX } from '../data/gyms';
+import { BadgeSVG } from './CommonUI';
 
 const typeIconUrl = (t) =>
   t ? `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg` : null;
 
-const BadgeIcon = ({ src, earned }) => (
-  <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${earned ? 'border-yellow-400 bg-yellow-50 shadow-md shadow-yellow-200' : 'border-slate-200 bg-slate-100 grayscale opacity-40'}`}>
-    <img src={src} className="w-7 h-7 object-contain" alt="badge" onError={e => {
-       e.target.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/badge-case.png';
-    }} />
+const BadgeIcon = ({ badgeId, earned }) => (
+  <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all ${earned ? 'border-yellow-400 bg-white shadow-xl shadow-yellow-200/50 scale-110' : 'border-slate-300/30 bg-slate-100/10 grayscale opacity-40'}`}>
+     <BadgeSVG badgeId={badgeId} earned={earned} size={32} />
   </div>
 );
 
@@ -30,8 +29,8 @@ const GymCard = ({ gym, earned, locked, onClick }) => {
           {gym.badgeOrder}° GYM - Líder {gym.name}
         </h4>
         <div className="flex items-center gap-2 mt-2">
-          {earned && <span className="bg-yellow-400 text-yellow-950 text-[10px] font-black px-3 py-1 rounded-full shadow-lg animate-pulse">✨ CONQUISTADA</span>}
-          {locked && <span className="bg-black/60 text-white/50 text-[10px] font-black px-3 py-1 rounded-full backdrop-blur-md">🔒 BLOQUEADO</span>}
+          {earned && <span className="bg-yellow-400 text-yellow-950 text-[10px] font-black px-3 py-1 rounded-full shadow-lg animate-pulse">( CONQUISTADA</span>}
+          {locked && <span className="bg-black/60 text-white/50 text-[10px] font-black px-3 py-1 rounded-full backdrop-blur-md">= BLOQUEADO</span>}
         </div>
       </div>
 
@@ -51,14 +50,14 @@ const GymCard = ({ gym, earned, locked, onClick }) => {
 
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-12 z-20">
          <div className="flex items-center gap-4">
-            <BadgeIcon src={gym.badgeImg} earned={earned} />
+            <BadgeIcon badgeId={gym.badge} earned={earned} />
             <div className="flex-1">
                <p className="text-white/50 text-[10px] font-black uppercase tracking-widest">{gym.city}</p>
                <p className="text-white text-xs font-bold uppercase italic">Ver Detalhes</p>
             </div>
             {!earned && !locked && (
                <div className="bg-white/20 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase backdrop-blur-md border border-white/10">
-                  🔍 INFO
+                  = INFO
                </div>
             )}
          </div>
@@ -102,7 +101,7 @@ const EliteCard = ({ member, index, earned, locked, onClick }) => {
       <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
          <div className="flex items-center gap-3">
             <p className="text-white/40 text-[9px] font-black uppercase tracking-widest">Nv. {member.team[0]?.level}+</p>
-            {earned && <span className="bg-pokeGold text-yellow-950 text-[8px] font-black px-2 py-0.5 rounded-full">✓ VENCIDO</span>}
+            {earned && <span className="bg-pokeGold text-yellow-950 text-[8px] font-black px-2 py-0.5 rounded-full"> VENCIDO</span>}
          </div>
       </div>
     </div>
@@ -110,9 +109,9 @@ const EliteCard = ({ member, index, earned, locked, onClick }) => {
 };
 
 const GymAlertModal = ({ req, onGo, onClose }) => (
-  <div className="fixed inset-0 z-[400] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md animate-fadeIn">
+  <div className="absolute inset-0 z-[400] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md animate-fadeIn">
     <div className="bg-slate-900 w-full max-w-xs rounded-[2.5rem] p-8 border border-white/10 shadow-2xl animate-bounceIn text-center">
-      <div className="text-4xl mb-4">🔒</div>
+      <div className="text-4xl mb-4">=</div>
       <h3 className="text-white font-black uppercase italic tracking-tighter text-xl mb-4">Caminho Bloqueado!</h3>
       <p className="text-white/60 text-sm font-bold mb-8 leading-relaxed">
         Para desafiar este Líder, você precisa primeiro:<br/>
@@ -184,7 +183,7 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
   };
   
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-fadeIn" onClick={onClose}>
+    <div className="absolute inset-0 z-[300] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-fadeIn" onClick={onClose}>
       {alertReq && (
         <GymAlertModal 
           req={formatReq(alertReq)} 
@@ -202,7 +201,7 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
              <img src={gym.badgeImg || gym.typeIcon} className="w-32 h-32" alt="" />
           </div>
           
-          <button onClick={onClose} className="absolute top-6 right-6 text-white/40 hover:text-white text-2xl font-black transition-all">✕</button>
+          <button onClick={onClose} className="absolute top-6 right-6 text-white/40 hover:text-white text-2xl font-black transition-all"></button>
           
           <div className="relative z-10 text-left">
             <h3 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-none mb-2">{gym.name}</h3>
@@ -265,7 +264,7 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
                          className={`w-full text-left text-[10px] font-bold flex items-center gap-3 p-2 rounded-xl transition-all ${met ? 'text-green-400' : 'text-red-400 hover:bg-white/5 cursor-pointer'}`}
                        >
                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${met ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                           {met ? '✓' : '🔒'}
+                           {met ? '' : '='}
                          </div>
                          <span className="flex-1">{formatReq(req)}</span>
                          {met ? <span className="text-[8px] uppercase opacity-50">OK</span> : <span className="text-[8px] uppercase opacity-50">Ir →</span>}
@@ -276,33 +275,32 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
              </div>
            )}
 
-           {/* Botão Ação */}
-           <div className="mt-8 flex flex-col gap-3">
-              {!earned && !locked && (
-                <button 
-                  onClick={() => { onChallenge(gym); onClose(); }}
-                  className="w-full bg-white text-slate-900 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-yellow-400 transition-all shadow-xl active:scale-95"
-                >
-                  Desafiar Agora!
-                </button>
-              )}
-              {earned && (
-                <div className="w-full bg-green-500/20 text-green-400 py-5 rounded-2xl font-black uppercase tracking-widest text-sm text-center border border-green-500/30">
-                  ✨ Conquistado
-                </div>
-              )}
-              {locked && (
-                <button 
-                  onClick={() => {
-                    const firstUnmet = getRequirements().find(r => !isRequirementMet(r));
-                    setAlertReq(firstUnmet);
-                  }}
-                  className="w-full bg-slate-800 text-slate-400 py-5 rounded-2xl font-black uppercase tracking-widest text-sm text-center border border-white/5 hover:bg-slate-700 transition-all active:scale-95"
-                >
-                  🔒 Bloqueado (Ver Requisito)
-                </button>
-              )}
-           </div>
+            {/* Botão Ação */}
+            <div className="mt-8 flex flex-col gap-3">
+               {!locked && (
+                 <button 
+                   onClick={() => { onChallenge(gym); onClose(); }}
+                   className={`w-full py-5 rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-xl active:scale-95 border-b-8 ${
+                     earned 
+                     ? 'bg-emerald-600 text-white hover:bg-emerald-500 border-emerald-800' 
+                     : 'bg-white text-slate-900 hover:bg-yellow-400 border-slate-200'
+                   }`}
+                 >
+                   {earned ? '🔥 Desafiar Novamente (Rematch)' : '⚔️ Desafiar Agora!'}
+                 </button>
+               )}
+               {locked && (
+                 <button 
+                   onClick={() => {
+                     const firstUnmet = getRequirements().find(r => !isRequirementMet(r));
+                     setAlertReq(firstUnmet);
+                   }}
+                   className="w-full bg-slate-800 text-slate-400 py-5 rounded-2xl font-black uppercase tracking-widest text-sm text-center border border-white/5 hover:bg-slate-700 transition-all active:scale-95"
+                 >
+                   = Bloqueado (Ver Requisito)
+                 </button>
+               )}
+            </div>
         </div>
       </div>
     </div>
@@ -341,7 +339,7 @@ const GymScreen = ({ gameState, onChallengeGym, onClose, initialSection, isEmbed
   };
 
   return (
-    <div className={isEmbedded ? "h-full flex flex-col bg-slate-950" : "fixed inset-0 z-[110] flex items-end justify-center bg-black/80 backdrop-blur-sm animate-fadeIn"} onClick={!isEmbedded ? onClose : undefined}>
+    <div className={isEmbedded ? "h-full flex flex-col bg-slate-950" : "absolute inset-0 z-[110] flex items-end justify-center bg-black/80 backdrop-blur-sm animate-fadeIn"} onClick={!isEmbedded ? onClose : undefined}>
       <div 
         className={isEmbedded ? "flex-1 flex flex-col overflow-hidden" : "w-full max-w-md bg-slate-950 rounded-t-[2rem] shadow-2xl flex flex-col animate-slideUp overflow-hidden"}
         style={!isEmbedded ? { height: '92dvh' } : {}}
@@ -352,10 +350,10 @@ const GymScreen = ({ gameState, onChallengeGym, onClose, initialSection, isEmbed
         /* Header */
         <div className="flex-shrink-0 px-6 pt-5 pb-3 flex items-center justify-between border-b border-white/10">
           <div>
-            <h2 className="text-white font-black text-xl uppercase italic tracking-tighter">🏆 Ginásios & Liga</h2>
+            <h2 className="text-white font-black text-xl uppercase italic tracking-tighter">🏆 Ginásios & Liga</h2>
             <p className="text-white/40 text-[9px] font-bold uppercase tracking-widest mt-0.5">Kanto · {badgeCount}/8 insígnias</p>
           </div>
-          <button onClick={onClose} className="text-white/40 hover:text-white font-black text-lg w-8 h-8 flex items-center justify-center">✕</button>
+          <button onClick={onClose} className="text-white/40 hover:text-white font-black text-lg w-8 h-8 flex items-center justify-center"></button>
         </div>
       )}
 
