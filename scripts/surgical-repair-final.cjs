@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 
 const PATTERNS = [
-    { m: 'Ã ', c: 'à' },
     { m: 'Ã¡', c: 'á' },
     { m: 'Ã©', c: 'é' },
     { m: 'Ã³', c: 'ó' },
@@ -10,6 +9,8 @@ const PATTERNS = [
     { m: 'Ã§', c: 'ç' },
     { m: 'Ã£', c: 'ã' },
     { m: 'Ãª', c: 'ê' },
+    { m: 'Ã\xad', c: 'í' },
+    { m: 'Ã ', c: 'à' },
     { m: 'Ã¬', c: 'ì' },
     { m: 'Ã\x81', c: 'Á' },
     { m: 'Ã\x93', c: 'Ó' },
@@ -19,23 +20,13 @@ const PATTERNS = [
     { m: 'Ã\x83', c: 'Ã' },
     { m: 'nÃ\xadvel', c: 'nível' },
     { m: 'NÃ\xadvel', c: 'Nível' },
-    { m: 'Ã\x94tima', c: 'Ótima' },
     { m: 'bÃ´nus', c: 'bônus' },
     { m: 'Ã gua', c: 'Água' },
     { m: 'Ã\x93tima', c: 'Ótima' },
     { m: 'Ã\x81gua', c: 'Água' },
     { m: 'â\x80\x94', c: '—' },
     { m: 'â\x80\x93', c: '–' },
-    { m: 'â\x80¢', c: '•' },
-    { m: 'â\x9c\x94', c: '✔' },
-    { m: 'â\x9a\xa0', c: '⚠️' },
-    { m: 'ð\x9f\xaa\xb7', c: '🌸' },
-    { m: 'â\x9b\x8f', c: '⛏️' },
-    { m: 'â\x9c\xa8', c: '✨' },
-    { m: 'ð\x9f\x90\xb2', c: '🐉' },
-    { m: 'â\x9a\x99', c: '⚙️' },
-    { m: 'ð\x9f\x8e\xbe', c: '🎾' },
-    { m: 'ð\x9f\x90\x9b', c: '🐛' }
+    { m: 'â\x80¢', c: '•' }
 ];
 
 function walkDir(dir, callback) {

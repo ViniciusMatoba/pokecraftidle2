@@ -101,10 +101,10 @@ export const ITEM_LABELS = {
   apricorn: { icon: '<0', name: 'Apricorn' },
   electric_chip: { icon: '⚡', name: 'Chip Eletr.' },
   moon_stone_shard: { icon: '<', name: 'Fragmento Lua' },
-  pink_dust: { icon: 'ð©·', name: 'Pó Rosa' },
+  pink_dust: { icon: '🌸', name: 'Pó Rosa' },
   gold_nugget: { icon: '🪙', name: 'Pepita' },
   iron_ore: { icon: '⛏️ï¸', name: 'Minério Ferro' },
-  mystic_dust: { icon: '✨', name: 'Pó MÃ­stico' },
+  mystic_dust: { icon: '✨', name: 'Pó Místico' },
   
   // Bebidas
   fresh_water:       { icon: '💧', name: 'Água Fresca'    },
@@ -117,19 +117,21 @@ export const ITEM_LABELS = {
   sitrus_berry:      { icon: '<J', name: 'Sitrus Berry'   },
   lum_berry:         { icon: '<?', name: 'Lum Berry'      },
   cheri_berry:       { icon: '<R', name: 'Cheri Berry'    },
+  sitrus_berry:      { icon: '🍊', name: 'Sitrus Berry'   },
+  lum_berry:         { icon: '🌟', name: 'Lum Berry'      },
+  cheri_berry:       { icon: '🍒', name: 'Cheri Berry'    },
   chesto_berry:      { icon: '🫐', name: 'Chesto Berry'   },
-  pecha_berry:       { icon: '<Q', name: 'Pecha Berry'    },
-  rawst_berry:       { icon: '<C', name: 'Rawst Berry'    },
-  aspear_berry:      { icon: '<K', name: 'Aspear Berry'   },
-  leppa_berry:       { icon: '<N', name: 'Leppa Berry'    },
+  pecha_berry:       { icon: '🍑', name: 'Pecha Berry'    },
+  rawst_berry:       { icon: '🧊', name: 'Rawst Berry'    },
+  aspear_berry:      { icon: '🍐', name: 'Aspear Berry'   },
+  leppa_berry:       { icon: '🍅', name: 'Leppa Berry'    },
   // Ração
-  poke_food:         { icon: 'ð', name: 'Ração Pokémon'  },
-  poke_food_premium: { icon: 'ð¥©', name: 'Ração Premium'  },
+  poke_food:         { icon: '🍖', name: 'Ração Pokémon'  },
+  poke_food_premium: { icon: '🥩', name: 'Ração Premium'  },
 
   // Pedras de Evolução
-  fire_stone: { icon: '=%', name: 'Pedra Fogo' },
+  fire_stone: { icon: '🔥', name: 'Pedra Fogo' },
   water_stone: { icon: '💧', name: 'Pedra Água' },
-  leaf_stone: { icon: '<?', name: 'Pedra Folha' },
   thunder_stone: { icon: 'â¡', name: 'Pedra Trovão' },
   moon_stone: { icon: '<', name: 'Pedra Lua' },
   

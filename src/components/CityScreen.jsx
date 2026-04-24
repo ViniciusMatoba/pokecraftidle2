@@ -41,11 +41,11 @@ const CityScreen = ({
   ];
 
   const oakTips = [
-    'O vÃ­nculo entre você e seu Pokémon é o que definirá sua força!',
+    'O vínculo entre você e seu Pokémon é o que definirá sua força!',
     'Azul já partiu para a Rota 1. Ele parece muito determinado a vencer o primeiro Ginásio!',
     'Pokémons de tipos diferentes têm vantagens e desvantagens. Estude-os bem!',
     'Capturar muitos Pokémons da mesma espécie aumenta sua Mestria com eles!',
-    'Não esqueça de curar sua equipe no Centro Pokémon após batalhas difÃ­ceis.'
+    'Não esqueça de curar sua equipe no Centro Pokémon após batalhas difíceis.'
   ];
 
   const cityBuildings = [
@@ -148,7 +148,7 @@ const CityScreen = ({
           <div className="w-full bg-gradient-to-r from-green-400 to-emerald-500 p-4 rounded-2xl shadow-xl border-b-4 border-green-700 animate-bounceIn flex items-center gap-4">
             <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-14 h-14 drop-shadow-lg shrink-0" alt="Oak" />
             <div className="flex-1 text-left">
-              <p className="text-[10px] font-black text-white/80 uppercase tracking-widest">â Missão ConcluÃ­da!</p>
+              <p className="text-[10px] font-black text-white/80 uppercase tracking-widest">â Missão Concluída!</p>
               <p className="text-xs font-bold text-white italic">"Parabéns! Você capturou seu primeiro Pokémon! Seu percurso começa agora!"</p>
               <p className="text-[9px] font-black text-white/70 mt-1 uppercase">+ 10 Pokébolas recebidas</p>
             </div>

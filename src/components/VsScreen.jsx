@@ -13,7 +13,7 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
 
   const tabs = [
     { id: 'challenges', name: 'Desafios', icon: '⚔️', desc: 'Rivais & Rocket' },
-    { id: 'gyms', name: 'Ginásios & Liga', icon: 'ð', desc: 'Caminho do Mestre' },
+    { id: 'gyms', name: 'Ginásios & Liga', icon: '🏆', desc: 'Caminho do Mestre' },
     { id: 'legendary', name: 'Lendários', icon: '✨', desc: 'Encontros Raros' },
   ];
 

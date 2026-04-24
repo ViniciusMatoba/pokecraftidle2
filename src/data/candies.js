@@ -2,9 +2,9 @@
 // Cada família evolutiva tem seu Candy exclusivo
 //
 // VISUAL: Como o Pokémon GO não disponibiliza sprites de candy publicamente,
-// o candy de cada famÃ­lia usa o sprite do Pokémon base (id) com fundo colorido
+// o candy de cada família usa o sprite do Pokémon base (id) com fundo colorido
 // por tipo — fiel ao estilo GO onde o candy tem a "cara" do Pokémon.
-// O campo `spriteId` é o id do Pokémon que aparece no Ã­cone do candy.
+// O campo `spriteId` é o id do Pokémon que aparece no ícone do candy.
 // O campo `rareCandySprite` é o Rare Candy clássico dos jogos principais.
 
 const RARE_CANDY = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png';

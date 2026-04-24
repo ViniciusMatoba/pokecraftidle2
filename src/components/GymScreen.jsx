@@ -114,7 +114,7 @@ const GymAlertModal = ({ req, onGo, onClose }) => (
       <div className="text-4xl mb-4">=</div>
       <h3 className="text-white font-black uppercase italic tracking-tighter text-xl mb-4">Caminho Bloqueado!</h3>
       <p className="text-white/60 text-sm font-bold mb-8 leading-relaxed">
-        Para desafiar este LÃ­der, você precisa primeiro:<br/>
+        Para desafiar este Líder, você precisa primeiro:<br/>
         <span className="text-red-400 font-black">"{req}"</span>
       </p>
       <div className="flex flex-col gap-3">
@@ -252,7 +252,7 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
            {locked && (
              <div className="mt-6 bg-red-500/10 border border-red-500/20 rounded-2xl p-5">
                 <h4 className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <span>ð</span> Requisitos Necessários
+                  <span>🔒</span> Requisitos Necessários
                 </h4>
                 <div className="space-y-2">
                    {getRequirements().map(req => {
@@ -350,7 +350,7 @@ const GymScreen = ({ gameState, onChallengeGym, onClose, initialSection, isEmbed
         /* Header */
         <div className="flex-shrink-0 px-6 pt-5 pb-3 flex items-center justify-between border-b border-white/10">
           <div>
-            <h2 className="text-white font-black text-xl uppercase italic tracking-tighter">ð Ginásios & Liga</h2>
+            <h2 className="text-white font-black text-xl uppercase italic tracking-tighter">🏆 Ginásios & Liga</h2>
             <p className="text-white/40 text-[9px] font-bold uppercase tracking-widest mt-0.5">Kanto · {badgeCount}/8 insígnias</p>
           </div>
           <button onClick={onClose} className="text-white/40 hover:text-white font-black text-lg w-8 h-8 flex items-center justify-center"></button>

@@ -104,11 +104,11 @@ const TravelScreen = ({
       'has_starter': 'Ter um Pokémon inicial',
       'boulder_badge': 'Insígnia da Rocha (Brock)',
       'cascade_badge': 'Insígnia da Cascata (Misty)',
-      'thunder_badge': 'InsÃ­gnia do Trovão (Lt. Surge)',
+      'thunder_badge': 'Insígnia do Trovão (Lt. Surge)',
       'rainbow_badge': 'Insígnia do Arco-Íris (Erika)',
       'soul_badge': 'Insígnia da Alma (Koga)',
       'marsh_badge': 'Insígnia do Pântano (Sabrina)',
-      'volcano_badge': 'InsÃ­gnia do Vulcão (Blaine)',
+      'volcano_badge': 'Insígnia do Vulcão (Blaine)',
       'earth_badge': 'Insígnia da Terra (Giovanni)',
       'rival_1_defeated': 'Derrotar o Rival na Rota 1',
       'viridian_forest_cleared': 'Vencer o Recruta Rocket na Floresta',
@@ -272,7 +272,7 @@ const TravelScreen = ({
               {!isRouteUnlocked(selectedRoute) && (
                 <div className="bg-red-50 border-2 border-red-100 rounded-3xl p-5 mb-6">
                   <h4 className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                    <span>ð</span> Requisitos Necessários
+                    <span>🔒</span> Requisitos Necessários
                   </h4>
                   <ul className="flex flex-col gap-2">
                     {selectedRoute.requirements.map(req => {

@@ -30,7 +30,18 @@ const REPLACEMENTS = [
     { hex: 'c3a2c5a1e2809dc3afc2b8c28fc3adc2afc382c2b8c382c28f', correct: '⚔️' },
     { hex: 'c3b0c29fc28cc29f', correct: '🌟' },
     { hex: 'c3b0c29fc292c2a5', correct: '💥' },
-    { hex: 'c3b0c29fc28cc28a', correct: '🌊' }
+    { hex: 'c3b0c29fc28cc28a', correct: '🌊' },
+    { hex: 'c3b0c29fc2a5c2a9', correct: '🥩' },
+    { hex: 'c3b0c29fc292c28a', correct: '💊' },
+    { hex: 'c3b0c29fc292c289', correct: '💉' },
+    { hex: 'c3b0c29fc294c292', correct: '🔒' },
+    { hex: 'c3b0c29fc28f20', correct: '🏆' }, // Simplified check
+    { hex: 'c3b0c29fc290c2be', correct: '🐾' },
+    { hex: 'c3b0c29fc2a9c2b7', correct: '🌸' },
+    { hex: 'c3b0c29fc28eb2', correct: '🎾' },
+    { hex: 'c3adc281', correct: 'Á' },
+    { hex: 'c3adc2b4', correct: 'ô' },
+    { hex: 'c3adc2a2', correct: 'â' }
 ];
 
 function walkDir(dir, callback) {

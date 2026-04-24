@@ -352,7 +352,7 @@ const ExpeditionsScreen = ({
             {/* PC Box */}
             <div>
               <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mb-2">
-                Pokémon no PC — {availablePC.length} disponÃ­veis
+                Pokémon no PC — {availablePC.length} disponíveis
               </p>
 
               {availablePC.length === 0 ? (

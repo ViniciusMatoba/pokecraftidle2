@@ -477,7 +477,7 @@ export default function App() {
   const triggerSave = useCallback(async () => {
     const user = auth.currentUser;
     if (!user) {
-      alert("Ã¢ÃÂ¡ÃÂ Ã­Â¯ÃÂ¸ÃÂ Você precisa estar logado para salvar na nuvem!");
+      alert("Ã¢ÃÂ¡ÃÂ íÂ¯ÃÂ¸ÃÂ Você precisa estar logado para salvar na nuvem!");
       return;
     }
     try {
@@ -582,7 +582,7 @@ export default function App() {
       result.statChanges.push({ stat: 'speed', change: stages, target: 'self' });
     }
 
-    // Ã¢Ã¢ÂÂÃ¢ÂÂ¬Ã¢Ã¢ÂÂÃ¢ÂÂ¬ CondiçÃ­ÃÂµes de Status no inimigo Ã¢Ã¢ÂÂÃ¢ÂÂ¬Ã¢Ã¢ÂÂÃ¢ÂÂ¬
+    // Ã¢Ã¢ÂÂÃ¢ÂÂ¬Ã¢Ã¢ÂÂÃ¢ÂÂ¬ CondiçíÃÂµes de Status no inimigo Ã¢Ã¢ÂÂÃ¢ÂÂ¬Ã¢Ã¢ÂÂÃ¢ÂÂ¬
     if (e.includes('sleep') && !e.includes('user') && !name.includes('rest')) {
       result.statusEffect = 'sleep'; result.statusTarget = 'enemy';
     }
@@ -701,7 +701,7 @@ export default function App() {
     // 2. Mystic Dust para Shinies (100% se for shiny)
     if (enemy.isShiny) {
       drops.materials.mystic_dust = (drops.materials.mystic_dust || 0) + 5;
-      messages.push(`Ã¢ÃÂ­ÃÂ 5x Pó MÃ­stico`);
+      messages.push(`Ã¢ÃÂ­ÃÂ 5x Pó Místico`);
     }
 
     // Drops antigos (suporte para itens específicos de rota/pokemon)
@@ -822,7 +822,7 @@ export default function App() {
       if (ownedRod) {
         const rodData = CRAFTING_RECIPES.fishing_rods.find(r => r.id === ownedRod);
         const waterBonus = rodData?.effect?.waterBonus || 0;
-        // Filtra pokémons de água e duplica sua presença no pool proporcionalmente ao bÃ­ÃÂ´nus
+        // Filtra pokémons de água e duplica sua presença no pool proporcionalmente ao bíÃÂ´nus
         const waterEnemies = enemyPool.filter(e => {
           const p = POKEDEX[e.id];
           return p?.type === 'Water' || p?.types?.includes('Water');
@@ -851,7 +851,7 @@ export default function App() {
     const pokeId = Number(base.id);
     const masteryCount = (gameState.speciesMastery || {})[pokeId] || (gameState.speciesMastery || {})[base.id] || 0;
     const shinyChanceBase = 0.01; // 1% base
-    const shinyBonus = Math.min(0.04, (masteryCount / 100) * 0.05); // Até +4% de bÃ­ÃÂ´nus
+    const shinyBonus = Math.min(0.04, (masteryCount / 100) * 0.05); // Até +4% de bíÃÂ´nus
     const isShiny = Math.random() < (shinyChanceBase + shinyBonus);
 
     const levelVariance = Math.floor(Math.random() * 3) - 1;
@@ -912,7 +912,7 @@ export default function App() {
     });
     setBattleLog([]);
     isProcessingVictory.current = false;
-    // BGM agora gerenciado pelas configuraçÃ­ÃÂµes
+    // BGM agora gerenciado pelas configuraçíÃÂµes
   }, [gameState.currentRoute, gameState.speciesMastery, playBGM, addLog, processedRoutes]);
 
   useEffect(() => {
@@ -952,7 +952,7 @@ export default function App() {
       return 1200 * speedMultiplier;
     }
     
-    // Atraso Cinematográfico para InÃ­cio de Batalha (Intro)
+    // Atraso Cinematográfico para Início de Batalha (Intro)
     const introTime = currentEnemy.isTrainer ? 2500 : 1200;
     if (currentEnemy.spawnTime && Date.now() - currentEnemy.spawnTime < introTime) {
        return 400 * speedMultiplier;
@@ -1132,7 +1132,7 @@ export default function App() {
 
           // Status condition
           if (fx.statusEffect) {
-            const statusNames = { burn:'Ã°ÂÂÂ¥ Queimadura', poison:'Ã¢ÃÂÃÂ Ã­Â¯ÃÂ¸ÃÂ Veneno', toxic:'Ã¢ÃÂÃÂ Ã­Â¯ÃÂ¸ÃÂ Veneno Grave', sleep:'Ã°ÂÂÂ¤ Sono', paralyze:'Ã¢ÂÂ¡ Paralisia', confuse:'Ã°ÂÂÂ« Confusão', freeze:'Ã¢ÃÂÃ¢ÂÂÃ­Â¯ÃÂ¸ÃÂ Congelado' };
+            const statusNames = { burn:'Ã°ÂÂÂ¥ Queimadura', poison:'Ã¢ÃÂÃÂ íÂ¯ÃÂ¸ÃÂ Veneno', toxic:'Ã¢ÃÂÃÂ íÂ¯ÃÂ¸ÃÂ Veneno Grave', sleep:'Ã°ÂÂÂ¤ Sono', paralyze:'Ã¢ÂÂ¡ Paralisia', confuse:'Ã°ÂÂÂ« Confusão', freeze:'Ã¢ÃÂÃ¢ÂÂíÂ¯ÃÂ¸ÃÂ Congelado' };
             if (!(updatedEnemyFinal.status || []).includes(fx.statusEffect)) {
               updatedEnemyFinal.status = [...(updatedEnemyFinal.status || []), fx.statusEffect];
               addLog(`${statusNames[fx.statusEffect]||fx.statusEffect}: ${updatedEnemyFinal.name} foi afetado!`, 'enemy');
@@ -1153,7 +1153,7 @@ export default function App() {
         updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - playerDmg);
         addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
         if (eff > 1) addLog("💥 É super efetivo!", 'system');
-        if (eff > 0 && eff < 1) addLog("Ã­Â°ÃÂ¸Ã¢ÂÂºÃÂ¡Ã­Â¯ÃÂ¸ÃÂ Não é muito efetivo!", 'system');
+        if (eff > 0 && eff < 1) addLog("íÂ°ÃÂ¸Ã¢ÂÂºÃÂ¡íÂ¯ÃÂ¸ÃÂ Não é muito efetivo!", 'system');
         if (eff === 0) addLog("Ã°ÂÂÂ« Não afetou o inimigo!", 'system');
       }
 
@@ -1570,7 +1570,7 @@ export default function App() {
       opponentTeamIndex: 0
     });
     setCurrentView('battles');
-    // BGM agora gerenciado pelas configuraçÃ­ÃÂµes
+    // BGM agora gerenciado pelas configuraçíÃÂµes
     addLog(`=% DESAFIO: ${battleData.name} iniciou a batalha!`, 'system');
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
@@ -1586,7 +1586,7 @@ export default function App() {
     const maxHp = Math.ceil((base.maxHp || base.hp || 50) * 1.6 * (lvl / 20)); 
     const statScale = (lvl / 10) * 0.85; 
 
-    // Golpes baseados no learnset do Pokémon até o nível do lÃ­der
+    // Golpes baseados no learnset do Pokémon até o nível do líder
     const learnset = base.learnset || [];
     const availableMoves = learnset
       .filter(m => m.level <= lvl)
@@ -1623,7 +1623,7 @@ export default function App() {
       opponentTeamIndex: 0
     });
     setCurrentView('battles');
-    // BGM agora gerenciado pelas configuraçÃ­ÃÂµes
+    // BGM agora gerenciado pelas configuraçíÃÂµes
     addLog(`í°Å¸Ââ  GINíÂSIO: Líder ${gymData.name} enviou ${base.name}! Nv.${lvl}`, 'system');
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, playBGM, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
@@ -1657,7 +1657,7 @@ export default function App() {
       const newItems = { ...prev.inventory.items };
       newItems[recipe.id] = (newItems[recipe.id] || 0) + 1;
 
-      addLog(`Ã­Â°ÃÂ¸Ã¢ÂÂºÃÂ Ã­Â¯ÃÂ¸ÃÂ Você fabricou: ${recipe.name}!`, 'drop');
+      addLog(`íÂ°ÃÂ¸Ã¢ÂÂºÃÂ íÂ¯ÃÂ¸ÃÂ Você fabricou: ${recipe.name}!`, 'drop');
 
       return {
         ...prev,
@@ -1699,7 +1699,7 @@ export default function App() {
       if (use.effect === 'xp_boost') {
         const xpNeeded = (p.level || 5) * 25;
         p.xp = xpNeeded; 
-        addLog(`Ã­Â°ÃÂ¸ÃÂÃÂ¬ ${p.name} consumiu candies e ganhou experiência!`, 'system');
+        addLog(`íÂ°ÃÂ¸ÃÂÃÂ¬ ${p.name} consumiu candies e ganhou experiência!`, 'system');
       } else if (use.effect === 'stat_atk') {
         p.attack = (p.attack || 10) + 2;
         addLog(`í°Å¸ÂÂ¬ ${p.name} aumentou o Ataque permanentemente!`, 'system');
@@ -1767,7 +1767,7 @@ export default function App() {
       const biome = EXPEDITION_BIOMES[biomeId];
       const duration = Date.now() - exp.startedAt;
       const rawDrops = calcExpeditionDrops(exp.team, biome, duration);
-      // Candies são exclusivos do farm nas rotas — remover das expediçÃ­ÃÂµes
+      // Candies são exclusivos do farm nas rotas — remover das expediçíÃÂµes
       const drops = Object.fromEntries(
         Object.entries(rawDrops).filter(([key]) => !key.includes('_candy'))
       );
@@ -1786,7 +1786,7 @@ export default function App() {
         .map(([k, v]) => `${v}x ${k}`)
         .join(', ');
       addLog(
-        `Ã¢ÃÂÃ¢ÂÂ¦ Expedição em ${biome.name} concluÃ­da! Coletou: ${dropSummary || 'nada desta vez'}`,
+        `Ã¢ÃÂÃ¢ÂÂ¦ Expedição em ${biome.name} concluída! Coletou: ${dropSummary || 'nada desta vez'}`,
         'drop'
       );
       teamWithXP.forEach(p => {
@@ -1945,7 +1945,7 @@ export default function App() {
         opponentTeamIndex: 0
       });
       setCurrentView('battles');
-      addLog(`Ã¢ÂÂÃ¯Â¸ÂÃ­Â¯ÃÂ¸ÃÂ RIVAL: ${battleData.name} desafiou você!`, 'system');
+      addLog(`Ã¢ÂÂÃ¯Â¸ÂíÂ¯ÃÂ¸ÃÂ RIVAL: ${battleData.name} desafiou você!`, 'system');
       isProcessingVictory.current = false;
       return;
     }
@@ -1982,7 +1982,7 @@ export default function App() {
     isProcessingVictory.current = false;
     setCurrentEnemy(rivalEnemy);
     setCurrentView('battles');
-    // BGM agora gerenciado pelas configuraçÃ­ÃÂµes
+    // BGM agora gerenciado pelas configuraçíÃÂµes
   }, [gameState.team, gameState.trainer, playBGM, setCurrentEnemy, setCurrentView, addLog]);
 
 
@@ -2040,7 +2040,7 @@ export default function App() {
 
     isProcessingVictory.current = true;
 
-    // Vitória! O som de GYM tocará apenas se ganhar insÃ­gnia
+    // Vitória! O som de GYM tocará apenas se ganhar insígnia
 
     const { drops, messages } = processDrops(currentEnemy);
     const baseXpGain = currentEnemy.baseExp || (currentEnemy.level || 5) * 5;
@@ -2092,13 +2092,13 @@ export default function App() {
         }
       }
 
-      // Salvar flag de vitória especÃ­fica do inimigo (Rival, Boss, etc)
+      // Salvar flag de vitória específica do inimigo (Rival, Boss, etc)
       if (currentEnemy.unlockFlag && !newFlags.includes(currentEnemy.unlockFlag)) {
         newFlags.push(currentEnemy.unlockFlag);
         addLog(`🚩 Progresso: ${currentEnemy.unlockFlag.replace(/_/g, ' ')}!`, 'system');
       }
 
-      // Salvar flag de vitória de Elite 4 / LÃ­der de Ginásio (Fallback)
+      // Salvar flag de vitória de Elite 4 / Líder de Ginásio (Fallback)
       if (currentEnemy.gymId && !newFlags.includes(`defeated_elite_${currentEnemy.gymId}`)) {
         newFlags.push(`defeated_elite_${currentEnemy.gymId}`);
       }
@@ -2254,7 +2254,7 @@ export default function App() {
             let questUpdate = {};
             if (prev.worldFlags.includes('quest_capture_active')) {
               newInventory.items = { ...newInventory.items, pokeballs: (newInventory.items.pokeballs || 0) + 10 };
-              addLog('Ã­Â°ÃÂ¸ÃÂ½ÃÂ Carvalho: "Ótimo trabalho! Tome estas 10 Pokébolas!"', 'drop');
+              addLog('íÂ°ÃÂ¸ÃÂ½ÃÂ Carvalho: "Ótimo trabalho! Tome estas 10 Pokébolas!"', 'drop');
               questUpdate = { worldFlags: prev.worldFlags.filter(f => f !== 'quest_capture_active').concat(['quest_capture_done']) };
             }
 
@@ -2633,7 +2633,7 @@ export default function App() {
            <div className="w-full relative z-10 p-4">
              <div className="bg-white p-6 rounded-[2rem] shadow-2xl border-b-[10px] border-blue-600 w-full">
                <h3 className="text-lg font-black text-slate-800 italic uppercase mb-3 tracking-tighter">Rival Azul:</h3>
-               <p className="text-sm font-bold text-slate-600 mb-4 italic">"Ei, espere aÃ­! Eu também quero um POKÉMON! E eu vou escolher este aqui!"</p>
+               <p className="text-sm font-bold text-slate-600 mb-4 italic">"Ei, espere aí! Eu também quero um POKÉMON! E eu vou escolher este aqui!"</p>
                <p className="text-sm font-black text-blue-500 mb-4 uppercase tracking-widest animate-pulse">"Vejamos quem é o melhor treinador!"</p>
                <button
                  onClick={startBattleAgainstRival}
@@ -2685,7 +2685,7 @@ export default function App() {
           <div className="w-full relative z-10 p-4">
             <div className="bg-white p-5 rounded-[2rem] shadow-2xl border-b-[10px] border-slate-800 w-full">
               <h3 className="text-lg font-black text-slate-800 italic uppercase mb-2 tracking-tighter">Prof. Carvalho:</h3>
-              <p className="text-sm font-bold text-slate-600 mb-2 italic">"Que batalha incrÃ­vel! Vocês dois têm muito talento."</p>
+              <p className="text-sm font-bold text-slate-600 mb-2 italic">"Que batalha incrível! Vocês dois têm muito talento."</p>
               <p className="text-sm font-black text-pokeBlue mb-4 uppercase tracking-tighter leading-tight">
                 "Agora, preciso que você aprenda a capturar POKÉMONS. Vá até a ROTA 1 e capture seu primeiro parceiro!"
               </p>
@@ -2723,7 +2723,7 @@ export default function App() {
                   <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-8 h-8 rounded-full object-contain bg-slate-100 p-0.5" alt="" />
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Prof. Carvalho</span>
                 </div>
-                <p className="text-sm font-bold text-slate-600 mb-2 italic">"Veja só! Azul me contou que capturou Pokémon incrÃ­veis nestas rotas!"</p>
+                <p className="text-sm font-bold text-slate-600 mb-2 italic">"Veja só! Azul me contou que capturou Pokémon incríveis nestas rotas!"</p>
                 <p className="text-sm font-black text-pokeBlue mb-4 uppercase tracking-tighter leading-tight">
                   "Parece que Bulbasaur, Charmander e outros iniciais estão aparecendo raramente por aqui. Fique atento!"
                 </p>
@@ -2840,8 +2840,8 @@ export default function App() {
                   <p className="text-amber-900 text-sm leading-relaxed mb-6 font-medium">
                     Parabéns por vencer o Ginásio de Pewter! Você está crescendo como treinador.
                     Que tal ter sua própria casa? Lá você pode cultivar Berries e Apricorns para
-                    fabricar Pokébolas especiais e itens raros. Com Pokémon de Grama e Ã­Â gua como
-                    cuidadores, suas plantaçÃ­ÃÂµes crescerão muito mais rápido!
+                    fabricar Pokébolas especiais e itens raros. Com Pokémon de Grama e íÂ gua como
+                    cuidadores, suas plantaçíÃÂµes crescerão muito mais rápido!
                   </p>
                   <div className="bg-white/60 rounded-3xl p-5 mb-6 border-2 border-amber-200 shadow-inner">
                     <p className="text-amber-800 font-black text-lg flex items-center gap-2">🏠 Custo da Casa</p>
@@ -3041,7 +3041,7 @@ export default function App() {
 
               <div className="bg-white/5 rounded-2xl p-6 mb-8 border border-white/5">
                 <p className="text-white/80 text-sm font-bold leading-relaxed italic">
-                  "IncrÃ­vel! Meus parabéns por derrotar o Azul na Rota 1! Acabo de receber relatos fantásticos... os Pokémon iniciais <span className="text-green-400">Bulbasaur</span>, <span className="text-orange-400">Charmander</span> e <span className="text-blue-400">Squirtle</span> foram avistados selvagens na Rota 1 e na Floresta!"
+                  "Incrível! Meus parabéns por derrotar o Azul na Rota 1! Acabo de receber relatos fantásticos... os Pokémon iniciais <span className="text-green-400">Bulbasaur</span>, <span className="text-orange-400">Charmander</span> e <span className="text-blue-400">Squirtle</span> foram avistados selvagens na Rota 1 e na Floresta!"
                 </p>
                 <p className="text-white/80 text-sm font-bold leading-relaxed italic mt-4">
                   "Parece que eles decidiram se aventurar além do meu laboratório. Agora você pode encontrá-los e capturá-los! Boa sorte na sua jornada!"
@@ -3477,7 +3477,7 @@ export default function App() {
                               stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 } 
                             })) 
                           }));
-                          addLog("Ã­Â°ÃÂ¸ÃÂÃÂ¥ Todos os Pokémon da equipe foram curados!", "system");
+                          addLog("íÂ°ÃÂ¸ÃÂÃÂ¥ Todos os Pokémon da equipe foram curados!", "system");
                           
                           setTimeout(() => {
                             setActiveBuildingModal(null);
@@ -3685,23 +3685,23 @@ export default function App() {
                        switch(activeMaterialModal) {
                           case 'currency': return 'Obtido derrotando Pokémons em qualquer rota ou vendendo itens raros.';
                           case 'normal_essence': return 'Dropado por Pokémons tipo NORMAL (ex: Pidgey, Rattata) na Rota 1 e Pallet.';
-                          case 'fire_essence': return 'Dropado por Pokémons tipo FOGO. Procure em áreas vulcÃ­ÃÂ¢nicas ou raramente na Rota 1.';
-                          case 'water_essence': return 'Dropado por Pokémons tipo Ã­ÃÂGUA em rios, lagos e oceanos.';
+                          case 'fire_essence': return 'Dropado por Pokémons tipo FOGO. Procure em áreas vulcíÃÂ¢nicas ou raramente na Rota 1.';
+                          case 'water_essence': return 'Dropado por Pokémons tipo íÃÂGUA em rios, lagos e oceanos.';
                           case 'grass_essence': return 'Dropado por Pokémons tipo PLANTA na Rota 1 e Floresta de Viridian.';
                           case 'electric_essence': return 'Dropado por Pokémons tipo ELÉTRICO. Tente a Usina de Energia.';
                           case 'ice_essence': return 'Dropado por Pokémons tipo GELO em cavernas geladas ou Ilhas Seafoam.';
                           case 'fighting_essence': return 'Dropado por Pokémons tipo LUTADOR na Rota 22 ou Victory Road.';
-                          case 'poison_essence': return 'Dropado por Pokémons tipo VENENO na Floresta de Viridian e pÃ­ÃÂ¢ntanos.';
+                          case 'poison_essence': return 'Dropado por Pokémons tipo VENENO na Floresta de Viridian e píÃÂ¢ntanos.';
                           case 'ground_essence': return 'Dropado por Pokémons tipo TERRA em cavernas, como a Caverna Diglett.';
                           case 'flying_essence': return 'Dropado por Pokémons tipo VOADOR em rotas abertas e céus.';
-                          case 'psychic_essence': return 'Dropado por Pokémons tipo PSÃ­ÃÂQUICO em locais misteriosos ou MansÃ­ÃÂµes.';
+                          case 'psychic_essence': return 'Dropado por Pokémons tipo PSíÃÂQUICO em locais misteriosos ou MansíÃÂµes.';
                           case 'bug_essence': return 'Dropado por Pokémons tipo INSETO na Floresta de Viridian.';
                           case 'rock_essence': return 'Dropado por Pokémons tipo PEDRA em túneis de rocha e cavernas.';
                           case 'ghost_essence': return 'Dropado por Pokémons tipo FANTASMA na Torre Pokémon de Lavender.';
-                          case 'dragon_essence': return 'Dropado por Pokémons tipo DRAGÃ­O em locais sagrados ou Victory Road.';
-                          case 'steel_essence': return 'Dropado por Pokémons tipo AÃ­ÂO em áreas industriais ou usinas.';
+                          case 'dragon_essence': return 'Dropado por Pokémons tipo DRAGíO em locais sagrados ou Victory Road.';
+                          case 'steel_essence': return 'Dropado por Pokémons tipo AíÂO em áreas industriais ou usinas.';
                           case 'fairy_essence': return 'Dropado por Pokémons tipo FADA no Monte Lua.';
-                          case 'dark_essence': return 'Dropado por Pokémons tipo SOMBRIO em locais escuros ou mansÃ­ÃÂµes.';
+                          case 'dark_essence': return 'Dropado por Pokémons tipo SOMBRIO em locais escuros ou mansíÃÂµes.';
                           default: return 'Explore diferentes rotas e derrote Pokémons de tipos variados para coletar este material.';
                        }
                     })()}

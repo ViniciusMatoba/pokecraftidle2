@@ -41,14 +41,14 @@ const S = {
 };
 
 export const GYM_LEADERS = {
-  brock:    { id: 'brock',    name: 'Brock',    sprite: S.brock,    badge: 1, badgeName: 'Insignia da Rocha',      reward: 1200,  team: pk([74, 95], 14),              unlockFlag: 'boulder_badge', introText: 'Sou Brock! Minha especialidade sao Pokemon do tipo Pedra!' },
-  misty:    { id: 'misty',    name: 'Misty',    sprite: S.misty,    badge: 2, badgeName: 'Insignia da Cascata',    reward: 2500,  team: pk([120, 121], 21),            unlockFlag: 'cascade_badge', introText: 'Sou Misty! Prepare-se para o poder da agua!' },
-  ltsurge:  { id: 'ltsurge',  name: 'Lt. Surge',sprite: S.ltsurge,  badge: 3, badgeName: 'Insignia do Trovao',    reward: 4000,  team: pk([100, 25, 26], 24),         unlockFlag: 'thunder_badge', introText: 'Hah! Seu funeral, recruta!' },
-  erika:    { id: 'erika',    name: 'Erika',    sprite: S.erika,    badge: 4, badgeName: 'Insignia do Arco-Iris', reward: 5000,  team: pk([71, 70, 45], 32),          unlockFlag: 'rainbow_badge', introText: 'Voce me acordou. Vou lutar entao.' },
-  koga:     { id: 'koga',     name: 'Koga',     sprite: S.koga,     badge: 5, badgeName: 'Insignia da Alma',      reward: 7000,  team: pk([109, 89, 110, 49], 43),   unlockFlag: 'soul_badge',    introText: 'Meu veneno ira paralisa-lo... inexoravelmente!' },
-  sabrina:  { id: 'sabrina',  name: 'Sabrina',  sprite: S.sabrina,  badge: 6, badgeName: 'Insignia do Pantano',   reward: 8000,  team: pk([64, 122, 65], 46),         unlockFlag: 'marsh_badge',   introText: 'Ja previ sua derrota. Ainda assim, entre.' },
-  blaine:   { id: 'blaine',   name: 'Blaine',   sprite: S.blaine,   badge: 7, badgeName: 'Insignia do Vulcao',    reward: 9500,  team: pk([58, 78, 126, 77], 50),     unlockFlag: 'volcano_badge', introText: 'Minha habilidade com Fire queimara voce ate as cinzas!' },
-  giovanni: { id: 'giovanni', name: 'Giovanni', sprite: S.giovanni, badge: 8, badgeName: 'Insignia da Terra',     reward: 15000, team: pk([111, 51, 112, 34], 55),    unlockFlag: 'earth_badge',   introText: 'Eu, Giovanni, vou destrui-lo!' },
+  brock:    { id: 'brock',    name: 'Brock',    sprite: S.brock,    badge: 1, badgeName: 'Insígnia da Rocha',      reward: 1200,  team: pk([74, 95], 14),              unlockFlag: 'boulder_badge', introText: 'Sou Brock! Minha especialidade são Pokémon do tipo Pedra!' },
+  misty:    { id: 'misty',    name: 'Misty',    sprite: S.misty,    badge: 2, badgeName: 'Insígnia da Cascata',    reward: 2500,  team: pk([120, 121], 21),            unlockFlag: 'cascade_badge', introText: 'Sou Misty! Prepare-se para o poder da água!' },
+  ltsurge:  { id: 'ltsurge',  name: 'Lt. Surge',sprite: S.ltsurge,  badge: 3, badgeName: 'Insígnia do Trovão',    reward: 4000,  team: pk([100, 25, 26], 24),         unlockFlag: 'thunder_badge', introText: 'Hah! Seu funeral, recruta!' },
+  erika:    { id: 'erika',    name: 'Erika',    sprite: S.erika,    badge: 4, badgeName: 'Insígnia do Arco-Íris', reward: 5000,  team: pk([71, 70, 45], 32),          unlockFlag: 'rainbow_badge', introText: 'Voce me acordou. Vou lutar entao.' },
+  koga:     { id: 'koga',     name: 'Koga',     sprite: S.koga,     badge: 5, badgeName: 'Insígnia da Alma',      reward: 7000,  team: pk([109, 89, 110, 49], 43),   unlockFlag: 'soul_badge',    introText: 'Meu veneno ira paralisa-lo... inexoravelmente!' },
+  sabrina:  { id: 'sabrina',  name: 'Sabrina',  sprite: S.sabrina,  badge: 6, badgeName: 'Insígnia do Pântano',   reward: 8000,  team: pk([64, 122, 65], 46),         unlockFlag: 'marsh_badge',   introText: 'Ja previ sua derrota. Ainda assim, entre.' },
+  blaine:   { id: 'blaine',   name: 'Blaine',   sprite: S.blaine,   badge: 7, badgeName: 'Insígnia do Vulcão',    reward: 9500,  team: pk([58, 78, 126, 77], 50),     unlockFlag: 'volcano_badge', introText: 'Minha habilidade com Fire queimara voce ate as cinzas!' },
+  giovanni: { id: 'giovanni', name: 'Giovanni', sprite: S.giovanni, badge: 8, badgeName: 'Insígnia da Terra',     reward: 15000, team: pk([111, 51, 112, 34], 55),    unlockFlag: 'earth_badge',   introText: 'Eu, Giovanni, vou destruí-lo!' },
 };
 
 export const ROUTES = {
@@ -58,7 +58,7 @@ export const ROUTES = {
     unlockLevel: 0, requirements: [], unlocks: 'starter_event',
     enemies: [], trainers: [], trainerChance: 0,
     background: '/battle_bg_grass_1776863779024.png',
-    description: 'Sua jornada comeca aqui.',
+    description: 'Sua jornada começa aqui.',
   },
 
   route_1: {
@@ -147,7 +147,7 @@ export const ROUTES = {
       { name: 'Ace Trainer Marissa', sprite: S.aceF,       team: pk([39, 21], 12),   reward: 300 },
     ],
     background: '/battle_bg_route3_1776993578907.png',
-    description: 'Terreno arido a caminho de Mt. Moon.',
+    description: 'Terreno árido a caminho de Mt. Moon.',
   },
 
   mt_moon: {
@@ -178,7 +178,7 @@ export const ROUTES = {
     requirements: ['mt_moon_cleared', 'mt_moon_rockets_defeated'],
     enemies: [], trainers: [], trainerChance: 0,
     background: '/battle_bg_gym_1776863824590.png',
-    description: 'Cidade banhada pela agua. Desafie Misty!',
+    description: 'Cidade banhada pela água. Desafie Misty!',
   },
 
   route_24_25: {
@@ -226,7 +226,7 @@ export const ROUTES = {
       { name: 'Gentleman Brooks', sprite: S.gentleman, team: pk([96, 96], 22),       reward: 600 },
     ],
     background: '/battle_bg_ship_1776863844924.png',
-    description: 'Luxuoso navio de cruzeiro. Azul esta a bordo!',
+    description: 'Luxuoso navio de cruzeiro. Azul está a bordo!',
   },
 
   vermilion_city: {
@@ -267,7 +267,7 @@ export const ROUTES = {
       { name: 'Ace Trainer Ryder', sprite: S.aceM,      team: pk([95, 66], 26),      reward: 620 },
     ],
     background: '/battle_bg_rock_tunnel_1776993634918.png',
-    description: 'Tunel escuro. A Rocket esta aqui!',
+    description: 'Tunel escuro. A Rocket está aqui!',
   },
 
   pokemon_tower: {
@@ -298,7 +298,7 @@ export const ROUTES = {
       { name: 'Ace Trainer Harvey', sprite: S.aceM,    team: pk([58, 96], 30),   reward: 800 },
     ],
     background: '/battle_bg_grass_1776863779024.png',
-    description: 'Rota de conexao para Celadon.',
+    description: 'Rota de conexão para Celadon.',
   },
 
   rocket_hideout: {
@@ -314,7 +314,7 @@ export const ROUTES = {
       { name: 'Team Rocket Grunt F', sprite: S.rocketF, team: pk([88, 52], 31),     reward: 720, isRocket: true },
     ],
     background: '/battle_bg_cave_1776863810604.png',
-    description: 'QG secreto da Rocket em Celadon. Giovanni te aguarda!',
+    description: 'QG secreto da Rocket em Celadon. Giovanni te águarda!',
   },
 
   celadon_city: {
@@ -323,7 +323,7 @@ export const ROUTES = {
     unlockLevel: 35, requirements: ['pokemon_tower_cleared'],
     enemies: [], trainers: [], trainerChance: 0,
     background: '/battle_bg_gym_1776863824590.png',
-    description: 'Cidade verde. Derrote Erika para avancar!',
+    description: 'Cidade verde. Derrote Erika para avançar!',
   },
 
   route_12_15: {
@@ -383,7 +383,7 @@ export const ROUTES = {
     unlockLevel: 42, requirements: ['soul_badge'],
     enemies: [], trainers: [], trainerChance: 0,
     background: '/battle_bg_gym_1776863824590.png',
-    description: 'Centro psiquico de Kanto. Derrote Sabrina!',
+    description: 'Centro psíquico de Kanto. Derrote Sabrina!',
   },
 
   route_16_18: {
@@ -402,7 +402,7 @@ export const ROUTES = {
   },
 
   pokemon_mansion: {
-    id: 'pokemon_mansion', name: 'Mansao Pokemon', type: 'farm', group: 'Cinnabar Island',
+    id: 'pokemon_mansion', name: 'Mansão Pokémon', type: 'farm', group: 'Cinnabar Island',
     unlockLevel: 44, requirements: ['marsh_badge'],
     biome: 'mountain',
     enemies: pk([88, 109, 126, 132, 89], 38),
@@ -437,7 +437,7 @@ export const ROUTES = {
       { name: 'Ace Trainer Parker', sprite: S.aceM,        team: pk([148, 22], 48),  reward: 2500 },
     ],
     background: '/battle_bg_grass_1776863779024.png',
-    description: 'O caminho para o ultimo ginasio.',
+    description: 'O caminho para o último ginásio.',
   },
 
   viridian_gym: {
@@ -461,7 +461,7 @@ export const ROUTES = {
       { name: 'Cooltrainer George', sprite: S.cooltrainer, team: pk([148, 105], 50), reward: 2800 },
     ],
     background: '/battle_bg_cave_1776863810604.png',
-    description: 'Caverna do desafio final. Seu rival te aguarda!',
+    description: 'Caverna do desafio final. Seu rival te águarda!',
   },
 
   indigo_plateau: {
@@ -480,7 +480,7 @@ export const ROUTES = {
     enemies: pk([42, 47, 67, 75, 95, 132, 113], 60),
     trainerChance: 0, trainers: [],
     background: '/battle_bg_cave_1776863810604.png',
-    description: 'Caverna proibida  lar de uma lenda.',
+    description: 'Caverna proibida  lar de uma lenda..',
   },
 };
 

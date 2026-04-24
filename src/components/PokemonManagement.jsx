@@ -250,7 +250,7 @@ const PokemonManagement = ({
                    Dark: 'bg-[#5b5466]', Steel: 'bg-[#5a8ea2]', Fairy: 'bg-[#fb89eb]',
                  };
 
-                 // Ãcone de tipo SVG do PokeAPI (repositório oficial de Ã­cones de tipo)
+                 // Ãcone de tipo SVG do PokeAPI (repositório oficial de ícones de tipo)
                  const typeIconUrl = (t) => t ? `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg` : '';
 
                  const c1 = TYPE_COLOR[t1] || '#9ea0aa';
