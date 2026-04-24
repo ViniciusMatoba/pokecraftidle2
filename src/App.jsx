@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+﻿import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useAutoFarm } from './hooks/useAutoFarm';
 import { useSound } from './hooks/useSound';
 import { ROUTES, getRivalSprite } from './data/routes';
@@ -2795,11 +2795,11 @@ export default function App() {
                   <p className="text-amber-900 text-sm leading-relaxed mb-6 font-medium">
                     ParabÃ©ns por vencer o GinÃ¡sio de Pewter! VocÃª estÃ¡ crescendo como treinador.
                     Que tal ter sua prÃ³pria casa? LÃ¡ vocÃª pode cultivar Berries e Apricorns para
-                    fabricar PokÃ©bolas especiais e itens raros. Com PokÃ©mon de Grama e Ãgua como
+                    fabricar PokÃ©bolas especiais e itens raros. Com PokÃ©mon de Grama e Ã gua como
                     cuidadores, suas plantaÃ§Ãµes crescerÃ£o muito mais rÃ¡pido!
                   </p>
                   <div className="bg-white/60 rounded-3xl p-5 mb-6 border-2 border-amber-200 shadow-inner">
-                    <p className="text-amber-800 font-black text-lg flex items-center gap-2">ðŸ  Custo da Casa</p>
+                    <p className="text-amber-800 font-black text-lg flex items-center gap-2">ðŸ   Custo da Casa</p>
                     <div className="flex justify-between items-center mt-2">
                        <p className="text-amber-900 text-sm font-bold">
                           💰 {HOUSE_PURCHASE_COST.toLocaleString()} coins
@@ -2848,7 +2848,20 @@ export default function App() {
             />
           )}
 
+          {showExpeditions && (
+            <ExpeditionsScreen
+              gameState={gameState}
+              onClose={() => setShowExpeditions(false)}
+              onStartExpedition={(biomeId, team) => {
+                handleStartExpedition(biomeId, team);
+                setShowExpeditions(false);
+              }}
+              onClaimExpedition={(biomeId) => handleClaimExpedition(biomeId)}
+            />
+          )}
+
           {showOakStaminaModal && (
+            <div className="absolute inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
               <div className="w-full max-w-xl bg-white rounded-[4rem] overflow-hidden shadow-2xl animate-bounceIn border-b-[16px] border-slate-200">
                 <div className="bg-green-50 p-10">
                   <div className="flex items-center gap-6 mb-8">
@@ -2867,32 +2880,32 @@ export default function App() {
 
                   <div className="space-y-4 mb-8">
                     <p className="text-green-900 text-base font-medium leading-relaxed italic">
-                      Seus PokÃ©mon precisam se <strong>alimentar</strong> durante as batalhas. Quanto mais lutam, mais energia gastam!
+                      Seus Pokémon precisam se <strong>alimentar</strong> durante as batalhas. Quanto mais lutam, mais energia gastam!
                     </p>
 
                     <div className="bg-white/80 rounded-[2.5rem] p-6 border-2 border-green-200 shadow-inner">
-                      <p className="text-green-800 text-xs font-black uppercase tracking-[0.2em] mb-4">ðŸ½ï¸ O que alimenta seus PokÃ©mon:</p>
+                      <p className="text-green-800 text-xs font-black uppercase tracking-[0.2em] mb-4">🍴 O que alimenta seus Pokémon:</p>
                       <div className="grid grid-cols-1 gap-3">
                         <div className="flex items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-green-100">
                           <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png" className="w-8 h-8 object-contain" alt="berry" />
-                          <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>Berries</strong> â€” cultive na sua casa. Oran e Sitrus Berry sÃ£o essenciais.</p>
+                          <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>Berries</strong> — cultive na sua casa. Oran e Sitrus Berry são essenciais.</p>
                         </div>
                         <div className="flex items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-green-100">
                           <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png" className="w-8 h-8 object-contain" alt="agua" />
-                          <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>Ãguas e Soda</strong> â€” compre no PokÃ© Mart para restaurar energia rÃ¡pido.</p>
+                          <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>Águas e Soda</strong> — compre no Poké Mart para restaurar energia rápido.</p>
                         </div>
                         <div className="flex items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-green-100">
-                          <span className="text-2xl w-8 text-center">ðŸ–</span>
-                          <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>RaÃ§Ã£o PokÃ©mon</strong> â€” pode ser fabricada na Forja com materiais simples.</p>
+                          <span className="text-2xl w-8 text-center">🍖</span>
+                          <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>Ração Pokémon</strong> — pode ser fabricada na Forja com materiais simples.</p>
                         </div>
                       </div>
                     </div>
 
                     <div className="flex gap-4">
                        <div className="flex-1 bg-red-50 rounded-3xl p-4 border-2 border-red-100">
-                         <p className="text-red-700 text-[10px] font-black uppercase tracking-widest mb-1">âš ï¸ Perigo!</p>
+                         <p className="text-red-700 text-[10px] font-black uppercase tracking-widest mb-1">⚠️ Perigo!</p>
                          <p className="text-red-600 text-[10px] font-bold leading-tight">
-                           Energia zerada causa exaustÃ£o e perda constante de vida.
+                           Energia zerada causa exaustão e perda constante de vida.
                          </p>
                        </div>
                        <div className="flex-1 bg-blue-50 rounded-3xl p-4 border-2 border-blue-100">
@@ -2931,51 +2944,6 @@ export default function App() {
               </div>
             </div>
           )}
-g> â€” fabricÃ¡vel na Forja com materiais</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-red-50 rounded-2xl p-3 border border-red-200">
-                      <p className="text-red-700 text-xs font-bold mb-1">âš ï¸ Sem comida = Perigo!</p>
-                      <p className="text-red-600 text-xs leading-relaxed">
-                        Quando a energia zera, seu PokÃ©mon fica <strong>exausto</strong> e comeÃ§a a perder HP. Se desmaiar assim â€” conta como derrota!
-                      </p>
-                    </div>
-
-                    <div className="bg-blue-50 rounded-2xl p-3 border border-blue-200">
-                      <p className="text-blue-700 text-xs font-bold mb-1">ðŸ’¡ Dica:</p>
-                      <p className="text-blue-600 text-xs leading-relaxed">
-                        O sistema alimenta automaticamente com o melhor item disponÃ­vel. Sempre tenha estoque! Compre <strong>Ãgua Fresca</strong> no PokÃ© Mart antes de qualquer rota.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="bg-amber-50 rounded-2xl p-3 border border-amber-200 mb-4">
-                    <p className="text-amber-800 text-xs font-bold">ðŸŽ Presente do Professor Carvalho:</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <img
-                        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png"
-                        className="w-6 h-6 object-contain"
-                        alt="Ãgua Fresca"
-                      />
-                      <p className="text-amber-700 text-xs">
-                        <strong>10x Ãgua Fresca</strong> â€” para comeÃ§ar sua jornada com seguranÃ§a!
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => setShowOakStaminaModal(false)}
-                    className="w-full bg-green-600 text-white py-4 rounded-2xl font-black uppercase text-sm hover:bg-green-500 transition-all active:scale-95"
-                  >
-                    Obrigado, Professor! ðŸ½ï¸
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
           {showExpeditions && (
             <ExpeditionsScreen
               gameState={gameState}
