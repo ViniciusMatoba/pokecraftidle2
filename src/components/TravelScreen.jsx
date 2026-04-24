@@ -3,7 +3,7 @@ import { isRouteUnlocked as checkRouteUnlocked } from '../data/routes';
 import { CRAFTING_RECIPES } from '../data/recipes';
 import { TYPE_COLOR_HEX } from '../data/gyms';
 
-const TravelScreen 🔊 ({ 
+const TravelScreen = ({ 
   gameState, 
   setGameState, 
   travelTab, 
@@ -15,26 +15,26 @@ const TravelScreen 🔊 ({
   setVsInitialCategory,
   fixPath,
   POKEDEX
-}) 🐾 {
-  const [selectedRoute, setSelectedRoute] 🔊 React.useState(null);
-  const [selectedPoke, setSelectedPoke] 🔊 React.useState(null);
-  const [selectedDrop, setSelectedDrop] 🔊 React.useState(null);
+}) => {
+  const [selectedRoute, setSelectedRoute] = React.useState(null);
+  const [selectedPoke, setSelectedPoke] = React.useState(null);
+  const [selectedDrop, setSelectedDrop] = React.useState(null);
 
-  const isRouteUnlocked 🔊 (route) 🐾 checkRouteUnlocked(route, gameState);
+  const isRouteUnlocked = (route) => checkRouteUnlocked(route, gameState);
 
   // Sincroniza a rota selecionada se os dados globais mudarem (ex: starters spotted)
-  React.useEffect(() 🐾 {
+  React.useEffect(() => {
     if (selectedRoute && ROUTES[selectedRoute.id]) {
       // Só atualiza se houver mudança real nos inimigos (ex: starters adicionados)
-      const latest 🔊 ROUTES[selectedRoute.id];
-      if (JSON.stringify(latest.enemies) !=🔊 JSON.stringify(selectedRoute.enemies)) {
+      const latest = ROUTES[selectedRoute.id];
+      if (JSON.stringify(latest.enemies) !== JSON.stringify(selectedRoute.enemies)) {
         setSelectedRoute({ id: selectedRoute.id, ...latest });
       }
     }
   }, [ROUTES, selectedRoute]);
 
-  const getDropIcon 🔊 (id) 🐾 {
-    const map 🔊 {
+  const getDropIcon = (id) => {
+    const map = {
       'pokeballs': 'poke-ball',
       'great_ball': 'great-ball',
       'ultra_ball': 'ultra-ball',
@@ -57,16 +57,16 @@ const TravelScreen 🔊 ({
       'fairy_essence': 'pixie-plate',
       'dark_essence': 'black-glasses'
     };
-    const itemName 🔊 map[id] || 'mystery-egg';
+    const itemName = map[id] || 'mystery-egg';
     return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${itemName}.png`;
   };
 
-  const getRouteDrops 🔊 (route) 🐾 {
+  const getRouteDrops = (route) => {
     if (!route || !route.enemies) return [];
-    const drops 🔊 new Set();
+    const drops = new Set();
     
     // Pokéballs drop em todas as rotas de farm agora
-    if (route.type ==🔊 'farm') {
+    if (route.type === 'farm') {
       drops.add('pokeballs');
     }
 
@@ -75,10 +75,10 @@ const TravelScreen 🔊 ({
       
       // Fallback: se o inimigo tem um tipo, ele dropa a essência correspondente
       if (POKEDEX) {
-        const pData 🔊 POKEDEX[e.id];
+        const pData = POKEDEX[e.id];
         if (pData) {
-          const types 🔊 pData.types || (pData.type ? [pData.type] : []);
-          types.forEach(t 🐾 {
+          const types = pData.types || (pData.type ? [pData.type] : []);
+          types.forEach(t => {
             if (t) drops.add(`${t.toLowerCase()}_essence`);
           });
         }
@@ -87,9 +87,9 @@ const TravelScreen 🔊 ({
     return Array.from(drops);
   };
 
-  const getRecipesUsingMaterial 🔊 (materialId) 🐾 {
+  const getRecipesUsingMaterial = (materialId) => {
     const results = [];
-    Object.values(CRAFTING_RECIPES).forEach(category 🐾 {
+    Object.values(CRAFTING_RECIPES).forEach(category => {
       category.forEach(recipe => {
         if (recipe.cost && recipe.cost[materialId]) {
           results.push(recipe);
@@ -99,8 +99,8 @@ const TravelScreen 🔊 ({
     return results;
   };
 
-  const formatRequirement 🔊 (req) 🐾 {
-    const map 🔊 {
+  const formatRequirement = (req) => {
+    const map = {
       'has_starter': 'Ter um Pokémon inicial',
       'boulder_badge': 'Insígnia da Rocha (Brock)',
       'cascade_badge': 'Insígnia da Cascata (Misty)',
@@ -124,10 +124,10 @@ const TravelScreen 🔊 ({
     return map[req] || req;
   };
 
-  const isRequirementMet 🔊 (req) 🐾 {
-    if (req ==🔊 'has_starter') return (gameState.team?.length || 0) > 0;
+  const isRequirementMet = (req) => {
+    if (req === 'has_starter') return (gameState.team?.length || 0) > 0;
     if (req.includes('_badge')) {
-      const badgeId 🔊 {
+      const badgeId = {
         'boulder_badge': 1, 'cascade_badge': 2, 'thunder_badge': 3,
         'rainbow_badge': 4, 'soul_badge': 5, 'marsh_badge': 6,
         'volcano_badge': 7, 'earth_badge': 8
@@ -137,7 +137,7 @@ const TravelScreen 🔊 ({
     return (gameState.worldFlags || []).includes(req);
   };
 
-  const handleRequirementClick 🔊 (req) 🐾 {
+  const handleRequirementClick = (req) => {
     // Se já completou, não precisa ir mais
     if (isRequirementMet(req)) return;
 
@@ -145,10 +145,10 @@ const TravelScreen 🔊 ({
       if (setVsInitialTab) setVsInitialTab('gyms');
       setCurrentView('vs');
       setSelectedRoute(null);
-    } else if (req.includes('rival_') || req.includes('rocket_hideout') || req.includes('silph_co') || req.includes('tower_cleared') || req ==🔊 'viridian_forest_cleared') {
+    } else if (req.includes('rival_') || req.includes('rocket_hideout') || req.includes('silph_co') || req.includes('tower_cleared') || req === 'viridian_forest_cleared') {
       if (setVsInitialTab) setVsInitialTab('challenges');
       if (setVsInitialCategory) {
-        if (req ==🔊 'viridian_forest_cleared' || req.includes('rocket_hideout') || req.includes('silph_co')) {
+        if (req === 'viridian_forest_cleared' || req.includes('rocket_hideout') || req.includes('silph_co')) {
           setVsInitialCategory('rocket');
         } else if (req.includes('rival_')) {
           setVsInitialCategory('rival');
@@ -156,17 +156,17 @@ const TravelScreen 🔊 ({
       }
       setCurrentView('vs');
       setSelectedRoute(null);
-    } else if (req ==🔊 'has_starter') {
+    } else if (req === 'has_starter') {
       setCurrentView('city');
       setSelectedRoute(null);
     } else if (req.includes('_cleared')) {
-      const routeMap 🔊 {
+      const routeMap = {
         'viridian_forest_cleared': 'viridian_forest',
         'mt_moon_cleared': 'mt_moon',
         'rock_tunnel_cleared': 'rock_tunnel',
         'mansion_cleared': 'pokemon_mansion'
       };
-      const targetId 🔊 routeMap[req];
+      const targetId = routeMap[req];
       if (targetId && ROUTES[targetId]) {
         if (checkRouteUnlocked(ROUTES[targetId], gameState)) {
           setSelectedRoute({ id: targetId, ...ROUTES[targetId] });
@@ -185,13 +185,13 @@ const TravelScreen 🔊 ({
       <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
           <div className="flex flex-col gap-8 pb-8">
             {Object.entries(
-              Object.entries(ROUTES).reduce((acc, [id, r]) 🐾 {
-                const group 🔊 r.group || "Outros Destinos";
+              Object.entries(ROUTES).reduce((acc, [id, r]) => {
+                const group = r.group || "Outros Destinos";
                 if (!acc[group]) acc[group] = [];
                 acc[group].push({ id, ...r });
                 return acc;
               }, {})
-            ).map(([groupName, groupRoutes]) 🐾 (
+            ).map(([groupName, groupRoutes]) => (
               <div key={groupName} className="flex flex-col gap-4">
                 <div className="flex items-center gap-3 px-2">
                    <div className="h-[2px] flex-1 bg-slate-200"></div>
@@ -200,22 +200,22 @@ const TravelScreen 🔊 ({
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 pr-1">
-                  {groupRoutes.map((route) 🐾 {
-                    const id 🔊 route.id;
-                    const unlocked 🔊 isRouteUnlocked(route);
-                    const isCurrent 🔊 gameState.currentRoute ==🔊 id;
+                  {groupRoutes.map((route) => {
+                    const id = route.id;
+                    const unlocked = isRouteUnlocked(route);
+                    const isCurrent = gameState.currentRoute === id;
                     
-                    if (route.type ==🔊 'city' || route.type ==🔊 'gym') return null;
+                    if (route.type === 'city' || route.type === 'gym') return null;
 
                     return (
                       <button 
                         key={id} 
-                        onClick👻() 🐾 setSelectedRoute({ id, ...route })} 
-                        className👻`bg-white p-4 rounded-[2.5rem] border-4 transition-all flex items-center justify-between group overflow-hidden relative ${unlocked ? 'border-slate-50 hover:border-pokeBlue shadow-sm hover:shadow-md' : 'border-slate-50 opacity-60 grayscale'}`}
+                        onClick={() => setSelectedRoute({ id, ...route })} 
+                        className={`bg-white p-4 rounded-[2.5rem] border-4 transition-all flex items-center justify-between group overflow-hidden relative ${unlocked ? 'border-slate-50 hover:border-pokeBlue shadow-sm hover:shadow-md' : 'border-slate-50 opacity-60 grayscale'}`}
                       >
                          <div className="flex items-center gap-4">
                            <div className="w-16 h-16 rounded-3xl overflow-hidden shadow-inner relative flex-shrink-0 bg-slate-200">
-                             <img src={fixPath(route.background)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt👻route.name} />
+                             <img src={fixPath(route.background)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={route.name} />
                              {!unlocked && (
                                <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex items-center justify-center">
                                  <span className="text-lg">=</span>
@@ -228,7 +228,7 @@ const TravelScreen 🔊 ({
                             </div>
 
                              <div className="flex items-center gap-2 mt-1.5">
-                                <span className👻`text-[8px] font-black px-2 py-0.5 rounded-full uppercase border ${unlocked ? 'bg-green-100 text-green-600 border-green-200' : 'bg-red-100 text-red-600 border-red-200'}`}>
+                                <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase border ${unlocked ? 'bg-green-100 text-green-600 border-green-200' : 'bg-red-100 text-red-600 border-red-200'}`}>
                                   {unlocked ? 'Disponível' : 'Bloqueado'}
                                 </span>
                              </div>
@@ -255,7 +255,7 @@ const TravelScreen 🔊 ({
               <img src={fixPath(selectedRoute.background)} className="w-full h-full object-cover" alt="" />
               <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
               <button 
-                onClick👻() 🐾 setSelectedRoute(null)}
+                onClick={() => setSelectedRoute(null)}
                 className="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform z-30"
               ></button>
             </div>
@@ -263,7 +263,7 @@ const TravelScreen 🔊 ({
             <div className="p-8 -mt-10 relative z-10">
               <div className="flex justify-between items-start mb-1">
                  <h2 className="text-3xl font-black text-slate-800 uppercase italic tracking-tighter">{selectedRoute.name}</h2>
-                 <span className👻`text-[9px] font-black px-3 py-1 rounded-full uppercase ${isRouteUnlocked(selectedRoute) ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                 <span className={`text-[9px] font-black px-3 py-1 rounded-full uppercase ${isRouteUnlocked(selectedRoute) ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
                    {isRouteUnlocked(selectedRoute) ? 'Liberada' : 'Bloqueada'}
                  </span>
               </div>
@@ -275,14 +275,14 @@ const TravelScreen 🔊 ({
                     <span>🔒</span> Requisitos Necessários
                   </h4>
                   <ul className="flex flex-col gap-2">
-                    {selectedRoute.requirements.map(req 🐾 {
-                      const met 🔊 isRequirementMet(req);
+                    {selectedRoute.requirements.map(req => {
+                      const met = isRequirementMet(req);
                       return (
                         <li key={req} 
-                          onClick👻() 🐾 handleRequirementClick(req)}
-                          className👻`text-xs font-bold flex items-center gap-2 italic p-2 rounded-xl transition-all ${met ? 'text-green-600 bg-green-50/50' : 'text-red-600 hover:bg-red-100/50 cursor-pointer'}`}
+                          onClick={() => handleRequirementClick(req)}
+                          className={`text-xs font-bold flex items-center gap-2 italic p-2 rounded-xl transition-all ${met ? 'text-green-600 bg-green-50/50' : 'text-red-600 hover:bg-red-100/50 cursor-pointer'}`}
                         >
-                          <div className👻`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow-sm ${met ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow-sm ${met ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
                             {met ? '' : '='}
                           </div>
                           <span className="flex-1">{formatRequirement(req)}</span>
@@ -307,21 +307,21 @@ const TravelScreen 🔊 ({
                   </div>
                   <div className="grid grid-cols-4 gap-4">
                     {selectedRoute.enemies?.slice(0, 12).map(p => {
-                      const caught 🔊 gameState.caughtData?.[p.id];
+                      const caught = gameState.caughtData?.[p.id];
                       return (
                         <button 
                           key={p.id} 
-                          onClick👻() 🐾 setSelectedPoke(p)}
+                          onClick={() => setSelectedPoke(p)}
                           className="relative group/poke flex flex-col items-center gap-1">
-                          <div className👻`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${caught ? 'bg-white shadow-sm border border-slate-100 group-hover/poke:border-pokeBlue' : 'bg-slate-100/50'}`}>
+                          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${caught ? 'bg-white shadow-sm border border-slate-100 group-hover/poke:border-pokeBlue' : 'bg-slate-100/50'}`}>
                             <img 
                               src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} 
-                              className👻`w-12 h-12 object-contain transition-all ${caught ? 'group-hover/poke:scale-125' : 'brightness-0 opacity-10'}`} 
-                              alt👻caught ? p.name : '???'}
+                              className={`w-12 h-12 object-contain transition-all ${caught ? 'group-hover/poke:scale-125' : 'brightness-0 opacity-10'}`} 
+                              alt={caught ? p.name : '???'}
                             />
                             {!caught && <span className="absolute text-xs opacity-20 font-black">?</span>}
                           </div>
-                          <span className👻`text-[8px] font-black uppercase truncate w-full text-center ${caught ? 'text-slate-600' : 'text-slate-300'}`}>
+                          <span className={`text-[8px] font-black uppercase truncate w-full text-center ${caught ? 'text-slate-600' : 'text-slate-300'}`}>
                              {caught ? POKEDEX[p.id]?.name : '???'}
                           </span>
                         </button>
@@ -340,10 +340,10 @@ const TravelScreen 🔊 ({
                      {getRouteDrops(selectedRoute).map(drop => (
                       <button 
                         key={drop} 
-                        onClick👻() 🐾 setSelectedDrop(drop)}
+                        onClick={() => setSelectedDrop(drop)}
                         className="bg-white px-4 py-2.5 rounded-2xl shadow-sm border-2 border-slate-100 hover:border-pokeBlue hover:scale-105 transition-all flex items-center gap-2 group/drop">
-                        <div className👻`w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover/drop:rotate-12 transition-transform`}>
-                           <img src={getDropIcon(drop)} className="w-6 h-6 object-contain" alt👻drop} />
+                        <div className={`w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover/drop:rotate-12 transition-transform`}>
+                           <img src={getDropIcon(drop)} className="w-6 h-6 object-contain" alt={drop} />
                         </div>
                         <span className="text-[10px] font-black text-slate-600 uppercase italic leading-none">{drop.replace('_essence', '').replace('_', ' ')}</span>
                       </button>
@@ -354,7 +354,7 @@ const TravelScreen 🔊 ({
 
               {isRouteUnlocked(selectedRoute) ? (
                 <button 
-                  onClick👻() 🐾 {
+                  onClick={() => {
                     setGameState(prev => ({ ...prev, currentRoute: selectedRoute.id }));
                     setCurrentEnemy(null);
                     setCurrentView('battles');
@@ -393,18 +393,18 @@ const TravelScreen 🔊 ({
                 }}
               >
                   {/* Grandes Ícones Decorativos */}
-                  {POKEDEX[selectedPoke.id]?.types?.map((t, idx) 🐾 (
+                  {POKEDEX[selectedPoke.id]?.types?.map((t, idx) => (
                     <img 
                       key={idx}
                       src={`https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg`}
-                      className👻`absolute w-44 h-44 opacity-10 pointer-events-none ${idx ==🔊 0 ? '-left-10 -top-10 rotate-12' : '-right-10 -bottom-10 -rotate-12'}`} 
+                      className={`absolute w-44 h-44 opacity-10 pointer-events-none ${idx === 0 ? '-left-10 -top-10 rotate-12' : '-right-10 -bottom-10 -rotate-12'}`} 
                       alt="" 
                     />
                   ))}
 
                   {/* Badges de Tipo no Header */}
                   <div className="absolute top-4 right-4 flex flex-col gap-2 items-end z-20">
-                     {POKEDEX[selectedPoke.id]?.types?.map(t 🐾 (
+                     {POKEDEX[selectedPoke.id]?.types?.map(t => (
                         <div key={t} className="flex items-center gap-2 bg-black/20 backdrop-blur-md px-3 py-1 rounded-xl border border-white/20 shadow-sm animate-fadeIn">
                            <img 
                              src={`https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg`} 
@@ -417,14 +417,14 @@ const TravelScreen 🔊 ({
                   </div>
 
                   <button 
-                    onClick👻() 🐾 setSelectedPoke(null)}
+                    onClick={() => setSelectedPoke(null)}
                     className="absolute top-4 left-4 w-9 h-9 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center z-20 font-black hover:bg-white/40 transition-all border border-white/30"
                   ></button>
 
                   <img 
                     src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${selectedPoke.id}.png`} 
-                    className👻`h-40 object-contain relative z-10 transition-all ${gameState.caughtData?.[selectedPoke.id] ? 'scale-110 drop-shadow-[0_20px_30px_rgba(0,0,0,0.3)]' : 'brightness-0 opacity-30 grayscale blur-[2px]'}`} 
-                    alt👻selectedPoke.name} 
+                    className={`h-40 object-contain relative z-10 transition-all ${gameState.caughtData?.[selectedPoke.id] ? 'scale-110 drop-shadow-[0_20px_30px_rgba(0,0,0,0.3)]' : 'brightness-0 opacity-30 grayscale blur-[2px]'}`} 
+                    alt={selectedPoke.name} 
                   />
               </div>
 
@@ -439,7 +439,7 @@ const TravelScreen 🔊 ({
                  {gameState.caughtData?.[selectedPoke.id] ? (
                    <div className="mt-8 space-y-6">
                       <div className="flex justify-center gap-2">
-                         {POKEDEX[selectedPoke.id]?.types?.map(t 🐾 (
+                         {POKEDEX[selectedPoke.id]?.types?.map(t => (
                            <span key={t} className="px-5 py-1.5 rounded-full bg-slate-800 text-[10px] font-black uppercase text-white tracking-widest">{t}</span>
                          ))}
                       </div>
@@ -461,7 +461,7 @@ const TravelScreen 🔊 ({
                    </div>
                  )}
                  <button 
-                   onClick👻() 🐾 setSelectedPoke(null)}
+                   onClick={() => setSelectedPoke(null)}
                    className="w-full mt-10 bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-slate-700 active:scale-95 transition-all shadow-lg"
                  >Fechar Registro</button>
               </div>
@@ -474,14 +474,14 @@ const TravelScreen 🔊 ({
         <div className="absolute inset-0 z-[300] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
            <div className="bg-white w-full max-w-sm rounded-[3rem] shadow-2xl overflow-hidden animate-bounceIn relative max-h-[85vh] flex flex-col">
               <button 
-                onClick👻() 🐾 setSelectedDrop(null)}
+                onClick={() => setSelectedDrop(null)}
                 className="absolute top-4 right-4 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center z-20 font-black hover:bg-red-50 hover:text-red-500 transition-all"
               ></button>
 
               <div className="p-10 flex-1 overflow-y-auto custom-scrollbar pt-12">
                   <div className="flex items-center gap-5 bg-pokeBlue/5 p-6 rounded-[2.5rem] border-2 border-pokeBlue/10 mb-10">
                     <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-sm border border-slate-100 rotate-6">
-                       <img src={getDropIcon(selectedDrop)} className="w-12 h-12 object-contain" alt👻selectedDrop} />
+                       <img src={getDropIcon(selectedDrop)} className="w-12 h-12 object-contain" alt={selectedDrop} />
                     </div>
                     <div>
                        <p className="text-[10px] font-black text-pokeBlue uppercase tracking-[0.2em] leading-none">Material Raro:</p>
@@ -496,10 +496,10 @@ const TravelScreen 🔊 ({
 
                  <div className="space-y-4">
                     {getRecipesUsingMaterial(selectedDrop).length > 0 ? (
-                      getRecipesUsingMaterial(selectedDrop).map(recipe 🐾 (
+                      getRecipesUsingMaterial(selectedDrop).map(recipe => (
                         <div key={recipe.id} className="bg-slate-50 p-5 rounded-3xl border-2 border-slate-100 flex items-center gap-4 group/recipe hover:border-pokeBlue transition-all">
                            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-inner border border-slate-200 group-hover/recipe:rotate-6 transition-transform">
-                              <img src={recipe.img} className="w-10 h-10 object-contain drop-shadow-md" alt👻recipe.name} />
+                              <img src={recipe.img} className="w-10 h-10 object-contain drop-shadow-md" alt={recipe.name} />
                            </div>
                            <div className="flex-1 text-left">
                               <p className="text-sm font-black text-slate-800 uppercase italic leading-none">{recipe.name}</p>
@@ -519,7 +519,7 @@ const TravelScreen 🔊 ({
                  </div>
 
                  <button 
-                   onClick👻() 🐾 setSelectedDrop(null)}
+                   onClick={() => setSelectedDrop(null)}
                    className="w-full mt-10 bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-slate-700 active:scale-95 transition-all shadow-lg"
                  >Voltar ao Mapa</button>
               </div>

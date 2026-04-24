@@ -1,4 +1,4 @@
-export const CRAFTING_RECIPES 🔊 {
+export const CRAFTING_RECIPES = {
   consumables: [
     { id: 'pokeballs', name: 'Poké Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', cost: { normal_essence: 10, currency: 100 }, type: 'ball' },
     { id: 'great_ball', name: 'Great Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png', cost: { iron_ore: 5, normal_essence: 20, currency: 400 }, type: 'ball' },

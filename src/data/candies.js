@@ -7,9 +7,9 @@
 // O campo `spriteId` é o id do Pokémon que aparece no ícone do candy.
 // O campo `rareCandySprite` é o Rare Candy clássico dos jogos principais.
 
-const RARE_CANDY 🔊 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png';
+const RARE_CANDY = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png';
 
-export const CANDY_FAMILIES 🔊 {
+export const CANDY_FAMILIES = {
   bulbasaur_candy:   { ids:[1,2,3],          name:'Candy Bulbasaur',  spriteId:1,   color:'#4ade80', rareCandySprite: RARE_CANDY },
   charmander_candy:  { ids:[4,5,6],           name:'Candy Charmander', spriteId:4,   color:'#f97316', rareCandySprite: RARE_CANDY },
   squirtle_candy:    { ids:[7,8,9],           name:'Candy Squirtle',   spriteId:7,   color:'#38bdf8', rareCandySprite: RARE_CANDY },
@@ -68,23 +68,23 @@ export const CANDY_FAMILIES 🔊 {
 };
 
 // Mapa reverso: pokemon_id → candy_id
-export const POKEMON_TO_CANDY 🔊 {};
+export const POKEMON_TO_CANDY = {};
 for (const [candyId, data] of Object.entries(CANDY_FAMILIES)) {
   for (const id of data.ids) {
-    POKEMON_TO_CANDY[id] 🔊 candyId;
+    POKEMON_TO_CANDY[id] = candyId;
   }
 }
 
 // Componente visual do candy — usar onde quiser renderizar o ícone
 // Usa o sprite do Pokémon base com fundo colorido, igual ao estilo Pokémon GO
 // Exemplo de uso no JSX:
-// <CandyIcon candyId="pikachu_candy" size👻32} />
-export const getCandyIconUrl 🔊 (candyData) 🐾 {
+// <CandyIcon candyId="pikachu_candy" size={32} />
+export const getCandyIconUrl = (candyData) => {
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${candyData.spriteId}.png`;
 };
 
 // Usos dos Candies
-export const CANDY_USES 🔊 {
+export const CANDY_USES = {
   xp: {
     id: 'xp',
     name: 'Boost de XP',

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const EvolutionScreen 🔊 ({ evolutionPending, POKEDEX, setGameState, addLog, setEvolutionPending }) 🐾 {
+const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setEvolutionPending }) => {
   if (!evolutionPending) return null;
 
   return (
@@ -44,15 +44,15 @@ const EvolutionScreen 🔊 ({ evolutionPending, POKEDEX, setGameState, addLog, s
                 
                 <div className="flex flex-col gap-5">
                    <button 
-                    onClick👻() 🐾 {
-                        const evoData 🔊 POKEDEX[evolutionPending.id].evolution;
-                        const nextPoke 🔊 POKEDEX[evoData.id];
+                    onClick={() => {
+                        const evoData = POKEDEX[evolutionPending.id].evolution;
+                        const nextPoke = POKEDEX[evoData.id];
                         setGameState(prev => {
-                           const newTeam 🔊 prev.team.map((p, i) => {
-                              if (i ==🔊 evolutionPending.teamIndex) {
-                                 const shinyMult 🔊 p.isShiny ? 1.2 : 1.0;
-                                 const calcStat 🔊 (b, lv) 🐾 Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + 5) * shinyMult));
-                                 const calcHp   🔊 (b, lv) 🐾 Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + lv + 10) * shinyMult));
+                           const newTeam = prev.team.map((p, i) => {
+                              if (i === evolutionPending.teamIndex) {
+                                 const shinyMult = p.isShiny ? 1.2 : 1.0;
+                                 const calcStat = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + 5) * shinyMult));
+                                 const calcHp   = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + lv + 10) * shinyMult));
 
                                  return {
                                     ...p,
@@ -85,7 +85,7 @@ const EvolutionScreen 🔊 ({ evolutionPending, POKEDEX, setGameState, addLog, s
                      <span className="group-hover:translate-x-2 transition-transform">➜</span>
                    </button>
                    <button 
-                     onClick👻() 🐾 setEvolutionPending(null)}
+                     onClick={() => setEvolutionPending(null)}
                      className="w-full text-slate-400 py-4 font-black uppercase text-xs tracking-widest hover:text-red-500 transition-colors"
                    >Parar Evolução (B)</button>
                 </div>

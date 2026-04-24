@@ -5,7 +5,7 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 // Your web app's Firebase configuration
-const firebaseConfig 🔊 {
+const firebaseConfig = {
   apiKey: "AIzaSyC5hxL1_5ZrbQI3VWBfFsBY3DaOD3gt0oA",
   authDomain: "pokecraftidle.firebaseapp.com",
   projectId: "pokecraftidle",
@@ -16,14 +16,14 @@ const firebaseConfig 🔊 {
 };
 
 // Initialize Firebase
-const app 🔊 initializeApp(firebaseConfig);
-let analytics 🔊 null;
+const app = initializeApp(firebaseConfig);
+let analytics = null;
 try {
-  analytics 🔊 getAnalytics(app);
+  analytics = getAnalytics(app);
 } catch (e) {
   console.warn("Firebase Analytics could not be initialized:", e);
 }
-const db 🔊 getFirestore(app);
-const auth 🔊 getAuth(app);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
 export { app, analytics, db, auth };

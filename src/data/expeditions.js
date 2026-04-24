@@ -8,7 +8,7 @@
 // Badge 7 (Blaine)   â Vulcão de Cinnabar
 // Badge 8 (Giovanni) â Selva do Dragão
 
-export const EXPEDITION_BIOMES 🔊 {
+export const EXPEDITION_BIOMES = {
 
   floresta: {
     id: 'floresta',
@@ -16,7 +16,7 @@ export const EXPEDITION_BIOMES 🔊 {
     badge: 1,
     badgeName: 'Insígnia da Rocha',
     leaderName: 'Brock',
-    icon: '🌊'2',
+    icon: '🌲',
     imagePrompt: 'floresta_viridian',
     bg: "url('/expedition_floresta.png') center/cover",
     description: 'Rica em Seda, Apricorns e Essências de Inseto.',
@@ -39,8 +39,7 @@ export const EXPEDITION_BIOMES 🔊 {
     badge: 2,
     badgeName: 'Insígnia da Cascata',
     leaderName: 'Misty',
-    icon: '🌊'
-',
+    icon: '🌊',
     imagePrompt: 'oceano_cerulean',
     bg: "url('/expedition_oceano.png') center/cover",
     description: 'Essências de Água, Pérolas e itens marinhos.',
@@ -63,7 +62,7 @@ export const EXPEDITION_BIOMES 🔊 {
     badge: 3,
     badgeName: 'Insígnia do Trovão',
     leaderName: 'Lt. Surge',
-    icon: '>J',
+    icon: '👊',
     imagePrompt: 'dojo_lutador',
     bg: "url('/expedition_campo_lutador.png') center/cover",
     description: 'Itens de Luta, Black Belt e Muscle Band.',
@@ -86,7 +85,7 @@ export const EXPEDITION_BIOMES 🔊 {
     badge: 4,
     badgeName: 'Insígnia do Arco-Íris',
     leaderName: 'Erika',
-    icon: '🌊'>',
+    icon: '🌊',
     imagePrompt: 'safari_zone',
     bg: "url('/expedition_pradaria.png') center/cover",
     description: 'Penas, Pó Rosa e itens raros de safári.',
@@ -155,7 +154,7 @@ export const EXPEDITION_BIOMES 🔊 {
     badge: 7,
     badgeName: 'Insígnia do Vulcão',
     leaderName: 'Blaine',
-    icon: '🌊'',
+    icon: '🔥',
     imagePrompt: 'vulcao_cinnabar',
     bg: "url('/expedition_vulcao.png') center/cover",
     description: 'Essências de Fogo, Pedras Fogo e Carvão.',
@@ -178,7 +177,7 @@ export const EXPEDITION_BIOMES 🔊 {
     badge: 8,
     badgeName: 'Insígnia da Terra',
     leaderName: 'Giovanni',
-    icon: '=	',
+    icon: '🐉',
     imagePrompt: 'selva_dragao_victory_road',
     bg: "url('/expedition_selva_dragao.png') center/cover",
     description: 'Escamas de Dragão e itens lendários.',
@@ -199,60 +198,60 @@ export const EXPEDITION_BIOMES 🔊 {
 
 // Verificar se expedição está desbloqueada
 // requires é o número do badge (1-8)
-export const isExpeditionUnlocked 🔊 (biome, gameState) 🐾 {
+export const isExpeditionUnlocked = (biome, gameState) => {
   if (!biome.requires) return true;
   return (gameState.badges || []).includes(biome.requires);
 };
 
 // Calcular eficiência do Pokémon para um bioma
-export const calcExpeditionEfficiency 🔊 (pokemon, biome) 🐾 {
-  const pokeTypes 🔊 pokemon.types || [pokemon.type || 'Normal'];
-  let efficiency 🔊 1.0;
+export const calcExpeditionEfficiency = (pokemon, biome) => {
+  const pokeTypes = pokemon.types || [pokemon.type || 'Normal'];
+  let efficiency = 1.0;
   for (const t of pokeTypes) {
-    if (biome.favoredTypes.includes(t))      efficiency 🔊 Math.max(efficiency, 1.5);
-    else if (biome.neutralTypes.includes(t)) efficiency 🔊 Math.max(efficiency, 1.0);
-    else if (biome.enemyType.includes(t))    efficiency 🔊 Math.min(efficiency, 0.5);
+    if (biome.favoredTypes.includes(t))      efficiency = Math.max(efficiency, 1.5);
+    else if (biome.neutralTypes.includes(t)) efficiency = Math.max(efficiency, 1.0);
+    else if (biome.enemyType.includes(t))    efficiency = Math.min(efficiency, 0.5);
   }
-  const levelBonus 🔊 1 + (pokemon.level || 1) / 100;
+  const levelBonus = 1 + (pokemon.level || 1) / 100;
   return efficiency * levelBonus;
 };
 
 // Calcular duração real da expedição em milissegundos
-export const calcExpeditionDuration 🔊 (team, biome) 🐾 {
+export const calcExpeditionDuration = (team, biome) => {
   if (!team.length) return biome.baseDuration * 60 * 1000;
-  const avgLevel 🔊 team.reduce((s, p) 🐾 s + (p.level || 1), 0) / team.length;
-  const avgEff   🔊 team.reduce((s, p) 🐾 s + calcExpeditionEfficiency(p, biome), 0) / team.length;
-  const levelReduction 🔊 Math.min(0.6, avgLevel / 100);
-  const effReduction   🔊 (avgEff - 1) * 0.2;
-  const finalMult      🔊 Math.max(0.3, 1 - levelReduction - effReduction);
+  const avgLevel = team.reduce((s, p) => s + (p.level || 1), 0) / team.length;
+  const avgEff   = team.reduce((s, p) => s + calcExpeditionEfficiency(p, biome), 0) / team.length;
+  const levelReduction = Math.min(0.6, avgLevel / 100);
+  const effReduction   = (avgEff - 1) * 0.2;
+  const finalMult      = Math.max(0.3, 1 - levelReduction - effReduction);
   return Math.floor(biome.baseDuration * finalMult * 60 * 1000);
 };
 
 // Calcular drops ao retornar da expedição
-export const calcExpeditionDrops 🔊 (team, biome, durationMs) 🐾 {
-  const drops 🔊 {};
-  const durationMinutes 🔊 durationMs / 60000;
-  const avgEff   🔊 team.reduce((s, p) 🐾 s + calcExpeditionEfficiency(p, biome), 0) / team.length;
-  const avgLevel 🔊 team.reduce((s, p) 🐾 s + (p.level || 1), 0) / team.length;
-  const dropRate 🔊 avgEff * (1 + avgLevel / 50);
-  const totalRolls 🔊 Math.floor(durationMinutes * dropRate * 0.8);
-  for (let i 🔊 0; i < totalRolls; i++) {
-    const roll 🔊 Math.random();
-    const pool 🔊 roll < 0.60 ? biome.drops.common
+export const calcExpeditionDrops = (team, biome, durationMs) => {
+  const drops = {};
+  const durationMinutes = durationMs / 60000;
+  const avgEff   = team.reduce((s, p) => s + calcExpeditionEfficiency(p, biome), 0) / team.length;
+  const avgLevel = team.reduce((s, p) => s + (p.level || 1), 0) / team.length;
+  const dropRate = avgEff * (1 + avgLevel / 50);
+  const totalRolls = Math.floor(durationMinutes * dropRate * 0.8);
+  for (let i = 0; i < totalRolls; i++) {
+    const roll = Math.random();
+    const pool = roll < 0.60 ? biome.drops.common
                : roll < 0.90 ? biome.drops.uncommon
                :                biome.drops.rare;
-    const item 🔊 pool[Math.floor(Math.random() * pool.length)];
-    drops[item] 🔊 (drops[item] || 0) + 1;
+    const item = pool[Math.floor(Math.random() * pool.length)];
+    drops[item] = (drops[item] || 0) + 1;
   }
   return drops;
 };
 
 // Calcular XP ganho por cada Pokémon na expedição
-export const calcExpeditionXP 🔊 (team, biome, durationMs) 🐾 {
-  const durationMinutes 🔊 durationMs / 60000;
+export const calcExpeditionXP = (team, biome, durationMs) => {
+  const durationMinutes = durationMs / 60000;
   return team.map(p => {
-    const eff 🔊 calcExpeditionEfficiency(p, biome);
-    const xpGained 🔊 Math.floor(biome.xpPerMinute * durationMinutes * eff);
+    const eff = calcExpeditionEfficiency(p, biome);
+    const xpGained = Math.floor(biome.xpPerMinute * durationMinutes * eff);
     return { ...p, xpGained };
   });
 };

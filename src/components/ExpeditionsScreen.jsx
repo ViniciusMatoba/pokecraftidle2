@@ -5,11 +5,11 @@ import {
   calcExpeditionDuration,
 } from '../data/expeditions';
 
-const MAX_EXPEDITION_TEAM 🔊 3;
+const MAX_EXPEDITION_TEAM = 3;
 
-const EfficiencyBadge 🔊 ({ value }) 🐾 {
-  const color 🔊 value >🔊 1.4 ? '#22c55e' : value >🔊 1.0 ? '#f59e0b' : '#ef4444';
-  const label 🔊 value >🔊 1.4 ? 'Ótimo' : value >🔊 1.0 ? 'Neutro' : 'Fraco';
+const EfficiencyBadge = ({ value }) => {
+  const color = value >= 1.4 ? '#22c55e' : value >= 1.0 ? '#f59e0b' : '#ef4444';
+  const label = value >= 1.4 ? 'Ótimo' : value >= 1.0 ? 'Neutro' : 'Fraco';
   return (
     <span
       className="text-[9px] font-black px-2 py-0.5 rounded-full"
@@ -20,7 +20,7 @@ const EfficiencyBadge 🔊 ({ value }) 🐾 {
   );
 };
 
-const ExpeditionAlertModal 🔊 ({ req, onClose }) 🐾 (
+const ExpeditionAlertModal = ({ req, onClose }) => (
   <div className="absolute inset-0 z-[400] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md animate-fadeIn">
     <div className="bg-slate-900 w-full max-w-xs rounded-[2.5rem] p-8 border border-white/10 shadow-2xl animate-bounceIn text-center">
       <div className="text-4xl mb-4">=</div>
@@ -31,7 +31,7 @@ const ExpeditionAlertModal 🔊 ({ req, onClose }) 🐾 (
       </p>
       <div className="flex flex-col gap-3">
         <button 
-          onClick👻onClose}
+          onClick={onClose}
           className="w-full bg-white text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-yellow-400 transition-all shadow-xl active:scale-95"
         >
           Entendido!
@@ -41,64 +41,64 @@ const ExpeditionAlertModal 🔊 ({ req, onClose }) 🐾 (
   </div>
 );
 
-const formatTime 🔊 (ms) 🐾 {
-  const totalSeconds 🔊 Math.floor(ms / 1000);
-  const h 🔊 Math.floor(totalSeconds / 3600);
-  const m 🔊 Math.floor((totalSeconds % 3600) / 60);
-  const s 🔊 totalSeconds % 60;
+const formatTime = (ms) => {
+  const totalSeconds = Math.floor(ms / 1000);
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
   if (h > 0) return `${h}h ${m}m`;
   if (m > 0) return `${m}m ${s}s`;
   return `${s}s`;
 };
 
-const ExpeditionsScreen 🔊 ({
+const ExpeditionsScreen = ({
   gameState,
   onClose,
   onStartExpedition,
   onClaimExpedition,
-}) 🐾 {
-  const [selectedBiome, setSelectedBiome] 🔊 useState(null);
-  const [selectedTeam, setSelectedTeam] 🔊 useState([]);
-  const [alertReq, setAlertReq] 🔊 useState(null);
-  const [now, setNow] 🔊 useState(Date.now());
+}) => {
+  const [selectedBiome, setSelectedBiome] = useState(null);
+  const [selectedTeam, setSelectedTeam] = useState([]);
+  const [alertReq, setAlertReq] = useState(null);
+  const [now, setNow] = useState(Date.now());
 
-  useEffect(() 🐾 {
-    const timer 🔊 setInterval(() 🐾 setNow(Date.now()), 1000);
-    return () 🐾 clearInterval(timer);
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
-  const activeExpeditions 🔊 gameState.expeditions || {};
-  const pcBox 🔊 gameState.pc || [];
+  const activeExpeditions = gameState.expeditions || {};
+  const pcBox = gameState.pc || [];
 
-  const isUnlocked 🔊 (biome) 🐾 {
+  const isUnlocked = (biome) => {
     if (!biome.requires) return true;
     return (gameState.badges || []).includes(biome.requires);
   };
 
-  const isActive   🔊 (id) 🐾 !!activeExpeditions[id];
-  const isComplete 🔊 (id) 🐾 {
-    const exp 🔊 activeExpeditions[id];
-    return exp && now >🔊 exp.endsAt;
+  const isActive   = (id) => !!activeExpeditions[id];
+  const isComplete = (id) => {
+    const exp = activeExpeditions[id];
+    return exp && now >= exp.endsAt;
   };
 
-  const availablePC 🔊 pcBox.filter(p =>
+  const availablePC = pcBox.filter(p =>
     !Object.values(activeExpeditions).some(e =>
-      e.team?.find(t 🐾 t.instanceId ==🔊 p.instanceId)
+      e.team?.find(t => t.instanceId === p.instanceId)
     )
   );
 
-  const recommendTeam 🔊 (biome) 🐾 {
-    const scored 🔊 availablePC
+  const recommendTeam = (biome) => {
+    const scored = availablePC
       .map(p => ({ p, score: calcExpeditionEfficiency(p, biome) * (p.level || 1) }))
-      .sort((a, b) 🐾 b.score - a.score);
-    setSelectedTeam(scored.slice(0, MAX_EXPEDITION_TEAM).map(s 🐾 s.p));
+      .sort((a, b) => b.score - a.score);
+    setSelectedTeam(scored.slice(0, MAX_EXPEDITION_TEAM).map(s => s.p));
   };
 
-  const togglePokemon 🔊 (poke) 🐾 {
+  const togglePokemon = (poke) => {
     setSelectedTeam(prev => {
-      const exists 🔊 prev.find(p 🐾 p.instanceId ==🔊 poke.instanceId);
-      if (exists) return prev.filter(p 🐾 p.instanceId !=🔊 poke.instanceId);
-      if (prev.length >🔊 MAX_EXPEDITION_TEAM) return prev;
+      const exists = prev.find(p => p.instanceId === poke.instanceId);
+      if (exists) return prev.filter(p => p.instanceId !== poke.instanceId);
+      if (prev.length >= MAX_EXPEDITION_TEAM) return prev;
       return [...prev, poke];
     });
   };
@@ -107,15 +107,15 @@ const ExpeditionsScreen 🔊 ({
     <div className="absolute inset-0 z-[110] flex flex-col bg-slate-950 animate-fadeIn">
       {alertReq && (
         <ExpeditionAlertModal 
-          req👻alertReq} 
-          onClose👻() 🐾 setAlertReq(null)} 
+          req={alertReq} 
+          onClose={() => setAlertReq(null)} 
         />
       )}
 
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b border-white/10 shrink-0">
         <button
-          onClick👻onClose}
+          onClick={onClose}
           className="bg-white/10 hover:bg-white/20 text-white p-3 rounded-2xl transition-all active:scale-95"
         >
           ←
@@ -137,14 +137,14 @@ const ExpeditionsScreen 🔊 ({
             Em Andamento
           </p>
           <div className="flex gap-2 overflow-x-auto pb-1">
-            {Object.entries(activeExpeditions).map(([biomeId, exp]) 🐾 {
-              const biome     🔊 EXPEDITION_BIOMES[biomeId];
-              const done      🔊 now >🔊 exp.endsAt;
-              const remaining 🔊 Math.max(0, exp.endsAt - now);
+            {Object.entries(activeExpeditions).map(([biomeId, exp]) => {
+              const biome     = EXPEDITION_BIOMES[biomeId];
+              const done      = now >= exp.endsAt;
+              const remaining = Math.max(0, exp.endsAt - now);
               return (
                 <div
                   key={biomeId}
-                  className👻`shrink-0 rounded-2xl p-3 min-w-[140px] border ${
+                  className={`shrink-0 rounded-2xl p-3 min-w-[140px] border ${
                     done
                       ? 'border-green-500/50 bg-green-500/10'
                       : 'border-white/10 bg-white/5'
@@ -154,7 +154,7 @@ const ExpeditionsScreen 🔊 ({
                   <p className="text-[10px] font-black text-white uppercase leading-tight mt-1">
                     {biome?.name}
                   </p>
-                  <p className👻`text-[10px] font-bold mt-1 ${done ? 'text-green-400' : 'text-white/50'}`}>
+                  <p className={`text-[10px] font-bold mt-1 ${done ? 'text-green-400' : 'text-white/50'}`}>
                     {done ? '✅ Pronto!' : `⏳ ${formatTime(remaining)}`}
                   </p>
                   <p className="text-[9px] text-white/30 mt-0.5">
@@ -162,7 +162,7 @@ const ExpeditionsScreen 🔊 ({
                   </p>
                   {done && (
                     <button
-                      onClick👻() 🐾 onClaimExpedition(biomeId)}
+                      onClick={() => onClaimExpedition(biomeId)}
                       className="mt-2 w-full bg-green-500 text-white text-[10px] font-black py-1.5 rounded-xl uppercase active:scale-95 transition-all"
                     >
                       Coletar!
@@ -182,20 +182,20 @@ const ExpeditionsScreen 🔊 ({
           /* Grid de biomas */
           <div className="p-4 grid grid-cols-2 gap-3">
             {Object.values(EXPEDITION_BIOMES).map(biome => {
-              const unlocked 🔊 isUnlocked(biome);
-              const active   🔊 isActive(biome.id);
-              const complete 🔊 isComplete(biome.id);
+              const unlocked = isUnlocked(biome);
+              const active   = isActive(biome.id);
+              const complete = isComplete(biome.id);
               return (
                 <div
                   key={biome.id}
-                  onClick👻() 🐾 {
+                  onClick={() => {
                     if (!unlocked) {
                       setAlertReq(biome.leaderName);
                     } else if (!active) {
                       setSelectedBiome(biome);
                     }
                   }}
-                  className👻`relative rounded-[1.5rem] overflow-hidden shadow-xl transition-all ${
+                  className={`relative rounded-[1.5rem] overflow-hidden shadow-xl transition-all ${
                     unlocked && !active
                       ? 'cursor-pointer hover:scale-[1.03] active:scale-[0.97]'
                       : 'opacity-50 cursor-not-allowed'
@@ -219,7 +219,7 @@ const ExpeditionsScreen 🔊 ({
                     </p>
                     {active && (
                       <span
-                        className👻`mt-2 inline-block text-[9px] font-black px-2 py-0.5 rounded-full ${
+                        className={`mt-2 inline-block text-[9px] font-black px-2 py-0.5 rounded-full ${
                           complete ? 'bg-green-500 text-white' : 'bg-yellow-500 text-black'
                         }`}
                       >
@@ -286,14 +286,14 @@ const ExpeditionsScreen 🔊 ({
                   Time ({selectedTeam.length}/{MAX_EXPEDITION_TEAM})
                 </p>
                 <button
-                  onClick👻() 🐾 recommendTeam(selectedBiome)}
+                  onClick={() => recommendTeam(selectedBiome)}
                   className="bg-blue-600 text-white text-[10px] font-black px-3 py-1.5 rounded-xl uppercase hover:bg-blue-500 transition-all active:scale-95"
                 >
                   ⚡ Recomendar
                 </button>
               </div>
 
-              {selectedTeam.length ==🔊 0 ? (
+              {selectedTeam.length === 0 ? (
                 <p className="text-white/30 text-xs text-center py-4">
                   Selecione Pokémon do PC abaixo ou clique em Recomendar
                 </p>
@@ -307,15 +307,15 @@ const ExpeditionsScreen 🔊 ({
                       <img
                         src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
                         className="w-8 h-8 object-contain"
-                        alt👻p.name}
+                        alt={p.name}
                       />
                       <div>
                         <p className="text-white text-[10px] font-black">{p.name}</p>
                         <p className="text-white/40 text-[9px]">Nv. {p.level}</p>
-                        <EfficiencyBadge value👻calcExpeditionEfficiency(p, selectedBiome)} />
+                        <EfficiencyBadge value={calcExpeditionEfficiency(p, selectedBiome)} />
                       </div>
                       <button
-                        onClick👻() 🐾 togglePokemon(p)}
+                        onClick={() => togglePokemon(p)}
                         className="text-white/40 hover:text-red-400 ml-1 text-sm transition-colors"
                       >
                         
@@ -336,7 +336,7 @@ const ExpeditionsScreen 🔊 ({
                     </p>
                   </div>
                   <button
-                    onClick👻() 🐾 {
+                    onClick={() => {
                       onStartExpedition(selectedBiome.id, selectedTeam);
                       setSelectedBiome(null);
                       setSelectedTeam([]);
@@ -355,7 +355,7 @@ const ExpeditionsScreen 🔊 ({
                 Pokémon no PC — {availablePC.length} disponíveis
               </p>
 
-              {availablePC.length ==🔊 0 ? (
+              {availablePC.length === 0 ? (
                 <div className="bg-white/5 rounded-2xl p-8 text-center border border-white/10">
                   <p className="text-4xl mb-2">📦</p>
                   <p className="text-white/30 text-xs">
@@ -365,14 +365,14 @@ const ExpeditionsScreen 🔊 ({
               ) : (
                 <div className="grid grid-cols-2 gap-2">
                   {availablePC.map(p => {
-                    const selected  🔊 !!selectedTeam.find(s 🐾 s.instanceId ==🔊 p.instanceId);
-                    const eff       🔊 calcExpeditionEfficiency(p, selectedBiome);
-                    const disabled  🔊 !selected && selectedTeam.length >🔊 MAX_EXPEDITION_TEAM;
+                    const selected  = !!selectedTeam.find(s => s.instanceId === p.instanceId);
+                    const eff       = calcExpeditionEfficiency(p, selectedBiome);
+                    const disabled  = !selected && selectedTeam.length >= MAX_EXPEDITION_TEAM;
                     return (
                       <div
                         key={p.instanceId}
-                        onClick👻() 🐾 !disabled && togglePokemon(p)}
-                        className👻`flex items-center gap-3 rounded-2xl p-3 border transition-all ${
+                        onClick={() => !disabled && togglePokemon(p)}
+                        className={`flex items-center gap-3 rounded-2xl p-3 border transition-all ${
                           selected
                             ? 'border-blue-500 bg-blue-500/20 cursor-pointer'
                             : disabled
@@ -384,8 +384,8 @@ const ExpeditionsScreen 🔊 ({
                           <img
                             src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
                             className="w-10 h-10 object-contain"
-                            alt👻p.name}
-                            onError👻e => { e.target.style.display 🔊 'none'; }}
+                            alt={p.name}
+                            onError={e => { e.target.style.display = 'none'; }}
                           />
                           {p.isShiny && (
                             <span className="absolute -top-1 -right-1 text-[8px]">(</span>
@@ -394,7 +394,7 @@ const ExpeditionsScreen 🔊 ({
                         <div className="flex-1 min-w-0">
                           <p className="text-white font-black text-xs truncate">{p.name}</p>
                           <p className="text-white/50 text-[9px]">Nv. {p.level}  {p.type}</p>
-                          <EfficiencyBadge value👻eff} />
+                          <EfficiencyBadge value={eff} />
                         </div>
                         {selected && (
                           <span className="text-blue-400 text-lg shrink-0"></span>
@@ -407,7 +407,7 @@ const ExpeditionsScreen 🔊 ({
             </div>
 
             <button
-              onClick👻() 🐾 { setSelectedBiome(null); setSelectedTeam([]); }}
+              onClick={() => { setSelectedBiome(null); setSelectedTeam([]); }}
               className="w-full bg-white/10 text-white py-4 rounded-2xl font-black uppercase text-sm hover:bg-white/20 transition-all"
             >
               ← Voltar para Biomas

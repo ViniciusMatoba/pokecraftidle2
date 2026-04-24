@@ -1,9 +1,9 @@
-export const APP_VERSION 🔊 '1.8.9';
-export const APP_VERSION_DATE 🔊 '24/04/2026';
+export const APP_VERSION = '1.8.9';
+export const APP_VERSION_DATE = '24/04/2026';
 
 export const NATURE_LIST = ['Adamant', 'Modest', 'Jolly', 'Timid', 'Bold', 'Calm', 'Impish', 'Careful', 'Brave', 'Quiet'];
 
-export const TYPE_COLORS 🔊 {
+export const TYPE_COLORS = {
   Normal:'bg-slate-400', Fire:'bg-orange-500', Water:'bg-blue-500',
   Electric:'bg-yellow-400', Grass:'bg-green-500', Poison:'bg-purple-500',
   Bug:'bg-lime-500', Flying:'bg-sky-400', Rock:'bg-amber-600',
@@ -12,7 +12,7 @@ export const TYPE_COLORS 🔊 {
   Dragon:'bg-indigo-500', Fairy:'bg-pink-400', Ice:'bg-cyan-400',
 };
 
-export const NATURES 🔊 {
+export const NATURES = {
   Adamant: { plus: 'attack', minus: 'spAtk' },
   Modest: { plus: 'spAtk', minus: 'attack' },
   Jolly: { plus: 'speed', minus: 'spAtk' },
@@ -25,7 +25,7 @@ export const NATURES 🔊 {
   Quiet: { plus: 'spAtk', minus: 'speed' },
 };
 
-export const GYM_LEVEL_CAPS 🔊 {
+export const GYM_LEVEL_CAPS = {
   boulder_badge: 14,
   cascade_badge: 21,
   thunder_badge: 24,
@@ -58,7 +58,7 @@ export const trainerAvatars = [
   { id: 'moon', name: 'Moon', img: 'https://play.pokemonshowdown.com/sprites/trainers/moon.png' }
 ];
 
-export const DEFAULT_GAME_STATE 🔊 {
+export const DEFAULT_GAME_STATE = {
   currency: 0,
   inventory: {
     materials: {
@@ -94,74 +94,76 @@ export const DEFAULT_GAME_STATE 🔊 {
   }
 };
 
-export const ITEM_LABELS 🔊 {
+export const ITEM_LABELS = {
   // Materiais
   silk: { icon: '🧵', name: 'Seda' },
   feather: { icon: '🪶', name: 'Pena' },
   apricorn: { icon: '🌰', name: 'Apricorn' },
-  electric_chip: { icon: '⚡', name: 'Chip Eletr.' },
-  moon_stone_shard: { icon: '🌙', name: 'Fragmento Lua' },
+  electric_chip: { icon: '⚡', name: 'Chip Elétrico' },
+  moon_stone_shard: { icon: '🌙', name: 'Fragmento de Lua' },
   pink_dust: { icon: '🌸', name: 'Pó Rosa' },
-  gold_nugget: { icon: '🪙', name: 'Pepita' },
-  iron_ore: { icon: '⛏️', name: 'Minério Ferro' },
+  gold_nugget: { icon: '🪙', name: 'Pepita de Ouro' },
+  iron_ore: { icon: '⛏️', name: 'Minério de Ferro' },
   mystic_dust: { icon: '✨', name: 'Pó Místico' },
   
   // Bebidas
-  fresh_water:       { icon: '💧', name: 'Água Fresca'    },
-  soda_pop:          { icon: '🥤', name: 'Soda Pop'       },
-  lemonade:          { icon: '🍋', name: 'Limonada'       },
-  moomoo_milk:       { icon: '🥛', name: 'Leite MooMoo'   },
-  berry_juice:       { icon: '🧃', name: 'Suco de Berry'  },
+  fresh_water:       { icon: '💧', name: 'Água Fresca' },
+  soda_pop:          { icon: '🥤', name: 'Soda Pop' },
+  lemonade:          { icon: '🍋', name: 'Limonada' },
+  moomoo_milk:       { icon: '🥛', name: 'Leite MooMoo' },
+  berry_juice:       { icon: '🧃', name: 'Suco de Baga' },
   // Berries
-  oran_berry:        { icon: '🫐', name: 'Oran Berry'     },
-  sitrus_berry:      { icon: '🍊', name: 'Sitrus Berry'   },
-  lum_berry:         { icon: '🌟', name: 'Lum Berry'      },
-  cheri_berry:       { icon: '🍒', name: 'Cheri Berry'    },
-  chesto_berry:      { icon: '🫐', name: 'Chesto Berry'   },
-  pecha_berry:       { icon: '🍑', name: 'Pecha Berry'    },
-  rawst_berry:       { icon: '🧊', name: 'Rawst Berry'    },
-  aspear_berry:      { icon: '🍐', name: 'Aspear Berry'   },
-  leppa_berry:       { icon: '🍅', name: 'Leppa Berry'    },
+  oran_berry:        { icon: '🫐', name: 'Oran Berry' },
+  sitrus_berry:      { icon: '🍊', name: 'Sitrus Berry' },
+  lum_berry:         { icon: '🌟', name: 'Lum Berry' },
+  cheri_berry:       { icon: '🍒', name: 'Cheri Berry' },
+  chesto_berry:      { icon: '🫐', name: 'Chesto Berry' },
+  pecha_berry:       { icon: '🍑', name: 'Pecha Berry' },
+  rawst_berry:       { icon: '🧊', name: 'Rawst Berry' },
+  aspear_berry:      { icon: '🍐', name: 'Aspear Berry' },
+  leppa_berry:       { icon: '🍅', name: 'Leppa Berry' },
   // Ração
-  poke_food:         { icon: '🍖', name: 'Ração Pokémon'  },
-  poke_food_premium: { icon: '🥩', name: 'Ração Premium'  },
+  poke_food:         { icon: '🍖', name: 'Ração Comum' },
+  poke_food_premium: { icon: '🥩', name: 'Ração Premium' },
 
   // Pedras de Evolução
-  fire_stone: { icon: '🔥', name: 'Pedra Fogo' },
-  water_stone: { icon: '💧', name: 'Pedra Água' },
-  leaf_stone: { icon: '🍃', name: 'Pedra Folha' },
-  thunder_stone: { icon: '⚡', name: 'Pedra Trovão' },
-  moon_stone: { icon: '🌙', name: 'Pedra Lua' },
+  fire_stone: { icon: '🔥', name: 'Pedra do Fogo' },
+  water_stone: { icon: '💧', name: 'Pedra da Água' },
+  leaf_stone: { icon: '🍃', name: 'Pedra da Folha' },
+  thunder_stone: { icon: '⚡', name: 'Pedra do Trovão' },
+  moon_stone: { icon: '🌙', name: 'Pedra da Lua' },
   
   // Essências
-  normal_essence: { icon: '⚪', name: 'Ess. Normal' },
-  fire_essence: { icon: '🔥', name: 'Ess. Fogo' },
-  water_essence: { icon: '💧', name: 'Ess. Água' },
-  grass_essence: { icon: '🌿', name: 'Ess. Planta' },
-  electric_essence: { icon: '⚡', name: 'Ess. Elet.' },
-  ice_essence: { icon: '❄️', name: 'Ess. Gelo' },
-  fighting_essence: { icon: '👊', name: 'Ess. Luta' },
-  poison_essence: { icon: '💀', name: 'Ess. Veneno' },
-  ground_essence: { icon: '⛰️', name: 'Ess. Terra' },
-  flying_essence: { icon: '🦅', name: 'Ess. Voador' },
-  psychic_essence: { icon: '🔮', name: 'Ess. Psíqu.' },
-  bug_essence: { icon: '🪲', name: 'Ess. Inseto' },
-  rock_essence: { icon: '🪨', name: 'Ess. Pedra' },
-  ghost_essence: { icon: '👻', name: 'Ess. Fantas.' },
-  dragon_essence: { icon: '🐉', name: 'Ess. Dragão' },
-  steel_essence: { icon: '⚙️', name: 'Ess. Aço' },
-  dark_essence: { icon: '🌑', name: 'Ess. Sombrio' },
-  fairy_essence: { icon: '✨', name: 'Ess. Fada' },
+  normal_essence:    { icon: '⚪', name: 'Essência Normal' },
+  fire_essence:      { icon: '🔥', name: 'Essência de Fogo' },
+  water_essence:     { icon: '💧', name: 'Essência de Água' },
+  grass_essence:     { icon: '🌿', name: 'Essência de Grama' },
+  electric_essence:  { icon: '⚡', name: 'Essência Elétrica' },
+  ice_essence:       { icon: '❄️', name: 'Essência de Gelo' },
+  fighting_essence:  { icon: '👊', name: 'Essência de Luta' },
+  poison_essence:    { icon: '💀', name: 'Essência Venenosa' },
+  ground_essence:    { icon: '⛰️', name: 'Essência de Terra' },
+  flying_essence:    { icon: '🦅', name: 'Essência Voadora' },
+  psychic_essence:   { icon: '🔮', name: 'Essência Psíquica' },
+  bug_essence:       { icon: '🪲', name: 'Essência Inseto' },
+  rock_essence:      { icon: '🪨', name: 'Essência de Rocha' },
+  ghost_essence:     { icon: '👻', name: 'Essência Fantasma' },
+  dragon_essence:    { icon: '🐉', name: 'Essência de Dragão' },
+  steel_essence:     { icon: '⚙️', name: 'Essência de Aço' },
+  dark_essence:      { icon: '🌑', name: 'Essência Sombria' },
+  fairy_essence:     { icon: '✨', name: 'Essência de Fada' },
   
-  // Itens de Consumo
-  pokeballs: { icon: '🎾', name: 'Pokébolas' },
-  great_ball: { icon: '🔵', name: 'Great Ball' },
-  ultra_ball: { icon: '🟡', name: 'Ultra Ball' },
-  potions: { icon: '🧪', name: 'Poção' }
+  // Pokebolas
+  pokeball:          { icon: '🎾', name: 'Pokébola' },
+  greatball:         { icon: '🔵', name: 'Great Ball' },
+  ultraball:         { icon: '🟡', name: 'Ultra Ball' },
+
+  // Itens de Batalha
+  potion:            { icon: '🧪', name: 'Poção' }
 };
 
 
-export const STAMINA_RESTORE_TABLE 🔊 {
+export const STAMINA_RESTORE_TABLE = {
   // Berries (source: materials)
   oran_berry:        { restore: 20, source: 'materials' },
   sitrus_berry:      { restore: 35, source: 'materials' },

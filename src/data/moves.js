@@ -1,4 +1,4 @@
-export const MOVES 🔊 {
+export const MOVES = {
   "pound":{id:1,name:"Pound",type:"Normal",category:"Physical",power:40,accuracy:100,pp:35,priority:0,effect:"Inflicts regular damage with no additional effect."},
   "karate-chop":{id:2,name:"Karate Chop",type:"Fighting",category:"Physical",power:50,accuracy:100,pp:25,priority:0,effect:"Has an increased chance for a critical hit."},
   "double-slap":{id:3,name:"Double Slap",type:"Normal",category:"Physical",power:15,accuracy:85,pp:10,priority:0,effect:"Hits 2-5 times in one turn."},

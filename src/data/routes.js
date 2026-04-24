@@ -1,14 +1,14 @@
 // POKEDEX resolvido em runtime pelo App  sem import circular
-const pk 🔊 (ids, level) 🐾 ids.map(id 🐾 ({ id: Number(id), level }));
+const pk = (ids, level) => ids.map(id => ({ id: Number(id), level }));
 
-export const getRivalSprite 🔊 (playerAvatarImg) 🐾 {
+export const getRivalSprite = (playerAvatarImg) => {
   if (playerAvatarImg && playerAvatarImg.includes('blue.png')) {
     return 'https://play.pokemonshowdown.com/sprites/trainers/blue2.png';
   }
   return 'https://play.pokemonshowdown.com/sprites/trainers/blue.png';
 };
 
-const S 🔊 {
+const S = {
   youngster:   'https://play.pokemonshowdown.com/sprites/trainers/youngster.png',
   lass:        'https://play.pokemonshowdown.com/sprites/trainers/lass.png',
   hiker:       'https://play.pokemonshowdown.com/sprites/trainers/hiker.png',
@@ -40,7 +40,7 @@ const S 🔊 {
   lance:       'https://play.pokemonshowdown.com/sprites/trainers/lance.png',
 };
 
-export const GYM_LEADERS 🔊 {
+export const GYM_LEADERS = {
   brock:    { id: 'brock',    name: 'Brock',    sprite: S.brock,    badge: 1, badgeName: 'Insígnia da Rocha',      reward: 1200,  team: pk([74, 95], 14),              unlockFlag: 'boulder_badge', introText: 'Sou Brock! Minha especialidade são Pokémon do tipo Pedra!' },
   misty:    { id: 'misty',    name: 'Misty',    sprite: S.misty,    badge: 2, badgeName: 'Insígnia da Cascata',    reward: 2500,  team: pk([120, 121], 21),            unlockFlag: 'cascade_badge', introText: 'Sou Misty! Prepare-se para o poder da água!' },
   ltsurge:  { id: 'ltsurge',  name: 'Lt. Surge',sprite: S.ltsurge,  badge: 3, badgeName: 'Insígnia do Trovão',    reward: 4000,  team: pk([100, 25, 26], 24),         unlockFlag: 'thunder_badge', introText: 'Hah! Seu funeral, recruta!' },
@@ -51,7 +51,7 @@ export const GYM_LEADERS 🔊 {
   giovanni: { id: 'giovanni', name: 'Giovanni', sprite: S.giovanni, badge: 8, badgeName: 'Insígnia da Terra',     reward: 15000, team: pk([111, 51, 112, 34], 55),    unlockFlag: 'earth_badge',   introText: 'Eu, Giovanni, vou destruí-lo!' },
 };
 
-export const ROUTES 🔊 {
+export const ROUTES = {
 
   pallet_town: {
     id: 'pallet_town', name: 'Cidade de Pallet', type: 'city', group: 'Pallet Town',
@@ -484,21 +484,21 @@ export const ROUTES 🔊 {
   },
 };
 
-export const isRouteUnlocked 🔊 (route, gameState) 🐾 {
-  if (!route.requirements || route.requirements.length ==🔊 0) return true;
-  return route.requirements.every(req 🐾 {
-    if (req ==🔊 'has_starter') return (gameState.team?.length || 0) > 0;
+export const isRouteUnlocked = (route, gameState) => {
+  if (!route.requirements || route.requirements.length === 0) return true;
+  return route.requirements.every(req => {
+    if (req === 'has_starter') return (gameState.team?.length || 0) > 0;
     
     // Suporte para badges como string ou por index histórico
-    const badges 🔊 gameState.badges || [];
-    if (req ==🔊 'boulder_badge') return badges.includes('boulder_badge') || badges.includes(1);
-    if (req ==🔊 'cascade_badge') return badges.includes('cascade_badge') || badges.includes(2);
-    if (req ==🔊 'thunder_badge') return badges.includes('thunder_badge') || badges.includes(3);
-    if (req ==🔊 'rainbow_badge') return badges.includes('rainbow_badge') || badges.includes(4);
-    if (req ==🔊 'soul_badge')    return badges.includes('soul_badge') || badges.includes(5);
-    if (req ==🔊 'marsh_badge')   return badges.includes('marsh_badge') || badges.includes(6);
-    if (req ==🔊 'volcano_badge') return badges.includes('volcano_badge') || badges.includes(7);
-    if (req ==🔊 'earth_badge')   return badges.includes('earth_badge') || badges.includes(8);
+    const badges = gameState.badges || [];
+    if (req === 'boulder_badge') return badges.includes('boulder_badge') || badges.includes(1);
+    if (req === 'cascade_badge') return badges.includes('cascade_badge') || badges.includes(2);
+    if (req === 'thunder_badge') return badges.includes('thunder_badge') || badges.includes(3);
+    if (req === 'rainbow_badge') return badges.includes('rainbow_badge') || badges.includes(4);
+    if (req === 'soul_badge')    return badges.includes('soul_badge') || badges.includes(5);
+    if (req === 'marsh_badge')   return badges.includes('marsh_badge') || badges.includes(6);
+    if (req === 'volcano_badge') return badges.includes('volcano_badge') || badges.includes(7);
+    if (req === 'earth_badge')   return badges.includes('earth_badge') || badges.includes(8);
     
     // Fallback para flags genéricas (incluindo badges se passadas como string genérica)
     return (gameState.worldFlags || []).includes(req) || badges.includes(req);
