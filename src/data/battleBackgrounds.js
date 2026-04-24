@@ -255,7 +255,7 @@ export const BATTLE_BACKGROUNDS = {
     elements: ['windmill', 'tree', 'bike_path', 'cloud', 'cloud'],
   },
 
-  // ─── MANSÃO POKÉMON ───────────────────────────────────────
+  // ─── MANSíO POKÉMON ───────────────────────────────────────
   pokemon_mansion: {
     sky: "url('/battle_bg_lab_1776866008842.png')",
     label: 'Mansão Pokémon',

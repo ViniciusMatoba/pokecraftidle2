@@ -592,7 +592,7 @@ const PokemonManagement = ({
                   })()}
                </div>
                
-               {/* BOTÃO DE AÇÃO NO RODAPÉ — dentro do flex column */}
+               {/* BOTíO DE AÇíO NO RODAPÉ — dentro do flex column */}
                <div className="flex-shrink-0 px-6 py-4 bg-white border-t border-slate-100 flex gap-3">
                   {activePokemonDetails.location === 'team' ? (
                     <>

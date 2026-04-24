@@ -48,7 +48,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         </button>
       ))}
 
-      {/* SEÇÃO DE VERSÃO E ATUALIZAÇÃO RÁPIDA */}
+      {/* SEÇíO DE VERSíO E ATUALIZAÇíO RÁPIDA */}
       <div className="mt-4 bg-white p-5 rounded-[2.5rem] border-b-8 border-slate-200 shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <div>

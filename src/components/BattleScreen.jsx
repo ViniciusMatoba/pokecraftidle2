@@ -235,7 +235,7 @@ const BattleScreen = ({
 
       {/* ── ITENS ── */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-3 py-2.5 flex-shrink-0">
-        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Itens</p>
+        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Itens de Combate</p>
         <div className="flex gap-2">
           {[
             { id: 'pokeballs', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', label: 'Pokébolas' },
@@ -249,6 +249,39 @@ const BattleScreen = ({
               <button key={item.id} disabled={qty <= 0} onClick={() => onUseItem && onUseItem(item.id)}
                 className={`flex flex-col items-center gap-1 flex-1 py-2 rounded-xl border-2 transition-all active:scale-95 ${qty <= 0 ? 'opacity-30 grayscale border-slate-100 bg-slate-50' : 'border-slate-200 bg-white hover:border-pokeBlue hover:bg-blue-50'}`}>
                 <img src={item.img} alt={item.label} className="w-9 h-9 object-contain drop-shadow-sm" />
+                <span className="text-[10px] font-black text-slate-700">{qty}</span>
+                <span className="text-[8px] font-bold text-slate-400 uppercase">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── ALIMENTAÇíO ── */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-3 py-2.5 flex-shrink-0">
+        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Alimentação</p>
+        <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+          {[
+            { id: 'moomoo_milk', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moomoo-milk.png', label: 'Leite', src: 'items' },
+            { id: 'lemonade', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lemonade.png', label: 'Limo.', src: 'items' },
+            { id: 'soda_pop', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/soda-pop.png', label: 'Soda', src: 'items' },
+            { id: 'berry_juice', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/berry-juice.png', label: 'Suco', src: 'items' },
+            { id: 'fresh_water', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png', label: 'Água', src: 'items' },
+            { id: 'poke_food_premium', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png', label: 'Ração P.', src: 'items', isEmoji: '🥩' },
+            { id: 'poke_food', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', label: 'Ração', src: 'items', isEmoji: '🍖' },
+            { id: 'oran_berry', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png', label: 'Oran', src: 'materials' },
+            { id: 'sitrus_berry', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sitrus-berry.png', label: 'Sitrus', src: 'materials' },
+            { id: 'lum_berry', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lum-berry.png', label: 'Lum', src: 'materials' },
+          ].map(item => {
+            const qty = (gameState.inventory?.[item.src] || {})[item.id] || 0;
+            return (
+              <button key={item.id} disabled={qty <= 0} onClick={() => onUseItem && onUseItem(item.id, item.src)}
+                className={`flex flex-col items-center gap-1 min-w-[60px] py-2 rounded-xl border-2 transition-all active:scale-95 ${qty <= 0 ? 'opacity-30 grayscale border-slate-100 bg-slate-50' : 'border-slate-200 bg-white hover:border-green-500 hover:bg-green-50'}`}>
+                {item.isEmoji ? (
+                  <span className="text-2xl h-9 flex items-center justify-center">{item.isEmoji}</span>
+                ) : (
+                  <img src={item.img} alt={item.label} className="w-9 h-9 object-contain drop-shadow-sm" />
+                )}
                 <span className="text-[10px] font-black text-slate-700">{qty}</span>
                 <span className="text-[8px] font-bold text-slate-400 uppercase">{item.label}</span>
               </button>
@@ -403,6 +436,34 @@ const BattleScreen = ({
                       className="w-full accent-green-500 h-2 bg-green-100 rounded-lg appearance-none cursor-pointer" />
                     <div className="flex justify-between text-[9px] text-slate-400 font-black mt-2 uppercase tracking-tighter">
                       <span>Mínimo 10%</span><span>{autoConfig.autoPotionHpPct}%</span><span>Máximo 80%</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Auto Estamina */}
+              <div className="bg-amber-50 p-5 rounded-3xl border-2 border-amber-100 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="font-black text-slate-800 text-sm uppercase tracking-tighter">🍴 Auto-Estamina</p>
+                    <p className="text-[10px] text-slate-500 mt-1 font-bold">Usa comida quando energia baixa</p>
+                  </div>
+                  <div className="relative cursor-pointer" onClick={() => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoStamina: !autoConfig.autoStamina } }))}>
+                    <div className={`w-14 h-7 rounded-full transition-all duration-300 ${autoConfig.autoStamina ? 'bg-amber-500' : 'bg-slate-200'}`}>
+                      <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-lg transition-all duration-300 ${autoConfig.autoStamina ? 'translate-x-8' : 'translate-x-1'}`} />
+                    </div>
+                  </div>
+                </div>
+                {autoConfig.autoStamina && (
+                  <div className="mt-2 bg-white/50 p-3 rounded-2xl border border-amber-200">
+                    <p className="text-[10px] font-black text-slate-600 uppercase mb-2">Usar quando Energia ≤ {autoConfig.autoStaminaThreshold || 30}%</p>
+                    <div className="flex justify-between gap-2">
+                      {[10, 20, 30, 40, 50].map(val => (
+                        <button key={val} onClick={() => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoStaminaThreshold: val } }))}
+                          className={`flex-1 py-2 rounded-xl font-black text-[10px] transition-all ${ (autoConfig.autoStaminaThreshold || 30) === val ? 'bg-amber-500 text-white shadow-md scale-110' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                          {val}%
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}
