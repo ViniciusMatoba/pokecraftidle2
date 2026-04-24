@@ -685,7 +685,7 @@ export default function App() {
        if (Math.random() < bonusChance) {
          const qty = 1;
          drops.candies = { [candyId]: qty }; 
-         messages.push(`í°Å¸ÂÂ¬ 1x ${CANDY_FAMILIES[candyId].name}`);
+         messages.push(`Â¬ 1x ${CANDY_FAMILIES[candyId].name}`);
        }
     }
 
@@ -1624,7 +1624,7 @@ export default function App() {
     });
     setCurrentView('battles');
     // BGM agora gerenciado pelas configuraçíÃÂµes
-    addLog(`í°Å¸Ââ  GINíÂSIO: Líder ${gymData.name} enviou ${base.name}! Nv.${lvl}`, 'system');
+    addLog(`â  GINíÂSIO: Líder ${gymData.name} enviou ${base.name}! Nv.${lvl}`, 'system');
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, playBGM, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
 
@@ -1702,20 +1702,20 @@ export default function App() {
         addLog(`íÂ°ÃÂ¸ÃÂÃÂ¬ ${p.name} consumiu candies e ganhou experiência!`, 'system');
       } else if (use.effect === 'stat_atk') {
         p.attack = (p.attack || 10) + 2;
-        addLog(`í°Å¸ÂÂ¬ ${p.name} aumentou o Ataque permanentemente!`, 'system');
+        addLog(`Â¬ ${p.name} aumentou o Ataque permanentemente!`, 'system');
       } else if (use.effect === 'stat_def') {
         p.defense = (p.defense || 10) + 2;
-        addLog(`í°Å¸ÂÂ¬ ${p.name} aumentou a Defesa permanentemente!`, 'system');
+        addLog(`Â¬ ${p.name} aumentou a Defesa permanentemente!`, 'system');
       } else if (use.effect === 'stat_hp') {
         p.maxHp = (p.maxHp || 40) + 5;
         p.hp = Math.min(p.maxHp, p.hp + 5);
-        addLog(`í°Å¸ÂÂ¬ ${p.name} aumentou o HP permanentemente!`, 'system');
+        addLog(`Â¬ ${p.name} aumentou o HP permanentemente!`, 'system');
       } else if (use.effect === 'stat_speed') {
         p.speed = (p.speed || 10) + 2;
-        addLog(`í°Å¸ÂÂ¬ ${p.name} aumentou a Velocidade permanentemente!`, 'system');
+        addLog(`Â¬ ${p.name} aumentou a Velocidade permanentemente!`, 'system');
       } else if (use.effect === 'stat_spatk') {
         p.spAtk = (p.spAtk || 10) + 2;
-        addLog(`í°Å¸ÂÂ¬ ${p.name} aumentou o Ataque Especial!`, 'system');
+        addLog(`Â¬ ${p.name} aumentou o Ataque Especial!`, 'system');
       } else if (use.effect === 'force_evolve') {
         const pokeData = POKEDEX[p.id];
         if (pokeData?.evolution && pokeData.evolution.id <= 151) {
@@ -1810,7 +1810,7 @@ export default function App() {
         addLog(`âÂÅ Coins insuficientes! A casa custa ${HOUSE_PURCHASE_COST} coins.`, 'system');
         return prev;
       }
-      addLog(`í°Å¸ÂÂ  Casa comprada! Prof. Carvalho ficou orgulhoso!`, 'system');
+      addLog(`Â  Casa comprada! Prof. Carvalho ficou orgulhoso!`, 'system');
       return {
         ...prev,
         currency: prev.currency - HOUSE_PURCHASE_COST,
@@ -1882,7 +1882,7 @@ export default function App() {
   const handleBuySlot = useCallback((expansion) => {
     setGameState(prev => {
       if ((prev.currency || 0) < expansion.cost) return prev;
-      addLog(`í°Å¸Â—í¯Â¸Â Jardim expandido para ${expansion.totalSlots} canteiros!`, 'system');
+      addLog(`—í¯Â¸Â Jardim expandido para ${expansion.totalSlots} canteiros!`, 'system');
       return {
         ...prev,
         currency: prev.currency - expansion.cost,
@@ -1896,7 +1896,7 @@ export default function App() {
     setGameState(prev => {
       const newPC         = (prev.pc || []).filter(p => p.instanceId !== pokemon.instanceId);
       const newCaretakers = [...(prev.house?.caretakers || []), pokemon];
-      addLog(`í°Å¸ÂÂ¾ ${pokemon.name} agora cuida do jardim!`, 'system');
+      addLog(`Â¾ ${pokemon.name} agora cuida do jardim!`, 'system');
       return {
         ...prev,
         pc: newPC,
@@ -1911,7 +1911,7 @@ export default function App() {
       const pokemon       = (prev.house?.caretakers || []).find(p => p.instanceId === instanceId);
       const newCaretakers = (prev.house?.caretakers || []).filter(p => p.instanceId !== instanceId);
       const newPC         = [...(prev.pc || []), pokemon].filter(Boolean);
-      if (pokemon) addLog(`í°Å¸ÂÂ¾ ${pokemon.name} voltou ao PC.`, 'system');
+      if (pokemon) addLog(`Â¾ ${pokemon.name} voltou ao PC.`, 'system');
       return {
         ...prev,
         pc: newPC,
@@ -2079,7 +2079,7 @@ export default function App() {
 
       if (currentEnemy.badgeToGive && !newBadges.includes(currentEnemy.badgeToGive)) {
         newBadges.push(currentEnemy.badgeToGive);
-        addLog(`í°Å¸Ââ¦ Recebeu a Insígnia: ${currentEnemy.badgeToGive.replace(/_/g, ' ')}!`, 'system');
+        addLog(`â¦ Recebeu a Insígnia: ${currentEnemy.badgeToGive.replace(/_/g, ' ')}!`, 'system');
         sfxGym();
         
         const newShare = newBadges.length * 10;
@@ -2221,7 +2221,7 @@ export default function App() {
 
     messages.forEach(m => addLog(m, 'drop'));
     if (currentEnemy.isTrainer && currentEnemy.trainerReward) {
-      addLog(`í°Å¸Ââ  ${currentEnemy.trainerName} derrotado! +${currentEnemy.trainerReward} coins`, 'system');
+      addLog(`â  ${currentEnemy.trainerName} derrotado! +${currentEnemy.trainerReward} coins`, 'system');
     }
     if (currentEnemy.isRocket) addLog('🚀 Grunt da Equipe Rocket derrotado!', 'system');
     if (currentEnemy.isShiny) addLog('Ã¢ÂÂ¨ Pokémon shiny derrotado!', 'system');
@@ -2963,7 +2963,7 @@ export default function App() {
                   </div>
 
                   <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-[2.5rem] p-6 border-2 border-amber-200 mb-8 shadow-xl">
-                    <p className="text-amber-800 text-[10px] font-black uppercase tracking-widest">í°Å¸Å½Â Presente do Professor:</p>
+                    <p className="text-amber-800 text-[10px] font-black uppercase tracking-widest">🎁 Presente do Professor:</p>
                     <div className="flex items-center gap-4 mt-2">
                       <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-lg border-2 border-amber-100 rotate-3">
                         <img
@@ -2983,7 +2983,7 @@ export default function App() {
                     onClick={() => setShowOakStaminaModal(false)}
                     className="w-full bg-green-600 text-white py-6 rounded-3xl font-black uppercase text-sm tracking-widest hover:bg-green-500 transition-all shadow-xl shadow-green-200 active:scale-95"
                   >
-                    Obrigado, Professor! í°Å¸ÂÂ½í¯Â¸Â
+                    Obrigado, Professor! Â½í¯Â¸Â
                   </button>
                 </div>
               </div>
@@ -3316,7 +3316,7 @@ export default function App() {
                 {[
                   { icon: 'âï¸í¯Â¸Â', label: 'Nocautes', value: sessionStats.kills },
                   { icon: '(', label: 'Shinies', value: sessionStats.shinyKills + sessionStats.captures.filter(c => c.isShiny).length },
-                  { icon: 'í°Å¸Ââ ', label: 'Trainers', value: sessionStats.trainers },
+                  { icon: 'â ', label: 'Trainers', value: sessionStats.trainers },
                   { icon: '💰', label: 'Coins',    value: sessionStats.coins  },
                 ].map(s => (
                   <div key={s.label} className="bg-slate-50 rounded-2xl p-3 text-center border border-slate-100">
@@ -3495,7 +3495,7 @@ export default function App() {
               {activeBuildingModal === 'mart' && (
                 <div className="p-6 flex-1 flex flex-col overflow-hidden">
                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">í°Å¸ÂÂª</div>
+                      <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">Âª</div>
                       <div className="flex-1">
                          <h2 className="text-xl font-black text-slate-800 uppercase italic leading-none">Poké Mart</h2>
                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Suprimentos de Viagem</p>
@@ -3528,7 +3528,7 @@ export default function App() {
                               items: { ...prev.inventory.items, [item.id]: (prev.inventory.items[item.id] || 0) + qty }
                             }
                           }));
-                          addLog(`í°Å¸ÂÂª Comprado: ${qty}x ${item.name}`, 'system');
+                          addLog(`Âª Comprado: ${qty}x ${item.name}`, 'system');
                         };
                         return (
                           <div key={item.id} className="bg-white p-4 rounded-2xl border-2 border-slate-100 shadow-sm">
@@ -3698,7 +3698,7 @@ export default function App() {
                           case 'bug_essence': return 'Dropado por Pokémons tipo INSETO na Floresta de Viridian.';
                           case 'rock_essence': return 'Dropado por Pokémons tipo PEDRA em túneis de rocha e cavernas.';
                           case 'ghost_essence': return 'Dropado por Pokémons tipo FANTASMA na Torre Pokémon de Lavender.';
-                          case 'dragon_essence': return 'Dropado por Pokémons tipo DRAGíO em locais sagrados ou Victory Road.';
+                          case 'dragon_essence': return 'Dropado por Pokémons tipo DRAGÃO em locais sagrados ou Victory Road.';
                           case 'steel_essence': return 'Dropado por Pokémons tipo AíÂO em áreas industriais ou usinas.';
                           case 'fairy_essence': return 'Dropado por Pokémons tipo FADA no Monte Lua.';
                           case 'dark_essence': return 'Dropado por Pokémons tipo SOMBRIO em locais escuros ou mansíÃÂµes.';
