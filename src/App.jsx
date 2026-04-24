@@ -2940,7 +2940,7 @@ export default function App() {
                           <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>Águas e Soda</strong> — compre no Poké Mart para restaurar energia rápido.</p>
                         </div>
                         <div className="flex items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-green-100">
-                          <span className="text-2xl w-8 text-center"><V</span>
+                          <span className="text-2xl w-8 text-center">🔋</span>
                           <p className="text-green-700 text-[11px] leading-tight font-bold"><strong>Ração Pokémon</strong> — pode ser fabricada na Forja com materiais simples.</p>
                         </div>
                       </div>
@@ -3566,7 +3566,7 @@ export default function App() {
               {activeBuildingModal === 'forge' && (
                 <div className="p-6 flex-1 flex flex-col overflow-hidden">
                    <div className="flex items-center gap-4 mb-5">
-                      <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center text-2xl">í°Å¸âÂ¨</div>
+                      <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center text-2xl">🔥Â¨</div>
                       <div className="flex-1">
                          <h2 className="text-xl font-black text-slate-800 uppercase italic leading-none">Forja Pokémon</h2>
                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Materiais e Equipamentos</p>
@@ -3610,7 +3610,7 @@ export default function App() {
                                       inventory: { ...newInv, items: { ...newInv.items, [item.id]: (newInv.items[item.id] || 0) + qty } }
                                     };
                                   });
-                                  addLog(`í°Å¸âÂ¨ Forjado: ${qty}x ${item.name}`, 'system');
+                                  addLog(`🔥Â¨ Forjado: ${qty}x ${item.name}`, 'system');
                                 };
                                 const maxCraft = getMaxCraft();
                                 return (
