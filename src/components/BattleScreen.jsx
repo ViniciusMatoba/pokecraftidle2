@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBadges } from './CommonUI';
 import { BATTLE_BACKGROUNDS } from '../data/battleBackgrounds';
+import ActiveEffectsBar from './ActiveEffectsBar';
 
 const BattleScreen = ({ 
   currentEnemy, gameState, activeMemberIndex, moveIndex, weather,
@@ -88,6 +89,8 @@ const BattleScreen = ({
 
   return (
     <div className="flex flex-col h-full animate-fadeIn pb-20 gap-2 overflow-y-auto custom-scrollbar">
+      {/* ── BARRA DE EFEITOS ATIVOS ── */}
+      <ActiveEffectsBar activeEffects={gameState.activeEffects} />
 
       {/* ── ARENA ── */}
       <div className="relative overflow-hidden rounded-2xl shadow-xl flex-shrink-0"
@@ -201,6 +204,28 @@ const BattleScreen = ({
                     <div className="bg-pokeBlue h-full transition-all duration-300" style={{ width: `${Math.min(100, ((activePoke.xp || 0) / ((activePoke.level || 5) * 50)) * 100)}%` }} />
                   </div>
                 </div>
+
+                {/* Barra de Estamina — abaixo da barra de HP do jogador */}
+                {(() => {
+                  const stamina = gameState.stamina?.[activePoke?.instanceId]?.value ?? 100;
+                  const color  = stamina > 60 ? '#22c55e' : stamina > 30 ? '#f59e0b' : '#ef4444';
+                  const emoji  = stamina > 60 ? '😊' : stamina > 30 ? '😮' : stamina > 0 ? '😰' : '😵';
+                  return (
+                    <div className="mt-1">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-[8px] font-bold text-slate-400 uppercase">Energia {emoji}</span>
+                        <span className="text-[8px] font-bold" style={{ color }}>{Math.floor(stamina)}%</span>
+                      </div>
+                      <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${stamina}%`, background: color }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 <StatusBadges status={activePoke.status || []} stages={activePoke.stages || {}} />
               </div>
             </>

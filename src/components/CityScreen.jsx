@@ -13,7 +13,8 @@ const CityScreen = ({
   setCurrentEnemy,
   onChallengeRival,
   onBackToBattle,
-  onOpenExpeditions
+  onOpenExpeditions,
+  onOpenHouse
 }) => {
   const [activeOakModal, setActiveOakModal] = useState(false);
   const [oakTipIndex, setOakTipIndex] = useState(0);
@@ -85,6 +86,18 @@ const CityScreen = ({
       color: 'border-purple-500 bg-purple-50',
     }
   ];
+
+  if (gameState.house?.owned) {
+    cityBuildings.push({
+      id: 'house',
+      name: 'Minha Casa',
+      icon: null,
+      emoji: '🏠',
+      desc: 'Cultive Berries e Apricorns no seu jardim.',
+      action: () => onOpenHouse && onOpenHouse(),
+      color: 'border-amber-500 bg-amber-50',
+    });
+  }
 
   if (gameState.currentRoute === 'pallet_town') {
     const rivalDefeated = (gameState.worldFlags || []).includes('rival_lab_defeated');

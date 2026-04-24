@@ -79,6 +79,15 @@ export const DEFAULT_GAME_STATE = {
   caughtData: {},
   speciesMastery: {},
   expeditions: {},
+  activeEffects: {},
+  house: {
+    owned: false,
+    totalSlots: 0,
+    slots: [],
+    caretakers: [],
+  },
+  stamina: {},
+  oakTutorialShown: false,
   settings: {
     battleSpeed: 1,
     displayMode: 'mobile'
@@ -97,6 +106,26 @@ export const ITEM_LABELS = {
   iron_ore: { icon: '⛏️', name: 'Minério Ferro' },
   mystic_dust: { icon: '✨', name: 'Pó Místico' },
   
+  // Bebidas
+  fresh_water:       { icon: '💧', name: 'Água Fresca'    },
+  soda_pop:          { icon: '🥤', name: 'Soda Pop'       },
+  lemonade:          { icon: '🍋', name: 'Limonada'       },
+  moomoo_milk:       { icon: '🥛', name: 'Leite MooMoo'   },
+  berry_juice:       { icon: '🧃', name: 'Suco de Berry'  },
+  // Berries
+  oran_berry:        { icon: '🫐', name: 'Oran Berry'     },
+  sitrus_berry:      { icon: '🍊', name: 'Sitrus Berry'   },
+  lum_berry:         { icon: '🌿', name: 'Lum Berry'      },
+  cheri_berry:       { icon: '🍒', name: 'Cheri Berry'    },
+  chesto_berry:      { icon: '🫐', name: 'Chesto Berry'   },
+  pecha_berry:       { icon: '🍑', name: 'Pecha Berry'    },
+  rawst_berry:       { icon: '🍃', name: 'Rawst Berry'    },
+  aspear_berry:      { icon: '🍋', name: 'Aspear Berry'   },
+  leppa_berry:       { icon: '🍎', name: 'Leppa Berry'    },
+  // Ração
+  poke_food:         { icon: '🍖', name: 'Ração Pokémon'  },
+  poke_food_premium: { icon: '🥩', name: 'Ração Premium'  },
+
   // Pedras de Evolução
   fire_stone: { icon: '🔥', name: 'Pedra Fogo' },
   water_stone: { icon: '💧', name: 'Pedra Água' },
@@ -130,3 +159,74 @@ export const ITEM_LABELS = {
   ultra_ball: { icon: '🟡', name: 'Ultra Ball' },
   potions: { icon: '🧪', name: 'Poção' }
 };
+
+
+export const STAMINA_RESTORE_TABLE = {
+  // Berries (source: materials)
+  oran_berry:        { restore: 20, source: 'materials' },
+  sitrus_berry:      { restore: 35, source: 'materials' },
+  lum_berry:         { restore: 40, source: 'materials', cureStatus: true },
+  cheri_berry:       { restore: 15, source: 'materials', cureStatus: ['paralyze'] },
+  chesto_berry:      { restore: 15, source: 'materials', cureStatus: ['sleep'] },
+  pecha_berry:       { restore: 15, source: 'materials', cureStatus: ['poison','toxic'] },
+  rawst_berry:       { restore: 15, source: 'materials', cureStatus: ['burn'] },
+  aspear_berry:      { restore: 15, source: 'materials', cureStatus: ['freeze'] },
+  leppa_berry:       { restore: 10, source: 'materials' },
+  // Bebidas (source: items)
+  fresh_water:       { restore: 25, source: 'items' },
+  berry_juice:       { restore: 35, source: 'items' },
+  soda_pop:          { restore: 40, source: 'items' },
+  lemonade:          { restore: 55, source: 'items' },
+  moomoo_milk:       { restore: 70, source: 'items' },
+  // Ração (source: items)
+  poke_food:         { restore: 30, source: 'items' },
+  poke_food_premium: { restore: 60, source: 'items', cureStatus: true },
+};
+
+export const POKE_MART_DRINKS = [
+  {
+    id: 'fresh_water',
+    name: 'Água Fresca',
+    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png',
+    description: 'Restaura 25% de Energia. Barata e sempre disponível.',
+    effect: { type: 'stamina', restore: 25 },
+    price: 200,
+    availableFrom: null,
+  },
+  {
+    id: 'berry_juice',
+    name: 'Suco de Berry',
+    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/berry-juice.png',
+    description: 'Restaura 35% de Energia. Feito de Berries frescas.',
+    effect: { type: 'stamina', restore: 35 },
+    price: 250,
+    availableFrom: 'boulder_badge',
+  },
+  {
+    id: 'soda_pop',
+    name: 'Soda Pop',
+    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/soda-pop.png',
+    description: 'Restaura 40% de Energia. Refrescante e eficaz.',
+    effect: { type: 'stamina', restore: 40 },
+    price: 300,
+    availableFrom: 'cascade_badge',
+  },
+  {
+    id: 'lemonade',
+    name: 'Limonada',
+    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lemonade.png',
+    description: 'Restaura 55% de Energia. A melhor bebida da máquina.',
+    effect: { type: 'stamina', restore: 55 },
+    price: 350,
+    availableFrom: 'thunder_badge',
+  },
+  {
+    id: 'moomoo_milk',
+    name: 'Leite MooMoo',
+    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moomoo-milk.png',
+    description: 'Restaura 70% de Energia. O mais nutritivo de todos.',
+    effect: { type: 'stamina', restore: 70 },
+    price: 500,
+    availableFrom: 'rainbow_badge',
+  },
+];

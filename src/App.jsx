@@ -28,12 +28,15 @@ import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/fires
 import { monitorAuthState } from './auth';
 import { 
   APP_VERSION, APP_VERSION_DATE, DEFAULT_GAME_STATE, GYM_LEVEL_CAPS, 
-  NATURE_LIST, NATURES, TYPE_COLORS, trainerAvatars, ITEM_LABELS 
+  NATURE_LIST, NATURES, TYPE_COLORS, trainerAvatars, ITEM_LABELS,
+  STAMINA_RESTORE_TABLE, POKE_MART_DRINKS
 } from './data/constants';
 import { getMasteryPath, getEffectiveStat } from './utils/gameHelpers';
 import { getTypeEffectiveness } from './data/typeChart';
 import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
 import { calcExpeditionDuration, calcExpeditionDrops, calcExpeditionXP, EXPEDITION_BIOMES } from './data/expeditions';
+import { calcHarvestDrops, calcGrowthTime, calcCombinedCaretakerBonus, PLANTABLE_ITEMS, HOUSE_PURCHASE_COST } from './data/house';
+import HouseScreen from './components/HouseScreen';
 import ExpeditionsScreen from './components/ExpeditionsScreen';
 
 const fixPath = (path) => {
@@ -154,6 +157,9 @@ export default function App() {
   const [isHealing, setIsHealing] = useState(false);
   const [activeTab, setActiveTab] = useState('team');
   const [showExpeditions, setShowExpeditions] = useState(false);
+  const [showHouse, setShowHouse] = useState(false);
+  const [showOakHouseModal, setShowOakHouseModal] = useState(false);
+  const [showOakStaminaModal, setShowOakStaminaModal] = useState(false);
   const [previewStarter, setPreviewStarter] = useState(null);
   const [activeQuestModal, setActiveQuestModal] = useState(null);
   const [vsInitialTab, setVsInitialTab] = useState('challenges'); // 'challenges', 'gyms', 'legendary'
@@ -651,9 +657,25 @@ export default function App() {
     const messages = [];
 
     // Moedas base
-    const coinAmount = (enemy.level || 5) * 3 * (enemy.isShiny ? 2 : 1);
-    drops.currency = coinAmount;
-    messages.push(`💰 +${coinAmount} coins`);
+    let coinAmount = (enemy.level || 5) * 3 * (enemy.isShiny ? 2 : 1);
+    
+    // ── EFEITOS ATIVOS (TIMED) ────────────────────────────────────────
+    const now = Date.now();
+    const effects = gameState.activeEffects || {};
+
+    // Multiplicador de coins (Amulet Coin + Incenso da Sorte empilham)
+    let coinMult = 1.0;
+    if (effects.activeAmuletCoin?.endsAt > now) coinMult *= (effects.activeAmuletCoin.coinMult || 2.0);
+    if (effects.activeIncenseLuck?.endsAt > now) coinMult *= (effects.activeIncenseLuck.coinMult || 2.0);
+    
+    // Moeda Amuleto (Antiga Lógica Hold - Mantida para compatibilidade se necessário, mas priorizando timed)
+    const activePoke = gameState.team[activeMemberIndex];
+    if (activePoke?.heldItem === 'amulet_coin' && !(effects.activeAmuletCoin?.endsAt > now)) {
+      coinMult *= 2;
+    }
+
+    drops.currency = Math.floor(coinAmount * coinMult);
+    messages.push(`💰 +${drops.currency} coins`);
 
     // ── CANDY DROP ──────────────────────────────────────────────────────
     const candyId = POKEMON_TO_CANDY[Number(enemy.id)];
@@ -791,7 +813,28 @@ export default function App() {
     }
     
     let enemyPool = [...route.enemies];
-    // A injeção manual foi removida daqui e movida para o useMemo(processedRoutes) para maior estabilidade.
+    
+    // ── 3. VARAS DE PESCA (Fishing Rods) ──────────────────────────────
+    // Se a rota tem bioma de água e o jogador possui uma vara, aumenta chance de água
+    if (route.biome === 'water' || route.name.toLowerCase().includes('oceano') || route.name.toLowerCase().includes('praia')) {
+      const rods = ['super_rod', 'good_rod', 'old_rod'];
+      const ownedRod = rods.find(r => (gameState.inventory?.items?.[r] || 0) > 0);
+      if (ownedRod) {
+        const rodData = CRAFTING_RECIPES.fishing_rods.find(r => r.id === ownedRod);
+        const waterBonus = rodData?.effect?.waterBonus || 0;
+        // Filtra pokémons de água e duplica sua presença no pool proporcionalmente ao bônus
+        const waterEnemies = enemyPool.filter(e => {
+          const p = POKEDEX[e.id];
+          return p?.type === 'Water' || p?.types?.includes('Water');
+        });
+        if (waterEnemies.length > 0) {
+          const extraCount = Math.floor(enemyPool.length * waterBonus);
+          for (let i = 0; i < extraCount; i++) {
+            enemyPool.push(waterEnemies[Math.floor(Math.random() * waterEnemies.length)]);
+          }
+        }
+      }
+    }
     
     const baseRef = enemyPool[Math.floor(Math.random() * enemyPool.length)] || { id: 16, level: 3 };
     // Resolve dados completos do Pokédex
@@ -817,7 +860,15 @@ export default function App() {
     // Bônus Shiny: 20% mais forte
     const shinyMult = isShiny ? 1.2 : 1.0;
 
-    const maxHp = Math.ceil((((2 * (base.maxHp || base.hp || 30) * level) / 100) + level + 10) * shinyMult);
+    // ── 4. REPEL (Enfraquecer Inimigos) ──────────────────────────────
+    const effects = gameState.activeEffects || {};
+    const now = Date.now();
+    let repelMult = 1.0;
+    if (effects.activeRepel?.endsAt > now) {
+      repelMult = effects.activeRepel.hpMult || 0.8;
+    }
+
+    const maxHp = Math.ceil((((2 * (base.maxHp || base.hp || 30) * level) / 100) + level + 10) * shinyMult * repelMult);
     
     // Seleção de Golpes baseada no Learnset
     const learnset = base.learnset || [];
@@ -838,6 +889,9 @@ export default function App() {
     // Se não tiver golpes, dá pelo menos Investida (Tackle)
     const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
+    // Atk Mult do Repel
+    const atkRepelMult = (effects.activeRepel?.endsAt > now) ? (effects.activeRepel.atkMult || 0.8) : 1.0;
+
     setCurrentEnemy({ 
       ...base, 
       id: Number(base.id),
@@ -848,9 +902,9 @@ export default function App() {
       spawnTime: Date.now(),
       status: [],
       stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
-      attack: Math.ceil((((2 * (base.attack || 10) * level) / 100) + 5) * shinyMult),
+      attack: Math.ceil((((2 * (base.attack || 10) * level) / 100) + 5) * shinyMult * atkRepelMult),
       defense: Math.ceil((((2 * (base.defense || 10) * level) / 100) + 5) * shinyMult),
-      spAtk: Math.ceil((((2 * (base.spAtk || 10) * level) / 100) + 5) * shinyMult),
+      spAtk: Math.ceil((((2 * (base.spAtk || 10) * level) / 100) + 5) * shinyMult * atkRepelMult),
       spDef: Math.ceil((((2 * (base.spDef || 10) * level) / 100) + 5) * shinyMult),
       speed: Math.ceil((((2 * (base.speed || 10) * level) / 100) + 5) * shinyMult),
       instanceId: Date.now(),
@@ -905,6 +959,13 @@ export default function App() {
     }
 
     let nextDelay = Math.floor(1200 * speedMultiplier);
+    
+    // ── 5. ISCA / LURE (Acelerar Spawn) ──────────────────────────────
+    const effects = gameState.activeEffects || {};
+    const now = Date.now();
+    if (effects.activeLure?.endsAt > now) {
+      nextDelay = Math.floor(nextDelay * (effects.activeLure.spawnMult || 0.6));
+    }
 
     setGameState(prev => {
       const myPoke = prev.team[activeMemberIndex];
@@ -1198,8 +1259,88 @@ export default function App() {
         addLog(`💢 ${myPoke.name} sofreu dano por status!`, 'system');
       }
 
+      // ── SISTEMA DE EXAUSTÃO ──────────────────────────────────────────
+      const STAMINA_DRAIN  = 0.4;   // % perdida por tick
+      const EXHAUSTION_DMG = 0.02;  // % do maxHp perdida por tick quando exausto
+      const FEED_THRESHOLD = 25;    // auto-alimenta quando abaixo deste %
+
+      const currentStamina = prev.stamina?.[myPoke.instanceId]?.value ?? 100;
+      let newStamina = Math.max(0, currentStamina - STAMINA_DRAIN);
+
+      // Exausto: perde HP
+      if (currentStamina <= 0) {
+        const hpDrain = Math.max(1, Math.ceil(
+          (updatedTeamFinal[activeMemberIndex].maxHp || 30) * EXHAUSTION_DMG
+        ));
+        updatedTeamFinal[activeMemberIndex] = {
+          ...updatedTeamFinal[activeMemberIndex],
+          hp: Math.max(0, (updatedTeamFinal[activeMemberIndex].hp || 0) - hpDrain),
+        };
+        if (Math.random() < 0.25) {
+          addLog(`😵 ${myPoke.name} está exausto! Perdendo vida por falta de comida!`, 'system');
+        }
+      }
+
+      let finalInventory = { ...prev.inventory };
+      let staminaEntry = { value: newStamina, lastFed: prev.stamina?.[myPoke.instanceId]?.lastFed || Date.now() };
+
+      // Auto-alimentar quando abaixo do limiar
+      if (newStamina < FEED_THRESHOLD) {
+        // Prioridade: bebidas nutritivas > berries > ração básica
+        const feedPriority = [
+          { key: 'moomoo_milk',       src: 'items'     },
+          { key: 'lemonade',          src: 'items'     },
+          { key: 'soda_pop',          src: 'items'     },
+          { key: 'berry_juice',       src: 'items'     },
+          { key: 'poke_food_premium', src: 'items'     },
+          { key: 'fresh_water',       src: 'items'     },
+          { key: 'poke_food',         src: 'items'     },
+          { key: 'sitrus_berry',      src: 'materials' },
+          { key: 'lum_berry',         src: 'materials' },
+          { key: 'oran_berry',         src: 'materials' },
+          { key: 'cheri_berry',        src: 'materials' },
+          { key: 'chesto_berry',       src: 'materials' },
+          { key: 'pecha_berry',        src: 'materials' },
+          { key: 'rawst_berry',        src: 'materials' },
+          { key: 'aspear_berry',       src: 'materials' },
+          { key: 'leppa_berry',        src: 'materials' },
+        ];
+
+        const food = feedPriority.find(f => {
+          const bag = f.src === 'items' ? finalInventory?.items : finalInventory?.materials;
+          return (bag?.[f.key] || 0) > 0;
+        });
+
+        if (food) {
+          const restoreData = STAMINA_RESTORE_TABLE[food.key];
+          newStamina = Math.min(100, newStamina + (restoreData?.restore || 25));
+
+          const newBagContent = food.src === 'items'
+            ? { ...finalInventory.items,     [food.key]: Math.max(0, (finalInventory.items?.[food.key]     || 0) - 1) }
+            : { ...finalInventory.materials, [food.key]: Math.max(0, (finalInventory.materials?.[food.key] || 0) - 1) };
+
+          finalInventory = food.src === 'items'
+            ? { ...finalInventory, items: newBagContent }
+            : { ...finalInventory, materials: newBagContent };
+
+          staminaEntry = { value: newStamina, lastFed: Date.now() };
+          const itemName = ITEM_LABELS[food.key]?.name || food.key;
+          addLog(`🍽️ ${myPoke.name} comeu ${itemName} e recuperou energia!`, 'system');
+        } else if (newStamina < 10 && Math.random() < 0.2) {
+          addLog(`⚠️ ${myPoke.name} está faminto! Compre bebidas no Poké Mart ou cultive Berries!`, 'system');
+        }
+      }
+
       setCurrentEnemy(updatedEnemyFinal);
-      return { ...prev, team: updatedTeamFinal };
+      return { 
+        ...prev, 
+        team: updatedTeamFinal,
+        inventory: finalInventory,
+        stamina: {
+          ...prev.stamina,
+          [myPoke.instanceId]: staminaEntry
+        }
+      };
     });
 
     setMoveIndex(m => m + 1);
@@ -1302,6 +1443,35 @@ export default function App() {
           addLog(`🧪 Usou Poção em ${activePoke.name}!`, 'system');
           return { ...prev, inventory: newInventory, team: newTeam };
         }
+      }
+      
+      // ── 3. EFEITOS TEMPORÁRIOS (TIMED EFFECTS) ──────────────────────
+      const allRecipes = Object.values(CRAFTING_RECIPES).flat();
+      const recipe = allRecipes.find(r => r.id === itemId);
+      
+      if (recipe?.effect?.type === 'timed') {
+        const newItems = { ...prev.inventory.items };
+        if (!newItems[itemId] || newItems[itemId] <= 0) return prev;
+        newItems[itemId] -= 1;
+
+        const newEffects = {
+          ...(prev.activeEffects || {}),
+          [recipe.effect.key]: {
+            ...recipe.effect,
+            endsAt: Date.now() + recipe.effect.duration,
+            name: recipe.name,
+            icon: recipe.img,
+            durationLabel: recipe.durationLabel,
+          },
+        };
+
+        addLog(`✨ ${recipe.name} ativado por ${recipe.durationLabel}!`, 'system');
+
+        return {
+          ...prev,
+          inventory: { ...prev.inventory, items: newItems },
+          activeEffects: newEffects,
+        };
       }
       
       return { ...prev, inventory: newInventory };
@@ -1587,6 +1757,124 @@ export default function App() {
     });
   }, [addLog]);
 
+  // ── HOUSE SYSTEM HANDLERS ──────────────────────────────────────────
+  // Comprar a casa
+  const handleBuyHouse = useCallback(() => {
+    setGameState(prev => {
+      if ((prev.currency || 0) < HOUSE_PURCHASE_COST) {
+        addLog(`❌ Coins insuficientes! A casa custa ${HOUSE_PURCHASE_COST} coins.`, 'system');
+        return prev;
+      }
+      addLog(`🏠 Casa comprada! Prof. Carvalho ficou orgulhoso!`, 'system');
+      return {
+        ...prev,
+        currency: prev.currency - HOUSE_PURCHASE_COST,
+        house: { ...prev.house, owned: true, totalSlots: 4, slots: [], caretakers: [] },
+        worldFlags: [...(prev.worldFlags || []), 'house_owned'],
+      };
+    });
+    setShowOakHouseModal(false);
+    setShowHouse(true);
+  }, [addLog]);
+
+  // Plantar
+  const handlePlant = useCallback((slotIndex, plantId) => {
+    setGameState(prev => {
+      const plant        = PLANTABLE_ITEMS[plantId];
+      const caretakers   = prev.house?.caretakers || [];
+      const bonus        = calcCombinedCaretakerBonus(caretakers);
+      const growthTime   = calcGrowthTime(plant, bonus);
+
+      // Descontar coins do custo da semente
+      if ((prev.currency || 0) < plant.cost) {
+        addLog(`❌ Coins insuficientes para plantar ${plant.name}!`, 'system');
+        return prev;
+      }
+
+      const newSlots = [...(prev.house?.slots || [])];
+      newSlots[slotIndex] = { plantId, plantedAt: Date.now(), growthTime };
+
+      addLog(`🌱 ${plant.name} plantado! Pronto em ${Math.floor(growthTime / 60000)} min.`, 'system');
+      return {
+        ...prev,
+        currency: prev.currency - plant.cost,
+        house: { ...prev.house, slots: newSlots },
+      };
+    });
+  }, [addLog]);
+
+  // Colher
+  const handleHarvest = useCallback((slotIndex) => {
+    setGameState(prev => {
+      const slot = prev.house?.slots?.[slotIndex];
+      if (!slot) return prev;
+
+      const plant      = PLANTABLE_ITEMS[slot.plantId];
+      const caretakers = prev.house?.caretakers || [];
+      const bonus      = calcCombinedCaretakerBonus(caretakers);
+      const drops      = calcHarvestDrops(plant, bonus);
+
+      const newSlots = [...(prev.house.slots)];
+      newSlots[slotIndex] = null;
+
+      const newMaterials = { ...prev.inventory.materials };
+      for (const [item, qty] of Object.entries(drops)) {
+        newMaterials[item] = (newMaterials[item] || 0) + qty;
+      }
+
+      const dropSummary = Object.entries(drops).map(([k, v]) => `${v}x ${k}`).join(', ');
+      addLog(`🌾 Colheu ${plant.name}: ${dropSummary}`, 'drop');
+
+      return {
+        ...prev,
+        house: { ...prev.house, slots: newSlots },
+        inventory: { ...prev.inventory, materials: newMaterials },
+      };
+    });
+  }, [addLog]);
+
+  // Comprar expansão de slots
+  const handleBuySlot = useCallback((expansion) => {
+    setGameState(prev => {
+      if ((prev.currency || 0) < expansion.cost) return prev;
+      addLog(`🏗️ Jardim expandido para ${expansion.totalSlots} canteiros!`, 'system');
+      return {
+        ...prev,
+        currency: prev.currency - expansion.cost,
+        house: { ...prev.house, totalSlots: expansion.totalSlots },
+      };
+    });
+  }, [addLog]);
+
+  // Designar cuidador (retira do PC)
+  const handleAssignCaretaker = useCallback((pokemon) => {
+    setGameState(prev => {
+      const newPC         = (prev.pc || []).filter(p => p.instanceId !== pokemon.instanceId);
+      const newCaretakers = [...(prev.house?.caretakers || []), pokemon];
+      addLog(`🐾 ${pokemon.name} agora cuida do jardim!`, 'system');
+      return {
+        ...prev,
+        pc: newPC,
+        house: { ...prev.house, caretakers: newCaretakers },
+      };
+    });
+  }, [addLog]);
+
+  // Remover cuidador (devolve ao PC)
+  const handleRemoveCaretaker = useCallback((instanceId) => {
+    setGameState(prev => {
+      const pokemon       = (prev.house?.caretakers || []).find(p => p.instanceId === instanceId);
+      const newCaretakers = (prev.house?.caretakers || []).filter(p => p.instanceId !== instanceId);
+      const newPC         = [...(prev.pc || []), pokemon].filter(Boolean);
+      if (pokemon) addLog(`🐾 ${pokemon.name} voltou ao PC.`, 'system');
+      return {
+        ...prev,
+        pc: newPC,
+        house: { ...prev.house, caretakers: newCaretakers },
+      };
+    });
+  }, [addLog]);
+
   const startBattleAgainstRival = useCallback((battleData) => {
     // Se for um objeto de evento (clique direto sem argumentos do intro), battleData.team será undefined
     if (battleData && battleData.team) {
@@ -1718,6 +2006,7 @@ export default function App() {
       const newInventory = { ...prev.inventory };
       const newFlags = [...(prev.worldFlags || [])];
       const newBadges = [...(prev.badges || [])];
+      const tempWorldFlags = [...(prev.worldFlags || [])];
 
       Object.entries(drops.materials || {}).forEach(([mat, qty]) => {
         newInventory.materials[mat] = (newInventory.materials[mat] || 0) + qty;
@@ -1750,6 +2039,12 @@ export default function App() {
         
         const newShare = newBadges.length * 10;
         addLog(`✨ Exp Share aumentado! Sua equipe agora recebe ${newShare}% da experiência compartilhada!`, 'system');
+        
+        // Show Oak House modal after 1st badge
+        if (newBadges.length === 1 && !prev.worldFlags?.includes('house_owned') && !prev.worldFlags?.includes('oak_house_shown')) {
+          setTimeout(() => setShowOakHouseModal(true), 2000);
+          tempWorldFlags.push('oak_house_shown');
+        }
       }
 
       // Salvar flag de vitória específica do inimigo (Rival, Boss, etc)
@@ -1764,16 +2059,32 @@ export default function App() {
       }
 
       const badgesCount = prev.badges?.length || 0;
-      const sharedXpRatio = badgesCount * 0.10; // 10% per badge
+      
+      // ── EFEITOS ATIVOS (TIMED) ────────────────────────────────────────
+      const now = Date.now();
+      const effects = prev.activeEffects || {};
+      
+      let xpMult = 1.0;
+      if (effects.activeLuckyEgg?.endsAt > now) xpMult *= (effects.activeLuckyEgg.xpMult || 1.50);
+      if (effects.activeSootheBell?.endsAt > now) xpMult *= (effects.activeSootheBell.xpMult || 1.20);
+
+      // Exp Share (Timed vs Badge)
+      const expShareTimed = effects.activeExpShare?.endsAt > now;
+      const sharedXpRatio = expShareTimed ? (effects.activeExpShare.xpShare || 0.50) : (badgesCount * 0.10);
 
       const newTeam = prev.team.map((p, i) => {
         const isLead = (i === activeMemberIndex);
         let xpToAdd = 0;
 
         if (isLead && p.hp > 0) {
-          xpToAdd = baseXpGain; // Active member gets 100%
+          xpToAdd = Math.floor(baseXpGain * xpMult); // Lead gets bonuses
         } else if (p.hp > 0 && sharedXpRatio > 0) {
-          xpToAdd = Math.floor(baseXpGain * sharedXpRatio); // Others get % based on badges
+          xpToAdd = Math.floor(baseXpGain * sharedXpRatio * xpMult); // Others get % + bonuses
+        }
+
+        // Lucky Egg (Antiga Lógica Hold - Mantida para compatibilidade se necessário)
+        if (p.heldItem === 'lucky_egg' && !(effects.activeLuckyEgg?.endsAt > now)) {
+          xpToAdd = Math.floor(xpToAdd * 1.5);
         }
 
         if (xpToAdd <= 0) {
@@ -1858,7 +2169,7 @@ export default function App() {
         currency: (prev.currency || 0) + (drops.currency || 0) + (currentEnemy.trainerReward || 0),
         inventory: newInventory,
         team: newTeam,
-        worldFlags: newFlags,
+        worldFlags: [...newFlags, ...tempWorldFlags].filter((v, i, a) => a.indexOf(v) === i),
         badges: newBadges
       };
     });
@@ -2240,8 +2551,11 @@ export default function App() {
                             ...prev, 
                             team: [myPoke],
                             caughtData: { ...prev.caughtData, [p.id]: true },
-                            worldFlags: [...(prev.worldFlags || []), 'has_starter']
+                            worldFlags: [...(prev.worldFlags || []), 'has_starter'],
+                            oakTutorialShown: true
                           })); 
+                          
+                          setTimeout(() => setShowOakStaminaModal(true), 600);
                           setPreviewStarter(null);
                           setCurrentView('rival_intro'); 
                         }}
@@ -2453,7 +2767,152 @@ export default function App() {
               }
             }}
             onOpenExpeditions={() => setShowExpeditions(true)}
+            onOpenHouse={() => setShowHouse(true)}
           />
+
+          {/* Modal do Prof. Carvalho sobre a Casa */}
+          {showOakHouseModal && (
+            <div className="fixed inset-0 z-[120] flex items-end justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
+              <div className="w-full max-w-md bg-white rounded-[2.5rem] overflow-hidden shadow-2xl">
+                <div className="bg-amber-50 p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <img
+                      src="https://play.pokemonshowdown.com/sprites/trainers/oak.png"
+                      className="w-20 h-20 object-contain"
+                      alt="Prof. Carvalho"
+                    />
+                    <div>
+                      <p className="text-amber-900 text-[10px] font-black uppercase tracking-widest">Professor Carvalho</p>
+                      <p className="text-amber-800 font-black text-base italic leading-tight">
+                        "Sua jornada merece uma base!"
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-amber-900 text-sm leading-relaxed mb-4">
+                    Parabéns por vencer o Ginásio de Pewter! Você está crescendo como treinador.
+                    Que tal ter sua própria casa? Lá você pode cultivar Berries e Apricorns para
+                    fabricar Pokébolas especiais e itens raros. Com Pokémon de Grama e Água como
+                    cuidadores, suas plantações crescerão muito mais rápido!
+                  </p>
+                  <div className="bg-amber-100 rounded-2xl p-3 mb-4 border border-amber-200">
+                    <p className="text-amber-800 font-black text-sm">🏠 Custo da Casa</p>
+                    <p className="text-amber-900 text-xs mt-1">
+                      💰 {HOUSE_PURCHASE_COST.toLocaleString()} coins • 4 canteiros iniciais
+                    </p>
+                    <p className={`text-xs mt-1 font-bold ${(gameState.currency || 0) >= HOUSE_PURCHASE_COST ? 'text-green-600' : 'text-red-500'}`}>
+                      {(gameState.currency || 0) >= HOUSE_PURCHASE_COST
+                        ? '✅ Você tem coins suficientes!'
+                        : `❌ Você tem ${(gameState.currency || 0).toLocaleString()} coins — falta ${(HOUSE_PURCHASE_COST - (gameState.currency || 0)).toLocaleString()}`}
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowOakHouseModal(false)}
+                      className="flex-1 bg-slate-200 text-slate-700 py-4 rounded-2xl font-black uppercase text-sm"
+                    >
+                      Depois
+                    </button>
+                    <button
+                      onClick={handleBuyHouse}
+                      disabled={(gameState.currency || 0) < HOUSE_PURCHASE_COST}
+                      className={`flex-2 flex-grow py-4 rounded-2xl font-black uppercase text-sm shadow-xl transition-all active:scale-95 ${
+                        (gameState.currency || 0) >= HOUSE_PURCHASE_COST
+                          ? 'bg-amber-500 text-white hover:bg-amber-400'
+                          : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                      }`}
+                    >
+                      🏠 Comprar Casa!
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tela da Casa */}
+          {showHouse && (
+            <HouseScreen
+              gameState={gameState}
+              onClose={() => setShowHouse(false)}
+              onPlant={handlePlant}
+              onHarvest={handleHarvest}
+              onBuySlot={handleBuySlot}
+              onAssignCaretaker={handleAssignCaretaker}
+              onRemoveCaretaker={handleRemoveCaretaker}
+            />
+          )}
+
+          {showOakStaminaModal && (
+            <div className="fixed inset-0 z-[130] flex items-end justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+              <div className="w-full max-w-md bg-white rounded-[2.5rem] overflow-hidden shadow-2xl">
+                <div className="bg-green-50 p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <img
+                      src="https://play.pokemonshowdown.com/sprites/trainers/oak.png"
+                      className="w-20 h-20 object-contain"
+                      alt="Prof. Carvalho"
+                    />
+                    <div>
+                      <p className="text-green-900 text-[10px] font-black uppercase tracking-widest">Professor Carvalho</p>
+                      <p className="text-green-800 font-black text-base italic leading-tight">
+                        "Antes de partir — muito importante!"
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 mb-5">
+                    <p className="text-green-900 text-sm leading-relaxed">
+                      Seus Pokémon precisam se <strong>alimentar</strong> durante as batalhas. Quanto mais lutam, mais energia gastam!
+                    </p>
+
+                    <div className="bg-white rounded-2xl p-3 border border-green-200">
+                      <p className="text-green-800 text-xs font-bold mb-2">🍽️ O que alimenta seus Pokémon:</p>
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-2">
+                          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png" className="w-5 h-5 object-contain" alt="berry" />
+                          <p className="text-green-700 text-xs"><strong>Berries</strong> — cultive na sua casa. Oran e Sitrus Berry são essenciais</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png" className="w-5 h-5 object-contain" alt="agua" />
+                          <p className="text-green-700 text-xs"><strong>Água Fresca, Soda Pop, Limonada</strong> — compre no Poké Mart</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moomoo-milk.png" className="w-5 h-5 object-contain" alt="leite" />
+                          <p className="text-green-700 text-xs"><strong>Leite MooMoo</strong> — o mais nutritivo, disponível depois do 4º ginásio</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">🍖</span>
+                          <p className="text-green-700 text-xs"><strong>Ração Pokémon</strong> — fabricável na Forja com materiais</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-red-50 rounded-2xl p-3 border border-red-200">
+                      <p className="text-red-700 text-xs font-bold mb-1">⚠️ Sem comida = Perigo!</p>
+                      <p className="text-red-600 text-xs leading-relaxed">
+                        Quando a energia zera, seu Pokémon fica <strong>exausto</strong> e começa a perder HP. Se desmaiar assim — conta como derrota!
+                      </p>
+                    </div>
+
+                    <div className="bg-blue-50 rounded-2xl p-3 border border-blue-200">
+                      <p className="text-blue-700 text-xs font-bold mb-1">💡 Dica:</p>
+                      <p className="text-blue-600 text-xs leading-relaxed">
+                        O sistema alimenta automaticamente com o melhor item disponível. Sempre tenha estoque! Compre <strong>Água Fresca</strong> no Poké Mart antes de qualquer rota.
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setShowOakStaminaModal(false)}
+                    className="w-full bg-green-600 text-white py-4 rounded-2xl font-black uppercase text-sm hover:bg-green-500 transition-all active:scale-95"
+                  >
+                    Entendi, Professor! 🍽️
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {showExpeditions && (
             <ExpeditionsScreen
               gameState={gameState}
@@ -2973,7 +3432,13 @@ export default function App() {
                       {[
                         { id: 'pokeballs', name: 'Poké Bola', price: 200, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', desc: 'Captura Pokémon selvagens' },
                         { id: 'potions', name: 'Poção', price: 300, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png', desc: 'Restaura 20 HP' },
-                        { id: 'revive', name: 'Revive', price: 1500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', desc: 'Revive Pokémon desmaiado' }
+                        { id: 'revive', name: 'Revive', price: 1500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', desc: 'Revive Pokémon desmaiado' },
+                        ...POKE_MART_DRINKS.filter(drink => {
+                           if (!drink.availableFrom) return true;
+                           const badgeMap = { boulder_badge: 1, cascade_badge: 2, thunder_badge: 3, rainbow_badge: 4 };
+                           const badgeId = badgeMap[drink.availableFrom];
+                           return badgeId ? (gameState.badges || []).includes(badgeId) : (gameState.worldFlags || []).includes(drink.availableFrom);
+                        }).map(d => ({ ...d, desc: d.description }))
                       ].map(item => {
                         const maxQty = Math.floor(gameState.currency / item.price);
                         const buyFn = (qty) => {
