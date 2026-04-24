@@ -2,13 +2,15 @@ const fs = require('fs');
 const path = require('path');
 
 const REPLACEMENTS = [
+    { mangled: Buffer.from('c3b0c29fc294c287', 'hex'), correct: Buffer.from('🔇', 'utf8') },
+    { mangled: Buffer.from('c3b0c29fc294c28a', 'hex'), correct: Buffer.from('🔊', 'utf8') },
+    { mangled: Buffer.from('c3a2c280c2a2', 'hex'), correct: Buffer.from('•', 'utf8') },
     { mangled: Buffer.from('c3a2c296c2b6', 'hex'), correct: Buffer.from('▶', 'utf8') },
     { mangled: Buffer.from('c3adc289', 'hex'), correct: Buffer.from('É', 'utf8') },
     { mangled: Buffer.from('c3adc2ad', 'hex'), correct: Buffer.from('í', 'utf8') },
     { mangled: Buffer.from('c3a2c5a1e2809d', 'hex'), correct: Buffer.from('⚔️', 'utf8') },
     { mangled: Buffer.from('c3a2c29ab2', 'hex'), correct: Buffer.from('⚔️', 'utf8') },
-    { mangled: Buffer.from('c3b0c5b8c2a0c2a2', 'hex'), correct: Buffer.from('🏢', 'utf8') },
-    { mangled: Buffer.from('c3a2c296c2b6', 'hex'), correct: Buffer.from('▶', 'utf8') }
+    { mangled: Buffer.from('c3b0c5b8c2a0c2a2', 'hex'), correct: Buffer.from('🏢', 'utf8') }
 ];
 
 function walkDir(dir, callback) {

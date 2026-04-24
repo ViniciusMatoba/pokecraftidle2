@@ -2367,7 +2367,7 @@ export default function App() {
                 </button>
 
                  <p className="mt-8 text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">
-                   PokéCraft Idle v{APP_VERSION} â¢ {APP_VERSION_DATE}
+                   PokéCraft Idle v{APP_VERSION} • {APP_VERSION_DATE}
                  </p>
               </div>
 
@@ -2524,7 +2524,7 @@ export default function App() {
             <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
                 <div className="bg-white w-full max-w-xl rounded-[4rem] shadow-2xl border-b-[16px] border-slate-200 overflow-hidden relative animate-bounceIn">
                    <button onClick={() => setPreviewStarter(null)} className="absolute top-8 right-8 bg-slate-100 p-4 rounded-full hover:bg-red-50 hover:text-red-500 transition-all z-20">
-                      <span className="font-black">í¢Åâ¢</span>
+                      <span className="font-black">í¢Å•</span>
                    </button>
 
                    <div className={`h-40 w-full relative flex items-end justify-center ${previewStarter.type === 'Grass' ? 'bg-green-500' : previewStarter.type === 'Fire' ? 'bg-orange-500' : previewStarter.type === 'Water' ? 'bg-blue-500' : 'bg-slate-400'}`}>
@@ -3279,7 +3279,7 @@ export default function App() {
                  onClick={() => toggleMute()}
                  className="flex items-center gap-1 bg-black/20 px-2 py-1.5 rounded-full hover:bg-black/30 transition-all border border-white/10"
                >
-                 <span className="text-sm">{muted ? 'ð' : 'ð'}</span>
+                 <span className="text-sm">{muted ? '🔇' : '🔊'}</span>
                </button>
                <button onClick={() => { if(window.confirm('Deseja realmente sair? Seu progresso foi salvo.')) setCurrentView('landing'); }} className="flex items-center gap-1.5 bg-black/20 px-3 py-1.5 rounded-full hover:bg-black/30 transition-all border border-white/10">
                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png" className="w-4 h-4" alt="Home" />
@@ -3449,7 +3449,7 @@ export default function App() {
               <button 
                 onClick={() => setActiveBuildingModal(null)}
                 className="absolute top-6 right-6 z-20 bg-white/80 backdrop-blur-md w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:rotate-90 transition-all border-2 border-slate-100"
-              >í¢Åâ¢</button>
+              >í¢Å•</button>
 
               {activeBuildingModal === 'pokecenter' && (
                 <div className="flex-1 flex flex-col overflow-hidden">
@@ -3667,7 +3667,7 @@ export default function App() {
               
               <div className="flex justify-between items-center mb-8">
                  <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter">Onde encontrar?</h3>
-                 <button onClick={() => setActiveMaterialModal(null)} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 transition-colors">í¢Åâ¢</button>
+                 <button onClick={() => setActiveMaterialModal(null)} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 transition-colors">í¢Å•</button>
               </div>
               
               <div className="flex items-center gap-6 bg-slate-50 p-6 rounded-[2.5rem] border-2 border-slate-100 mb-8 shadow-inner">
@@ -3740,7 +3740,7 @@ export default function App() {
                     {masteryNotification.reward.val}
                  </div>
               </div>
-              <button onClick={() => setMasteryNotification(null)} className="absolute top-4 right-4 text-slate-300 hover:text-slate-800 transition-colors text-xs font-black">í¢Åâ¢</button>
+              <button onClick={() => setMasteryNotification(null)} className="absolute top-4 right-4 text-slate-300 hover:text-slate-800 transition-colors text-xs font-black">í¢Å•</button>
            </div>
         </div>
       )}
