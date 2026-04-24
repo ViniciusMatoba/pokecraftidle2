@@ -4,7 +4,7 @@ import { APP_VERSION, APP_VERSION_DATE } from '../data/constants';
 const CURRENT_VERSION = APP_VERSION || '1.4';
 const VERSION_DATE = APP_VERSION_DATE || '2026-04-23';
 
-const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUSIC_LIST, onBack }) => {
+const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUSIC_LIST, onBack, showConfirm, closeConfirm }) => {
   const [updating, setUpdating] = useState(false);
   const [subView, setSubView] = useState('main'); // 'main' ou 'settings'
 
@@ -28,11 +28,37 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         <button 
           key={item.id} 
           onClick={() => {
-            if (item.id === 'exit') { if(window.confirm('Deseja realmente sair?')) setCurrentView('landing'); }
-            else if (item.id === 'save') { if (onSave) onSave(); else alert('Jogo salvo automaticamente!'); }
+            if (item.id === 'exit') {
+              showConfirm({
+                type: 'danger',
+                title: 'Sair do Jogo',
+                message: 'Deseja realmente sair? Seu progresso não salvo poderá ser perdido.',
+                onConfirm: () => {
+                  setCurrentView('landing');
+                  closeConfirm();
+                }
+              });
+            }
+            else if (item.id === 'save') {
+              if (onSave) {
+                onSave();
+              } else {
+                showConfirm({
+                  title: 'Jogo Salvo',
+                  message: 'Seu jogo é salvo automaticamente na nuvem a cada ação importante!',
+                  onConfirm: closeConfirm
+                });
+              }
+            }
             else if (item.id === 'pokedex') setCurrentView('pokedex');
             else if (item.id === 'settings') setSubView('settings');
-            else alert(`${item.name} será implementado em breve!`);
+            else {
+              showConfirm({
+                title: 'Em Breve',
+                message: `${item.name} será implementado em breve! Fique atento às atualizações.`,
+                onConfirm: closeConfirm
+              });
+            }
           }}
           className={`w-full p-4 rounded-3xl border-4 ${item.color} shadow-lg hover:-translate-y-1 hover:shadow-2xl active:scale-95 transition-all flex items-center gap-6 text-left group overflow-hidden relative theme-glass`}
         >

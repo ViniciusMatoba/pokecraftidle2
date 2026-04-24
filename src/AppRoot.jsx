@@ -41,6 +41,9 @@ import ExpeditionsScreen from './components/ExpeditionsScreen';
 import AutoCaptureModal from './components/AutoCaptureModal';
 import ConfirmModal from './components/ConfirmModal';
 
+import QuestModal from './components/QuestModal';
+import { QUESTS, getActiveQuest, updateQuestProgress } from './data/quests';
+
 const fixPath = (path) => {
   if (typeof path !== 'string') return path;
   if (path.startsWith('http')) return path;
@@ -484,7 +487,11 @@ export default function App() {
   const triggerSave = useCallback(async () => {
     const user = auth.currentUser;
     if (!user) {
-      alert("ÃƒÂ¢ÃƒÂ…Ã‚Â¡ÃƒÂ‚ Ã­Â¯ÃƒÂ‚Ã‚Â¸ÃƒÂ‚Ã‚Â VocÃª precisa estar logado para salvar na nuvem!");
+      showConfirm({
+        title: 'Acesso Restrito',
+        message: 'Você precisa estar logado para salvar seu progresso na nuvem!',
+        onConfirm: closeConfirm
+      });
       return;
     }
     try {
@@ -1432,7 +1439,7 @@ export default function App() {
       const bag = source === 'items' ? (prev.inventory?.items || {}) : (prev.inventory?.materials || {});
       if (!bag[itemId] || bag[itemId] <= 0) return prev;
       
-      const newInventory = { 
+      let newInventory = { 
         ...prev.inventory,
         [source]: { ...bag, [itemId]: bag[itemId] - 1 }
       };
@@ -1464,12 +1471,10 @@ export default function App() {
           };
           const newMastery = processCaptureMastery({ ...currentEnemy, id: Number(currentEnemy.id) }, prev);
           
-          let questUpdate = {};
-          if (prev.worldFlags.includes('quest_capture_active')) {
-            newInventory.items = { ...newInventory.items, pokeballs: (newInventory.items.pokeballs || 0) + 10 };
-            addLog('ÃƒÂ°Ã‚ÂŸÃ‚ÂŽÃ‚Â Carvalho: "Ã“timo trabalho! Tome estas 10 PokÃ©bolas!"', 'drop');
-            questUpdate = { worldFlags: prev.worldFlags.filter(f => f !== 'quest_capture_active').concat(['quest_capture_done']) };
-          }
+          const { questUpdate, log: questLog } = updateQuestProgress(prev, 'capture');
+          if (questLog) addLog(questLog, 'drop');
+          if (questUpdate.inventory) newInventory.items = questUpdate.inventory.items;
+
 
           // UnificaÃ§Ã£o por EspÃ©cie: Se jÃ¡ tem na caughtData (antes dessa captura), apenas aumenta maestria
           const alreadyCaught = !!(prev.caughtData || {})[currentEnemy.id];
@@ -2402,7 +2407,7 @@ export default function App() {
                 // CAPTURADO!
                 sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
                 
-                const newInventoryItems = { 
+                let newInventoryItems = { 
                   ...prev.inventory.items, 
                   [selectedBall]: (prev.inventory.items[selectedBall] || 0) - 1 
                 };
@@ -2411,12 +2416,10 @@ export default function App() {
                 const newCaughtData = { ...(prev.caughtData || {}), [currentEnemy.id]: true };
                 const newMastery = processCaptureMastery({ ...currentEnemy, id: Number(currentEnemy.id) }, prev);
                 
-                let questUpdate = {};
-                if (prev.worldFlags.includes('quest_capture_active')) {
-                  newInventoryItems.pokeballs = (newInventoryItems.pokeballs || 0) + 10;
-                  addLog('ðŸ” Carvalho: "Ã“timo trabalho! Tome estas 10 PokÃ©bolas!"', 'drop');
-                  questUpdate = { worldFlags: prev.worldFlags.filter(f => f !== 'quest_capture_active').concat(['quest_capture_done']) };
-                }
+                const { questUpdate, log: questLog } = updateQuestProgress(prev, 'capture');
+                if (questLog) addLog(questLog, 'drop');
+                if (questUpdate.inventory) newInventoryItems = questUpdate.inventory.items;
+
 
                 addLog(
                   `${currentEnemy.isShiny ? 'âœ¨ SHINY ' : ''}${currentEnemy.name} capturado automaticamente com ${ITEM_LABELS[selectedBall]?.name || selectedBall}!`,
@@ -2489,7 +2492,7 @@ export default function App() {
     }, 600);
   }, [currentEnemy?.hp]);
 
-  const renderView = () => {
+  const renderView = (props = {}) => {
     if (loading) return (
       <div className="h-full flex items-center justify-center bg-[#0F2D3A] text-white font-black italic text-2xl uppercase tracking-tighter animate-pulse">
         <span>Carregando Dados...</span>
@@ -2638,7 +2641,14 @@ export default function App() {
                 <button 
                   onClick={() => {
                     if (isLastStep) {
-                      if (!gameState.trainer?.name || gameState.trainer.name.length < 2) return alert("Diga-me seu nome!");
+                      if (!gameState.trainer?.name || gameState.trainer.name.length < 2) {
+                        showConfirm({
+                          title: 'Nome Inválido',
+                          message: 'Diga-me seu nome para continuarmos!',
+                          onConfirm: closeConfirm
+                        });
+                        return;
+                      }
                       setCurrentView('trainer_creation');
                     } else {
                       setIntroStep(s => s + 1);
@@ -3004,6 +3014,7 @@ export default function App() {
       case 'city': return (
         <>
           <CityScreen 
+            {...props}
             gameState={gameState} 
             ROUTES={processedRoutes} 
             fixPath={fixPath} 
@@ -3324,6 +3335,7 @@ export default function App() {
 
       case 'pokemon_management': return (
         <PokemonManagement 
+          {...props}
           gameState={gameState} 
           setGameState={setGameState} 
           activeTab={activeTab} 
@@ -3393,6 +3405,7 @@ export default function App() {
       );
       case 'menu': return (
         <MenuScreen 
+          {...props}
           gameState={gameState} 
           setCurrentView={setCurrentView} 
           setGameState={setGameState}
@@ -3491,7 +3504,14 @@ export default function App() {
                >
                   <span className="text-sm">{muted ? 'ðŸ”‡' : 'ðŸ”Š'}</span>
                </button>
-               <button onClick={() => { if(window.confirm('Deseja realmente sair? Seu progresso foi salvo.')) setCurrentView('landing'); }} className="flex items-center gap-1.5 bg-black/20 px-3 py-1.5 rounded-full hover:bg-black/30 transition-all border border-white/10">
+               <button onClick={() => { showConfirm({
+                    title: 'Voltar ao Início',
+                    message: 'Deseja realmente sair? Seu progresso foi salvo automaticamente.',
+                    onConfirm: () => {
+                      setCurrentView('landing');
+                      closeConfirm();
+                    }
+                  }) }} className="flex items-center gap-1.5 bg-black/20 px-3 py-1.5 rounded-full hover:bg-black/30 transition-all border border-white/10">
                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png" className="w-4 h-4" alt="Home" />
                  <span className="text-[10px] font-black uppercase">Home</span>
                </button>
@@ -3503,7 +3523,12 @@ export default function App() {
           </header>
 
           <main className="flex-1 overflow-y-auto overscroll-contain pt-4 px-4 pb-0 w-full relative z-10 custom-scrollbar" style={{ minHeight: 0 }}>
-            {renderView()}
+            {renderView({ 
+          showConfirm, 
+          closeConfirm,
+          setActiveQuestModal,
+          activeQuestModal
+        })}
           </main>
         </>
       ) : (
@@ -3610,11 +3635,16 @@ export default function App() {
             const currentR = processedRoutes[gameState.currentRoute];
             const isFarming = currentR && currentR.type === 'farm';
             
-            if (currentView === 'battles') {
-              // Se jÃ¡ estÃ¡ na batalha, abrir o mapa requer confirmaÃ§Ã£o
-              if (window.confirm("Deseja abrir o mapa das Rotas? Isso interromperÃ¡ seu treino atual.")) {
-                setCurrentView('routes');
-              }
+             if (currentView === 'battles') {
+              // Se já está na batalha, abrir o mapa requer confirmação
+              showConfirm({
+                title: 'Interromper Treino?',
+                message: 'Deseja abrir o mapa das Rotas? Isso interromperá seu treino atual.',
+                onConfirm: () => {
+                  setCurrentView('routes');
+                  closeConfirm();
+                }
+              });
             } else if (isFarming) {
               // Se estÃ¡ em qualquer outra tela (Menu, Pokemon, etc) e estava treinando, volta para a batalha
               setCurrentView('battles');
@@ -3636,7 +3666,15 @@ export default function App() {
           </button>
           <button onClick={() => {
             if (currentView === 'battles') {
-              if (!window.confirm("Deseja interromper o treino e ir para a cidade?")) return;
+              showConfirm({
+                title: 'Voltar para a Cidade?',
+                message: 'Deseja interromper o treino e ir para a cidade?',
+                onConfirm: () => {
+                  handleGoToCity();
+                  closeConfirm();
+                }
+              });
+              return;
             }
             handleGoToCity();
           }} className={`flex flex-col items-center justify-center py-2 transition-all ${currentView === 'city' ? 'text-indigo-500 scale-110' : 'text-slate-400 opacity-60'}`}>
@@ -3651,39 +3689,11 @@ export default function App() {
       )}
 
       {/* MODAIS DE CONSTRUÃ­Â‡Ã­Â•ES */}
-      {/* MODAL DE MISSÃƒO ATIVA */}
-      {activeQuestModal && (
-        <div className="absolute inset-0 z-[150] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
-           <div className="bg-white rounded-[3rem] p-8 max-w-lg w-full shadow-2xl border-b-[12px] border-pokeBlue animate-bounceIn overflow-hidden relative">
-              <div className="flex justify-between items-center mb-6">
-                 <div className="flex items-center gap-4">
-                    <img src={activeQuestModal.icon} className="w-16 h-16 drop-shadow-md" alt="Quest" />
-                    <div>
-                       <h3 className="text-xl font-black text-slate-800 uppercase italic leading-none">{activeQuestModal.title}</h3>
-                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">MissÃ£o Ativa</p>
-                    </div>
-                 </div>
-                 <button onClick={() => setActiveQuestModal(null)} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 transition-colors">âœ–</button>
-              </div>
-
-              <div className="bg-blue-50 p-6 rounded-3xl border-2 border-blue-100 mb-6 italic text-slate-600 font-bold text-sm">
-                 <p>"{activeQuestModal.desc}"</p>
-              </div>
-
-              <div className="space-y-3 mb-8">
-                 <div className="flex justify-between items-center px-2">
-                    <span className="text-[10px] font-black text-slate-400 uppercase">Recompensa:</span>
-                    <span className="text-sm font-black text-pokeGold uppercase tracking-tighter">{activeQuestModal.reward}</span>
-                 </div>
-              </div>
-
-              <button 
-                onClick={() => setActiveQuestModal(null)}
-                className="w-full bg-pokeBlue text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95"
-              >Entendido!</button>
-           </div>
-        </div>
-      )}
+      {/* MODAL DE MISSÃO ATIVA */}
+      <QuestModal 
+        activeQuest={activeQuestModal} 
+        onClose={() => setActiveQuestModal(null)} 
+      />
 
       {activeBuildingModal && (
         <div className="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-fadeIn">

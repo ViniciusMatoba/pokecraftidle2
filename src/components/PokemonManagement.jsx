@@ -16,7 +16,9 @@ const PokemonManagement = ({
   getMasteryPath,
   addLog,
   setEvolutionPending,
-  handleUseCandy
+  handleUseCandy,
+  showConfirm,
+  closeConfirm
 }) => {
   const translateMove = (moveName) => {
     if (!moveName) return '---';
@@ -25,7 +27,14 @@ const PokemonManagement = ({
   };
 
   const moveToPC = (index) => {
-    if (gameState.team.length <= 1) return alert("Você precisa de pelo menos um Pokémon no time!");
+    if (gameState.team.length <= 1) {
+      showConfirm({
+        title: 'Ação Bloqueada',
+        message: 'Você precisa de pelo menos um Pokémon no seu time principal!',
+        onConfirm: closeConfirm
+      });
+      return;
+    }
     setGameState(prev => {
       const poke = prev.team[index];
       const newTeam = prev.team.filter((_, i) => i !== index);
@@ -36,7 +45,14 @@ const PokemonManagement = ({
   };
 
   const moveToTeam = (index) => {
-    if (gameState.team.length >= 6) return alert("Seu time já está cheio!");
+    if (gameState.team.length >= 6) {
+      showConfirm({
+        title: 'Time Cheio',
+        message: 'Seu time já possui o limite máximo de 6 Pokémon. Envie alguém para o PC primeiro!',
+        onConfirm: closeConfirm
+      });
+      return;
+    }
     setGameState(prev => {
       const poke = prev.pc[index];
       const newPC = prev.pc.filter((_, i) => i !== index);

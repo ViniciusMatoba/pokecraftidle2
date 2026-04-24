@@ -95,7 +95,8 @@ export const DEFAULT_GAME_STATE = {
   settings: {
     battleSpeed: 1,
     displayMode: 'mobile'
-  }
+  },
+  activeQuest: null
 };
 
 export const ITEM_LABELS = {
