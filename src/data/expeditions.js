@@ -1,4 +1,4 @@
-// Sistema de ExpediçÃµes — desbloqueadas por badge de ginásio
+// Sistema de Expediçíµes — desbloqueadas por badge de ginásio
 // Badge 1 (Brock)    → Floresta de Viridian
 // Badge 2 (Misty)    → Oceano Cerulean
 // Badge 3 (Surge)    → Campo Lutador

@@ -44,7 +44,7 @@ export const GYM_LEADERS = {
   brock:    { id: 'brock',    name: 'Brock',    sprite: S.brock,    badge: 1, badgeName: 'Insígnia da Rocha',      reward: 1200,  team: pk([74, 95], 14),              unlockFlag: 'boulder_badge', introText: 'Sou Brock! Minha especialidade são Pokémon do tipo Pedra!' },
   misty:    { id: 'misty',    name: 'Misty',    sprite: S.misty,    badge: 2, badgeName: 'Insígnia da Cascata',    reward: 2500,  team: pk([120, 121], 21),            unlockFlag: 'cascade_badge', introText: 'Sou Misty! Prepare-se para o poder da água!' },
   ltsurge:  { id: 'ltsurge',  name: 'Lt. Surge',sprite: S.ltsurge,  badge: 3, badgeName: 'Insígnia do Trovão',    reward: 4000,  team: pk([100, 25, 26], 24),         unlockFlag: 'thunder_badge', introText: 'Hah! Seu funeral, recruta!' },
-  erika:    { id: 'erika',    name: 'Erika',    sprite: S.erika,    badge: 4, badgeName: 'Insígnia do Arco-Íris', reward: 5000,  team: pk([71, 70, 45], 32),          unlockFlag: 'rainbow_badge', introText: 'Voce me acordou. Vou lutar entao.' },
+  erika:    { id: 'erika',    name: 'Erika',    sprite: S.erika,    badge: 4, badgeName: 'Insígnia do Arco-Íris', reward: 5000,  team: pk([71, 70, 45], 32),          unlockFlag: 'rainbow_badge', introText: 'Voce me acordou. Vou lutar então.' },
   koga:     { id: 'koga',     name: 'Koga',     sprite: S.koga,     badge: 5, badgeName: 'Insígnia da Alma',      reward: 7000,  team: pk([109, 89, 110, 49], 43),   unlockFlag: 'soul_badge',    introText: 'Meu veneno ira paralisa-lo... inexoravelmente!' },
   sabrina:  { id: 'sabrina',  name: 'Sabrina',  sprite: S.sabrina,  badge: 6, badgeName: 'Insígnia do Pântano',   reward: 8000,  team: pk([64, 122, 65], 46),         unlockFlag: 'marsh_badge',   introText: 'Ja previ sua derrota. Ainda assim, entre.' },
   blaine:   { id: 'blaine',   name: 'Blaine',   sprite: S.blaine,   badge: 7, badgeName: 'Insígnia do Vulcão',    reward: 9500,  team: pk([58, 78, 126, 77], 50),     unlockFlag: 'volcano_badge', introText: 'Minha habilidade com Fire queimara voce ate as cinzas!' },
@@ -121,7 +121,7 @@ export const ROUTES = {
       { name: 'Bug Catcher Charlie', sprite: S.bugcatcher, team: pk([13, 14, 14], 7),  reward: 110 },
     ],
     background: '/battle_bg_forest_1776863795763.png',
-    description: 'Floresta de insetos. Um grunt da Rocket bloqueia a saida!',
+    description: 'Floresta de insetos. Um grunt da Rocket bloqueia a saída!',
   },
 
   pewter_city: {
@@ -314,7 +314,7 @@ export const ROUTES = {
       { name: 'Team Rocket Grunt F', sprite: S.rocketF, team: pk([88, 52], 31),     reward: 720, isRocket: true },
     ],
     background: '/battle_bg_cave_1776863810604.png',
-    description: 'QG secreto da Rocket em Celadon. Giovanni te águarda!',
+    description: 'QG secreto da Rocket em Celadon. Giovanni te aguarda!',
   },
 
   celadon_city: {
@@ -441,12 +441,12 @@ export const ROUTES = {
   },
 
   viridian_gym: {
-    id: 'viridian_gym', name: 'Ginasio de Viridian', type: 'city', group: 'Victory Road',
+    id: 'viridian_gym', name: 'Ginásio de Viridian', type: 'city', group: 'Victory Road',
     hasGym: true, gymLeader: GYM_LEADERS.giovanni,
     unlockLevel: 50, requirements: ['volcano_badge'],
     enemies: [], trainers: [], trainerChance: 0,
     background: '/battle_bg_gym_1776863824590.png',
-    description: 'Ginasio misterioso e seu segredo sombrio.',
+    description: 'Ginásio misterioso e seu segredo sombrio.',
   },
 
   victory_road: {
@@ -461,7 +461,7 @@ export const ROUTES = {
       { name: 'Cooltrainer George', sprite: S.cooltrainer, team: pk([148, 105], 50), reward: 2800 },
     ],
     background: '/battle_bg_cave_1776863810604.png',
-    description: 'Caverna do desafio final. Seu rival te águarda!',
+    description: 'Caverna do desafio final. Seu rival te aguarda!',
   },
 
   indigo_plateau: {

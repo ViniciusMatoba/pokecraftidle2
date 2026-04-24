@@ -231,7 +231,7 @@ export const ELITE_FOUR = [
     typeIcon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/dragon.svg',
     background: GYM_BG.Elite,
     reward: 7000,
-    quote: '"DragÃµes são a força máxima!"',
+    quote: '"Dragíµes são a força máxima!"',
     team: [{ id: 148, level: 56 }, { id: 148, level: 56 }, { id: 130, level: 58 }, { id: 149, level: 60 }, { id: 149, level: 62 }]
   },
   {

@@ -1,80 +1,32 @@
+// Execute com: node scripts/fix-encoding.cjs
+// Use APENAS quando textos estiverem corrompidos
 const fs = require('fs');
 const path = require('path');
-
-const REPLACEMENTS = {
-  // Triple/Double Mangled
-  'âš”ï¸ Ã¯Â¸Â ': '⚔️',
-  'Ã°Å¸Â Â¢': '🏢',
-  'PokÃ©mons': 'Pokémons',
-  'Pokí‰MON': 'POKÉMON',
-  'POKí‰MON': 'POKÉMON',
-  'âš”ï¸ ': '⚔️',
-  '⚔️ï¸ ': '⚔️',
-  'ðŸ ¢': '🏢',
-  'Â-¶': '▶',
-  'â–¶': '▶',
-  'í‰': 'É',
-  'í“': 'Ó',
-  'í­': 'í',
-  'í¡': 'á',
-  'í³': 'ó',
-  'íº': 'ú',
-  'íª': 'ê',
-  'í§': 'ç',
-  'í£': 'ã',
-  'Ã©': 'é',
-  'Ã³': 'ó',
-  'Ã¡': 'á',
-  'Ãª': 'ê',
-  'Ã¬': 'ì',
-  'Ã§': 'ç',
-  'Ã£': 'ã',
-  'Ã ': 'à',
-  'Ãº': 'ú',
-  'Ã': 'í',
-  'ï¸ ': ''
-};
-
-function walkDir(dir, callback) {
-  if (!fs.existsSync(dir)) return;
+const fixes = [
+  ['Ã§Ã£o','ção'],['Ã§a','ça'],['Ã£o','ão'],['Ã£','ã'],
+  ['Ã§','ç'],['Ã©','é'],['Ã¡','á'],['Ã','í'],
+  ['Ã³','ó'],['Ãµ','õ'],['Ãº','ú'],['Ã\xaa','ê'],
+  ['Ã\x80','À'],['Ã‰','É'],['Ã‡','Ç'],['Ã"','Ó'],
+  ['ðŸ¢','🏢'],['ðŸŽ‰','🎉'],['ðŸ\'¥','💥'],
+  ['ðŸ›¡','🛡️'],['âœ¨','✨'],['âœ…','✅'],
+  ['â˜ ','☠️'],['âš¡','⚡'],['ðŸ"¥','🔥'],
+  ['Å¸Â',''],['Â ',''],['íƒÂ‚í‚Â',''],['í‚Â',''],
+  // Adições para cobrir resíduos detectados
+  ['íƒ','Ã'], ['í­','í'], ['í‰','É'], ['í“','Ó'], ['íª','ê'], ['íº','ú'], ['í³','ó'],
+  ['í±','ñ'], ['í¡','á'], ['í¨','è'], ['í´','ô'],
+  ['â”€','─'], ['í¢í¢€','─'], ['í‚¬',''], ['í¯Â¸Â',''],
+];
+let total = 0;
+function fix(dir) {
   fs.readdirSync(dir).forEach(f => {
-    let dirPath = path.join(dir, f);
-    let isDirectory = fs.statSync(dirPath).isDirectory();
-    if (isDirectory) {
-      if (f !== 'node_modules' && f !== '.git' && f !== 'dist') {
-        walkDir(dirPath, callback);
-      }
-    } else {
-      if (f.endsWith('.js') || f.endsWith('.jsx')) {
-        callback(path.join(dir, f));
-      }
+    const full = path.join(dir, f);
+    if (fs.statSync(full).isDirectory() && f !== 'node_modules') fix(full);
+    else if (f.endsWith('.jsx') || f.endsWith('.js')) {
+      let c = fs.readFileSync(full,'utf8'); let changed = false;
+      fixes.forEach(([b,g]) => { if(c.includes(b)){c=c.split(b).join(g);changed=true;total++;} });
+      if(changed){fs.writeFileSync(full,c,'utf8');console.log('Fixed:',path.basename(full));}
     }
   });
 }
-
-const targetDir = path.join(__dirname, '..', 'src');
-
-walkDir(targetDir, (filePath) => {
-  let content = fs.readFileSync(filePath, 'utf8');
-  let originalContent = content;
-  
-  let changed = true;
-  while (changed) {
-    let nextContent = content;
-    for (const [mangled, correct] of Object.entries(REPLACEMENTS)) {
-      nextContent = nextContent.split(mangled).join(correct);
-    }
-    if (nextContent === content) {
-      changed = false;
-    } else {
-      content = nextContent;
-    }
-  }
-  
-  if (content !== originalContent) {
-    fs.writeFileSync(filePath, content, 'utf8');
-    console.log(`Fixed: ${filePath}`);
-  }
-});
-
-console.log('Advanced Encoding fix complete.');
+fix('./src');
+console.log('Total substituições:', total);

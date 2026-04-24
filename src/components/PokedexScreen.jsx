@@ -107,7 +107,7 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], onBack }) => 
                       <div className="absolute inset-0 pointer-events-none"
                         style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
 
-                      {/* Ãcones de tipo grandes no fundo (decoração) */}
+                      {/* ícones de tipo grandes no fundo (decoração) */}
                       <img src={typeIconUrl(t1)} className="absolute -left-4 bottom-2 w-28 h-28 opacity-10 pointer-events-none select-none invert" alt="" />
                       {t2 && <img src={typeIconUrl(t2)} className="absolute -right-2 top-2 w-24 h-24 opacity-10 pointer-events-none select-none invert" alt="" />}
 
@@ -170,7 +170,7 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], onBack }) => 
                         </div>
                      </div>
                      <p className="text-[10px] text-slate-500 italic text-center">
-                        "Explora o mundo e coleta mais informaçÃµes sobre esta espécie."
+                        "Explora o mundo e coleta mais informaçíµes sobre esta espécie."
                      </p>
                    </>
                  ) : (

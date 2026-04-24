@@ -110,7 +110,7 @@ export const StatusBadges = ({ status = [], stages = {} }) => {
 
   return (
     <div className="flex flex-wrap gap-1 mt-1 justify-start items-center">
-      {/* CondiçÃµes de Status */}
+      {/* Condiçíµes de Status */}
       {safeStatus.map((s, i) => {
         const config = statusConfig[s] || { label: s.toUpperCase(), color: 'bg-slate-400', icon: 'S' };
         return (

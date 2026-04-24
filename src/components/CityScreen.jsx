@@ -52,7 +52,7 @@ const CityScreen = ({
     { 
       id: 'pokecenter', 
       name: 'Centro Pokémon', 
-      icon: fixPath('/icon_pokecenter_building_1776876572062.png'),
+      icon: null,
       emoji: '🏥',
       desc: 'Cure sua equipe gratuitamente.',
       action: () => setActiveBuildingModal('pokecenter'),
@@ -61,7 +61,7 @@ const CityScreen = ({
     { 
       id: 'mart', 
       name: 'Poké Mart', 
-      icon: fixPath('/icon_pokemart_building_1776876590556.png'),
+      icon: null,
       emoji: '🏪',
       desc: 'Compre itens e suprimentos.',
       action: () => setActiveBuildingModal('mart'),
@@ -70,7 +70,7 @@ const CityScreen = ({
     { 
       id: 'forge', 
       name: 'Forja Pokémon', 
-      icon: fixPath('/icon_forge_building_1776876610240.png'),
+      icon: null,
       emoji: '🔨',
       desc: 'Crie itens raros com materiais.',
       action: () => setActiveBuildingModal('forge'),
@@ -128,7 +128,7 @@ const CityScreen = ({
           <div className="w-full bg-gradient-to-r from-green-400 to-emerald-500 p-4 rounded-2xl shadow-xl border-b-4 border-green-700 animate-bounceIn flex items-center gap-4">
             <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-14 h-14 drop-shadow-lg shrink-0" alt="Oak" />
             <div className="flex-1 text-left">
-              <p className="text-[10px] font-black text-white/80 uppercase tracking-widest">â Missão Concluída!</p>
+              <p className="text-[10px] font-black text-white/80 uppercase tracking-widest">✅ Missão Concluída!</p>
               <p className="text-xs font-bold text-white italic">"Parabéns! Você capturou seu primeiro Pokémon! Seu percurso começa agora!"</p>
               <p className="text-[9px] font-black text-white/70 mt-1 uppercase">+ 10 Pokébolas recebidas</p>
             </div>
