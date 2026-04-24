@@ -78,8 +78,8 @@ const CityScreen = ({
     },
     {
       id: 'expeditions',
-      name: 'Expediçíµes',
-      icon: null,
+      name: 'Expedições',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/explorer-kit.png',
       emoji: '🧭',
       desc: 'Envie Pokémon do PC para coletar recursos em biomas.',
       action: () => onOpenExpeditions && onOpenExpeditions(),
@@ -140,14 +140,17 @@ const CityScreen = ({
         )}
 
         {activeOakModal && (
-          <div className="absolute inset-0 z-[120] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
-             <div className="bg-white rounded-[3rem] p-8 max-w-lg w-full shadow-2xl border-b-[12px] border-slate-800 animate-slideInUp overflow-hidden flex flex-col max-h-[85vh]">
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-fadeIn" onClick={() => setActiveOakModal(false)}>
+             <div 
+               className="bg-white rounded-[3rem] p-8 max-w-lg w-full shadow-2xl border-b-[12px] border-slate-800 animate-slideInUp overflow-y-auto custom-scrollbar flex flex-col max-h-[90vh]"
+               onClick={e => e.stopPropagation()}
+             >
                 <div className="flex justify-between items-center mb-6">
-                   <div className="flex items-center gap-4">
-                      <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-16 h-16 drop-shadow-md" alt="Oak" />
+                   <div className="flex flex-col items-center text-center gap-4 w-full">
+                      <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-24 h-24 drop-shadow-md mx-auto" alt="Oak" />
                       <div>
-                         <h3 className="text-xl font-black text-slate-800 uppercase italic leading-none">Laboratório</h3>
-                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Prof. Carvalho</p>
+                         <h3 className="text-2xl font-black text-slate-800 uppercase italic leading-none">Laboratório</h3>
+                         <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest mt-1">Prof. Carvalho</p>
                       </div>
                    </div>
                    <button onClick={() => setActiveOakModal(false)} className="text-slate-300 hover:text-slate-800 transition-colors text-2xl"></button>

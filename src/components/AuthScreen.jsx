@@ -171,12 +171,12 @@ const AuthScreen = ({ onAuthSuccess }) => {
                   tabIndex={-1}
                   aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                 >
-                  {showPassword ? '=H' : '=A'}
+                  {showPassword ? '👁️' : '👁️‍🗨️'}
                 </button>
               </div>
             </div>
 
-            {/* Toggle  Lembrar login */}
+            {/* Toggle   Lembrar login */}
             <label className="flex items-center gap-3 cursor-pointer group select-none">
               <div className="relative flex-shrink-0">
                 <input

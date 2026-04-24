@@ -98,22 +98,7 @@ const BattleScreen = ({
       <ActiveEffectsBar activeEffects={gameState.activeEffects} />
 
       {/*    AÇÕES RÁPIDAS / CONFIGS    */}
-      <div className="flex gap-2 px-2 flex-shrink-0">
-        <button 
-          onClick={() => setShowAutoConfig(true)}
-          className="flex-1 bg-white/80 backdrop-blur-sm border-2 border-slate-100 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-sm hover:border-pokeBlue transition-all active:scale-95"
-        >
-          <span className="text-lg">⚙️</span>
-          <span className="text-[10px] font-black uppercase text-slate-600 tracking-tighter">Auto-Itens</span>
-        </button>
-        <button 
-          onClick={() => setShowAutoCaptureModal(true)}
-          className="flex-1 bg-white/80 backdrop-blur-sm border-2 border-slate-100 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-sm hover:border-pokeBlue transition-all active:scale-95"
-        >
-          <span className="text-lg">🎯</span>
-          <span className="text-[10px] font-black uppercase text-slate-600 tracking-tighter">Auto-Captura</span>
-        </button>
-      </div>
+      
 
       {/*    ARENA    */}
       <div className="relative overflow-hidden rounded-2xl shadow-xl flex-shrink-0" style={{ height: 220 }}>
@@ -474,23 +459,36 @@ const BattleScreen = ({
           <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl animate-bounceIn overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
             {/* Header Fixo */}
             <div className="flex-shrink-0 px-8 pt-8 pb-4 flex items-center justify-between">
-              <h3 className="font-black text-slate-800 uppercase italic text-xl">⚙️ Auto-Itens</h3>
+              <h3 className="font-black text-slate-800 uppercase italic text-xl">⚙️ Painel Automático</h3>
               <button onClick={() => setShowAutoConfig(false)} className="text-slate-300 hover:text-slate-500 font-black text-2xl transition-colors"></button>
             </div>
 
             {/* Conteúdo com Scroll */}
             <div className="flex-1 overflow-y-auto custom-scrollbar px-8 py-2 flex flex-col gap-5">
-              {/* Auto Captura */}
-              <div className="flex items-center justify-between bg-blue-50 p-5 rounded-3xl border-2 border-blue-100 shadow-sm">
-                <div>
-                  <p className="font-black text-slate-800 text-sm uppercase tracking-tighter">🎯 Auto-Captura</p>
-                  <p className="text-[10px] text-slate-500 mt-1 font-bold">Usa Pokébolas automaticamente</p>
-                </div>
-                <div className="relative cursor-pointer" onClick={() => setGameState(prev => ({ ...prev, autoCapture: !prev.autoCapture }))}>
-                  <div className={`w-14 h-7 rounded-full transition-all duration-300 ${gameState.autoCapture ? 'bg-pokeBlue' : 'bg-slate-200'}`}>
-                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-lg transition-all duration-300 ${gameState.autoCapture ? 'translate-x-8' : 'translate-x-1'}`} />
+                            {/* Auto Captura */}
+              <div className="bg-blue-50 p-5 rounded-3xl border-2 border-blue-100 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="font-black text-slate-800 text-sm uppercase tracking-tighter">🎯 Auto-Captura</p>
+                    <p className="text-[10px] text-slate-500 mt-1 font-bold">Usa Pokébolas automaticamente</p>
+                  </div>
+                  <div className="relative cursor-pointer" onClick={() => setGameState(prev => ({ ...prev, autoCapture: !prev.autoCapture }))}>
+                    <div className={`w-14 h-7 rounded-full transition-all duration-300 ${gameState.autoCapture ? 'bg-pokeBlue' : 'bg-slate-200'}`}>
+                      <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-lg transition-all duration-300 ${gameState.autoCapture ? 'translate-x-8' : 'translate-x-1'}`} />
+                    </div>
                   </div>
                 </div>
+                {gameState.autoCapture && (
+                  <button 
+                    onClick={() => {
+                      setShowAutoConfig(false);
+                      setShowAutoCaptureModal(true);
+                    }}
+                    className="w-full bg-white border-2 border-blue-200 text-blue-600 py-2 rounded-xl font-black text-[10px] uppercase hover:bg-blue-50 transition-all"
+                  >
+                    ⚙️ Configurar Critérios de Captura
+                  </button>
+                )}
               </div>
 
               {/* Auto Poção */}
@@ -508,7 +506,7 @@ const BattleScreen = ({
                 </div>
                 {autoConfig.autoPotion && (
                   <div className="mt-2 bg-white/50 p-3 rounded-2xl border border-green-200">
-                    <p className="text-[10px] font-black text-slate-600 uppercase mb-2">Usar quando HP d {autoConfig.autoPotionHpPct}%</p>
+                    <p className="text-[10px] font-black text-slate-600 uppercase mb-2">Usar quando HP {'<'} {autoConfig.autoPotionHpPct}%</p>
                     <input type="range" min={10} max={80} step={5} value={autoConfig.autoPotionHpPct}
                       onChange={e => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoPotionHpPct: Number(e.target.value) } }))}
                       className="w-full accent-green-500 h-2 bg-green-100 rounded-lg appearance-none cursor-pointer" />
@@ -534,7 +532,7 @@ const BattleScreen = ({
                 </div>
                 {autoConfig.autoStamina && (
                   <div className="mt-2 bg-white/50 p-3 rounded-2xl border border-amber-200">
-                    <p className="text-[10px] font-black text-slate-600 uppercase mb-2">Usar quando Energia d {autoConfig.autoStaminaThreshold || 30}%</p>
+                    <p className="text-[10px] font-black text-slate-600 uppercase mb-2">Usar quando Energia {'<'} {autoConfig.autoStaminaThreshold || 30}%</p>
                     <div className="flex justify-between gap-2">
                       {[10, 20, 30, 40, 50].map(val => (
                         <button key={val} onClick={() => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoStaminaThreshold: val } }))}

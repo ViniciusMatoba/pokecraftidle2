@@ -97,10 +97,10 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
   );
 
   const renderBackpack = () => {
-    const inv = gameState.inventory || {};
-    const items = inv.items || {};
-    const materials = inv.materials || {};
-    const candies = inv.candies || {};
+    const inv = gameState?.inventory || {};
+    const items = inv?.items || {};
+    const materials = inv?.materials || {};
+    const candies = inv?.candies || {};
 
     // Categorias da mochila
     const categories = [

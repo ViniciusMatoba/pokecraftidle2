@@ -457,7 +457,7 @@ const TravelScreen = ({
                    </div>
                  ) : (
                    <div className="mt-8 p-8 bg-slate-100/50 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-slate-400 font-bold italic text-sm leading-snug">
-                      Derrote e capture esta espécie para liberar informaçÃµes completas de combate e biologia!
+                      Derrote e capture esta espécie para liberar informações completas de combate e biologia!
                    </div>
                  )}
                  <button 

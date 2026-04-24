@@ -325,7 +325,7 @@ export default function App() {
     setTimeout(() => setFloatingTexts(prev => prev.filter(f => f.id !== id)), 1200);
   }, []);
 
-  // í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬ UNIFICAí­Â‡í­O DE COLEí­Â‡í­O í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬
+  // í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬ UNIFICAí­O DE COLEí­O í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬
   const unifyDuplicates = useCallback((prev) => {
     const all = [...(prev.team || []), ...(prev.pc || [])];
     const uniqueMap = {};
@@ -692,7 +692,7 @@ export default function App() {
     }
 
     drops.currency = Math.floor(coinAmount * coinMult);
-    messages.push(`ðŸ’° +${drops.currency} coins`);
+    messages.push(`💰 +${drops.currency} coins`);
 
     // í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬ CANDY DROP í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬
     const candyId = POKEMON_TO_CANDY[Number(enemy.id)];
@@ -1117,7 +1117,7 @@ export default function App() {
         return prev;
       }
 
-      // í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬ AUTO-POí­Â‡í­O í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬
+      // í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬ AUTO-POí­O í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬í¢í¢Â€Âí¢Â‚Â¬
       const autoConfig = prev.autoConfig || { autoPotion: false, autoPotionHpPct: 30, focusPokemonIndex: 0 };
       if (autoConfig.autoPotion && (prev.inventory?.items?.potions || 0) > 0) {
         const focusIdx = autoConfig.focusPokemonIndex ?? activeMemberIndex;
@@ -2817,7 +2817,7 @@ export default function App() {
             <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
                 <div className="bg-white w-full max-w-xl rounded-[4rem] shadow-2xl border-b-[16px] border-slate-200 overflow-hidden relative animate-bounceIn">
                    <button onClick={() => setPreviewStarter(null)} className="absolute top-8 right-8 bg-slate-100 p-4 rounded-full hover:bg-red-50 hover:text-red-500 transition-all z-20">
-                      <span className="font-black">âœ–</span>
+                      <span className="font-black">✖</span>
                    </button>
 
                    <div className={`h-40 w-full relative flex items-end justify-center ${previewStarter.type === 'Grass' ? 'bg-green-500' : previewStarter.type === 'Fire' ? 'bg-orange-500' : previewStarter.type === 'Water' ? 'bg-blue-500' : 'bg-slate-400'}`}>
@@ -3141,7 +3141,7 @@ export default function App() {
                     <p className="text-amber-800 font-black text-lg flex items-center gap-2">ðŸ  Custo da Casa</p>
                     <div className="flex justify-between items-center mt-2">
                        <p className="text-amber-900 text-sm font-bold">
-                          ðŸ’° {HOUSE_PURCHASE_COST.toLocaleString()} coins
+                          💰 {HOUSE_PURCHASE_COST.toLocaleString()} coins
                        </p>
                        <p className="text-amber-700 text-xs font-black uppercase tracking-widest">4 canteiros iniciais</p>
                     </div>
@@ -3451,7 +3451,7 @@ export default function App() {
               <div className="bg-white/50 backdrop-blur-md p-6 rounded-[2.5rem] border-2 border-white shadow-inner mb-6">
                  <div className="flex justify-between items-center mb-4">
                     <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Seus Materiais</h4>
-                    <span className="text-[10px] font-black text-pokeBlue uppercase bg-blue-50 px-3 py-1 rounded-full">ðŸ’° {gameState.currency} Coins</span>
+                    <span className="text-[10px] font-black text-pokeBlue uppercase bg-blue-50 px-3 py-1 rounded-full">💰 {gameState.currency} Coins</span>
                  </div>
                  <div className="flex flex-wrap justify-center gap-3">
                     {Object.entries(gameState.inventory.materials)
@@ -3631,7 +3631,7 @@ export default function App() {
                   { icon: 'âš”ï¸í¯Â¸ÂÂ', label: 'Nocautes', value: sessionStats.kills },
                   { icon: '(', label: 'Shinies', value: sessionStats.shinyKills + sessionStats.captures.filter(c => c.isShiny).length },
                   { icon: 'Âí¢Â€Â ', label: 'Trainers', value: sessionStats.trainers },
-                  { icon: 'ðŸ’°', label: 'Coins',    value: sessionStats.coins  },
+                  { icon: '💰', label: 'Coins',    value: sessionStats.coins  },
                 ].map(s => (
                   <div key={s.label} className="bg-slate-50 rounded-2xl p-3 text-center border border-slate-100">
                     <div className="text-xl mb-1">{s.icon}</div>
@@ -3649,7 +3649,7 @@ export default function App() {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(sessionStats.drops).map(([mat, qty]) => {
-                      const item = ITEM_LABELS[mat] || { icon: 'ðŸ’Ž', name: mat.split('_').pop() };
+                      const item = ITEM_LABELS[mat] || { icon: '💎', name: mat.split('_').pop() };
                       return (
                         <div key={mat} className="flex items-center gap-1.5 bg-white border border-amber-200 rounded-xl px-2.5 py-1 shadow-sm">
                           <span className="text-xs">{item.icon}</span>
@@ -3768,7 +3768,7 @@ export default function App() {
         </nav>
       )}
 
-      {/* MODAIS DE CONSTRUí­Â‡í­Â•ES */}
+      {/* MODAIS DE CONSTRUES */}
       {/* MODAL DE MISSíO ATIVA */}
       {pendingQuest && (
         <QuestModal
@@ -3796,7 +3796,7 @@ export default function App() {
               <button 
                 onClick={() => setActiveBuildingModal(null)}
                 className="absolute top-6 right-6 z-20 bg-white/80 backdrop-blur-md w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:rotate-90 transition-all border-2 border-slate-100"
-              >âœ–</button>
+              >✖</button>
 
               {activeBuildingModal === 'pokecenter' && (
                 <div className="flex-1 flex flex-col overflow-hidden">
@@ -3855,8 +3855,8 @@ export default function App() {
                          <h2 className="text-xl font-black text-slate-800 uppercase italic leading-none">Poké Mart</h2>
                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Suprimentos de Viagem</p>
                       </div>
-                      <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm">
-                         ðŸ’° {gameState.currency}
+                      <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm mr-20">
+                         💰 {gameState.currency}
                       </div>
                    </div>
 
@@ -3897,7 +3897,7 @@ export default function App() {
                                 </div>
                                 <div className="text-right">
                                    <p className="text-[10px] font-black text-slate-400 uppercase">Preço</p>
-                                   <p className="font-black text-amber-600 text-sm">ðŸ’° {item.price}</p>
+                                   <p className="font-black text-amber-600 text-sm">💰 {item.price}</p>
                                 </div>
                              </div>
                              <div className="grid grid-cols-3 gap-2">
@@ -3921,13 +3921,13 @@ export default function App() {
               {activeBuildingModal === 'forge' && (
                 <div className="p-6 flex-1 flex flex-col overflow-hidden">
                    <div className="flex items-center gap-4 mb-5">
-                      <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center text-2xl">ðŸ”¥í‚Â¨</div>
+                      <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center text-2xl">⚒️</div>
                       <div className="flex-1">
                          <h2 className="text-xl font-black text-slate-800 uppercase italic leading-none">Forja Pokémon</h2>
                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Materiais e Equipamentos</p>
                       </div>
-                      <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm">
-                         ðŸ’° {gameState.currency}
+                      <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm mr-20">
+                         💰 {gameState.currency}
                       </div>
                    </div>
 
@@ -3965,7 +3965,7 @@ export default function App() {
                                       inventory: { ...newInv, items: { ...newInv.items, [item.id]: (newInv.items[item.id] || 0) + qty } }
                                     };
                                   });
-                                  addLog(`ðŸ”¥í‚Â¨ Forjado: ${qty}x ${item.name}`, 'system');
+                                  addLog(`⚒️ Forjado: ${qty}x ${item.name}`, 'system');
                                 };
                                 const maxCraft = getMaxCraft();
                                 return (
@@ -4023,11 +4023,11 @@ export default function App() {
               
               <div className="flex justify-between items-center mb-8">
                  <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter">Onde encontrar?</h3>
-                 <button onClick={() => setActiveMaterialModal(null)} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 transition-colors">âœ–</button>
+                 <button onClick={() => setActiveMaterialModal(null)} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 transition-colors">✖</button>
               </div>
               
               <div className="flex items-center gap-6 bg-slate-50 p-6 rounded-[2.5rem] border-2 border-slate-100 mb-8 shadow-inner">
-                 <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg text-3xl">ðŸ’Ž</div>
+                 <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg text-3xl">💎</div>
                  <div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Recurso:</p>
                     <h4 className="text-xl font-black text-slate-800 uppercase italic mt-1">{activeMaterialModal.replace(/_/g, ' ')}</h4>
@@ -4040,13 +4040,13 @@ export default function App() {
                        switch(activeMaterialModal) {
                           case 'currency': return 'Obtido derrotando Pokémons em qualquer rota ou vendendo itens raros.';
                           case 'normal_essence': return 'Dropado por Pokémons tipo NORMAL (ex: Pidgey, Rattata) na Rota 1 e Pallet.';
-                          case 'fire_essence': return 'Dropado por Pokémons tipo FOGO. Procure em áreas vulcí­íƒÂ‚í‚Â¢nicas ou raramente na Rota 1.';
+                          case 'fire_essence': return 'Dropado por Pokémons tipo FOGO. Procure em áreas vulcvulcânicas ou raramente na Rota 1.';
                           case 'water_essence': return 'Dropado por Pokémons tipo í­íƒÂ‚í‚ÂGUA em rios, lagos e oceanos.';
                           case 'grass_essence': return 'Dropado por Pokémons tipo PLANTA na Rota 1 e Floresta de Viridian.';
                           case 'electric_essence': return 'Dropado por Pokémons tipo ELí‰TRICO. Tente a Usina de Energia.';
                           case 'ice_essence': return 'Dropado por Pokémons tipo GELO em cavernas geladas ou Ilhas Seafoam.';
                           case 'fighting_essence': return 'Dropado por Pokémons tipo LUTADOR na Rota 22 ou Victory Road.';
-                          case 'poison_essence': return 'Dropado por Pokémons tipo VENENO na Floresta de Viridian e pí­íƒÂ‚í‚Â¢ntanos.';
+                          case 'poison_essence': return 'Dropado por Pokémons tipo VENENO na Floresta de Viridian e pântanos.';
                           case 'ground_essence': return 'Dropado por Pokémons tipo TERRA em cavernas, como a Caverna Diglett.';
                           case 'flying_essence': return 'Dropado por Pokémons tipo VOADOR em rotas abertas e céus.';
                           case 'psychic_essence': return 'Dropado por Pokémons tipo PSí­íƒÂ‚í‚ÂQUICO em locais misteriosos ou Mansí­íƒÂ‚í‚Âµes.';
@@ -4054,7 +4054,7 @@ export default function App() {
                           case 'rock_essence': return 'Dropado por Pokémons tipo PEDRA em tíºneis de rocha e cavernas.';
                           case 'ghost_essence': return 'Dropado por Pokémons tipo FANTASMA na Torre Pokémon de Lavender.';
                           case 'dragon_essence': return 'Dropado por Pokémons tipo DRAGíƒO em locais sagrados ou Victory Road.';
-                          case 'steel_essence': return 'Dropado por Pokémons tipo Aí­Â‡O em áreas industriais ou usinas.';
+                          case 'steel_essence': return 'Dropado por Pokémons tipo AO em áreas industriais ou usinas.';
                           case 'fairy_essence': return 'Dropado por Pokémons tipo FADA no Monte Lua.';
                           case 'dark_essence': return 'Dropado por Pokémons tipo SOMBRIO em locais escuros ou mansí­íƒÂ‚í‚Âµes.';
                           default: return 'Explore diferentes rotas e derrote Pokémons de tipos variados para coletar este material.';
@@ -4077,7 +4077,7 @@ export default function App() {
         setEvolutionPending={setEvolutionPending} 
       />
 
-      {/* NOTIFICAí­Â‡í­O DE MESTRIA */}
+      {/* NOTIFICAí­O DE MESTRIA */}
       {masteryNotification && (
         <div className="absolute top-24 left-1/2 -translate-x-1/2 z-[200] w-full max-w-sm animate-slideInDown p-4">
            <div className="bg-white/90 backdrop-blur-md rounded-[2.5rem] p-6 shadow-2xl border-4 border-pokeGold flex items-center gap-6 relative overflow-hidden">
@@ -4096,7 +4096,7 @@ export default function App() {
                     {masteryNotification.reward.val}
                  </div>
               </div>
-              <button onClick={() => setMasteryNotification(null)} className="absolute top-4 right-4 text-slate-300 hover:text-slate-800 transition-colors text-xs font-black">âœ–</button>
+              <button onClick={() => setMasteryNotification(null)} className="absolute top-4 right-4 text-slate-300 hover:text-slate-800 transition-colors text-xs font-black">✖</button>
            </div>
         </div>
       )}
