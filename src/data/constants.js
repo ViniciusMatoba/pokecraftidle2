@@ -82,6 +82,16 @@ export const DEFAULT_GAME_STATE = {
   },
   stamina: {},
   oakTutorialShown: false,
+  autoCapture: false,
+  autoCaptureConfig: {
+    enabled: false,
+    mode: 'shiny_only',
+    targetIds: [],
+    ballPriority: 'auto',
+    hpThreshold: 30,
+    routeConfigs: {},
+    shownRoutes: [],
+  },
   settings: {
     battleSpeed: 1,
     displayMode: 'mobile'
