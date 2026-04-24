@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.8.2';
+export const APP_VERSION = '1.8.3';
 export const APP_VERSION_DATE = '24/04/2026';
 
 export const NATURE_LIST = ['Adamant', 'Modest', 'Jolly', 'Timid', 'Bold', 'Calm', 'Impish', 'Careful', 'Brave', 'Quiet'];
