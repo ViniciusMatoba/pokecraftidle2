@@ -33,7 +33,7 @@ import {
 } from './data/constants';
 import { getMasteryPath, getEffectiveStat } from './utils/gameHelpers';
 import { getTypeEffectiveness } from './data/typeChart';
-import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
+import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES, getCandyIconUrl } from './data/candies';
 import { calcExpeditionDuration, calcExpeditionDrops, calcExpeditionXP, EXPEDITION_BIOMES } from './data/expeditions';
 import { calcHarvestDrops, calcGrowthTime, calcCombinedCaretakerBonus, PLANTABLE_ITEMS, HOUSE_PURCHASE_COST } from './data/house';
 import HouseScreen from './components/HouseScreen';
@@ -152,7 +152,147 @@ export default function App() {
   const [activeMaterialModal, setActiveMaterialModal] = useState(null);
   const [evolutionPending, setEvolutionPending] = useState(null);
   const [masteryNotification, setMasteryNotification] = useState(null);
-  const [activePokemonDetails, setActivePokemonDetails] = useState(null);
+  const [pokemonModalData, setPokemonModalData] = useState(null);
+
+  const translateMove = (moveName) => {
+    if (!moveName) return '---';
+    const key = String(moveName).toLowerCase();
+    return MOVE_TRANSLATIONS[key] || moveName.replace(/-/g, ' ');
+  };
+
+  const moveToPC = (index) => {
+    if (gameState.team.length <= 1) {
+      showConfirm({
+        title: 'Ação Bloqueada',
+        message: 'Você precisa de pelo menos um Pokémon no seu time principal!',
+        onConfirm: closeConfirm
+      });
+      return;
+    }
+    setGameState(prev => {
+      const poke = prev.team[index];
+      const newTeam = prev.team.filter((_, i) => i !== index);
+      const newPC = [...(prev.pc || []), poke];
+      return { ...prev, team: newTeam, pc: newPC };
+    });
+    setPokemonModalData(null);
+  };
+
+  const moveToTeam = (index) => {
+    if (gameState.team.length >= 6) {
+      showConfirm({
+        title: 'Time Cheio',
+        message: 'Seu time já possui o limite máximo de 6 Pokémon. Envie alguém para o PC primeiro!',
+        onConfirm: closeConfirm
+      });
+      return;
+    }
+    setGameState(prev => {
+      const poke = prev.pc[index];
+      const newPC = prev.pc.filter((_, i) => i !== index);
+      const newTeam = [...prev.team, poke];
+      return { ...prev, team: newTeam, pc: newPC };
+    });
+    setPokemonModalData(null);
+  };
+
+  const moveUp = (index) => {
+    if (index === 0) return;
+    setGameState(prev => {
+       const newTeam = [...prev.team];
+       [newTeam[index - 1], newTeam[index]] = [newTeam[index], newTeam[index - 1]];
+       return { ...prev, team: newTeam };
+    });
+    setPokemonModalData(prev => ({ ...prev, index: index - 1 }));
+  };
+
+  const moveDown = (index) => {
+    if (index === gameState.team.length - 1) return;
+    setGameState(prev => {
+       const newTeam = [...prev.team];
+       [newTeam[index], newTeam[index + 1]] = [newTeam[index + 1], newTeam[index]];
+       return { ...prev, team: newTeam };
+    });
+    setPokemonModalData(prev => ({ ...prev, index: index + 1 }));
+  };
+
+  const equipNature = (natureName) => {
+    if (!pokemonModalData) return;
+    setGameState(prev => {
+       const newList = [...prev[pokemonModalData.location]];
+       newList[pokemonModalData.index] = { ...newList[pokemonModalData.index], equippedNature: natureName };
+       return { ...prev, [pokemonModalData.location]: newList };
+    });
+    setPokemonModalData(prev => ({ ...prev, pokemon: { ...prev.pokemon, equippedNature: natureName } }));
+  };
+
+  const equipRareMove = (moveObj) => {
+    if (!pokemonModalData) return;
+    setGameState(prev => {
+       const newList = [...prev[pokemonModalData.location]];
+       const poke = newList[pokemonModalData.index];
+       let newLearnedMoves = poke.learnedMoves ? [...poke.learnedMoves] : [...poke.moves];
+       if (!newLearnedMoves.some(m => m.name === moveObj.name)) newLearnedMoves.push(moveObj);
+       if (poke.moves.some(m => m.name === moveObj.name)) {
+         newList[pokemonModalData.index] = { ...poke, learnedMoves: newLearnedMoves };
+         return { ...prev, [pokemonModalData.location]: newList };
+       }
+       const newMoves = [...poke.moves];
+       if (newMoves.length < 4) newMoves.push(moveObj); else newMoves[0] = moveObj; 
+       newList[pokemonModalData.index] = { ...poke, moves: newMoves, learnedMoves: newLearnedMoves };
+       return { ...prev, [pokemonModalData.location]: newList };
+    });
+    setPokemonModalData(prev => {
+       const poke = prev.pokemon;
+       let newLearnedMoves = poke.learnedMoves ? [...poke.learnedMoves] : [...poke.moves];
+       if (!newLearnedMoves.some(m => m.name === moveObj.name)) newLearnedMoves.push(moveObj);
+       if (poke.moves.some(m => m.name === moveObj.name)) return { ...prev, pokemon: { ...poke, learnedMoves: newLearnedMoves } };
+       const newMoves = [...poke.moves];
+       if (newMoves.length < 4) newMoves.push(moveObj); else newMoves[0] = moveObj;
+       return { ...prev, pokemon: { ...poke, moves: newMoves, learnedMoves: newLearnedMoves } };
+    });
+    addLog(`⚔️ ${pokemonModalData.pokemon.name} aprendeu ${moveObj.name}!`, 'system');
+  };
+
+  const toggleEquipMove = (moveObj) => {
+    if (!pokemonModalData) return;
+    const poke = pokemonModalData.pokemon;
+    const isEquipped = poke.moves.some(m => m.name === moveObj.name);
+    let newMoves;
+    if (isEquipped) {
+      if (poke.moves.length <= 1) return;
+      newMoves = poke.moves.filter(m => m.name !== moveObj.name);
+    } else {
+      if (poke.moves.length >= 4) return;
+      newMoves = [...poke.moves, moveObj];
+    }
+    setGameState(prev => {
+      const newList = [...prev[pokemonModalData.location]];
+      newList[pokemonModalData.index] = { ...newList[pokemonModalData.index], moves: newMoves };
+      return { ...prev, [pokemonModalData.location]: newList };
+    });
+    setPokemonModalData(prev => ({ ...prev, pokemon: { ...prev.pokemon, moves: newMoves } }));
+  };
+
+  const useStoneEvolution = (stoneId) => {
+    if (!pokemonModalData) return;
+    const poke = pokemonModalData.pokemon;
+    const pokeData = POKEDEX[poke.id];
+    if (!pokeData?.evolution?.item || pokeData.evolution.item !== stoneId) return;
+    const itemCount = (gameState.inventory?.items?.[stoneId] || 0);
+    if (itemCount <= 0) return;
+    setGameState(prev => ({
+      ...prev,
+      inventory: { ...prev.inventory, items: { ...prev.inventory.items, [stoneId]: (prev.inventory.items[stoneId] || 1) - 1 } }
+    }));
+    const pData = { ...pokemonModalData };
+    setPokemonModalData(null);
+    setEvolutionPending({ 
+      ...poke, 
+      teamIndex: pData.location === 'team' ? pData.index : null, 
+      pcIndex: pData.location === 'pc' ? pData.index : null 
+    });
+  };
   const [currentView, setCurrentView] = useState('landing');
   const [travelTab, setTravelTab] = useState('routes');
   const [showAutoCaptureModal, setShowAutoCaptureModal] = useState(false);
@@ -3681,8 +3821,8 @@ export default function App() {
           setGameState={setGameState} 
           activeTab={activeTab} 
           setActiveTab={setActiveTab} 
-          activePokemonDetails={activePokemonDetails} 
-          setActivePokemonDetails={setActivePokemonDetails}
+          onShowPokemonModal={(poke) => setPokemonModalData(poke)}
+          onClosePokemonModal={() => setPokemonModalData(null)}
           POKEDEX={POKEDEX}
           MOVES={MOVES}
           NATURES={NATURES}
@@ -5227,6 +5367,443 @@ export default function App() {
         </>
       ) : (
         <AuthScreen />
+      )}
+      {pokemonModalData && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 9999,
+          background: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px',
+        }} className="animate-fadeIn">
+          <div style={{
+            width: '100%',
+            maxWidth: '400px',
+            maxHeight: '90vh',
+            background: 'white',
+            borderRadius: '24px',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
+            position: 'relative',
+          }} className="animate-slideInUp">
+            
+            <button
+              onClick={() => setPokemonModalData(null)}
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                background: 'rgba(0,0,0,0.25)',
+                border: '2px solid rgba(255,255,255,0.4)',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: 900,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 100,
+              }}
+            >
+              ✕
+            </button>
+
+            {(() => {
+              const poke = pokemonModalData.pokemon;
+              const types = (poke.types && poke.types.length > 0) ? poke.types : [poke.type || 'Normal'];
+              const t1 = types[0] || 'Normal';
+              const t2 = types[1] || null;
+
+              const TYPE_COLOR = {
+                Normal: '#9ea0aa', Fire: '#ff9741', Water: '#3391d4', Grass: '#38bf4f',
+                Electric: '#fbd100', Ice: '#70cbd4', Fighting: '#e0306a', Poison: '#b567ce',
+                Ground: '#e87236', Flying: '#89aae3', Psychic: '#ff6675', Bug: '#83c300',
+                Rock: '#c9bb8a', Ghost: '#4c6ab2', Dragon: '#006fc9', Dark: '#5b5466',
+                Steel: '#5a8ea2', Fairy: '#fb89eb',
+              };
+
+              const typeIconUrl = (t) => t ? `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg` : '';
+
+              const c1 = TYPE_COLOR[t1] || '#9ea0aa';
+              const c2 = t2 ? (TYPE_COLOR[t2] || '#9ea0aa') : c1;
+
+              const bgStyle = poke.isShiny
+                ? { background: 'linear-gradient(160deg, #fde68a 0%, #f59e0b 50%, #d97706 100%)' }
+                : t2
+                  ? { background: `linear-gradient(160deg, ${c1} 0%, ${c1}bb 40%, ${c2}bb 60%, ${c2} 100%)` }
+                  : { background: `linear-gradient(160deg, ${c1}88 0%, ${c1} 60%, ${c1}dd 100%)` };
+
+              return (
+                <div style={{flexShrink: 0, position: 'relative'}}>
+                  <div className="h-44 w-full relative flex flex-col items-center justify-end overflow-hidden shadow-inner" style={{ ...bgStyle, borderTopLeftRadius: '24px', borderTopRightRadius: '24px' }}>
+                    <div className="absolute inset-0 pointer-events-none"
+                      style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+
+                    <img src={typeIconUrl(t1)} className="absolute -left-4 bottom-2 w-28 h-28 opacity-10 pointer-events-none select-none invert" alt="" />
+                    {t2 && <img src={typeIconUrl(t2)} className="absolute -right-2 top-2 w-24 h-24 opacity-10 pointer-events-none select-none invert" alt="" />}
+
+                    <div className="absolute top-3 right-12 flex flex-col gap-1.5 items-end z-10">
+                      {poke.isShiny && (
+                        <div className="bg-yellow-500 px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
+                          <span className="text-xs">P</span>
+                          <span className="text-[9px] font-black text-white uppercase tracking-widest">Shiny</span>
+                        </div>
+                      )}
+                      {types.map(type => (
+                        <span
+                          key={type}
+                          style={{
+                            background: TYPE_COLOR[type] || '#9ea0aa',
+                            color: 'white',
+                            fontWeight: 900,
+                            fontSize: '10px',
+                            textTransform: 'uppercase',
+                            padding: '3px 10px',
+                            borderRadius: '999px',
+                            letterSpacing: '1px',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                          }}
+                        >
+                          {type}
+                        </span>
+                      ))}
+                    </div>
+
+                    <img
+                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`}
+                      className={`w-32 h-32 object-contain translate-y-8 relative z-10 drop-shadow-2xl ${poke.isShiny ? 'drop-shadow-[0_0_20px_rgba(234,179,8,0.9)]' : ''}`}
+                      alt={poke.name}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
+
+            <div style={{
+              flex: 1,
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              padding: '16px 20px',
+              WebkitOverflowScrolling: 'touch',
+            }} className="custom-scrollbar">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">
+                  {pokemonModalData.pokemon.name}
+                  {pokemonModalData.pokemon.isShiny && <span className="ml-2 text-yellow-500">✨</span>}
+                </h3>
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <span className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Nv. {pokemonModalData.pokemon.level}</span>
+                  <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
+                  <span className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">
+                    {(pokemonModalData.pokemon.types || [pokemonModalData.pokemon.type]).join(' / ')}
+                  </span>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100 mb-6 group hover:border-pokeBlue/30 transition-colors">
+                <h4 className="font-black uppercase text-[8px] text-slate-400 mb-3 tracking-widest text-center">Estatísticas Reais</h4>
+                <div className="grid grid-cols-2 gap-x-8 gap-y-3 px-2">
+                  <div className="flex justify-between items-center"><p className="text-[8px] font-black text-slate-400 uppercase">HP</p><p className="text-xs font-black text-slate-700">{pokemonModalData.pokemon.hp}/{pokemonModalData.pokemon.maxHp}</p></div>
+                  <div className="flex justify-between items-center"><p className="text-[8px] font-black text-slate-400 uppercase">ATK</p><p className="text-xs font-black text-slate-700">{pokemonModalData.pokemon.attack}</p></div>
+                  <div className="flex justify-between items-center"><p className="text-[8px] font-black text-slate-400 uppercase">SPD</p><p className="text-xs font-black text-slate-700">{pokemonModalData.pokemon.speed}</p></div>
+                  <div className="flex justify-between items-center"><p className="text-[8px] font-black text-slate-400 uppercase">DEF</p><p className="text-xs font-black text-slate-700">{pokemonModalData.pokemon.defense}</p></div>
+                  <div className="flex justify-between items-center"><p className="text-[8px] font-black text-slate-400 uppercase">S.ATK</p><p className="text-xs font-black text-slate-700">{pokemonModalData.pokemon.spAtk || 10}</p></div>
+                  <div className="flex justify-between items-center"><p className="text-[8px] font-black text-slate-400 uppercase">S.DEF</p><p className="text-xs font-black text-slate-700">{pokemonModalData.pokemon.spDef || 10}</p></div>
+                </div>
+              </div>
+
+              {(() => {
+                const masteryCount = (gameState.speciesMastery[pokemonModalData.pokemon.id] || 0);
+                const path = getMasteryPath(pokemonModalData.pokemon.id);
+                return (
+                  <div className="flex flex-col gap-3">
+                    <h4 className="font-black uppercase text-[9px] text-slate-400 text-center tracking-widest mb-1">Treinamento Avançado</h4>
+                    
+                    <div className={`p-3 rounded-xl border-2 transition-all ${masteryCount >= 5 ? 'border-pokeBlue bg-blue-50/50' : 'border-slate-200 bg-slate-50 opacity-60 grayscale'}`}>
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="text-[10px] font-black uppercase text-slate-800">Natureza</h3>
+                        {masteryCount < 5 && <span className="text-[8px] font-bold text-red-500 uppercase">Faltam {5 - masteryCount} capturas</span>}
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <select 
+                          value={pokemonModalData.pokemon.equippedNature || ''} 
+                          onChange={(e) => equipNature(e.target.value)}
+                          className="w-full bg-white border-2 border-pokeBlue/20 rounded-lg p-2 text-[10px] font-bold text-slate-700 outline-none focus:border-pokeBlue"
+                        >
+                          <option value="">Padrão (Neutro)</option>
+                          {NATURE_LIST.slice(0, Math.floor(masteryCount / 5)).map((name) => {
+                            const mods = NATURES[name];
+                            return (
+                              <option key={name} value={name}>{name} (+{mods.plus.toUpperCase()}, -{mods.minus.toUpperCase()})</option>
+                            );
+                          })}
+                        </select>
+                        {masteryCount < 5 && (
+                          <div className="bg-slate-200 rounded-lg p-2 text-[10px] font-bold text-slate-400 text-center italic">🔒 Bloqueado</div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className={`p-3 rounded-xl border-2 transition-all ${masteryCount >= (path.rareMoves[0]?.level || 999) ? 'border-pokeYellow bg-yellow-50/50' : 'border-slate-200 bg-slate-50 opacity-60 grayscale'}`}>
+                      <h3 className="text-[10px] font-black uppercase text-slate-800 mb-2">Ataques Raros (Egg Moves)</h3>
+                      <div className="flex flex-col gap-2 overflow-y-auto max-h-32 custom-scrollbar pr-1">
+                        {path.rareMoves.length === 0 && <span className="text-[9px] text-slate-400 italic font-bold">Nenhum ataque catalogado.</span>}
+                        {path.rareMoves.map((rm, idx) => {
+                          const isUnlocked = masteryCount >= rm.level;
+                          const isEquipped = pokemonModalData.pokemon.moves.some(m => m.name === rm.name);
+                          return (
+                            <div key={idx} className={`flex justify-between items-center p-2 rounded-lg border border-slate-200 bg-white ${isEquipped ? 'ring-2 ring-pokeYellow' : ''}`}>
+                              <div>
+                                <p className="text-[10px] font-black uppercase text-slate-800 flex items-center gap-1">{rm.name} {isEquipped && <span className="text-pokeYellow">⭐</span>}</p>
+                                <p className="text-[8px] font-bold text-slate-400 uppercase">{rm.type} • PWR {rm.power}</p>
+                              </div>
+                              {isUnlocked ? (
+                                <button onClick={() => equipRareMove(rm)} disabled={isEquipped} className={`text-[8px] font-black uppercase px-3 py-1.5 rounded-lg transition-all ${isEquipped ? 'bg-slate-100 text-slate-400' : 'bg-pokeYellow text-white hover:bg-yellow-500 shadow-md'}`}>
+                                  {isEquipped ? 'Equipado' : 'Equipar'}
+                                </button>
+                              ) : (
+                                <span className="text-[8px] font-bold text-red-500 uppercase px-2 py-1 bg-red-50 rounded-lg">Faltam {rm.level - masteryCount}</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {(() => {
+                      const poke = pokemonModalData.pokemon;
+                      const candyId = POKEMON_TO_CANDY[Number(poke.id)];
+                      const candyData = candyId ? CANDY_FAMILIES[candyId] : null;
+                      const inventoryCandies = gameState.inventory?.candies || {};
+                      const currentCandyCount = candyData ? (inventoryCandies[candyId] || 0) : 0;
+
+                      if (!candyData) return null;
+
+                      return (
+                        <div className="mt-4 p-4 rounded-3xl border-2 border-pokeBlue/20 bg-blue-50/30">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div
+                              className="w-12 h-12 rounded-full flex items-center justify-center shadow-md border-2 border-white"
+                              style={{ background: candyData.color }}
+                            >
+                              <img
+                                src={getCandyIconUrl(candyData)}
+                                alt={candyData.name}
+                                className="w-10 h-10 object-contain drop-shadow-sm"
+                                onError={e => { e.target.style.display = 'none'; }}
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-black uppercase text-xs text-slate-800 leading-none">{candyData.name}</h4>
+                              <p className="text-[10px] font-bold text-pokeBlue mt-1 uppercase tracking-wider">Disponível: {currentCandyCount}</p>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-2">
+                            {Object.values(CANDY_USES).map((use) => {
+                              const canAfford = currentCandyCount >= use.cost;
+                              return (
+                                <button
+                                  key={use.id}
+                                  onClick={() => handleUseCandy(poke.instanceId, candyId, use.id)}
+                                  disabled={!canAfford}
+                                  className={`flex items-center gap-3 p-2 rounded-2xl border-2 transition-all ${canAfford ? 'bg-white border-slate-100 hover:border-pokeBlue shadow-sm' : 'bg-slate-100 border-transparent opacity-60'}`}
+                                >
+                                  <img src={use.icon} className="w-8 h-8 object-contain" alt="" />
+                                  <div className="flex-1 text-left">
+                                    <p className="text-[10px] font-black uppercase text-slate-700 leading-none">{use.name}</p>
+                                    <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">{use.description}</p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className={`text-[10px] font-black ${canAfford ? 'text-pokeBlue' : 'text-slate-400'}`}>{use.cost} 🍬</p>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                );
+              })()}
+                
+              {(() => {
+                const poke = pokemonModalData.pokemon;
+                const allLearned = poke.learnedMoves || poke.moves || [];
+                const equipped = poke.moves || [];
+                const pokeData = POKEDEX[poke.id];
+                const stoneEvol = pokeData?.evolution?.item;
+                const stoneNames = { thunder_stone: 'Thunder Stone', moon_stone: 'Moon Stone', link_cable: 'Link Cable', fire_stone: 'Fire Stone', water_stone: 'Water Stone', leaf_stone: 'Leaf Stone' };
+                const stoneIcons = { 
+                  thunder_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png', 
+                  moon_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png', 
+                  link_cable: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/up-grade.png',
+                  fire_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png',
+                  water_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png',
+                  leaf_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png'
+                };
+                const hasStone = stoneEvol && (gameState.inventory?.items?.[stoneEvol] || 0) > 0;
+                const typeGrad = { Fire:'from-orange-400 to-red-500', Water:'from-sky-400 to-blue-500', Grass:'from-green-400 to-emerald-500', Electric:'from-yellow-300 to-amber-500', Poison:'from-purple-400 to-violet-600', Rock:'from-stone-400 to-stone-600', Fighting:'from-red-400 to-rose-600', Normal:'from-slate-400 to-slate-600', Flying:'from-sky-300 to-indigo-400', Fairy:'from-pink-400 to-rose-400', Bug:'from-lime-400 to-green-500' };
+                return (
+                  <>
+                    <div className="mt-8 bg-slate-50 p-5 rounded-[2.5rem] border-2 border-slate-100 shadow-inner">
+                      <h4 className="font-black uppercase text-[10px] text-slate-400 text-center tracking-widest mb-4 flex items-center justify-center gap-2">
+                        <span className="w-8 h-[1px] bg-slate-200"></span>
+                        Memória de Movimentos
+                        <span className="w-8 h-[1px] bg-slate-200"></span>
+                      </h4>
+                      <div className="flex justify-between items-center mb-4 px-2">
+                        <p className="text-[9px] text-slate-500 font-black uppercase italic">Clique para Equipar/Remover</p>
+                        <span className={`text-[10px] font-black px-3 py-1 rounded-full ${equipped.length >= 4 ? 'bg-orange-100 text-orange-600' : 'bg-pokeBlue/10 text-pokeBlue'}`}>
+                          {equipped.length}/4 ATIVOS
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+                        {allLearned.map((mov, midx) => {
+                          const isEquipped = equipped.some(m => m.name === mov.name);
+                          const slotIdx = equipped.findIndex(m => m.name === mov.name);
+                          const typeColor = typeGrad[mov.type] || 'from-slate-400 to-slate-600';
+                          
+                          return (
+                            <button 
+                              key={midx} 
+                              onClick={() => toggleEquipMove(mov)} 
+                              className={`group flex items-center gap-3 w-full p-3 rounded-2xl border-2 text-left transition-all relative overflow-hidden ${isEquipped ? 'border-transparent bg-gradient-to-r ' + typeColor + ' text-white shadow-md' : 'border-white bg-white hover:border-slate-200 shadow-sm'}`}
+                            >
+                              {isEquipped && <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>}
+                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm shrink-0 shadow-sm ${isEquipped ? 'bg-white/30 text-white' : 'bg-slate-50 text-slate-400'}`}>
+                                {isEquipped ? slotIdx + 1 : ' '}
+                              </div>
+                              <div className="flex-1">
+                                <p className={`text-xs font-black uppercase ${isEquipped ? 'text-white' : 'text-slate-700'}`}>{mov.name}</p>
+                                <div className="flex items-center gap-2">
+                                  <p className={`text-[8px] font-bold uppercase ${isEquipped ? 'text-white/80' : 'text-slate-400'}`}>{mov.type}</p>
+                                  <span className={`w-1 h-1 rounded-full ${isEquipped ? 'bg-white/40' : 'bg-slate-200'}`}></span>
+                                  <p className={`text-[8px] font-black ${isEquipped ? 'text-white' : 'text-slate-500'}`}>PWR {mov.power || '—'}</p>
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {stoneEvol && (
+                      <div className={`mt-4 mb-2 p-4 rounded-2xl border-2 transition-all ${hasStone ? 'border-yellow-400 bg-gradient-to-br from-yellow-50 to-amber-50 shadow-md' : 'border-slate-200 bg-slate-50 opacity-70'}`}>
+                        <div className="flex items-center gap-3">
+                          <img src={stoneIcons[stoneEvol] || ''} className="w-10 h-10 object-contain drop-shadow" alt={stoneEvol} />
+                          <div className="flex-1">
+                            <p className="text-[11px] font-black text-slate-800 uppercase text-left">Evolução por Pedra</p>
+                            <p className="text-[9px] font-bold text-slate-500 text-left">Requer: {stoneNames[stoneEvol] || stoneEvol}</p>
+                          </div>
+                          {hasStone && (
+                            <button onClick={() => useStoneEvolution(stoneEvol)} className="bg-gradient-to-br from-yellow-400 to-amber-500 text-white font-black text-[10px] px-4 py-2.5 rounded-xl shadow-lg uppercase hover:scale-105 transition-transform animate-pulse text-center">Evoluir!</button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-6 border-t-2 border-slate-100 pt-6">
+                      <h4 className="font-black uppercase text-[10px] text-slate-800 mb-4 flex items-center gap-2">
+                        <span className="bg-pokeBlue text-white w-5 h-5 rounded-lg flex items-center justify-center text-[8px]">?</span>
+                        Guia de Treinamento e Evolução
+                      </h4>
+
+                      <div className="bg-slate-50 p-4 rounded-2xl mb-4 border-2 border-slate-100">
+                        <p className="text-[9px] font-black text-slate-400 uppercase mb-1 text-left">Próxima Evolução</p>
+                        {pokeData?.evolution ? (
+                          <div className="flex flex-col gap-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-100">
+                                <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokeData.evolution.id}.png`} className="w-full h-full object-contain" alt="Evo" />
+                              </div>
+                              <div className="text-left flex-1">
+                                <p className="text-xs font-black text-slate-800 uppercase italic leading-none">{POKEDEX[pokeData.evolution.id]?.name || '???'}</p>
+                                <p className="text-[9px] font-bold text-pokeBlue mt-1 uppercase tracking-widest">
+                                  {pokeData.evolution.level ? `Nível ${pokeData.evolution.level}` : `Requer Item Especial`}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            {pokeData.evolution.level && poke.level >= pokeData.evolution.level && (
+                              <button 
+                                onClick={() => {
+                                  setPokemonModalData(null);
+                                  setEvolutionPending({ 
+                                    ...poke, 
+                                    teamIndex: pokemonModalData.location === 'team' ? pokemonModalData.index : null, 
+                                    pcIndex: pokemonModalData.location === 'pc' ? pokemonModalData.index : null 
+                                  });
+                                }}
+                                className="w-full bg-gradient-to-r from-pokeBlue to-blue-600 text-white font-black text-[10px] py-2.5 rounded-xl shadow-lg uppercase animate-pulse hover:scale-[1.02] transition-transform"
+                              >
+                                🌟 Evolução Disponível! Clique aqui
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-xs font-bold text-slate-400 italic text-left">Este Pokémon atingiu sua forma final.</p>
+                        )}
+                      </div>
+
+                      <div className="bg-slate-50 p-4 rounded-2xl mb-4 border-2 border-slate-100">
+                        <p className="text-[9px] font-black text-slate-400 uppercase mb-2 text-left">Próximos Golpes por Level</p>
+                        <div className="flex flex-col gap-2">
+                          {pokeData?.learnset?.filter(m => m.level > poke.level).length === 0 && (
+                            <p className="text-[10px] font-bold text-slate-400 italic text-left">Não há mais golpes para aprender por nível.</p>
+                          )}
+                          {pokeData?.learnset?.filter(m => m.level > poke.level).sort((a,b) => a.level - b.level).slice(0, 3).map((m, idx) => (
+                            <div key={idx} className="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-100">
+                              <span className="text-[10px] font-black text-slate-700 uppercase italic">Nv. {m.level} • {translateMove(m.move)}</span>
+                              <span className="text-[8px] font-bold text-slate-400 uppercase">Aprenderá</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+            
+            <div className="flex-shrink-0 px-6 py-4 bg-white border-t border-slate-100 flex gap-3">
+              {pokemonModalData.location === 'team' ? (
+                <>
+                  <div className="flex flex-col gap-1 w-20">
+                    <button onClick={() => moveUp(pokemonModalData.index)} disabled={pokemonModalData.index === 0} className="w-full bg-slate-100 text-slate-500 py-2 rounded-xl font-black text-xs hover:bg-slate-200 disabled:opacity-50 transition-all">▲</button>
+                    <button onClick={() => moveDown(pokemonModalData.index)} disabled={pokemonModalData.index === gameState.team.length - 1} className="w-full bg-slate-100 text-slate-500 py-2 rounded-xl font-black text-xs hover:bg-slate-200 disabled:opacity-50 transition-all">▼</button>
+                  </div>
+                  <button 
+                    onClick={() => { moveToPC(pokemonModalData.index); setPokemonModalData(null); }}
+                    className="flex-1 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-[2rem] shadow-lg flex items-center justify-center gap-2 font-black uppercase text-xs hover:scale-[1.02] active:scale-95 transition-all py-4"
+                  >
+                    <span className="text-lg">💻</span>
+                    Enviar para o PC
+                  </button>
+                </>
+              ) : (
+                <button 
+                  onClick={() => { moveToTeam(pokemonModalData.index); setPokemonModalData(null); }}
+                  className="w-full bg-gradient-to-r from-pokeBlue to-blue-600 text-white py-4 rounded-[2rem] shadow-lg flex items-center justify-center gap-3 font-black uppercase text-xs hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                  ➕ Adicionar ao Time
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       )}
       <NotificationSystem />
     </div>
