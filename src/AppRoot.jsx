@@ -3223,7 +3223,7 @@ export default function App() {
                 fontSize: '14px', fontWeight: 700,
                 color: '#1e293b', lineHeight: '1.5', marginBottom: '16px',
               }}>"Beleza... Vou fazer meu Pokémon lutar para deixá-lo mais forte. Da próxima vez não vou perder!"</p>
-              <button onClick={() => setCurrentView('city')} style={{
+              <button onClick={() => { setCurrentEnemy(null); setCurrentView('city'); }} style={{
                 width: '100%', padding: '18px',
                 borderRadius: '16px',
                 background: '#dc2626',
@@ -3536,7 +3536,7 @@ export default function App() {
 
                 <div className="px-8 py-6 bg-slate-50 border-t-2 border-slate-100">
                   <button
-                    onClick={() => setShowOakStaminaModal(false)}
+                    onClick={() => { setShowOakStaminaModal(false); setGameState(prev => ({ ...prev, oakTutorialShown: true })); }}
                     style={{
                       width: '100%', padding: '20px', borderRadius: '20px',
                       background: '#16a34a', color: 'white', fontWeight: 900,
@@ -4017,9 +4017,9 @@ export default function App() {
         </div>
       )}
 
-      {currentView !== 'landing' && (!loading && user && gameState.worldFlags?.includes('has_starter')) && (() => {
+      {currentView !== 'landing' && (!loading && user) && (() => {
         const isRivalBattle = currentEnemy?.isInitialRival === true;
-        const menuUnlocked = gameState.oakTutorialShown === true && !isRivalBattle;
+        const menuUnlocked = (gameState.oakTutorialShown || (gameState.worldFlags && gameState.worldFlags.includes('has_starter'))) && !isRivalBattle;
         return (
           <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-slate-200 flex items-center justify-around px-2 py-2 z-50 shadow-xl">
 
