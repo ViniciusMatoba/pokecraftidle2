@@ -4093,138 +4093,363 @@ export default function App() {
         />
       )}
 
-      {activeBuildingModal && (
+      {activeBuildingModal === 'pokecenter' && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 200,
+          background: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px',
+        }}>
+          <div style={{
+            width: '100%',
+            maxWidth: '400px',
+            maxHeight: '85vh',
+            background: 'white',
+            borderRadius: '24px',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
+          }}>
+            <div style={{
+              background: '#dc2626',
+              padding: '20px 20px 16px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexShrink: 0,
+            }}>
+              <div>
+                <p style={{color:'rgba(255,255,255,0.7)', fontSize:'10px', fontWeight:700, textTransform:'uppercase', letterSpacing:'2px', margin:0}}>
+                  Centro Pokémon
+                </p>
+                <h3 style={{color:'white', fontSize:'18px', fontWeight:900, textTransform:'uppercase', fontStyle:'italic', margin:0}}>
+                  Cure sua Equipe
+                </h3>
+              </div>
+              <button
+                onClick={() => setActiveBuildingModal(null)}
+                style={{
+                  width:'32px', height:'32px', borderRadius:'50%',
+                  background:'rgba(255,255,255,0.2)', border:'none',
+                  fontSize:'16px', fontWeight:900, cursor:'pointer',
+                  color:'white', display:'flex', alignItems:'center', justifyContent:'center',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{flex:1, overflowY:'auto', padding:'20px'}} className="custom-scrollbar">
+              <div className="h-44 relative overflow-hidden rounded-2xl mb-6 shrink-0">
+                <img src={fixPath('battle_bg_pokecenter_1776868686753.png')} className="w-full h-full object-cover" alt="Pokecenter" />
+                <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
+                <img src="https://play.pokemonshowdown.com/sprites/ani/chansey.gif" className="absolute bottom-2 left-1/2 -translate-x-1/2 h-20 drop-shadow-lg" alt="Chansey" />
+              </div>
+              <div className="text-center px-4">
+                <p className="text-slate-500 font-bold mb-4 italic">"Bem-vindo! Podemos curar seus Pokémon?"</p>
+              </div>
+            </div>
+
+            <div style={{padding:'12px 20px 24px 20px', borderTop:'1px solid #f1f5f9', flexShrink:0}}>
+              <button 
+                onClick={() => {
+                  if (isHealing) return;
+                  stopSFX();
+                  sfxHeal();
+                  setIsHealing(true);
+                  setGameState(prev => {
+                    const newStamina = { ...prev.stamina };
+                    prev.team.forEach(p => {
+                      if (p?.instanceId) {
+                        newStamina[p.instanceId] = { value: 100, lastFed: Date.now() };
+                      }
+                    });
+                    return {
+                      ...prev,
+                      team: prev.team.map(p => ({
+                        ...p,
+                        hp: p.maxHp,
+                        status: [],
+                        stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
+                      })),
+                      stamina: newStamina,
+                    };
+                  });
+                  addLog("💖💖 Todos os Pokémon da equipe foram curados!", "system");
+                  
+                  setTimeout(() => {
+                    setActiveBuildingModal(null);
+                    setIsHealing(false);
+                  }, 2000);
+                }}
+                style={{
+                  width:'100%', padding:'16px',
+                  borderRadius:'16px', background:'#dc2626',
+                  color:'white', fontWeight:900, fontSize:'15px',
+                  textTransform:'uppercase', letterSpacing:'1px',
+                  border:'none', cursor:'pointer',
+                  boxShadow:'0 4px 12px rgba(220,38,38,0.3)',
+                  opacity: isHealing ? 0.5 : 1
+                }}
+                className={isHealing ? 'animate-pulse' : ''}
+              >
+                {isHealing ? 'Cuidando...' : 'Curar Equipe Gratuitamente'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeBuildingModal === 'mart' && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 200,
+          background: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px',
+        }}>
+          <div style={{
+            width: '100%',
+            maxWidth: '400px',
+            maxHeight: '85vh',
+            background: 'white',
+            borderRadius: '24px',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
+          }}>
+            <div style={{
+              background: '#2563eb',
+              padding: '20px 20px 16px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexShrink: 0,
+            }}>
+              <div>
+                <p style={{color:'rgba(255,255,255,0.7)', fontSize:'10px', fontWeight:700, textTransform:'uppercase', letterSpacing:'2px', margin:0}}>
+                  Poké Mart
+                </p>
+                <h3 style={{color:'white', fontSize:'18px', fontWeight:900, textTransform:'uppercase', fontStyle:'italic', margin:0}}>
+                  Compre Itens
+                </h3>
+              </div>
+              <button
+                onClick={() => setActiveBuildingModal(null)}
+                style={{
+                  width:'32px', height:'32px', borderRadius:'50%',
+                  background:'rgba(255,255,255,0.2)', border:'none',
+                  fontSize:'16px', fontWeight:900, cursor:'pointer',
+                  color:'white', display:'flex', alignItems:'center', justifyContent:'center',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{
+              padding:'10px 20px',
+              background:'#eff6ff',
+              borderBottom:'1px solid #dbeafe',
+              display:'flex',
+              alignItems:'center',
+              justifyContent:'space-between',
+              flexShrink:0,
+            }}>
+              <span style={{fontSize:'12px', fontWeight:700, color:'#1e40af'}}>Seu saldo:</span>
+              <span style={{fontSize:'14px', fontWeight:900, color:'#1e40af'}}>
+                💰 {(gameState.currency || 0).toLocaleString()} coins
+              </span>
+            </div>
+
+            <div style={{flex:1, overflowY:'auto', padding:'16px 20px'}} className="custom-scrollbar">
+              <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
+                {[
+                  { 
+                    label: 'Pokébolas', 
+                    items: [{ id: 'pokeballs', name: 'Poké Bola', price: 200, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', desc: 'Captura Pokémon selvagens' }] 
+                  },
+                  { 
+                    label: 'Cura', 
+                    items: [
+                      { id: 'potions', name: 'Poção', price: 300, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png', desc: 'Restaura 20 HP' },
+                      { id: 'revive', name: 'Revive', price: 1500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', desc: 'Revive Pokémon desmaiado' }
+                    ] 
+                  },
+                  { 
+                    label: 'Bebidas', 
+                    items: POKE_MART_DRINKS.filter(drink => {
+                        if (!drink.availableFrom) return true;
+                        const badgeMap = { boulder_badge: 1, cascade_badge: 2, thunder_badge: 3, rainbow_badge: 4 };
+                        const badgeId = badgeMap[drink.availableFrom];
+                        return badgeId ? (gameState.badges || []).includes(badgeId) : (gameState.worldFlags || []).includes(drink.availableFrom);
+                    }).map(d => ({ ...d, desc: d.description }))
+                  }
+                ].map(cat => (
+                  <div key={cat.label}>
+                    <p style={{
+                      fontSize: '10px',
+                      fontWeight: 900,
+                      color: '#94a3b8',
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px',
+                      margin: cat.label === 'Pokébolas' ? '0 0 8px 0' : '16px 0 8px 0',
+                    }}>
+                      {cat.label}
+                    </p>
+                    <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
+                      {cat.items.map(item => {
+                        const buyFn = (qty) => {
+                          if (qty < 1 || gameState.currency < item.price * qty) return;
+                          setGameState(prev => ({
+                            ...prev,
+                            currency: prev.currency - item.price * qty,
+                            inventory: {
+                              ...prev.inventory,
+                              items: { ...prev.inventory.items, [item.id]: (prev.inventory.items[item.id] || 0) + qty }
+                            }
+                          }));
+                          addLog(`🚀 Comprado: ${qty}x ${item.name}`, 'system');
+                        };
+                        return (
+                          <div key={item.id} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            padding: '12px 14px',
+                            background: '#f8fafc',
+                            borderRadius: '16px',
+                            border: '1px solid #e2e8f0',
+                          }}>
+                            <div style={{
+                              width: '44px',
+                              height: '44px',
+                              borderRadius: '12px',
+                              background: 'white',
+                              border: '1px solid #e2e8f0',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                            }}>
+                              <img src={item.img} style={{width:'32px', height:'32px', objectFit:'contain'}}
+                                alt={item.name} onError={e => { e.target.style.display='none'; }} />
+                            </div>
+
+                            <div style={{flex:1, minWidth:0}}>
+                              <p style={{fontSize:'13px', fontWeight:900, color:'#1e293b', margin:'0 0 2px 0',
+                                overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
+                                {item.name}
+                              </p>
+                              <p style={{fontSize:'10px', color:'#94a3b8', margin:0, lineHeight:'1.3'}}>
+                                {item.desc}
+                              </p>
+                            </div>
+
+                            <div style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '4px',
+                              flexShrink: 0,
+                            }}>
+                              {/* Preço */}
+                              <p style={{
+                                fontSize: '10px', fontWeight: 900,
+                                color: '#2563eb', textAlign: 'center', margin: 0,
+                              }}>
+                                💰 {item.price}
+                              </p>
+
+                              {/* Botões de quantidade */}
+                              <div style={{display: 'flex', gap: '6px'}}>
+                                {[
+                                  { label: 'x1',  qty: 1 },
+                                  { label: 'x10', qty: 10 },
+                                  { label: 'Máx', qty: Math.floor((gameState.currency || 0) / item.price) },
+                                ].map(({ label, qty }) => {
+                                  const canAfford = (gameState.currency || 0) >= item.price * qty && qty > 0;
+                                  return (
+                                    <button
+                                      key={label}
+                                      onClick={() => canAfford && buyFn(qty)}
+                                      disabled={!canAfford}
+                                      style={{
+                                        minWidth: '44px',
+                                        minHeight: '44px',
+                                        padding: '10px 12px',
+                                        borderRadius: '12px',
+                                        background: canAfford ? '#2563eb' : '#e2e8f0',
+                                        color: canAfford ? 'white' : '#94a3b8',
+                                        fontWeight: 900,
+                                        fontSize: '12px',
+                                        border: 'none',
+                                        cursor: canAfford ? 'pointer' : 'not-allowed',
+                                        boxShadow: canAfford ? '0 2px 8px rgba(37,99,235,0.3)' : 'none',
+                                        transition: 'all 0.15s',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                      }}
+                                    >
+                                      {label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{padding:'12px 20px 20px 20px', borderTop:'1px solid #f1f5f9', flexShrink:0}}>
+              <button
+                onClick={() => setActiveBuildingModal(null)}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  borderRadius: '16px',
+                  background: '#dc2626',
+                  color: 'white',
+                  fontWeight: 900,
+                  fontSize: '15px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(220,38,38,0.3)',
+                  marginTop: '4px',
+                }}
+              >
+                Sair da Loja
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeBuildingModal === 'forge' && (
         <div className="modal-overlay animate-fadeIn">
           <div className="modal-container animate-slideInUp">
             <div className="modal-header">
-              <h3>
-                {activeBuildingModal === 'pokecenter' ? 'Centro Pokémon' : 
-                 activeBuildingModal === 'mart' ? 'Poké Mart' : 'Forja Pokémon'}
-              </h3>
+              <h3>Forja Pokémon</h3>
               <button className="modal-close-btn" onClick={() => setActiveBuildingModal(null)}>✕</button>
             </div>
-
-            {activeBuildingModal === 'pokecenter' && (
-              <>
-                <div className="modal-content">
-                  <div className="h-44 relative overflow-hidden rounded-2xl mb-6 shrink-0">
-                    <img src={fixPath('battle_bg_pokecenter_1776868686753.png')} className="w-full h-full object-cover" alt="Pokecenter" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
-                    <img src="https://play.pokemonshowdown.com/sprites/ani/chansey.gif" className="absolute bottom-2 left-1/2 -translate-x-1/2 h-20 drop-shadow-lg" alt="Chansey" />
-                  </div>
-                  <div className="text-center px-4">
-                    <p className="text-slate-500 font-bold mb-4 italic">"Bem-vindo! Podemos curar seus Pokémon?"</p>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button 
-                    onClick={() => {
-                      if (isHealing) return;
-                      stopSFX();
-                      sfxHeal();
-                      setIsHealing(true);
-                      setGameState(prev => {
-                        const newStamina = { ...prev.stamina };
-                        prev.team.forEach(p => {
-                          if (p?.instanceId) {
-                            newStamina[p.instanceId] = { value: 100, lastFed: Date.now() };
-                          }
-                        });
-                        return {
-                          ...prev,
-                          team: prev.team.map(p => ({
-                            ...p,
-                            hp: p.maxHp,
-                            status: [],
-                            stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
-                          })),
-                          stamina: newStamina,
-                        };
-                      });
-                      addLog("💖💖 Todos os Pokémon da equipe foram curados!", "system");
-                      
-                      setTimeout(() => {
-                        setActiveBuildingModal(null);
-                        setIsHealing(false);
-                      }, 2000);
-                    }}
-                    className={`modal-btn modal-btn-primary ${isHealing ? 'opacity-50 animate-pulse cursor-not-allowed' : ''}`}
-                  >
-                    {isHealing ? 'Cuidando...' : 'Sim, por favor!'}
-                  </button>
-                </div>
-              </>
-            )}
-
-            {activeBuildingModal === 'mart' && (
-              <>
-                <div className="modal-content">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm">
-                       💰 {gameState.currency}
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    {[
-                      { id: 'pokeballs', name: 'Poké Bola', price: 200, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', desc: 'Captura Pokémon selvagens' },
-                      { id: 'potions', name: 'Poção', price: 300, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png', desc: 'Restaura 20 HP' },
-                      { id: 'revive', name: 'Revive', price: 1500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', desc: 'Revive Pokémon desmaiado' },
-                      ...POKE_MART_DRINKS.filter(drink => {
-                         if (!drink.availableFrom) return true;
-                         const badgeMap = { boulder_badge: 1, cascade_badge: 2, thunder_badge: 3, rainbow_badge: 4 };
-                         const badgeId = badgeMap[drink.availableFrom];
-                         return badgeId ? (gameState.badges || []).includes(badgeId) : (gameState.worldFlags || []).includes(drink.availableFrom);
-                      }).map(d => ({ ...d, desc: d.description }))
-                    ].map(item => {
-                      const maxQty = Math.floor(gameState.currency / item.price);
-                      const buyFn = (qty) => {
-                        if (qty < 1) return;
-                        setGameState(prev => ({
-                          ...prev,
-                          currency: prev.currency - item.price * qty,
-                          inventory: {
-                            ...prev.inventory,
-                            items: { ...prev.inventory.items, [item.id]: (prev.inventory.items[item.id] || 0) + qty }
-                          }
-                        }));
-                        addLog(`🚀 Comprado: ${qty}x ${item.name}`, 'system');
-                      };
-                      return (
-                        <div key={item.id} className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                           <div className="flex items-center gap-3 mb-3">
-                              <div className="bg-white w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border border-slate-100">
-                                 <img src={item.img} className="w-7 h-7 object-contain" alt={item.name} />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                 <h4 className="font-black text-slate-800 uppercase italic text-xs leading-tight">{item.name}</h4>
-                                 <p className="text-[9px] text-slate-400 font-bold">{item.desc}</p>
-                              </div>
-                              <div className="text-right">
-                                 <p className="font-black text-amber-600 text-xs">💰 {item.price}</p>
-                              </div>
-                           </div>
-                           <div className="grid grid-cols-3 gap-2">
-                              {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'Máx',qty:maxQty}].map(opt => (
-                                <button key={opt.label}
-                                  disabled={gameState.currency < item.price || (opt.qty < 1)}
-                                  onClick={() => buyFn(opt.qty)}
-                                  className="modal-btn text-[10px] py-1.5"
-                                >
-                                  {opt.label}{opt.label==='Máx'&&maxQty>0?` (${maxQty})`:''}
-                                </button>
-                              ))}
-                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button onClick={() => setActiveBuildingModal(null)} className="modal-btn w-full">Sair da Loja</button>
-                </div>
-              </>
-            )}
 
             {activeBuildingModal === 'forge' && (
               <>
