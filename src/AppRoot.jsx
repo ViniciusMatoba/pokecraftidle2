@@ -3828,6 +3828,18 @@ export default function App() {
 
   const isInGame = !['landing'].includes(currentView);
   const isInRoute = ['battles'].includes(currentView);
+  const canCraftRecipe = (recipe) => {
+    const inv = gameState.inventory;
+    return Object.entries(recipe.cost).every(([material, amount]) => {
+      if (material === 'currency') return (gameState.currency || 0) >= amount;
+      return ((inv?.items?.[material] || 0) + (inv?.materials?.[material] || 0)) >= amount;
+    });
+  };
+
+  const alreadyCraftedRecipe = (recipe) => 
+    (gameState.inventory?.items?.[recipe.id] || 0) > 0 || 
+    (gameState.worldFlags || []).includes(`crafted_${recipe.id}`);
+
   const isInShop = ['city', 'crafting'].includes(currentView);
 
   return (
@@ -4444,106 +4456,278 @@ export default function App() {
       )}
 
       {activeBuildingModal === 'forge' && (
-        <div className="modal-overlay animate-fadeIn">
-          <div className="modal-container animate-slideInUp">
-            <div className="modal-header">
-              <h3>Forja Pokémon</h3>
-              <button className="modal-close-btn" onClick={() => setActiveBuildingModal(null)}>✕</button>
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 200,
+          background: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px',
+        }}>
+          <div style={{
+            width: '100%',
+            maxWidth: '400px',
+            maxHeight: '85vh',
+            background: 'white',
+            borderRadius: '24px',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
+          }}>
+            {/* Header cinza escuro */}
+            <div style={{
+              background: '#475569',
+              padding: '20px 20px 16px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexShrink: 0,
+            }}>
+              <div>
+                <p style={{color:'rgba(255,255,255,0.7)', fontSize:'10px', fontWeight:700, textTransform:'uppercase', letterSpacing:'2px', margin:0}}>
+                  Forja Pokémon
+                </p>
+                <h3 style={{color:'white', fontSize:'18px', fontWeight:900, textTransform:'uppercase', fontStyle:'italic', margin:0}}>
+                  Criar Itens
+                </h3>
+              </div>
+              <button
+                onClick={() => setActiveBuildingModal(null)}
+                style={{
+                  width:'32px', height:'32px', borderRadius:'50%',
+                  background:'rgba(255,255,255,0.2)', border:'none',
+                  fontSize:'16px', fontWeight:900, cursor:'pointer',
+                  color:'white', display:'flex', alignItems:'center', justifyContent:'center',
+                }}
+              >
+                ✕
+              </button>
             </div>
 
-            {activeBuildingModal === 'forge' && (
-              <>
-                <div className="modal-content">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm">
-                       💰 {gameState.currency}
-                    </div>
-                  </div>
+            {/* Materiais disponíveis */}
+            <div style={{
+              padding:'10px 20px',
+              background:'#f8fafc',
+              borderBottom:'1px solid #e2e8f0',
+              display:'flex',
+              alignItems:'center',
+              justifyContent:'space-between',
+              flexShrink:0,
+            }}>
+              <span style={{fontSize:'12px', fontWeight:700, color:'#475569'}}>Materiais:</span>
+              <span style={{fontSize:'12px', fontWeight:900, color:'#475569'}}>
+                💰 {(gameState.currency || 0).toLocaleString()} coins
+              </span>
+            </div>
 
-                  <div className="space-y-6">
-                    {Object.entries(CRAFTING_RECIPES).map(([category, items]) => (
+            <div style={{flex:1, overflowY:'auto', padding:'16px 20px'}} className="custom-scrollbar">
+              <div className="space-y-6">
+                {(() => {
+                  const allRecipesFlat = Object.values(CRAFTING_RECIPES).flat();
+                  const totalVisibleCount = allRecipesFlat.filter(r => canCraftRecipe(r) || alreadyCraftedRecipe(r)).length;
+
+                  if (totalVisibleCount === 0) {
+                    return (
+                      <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94a3b8' }}>
+                        <p style={{fontSize:'32px', marginBottom:'8px'}}>⚒️</p>
+                        <p style={{fontSize:'13px', fontWeight:700}}>Nenhuma receita disponível ainda.</p>
+                        <p style={{fontSize:'11px', marginTop:'4px'}}>Continue coletando materiais nas rotas!</p>
+                      </div>
+                    );
+                  }
+
+                  return Object.entries(CRAFTING_RECIPES).map(([category, items]) => {
+                    const visibleItems = items.filter(item => canCraftRecipe(item) || alreadyCraftedRecipe(item));
+                    if (visibleItems.length === 0) return null;
+
+                    return (
                       <div key={category} className="space-y-3">
-                         <div className="flex items-center gap-2 border-b border-slate-100 pb-1">
-                            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{category.replace(/_/g, ' ')}</h3>
-                         </div>
-                         <div className="space-y-3">
-                            {items.map(item => {
-                              const canCraftOne = Object.entries(item.cost).every(([mat, amount]) => {
-                                if (mat === 'currency') return gameState.currency >= amount;
-                                return (gameState.inventory.materials?.[mat] || 0) >= amount;
+                        <p style={{
+                          fontSize: '10px',
+                          fontWeight: 900,
+                          color: '#94a3b8',
+                          textTransform: 'uppercase',
+                          letterSpacing: '1px',
+                          margin: '0 0 8px 0',
+                        }}>
+                          {category.replace(/_/g, ' ')}
+                        </p>
+                        <div style={{display:'flex', flexDirection:'column', gap:'10px'}}>
+                          {visibleItems.map(item => {
+                            const craftable = canCraftRecipe(item);
+                            const getMaxCraft = () => {
+                              let maxN = Infinity;
+                              Object.entries(item.cost).forEach(([mat, amount]) => {
+                                const have = mat === 'currency' ? gameState.currency : (gameState.inventory.materials?.[mat] || 0) + (gameState.inventory.items?.[mat] || 0);
+                                maxN = Math.min(maxN, Math.floor(have / amount));
                               });
-                              const getMaxCraft = () => {
-                                let maxN = Infinity;
+                              return maxN === Infinity ? 0 : maxN;
+                            };
+                            const craftFn = (qty) => {
+                              if (qty < 1) return;
+                              setGameState(prev => {
+                                const newInv = { ...prev.inventory, materials: { ...prev.inventory.materials }, items: { ...prev.inventory.items } };
                                 Object.entries(item.cost).forEach(([mat, amount]) => {
-                                  const have = mat === 'currency' ? gameState.currency : (gameState.inventory.materials?.[mat] || 0);
-                                  maxN = Math.min(maxN, Math.floor(have / amount));
+                                  if (mat === 'currency') return;
+                                  if (newInv.materials[mat] >= amount * qty) {
+                                    newInv.materials[mat] -= amount * qty;
+                                  } else {
+                                    const fromMat = newInv.materials[mat] || 0;
+                                    newInv.materials[mat] = 0;
+                                    newInv.items[mat] = (newInv.items[mat] || 0) - (amount * qty - fromMat);
+                                  }
                                 });
-                                return maxN === Infinity ? 0 : maxN;
-                              };
-                              const craftFn = (qty) => {
-                                if (qty < 1) return;
-                                setGameState(prev => {
-                                  const newInv = { ...prev.inventory, materials: { ...prev.inventory.materials } };
-                                  Object.entries(item.cost).forEach(([mat, amount]) => {
-                                    if (mat !== 'currency') newInv.materials[mat] = (newInv.materials[mat] || 0) - amount * qty;
-                                  });
-                                  return {
-                                    ...prev,
-                                    currency: prev.currency - (item.cost.currency || 0) * qty,
-                                    inventory: { ...newInv, items: { ...newInv.items, [item.id]: (newInv.items[item.id] || 0) + qty } }
-                                  };
-                                });
-                                addLog(`🔨 Forjado: ${qty}x ${item.name}`, 'system');
-                              };
-                              const maxCraft = getMaxCraft();
-                              return (
-                                <div key={item.id} className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                                   <div className="flex items-center gap-3 mb-2">
-                                      <div className="bg-white w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-slate-100">
-                                         <img src={item.img} className="w-7 h-7 object-contain" alt={item.name} />
-                                      </div>
-                                      <div className="flex-1 min-w-0">
-                                         <h4 className="font-black text-slate-800 uppercase italic text-xs leading-tight">{item.name}</h4>
-                                         <p className="text-[9px] font-bold text-slate-400 truncate">{typeof item.effect === 'string' ? item.effect : (item.description || 'Item de Crafting')}</p>
-                                      </div>
+                                return {
+                                  ...prev,
+                                  currency: prev.currency - (item.cost.currency || 0) * qty,
+                                  inventory: { ...newInv, items: { ...newInv.items, [item.id]: (newInv.items[item.id] || 0) + qty } }
+                                };
+                              });
+                              addLog(`🔨 Forjado: ${qty}x ${item.name}`, 'system');
+                            };
+                            const maxCraft = getMaxCraft();
+                            return (
+                              <div key={item.id} style={{
+                                padding: '14px',
+                                background: craftable ? '#f8fafc' : '#f1f5f9',
+                                borderRadius: '20px',
+                                border: '1px solid #e2e8f0',
+                                opacity: craftable ? 1 : 0.6,
+                              }}>
+                                <div style={{display:'flex', alignItems:'center', gap:'12px', marginBottom:'12px'}}>
+                                   <div style={{
+                                     width: '48px', height: '48px', borderRadius: '14px',
+                                     background: 'white', border: '1px solid #e2e8f0',
+                                     display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                                   }}>
+                                      <img src={item.img} style={{width:'36px', height:'36px', objectFit:'contain'}} alt={item.name} />
                                    </div>
-                                   <div className="flex flex-wrap gap-1 mb-2">
-                                      {Object.entries(item.cost).map(([mat, amount]) => {
-                                        const have = mat === 'currency' ? gameState.currency : (gameState.inventory.materials?.[mat] || 0);
-                                        const ok = have >= amount;
-                                        return (
-                                          <button key={mat} onClick={() => setActiveMaterialModal(mat)}
-                                            className={`px-1.5 py-0.5 rounded-lg border text-[8px] font-black uppercase ${ok ? 'border-green-200 bg-green-50 text-green-700' : 'border-red-200 bg-red-50 text-red-600'}`}
-                                          >
-                                            {mat.replace(/_/g,' ')}: {have}/{amount}
-                                          </button>
-                                        );
-                                      })}
-                                   </div>
-                                   <div className="grid grid-cols-3 gap-2">
-                                      {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'Máx',qty:maxCraft}].map(opt => (
-                                        <button key={opt.label}
-                                          disabled={!canCraftOne || opt.qty < 1}
-                                          onClick={() => craftFn(opt.qty)}
-                                          className="modal-btn text-[10px] py-1.5"
-                                        >
-                                          {opt.label}{opt.label==='Máx'&&maxCraft>0?` (${maxCraft})`:''}
-                                        </button>
-                                      ))}
+                                   <div style={{flex:1, minWidth:0}}>
+                                      <h4 style={{fontSize:'13px', fontWeight:900, color:'#1e293b', margin:'0 0 2px 0', textTransform:'uppercase', fontStyle:'italic'}}>{item.name}</h4>
+                                      <p style={{fontSize:'10px', color:'#94a3b8', margin:0, lineHeight:'1.3'}}>
+                                        {typeof item.effect === 'string' ? item.effect : (item.description || 'Item de Crafting')}
+                                      </p>
                                    </div>
                                 </div>
-                              );
-                            })}
-                         </div>
+
+                                {/* Custos */}
+                                <div style={{display:'flex', flexWrap:'wrap', gap:'6px', marginBottom:'14px'}}>
+                                   {Object.entries(item.cost).map(([mat, amount]) => {
+                                     const have = (gameState.inventory.materials?.[mat] || 0) + (gameState.inventory.items?.[mat] || 0);
+                                     const ok = have >= amount;
+                                     if (mat === 'currency') return (
+                                       <div key={mat} style={{
+                                          padding: '4px 8px', borderRadius: '8px',
+                                          border: gameState.currency >= amount ? '1px solid #bbf7d0' : '1px solid #fecaca',
+                                          background: gameState.currency >= amount ? '#f0fdf4' : '#fef2f2',
+                                          color: gameState.currency >= amount ? '#15803d' : '#dc2626',
+                                          fontSize: '9px', fontWeight: 900, textTransform: 'uppercase',
+                                       }}>
+                                          Coins: {gameState.currency}/{amount}
+                                       </div>
+                                     );
+                                     return (
+                                       <button key={mat} onClick={() => setActiveMaterialModal(mat)}
+                                         style={{
+                                           padding: '4px 8px', borderRadius: '8px',
+                                           border: ok ? '1px solid #bbf7d0' : '1px solid #fecaca',
+                                           background: ok ? '#f0fdf4' : '#fef2f2',
+                                           color: ok ? '#15803d' : '#dc2626',
+                                           fontSize: '9px', fontWeight: 900, textTransform: 'uppercase',
+                                           cursor: 'pointer',
+                                         }}
+                                       >
+                                         {mat.replace(/_/g,' ')}: {have}/{amount}
+                                       </button>
+                                     );
+                                   })}
+                                </div>
+
+                                {/* Botões de quantidade ou aviso */}
+                                {craftable ? (
+                                  <div style={{display: 'flex', gap: '6px'}}>
+                                    {[
+                                      { label: 'x1',  qty: 1 },
+                                      { label: 'x10', qty: 10 },
+                                      { label: 'Máx', qty: maxCraft },
+                                    ].map(({ label, qty }) => {
+                                      const actualQty = label === 'Máx' ? maxCraft : qty;
+                                      const isAvailable = maxCraft >= actualQty && actualQty > 0;
+
+                                      return (
+                                        <button
+                                          key={label}
+                                          onClick={() => isAvailable && craftFn(actualQty)}
+                                          disabled={!isAvailable}
+                                          style={{
+                                            flex: 1,
+                                            height: '44px',
+                                            borderRadius: '12px',
+                                            background: isAvailable ? '#475569' : '#e2e8f0',
+                                            color: isAvailable ? 'white' : '#94a3b8',
+                                            fontWeight: 900,
+                                            fontSize: '12px',
+                                            border: 'none',
+                                            cursor: isAvailable ? 'pointer' : 'not-allowed',
+                                            boxShadow: isAvailable ? '0 2px 8px rgba(71,85,105,0.3)' : 'none',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                          }}
+                                        >
+                                          {label}{label === 'Máx' && maxCraft > 0 ? ` (${maxCraft})` : ''}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                ) : (
+                                  <button
+                                    disabled
+                                    style={{
+                                      width: '100%',
+                                      height: '44px',
+                                      borderRadius: '12px',
+                                      background: '#e2e8f0',
+                                      color: '#94a3b8',
+                                      fontWeight: 900,
+                                      fontSize: '13px',
+                                      border: 'none',
+                                      cursor: 'not-allowed',
+                                    }}
+                                  >
+                                    ❌ Materiais insuficientes
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button onClick={() => setActiveBuildingModal(null)} className="modal-btn w-full">Sair da Forja</button>
-                </div>
-              </>
-            )}
+                    );
+                  });
+                })()}
+              </div>
+            </div>
+
+            <div style={{padding:'12px 20px 24px 20px', borderTop:'1px solid #f1f5f9', flexShrink:0}}>
+              <button
+                onClick={() => setActiveBuildingModal(null)}
+                style={{
+                  width:'100%', padding:'16px',
+                  borderRadius:'16px', background:'#475569',
+                  color:'white', fontWeight:900, fontSize:'15px',
+                  textTransform:'uppercase', letterSpacing:'1px',
+                  border:'none', cursor:'pointer',
+                  boxShadow:'0 4px 12px rgba(71,85,105,0.3)',
+                }}
+              >
+                Sair da Forja
+              </button>
+            </div>
           </div>
         </div>
       )}
