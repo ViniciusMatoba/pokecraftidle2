@@ -118,33 +118,49 @@ const BattleScreen = ({
         </button>
 
         {/* HUD INIMIGO - Canto Superior Esquerdo */}
-        <div className={`absolute top-2 left-2 w-[185px] transition-all duration-700 z-10 ${currentEnemy.hp > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-          <div className="bg-white/95 rounded-2xl px-3 py-2.5 shadow-lg border-l-4 border-slate-200 relative overflow-hidden flex flex-col justify-center">
-            {showTrainer && currentEnemy.isTrainer ? (
-              <div className="animate-fadeIn">
-                 <span className="text-[8px] font-black text-pokeGold uppercase tracking-widest block mb-0.5">Desafiante</span>
-                 <h4 className="text-slate-800 font-black text-[11px] uppercase truncate italic">{currentEnemy.trainerName}</h4>
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-1.5 mb-1">
-                   <span className="text-[11px] uppercase text-slate-800 truncate max-w-[110px]">
-                      {currentEnemy.isTrainer ? currentEnemy.trainerName : currentEnemy.name}
-                      {currentEnemy.isShiny && ' ✨'}
-                   </span>
-                   <span className="text-[10px] text-slate-500 shrink-0">Nv.{currentEnemy.level || '??'}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                   <span className="text-[8px] text-slate-400 w-4">HP</span>
-                   <div className="flex-1 bg-slate-200 h-2 rounded-full overflow-hidden shadow-inner">
-                     <div className={`h-full transition-all duration-500 ${hpPercent > 50 ? 'bg-green-500' : hpPercent > 20 ? 'bg-yellow-400' : 'bg-red-500'}`} style={{ width: `${hpPercent}%` }} />
-                   </div>
-                </div>
-                <div className="mt-1 flex items-center justify-between min-h-[12px]">
-                   <StatusBadges status={currentEnemy.status || []} stages={currentEnemy.stages || {}} />
-                </div>
-              </>
-            )}
+        <div style={{
+          position: 'absolute',
+          top: '12px',
+          left: '12px',
+          right: 'auto',
+          background: 'rgba(255,255,255,0.92)',
+          borderRadius: '12px',
+          padding: '6px 10px',
+          minWidth: '160px',
+          maxWidth: '180px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+          boxSizing: 'border-box',
+          zIndex: 10,
+          opacity: currentEnemy.hp > 0 ? 1 : 0,
+          transition: 'opacity 0.7s',
+        }}>
+          <p style={{
+            fontSize: '11px', fontWeight: 900,
+            textTransform: 'uppercase', color: '#1e293b',
+            overflow: 'hidden', textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap', marginBottom: '2px',
+          }}>
+            {currentEnemy?.isTrainer ? currentEnemy?.trainerName : currentEnemy?.name} <span style={{fontWeight:500, fontSize:'10px'}}>Nv.{currentEnemy?.level}</span>
+          </p>
+          {/* Barra HP */}
+          <div style={{marginBottom:'2px'}}>
+            <div style={{display:'flex', justifyContent:'space-between', marginBottom:'2px'}}>
+              <span style={{fontSize:'9px', fontWeight:700, color:'#64748b'}}>HP</span>
+              <span style={{fontSize:'9px', fontWeight:700, color:'#64748b'}}>
+                {currentEnemy?.hp}/{currentEnemy?.maxHp}
+              </span>
+            </div>
+            <div style={{height:'4px', background:'#e2e8f0', borderRadius:'999px', overflow:'hidden'}}>
+              <div style={{
+                height:'100%', borderRadius:'999px', transition:'width 0.3s',
+                background: (currentEnemy?.hp/currentEnemy?.maxHp) > 0.5 ? '#22c55e' :
+                            (currentEnemy?.hp/currentEnemy?.maxHp) > 0.25 ? '#f59e0b' : '#ef4444',
+                width: `${Math.max(0, Math.min(100, (currentEnemy?.hp / currentEnemy?.maxHp) * 100))}%`,
+              }} />
+            </div>
+          </div>
+          <div style={{marginTop: '4px', minHeight: '12px'}}>
+            <StatusBadges status={currentEnemy.status || []} stages={currentEnemy.stages || {}} />
           </div>
         </div>
 
@@ -168,56 +184,82 @@ const BattleScreen = ({
         </div>
 
         {/* HUD JOGADOR - Canto Inferior Direito */}
-        <div className="absolute bottom-2 right-2 z-10 w-[185px]">
+        <div className="absolute bottom-3 right-3 z-10">
           {activePoke ? (
-            <div className="bg-white/95 rounded-2xl px-3 py-2.5 shadow-lg border-r-4 border-pokeBlue w-full flex flex-col justify-center">
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-[11px] uppercase text-slate-800 truncate max-w-[110px]">
-                  {activePoke.name}{activePoke.isShiny && ' ✨'}
+            <div style={{
+              position: 'absolute',
+              bottom: '12px',
+              right: '12px',
+              left: 'auto',
+              background: 'rgba(255,255,255,0.92)',
+              borderRadius: '8px',
+              padding: '4px 7px',
+              minWidth: '130px',
+              maxWidth: '145px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              boxSizing: 'border-box',
+            }}>
+              {/* Nome e Nível */}
+              <p style={{
+                fontSize: '9px', fontWeight: 900,
+                textTransform: 'uppercase', color: '#1e293b',
+                overflow: 'hidden', textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap', marginBottom: '2px',
+              }}>
+                {activePoke?.name} <span style={{fontWeight:500, fontSize:'8px'}}>Nv.{activePoke?.level}</span>
+              </p>
+
+              {/* HP — label + barra na mesma linha */}
+              <div style={{display:'flex', alignItems:'center', gap:'4px', marginBottom:'1px'}}>
+                <span style={{fontSize:'7px', fontWeight:700, color:'#64748b', width:'12px', flexShrink:0}}>HP</span>
+                <div style={{flex:1, height:'3px', background:'#e2e8f0', borderRadius:'999px', overflow:'hidden'}}>
+                  <div style={{
+                    height:'100%', borderRadius:'999px', transition:'width 0.3s',
+                    background: (activePoke?.hp/activePoke?.maxHp) > 0.5 ? '#22c55e' :
+                                (activePoke?.hp/activePoke?.maxHp) > 0.25 ? '#f59e0b' : '#ef4444',
+                    width: `${Math.max(0, Math.min(100, (activePoke?.hp/activePoke?.maxHp)*100))}%`,
+                  }}/>
+                </div>
+                <span style={{fontSize:'7px', fontWeight:700, color:'#64748b', flexShrink:0}}>
+                  {activePoke?.hp}/{activePoke?.maxHp}
                 </span>
-                <span className="text-[10px] text-slate-500">Nv.{activePoke.level || 5}</span>
-              </div>
-              
-              <div className="flex items-center gap-1.5">
-                <span className="text-[8px] text-slate-400 w-4">HP</span>
-                <div className="flex-1 bg-slate-200 h-2 rounded-full overflow-hidden shadow-inner">
-                  <div className="bg-green-500 h-full transition-all duration-300 shadow-[0_0_8px_rgba(34,197,94,0.4)]" style={{ width: `${(activePoke.hp / activePoke.maxHp) * 100}%` }} />
-                </div>
-                <span className="text-[8px] text-slate-500 shrink-0">{activePoke.hp}/{activePoke.maxHp}</span>
               </div>
 
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[8px] text-slate-400 w-4">XP</span>
-                <div className="flex-1 bg-slate-200 h-1.5 rounded-full overflow-hidden shadow-inner">
-                  <div className="bg-pokeBlue h-full transition-all duration-300" style={{ width: `${Math.min(100, ((activePoke.xp || 0) / ((activePoke.level || 5) * 50)) * 100)}%` }} />
+              {/* XP — label + barra na mesma linha */}
+              <div style={{display:'flex', alignItems:'center', gap:'4px', marginBottom:'1px'}}>
+                <span style={{fontSize:'7px', fontWeight:700, color:'#64748b', width:'12px', flexShrink:0}}>XP</span>
+                <div style={{flex:1, height:'2px', background:'#e2e8f0', borderRadius:'999px', overflow:'hidden'}}>
+                  <div style={{
+                    height:'100%', borderRadius:'999px', background:'#3b82f6', transition:'width 0.3s',
+                    width: `${Math.max(0, Math.min(100, ((activePoke?.xp||0)/(Math.pow((activePoke?.level||1)+1,3)-Math.pow(activePoke?.level||1,3)))*100))}%`,
+                  }}/>
                 </div>
               </div>
 
+              {/* Energia — label + barra na mesma linha */}
               {(() => {
                 const stamina = gameState.stamina?.[activePoke?.instanceId]?.value ?? 100;
-                const color  = stamina > 60 ? '#22c55e' : stamina > 30 ? '#f59e0b' : '#ef4444';
-                const emoji  = stamina > 60 ? '🟢' : stamina > 30 ? '🟡' : stamina > 0 ? '🔴' : '💀';
+                const color = stamina > 60 ? '#22c55e' : stamina > 30 ? '#f59e0b' : '#ef4444';
                 return (
-                  <div className="mt-1">
-                    <div className="flex items-center gap-1.5 mb-0.5">
-                      <span className="text-[8px] text-slate-400 uppercase tracking-tighter">ENERGIA {emoji}</span>
-                      <span className="text-[8px]" style={{ color }}>{Math.floor(stamina)}%</span>
+                  <div style={{display:'flex', alignItems:'center', gap:'4px', marginBottom:'1px'}}>
+                    <span style={{fontSize:'7px', fontWeight:700, color:'#64748b', width:'12px', flexShrink:0}}>EN</span>
+                    <div style={{flex:1, height:'2px', background:'#e2e8f0', borderRadius:'999px', overflow:'hidden'}}>
+                      <div style={{height:'100%', borderRadius:'999px', background:color, transition:'width 0.3s', width:`${stamina}%`}}/>
                     </div>
-                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden shadow-inner">
-                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${stamina}%`, background: color }} />
-                    </div>
+                    <span style={{fontSize:'7px', fontWeight:700, color, flexShrink:0}}>{Math.floor(stamina)}%</span>
                   </div>
                 );
               })()}
               
-              <div className="flex justify-between items-center mt-1.5 min-h-[12px]">
+              {/* Status e Exaustão */}
+              <div style={{marginTop: '1px', minHeight: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                 <StatusBadges status={activePoke.status || []} stages={activePoke.stages || {}} />
                 {gameState.stamina?.[activePoke?.instanceId]?.value <= 0 && (
-                  <span className="text-red-500 text-[8px] font-black uppercase animate-pulse">😵 Exausto</span>
+                  <span style={{color:'#ef4444', fontSize:'6px', fontWeight:900, textTransform:'uppercase', animation:'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>😵 Exausto</span>
                 )}
               </div>
             </div>
-          ) : <div className="text-white bg-black/50 px-3 py-2 rounded-xl italic text-[10px]">Aguardando...</div>}
+          ) : <div style={{color:'white', background:'rgba(0,0,0,0.5)', padding:'8px 12px', borderRadius:'12px', fontStyle:'italic', fontSize:'10px'}}>Aguardando...</div>}
         </div>
 
         {/* SPRITE JOGADOR - Quadrante Inferior Esquerdo */}

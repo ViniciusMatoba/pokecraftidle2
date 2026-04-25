@@ -2752,13 +2752,18 @@ export default function App() {
 
             {/* ⛔ PROTECTED: Balão de Diálogo Intro — Padrão Oficial 1.9.6 */}
             <div style={{
-              position: 'fixed',
-              bottom: 0, left: 0, right: 0,
+              position: 'absolute',
+              bottom: '60px',        // ← acima do nav (60px de altura)
+              left: 0,
+              right: 0,
+              width: '100%',         // ← não ultrapassa o container
+              maxWidth: '100%',      // ← garante que não estoura
               background: 'white',
               borderRadius: '24px 24px 0 0',
-              padding: '20px 20px 36px 20px',
+              padding: '16px 20px 20px 20px',
               boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
-              zIndex: 50,
+              zIndex: 10,
+              boxSizing: 'border-box', // ← padding não estoura a largura
             }} className="animate-slideUp">
               <p style={{
                 fontSize: '11px', fontWeight: 900,
