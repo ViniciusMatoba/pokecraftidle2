@@ -66,6 +66,8 @@ const MUSIC_LIST = [
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedAvatar, setSelectedAvatar] = useState(null);
+  const [avatarTab, setAvatarTab] = useState('male');
   const { 
     playBGM, stopBGM, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxGym, stopSFX,
     toggleMute, isMuted, muted 
@@ -180,6 +182,18 @@ export default function App() {
 
   const [sessionStats, setSessionStats] = useState(null);
   const sessionRef = useRef({ kills: 0, coins: 0, trainers: 0, shinyKills: 0, drops: {}, captures: [] });
+
+  const handleSelectAvatar = (avatar) => {
+    setSelectedAvatar(avatar);
+    setGameState(prev => ({ 
+      ...prev, 
+      trainer: { ...prev.trainer, level: 1, xp: 0, avatarImg: avatar.img } 
+    })); 
+    setTimeout(() => {
+      setCurrentView('starter_selection');
+      setSelectedAvatar(null);
+    }, 400);
+  };
 
   // Auto-dismiss de notificação de maestria
   useEffect(() => {
@@ -2787,81 +2801,105 @@ export default function App() {
           </div>
         );
       }
-      case 'trainer_creation': return (
-        <div className="h-full bg-slate-50 flex flex-col items-center justify-start pt-24 p-6 animate-fadeIn relative">
-           <h2 className="text-5xl font-black text-slate-800 uppercase italic mb-2 tracking-tighter text-center">Muito bem, {gameState.trainer?.name}!</h2>
-           <p className="text-slate-400 font-bold uppercase tracking-widest mb-12">Escolha seu Avatar</p>
-           
-           <div className="grid grid-cols-3 md:grid-cols-6 gap-6 max-w-5xl p-8 bg-white rounded-[3rem] shadow-2xl border-b-8 border-slate-200">
-              {trainerAvatars.map(a => (
-                <button 
-                  key={a.id} 
-                  onClick={() => { 
-                    setGameState(prev => ({ 
-                      ...prev, 
-                      trainer: { ...prev.trainer, level: 1, xp: 0, avatarImg: a.img } 
-                    })); 
-                    setCurrentView('starter_selection'); 
+            case 'trainer_creation': {
+        const maleAvatars = trainerAvatars.filter(a => 
+          ['red', 'ethan', 'brendan', 'lucas', 'hilbert', 'calem'].includes(a.id)
+        );
+
+        const femaleAvatars = trainerAvatars.filter(a => 
+          ['leaf', 'lyra', 'may', 'dawn', 'hilda', 'serena'].includes(a.id)
+        );
+
+        return (
+          <>
+            {/* ⛔ PROTECTED: Tela de Avatar — NÃO ALTERAR SEM AUTORIZAÇÃO */}
+            <div className="h-full bg-slate-50 flex flex-col items-center justify-start p-6 animate-fadeIn relative overflow-y-auto">
+               <div style={{paddingTop: '24px', textAlign: 'center', marginBottom: '16px'}}>
+                 <h2 className="text-4xl font-black text-slate-800 uppercase italic mb-1 tracking-tighter">Muito bem, {gameState.trainer?.name}!</h2>
+                 <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Escolha seu Avatar</p>
+               </div>
+               
+               <div style={{display:'flex', flexDirection:'column', width:'100%', maxWidth:'360px', margin:'0 auto', padding:'24px', background:'white', borderRadius:'3rem', boxShadow:'0 25px 50px -12px rgba(0,0,0,0.25)', borderBottom:'8px solid #e2e8f0'}}>
+                  <div style={{display:'flex', gap:'8px', marginBottom:'16px', padding:'0 4px'}}>
+                    <button onClick={() => setAvatarTab('male')} style={{flex: 1, padding: '12px', borderRadius: '16px', fontWeight: 900, fontSize: '13px', textTransform: 'uppercase', border: 'none', cursor: 'pointer', transition: 'all 0.2s', background: avatarTab === 'male' ? '#2563eb' : '#e2e8f0', color: avatarTab === 'male' ? 'white' : '#64748b'}}>♂ Masculino</button>
+                    <button onClick={() => setAvatarTab('female')} style={{flex: 1, padding: '12px', borderRadius: '16px', fontWeight: 900, fontSize: '13px', textTransform: 'uppercase', border: 'none', cursor: 'pointer', transition: 'all 0.2s', background: avatarTab === 'female' ? '#db2777' : '#e2e8f0', color: avatarTab === 'female' ? 'white' : '#64748b'}}>♀ Feminino</button>
+                  </div>
+                  <div style={{display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'8px'}}>
+                    {(avatarTab === 'male' ? maleAvatars : femaleAvatars).map(avatar => (
+                      <button key={avatar.id} onClick={() => handleSelectAvatar(avatar)} style={{display:'flex', flexDirection:'column', alignItems:'center', padding:'16px 8px', borderRadius:'16px', border:'2px solid', borderColor: selectedAvatar?.id === avatar.id ? (avatarTab === 'male' ? '#2563eb' : '#db2777') : '#e2e8f0', background: selectedAvatar?.id === avatar.id ? (avatarTab === 'male' ? '#eff6ff' : '#fdf2f8') : 'white', cursor:'pointer', transition:'all 0.2s', opacity: (selectedAvatar && selectedAvatar.id !== avatar.id) ? 0.5 : 1, transform: selectedAvatar?.id === avatar.id ? 'scale(0.95)' : 'none'}}>
+                        <img src={avatar.img} style={{width:'80px', height:'80px', objectFit:'contain'}} alt={avatar.name} onError={e => { e.target.closest('button').style.display='none'; }} />
+                        <span style={{fontSize:'10px', fontWeight:900, color:'#475569', textTransform:'uppercase', marginTop:'8px'}}>{avatar.name}</span>
+                      </button>
+                    ))}
+                  </div>
+               </div>
+            </div>
+          </>
+        );
+      }
+            case 'starter_selection': return (
+        <div style={{position:'relative', height:'100%', width:'100%', overflow:'hidden'}}>
+          <div style={{paddingTop:'24px', display:'flex', flexDirection:'column', alignItems:'center', height:'100%', background:'#f8fafc', overflowY:'auto'}}>
+
+            {/* Título com espaço do header */}
+            <div style={{textAlign:'center', marginBottom:'20px', padding:'0 16px'}}>
+              <h2 style={{fontSize:'22px', fontWeight:900, textTransform:'uppercase', fontStyle:'italic', color:'#1e293b', lineHeight:1.1, margin:0}}>
+                ESCOLHA SEU PARCEIRO
+              </h2>
+              <p style={{fontSize:'11px', color:'#94a3b8', fontWeight:700, textTransform:'uppercase', letterSpacing:'2px', marginTop:'6px', margin:0}}>
+                Cada jornada começa com um único passo
+              </p>
+            </div>
+
+            {/* Cards dos starters */}
+            <div style={{display:'flex', flexDirection:'column', gap:'10px', width:'100%', maxWidth:'400px', padding:'0 16px 24px 16px'}}>
+              {INITIAL_POKEMONS.map(starter => (
+                <button
+                  key={starter.id}
+                  onClick={() => setPreviewStarter(starter)}
+                  style={{
+                    display:'flex', alignItems:'center', gap:'16px',
+                    padding:'16px 20px', borderRadius:'20px',
+                    border: '2px solid',
+                    borderColor: previewStarter?.id === starter.id ? '#2563eb' : '#e2e8f0',
+                    background: previewStarter?.id === starter.id ? '#eff6ff' : 'white',
+                    cursor:'pointer', transition:'all 0.2s',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                    width:'100%', textAlign:'left',
+                    flexShrink: 0
                   }}
-                  className="bg-slate-50 p-4 rounded-[2rem] border-4 border-transparent hover:border-pokeBlue hover:bg-blue-50 transition-all group flex flex-col items-center gap-2"
                 >
-                   <div className="w-20 h-20 flex items-center justify-center">
-                     <img 
-                       src={a.img} 
-                       onError={e => { e.target.closest('button')?.style.setProperty('display', 'none'); }}
-                       className="w-full h-full object-contain group-hover:scale-125 transition-transform" 
-                       alt={a.name} 
-                     />
-                   </div>
-                   <span className="text-[8px] font-black uppercase text-slate-400 group-hover:text-pokeBlue">{a.name}</span>
+                  <img
+                    src={'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + starter.id + '.png'}
+                    style={{width:'64px', height:'64px', objectFit:'contain', flexShrink:0}}
+                    alt={starter.name}
+                  />
+                  <div style={{flex:1}}>
+                    <p style={{fontWeight:900, fontSize:'16px', textTransform:'uppercase', fontStyle:'italic', color:'#1e293b', margin:0}}>
+                      {starter.name}
+                    </p>
+                    <div style={{display:'flex', alignItems:'center', gap:'8px', marginTop:'4px'}}>
+                      <span style={{
+                        fontSize:'10px', fontWeight:900, textTransform:'uppercase',
+                        padding:'2px 8px', borderRadius:'8px', color:'white',
+                        background: starter.type === 'Grass' ? '#16a34a' : starter.type === 'Fire' ? '#dc2626' : starter.type === 'Water' ? '#2563eb' : starter.type === 'Electric' ? '#ca8a04' : '#64748b'
+                      }}>
+                        {starter.type}
+                      </span>
+                      <span style={{fontSize:'11px', color:'#94a3b8', fontWeight:700}}>
+                        VER DETALHES
+                      </span>
+                    </div>
+                  </div>
+                  <span style={{fontSize:'14px', fontWeight:900, color:'#cbd5e1'}}>
+                    #{String(starter.id).padStart(3,'0')}
+                  </span>
                 </button>
               ))}
-           </div>
-        </div>
-      );
-      case 'starter_selection': return (
-        <div className="h-full bg-slate-100 flex flex-col items-center animate-fadeIn relative overflow-hidden">
-           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-slate-200 opacity-50 pointer-events-none"></div>
-           
-           <div className="relative z-10 text-center pt-6 pb-3 px-6 flex-shrink-0">
-             <h2 className="text-3xl font-black text-slate-800 uppercase italic tracking-tighter mb-1">Escolha seu Parceiro</h2>
-             <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Cada jornada começa com um único passo</p>
-           </div>
-
-           <div className="flex flex-col gap-3 w-full max-w-2xl relative z-10 overflow-y-auto custom-scrollbar px-6 pb-6 flex-1" style={{ minHeight: 0 }}>
-              {INITIAL_POKEMONS.map(p => {
-                const typeColors = {
-                  Grass: 'bg-green-500', Fire: 'bg-orange-500',
-                  Water: 'bg-blue-500', Electric: 'bg-yellow-400',
-                  Normal: 'bg-slate-400'
-                };
-                return (
-                  <button 
-                    key={p.id} 
-                    onClick={() => setPreviewStarter(p)}
-                    className="group bg-white p-4 rounded-[2rem] shadow-lg border-4 border-transparent hover:border-pokeBlue transition-all flex items-center gap-3 text-left relative flex-shrink-0"
-                  >
-                     <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform relative z-10 border-2 border-slate-100 flex-shrink-0">
-                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} className="w-full h-full object-contain drop-shadow-lg scale-125" alt={p.name} />
-                     </div>
-                     <div className="flex-1 relative z-10 min-w-0">
-                        <h3 className="text-lg font-black text-slate-800 uppercase italic leading-none mb-1.5 truncate">{p.name}</h3>
-                        <div className="flex items-center gap-2">
-                           <span className={`${typeColors[p.type] || 'bg-slate-400'} text-white text-[9px] px-3 py-0.5 rounded-full font-black uppercase tracking-widest flex-shrink-0`}>
-                             {p.type}
-                           </span>
-                           <span className="text-slate-300 font-bold text-[9px] uppercase">Ver detalhes</span>
-                        </div>
-                     </div>
-                     <div className="text-slate-200 font-black text-2xl italic select-none flex-shrink-0">
-                        #{String(p.id).padStart(3,'0')}
-                     </div>
-                  </button>
-                );
-              })}
-           </div>
-
-           {/* MODAL DE PREVIEW */}
+            </div>
+          </div>
+          
+          {/* MODAL DE PREVIEW */}
            {(() => {
              if (!previewStarter) return null;
              
@@ -2998,6 +3036,8 @@ export default function App() {
                 </div>
              );
            })()}
+        </div>
+      
         </div>
       );
       case 'rival_intro': {
