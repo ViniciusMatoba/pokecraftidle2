@@ -156,6 +156,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState('landing');
   const [travelTab, setTravelTab] = useState('routes');
   const [showAutoCaptureModal, setShowAutoCaptureModal] = useState(false);
+  const [showAutoConfigModal, setShowAutoConfigModal] = useState(false);
   const [confirmModal, setConfirmModal] = useState(null);
   const showConfirm = (config) => setConfirmModal(config);
   const closeConfirm = () => setConfirmModal(null);
@@ -326,6 +327,42 @@ export default function App() {
       else playBGM(null);
     }
   }, [gameState.settings?.selectedMusic, playBGM]);
+
+  // Trigger de notificação ao mudar de rota com auto-captura ativa
+  const lastNotifiedRouteRef = useRef(null);
+  useEffect(() => {
+    if (currentView !== 'battles' || !gameState.currentRoute) {
+      if (currentView !== 'battles') lastNotifiedRouteRef.current = null;
+      return;
+    }
+
+    if (gameState.autoCapture && lastNotifiedRouteRef.current !== gameState.currentRoute) {
+      lastNotifiedRouteRef.current = gameState.currentRoute;
+      const routeName = ROUTES[gameState.currentRoute]?.name || 'nova rota';
+
+      notify({
+        type: 'warning',
+        title: 'Auto-Captura Ativa!',
+        message: `Você entrou em ${routeName}. Verifique as configurações de captura!`,
+        duration: 5000,
+      });
+
+      setTimeout(() => {
+        showConfirm({
+          type: 'confirm',
+          title: 'Reconfigurar Auto-Captura?',
+          message: `Você entrou em ${routeName}. Deseja revisar as configurações de captura para esta rota?`,
+          confirmLabel: 'Configurar agora',
+          cancelLabel: 'Manter atual',
+          onConfirm: () => {
+            closeConfirm();
+            setShowAutoCaptureModal(true);
+          },
+          onCancel: closeConfirm,
+        });
+      }, 1000);
+    }
+  }, [gameState.currentRoute, currentView, gameState.autoCapture]);
 
   const goToCity = (fromBattle = false) => {
     handleGoToCity();
@@ -1535,33 +1572,46 @@ export default function App() {
   const handleUseItem = useCallback((itemId, source = 'items') => {
     if (currentViewRef.current !== 'battles' || !currentEnemy) return;
     
-    setGameState(prev => {
-      const bag = source === 'items' ? (prev.inventory?.items || {}) : (prev.inventory?.materials || {});
-      if (!bag[itemId] || bag[itemId] <= 0) return prev;
+    // 1. Verificações preliminares fora do setGameState
+    const bag = source === 'items' ? (gameState.inventory?.items || {}) : (gameState.inventory?.materials || {});
+    if (!bag[itemId] || bag[itemId] <= 0) return;
+
+    let isCaptureSuccess = false;
+    let isPokeball = (itemId === 'pokeballs' || itemId === 'great_ball' || itemId === 'ultra_ball');
+
+    if (isPokeball) {
+      if (currentEnemy.isTrainer) {
+        addLog("🚫 Você não pode capturar Pokémons de outros treinadores!", 'enemy');
+        return;
+      }
       
+      let multiplier = 1.0;
+      if (itemId === 'great_ball') multiplier = 1.5;
+      if (itemId === 'ultra_ball') multiplier = 2.0;
+
+      const catchRate = ((1 - (currentEnemy.hp / currentEnemy.maxHp)) + 0.1) * multiplier;
+      if (Math.random() < catchRate) {
+        isCaptureSuccess = true;
+        // PUSH FORA do setGameState para não duplicar no Strict Mode
+        sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
+      }
+    }
+
+    setGameState(prev => {
+      // 2. Aplicar redução de inventário
+      const currentBag = source === 'items' ? (prev.inventory?.items || {}) : (prev.inventory?.materials || {});
       let newInventory = { 
         ...prev.inventory,
-        [source]: { ...bag, [itemId]: bag[itemId] - 1 }
+        [source]: { ...currentBag, [itemId]: (currentBag[itemId] || 0) - 1 }
       };
       
-      if (itemId === 'pokeballs' || itemId === 'great_ball' || itemId === 'ultra_ball') {
-        if (currentEnemy.isTrainer) {
-          addLog("ðŸš« Você não pode capturar Pokémons de outros treinadores!", 'enemy');
-          return prev;
-        }
-        
-        let multiplier = 1.0;
-        if (itemId === 'great_ball') multiplier = 1.5;
-        if (itemId === 'ultra_ball') multiplier = 2.0;
-
-        const catchRate = ((1 - (currentEnemy.hp / currentEnemy.maxHp)) + 0.1) * multiplier;
-        if (Math.random() < catchRate) {
+      if (isPokeball) {
+        if (isCaptureSuccess) {
           addLog(`✨ Capturado! ${currentEnemy.name} agora é seu!`, 'system');
           if (currentEnemy.isShiny) {
             notify({ type: 'capture', title: '✨ SHINY capturado!', message: `${currentEnemy.name} brilhante foi capturado!`, duration: 6000 });
           }
           sfxCapture();
-          sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
 
           const newCaughtData = { ...(prev.caughtData || {}), [currentEnemy.id]: true };
           const newPoke = { 
@@ -1618,7 +1668,8 @@ export default function App() {
           return { ...prev, inventory: newInventory, team: newTeam, pc: newPC, caughtData: newCaughtData, speciesMastery: newMastery, ...questUpdate };
         } else {
           const enemyName = currentEnemy.name || 'Desconhecido';
-          addLog(`ðŸ’¨ O ${enemyName} escapou da Pokébola!`, 'enemy');
+          addLog(`💨 O ${enemyName} escapou da Pokébola!`, 'enemy');
+          return { ...prev, inventory: newInventory };
         }
       } else if (itemId === 'potions') {
         const activePoke = prev.team[activeMemberIndex];
@@ -2471,138 +2522,134 @@ export default function App() {
     });
 
     setTimeout(() => {
-      setGameState(prev => {
-        const acConfig   = prev.autoCaptureConfig || {};
-        const routeConfig = acConfig.routeConfigs?.[prev.currentRoute] || acConfig;
-        const captureMode = routeConfig.mode || 'shiny_only';
-        const ballPref    = routeConfig.ballPriority || 'auto';
-        const hpThresh    = routeConfig.hpThreshold || 30;
+      let captureSuccess = false;
+      let selectedBallFinal = null;
+      
+      const acConfig = gameState.autoCaptureConfig || {};
+      const routeConfig = acConfig.routeConfigs?.[gameState.currentRoute] || acConfig;
+      const hpPctEnemy = ((currentEnemy.hp / currentEnemy.maxHp) * 100);
+      
+      if (gameState.autoCapture && !currentEnemy.isTrainer && hpPctEnemy <= (routeConfig.hpThreshold || 30)) {
+        const alreadyHave = gameState.team?.some(p => p.id === currentEnemy.id) ||
+                            gameState.pc?.some(p => p.id === currentEnemy.id);
+        const mode = routeConfig.mode || 'shiny_only';
+        const shouldCapture = 
+          mode === 'all' ? true :
+          mode === 'shiny_only' ? currentEnemy.isShiny :
+          mode === 'not_caught' ? !alreadyHave :
+          mode === 'specific' ? (routeConfig.targetIds || []).includes(Number(currentEnemy.id)) :
+          false;
 
-        // Verificar se deve tentar capturar este Pokémon
-        const hpPctEnemy  = ((currentEnemy.hp / currentEnemy.maxHp) * 100);
-        const shouldTry   = prev.autoCapture &&
-          !currentEnemy.isTrainer &&
-          hpPctEnemy <= hpThresh;
-
-        if (shouldTry) {
-          // Verificar modo
-          const alreadyHave = prev.team?.some(p => p.id === currentEnemy.id) ||
-                              prev.pc?.some(p => p.id === currentEnemy.id);
-
-          const shouldCapture =
-            captureMode === 'all'        ? true :
-            captureMode === 'shiny_only' ? currentEnemy.isShiny :
-            captureMode === 'not_caught' ? !alreadyHave :
-            captureMode === 'specific'   ? (routeConfig.targetIds || []).includes(Number(currentEnemy.id)) :
-            false;
-
-          if (shouldCapture) {
-            // Selecionar a melhor bola disponível
-            const ballOrder = ballPref === 'auto'
-              ? ['ultra_ball', 'great_ball', 'pokeballs']
-              : [ballPref, 'ultra_ball', 'great_ball', 'pokeballs'];
-
-            const ballMultipliers = {
-              ultra_ball: 2.0, great_ball: 1.5, pokeballs: 1.0,
-              lure_ball: 3.0, moon_ball: 4.0,
-            };
-
-            const selectedBall = ballOrder.find(b => (prev.inventory.items?.[b] || 0) > 0);
-
-            if (selectedBall) {
-              const mult      = ballMultipliers[selectedBall] || 1.0;
-              const catchRate = ((1 - (currentEnemy.hp / currentEnemy.maxHp)) + 0.1) * mult;
-
-              if (Math.random() < catchRate) {
-                // CAPTURADO!
-                sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
-                
-                let newInventoryItems = { 
-                  ...prev.inventory.items, 
-                  [selectedBall]: (prev.inventory.items[selectedBall] || 0) - 1 
-                };
-                
-                const alreadyCaught = !!(prev.caughtData || {})[currentEnemy.id];
-                const newCaughtData = { ...(prev.caughtData || {}), [currentEnemy.id]: true };
-                const newMastery = processCaptureMastery({ ...currentEnemy, id: Number(currentEnemy.id) }, prev);
-                
-                const { questUpdate, log: questLog } = updateQuestProgress(prev, 'capture');
-                if (questLog) addLog(questLog, 'drop');
-                if (questUpdate.inventory) newInventoryItems = questUpdate.inventory.items;
-
-
-                addLog(
-                  `${currentEnemy.isShiny ? '✨ SHINY ' : ''}${currentEnemy.name} capturado automaticamente com ${ITEM_LABELS[selectedBall]?.name || selectedBall}!`,
-                  'system'
-                );
-                if (currentEnemy.isShiny) {
-                  notify({ type: 'capture', title: '✨ SHINY capturado!', message: `${currentEnemy.name} brilhante foi capturado!`, duration: 6000 });
-                }
-                sfxCapture();
-
-                if (alreadyCaught) {
-                  const findAndReplace = (list) => list.map(p => {
-                    if (Number(p.id) === Number(currentEnemy.id)) {
-                      if (currentEnemy.isShiny && !p.isShiny) {
-                        addLog(`✨ Upgrade Shiny: Seu ${p.name} agora é Brilhante!`, 'system');
-                        return { ...p, isShiny: true, hp: p.maxHp };
-                      }
-                    }
-                    return p;
-                  });
-                  return { 
-                    ...prev, 
-                    team: findAndReplace(prev.team), 
-                    pc: findAndReplace(prev.pc || []), 
-                    inventory: { ...prev.inventory, items: newInventoryItems }, 
-                    speciesMastery: newMastery, 
-                    caughtData: newCaughtData, 
-                    ...questUpdate 
-                  };
-                } else {
-                  // Primeira Captura
-                  const newPoke = { ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() };
-                  const newTeam = [...prev.team];
-                  const newPC = [...(prev.pc || [])];
-                  if (newTeam.length < 6) newTeam.push(newPoke); else newPC.push(newPoke);
-
-                  return { 
-                    ...prev, 
-                    team: newTeam, 
-                    pc: newPC, 
-                    inventory: { ...prev.inventory, items: newInventoryItems }, 
-                    speciesMastery: newMastery, 
-                    caughtData: newCaughtData, 
-                    ...questUpdate 
-                  };
-                }
-              } else {
-                // ESCAPOU
-                addLog(`${currentEnemy.name} escapou da ${ITEM_LABELS[selectedBall]?.name || selectedBall}!`, 'enemy');
-                return {
-                  ...prev,
-                  inventory: {
-                    ...prev.inventory,
-                    items: { ...prev.inventory.items, [selectedBall]: (prev.inventory.items[selectedBall] || 0) - 1 }
-                  }
-                };
-              }
+        if (shouldCapture) {
+          const ballOrder = (routeConfig.ballPriority === 'auto' || !routeConfig.ballPriority)
+            ? ['ultra_ball', 'great_ball', 'pokeballs']
+            : [routeConfig.ballPriority, 'ultra_ball', 'great_ball', 'pokeballs'];
+          
+          selectedBallFinal = ballOrder.find(b => (gameState.inventory.items?.[b] || 0) > 0);
+          if (selectedBallFinal) {
+            const mult = { ultra_ball: 2.0, great_ball: 1.5, pokeballs: 1.0, lure_ball: 3.0, moon_ball: 4.0 }[selectedBallFinal] || 1.0;
+            const catchRate = ((1 - (currentEnemy.hp / currentEnemy.maxHp)) + 0.1) * mult;
+            if (Math.random() < catchRate) {
+              captureSuccess = true;
+              sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
             }
           }
         }
-        return prev;
-      });
-      isProcessingVictory.current = false;
-      if (currentEnemy.isInitialRival) {
-        setCurrentView('rival_post_battle');
-      } else if (currentEnemy.unlockFlag === 'rival_1_defeated') {
-        setCurrentView('prof_oak_starters_announcement');
-      } else if (currentEnemy.isGymLeader || currentEnemy.isBoss) {
-        handleGoToCity();
-      } else {
-        spawnEnemy();
       }
-    }, 600);
+
+      setGameState(prev => {
+
+        if (!captureSuccess) {
+          if (selectedBallFinal) {
+            return { 
+              ...prev, 
+              currentEnemy: null,
+              inventory: {
+                ...prev.inventory,
+                items: { ...prev.inventory.items, [selectedBallFinal]: (prev.inventory.items[selectedBallFinal] || 0) - 1 }
+              }
+            };
+          }
+          return { ...prev, currentEnemy: null };
+        }
+        
+        let newInventoryItems = { 
+          ...prev.inventory.items, 
+          [selectedBallFinal]: (prev.inventory.items[selectedBallFinal] || 0) - 1 
+        };
+        
+        const alreadyCaught = !!(prev.caughtData || {})[currentEnemy.id];
+        const newCaughtData = { ...(prev.caughtData || {}), [currentEnemy.id]: true };
+        const newMastery = processCaptureMastery({ ...currentEnemy, id: Number(currentEnemy.id) }, prev);
+        
+        const { questUpdate, log: questLog } = updateQuestProgress(prev, 'capture');
+        if (questLog) addLog(questLog, 'drop');
+        if (questUpdate.inventory) newInventoryItems = questUpdate.inventory.items;
+
+        addLog(
+          `${currentEnemy.isShiny ? '✨ SHINY ' : ''}${currentEnemy.name} capturado automaticamente com ${ITEM_LABELS[selectedBallFinal]?.name || selectedBallFinal}!`,
+          'system'
+        );
+        if (currentEnemy.isShiny) {
+          notify({ type: 'capture', title: '✨ SHINY capturado!', message: `${currentEnemy.name} brilhante foi capturado!`, duration: 6000 });
+        }
+        sfxCapture();
+
+        const newPoke = { ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now(), stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 } };
+
+        if (alreadyCaught) {
+          const findAndReplace = (list) => list.map(p => {
+            if (Number(p.id) === Number(currentEnemy.id)) {
+              if (currentEnemy.isShiny && !p.isShiny) {
+                addLog(`✨ Upgrade Shiny: Seu ${p.name} agora é Brilhante!`, 'system');
+                return { ...p, isShiny: true, hp: p.maxHp };
+              }
+            }
+            return p;
+          });
+          return { 
+            ...prev, 
+            currentEnemy: null,
+            team: findAndReplace(prev.team), 
+            pc: findAndReplace(prev.pc || []), 
+            inventory: { ...prev.inventory, items: newInventoryItems }, 
+            speciesMastery: newMastery, 
+            caughtData: newCaughtData, 
+            ...questUpdate 
+          };
+        } else {
+          const newTeam = [...prev.team];
+          const newPC = [...(prev.pc || [])];
+          if (newTeam.length < 6) newTeam.push(newPoke);
+          else {
+            newPC.push(newPoke);
+            addLog(`${newPoke.name} foi enviado para o PC!`, 'system');
+          }
+          return { 
+            ...prev, 
+            currentEnemy: null,
+            team: newTeam, 
+            pc: newPC, 
+            inventory: { ...prev.inventory, items: newInventoryItems }, 
+            caughtData: newCaughtData, 
+            speciesMastery: newMastery, 
+            ...questUpdate 
+          };
+        }
+      });
+      setTimeout(() => {
+        isProcessingVictory.current = false;
+        if (currentEnemy.isInitialRival) {
+          setCurrentView('rival_post_battle');
+        } else if (currentEnemy.unlockFlag === 'rival_1_defeated') {
+          setCurrentView('prof_oak_starters_announcement');
+        } else if (currentEnemy.isGymLeader || currentEnemy.isBoss) {
+          handleGoToCity();
+        } else {
+          spawnEnemy();
+        }
+      }, 1000);
+    }, 1000);
   }, [currentEnemy?.hp]);
 
   const renderView = (props = {}) => {
@@ -3882,17 +3929,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Centro — moeda e período SOMENTE em batalhas/lojas */}
-            {(isInRoute || isInShop) && (
-              <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
-                <span style={{color:'#fde047', fontWeight:900, fontSize:'12px'}}>
-                  💰 {(gameState.currency || 0).toLocaleString()}
-                </span>
-                <span style={{color:'rgba(255,255,255,0.7)', fontSize:'10px', fontWeight:700}}>
-                  {TIME_CONFIG[timeOfDay]?.emoji} {TIME_CONFIG[timeOfDay]?.label}
-                </span>
-              </div>
-            )}
+
 
             {/* Direita — botões SOMENTE in-game */}
             {isInGame && (
@@ -3920,6 +3957,51 @@ export default function App() {
               </div>
             )}
           </header>
+
+          {/* Faixa branca secundária — APENAS em batalhas */}
+          {currentView === 'battles' && (
+            <div style={{
+              position: 'absolute',
+              top: '56px',
+              left: 0,
+              right: 0,
+              zIndex: 20,
+              background: 'rgba(255,255,255,0.97)',
+              borderBottom: '1px solid #e2e8f0',
+              padding: '6px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+              {/* AUTO ON/OFF */}
+              <button
+                onClick={() => setShowAutoConfigModal(true)}
+                style={{
+                  padding: '5px 14px',
+                  borderRadius: '999px',
+                  background: gameState.autoCapture ? '#22c55e' : '#e2e8f0',
+                  color: gameState.autoCapture ? 'white' : '#64748b',
+                  fontWeight: 900,
+                  fontSize: '10px',
+                  textTransform: 'uppercase',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                AUTO {gameState.autoCapture ? 'ON' : 'OFF'}
+              </button>
+
+              {/* Moeda */}
+              <span style={{fontSize:'12px', fontWeight:900, color:'#f59e0b'}}>
+                💰 {(gameState.currency || 0).toLocaleString()}
+              </span>
+
+              {/* Período */}
+              <span style={{fontSize:'11px', fontWeight:700, color:'#64748b'}}>
+                {TIME_CONFIG[timeOfDay]?.emoji} {TIME_CONFIG[timeOfDay]?.label}
+              </span>
+            </div>
+          )}
 
           <main className="game-content px-4 pt-4 custom-scrollbar">
             {renderView({ 
@@ -3997,23 +4079,44 @@ export default function App() {
                   </div>
                 )}
 
-                {/* CAPTURAS */}
-                {sessionStats.captures.length > 0 && (
-                  <div className="bg-blue-50/50 p-4 rounded-3xl border border-blue-100">
-                     <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-                      <span className="text-sm">📦</span> Capturados ({sessionStats.captures.length})
-                    </p>
-                    <div className="grid grid-cols-1 gap-2">
-                      {sessionStats.captures.map((cap, i) => (
-                        <div key={i} className="flex items-center gap-3 bg-white border border-blue-100 rounded-2xl px-3 py-1.5 shadow-sm">
-                          <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${cap.isShiny ? 'shiny/' : ''}${cap.id}.png`} className="w-8 h-8 object-contain" alt={cap.name} />
-                          <span className="font-black text-slate-800 text-[11px] uppercase tracking-tighter">{cap.name}</span>
-                          {cap.isShiny && <span className="ml-auto text-[8px] bg-yellow-100 text-yellow-700 font-extrabold px-2 py-0.5 rounded-full border border-yellow-200">✨ SHINY</span>}
-                        </div>
-                      ))}
+                {/* CAPTURAS AGRUPADAS */}
+                {sessionStats.captures.length > 0 && (() => {
+                  const grouped = (sessionStats.captures || []).reduce((acc, poke) => {
+                    const key = poke.name;
+                    if (!acc[key]) acc[key] = { ...poke, count: 0 };
+                    acc[key].count += 1;
+                    return acc;
+                  }, {});
+                  const captureList = Object.values(grouped).sort((a, b) => b.count - a.count);
+
+                  return (
+                    <div className="bg-blue-50/50 p-4 rounded-3xl border border-blue-100">
+                      <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <span className="text-sm">📦</span> Capturados ({sessionStats.captures.length})
+                      </p>
+                      <div className="grid grid-cols-1 gap-2">
+                        {captureList.map((poke, i) => (
+                          <div key={i} className="flex items-center gap-3 bg-white border border-blue-100 rounded-2xl px-3 py-1.5 shadow-sm">
+                            <div className="relative">
+                              <img 
+                                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`} 
+                                className="w-8 h-8 object-contain" 
+                                alt={poke.name} 
+                              />
+                              {poke.count > 1 && (
+                                <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow-sm">
+                                  {poke.count}
+                                </span>
+                              )}
+                            </div>
+                            <span className="font-black text-slate-800 text-[11px] uppercase tracking-tighter">{poke.name}</span>
+                            {poke.isShiny && <span className="ml-auto text-[8px] bg-yellow-100 text-yellow-700 font-extrabold px-2 py-0.5 rounded-full border border-yellow-200">✨ SHINY</span>}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {sessionStats.kills === 0 && sessionStats.captures.length === 0 && (
                   <p className="text-center text-slate-400 font-bold italic text-sm py-8 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100">Nenhum progresso nesta sessão.</p>
@@ -4890,6 +4993,285 @@ export default function App() {
           onCancel={confirmModal.onCancel || closeConfirm}
         />
       )}
+
+      {showAutoConfigModal && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '16px',
+          }}
+          onClick={() => setShowAutoConfigModal(false)}
+        >
+          <div
+            style={{
+              width: '100%', maxWidth: '400px', maxHeight: '85vh',
+              background: 'white', borderRadius: '24px',
+              overflow: 'hidden', display: 'flex', flexDirection: 'column',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{
+              background: '#1e293b',
+              padding: '20px 20px 16px 20px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              flexShrink: 0,
+            }}>
+              <div>
+                <p style={{color:'rgba(255,255,255,0.7)', fontSize:'10px', fontWeight:700, textTransform:'uppercase', letterSpacing:'2px', margin:0}}>
+                  Configurações
+                </p>
+                <h3 style={{color:'white', fontSize:'18px', fontWeight:900, textTransform:'uppercase', fontStyle:'italic', margin:0}}>
+                  Painel Automático
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowAutoConfigModal(false)}
+                style={{
+                  width:'32px', height:'32px', borderRadius:'50%',
+                  background:'rgba(255,255,255,0.2)', border:'none',
+                  fontSize:'16px', fontWeight:900, cursor:'pointer',
+                  color:'white', display:'flex', alignItems:'center', justifyContent:'center',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Conteúdo */}
+            <div style={{flex:1, overflowY:'auto', padding:'16px 20px', display:'flex', flexDirection:'column', gap:'10px'}}>
+              
+              {/* AUTO-CAPTURA */}
+              <div style={{borderRadius:'16px', border:'1px solid #bfdbfe', overflow:'hidden'}}>
+                <div style={{
+                  padding:'14px 16px', background:'#eff6ff',
+                  display:'flex', alignItems:'center', gap:'12px',
+                }}>
+                  <span style={{fontSize:'22px'}}>⚪</span>
+                  <div style={{flex:1}}>
+                    <p style={{fontSize:'13px', fontWeight:900, color:'#1e293b', margin:'0 0 2px 0'}}>Auto-Captura</p>
+                    <p style={{fontSize:'10px', color:'#64748b', margin:0}}>Captura automaticamente durante o farm</p>
+                  </div>
+                  <div onClick={() => setGameState(prev => ({ ...prev, autoCapture: !prev.autoCapture }))}
+                    style={{width:'48px', height:'26px', borderRadius:'999px', background: gameState.autoCapture ? '#2563eb' : '#e2e8f0', position:'relative', cursor:'pointer', flexShrink:0, transition:'background 0.2s'}}>
+                    <div style={{position:'absolute', top:'3px', left: gameState.autoCapture ? '25px' : '3px', width:'20px', height:'20px', borderRadius:'50%', background:'white', boxShadow:'0 1px 4px rgba(0,0,0,0.2)', transition:'left 0.2s'}}/>
+                  </div>
+                </div>
+                {/* Expansão quando ativado */}
+                {gameState.autoCapture && (
+                  <div style={{padding:'12px 16px', background:'white', borderTop:'1px solid #bfdbfe'}}>
+                    {/* O que capturar */}
+                    <p style={{fontSize:'10px', fontWeight:900, color:'#64748b', textTransform:'uppercase', margin:'0 0 6px 0'}}>O que capturar:</p>
+                    {['shiny_only','not_caught','all','specific'].map(mode => (
+                      <button key={mode}
+                        onClick={() => setGameState(prev => ({ ...prev, autoCaptureConfig: { ...prev.autoCaptureConfig, mode }}))}
+                        style={{width:'100%', padding:'8px 12px', borderRadius:'10px', border:'1px solid', marginBottom:'4px', display:'block', textAlign:'left', cursor:'pointer', fontSize:'12px', fontWeight: gameState.autoCaptureConfig?.mode === mode ? 900 : 600,
+                          borderColor: gameState.autoCaptureConfig?.mode === mode ? '#2563eb' : '#e2e8f0',
+                          background: gameState.autoCaptureConfig?.mode === mode ? '#eff6ff' : 'white',
+                          color: gameState.autoCaptureConfig?.mode === mode ? '#2563eb' : '#64748b',
+                        }}>
+                        {gameState.autoCaptureConfig?.mode === mode ? '✅ ' : ''}{
+                          mode === 'shiny_only' ? 'Apenas Shinies ✨' :
+                          mode === 'not_caught' ? 'Não capturados ainda' :
+                          mode === 'all' ? 'Todos os Pokémon' : 'Específicos (selecionar abaixo)'
+                        }
+                      </button>
+                    ))}
+
+                    {/* Seleção de Pokémon específicos — Correção 1 */}
+                    {gameState.autoCaptureConfig?.mode === 'specific' && (() => {
+                      const currentRoute = ROUTES[gameState.currentRoute];
+                      const routePokemon = [...new Map(
+                        (currentRoute?.enemies || [])
+                          .map(e => { const d = POKEDEX[Number(e.id)]; return d ? [Number(e.id), { id: Number(e.id), name: d.name }] : null; })
+                          .filter(Boolean)
+                      ).values()];
+                      const targetIds = gameState.autoCaptureConfig?.targetIds || [];
+                      return (
+                        <div style={{marginTop:'8px'}}>
+                          <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px'}}>
+                            <p style={{fontSize:'9px', fontWeight:900, color:'#64748b', textTransform:'uppercase', margin:0}}>
+                              Pokemon desta rota:
+                            </p>
+                            <div style={{display:'flex', gap:'8px'}}>
+                              <button onClick={() => setGameState(prev => ({ ...prev, autoCaptureConfig: { ...prev.autoCaptureConfig, targetIds: routePokemon.map(p => p.id) }}))}
+                                style={{fontSize:'9px', fontWeight:900, color:'#2563eb', background:'none', border:'none', cursor:'pointer', padding:0}}>
+                                Todos
+                              </button>
+                              <button onClick={() => setGameState(prev => ({ ...prev, autoCaptureConfig: { ...prev.autoCaptureConfig, targetIds: [] }}))}
+                                style={{fontSize:'9px', fontWeight:900, color:'#dc2626', background:'none', border:'none', cursor:'pointer', padding:0}}>
+                                Limpar
+                              </button>
+                            </div>
+                          </div>
+                          <div style={{display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:'6px'}}>
+                            {routePokemon.map(p => {
+                              const selected = targetIds.includes(p.id);
+                              const have = gameState.team?.some(t => t.id === p.id) || gameState.pc?.some(t => t.id === p.id);
+                              return (
+                                <button key={p.id}
+                                  onClick={() => {
+                                    const newIds = selected ? targetIds.filter(id => id !== p.id) : [...targetIds, p.id];
+                                    setGameState(prev => ({ ...prev, autoCaptureConfig: { ...prev.autoCaptureConfig, targetIds: newIds }}));
+                                  }}
+                                  style={{
+                                    display:'flex', alignItems:'center', gap:'6px',
+                                    padding:'6px 8px', borderRadius:'10px', border:'2px solid',
+                                    borderColor: selected ? '#2563eb' : '#e2e8f0',
+                                    background: selected ? '#eff6ff' : 'white',
+                                    cursor:'pointer', textAlign:'left',
+                                  }}
+                                >
+                                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`}
+                                    style={{width:'28px', height:'28px', objectFit:'contain', flexShrink:0}} alt={p.name} />
+                                  <div style={{minWidth:0}}>
+                                    <p style={{fontSize:'9px', fontWeight:900, color:'#1e293b', margin:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{p.name}</p>
+                                    {have && <p style={{fontSize:'8px', color:'#22c55e', margin:0}}>✓ Capturado</p>}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                    {/* Pokébola */}
+                    <p style={{fontSize:'10px', fontWeight:900, color:'#64748b', textTransform:'uppercase', margin:'10px 0 6px 0'}}>Pokebola:</p>
+                    <div style={{display:'flex', gap:'6px'}}>
+                      {[{id:'auto',label:'Auto'},{id:'pokeballs',label:'Poke'},{id:'great_ball',label:'Great'},{id:'ultra_ball',label:'Ultra'}].map(b => (
+                        <button key={b.id}
+                          onClick={() => setGameState(prev => ({ ...prev, autoCaptureConfig: { ...prev.autoCaptureConfig, ballPriority: b.id }}))}
+                          style={{flex:1, padding:'8px 4px', borderRadius:'10px', border:'1px solid', cursor:'pointer', fontSize:'11px', fontWeight: gameState.autoCaptureConfig?.ballPriority === b.id ? 900 : 600, minHeight:'40px',
+                            borderColor: gameState.autoCaptureConfig?.ballPriority === b.id ? '#2563eb' : '#e2e8f0',
+                            background: gameState.autoCaptureConfig?.ballPriority === b.id ? '#eff6ff' : 'white',
+                            color: gameState.autoCaptureConfig?.ballPriority === b.id ? '#2563eb' : '#64748b',
+                          }}>
+                          {b.label}
+                        </button>
+                      ))}
+                    </div>
+                    {/* HP threshold */}
+                    <p style={{fontSize:'10px', fontWeight:900, color:'#64748b', textTransform:'uppercase', margin:'10px 0 4px 0'}}>
+                      Capturar com HP abaixo de {gameState.autoCaptureConfig?.hpThreshold || 30}%
+                    </p>
+                    <div style={{padding:'0 4px'}}>
+                      <input type="range" min="10" max="80" step="5"
+                        value={gameState.autoCaptureConfig?.hpThreshold || 30}
+                        onChange={e => setGameState(prev => ({ ...prev, autoCaptureConfig: { ...prev.autoCaptureConfig, hpThreshold: Number(e.target.value) }}))}
+                        style={{width:'100%', accentColor:'#2563eb', display:'block'}}
+                      />
+                      <div style={{display:'flex', justifyContent:'space-between', marginTop:'2px'}}>
+                        <span style={{fontSize:'9px', color:'#94a3b8', fontWeight:700}}>10%</span>
+                        <span style={{fontSize:'9px', color:'#2563eb', fontWeight:900}}>{gameState.autoCaptureConfig?.hpThreshold || 30}%</span>
+                        <span style={{fontSize:'9px', color:'#94a3b8', fontWeight:700}}>80%</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* AUTO-POÇÃO */}
+              <div style={{borderRadius:'16px', border:'1px solid #bbf7d0', overflow:'hidden'}}>
+                <div style={{padding:'14px 16px', background:'#f0fdf4', display:'flex', alignItems:'center', gap:'12px'}}>
+                  <span style={{fontSize:'22px'}}>💊</span>
+                  <div style={{flex:1}}>
+                    <p style={{fontSize:'13px', fontWeight:900, color:'#1e293b', margin:'0 0 2px 0'}}>Auto-Poção</p>
+                    <p style={{fontSize:'10px', color:'#64748b', margin:0}}>Usa poção quando HP estiver baixo</p>
+                  </div>
+                  <div onClick={() => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoPotion: !prev.autoConfig?.autoPotion }}))}
+                    style={{width:'48px', height:'26px', borderRadius:'999px', background: gameState.autoConfig?.autoPotion ? '#16a34a' : '#e2e8f0', position:'relative', cursor:'pointer', flexShrink:0, transition:'background 0.2s'}}>
+                    <div style={{position:'absolute', top:'3px', left: gameState.autoConfig?.autoPotion ? '25px' : '3px', width:'20px', height:'20px', borderRadius:'50%', background:'white', boxShadow:'0 1px 4px rgba(0,0,0,0.2)', transition:'left 0.2s'}}/>
+                  </div>
+                </div>
+                {gameState.autoConfig?.autoPotion && (
+                  <div style={{padding:'12px 16px', background:'white', borderTop:'1px solid #bbf7d0'}}>
+                    <p style={{fontSize:'10px', fontWeight:900, color:'#64748b', textTransform:'uppercase', margin:'0 0 4px 0'}}>
+                      Usar quando HP abaixo de {gameState.autoConfig?.hpThreshold || 50}%
+                    </p>
+                    <input type="range" min="10" max="80" step="10"
+                      value={gameState.autoConfig?.hpThreshold || 50}
+                      onChange={e => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, hpThreshold: Number(e.target.value) }}))}
+                      style={{width:'100%', accentColor:'#16a34a'}}
+                    />
+                    <div style={{display:'flex', justifyContent:'space-between'}}>
+                      <span style={{fontSize:'9px', color:'#94a3b8'}}>10%</span>
+                      <span style={{fontSize:'9px', color:'#16a34a', fontWeight:900}}>{gameState.autoConfig?.hpThreshold || 50}%</span>
+                      <span style={{fontSize:'9px', color:'#94a3b8'}}>80%</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* AUTO-ALIMENTAÇÃO */}
+              <div style={{borderRadius:'16px', border:'1px solid #fde68a', overflow:'hidden'}}>
+                <div style={{padding:'14px 16px', background:'#fffbeb', display:'flex', alignItems:'center', gap:'12px'}}>
+                  <span style={{fontSize:'22px'}}>🍽️</span>
+                  <div style={{flex:1}}>
+                    <p style={{fontSize:'13px', fontWeight:900, color:'#1e293b', margin:'0 0 2px 0'}}>Auto-Alimentação</p>
+                    <p style={{fontSize:'10px', color:'#64748b', margin:0}}>Alimenta quando energia estiver baixa</p>
+                  </div>
+                  <div onClick={() => setGameState(prev => ({ ...prev, settings: { ...prev.settings, berryAutoFeed: !(prev.settings?.berryAutoFeed !== false) }}))}
+                    style={{width:'48px', height:'26px', borderRadius:'999px', background: gameState.settings?.berryAutoFeed !== false ? '#d97706' : '#e2e8f0', position:'relative', cursor:'pointer', flexShrink:0, transition:'background 0.2s'}}>
+                    <div style={{position:'absolute', top:'3px', left: gameState.settings?.berryAutoFeed !== false ? '25px' : '3px', width:'20px', height:'20px', borderRadius:'50%', background:'white', boxShadow:'0 1px 4px rgba(0,0,0,0.2)', transition:'left 0.2s'}}/>
+                  </div>
+                </div>
+                {gameState.settings?.berryAutoFeed !== false && (
+                  <div style={{padding:'12px 16px', background:'white', borderTop:'1px solid #fde68a'}}>
+                    <p style={{fontSize:'10px', fontWeight:900, color:'#64748b', textTransform:'uppercase', margin:'0 0 4px 0'}}>
+                      Alimentar quando energia abaixo de {gameState.autoConfig?.staminaThreshold || 30}%
+                    </p>
+                    <input type="range" min="10" max="50" step="5"
+                      value={gameState.autoConfig?.staminaThreshold || 30}
+                      onChange={e => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, staminaThreshold: Number(e.target.value) }}))}
+                      style={{width:'100%', accentColor:'#d97706'}}
+                    />
+                    <div style={{display:'flex', justifyContent:'space-between'}}>
+                      <span style={{fontSize:'9px', color:'#94a3b8'}}>10%</span>
+                      <span style={{fontSize:'9px', color:'#d97706', fontWeight:900}}>{gameState.autoConfig?.staminaThreshold || 30}%</span>
+                      <span style={{fontSize:'9px', color:'#94a3b8'}}>50%</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* AUTO-EVOLUÇÃO */}
+              <div style={{borderRadius:'16px', border:'1px solid #e9d5ff', overflow:'hidden'}}>
+                <div style={{padding:'14px 16px', background:'#faf5ff', display:'flex', alignItems:'center', gap:'12px'}}>
+                  <span style={{fontSize:'22px'}}>⬆️</span>
+                  <div style={{flex:1}}>
+                    <p style={{fontSize:'13px', fontWeight:900, color:'#1e293b', margin:'0 0 2px 0'}}>Auto-Evolução</p>
+                    <p style={{fontSize:'10px', color:'#64748b', margin:0}}>Evolui automaticamente no nível necessário</p>
+                  </div>
+                  <div onClick={() => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoEvolve: !prev.autoConfig?.autoEvolve }}))}
+                    style={{width:'48px', height:'26px', borderRadius:'999px', background: gameState.autoConfig?.autoEvolve ? '#9333ea' : '#e2e8f0', position:'relative', cursor:'pointer', flexShrink:0, transition:'background 0.2s'}}>
+                    <div style={{position:'absolute', top:'3px', left: gameState.autoConfig?.autoEvolve ? '25px' : '3px', width:'20px', height:'20px', borderRadius:'50%', background:'white', boxShadow:'0 1px 4px rgba(0,0,0,0.2)', transition:'left 0.2s'}}/>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div style={{padding:'12px 20px 24px 20px', borderTop:'1px solid #f1f5f9', flexShrink:0}}>
+              <button
+                onClick={() => setShowAutoConfigModal(false)}
+                style={{
+                  width:'100%', padding:'16px', borderRadius:'16px',
+                  background:'#1e293b', color:'white', fontWeight:900,
+                  fontSize:'15px', textTransform:'uppercase', letterSpacing:'1px',
+                  border:'none', cursor:'pointer',
+                  boxShadow:'0 4px 12px rgba(30,41,59,0.3)',
+                }}
+              >
+                Salvar e Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
         </>
       ) : (
         <AuthScreen />

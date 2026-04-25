@@ -26,10 +26,20 @@ const AutoCaptureModal = ({ route, gameState, onSave, onClose, onDisable }) => {
   const [hpThreshold,  setHpThreshold]  = useState(existingConfig.hpThreshold  || globalConfig.hpThreshold  || 30);
   const [targetIds,    setTargetIds]    = useState(existingConfig.targetIds     || []);
 
-  const routePokemon = route.enemies?.map(e => {
-    const data = POKEDEX[Number(e.id)];
-    return data ? { id: Number(e.id), name: data.name, type: data.type } : null;
-  }).filter(Boolean) || [];
+  const routePokemon = React.useMemo(() => {
+    const uniqueIds = new Set();
+    const list = [];
+    route.enemies?.forEach(e => {
+      if (!uniqueIds.has(e.id)) {
+        uniqueIds.add(e.id);
+        const data = POKEDEX[Number(e.id)];
+        if (data) {
+          list.push({ id: Number(e.id), name: data.name, type: data.type });
+        }
+      }
+    });
+    return list;
+  }, [route.enemies]);
 
   const toggleTarget = (id) => {
     setTargetIds(prev =>
@@ -100,49 +110,78 @@ const AutoCaptureModal = ({ route, gameState, onSave, onClose, onDisable }) => {
           </div>
 
           {/* Seleção de Pokémon específicos */}
-          {mode === 'specific' && routePokemon.length > 0 && (
+          {mode === 'specific' && (
             <div>
-              <p className="text-xs font-black text-slate-700 uppercase tracking-widest mb-3">
-                🔍 Selecionar Pokémon da Rota
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                {routePokemon.map(p => {
-                  const caught   = alreadyCaught(p.id);
-                  const selected = targetIds.includes(p.id);
-                  return (
-                    <button
-                      key={p.id}
-                      onClick={() => toggleTarget(p.id)}
-                      className={`flex items-center gap-2 p-3 rounded-2xl border-2 transition-all active:scale-95 ${
-                        selected
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-slate-100 bg-slate-50 hover:border-slate-200'
-                      }`}
-                    >
-                      <div className="relative">
-                        <img
-                          src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`}
-                          className="w-10 h-10 object-contain"
-                          alt={p.name}
-                        />
-                        {caught && (
-                          <span className="absolute -top-1 -right-1 text-[8px] bg-green-500 text-white rounded-full w-4 h-4 flex items-center justify-center font-black">
-                            ✓
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-left">
-                        <p className="text-slate-800 font-black text-[10px] leading-none">{p.name}</p>
-                        <p className="text-slate-400 text-[8px] mt-0.5">{p.type}</p>
-                        {caught && <p className="text-green-500 text-[8px] font-bold">Já capturado</p>}
-                      </div>
-                    </button>
-                  );
-                })}
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-black text-slate-700 uppercase tracking-widest">
+                  🔍 Pokémon da Rota
+                </p>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setTargetIds(routePokemon.map(p => p.id))}
+                    className="text-[9px] font-black text-blue-600 uppercase hover:underline"
+                  >
+                    Marcar Todos
+                  </button>
+                  <span className="text-slate-300">|</span>
+                  <button 
+                    onClick={() => setTargetIds([])}
+                    className="text-[9px] font-black text-slate-400 uppercase hover:underline"
+                  >
+                    Limpar
+                  </button>
+                </div>
               </div>
-              {mode === 'specific' && targetIds.length === 0 && (
-                <p className="text-center text-red-400 text-[10px] font-bold mt-2">
-                  Selecione pelo menos 1 Pokémon
+
+              {routePokemon.length > 0 ? (
+                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+                  {routePokemon.map(p => {
+                    const caught   = alreadyCaught(p.id);
+                    const selected = targetIds.includes(p.id);
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => toggleTarget(p.id)}
+                        className={`flex items-center gap-2 p-2.5 rounded-2xl border-2 transition-all active:scale-95 ${
+                          selected
+                            ? 'border-blue-500 bg-blue-50 shadow-sm'
+                            : 'border-slate-100 bg-slate-50 hover:border-slate-200'
+                        }`}
+                      >
+                        <div className="relative shrink-0">
+                          <img
+                            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`}
+                            className="w-10 h-10 object-contain"
+                            alt={p.name}
+                          />
+                          {caught && (
+                            <div className="absolute -top-1 -right-1 bg-green-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center shadow-sm border border-white">
+                              <span className="text-[8px] font-black">✓</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-left overflow-hidden">
+                          <p className="text-slate-800 font-black text-[10px] leading-none truncate uppercase tracking-tighter">
+                            {p.name}
+                          </p>
+                          <div className="flex items-center gap-1 mt-1">
+                            <span className="text-slate-400 text-[8px] font-bold">#{p.id}</span>
+                            {caught && <span className="text-green-600 text-[7px] font-black uppercase">PC</span>}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="p-8 text-center bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100">
+                  <p className="text-slate-400 font-bold italic text-xs">Nenhum Pokémon disponível nesta rota.</p>
+                </div>
+              )}
+
+              {mode === 'specific' && targetIds.length === 0 && routePokemon.length > 0 && (
+                <p className="text-center text-red-500 text-[9px] font-black uppercase mt-3 animate-pulse">
+                  ⚠️ Selecione pelo menos 1 Pokémon
                 </p>
               )}
             </div>
