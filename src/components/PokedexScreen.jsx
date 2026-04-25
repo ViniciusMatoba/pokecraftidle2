@@ -74,113 +74,196 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], onBack }) => 
          </div>
       </div>
 
-      {/* Detail Modal */}
       {selectedPoke && (
-        <div className="absolute inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
-           <div className="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden relative animate-bounceIn border-b-[12px] border-slate-200">
-               {(() => {
-                 const poke = selectedPoke;
-                 const types = poke.types || [poke.type || 'Normal'];
-                 const t1 = types[0] || 'Normal';
-                 const t2 = types[1] || null;
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          zIndex: 9999,
+          background: 'rgba(15,23,42,0.85)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px',
+        }} className="animate-fadeIn">
+          <div style={{
+            width: '100%',
+            maxWidth: '400px',
+            maxHeight: '85vh',
+            background: 'white',
+            borderRadius: '24px',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.4)',
+            position: 'relative',
+          }} className="animate-slideInUp">
+            
+            <button
+              onClick={() => setSelectedPoke(null)}
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                background: 'rgba(0,0,0,0.25)',
+                border: '2px solid rgba(255,255,255,0.4)',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: 900,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 100,
+              }}
+            >
+              ✕
+            </button>
 
-                 const TYPE_COLORS = {
-                   Normal: '#9ea0aa', Fire: '#ff9741', Water: '#3391d4', Grass: '#38bf4f',
-                   Electric: '#fbd100', Ice: '#70cbd4', Fighting: '#e0306a', Poison: '#b567ce',
-                   Ground: '#e87236', Flying: '#89aae3', Psychic: '#ff6675', Bug: '#83c300',
-                   Rock: '#c9bb8a', Ghost: '#4c6ab2', Dragon: '#006fc9', Dark: '#5b5466',
-                   Steel: '#5a8ea2', Fairy: '#fb89eb',
-                 };
+            {(() => {
+              const poke = selectedPoke;
+              const types = poke.types || [poke.type || 'Normal'];
+              const t1 = types[0] || 'Normal';
+              const t2 = types[1] || null;
 
-                 const c1 = TYPE_COLORS[t1] || '#9ea0aa';
-                 const c2 = t2 ? (TYPE_COLORS[t2] || '#9ea0aa') : c1;
+              const TYPE_COLORS = {
+                Normal: '#9ea0aa', Fire: '#ff9741', Water: '#3391d4', Grass: '#38bf4f',
+                Electric: '#fbd100', Ice: '#70cbd4', Fighting: '#e0306a', Poison: '#b567ce',
+                Ground: '#e87236', Flying: '#89aae3', Psychic: '#ff6675', Bug: '#83c300',
+                Rock: '#c9bb8a', Ghost: '#4c6ab2', Dragon: '#006fc9', Dark: '#5b5466',
+                Steel: '#5a8ea2', Fairy: '#fb89eb',
+              };
 
-                 const bgStyle = t2
-                   ? { background: `linear-gradient(160deg, ${c1} 0%, ${c1}bb 40%, ${c2}bb 60%, ${c2} 100%)` }
-                   : { background: `linear-gradient(160deg, ${c1}88 0%, ${c1} 60%, ${c1}dd 100%)` };
+              const c1 = TYPE_COLORS[t1] || '#9ea0aa';
+              const c2 = t2 ? (TYPE_COLORS[t2] || '#9ea0aa') : c1;
 
-                 const typeIconUrl = (t) => t ? `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg` : '';
+              const bgStyle = t2
+                ? { background: `linear-gradient(160deg, ${c1} 0%, ${c1}bb 40%, ${c2}bb 60%, ${c2} 100%)` }
+                : { background: `linear-gradient(160deg, ${c1}88 0%, ${c1} 60%, ${c1}dd 100%)` };
 
-                 return (
-                   <div className="h-48 w-full relative flex flex-col items-center justify-center overflow-hidden" style={bgStyle}>
-                      {/* Padrão de pontos */}
-                      <div className="absolute inset-0 pointer-events-none"
-                        style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+              const typeIconUrl = (t) => t ? `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg` : '';
 
-                      {/* ícones de tipo grandes no fundo (decoração) */}
-                      <img src={typeIconUrl(t1)} className="absolute -left-4 bottom-2 w-28 h-28 opacity-10 pointer-events-none select-none invert" alt="" />
-                      {t2 && <img src={typeIconUrl(t2)} className="absolute -right-2 top-2 w-24 h-24 opacity-10 pointer-events-none select-none invert" alt="" />}
+              return (
+                <div style={{flexShrink: 0, position: 'relative'}}>
+                  <div className="h-44 w-full relative flex flex-col items-center justify-center overflow-hidden" style={bgStyle}>
+                    <div className="absolute inset-0 pointer-events-none"
+                      style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
 
-                      {/* Badges de tipo no topo */}
-                      <div className="absolute top-4 right-4 flex flex-col gap-1.5 items-end z-20">
-                        {types.map(t => (
-                          <div key={t} className="bg-black/20 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/20 flex items-center gap-1.5 shadow-md">
-                            <img src={typeIconUrl(t)} className="w-3 h-3 invert" alt={t} />
-                            <span className="text-[9px] font-black text-white uppercase tracking-wider">{t}</span>
+                    <img src={typeIconUrl(t1)} className="absolute -left-4 bottom-2 w-28 h-28 opacity-10 pointer-events-none select-none invert" alt="" />
+                    {t2 && <img src={typeIconUrl(t2)} className="absolute -right-2 top-2 w-24 h-24 opacity-10 pointer-events-none select-none invert" alt="" />}
+
+                    <div className="absolute top-4 right-12 flex flex-col gap-1.5 items-end z-20">
+                      {types.map(t => (
+                        <div key={t} className="bg-black/20 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/20 flex items-center gap-1.5 shadow-md">
+                          <img src={typeIconUrl(t)} className="w-3 h-3 invert" alt={t} />
+                          <span className="text-[9px] font-black text-white uppercase tracking-wider">{t}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <img
+                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.id}.png`}
+                      className={`h-36 object-contain relative z-10 transition-all duration-700 ${possessedIds.has(poke.id) ? 'scale-110 drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)]' : 'brightness-0 opacity-20 grayscale blur-[2px]'}`}
+                      alt={poke.name}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
+
+            <div style={{
+              flex: 1,
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              padding: '16px 20px 24px 20px',
+              WebkitOverflowScrolling: 'touch',
+            }} className="custom-scrollbar">
+              <div className="text-center mb-6">
+                <h3 className="text-3xl font-black text-slate-800 uppercase italic leading-none">{possessedIds.has(selectedPoke.id) ? selectedPoke.name : '???'}</h3>
+                <div className="flex justify-center gap-2 mt-3">
+                  {(() => {
+                    const TYPE_COLORS = {
+                      Normal: '#9ea0aa', Fire: '#ff9741', Water: '#3391d4', Grass: '#38bf4f',
+                      Electric: '#fbd100', Ice: '#70cbd4', Fighting: '#e0306a', Poison: '#b567ce',
+                      Ground: '#e87236', Flying: '#89aae3', Psychic: '#ff6675', Bug: '#83c300',
+                      Rock: '#c9bb8a', Ghost: '#4c6ab2', Dragon: '#006fc9', Dark: '#5b5466',
+                      Steel: '#5a8ea2', Fairy: '#fb89eb',
+                    };
+                    const types = selectedPoke.types || [selectedPoke.type || 'Normal'];
+                    return types.map(t => (
+                      <span
+                        key={t}
+                        style={{
+                          background: TYPE_COLORS[t] || '#9ea0aa',
+                          color: 'white',
+                          fontWeight: 900,
+                          fontSize: '10px',
+                          textTransform: 'uppercase',
+                          padding: '4px 12px',
+                          borderRadius: '999px',
+                          letterSpacing: '1px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                        }}
+                      >
+                        <img
+                          src={`https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg`}
+                          style={{width:'12px', height:'12px', filter:'invert(1)', opacity:0.9}}
+                          alt={t}
+                          onError={e => { e.target.style.display='none'; }}
+                        />
+                        {t}
+                      </span>
+                    ));
+                  })()}
+                </div>
+              </div>
+
+              {possessedIds.has(selectedPoke.id) ? (
+                <>
+                  <div className="grid grid-cols-1 gap-4 mb-6">
+                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                      <p className="text-[8px] font-black text-slate-400 uppercase mb-3 tracking-widest">Status Base</p>
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                        {Object.entries({ HP: selectedPoke.hp, ATK: selectedPoke.attack, DEF: selectedPoke.defense, SPD: selectedPoke.speed }).map(([label, val]) => (
+                          <div key={label} className="flex items-center justify-between border-b border-slate-100 pb-1">
+                            <span className="text-[9px] font-bold text-slate-500">{label}</span>
+                            <span className="text-[10px] font-black text-slate-800">{val}</span>
                           </div>
                         ))}
                       </div>
-
-                      <button 
-                         onClick={() => setSelectedPoke(null)}
-                         className="absolute top-4 left-4 w-9 h-9 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center z-30 font-black hover:bg-white/40 transition-all border border-white/30 shadow-lg"
-                      ></button>
-
-                      <img
-                        src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.id}.png`}
-                        className={`h-40 object-contain relative z-10 transition-all duration-700 ${possessedIds.has(poke.id) ? 'scale-110 drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)]' : 'brightness-0 opacity-20 grayscale blur-[2px]'}`}
-                        alt={poke.name}
-                      />
-                   </div>
-                 );
-               })()}
-
-              <div className="p-8">
-                 <div className="text-center mb-6">
-                    <h3 className="text-4xl font-black text-slate-800 uppercase italic leading-none">{possessedIds.has(selectedPoke.id) ? selectedPoke.name : '???'}</h3>
-                    <div className="flex justify-center gap-2 mt-3">
-                       {selectedPoke.types?.map(t => (
-                         <span key={t} className="bg-slate-800 text-white text-[9px] px-3 py-1 rounded-full font-black uppercase tracking-widest">{t}</span>
-                       ))}
                     </div>
-                 </div>
-
-                 {possessedIds.has(selectedPoke.id) ? (
-                   <>
-                     <div className="grid grid-cols-2 gap-4 mb-6">
-                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                           <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Status Base</p>
-                           <div className="space-y-1">
-                              {Object.entries({ HP: selectedPoke.hp, ATK: selectedPoke.attack, DEF: selectedPoke.defense, SPD: selectedPoke.speed }).map(([label, val]) => (
-                                <div key={label} className="flex items-center justify-between">
-                                   <span className="text-[9px] font-bold text-slate-500">{label}</span>
-                                   <span className="text-[10px] font-black text-slate-800">{val}</span>
-                                </div>
-                              ))}
-                           </div>
-                        </div>
-                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 overflow-y-auto max-h-32 custom-scrollbar">
-                           <p className="text-[8px] font-black text-slate-400 uppercase mb-2">Movimentos</p>
-                           {selectedPoke.learnset?.slice(0, 10).map((m, i) => (
-                             <div key={i} className="text-[9px] font-bold text-slate-700 uppercase mb-1 flex justify-between">
-                                <span>{m.move.replace('-', ' ')}</span>
-                                <span className="text-slate-300">Nv.{m.level}</span>
-                             </div>
-                           ))}
-                        </div>
-                     </div>
-                     <p className="text-[10px] text-slate-500 italic text-center">
-                        "Explora o mundo e coleta mais informaçíµes sobre esta espécie."
-                     </p>
-                   </>
-                 ) : (
-                   <div className="py-12 text-center bg-slate-50 rounded-3xl border-4 border-dashed border-slate-200">
-                      <p className="text-slate-400 font-black uppercase italic">Dados Indisponíveis</p>
-                      <p className="text-[10px] text-slate-300 font-bold uppercase mt-1">Capture este Pokémon para ver detalhes</p>
-                   </div>
-                 )}
-              </div>
-           </div>
+                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                      <p className="text-[8px] font-black text-slate-400 uppercase mb-3 tracking-widest">Movimentos Catalogados</p>
+                      <div className="grid grid-cols-1 gap-1.5">
+                        {selectedPoke.learnset?.slice(0, 15).map((m, i) => (
+                          <div key={i} className="text-[9px] font-bold text-slate-700 uppercase p-2 bg-white rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span className="italic">{m.move.replace(/-/g, ' ')}</span>
+                            <span className="text-[8px] px-2 py-0.5 bg-slate-100 rounded text-slate-400">Nv.{m.level}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100/50">
+                    <p className="text-[9px] text-blue-600 font-bold italic text-center leading-relaxed">
+                      "Os dados biológicos desta espécie foram catalogados com sucesso em sua Pokédex."
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <div className="py-12 text-center bg-slate-50 rounded-3xl border-4 border-dashed border-slate-200">
+                  <div className="text-4xl mb-3 opacity-20">❓</div>
+                  <p className="text-slate-400 font-black uppercase italic">Dados Indisponíveis</p>
+                  <p className="text-[10px] text-slate-300 font-bold uppercase mt-1">Capture este Pokémon para ver detalhes</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
