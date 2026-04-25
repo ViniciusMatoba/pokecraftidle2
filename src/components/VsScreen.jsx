@@ -33,16 +33,31 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
             <button onClick={onClose} className="text-white/40 hover:text-white text-xl font-black w-10 h-10 flex items-center justify-center"></button>
           </div>
 
-          <div className="flex gap-2">
+          <div style={{
+            display: 'flex',
+            gap: '6px',
+            padding: '8px 12px',
+            background: 'rgba(0,0,0,0.2)',
+          }}>
             {tabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 flex flex-col items-center py-3 px-1 rounded-t-2xl transition-all relative ${
-                  activeTab === tab.id 
-                  ? 'bg-slate-950 text-white' 
-                  : 'text-white/40 hover:text-white/60'
-                }`}
+                style={{
+                  flex: 1,
+                  padding: '12px 4px',
+                  borderRadius: '14px',
+                  minHeight: '52px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  transition: 'all 0.2s',
+                  position: 'relative',
+                  background: activeTab === tab.id ? '#020617' : 'transparent',
+                  color: activeTab === tab.id ? 'white' : 'rgba(255,255,255,0.4)',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
               >
                 <span className="text-xl mb-1">{tab.icon}</span>
                 <span className="text-[10px] font-black uppercase tracking-tighter">{tab.name}</span>
