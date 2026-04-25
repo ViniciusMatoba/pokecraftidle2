@@ -3718,32 +3718,59 @@ export default function App() {
       );
 
       case 'prof_oak_starters_announcement': return (
-        <div className="h-full flex flex-col items-center justify-center bg-[#0F2D3A] p-6 text-center animate-fadeIn">
-          <div className="bg-slate-900 border-2 border-white/10 rounded-[3rem] p-8 max-w-sm shadow-2xl relative overflow-hidden">
-            <div className="absolute -top-24 -left-24 w-48 h-48 bg-yellow-400/20 blur-3xl rounded-full"></div>
-            
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-32 h-32 bg-slate-800 rounded-full flex items-center justify-center mb-6 border-4 border-white/10 overflow-hidden shadow-inner">
+        <div style={{position:'absolute', top:0, left:0, right:0, bottom:0, zIndex:200, background:'#0f172a', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'16px', overflow:'hidden'}}>
+          <div style={{
+            width: '100%',
+            maxWidth: '400px',
+            maxHeight: '80vh',
+            background: 'white',
+            borderRadius: '24px',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.4)',
+            position: 'relative'
+          }}>
+            {/* Header */}
+            <div style={{ flexShrink: 0, background: '#1e293b', padding: '24px 20px', textAlign: 'center' }}>
+              <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 border-4 border-white/10 overflow-hidden">
                 <img 
                   src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" 
-                  className="w-24 h-24 object-contain mt-4" 
+                  className="w-16 h-16 object-contain mt-2" 
                   alt="Professor Carvalho" 
                 />
               </div>
-
-              <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter mb-4">
+              <h2 style={{ fontSize: '18px', fontWeight: 900, color: 'white', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>
                 MENSAGEM DO PROF. CARVALHO
               </h2>
+            </div>
 
-              <div className="bg-white/5 rounded-2xl p-6 mb-8 border border-white/5">
-                <p className="text-white/80 text-sm font-bold leading-relaxed italic">
-                  "Incrível! Meus parabéns por derrotar o Azul na Rota 1! Acabo de receber relatos fantásticos... os Pokémon iniciais <span className="text-green-400">Bulbasaur</span>, <span className="text-orange-400">Charmander</span> e <span className="text-blue-400">Squirtle</span> foram avistados selvagens na Rota 1 e na Floresta!"
+            {/* Conteúdo com scroll */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '24px 20px' }} className="custom-scrollbar">
+              <div className="bg-slate-50 rounded-2xl p-5 mb-6 border border-slate-100">
+                <p className="text-slate-700 text-sm font-bold leading-relaxed italic">
+                  "Incrível! Meus parabéns por derrotar o Azul na Rota 1! Acabo de receber relatos fantásticos... os Pokémon iniciais <span className="text-green-600">Bulbasaur</span>, <span className="text-orange-600">Charmander</span> e <span className="text-blue-400">Squirtle</span> foram avistados selvagens na Rota 1 e na Floresta!"
                 </p>
-                <p className="text-white/80 text-sm font-bold leading-relaxed italic mt-4">
+                <p className="text-slate-700 text-sm font-bold leading-relaxed italic mt-4">
                   "Parece que eles decidiram se aventurar além do meu laboratório. Agora você pode encontrá-los e capturá-los! Boa sorte na sua jornada!"
                 </p>
               </div>
 
+              {/* Sprites movidos para dentro do card */}
+              <div className="flex justify-center gap-2 opacity-80 flex-wrap">
+                {[1, 4, 7, 25, 133].map(id => (
+                  <img
+                    key={id}
+                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`}
+                    style={{width:'48px', height:'48px', objectFit:'contain'}}
+                    alt=""
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Rodapé fixo */}
+            <div style={{ flexShrink: 0, padding: '20px', borderTop: '1px solid #f1f5f9', background: '#f8fafc' }}>
               <button 
                 onClick={() => {
                   setGameState(prev => ({
@@ -3752,17 +3779,24 @@ export default function App() {
                   }));
                   setCurrentView('vs');
                 }}
-                className="w-full bg-white text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-yellow-400 transition-all shadow-xl active:scale-95"
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  borderRadius: '16px',
+                  background: '#16a34a',
+                  color: 'white',
+                  fontWeight: 900,
+                  fontSize: '15px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(22,163,74,0.4)'
+                }}
               >
                 ENTENDIDO!
               </button>
             </div>
-          </div>
-
-          <div className="mt-8 flex gap-4 opacity-50 grayscale animate-pulse">
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" className="w-12 h-12" alt="Bulba" />
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png" className="w-12 h-12" alt="Char" />
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png" className="w-12 h-12" alt="Squirtle" />
           </div>
         </div>
       );
