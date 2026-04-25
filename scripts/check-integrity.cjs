@@ -32,6 +32,8 @@ const blocks = [
   { name: 'starter_modal_close_btn',   marker: "backdropFilter: 'blur(4px)'" },
   { name: 'starter_modal_choose_btn',  marker: 'EU ESCOLHO VOCE!' },
   { name: 'starter_modal_padding',     marker: "'20px 24px 28px 24px'" },
+  { name: 'rival_dialog_balloon', marker: "'16px 20px 80px 20px'" },
+  { name: 'rival_batalhar_btn',   marker: "BATALHAR!" },
 ];
 
 const HASH_FILE = './scripts/.integrity-hashes.json';

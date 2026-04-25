@@ -3151,17 +3151,61 @@ export default function App() {
              <img src="https://play.pokemonshowdown.com/sprites/trainers/blue.png" className="h-72 drop-shadow-2xl animate-slideInRight" alt="Rival" />
            </div>
            {/* Balão na parte inferior */}
-           <div className="w-full relative z-10 p-4">
-             <div className="bg-white p-6 rounded-[2rem] shadow-2xl border-b-[10px] border-blue-600 w-full">
-               <h3 className="text-lg font-black text-slate-800 italic uppercase mb-3 tracking-tighter">Rival Azul:</h3>
-               <p className="text-sm font-bold text-slate-600 mb-4 italic">"Ei, espere aí! Eu também quero um POKÉMON! E eu vou escolher este aqui!"</p>
-               <p className="text-sm font-black text-blue-500 mb-4 uppercase tracking-widest animate-pulse">"Vejamos quem é o melhor treinador!"</p>
-               <button
-                 onClick={startBattleAgainstRival}
-                 className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
-               >Batalhar!</button>
-             </div>
-           </div>
+           <div style={{
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  background: 'white',
+  borderRadius: '24px 24px 0 0',
+  padding: '16px 20px 80px 20px',
+  boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
+  zIndex: 10,
+}}>
+  {/* Label do rival */}
+  <p style={{
+    fontSize: '11px',
+    fontWeight: 900,
+    color: '#dc2626',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+    marginBottom: '8px',
+  }}>
+    RIVAL — AZUL:
+  </p>
+
+  {/* Texto do diálogo */}
+  <p style={{
+    fontSize: '14px',
+    fontWeight: 700,
+    color: '#1e293b',
+    lineHeight: '1.5',
+    marginBottom: '14px',
+  }}>
+    "Ei, espere aí! Eu também quero um POKÉMON! E eu vou escolher este aqui! Vejamos quem é o melhor treinador!"
+  </p>
+
+  {/* Botão BATALHAR */}
+  <button
+    onClick={startBattleAgainstRival}
+    style={{
+      width: '100%',
+      padding: '16px',
+      borderRadius: '16px',
+      background: '#dc2626',
+      color: 'white',
+      fontWeight: 900,
+      fontSize: '16px',
+      textTransform: 'uppercase',
+      letterSpacing: '2px',
+      border: 'none',
+      cursor: 'pointer',
+      boxShadow: '0 4px 12px rgba(220,38,38,0.4)',
+    }}
+  >
+    BATALHAR!
+  </button>
+</div>
         </div>
       );
     }
