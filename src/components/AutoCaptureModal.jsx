@@ -210,25 +210,50 @@ const AutoCaptureModal = ({ route, gameState, onSave, onClose, onDisable }) => {
           </div>
         </div>
 
-        {/* Botões */}
-        <div className="p-5 pt-0 flex flex-col gap-2 shrink-0">
+        {/* Botões — com margem das bordas */}
+        <div style={{
+          padding: '0 20px 28px 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+          flexShrink: 0
+        }}>
           <button
             onClick={() => {
               if (mode === 'specific' && targetIds.length === 0) return;
               onSave({ mode, ballPriority, hpThreshold, targetIds });
             }}
             disabled={mode === 'specific' && targetIds.length === 0}
-            className={`w-full py-4 rounded-2xl font-black uppercase text-sm shadow-xl transition-all active:scale-95 ${
-              mode === 'specific' && targetIds.length === 0
-                ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-500'
-            }`}
+            style={{
+              width: '100%',
+              padding: '16px 8px',
+              borderRadius: '16px',
+              fontWeight: 900,
+              fontSize: '14px',
+              textTransform: 'uppercase',
+              background: (mode === 'specific' && targetIds.length === 0) ? '#e2e8f0' : '#2563eb',
+              color: (mode === 'specific' && targetIds.length === 0) ? '#94a3b8' : 'white',
+              border: 'none',
+              cursor: (mode === 'specific' && targetIds.length === 0) ? 'not-allowed' : 'pointer',
+              boxShadow: (mode === 'specific' && targetIds.length === 0) ? 'none' : '0 4px 12px rgba(0,0,0,0.2)'
+            }}
           >
             ✅ Salvar e Ativar Auto-Captura
           </button>
           <button
             onClick={onDisable}
-            className="w-full bg-slate-100 text-slate-600 py-3 rounded-2xl font-black uppercase text-xs hover:bg-slate-200 transition-all"
+            style={{
+              width: '100%',
+              padding: '16px 8px',
+              borderRadius: '16px',
+              fontWeight: 900,
+              fontSize: '14px',
+              textTransform: 'uppercase',
+              background: '#f1f5f9',
+              color: '#475569',
+              border: 'none',
+              cursor: 'pointer'
+            }}
           >
             Desativar Auto-Captura nesta rota
           </button>
