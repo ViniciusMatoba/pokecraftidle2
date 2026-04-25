@@ -52,7 +52,7 @@ const CityScreen = ({
     { 
       id: 'pokecenter', 
       name: 'Centro Pokémon', 
-      icon: null,
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/full-restore.png',
       emoji: '🏥',
       desc: 'Cure sua equipe gratuitamente.',
       action: () => setActiveBuildingModal('pokecenter'),
@@ -61,7 +61,7 @@ const CityScreen = ({
     { 
       id: 'mart', 
       name: 'Poké Mart', 
-      icon: null,
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
       emoji: '🏪',
       desc: 'Compre itens e suprimentos.',
       action: () => setActiveBuildingModal('mart'),
@@ -70,7 +70,7 @@ const CityScreen = ({
     { 
       id: 'forge', 
       name: 'Forja Pokémon', 
-      icon: null,
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/metal-coat.png',
       emoji: '🔨',
       desc: 'Crie itens raros com materiais.',
       action: () => setActiveBuildingModal('forge'),
@@ -200,16 +200,18 @@ const CityScreen = ({
             >
               <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12"></div>
               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-inner border-2 border-white group-hover:rotate-6 transition-transform overflow-hidden">
-                 <img 
-                   src={b.icon} 
-                   className="w-10 h-10 object-contain" 
-                   alt={b.name} 
-                   onError={(e) => {
-                     e.target.style.display = 'none';
-                     e.target.nextSibling.style.display = 'flex';
-                   }}
-                 />
-                 <span className="hidden text-3xl items-center justify-center w-full h-full">{b.emoji}</span>
+                 {b.icon ? (
+                   <img 
+                     src={b.icon} 
+                     className="w-10 h-10 object-contain" 
+                     alt={b.name} 
+                     onError={(e) => {
+                       e.target.style.display = 'none';
+                       e.target.nextSibling.style.display = 'flex';
+                     }}
+                   />
+                 ) : null}
+                 <span className={`${b.icon ? 'hidden' : 'flex'} text-3xl items-center justify-center w-full h-full`}>{b.emoji}</span>
               </div>
               <div className="flex-1">
                  <h3 className="text-xl font-black text-slate-800 uppercase italic leading-none">{b.name}</h3>
