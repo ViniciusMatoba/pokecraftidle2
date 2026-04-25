@@ -2673,30 +2673,28 @@ export default function App() {
                   <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/143.png" className="w-24 h-24 mt-2 animate-float-slow drop-shadow-xl" alt="Snorlax" />
                 </div>
                 
-                {hasSave && (
-                  <button 
-                    onClick={() => setCurrentView('city')} 
-                    className="w-full max-w-xs md:max-w-md bg-white text-pokeBlue px-8 py-4 md:py-6 rounded-[2rem] md:rounded-[2.5rem] font-black uppercase tracking-widest shadow-xl hover:translate-y-1 transition-all text-lg md:text-xl border-b-8 border-slate-200 mb-4"
+                {/* ⛔ PROTECTED: Botões Landing — NÃO ALTERAR TAMANHO, PADDING OU ESTILO SEM AUTORIZAÇÃO */}
+                <div style={{width:'100%', display:'flex', flexDirection:'column', gap:'16px', padding:'0'}}>
+                  {hasSave && (
+                    <>
+                      {/* ⛔ PROTECTED: Botão CONTINUAR JORNADA */}
+                      <button 
+                        onClick={() => setCurrentView('city')}
+                        style={{width:'100%', padding:'20px', borderRadius:'24px', fontWeight:'900', fontSize:'18px', textTransform:'uppercase', letterSpacing:'2px', background:'white', color:'#1d4ed8', border:'none', boxShadow:'0 4px 12px rgba(0,0,0,0.3)', cursor:'pointer'}}
+                      >
+                        CONTINUAR JORNADA
+                      </button>
+                    </>
+                  )}
+                  {/* ⛔ PROTECTED: Botão REINICIAR JORNADA */}
+                  <button
+                    onClick={() => { showConfirm({ type:'danger', title:'Reiniciar Jornada', message:'Isso apagará todo seu progresso. Tem certeza?', confirmLabel:'Sim, reiniciar', cancelLabel:'Cancelar', onConfirm:() => { closeConfirm(); startNewJourney(); }, onCancel:closeConfirm }); }}
+                    style={{width:'100%', padding:'20px', borderRadius:'24px', fontWeight:'900', fontSize:'18px', textTransform:'uppercase', letterSpacing:'2px', background:'rgba(59,130,246,0.2)', color:'white', border:'2px solid rgba(255,255,255,0.3)', boxShadow:'0 4px 12px rgba(0,0,0,0.3)', cursor:'pointer'}}
                   >
-                    Continuar Jornada
+                    REINICIAR JORNADA
                   </button>
-                )}
-
-                <button onClick={() => {
-                  showConfirm({
-                    type: 'danger',
-                    title: 'Reiniciar Jornada',
-                    message: 'Isso apagará todo seu progresso. Tem certeza?',
-                    confirmLabel: 'Sim, reiniciar',
-                    cancelLabel: 'Cancelar',
-                    onConfirm: () => { closeConfirm(); startNewJourney(); },
-                    onCancel: closeConfirm,
-                  });
-                }}
-                  className={`w-full max-w-xs md:max-w-md ${hasSave ? 'bg-blue-400/20 border-2 border-white/30 text-white' : 'bg-white text-pokeBlue'} px-8 py-4 md:py-5 rounded-[2rem] md:rounded-[2.5rem] font-black uppercase tracking-widest shadow-xl hover:translate-y-1 transition-all text-sm md:text-lg`}
-                >
-                  REINICIAR JORNADA
-                </button>
+                  {/* ⛔ END PROTECTED: Botões Landing */}
+                </div>
 
                  <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest text-center mt-4">
                    POKÉCRAFT IDLE {APP_VERSION} â€¢ {APP_VERSION_DATE}
