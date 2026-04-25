@@ -4361,7 +4361,7 @@ export default function App() {
       })()}
 
       {/* MODAIS DE CONSTRUí‡í•ES */}
-      {/* MODAL DE MISSíO ATIVA */}
+      {/* MODAL DE MISSÃO ATIVA */}
       {pendingQuest && (
         <QuestModal
           quest={pendingQuest}
