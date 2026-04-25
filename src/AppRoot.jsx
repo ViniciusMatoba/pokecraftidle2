@@ -3828,6 +3828,9 @@ export default function App() {
 
   const isInGame = !['landing'].includes(currentView);
   const isInRoute = ['battles'].includes(currentView);
+  const STARTER_RECIPES = ['pokeballs', 'potions', 'fresh_water'];
+  const isStarterRecipe = (recipe) => STARTER_RECIPES.includes(recipe.id);
+
   const canCraftRecipe = (recipe) => {
     const inv = gameState.inventory;
     return Object.entries(recipe.cost).every(([material, amount]) => {
@@ -4528,7 +4531,7 @@ export default function App() {
               <div className="space-y-6">
                 {(() => {
                   const allRecipesFlat = Object.values(CRAFTING_RECIPES).flat();
-                  const totalVisibleCount = allRecipesFlat.filter(r => canCraftRecipe(r) || alreadyCraftedRecipe(r)).length;
+                  const totalVisibleCount = allRecipesFlat.filter(r => isStarterRecipe(r) || canCraftRecipe(r) || alreadyCraftedRecipe(r)).length;
 
                   if (totalVisibleCount === 0) {
                     return (
@@ -4541,7 +4544,7 @@ export default function App() {
                   }
 
                   return Object.entries(CRAFTING_RECIPES).map(([category, items]) => {
-                    const visibleItems = items.filter(item => canCraftRecipe(item) || alreadyCraftedRecipe(item));
+                    const visibleItems = items.filter(item => isStarterRecipe(item) || canCraftRecipe(item) || alreadyCraftedRecipe(item));
                     if (visibleItems.length === 0) return null;
 
                     return (
@@ -4611,6 +4614,18 @@ export default function App() {
                                       <p style={{fontSize:'10px', color:'#94a3b8', margin:0, lineHeight:'1.3'}}>
                                         {typeof item.effect === 'string' ? item.effect : (item.description || 'Item de Crafting')}
                                       </p>
+
+                                      {/* Labels de status */}
+                                      {isStarterRecipe(item) && !craftable && (
+                                        <p style={{fontSize:'10px', color:'#f59e0b', fontWeight:700, marginTop:'4px', margin: '4px 0 0 0'}}>
+                                          ⚗️ Receita básica — colete os materiais!
+                                        </p>
+                                      )}
+                                      {craftable && (
+                                        <p style={{fontSize:'10px', color:'#22c55e', fontWeight:700, marginTop:'4px', margin: '4px 0 0 0'}}>
+                                          ✅ Pronto para fabricar!
+                                        </p>
+                                      )}
                                    </div>
                                 </div>
 

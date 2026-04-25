@@ -1,6 +1,8 @@
 export const CRAFTING_RECIPES = {
   consumables: [
     { id: 'pokeballs', name: 'Poké Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', cost: { normal_essence: 10, currency: 100 }, type: 'ball' },
+    { id: 'potions', name: 'Potion', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png', cost: { normal_essence: 5, currency: 50 }, type: 'healing' },
+    { id: 'fresh_water', name: 'Fresh Water', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png', cost: { water_essence: 5, currency: 50 }, type: 'healing' },
     { id: 'great_ball', name: 'Great Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png', cost: { iron_ore: 5, normal_essence: 20, currency: 400 }, type: 'ball' },
     { id: 'ultra_ball', name: 'Ultra Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png', cost: { mystic_dust: 5, iron_ore: 10, currency: 1200 }, type: 'ball' },
     { id: 'revive', name: 'Revive', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', cost: { grass_essence: 15, ghost_essence: 5, currency: 500 }, type: 'healing' },
