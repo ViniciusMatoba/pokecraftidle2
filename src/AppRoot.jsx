@@ -2967,8 +2967,30 @@ export default function App() {
              return (
                <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
                    <div className="bg-white w-full max-w-xl rounded-[4rem] shadow-2xl border-b-[16px] border-slate-200 overflow-hidden relative animate-bounceIn">
-                      <button onClick={() => setPreviewStarter(null)} className="absolute top-8 right-8 bg-slate-100 p-4 rounded-full hover:bg-red-50 hover:text-red-500 transition-all z-20">
-                         <span className="font-black">âœ–</span>
+                      <button
+                        onClick={() => setPreviewStarter(null)}
+                        style={{
+                          position: 'absolute',
+                          top: '16px',
+                          right: '16px',
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '50%',
+                          background: 'rgba(0,0,0,0.35)',
+                          border: '2px solid rgba(255,255,255,0.5)',
+                          color: 'white',
+                          fontSize: '14px',
+                          fontWeight: 900,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          lineHeight: 1,
+                          backdropFilter: 'blur(4px)',
+                          zIndex: 30,
+                        }}
+                      >
+                        ✕
                       </button>
 
                       <div 
@@ -2981,23 +3003,33 @@ export default function App() {
                          <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${previewStarter.id}.png`} className="w-64 h-64 object-contain drop-shadow-2xl translate-y-20 relative z-10" alt={previewStarter.name} />
                       </div>
 
-                      <div className="p-10 pt-20">
+                      <div style={{
+  padding: '20px 24px 28px 24px',
+  background: 'white',
+  borderRadius: '0 0 24px 24px',
+}}>
                          <div className="text-center mb-8">
-                            <h2
-                              className="font-black uppercase italic text-center w-full px-2"
-                              style={{
-                                fontSize: '1.8rem',
-                                lineHeight: 1.1,
-                                wordBreak: 'break-word',
-                                overflowWrap: 'break-word',
-                              }}
-                            >
-                              {previewStarter.name}
-                            </h2>
+                            <h2 style={{
+  fontSize: '24px',
+  fontWeight: 900,
+  fontStyle: 'italic',
+  textTransform: 'uppercase',
+  textAlign: 'center',
+  padding: '0 40px',
+  wordBreak: 'break-word',
+}}>
+  {previewStarter.name}
+</h2>
                             <span className="text-slate-400 font-bold uppercase tracking-widest text-xs mt-2 block">Status Nível 5</span>
                          </div>
 
-                         <div className="grid grid-cols-2 gap-8">
+                         <div style={{
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: '12px',
+  padding: '0 4px',
+  marginTop: '12px',
+}}>
                             {/* Atributos */}
                             <div className="flex flex-col gap-3">
                                <h4 className="font-black uppercase text-[10px] text-slate-400 tracking-widest border-b-2 border-slate-100 pb-1">Atributos Base</h4>
@@ -3010,7 +3042,16 @@ export default function App() {
                                  { label: 'SPD', val: previewStarter.speed, color: 'bg-pink-400' }
                                ].map(s => (
                                  <div key={s.label} className="flex items-center gap-3">
-                                   <span className="text-[10px] font-black text-slate-400 w-10">{s.label}</span>
+                                   <span style={{
+  fontSize: '11px',
+  fontWeight: 700,
+  color: '#64748b',
+  textTransform: 'uppercase',
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  width: '40px'
+}}>{s.label}</span>
                                    <div className="flex-1 bg-slate-100 h-1.5 rounded-full overflow-hidden">
                                       <div className={`${s.color} h-full`} style={{ width: `${(s.val/25)*100}%` }}></div>
                                    </div>
@@ -3025,7 +3066,15 @@ export default function App() {
                                {(previewStarter.moves || []).map((m, i) => (
                                  <div key={i} className="bg-slate-50 p-3 rounded-2xl border-2 border-slate-100 flex justify-between items-center group">
                                     <div className="flex flex-col">
-                                       <span className="text-[10px] font-black uppercase text-slate-700">{m.name}</span>
+                                       <span style={{
+  fontSize: '11px',
+  fontWeight: 700,
+  color: '#1e293b',
+  textTransform: 'uppercase',
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+}}>{m.name}</span>
                                        <span className="text-[8px] font-bold text-slate-400 uppercase">{m.type}</span>
                                     </div>
                                     <span className="text-[10px] font-black text-slate-400 italic">PWR {m.power || '--'}</span>
@@ -3034,41 +3083,55 @@ export default function App() {
                             </div>
                          </div>
 
-                         <button 
-                           onClick={() => {
-                             const p = previewStarter;
-                              const myPoke = { 
-                                ...p, 
-                                hp: p.maxHp, 
-                                xp: 0, 
-                                instanceId: Date.now(), 
-                                status: [],
-                                stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 }
-                              };
+                          <button 
+                            onClick={() => {
+                              const p = previewStarter;
+                               const myPoke = { 
+                                 ...p, 
+                                 hp: p.maxHp, 
+                                 xp: 0, 
+                                 instanceId: Date.now(), 
+                                 status: [],
+                                 stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 }
+                               };
 
-                             setGameState(prev => ({ 
-                               ...prev, 
-                               team: [myPoke],
-                               caughtData: { ...prev.caughtData, [p.id]: true },
-                               worldFlags: [...(prev.worldFlags || []), 'has_starter'],
-                                inventory: {
-                                  ...prev.inventory,
-                                  items: {
-                                    ...prev.inventory.items,
-                                    fresh_water: (prev.inventory.items?.fresh_water || 0) + 10,
-                                  },
-                                },
-                                oakTutorialShown: true
-                             })); 
-                             
-                             setTimeout(() => setShowOakStaminaModal(true), 600);
-                             setPreviewStarter(null);
-                             setCurrentView('rival_intro'); 
-                           }}
-                           className="w-full mt-10 bg-pokeBlue text-white py-6 rounded-3xl font-black uppercase tracking-widest text-lg shadow-xl shadow-blue-200 hover:bg-blue-600 transition-all active:scale-95"
-                         >
-                           EU ESCOLHO VOCíŠ!
-                         </button>
+                              setGameState(prev => ({ 
+                                ...prev, 
+                                team: [myPoke],
+                                caughtData: { ...prev.caughtData, [p.id]: true },
+                                worldFlags: [...(prev.worldFlags || []), 'has_starter'],
+                                 inventory: {
+                                   ...prev.inventory,
+                                   items: {
+                                     ...prev.inventory.items,
+                                     fresh_water: (prev.inventory.items?.fresh_water || 0) + 10,
+                                   },
+                                 },
+                                 oakTutorialShown: true
+                              })); 
+                              
+                              setTimeout(() => setShowOakStaminaModal(true), 600);
+                              setPreviewStarter(null);
+                              setCurrentView('rival_intro'); 
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '18px',
+                              marginTop: '16px',
+                              borderRadius: '16px',
+                              background: '#1d4ed8',
+                              color: 'white',
+                              fontWeight: 900,
+                              fontSize: '16px',
+                              textTransform: 'uppercase',
+                              letterSpacing: '2px',
+                              border: 'none',
+                              cursor: 'pointer',
+                              boxShadow: '0 4px 12px rgba(29,78,216,0.4)',
+                            }}
+                          >
+                            EU ESCOLHO VOCE!
+                          </button>
                       </div>
                    </div>
                 </div>

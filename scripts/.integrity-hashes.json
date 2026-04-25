@@ -12,5 +12,8 @@
   "currentView guard spawn": "c6043c837eea339b6845ca468fce91df",
   "Intro Dialogue": "5aab3c1525a6199f42b7f5028b17ee6a",
   "intro_dialog_bottom": "d35d7c89a6ee4892db8c506e27d6f90d",
-  "intro_proximo_button": "816eb70917518a6e922a49dd256e6d49"
+  "intro_proximo_button": "816eb70917518a6e922a49dd256e6d49",
+  "starter_modal_close_btn": "36abc45429282fbdcf134261521d052e",
+  "starter_modal_choose_btn": "feee8d7ce382714aa726250d346c47f8",
+  "starter_modal_padding": "c794bb1e118489e8a7e6c81d10c87b24"
 }

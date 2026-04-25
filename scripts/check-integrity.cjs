@@ -29,6 +29,9 @@ const blocks = [
   { name: 'Intro Dialogue',           marker: '⛔ PROTECTED: Balão de Diálogo Intro' },
   { name: 'intro_dialog_bottom',  marker: "borderRadius: '24px 24px 0 0'" },
   { name: 'intro_proximo_button', marker: "letterSpacing: '2px'" },
+  { name: 'starter_modal_close_btn',   marker: "backdropFilter: 'blur(4px)'" },
+  { name: 'starter_modal_choose_btn',  marker: 'EU ESCOLHO VOCE!' },
+  { name: 'starter_modal_padding',     marker: "'20px 24px 28px 24px'" },
 ];
 
 const HASH_FILE = './scripts/.integrity-hashes.json';
