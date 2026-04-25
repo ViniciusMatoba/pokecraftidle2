@@ -222,12 +222,28 @@ const CityScreen = ({
         </div>
 
         {gameState.lastFarmingRoute && (
-          <button 
-            onClick={() => onBackToBattle && onBackToBattle()}
-            className="w-full mt-4 bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg border-b-8 border-slate-900 flex items-center justify-center gap-3 active:scale-95"
+          <button
+            onClick={onBackToBattle}
+            style={{
+              width: '100%',
+              padding: '20px',
+              borderRadius: '20px',
+              background: '#1e293b',
+              color: 'white',
+              fontWeight: 900,
+              fontSize: '15px',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(30,41,59,0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+            }}
           >
-            <span className="text-xl">⚔️</span>
-            Voltar para Treino
+            ⚔️ Voltar para o Treino
           </button>
         )}
       </div>

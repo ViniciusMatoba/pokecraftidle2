@@ -7,7 +7,7 @@ import { TIME_CONFIG } from '../utils/timeSystem';
 const BattleScreen = ({ 
   currentEnemy, gameState, activeMemberIndex, moveIndex, weather,
   setActiveMemberIndex, addLog, battleLog, floatingTexts,
-  onUseItem, setGameState, setShowAutoCaptureModal, ROUTES, fixPath, TYPE_COLORS, onGoToCity, onChallengeBoss,
+  onUseItem, setGameState, setShowAutoCaptureModal, onReconfigureCapture, ROUTES, fixPath, TYPE_COLORS, onGoToCity, onChallengeBoss,
   timeOfDay
 }) => {
   const activePoke = gameState.team?.[activeMemberIndex];
@@ -437,41 +437,324 @@ const BattleScreen = ({
       )}
 
       {showAutoConfig && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md" onClick={() => setShowAutoConfig(false)}>
-          <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl animate-bounceIn overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
-            <div className="flex-shrink-0 px-8 pt-8 pb-4 flex items-center justify-between">
-              <h3 className="font-black text-slate-800 uppercase italic text-xl">⚙️ Painel Automático</h3>
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '16px',
+          }}
+          onClick={() => setShowAutoConfig(false)}
+        >
+          <div
+            style={{
+              width: '100%', maxWidth: '400px', maxHeight: '85vh',
+              background: 'white', borderRadius: '24px',
+              overflow: 'hidden', display: 'flex', flexDirection: 'column',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{
+              background: '#1e293b',
+              padding: '20px 20px 16px 20px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              flexShrink: 0,
+            }}>
+              <div>
+                <p style={{color:'rgba(255,255,255,0.7)', fontSize:'10px', fontWeight:700, textTransform:'uppercase', letterSpacing:'2px', margin:0}}>
+                  Configurações
+                </p>
+                <h3 style={{color:'white', fontSize:'18px', fontWeight:900, textTransform:'uppercase', fontStyle:'italic', margin:0}}>
+                  Painel Automático
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowAutoConfig(false)}
+                style={{
+                  width:'32px', height:'32px', borderRadius:'50%',
+                  background:'rgba(255,255,255,0.2)', border:'none',
+                  fontSize:'16px', fontWeight:900, cursor:'pointer',
+                  color:'white', display:'flex', alignItems:'center', justifyContent:'center',
+                }}
+              >
+                ✕
+              </button>
             </div>
-            <div className="flex-1 overflow-y-auto custom-scrollbar px-8 py-2 flex flex-col gap-5">
-              <div className="bg-blue-50 p-5 rounded-3xl border-2 border-blue-100 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="font-black text-slate-800 text-sm uppercase tracking-tighter">🎯 Auto-Captura</p>
-                  </div>
-                  <div className="relative cursor-pointer" onClick={() => setGameState(prev => ({ ...prev, autoCapture: !prev.autoCapture }))}>
-                    <div className={`w-14 h-7 rounded-full transition-all duration-300 ${gameState.autoCapture ? 'bg-pokeBlue' : 'bg-slate-200'}`}>
-                      <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-lg transition-all duration-300 ${gameState.autoCapture ? 'translate-x-8' : 'translate-x-1'}`} />
+
+            {/* Conteúdo */}
+            <div style={{flex:1, overflowY:'auto', padding:'16px 20px', display:'flex', flexDirection:'column', gap:'10px'}} className="custom-scrollbar">
+
+              {/* Toggles */}
+              {[
+                {
+                  id: 'autoCapture', label: 'Auto-Captura', icon: '⚪',
+                  desc: 'Captura automaticamente Pokémon durante o farm',
+                  color: '#2563eb', bgColor: '#eff6ff', borderColor: '#bfdbfe',
+                  value: gameState.autoCapture,
+                  onChange: () => setGameState(prev => ({ ...prev, autoCapture: !prev.autoCapture })),
+                  details: (
+                    <div style={{
+                      marginTop:'8px', padding:'12px',
+                      background:'white', borderRadius:'12px',
+                      border:'1px solid #bfdbfe',
+                    }}>
+                      <p style={{fontSize:'10px', fontWeight:900, color:'#64748b', textTransform:'uppercase', margin:'0 0 8px 0'}}>
+                        O que capturar:
+                      </p>
+                      <div style={{display:'flex', flexDirection:'column', gap:'6px', marginBottom:'12px'}}>
+                        {[
+                          { id:'shiny_only', label:'Apenas Shinies ✨' },
+                          { id:'not_caught', label:'Não capturados ainda 📖' },
+                          { id:'all',        label:'Todos os Pokémon 🎯' },
+                          { id:'specific',   label:'Específicos (configurar abaixo) 🔍' },
+                        ].map(opt => (
+                          <button
+                            key={opt.id}
+                            onClick={() => setGameState(prev => ({ ...prev, autoCaptureConfig: { ...prev.autoCaptureConfig, mode: opt.id }}))}
+                            style={{
+                              padding:'8px 12px', borderRadius:'10px', border:'1px solid',
+                              borderColor: gameState.autoCaptureConfig?.mode === opt.id ? '#2563eb' : '#e2e8f0',
+                              background: gameState.autoCaptureConfig?.mode === opt.id ? '#eff6ff' : 'white',
+                              color: gameState.autoCaptureConfig?.mode === opt.id ? '#2563eb' : '#64748b',
+                              fontWeight: gameState.autoCaptureConfig?.mode === opt.id ? 900 : 600,
+                              fontSize:'12px', textAlign:'left', cursor:'pointer',
+                            }}
+                          >
+                            {gameState.autoCaptureConfig?.mode === opt.id ? '✅ ' : ''}{opt.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      <p style={{fontSize:'10px', fontWeight:900, color:'#64748b', textTransform:'uppercase', margin:'0 0 4px 0'}}>
+                        Pokébola a usar:
+                      </p>
+                      <div style={{display:'flex', gap:'6px', flexWrap:'wrap', marginBottom:'12px'}}>
+                        {[
+                          { id:'auto',       label:'Auto' },
+                          { id:'pokeballs',  label:'Poké' },
+                          { id:'great_ball', label:'Great' },
+                          { id:'ultra_ball', label:'Ultra' },
+                        ].map(ball => (
+                          <button
+                            key={ball.id}
+                            onClick={() => setGameState(prev => ({ ...prev, autoCaptureConfig: { ...prev.autoCaptureConfig, ballPriority: ball.id }}))}
+                            style={{
+                              padding:'8px 12px', borderRadius:'10px', border:'1px solid',
+                              borderColor: gameState.autoCaptureConfig?.ballPriority === ball.id ? '#2563eb' : '#e2e8f0',
+                              background: gameState.autoCaptureConfig?.ballPriority === ball.id ? '#eff6ff' : 'white',
+                              color: gameState.autoCaptureConfig?.ballPriority === ball.id ? '#2563eb' : '#64748b',
+                              fontWeight: gameState.autoCaptureConfig?.ballPriority === ball.id ? 900 : 600,
+                              fontSize:'12px', cursor:'pointer',
+                            }}
+                          >
+                            {ball.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      <p style={{fontSize:'10px', fontWeight:900, color:'#64748b', textTransform:'uppercase', margin:'0 0 4px 0'}}>
+                        Tentar capturar quando HP do inimigo ≤ {gameState.autoCaptureConfig?.hpThreshold || 30}%
+                      </p>
+                      <input
+                        type="range" min="10" max="80" step="5"
+                        value={gameState.autoCaptureConfig?.hpThreshold || 30}
+                        onChange={e => setGameState(prev => ({ ...prev, autoCaptureConfig: { ...prev.autoCaptureConfig, hpThreshold: Number(e.target.value) }}))}
+                        style={{width:'100%', accentColor:'#2563eb'}}
+                      />
+                      <div style={{display:'flex', justifyContent:'space-between'}}>
+                        <span style={{fontSize:'9px', color:'#94a3b8', fontWeight:700}}>10%</span>
+                        <span style={{fontSize:'9px', color:'#2563eb', fontWeight:900}}>{gameState.autoCaptureConfig?.hpThreshold || 30}%</span>
+                        <span style={{fontSize:'9px', color:'#94a3b8', fontWeight:700}}>80%</span>
+                      </div>
+                    </div>
+                  )
+                },
+                {
+                  id: 'autoPotion', label: 'Auto-Poção', icon: '💊',
+                  desc: 'Usa poção automaticamente quando HP estiver baixo',
+                  color: '#16a34a', bgColor: '#f0fdf4', borderColor: '#bbf7d0',
+                  value: autoConfig?.autoPotion,
+                  onChange: () => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoPotion: !prev.autoConfig?.autoPotion }})),
+                  details: (
+                    <div style={{
+                      marginTop:'8px', padding:'12px',
+                      background:'white', borderRadius:'12px',
+                      border:'1px solid #bbf7d0',
+                    }}>
+                      <p style={{fontSize:'10px', fontWeight:900, color:'#64748b', textTransform:'uppercase', margin:'0 0 8px 0'}}>
+                        Usar qual item de cura:
+                      </p>
+                      <div style={{display:'flex', flexDirection:'column', gap:'6px'}}>
+                        {[
+                          { id:'auto',        label:'Auto (melhor disponível)' },
+                          { id:'potions',     label:'Poção' },
+                          { id:'super_potion',label:'Super Poção' },
+                          { id:'hyper_potion',label:'Hiper Poção' },
+                        ].map(opt => (
+                          <button
+                            key={opt.id}
+                            onClick={() => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, potionPriority: opt.id }}))}
+                            style={{
+                              padding:'8px 12px', borderRadius:'10px', border:'1px solid',
+                              borderColor: autoConfig?.potionPriority === opt.id ? '#16a34a' : '#e2e8f0',
+                              background: autoConfig?.potionPriority === opt.id ? '#f0fdf4' : 'white',
+                              color: autoConfig?.potionPriority === opt.id ? '#16a34a' : '#64748b',
+                              fontWeight: autoConfig?.potionPriority === opt.id ? 900 : 600,
+                              fontSize:'12px', textAlign:'left', cursor:'pointer',
+                            }}
+                          >
+                            {autoConfig?.potionPriority === opt.id ? '✅ ' : ''}{opt.label}
+                          </button>
+                        ))}
+                      </div>
+                      <div style={{marginTop:'10px'}}>
+                        <p style={{fontSize:'10px', fontWeight:900, color:'#64748b', textTransform:'uppercase', margin:'0 0 4px 0'}}>
+                          Usar quando HP ≤ {autoConfig?.hpThreshold || 50}%
+                        </p>
+                        <input
+                          type="range" min="10" max="80" step="10"
+                          value={autoConfig?.hpThreshold || 50}
+                          onChange={e => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, hpThreshold: Number(e.target.value) }}))}
+                          style={{width:'100%', accentColor:'#16a34a'}}
+                        />
+                        <div style={{display:'flex', justifyContent:'space-between'}}>
+                          <span style={{fontSize:'9px', color:'#94a3b8', fontWeight:700}}>10%</span>
+                          <span style={{fontSize:'9px', color:'#16a34a', fontWeight:900}}>{autoConfig?.hpThreshold || 50}%</span>
+                          <span style={{fontSize:'9px', color:'#94a3b8', fontWeight:700}}>80%</span>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                },
+                {
+                  id: 'autoStamina', label: 'Auto-Alimentação', icon: '🍽️',
+                  desc: 'Alimenta automaticamente quando energia estiver baixa',
+                  color: '#d97706', bgColor: '#fffbeb', borderColor: '#fde68a',
+                  value: autoConfig?.autoStamina,
+                  onChange: () => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoStamina: !prev.autoConfig?.autoStamina }})),
+                  details: (
+                    <div style={{
+                      marginTop:'8px', padding:'12px',
+                      background:'white', borderRadius:'12px',
+                      border:'1px solid #fde68a',
+                    }}>
+                      <p style={{fontSize:'10px', fontWeight:900, color:'#64748b', textTransform:'uppercase', margin:'0 0 8px 0'}}>
+                        Prioridade de alimentação:
+                      </p>
+                      <div style={{display:'flex', flexDirection:'column', gap:'6px'}}>
+                        {[
+                          { id:'drinks_first', label:'Bebidas primeiro (Leite → Limonada → Soda → Água)' },
+                          { id:'berries_first',label:'Berries primeiro (Sitrus → Oran → outras)' },
+                          { id:'auto',         label:'Auto (melhor disponível)' },
+                        ].map(opt => (
+                          <button
+                            key={opt.id}
+                            onClick={() => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, feedPriority: opt.id }}))}
+                            style={{
+                              padding:'8px 12px', borderRadius:'10px', border:'1px solid',
+                              borderColor: autoConfig?.feedPriority === opt.id ? '#d97706' : '#e2e8f0',
+                              background: autoConfig?.feedPriority === opt.id ? '#fff7ed' : 'white',
+                              color: autoConfig?.feedPriority === opt.id ? '#d97706' : '#64748b',
+                              fontWeight: autoConfig?.feedPriority === opt.id ? 900 : 600,
+                              fontSize:'11px', textAlign:'left', cursor:'pointer',
+                            }}
+                          >
+                            {autoConfig?.feedPriority === opt.id ? '✅ ' : ''}{opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                },
+                {
+                  id: 'autoEvolve', label: 'Auto-Evolução', icon: '⬆️',
+                  desc: 'Evolui automaticamente quando atingir o nível necessário',
+                  color: '#9333ea', bgColor: '#faf5ff', borderColor: '#e9d5ff',
+                  value: autoConfig?.autoEvolve,
+                  onChange: () => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoEvolve: !prev.autoConfig?.autoEvolve }})),
+                },
+              ].map(item => (
+                <div key={item.id} style={{
+                  padding: '14px 16px',
+                  background: item.bgColor,
+                  borderRadius: '16px',
+                  border: `1px solid ${item.borderColor}`,
+                  display: 'flex', flexDirection: 'column',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{fontSize:'22px', flexShrink:0}}>{item.icon}</span>
+                    <div style={{flex:1, minWidth:0}}>
+                      <p style={{fontSize:'13px', fontWeight:900, color:'#1e293b', margin:'0 0 2px 0'}}>
+                        {item.label}
+                      </p>
+                      <p style={{fontSize:'10px', color:'#64748b', margin:0, lineHeight:'1.3'}}>
+                        {item.desc}
+                      </p>
+                    </div>
+                    {/* Toggle */}
+                    <div
+                      onClick={item.onChange}
+                      style={{
+                        width:'48px', height:'26px', borderRadius:'999px',
+                        background: item.value ? item.color : '#e2e8f0',
+                        position:'relative', cursor:'pointer', flexShrink:0,
+                        transition:'background 0.2s',
+                      }}
+                    >
+                      <div style={{
+                        position:'absolute', top:'3px',
+                        left: item.value ? '25px' : '3px',
+                        width:'20px', height:'20px',
+                        borderRadius:'50%', background:'white',
+                        boxShadow:'0 1px 4px rgba(0,0,0,0.2)',
+                        transition:'left 0.2s',
+                      }}/>
                     </div>
                   </div>
+                  
+                  {/* Detalhes expandidos */}
+                  {item.value && item.details}
+                </div>
+              ))}
+
+              {/* Limiar de stamina */}
+              <div style={{
+                padding:'14px 16px', background:'#fff7ed',
+                borderRadius:'16px', border:'1px solid #fed7aa',
+              }}>
+                <p style={{fontSize:'13px', fontWeight:900, color:'#1e293b', margin:'0 0 4px 0'}}>
+                  🍽️ Alimentar quando energia ≤ {autoConfig?.autoStaminaThreshold || 30}%
+                </p>
+                <input
+                  type="range" min="10" max="50" step="5"
+                  value={autoConfig?.autoStaminaThreshold || 30}
+                  onChange={e => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoStaminaThreshold: Number(e.target.value) }}))}
+                  style={{width:'100%', accentColor:'#d97706', marginTop:'4px'}}
+                />
+                <div style={{display:'flex', justifyContent:'space-between', marginTop:'2px'}}>
+                  <span style={{fontSize:'9px', color:'#94a3b8', fontWeight:700}}>10%</span>
+                  <span style={{fontSize:'9px', color:'#94a3b8', fontWeight:700}}>50%</span>
                 </div>
               </div>
-              <div className="bg-green-50 p-5 rounded-3xl border-2 border-green-100 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="font-black text-slate-800 text-sm uppercase tracking-tighter">💊 Auto-Poção</p>
-                  </div>
-                  <div className="relative cursor-pointer" onClick={() => setGameState(prev => ({ ...prev, autoConfig: { ...prev.autoConfig, autoPotion: !autoConfig.autoPotion } }))}>
-                    <div className={`w-14 h-7 rounded-full transition-all duration-300 ${autoConfig.autoPotion ? 'bg-green-500' : 'bg-slate-200'}`}>
-                      <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-lg transition-all duration-300 ${autoConfig.autoPotion ? 'translate-x-8' : 'translate-x-1'}`} />
-                    </div>
-                  </div>
-                </div>
-              </div>
+
             </div>
-            <div className="flex-shrink-0 p-8 pt-4">
-              <button onClick={() => setShowAutoConfig(false)}
-                className="w-full bg-slate-800 text-white py-5 rounded-3xl font-black uppercase tracking-[0.2em] shadow-xl hover:bg-slate-700 transition-all">
-                Salvar Ajustes
+
+            {/* Footer */}
+            <div style={{padding:'12px 20px 24px 20px', borderTop:'1px solid #f1f5f9', flexShrink:0}}>
+              <button
+                onClick={() => setShowAutoConfig(false)}
+                style={{
+                  width:'100%', padding:'16px',
+                  borderRadius:'16px', background:'#1e293b',
+                  color:'white', fontWeight:900, fontSize:'15px',
+                  textTransform:'uppercase', letterSpacing:'1px',
+                  border:'none', cursor:'pointer',
+                  boxShadow:'0 4px 12px rgba(30,41,59,0.3)',
+                }}
+              >
+                Salvar e Fechar
               </button>
             </div>
           </div>

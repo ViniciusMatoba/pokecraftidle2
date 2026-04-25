@@ -2480,7 +2480,7 @@ export default function App() {
 
         // Verificar se deve tentar capturar este Pokémon
         const hpPctEnemy  = ((currentEnemy.hp / currentEnemy.maxHp) * 100);
-        const shouldTry   = prev.autoCapture && prev.autoCaptureConfig?.enabled &&
+        const shouldTry   = prev.autoCapture &&
           !currentEnemy.isTrainer &&
           hpPctEnemy <= hpThresh;
 
@@ -3644,6 +3644,7 @@ export default function App() {
             onUseItem={handleUseItem} 
             setGameState={setGameState} 
             setShowAutoCaptureModal={setShowAutoCaptureModal}
+            onReconfigureCapture={() => setShowAutoCaptureModal(true)}
             ROUTES={processedRoutes}
             fixPath={fixPath}
             TYPE_COLORS={TYPE_COLORS}
@@ -3930,75 +3931,98 @@ export default function App() {
           </main>
 
       {sessionStats && (
-        <div className="absolute inset-0 z-[100] flex items-end justify-center pb-20 px-4" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
-          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl border-b-8 border-slate-200 overflow-hidden animate-bounceIn">
-            <div className="bg-pokeRed px-5 py-4 flex items-center gap-3">
-              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-8 h-8" alt="" />
-              <div>
-                <h2 className="text-white font-black uppercase italic tracking-tighter text-lg leading-none">Resumo da Jornada</h2>
-                <p className="text-red-200 text-[10px] font-bold uppercase tracking-widest">Sessão de batalha</p>
-              </div>
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 200,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '16px',
+        }}>
+          <div style={{
+            width: '100%', maxWidth: '400px', maxHeight: '85vh',
+            background: 'white', borderRadius: '24px',
+            overflow: 'hidden', display: 'flex', flexDirection: 'column',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
+          }} className="animate-bounceIn">
+            
+            {/* Header */}
+            <div style={{
+              background: '#1e293b',
+              padding: '20px 20px 16px 20px',
+              flexShrink: 0,
+            }}>
+              <p style={{color:'rgba(255,255,255,0.7)', fontSize:'10px', fontWeight:700, textTransform:'uppercase', letterSpacing:'2px', margin:'0 0 4px 0'}}>
+                Sessão de Treino
+              </p>
+              <h3 style={{color:'white', fontSize:'18px', fontWeight:900, textTransform:'uppercase', fontStyle:'italic', margin:0}}>
+                Resumo da Jornada
+              </h3>
             </div>
-            <div className="p-5 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { icon: '⚔️', label: 'Nocautes', value: sessionStats.kills },
-                  { icon: '✨', label: 'Shinies', value: sessionStats.shinyKills + sessionStats.captures.filter(c => c.isShiny).length },
-                  { icon: '🏃', label: 'Trainers', value: sessionStats.trainers },
-                  { icon: '💰', label: 'Coins',    value: sessionStats.coins  },
-                ].map(s => (
-                  <div key={s.label} className="bg-slate-50 rounded-2xl p-3 text-center border border-slate-100">
-                    <div className="text-xl mb-1">{s.icon}</div>
-                    <div className="font-black text-slate-800 text-sm leading-none">{s.value}</div>
-                    <div className="text-[9px] font-bold text-slate-400 uppercase mt-1">{s.label}</div>
-                  </div>
-                ))}
-              </div>
-              
-              {/* DROPS */}
-              {Object.keys(sessionStats.drops).length > 0 && (
-                <div className="bg-amber-50/50 p-4 rounded-3xl border border-amber-100">
-                  <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <span className="text-sm">📦</span> Itens Coletados
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(sessionStats.drops).map(([mat, qty]) => {
-                      const item = ITEM_LABELS[mat] || { icon: '💎', name: mat.split('_').pop() };
-                      return (
-                        <div key={mat} className="flex items-center gap-1.5 bg-white border border-amber-200 rounded-xl px-2.5 py-1 shadow-sm">
-                          <span className="text-xs">{item.icon}</span>
-                          <span className="text-[10px] font-black text-amber-800 whitespace-nowrap">{item.name}</span>
-                          <span className="text-[10px] font-bold text-amber-500">x{qty}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
 
-              {/* CAPTURAS */}
-              {sessionStats.captures.length > 0 && (
-                <div className="bg-blue-50/50 p-4 rounded-3xl border border-blue-100">
-                   <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <span className="text-sm">📦</span> Capturados ({sessionStats.captures.length})
-                  </p>
-                  <div className="grid grid-cols-1 gap-2">
-                    {sessionStats.captures.map((cap, i) => (
-                      <div key={i} className="flex items-center gap-3 bg-white border border-blue-100 rounded-2xl px-3 py-1.5 shadow-sm">
-                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${cap.isShiny ? 'shiny/' : ''}${cap.id}.png`} className="w-8 h-8 object-contain" alt={cap.name} />
-                        <span className="font-black text-slate-800 text-[11px] uppercase tracking-tighter">{cap.name}</span>
-                        {cap.isShiny && <span className="ml-auto text-[8px] bg-yellow-100 text-yellow-700 font-extrabold px-2 py-0.5 rounded-full border border-yellow-200">✨ SHINY</span>}
-                      </div>
-                    ))}
-                  </div>
+            {/* Conteúdo */}
+            <div style={{flex:1, overflowY:'auto', padding:'20px'}} className="custom-scrollbar">
+              <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { icon: '⚔️', label: 'Nocautes', value: sessionStats.kills },
+                    { icon: '✨', label: 'Shinies', value: sessionStats.shinyKills + sessionStats.captures.filter(c => c.isShiny).length },
+                    { icon: '🏃', label: 'Trainers', value: sessionStats.trainers },
+                    { icon: '💰', label: 'Coins',    value: sessionStats.coins  },
+                  ].map(s => (
+                    <div key={s.label} className="bg-slate-50 rounded-2xl p-3 text-center border border-slate-100">
+                      <div className="text-xl mb-1">{s.icon}</div>
+                      <div className="font-black text-slate-800 text-sm leading-none">{s.value}</div>
+                      <div className="text-[9px] font-bold text-slate-400 uppercase mt-1">{s.label}</div>
+                    </div>
+                  ))}
                 </div>
-              )}
-              
-              {sessionStats.kills === 0 && sessionStats.captures.length === 0 && (
-                <p className="text-center text-slate-400 font-bold italic text-sm py-8 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100">Nenhum progresso nesta sessão.</p>
-              )}
+
+                {/* DROPS */}
+                {Object.keys(sessionStats.drops).length > 0 && (
+                  <div className="bg-amber-50/50 p-4 rounded-3xl border border-amber-100">
+                    <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                      <span className="text-sm">📦</span> Itens Coletados
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(sessionStats.drops).map(([mat, qty]) => {
+                        const item = ITEM_LABELS[mat] || { icon: '💎', name: mat.split('_').pop() };
+                        return (
+                          <div key={mat} className="flex items-center gap-1.5 bg-white border border-amber-200 rounded-xl px-2.5 py-1 shadow-sm">
+                            <span className="text-xs">{item.icon}</span>
+                            <span className="text-[10px] font-black text-amber-800 whitespace-nowrap">{item.name}</span>
+                            <span className="text-[10px] font-bold text-amber-500">x{qty}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* CAPTURAS */}
+                {sessionStats.captures.length > 0 && (
+                  <div className="bg-blue-50/50 p-4 rounded-3xl border border-blue-100">
+                     <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                      <span className="text-sm">📦</span> Capturados ({sessionStats.captures.length})
+                    </p>
+                    <div className="grid grid-cols-1 gap-2">
+                      {sessionStats.captures.map((cap, i) => (
+                        <div key={i} className="flex items-center gap-3 bg-white border border-blue-100 rounded-2xl px-3 py-1.5 shadow-sm">
+                          <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${cap.isShiny ? 'shiny/' : ''}${cap.id}.png`} className="w-8 h-8 object-contain" alt={cap.name} />
+                          <span className="font-black text-slate-800 text-[11px] uppercase tracking-tighter">{cap.name}</span>
+                          {cap.isShiny && <span className="ml-auto text-[8px] bg-yellow-100 text-yellow-700 font-extrabold px-2 py-0.5 rounded-full border border-yellow-200">✨ SHINY</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {sessionStats.kills === 0 && sessionStats.captures.length === 0 && (
+                  <p className="text-center text-slate-400 font-bold italic text-sm py-8 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100">Nenhum progresso nesta sessão.</p>
+                )}
+              </div>
             </div>
-            <div className="px-5 pb-5">
+
+            {/* Footer */}
+            <div style={{padding:'12px 20px 24px 20px', borderTop:'1px solid #f1f5f9', flexShrink:0}}>
               <button
                 onClick={() => { 
                   const targetR = sessionStats.targetRoute || gameState.currentRoute;
@@ -4011,10 +4035,22 @@ export default function App() {
                   resetSession(); 
                   setCurrentView('city'); 
                 }}
-                className="w-full bg-pokeRed text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-red-600 transition-all active:scale-95 border-b-8 border-red-700 flex items-center justify-center gap-3"
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  borderRadius: '16px',
+                  background: '#2563eb',
+                  color: 'white',
+                  fontWeight: 900,
+                  fontSize: '15px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(37,99,235,0.3)',
+                }}
               >
-                Continuar para Cidade
-                <span>▶</span>
+                Continuar para a Cidade
               </button>
             </div>
           </div>
