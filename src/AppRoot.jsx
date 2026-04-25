@@ -2723,8 +2723,8 @@ export default function App() {
           </div>
         );
       }
-      case 'intro': {
-        const dialogues = [
+            case 'intro': {
+        const introTexts = [
           "Olá! Bem-vindo ao mundo POKÉMON!",
           "Meu nome é CARVALHO. As pessoas me chamam de PROFESSOR POKÉMON.",
           "Este mundo é habitado por criaturas chamadas POKÉMON!",
@@ -2733,7 +2733,7 @@ export default function App() {
           "Mas primeiro, diga-me... Qual é o seu nome?"
         ];
         
-        const isLastStep = introStep === dialogues.length - 1;
+        const isLastStep = introStep === introTexts.length - 1;
         const labBg = fixPath('/battle_bg_lab_1776866008842.png');
 
         return (
@@ -2750,58 +2750,96 @@ export default function App() {
                 alt="Oak" />
             </div>
 
-            {/* Diálogo box í¢â‚¬â€ estilo Game Boy */}
-            <div className="relative z-10 w-full max-w-xl mb-4">
-              <div className="bg-white/95 backdrop-blur-sm p-5 md:p-8 rounded-[2rem] shadow-2xl border-b-[8px] border-slate-800">
-                <div className="flex items-center gap-2 mb-3">
-                  <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-8 h-8 rounded-full object-contain bg-slate-100 p-0.5" alt="" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Prof. Carvalho</span>
-                </div>
-                <div className="min-h-[60px] md:min-h-[80px] flex items-center">
-                  <p className="text-base md:text-xl font-black text-slate-800 italic leading-tight uppercase tracking-tight">
-                    "{dialogues[introStep]}"
-                  </p>
-                </div>
-
-                {isLastStep && (
-                  <div className="mt-5 animate-bounceIn">
-                    <input 
-                      type="text" 
-                      placeholder="SEU NOME..." 
-                      value={gameState.trainer?.name || ''} 
-                      onChange={(e) => setGameState(prev => ({ ...prev, trainer: { ...prev.trainer, name: e.target.value.toUpperCase() } }))}
-                      className="w-full bg-slate-100 border-4 border-slate-200 p-4 rounded-2xl text-center font-black text-lg uppercase tracking-widest focus:border-pokeBlue outline-none transition-all"
-                      autoFocus
-                    />
-                  </div>
-                )}
-
-                <button 
-                  onClick={() => {
-                    if (isLastStep) {
-                      if (!gameState.trainer?.name || gameState.trainer.name.length < 2) {
-                        showConfirm({
-                          title: 'Nome Inválido',
-                          message: 'Diga-me seu nome para continuarmos!',
-                          onConfirm: closeConfirm
-                        });
-                        return;
-                      }
-                      setCurrentView('trainer_creation');
-                    } else {
-                      setIntroStep(s => s + 1);
-                    }
-                  }}
-                  className="w-full mt-5 bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg active:scale-95"
-                >
-                  {isLastStep ? 'Tudo Pronto!' : 'PRÓXIMO \u25B6'}
-                </button>
+            {/* ⛔ PROTECTED: Balão de Diálogo Intro — NÃO ALTERAR SEM AUTORIZAÇÃO */}
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              background: 'white',
+              borderRadius: '24px 24px 0 0',
+              padding: '16px 20px 20px 20px',
+              boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
+              zIndex: 10,
+            }}>
+              {/* NPC */}
+              <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'10px'}}>
+                <img
+                  src="https://play.pokemonshowdown.com/sprites/trainers/oak.png"
+                  style={{width:'28px', height:'28px', objectFit:'contain'}}
+                  alt="Prof. Carvalho"
+                />
+                <span style={{fontSize:'10px', fontWeight:900, color:'#64748b', textTransform:'uppercase', letterSpacing:'1px'}}>
+                  Prof. Carvalho
+                </span>
               </div>
+
+              {/* Texto do diálogo */}
+              <p style={{
+                fontSize:'15px', fontWeight:700, color:'#1e293b',
+                lineHeight:'1.5', marginBottom:'14px', minHeight:'48px', textAlign: 'left'
+              }}>
+                {introTexts[introStep]}
+              </p>
+
+              {isLastStep && (
+                <div style={{marginBottom: '16px'}} className="animate-bounceIn">
+                  <input 
+                    type="text" 
+                    placeholder="SEU NOME..." 
+                    value={gameState.trainer?.name || ''} 
+                    onChange={(e) => setGameState(prev => ({ ...prev, trainer: { ...prev.trainer, name: e.target.value.toUpperCase() } }))}
+                    style={{
+                      width: '100%', padding: '16px', borderRadius: '16px',
+                      border: '2px solid #e2e8f0', background: '#f8fafc',
+                      textAlign: 'center', fontWeight: 900, fontSize: '16px',
+                      textTransform: 'uppercase', outline: 'none'
+                    }}
+                    autoFocus
+                  />
+                </div>
+              )}
+
+              {/* Botão PRÓXIMO */}
+              <button
+                onClick={() => {
+                  if (isLastStep) {
+                    if (!gameState.trainer?.name || gameState.trainer.name.length < 2) {
+                      showConfirm({
+                        title: 'Nome Inválido',
+                        message: 'Diga-me seu nome para continuarmos!',
+                        onConfirm: closeConfirm
+                      });
+                      return;
+                    }
+                    setCurrentView('trainer_creation');
+                  } else {
+                    setIntroStep(s => s + 1);
+                  }
+                }}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  borderRadius: '16px',
+                  background: '#1d4ed8',
+                  color: 'white',
+                  fontWeight: 900,
+                  fontSize: '16px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '2px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  marginTop: '12px',
+                  boxShadow: '0 4px 12px rgba(29,78,216,0.4)',
+                }}
+              >
+                {isLastStep ? 'Tudo Pronto!' : 'PRÓXIMO ▶'}
+              </button>
             </div>
           </div>
         );
       }
-            case 'trainer_creation': {
+      case 'trainer_creation': {
         const maleAvatars = trainerAvatars.filter(a => 
           ['red', 'ethan', 'brendan', 'lucas', 'hilbert', 'calem'].includes(a.id)
         );

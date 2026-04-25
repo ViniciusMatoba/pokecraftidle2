@@ -26,6 +26,9 @@ const blocks = [
   { name: 'handleUseCandy',           marker: 'const handleUseCandy = useCallback' },
   { name: 'manualChunks',             file: './vite.config.js', marker: 'manualChunks(id)' },
   { name: 'currentView guard spawn',  marker: "currentView !== 'battles'" },
+  { name: 'Intro Dialogue',           marker: '⛔ PROTECTED: Balão de Diálogo Intro' },
+  { name: 'intro_dialog_bottom',  marker: "borderRadius: '24px 24px 0 0'" },
+  { name: 'intro_proximo_button', marker: "letterSpacing: '2px'" },
 ];
 
 const HASH_FILE = './scripts/.integrity-hashes.json';
