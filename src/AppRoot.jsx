@@ -3037,8 +3037,6 @@ export default function App() {
              );
            })()}
         </div>
-      
-        </div>
       );
       case 'rival_intro': {
         const labBg = fixPath('/battle_bg_lab_1776866008842.png');
