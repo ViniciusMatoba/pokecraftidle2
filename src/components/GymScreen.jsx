@@ -246,7 +246,6 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
             </div>
           </div>
         </div>
-       </div>
 
         <div style={{flex:1, overflowY:'auto'}}>
 
@@ -514,18 +513,6 @@ const GymScreen = ({ gameState, onChallengeGym, onClose, initialSection, isEmbed
           <div className="h-4" />
         </div>
       </div>
-
-      {selectedGym && (
-        <GymDetailModal 
-          gym={selectedGym}
-          earned={hasBadge(selectedGym.badge) || eliteDefeated(selectedGym.id)}
-          locked={gymLocked(selectedGym) || (ELITE_FOUR.some(e => e.id === selectedGym.id) && eliteLocked(ELITE_FOUR.findIndex(e => e.id === selectedGym.id)))}
-          onChallenge={onChallengeGym}
-          onClose={() => setSelectedGym(null)}
-          gameState={gameState}
-          setCurrentView={setCurrentView}
-        />
-      )}
     </div>
   );
 };
