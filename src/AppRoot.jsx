@@ -3212,38 +3212,75 @@ export default function App() {
       case 'rival_post_battle': {
         return (
           <div
-            className="fixed inset-0 z-[100] flex flex-col items-center justify-end pb-10"
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
             style={{
               backgroundImage: "url('/battle_bg_lab_1776866008842.png')",
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
           >
-            {/* Overlay escuro */}
             <div className="absolute inset-0 bg-black/40" />
 
-            {/* Conteúdo acima do overlay */}
-            <div className="relative z-10 flex flex-col items-center w-full">
+            {/* Sprite centrado */}
+            <div className="relative z-10 mb-20">
               <img
                 src={getRivalSprite(gameState.trainer?.avatarImg)}
                 alt="Rival"
-                className="w-36 h-36 object-contain drop-shadow-2xl mb-6"
+                className="w-40 h-40 object-contain drop-shadow-2xl animate-float"
                 onError={e => { e.target.style.display='none'; }}
               />
-              <div className="bg-white rounded-[2rem] p-5 mx-4 max-w-sm w-full shadow-2xl">
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                  Rival â€” Azul
-                </p>
-                <p className="text-slate-700 text-sm font-bold leading-relaxed mb-5">
-                  "Beleza... Vou fazer meu Pokémon lutar para deixá-lo mais forte. Da próxima vez não vou perder!"
-                </p>
-                <button
-                  onClick={() => setCurrentView('city')}
-                  className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-sm hover:bg-blue-500 transition-all active:scale-95 shadow-lg"
-                >
-                  Continuar â†’
-                </button>
-              </div>
+            </div>
+
+            {/* Balão na parte inferior */}
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              background: 'white',
+              borderRadius: '24px 24px 0 0',
+              padding: '16px 20px 80px 20px',
+              boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
+              zIndex: 10,
+            }} className="animate-slideUp">
+              <p style={{
+                fontSize: '11px',
+                fontWeight: 900,
+                color: '#dc2626',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                marginBottom: '8px',
+              }}>
+                Rival — Azul:
+              </p>
+              <p style={{
+                fontSize: '14px',
+                fontWeight: 700,
+                color: '#1e293b',
+                lineHeight: '1.5',
+                marginBottom: '14px',
+              }}>
+                "Beleza... Vou fazer meu Pokémon lutar para deixá-lo mais forte. Da próxima vez não vou perder!"
+              </p>
+              <button
+                onClick={() => setCurrentView('city')}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  borderRadius: '16px',
+                  background: '#dc2626',
+                  color: 'white',
+                  fontWeight: 900,
+                  fontSize: '16px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '2px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(220,38,38,0.4)',
+                }}
+              >
+                CONTINUAR →
+              </button>
             </div>
           </div>
         );
