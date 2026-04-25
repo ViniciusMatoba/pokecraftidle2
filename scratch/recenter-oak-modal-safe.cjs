@@ -1,0 +1,162 @@
+const fs = require('fs');
+let content = fs.readFileSync('src/AppRoot.jsx', 'utf8');
+
+const oldModal = `          {showOakStaminaModal && (
+            <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/60 animate-fadeIn">
+              <div className="w-full bg-white rounded-t-3xl shadow-2xl flex flex-col animate-slideUp" style={{ maxHeight: '88vh' }}>
+                <div className="overflow-y-auto flex-1 px-5 pt-6 pb-2 custom-scrollbar">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="bg-green-100 p-3 rounded-2xl shrink-0">
+                      <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-14 h-14 object-contain" alt="Prof. Carvalho" />
+                    </div>
+                    <div>
+                      <p className="text-green-700 text-[10px] font-black uppercase tracking-widest mb-1">Informativo</p>
+                      <p className="text-slate-800 font-black text-base italic leading-tight">"Antes de partir — muito importante!"</p>
+                    </div>
+                  </div>
+                  <p className="text-slate-600 text-sm font-semibold leading-relaxed mb-5">
+                    Seus Pokémon precisam se <strong className="text-green-600">alimentar</strong> durante as batalhas. Quanto mais lutam, mais energia gastam!
+                  </p>
+                  <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 mb-4">
+                    <p className="text-slate-700 text-[10px] font-black uppercase tracking-widest mb-3 pb-2 border-b border-slate-200">O que eles comem:</p>
+                    <div className="flex flex-col gap-4">
+                      {[
+                        { img: 'oran-berry', text: '<strong>Berries</strong> — cultive na sua casa. Oran e Sitrus Berry são essenciais' },
+                        { img: 'fresh-water', text: '<strong>Água, Soda, Limonada</strong> — compre no Poké Mart' },
+                        { img: 'moomoo-milk', text: '<strong>Leite MooMoo</strong> — nutritivo, pós 4º ginásio' },
+                        { img: 'poke-toy', text: '<strong>Ração Pokémon</strong> — fabrique na Forja com materiais' }
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-100 shrink-0">
+                            <img src={\`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/\${item.img}.png\`} className="w-7 h-7 object-contain" alt="" />
+                          </div>
+                          <p className="text-slate-600 text-[13px] leading-relaxed" dangerouslySetInnerHTML={{ __html: item.text }} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="bg-red-50 rounded-2xl px-4 py-3 border border-red-100 mb-3 flex gap-3 items-start">
+                    <span className="text-2xl mt-0.5">⚠️</span>
+                    <div>
+                      <p className="text-red-700 text-[10px] font-black mb-1 uppercase tracking-widest">Atenção Crítica</p>
+                      <p className="text-red-600 text-sm font-bold leading-relaxed">Sem energia, seu Pokémon fica exausto e perde HP rapidamente a cada turno!</p>
+                    </div>
+                  </div>
+                  <div className="bg-amber-50 rounded-2xl px-4 py-3 border border-amber-100 mb-4">
+                    <p className="text-amber-700 text-[10px] font-black uppercase tracking-widest mb-3">Presente do Professor:</p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow border-2 border-amber-200">
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png" className="w-10 h-10 object-contain" alt="" />
+                      </div>
+                      <div>
+                        <p className="text-amber-700 font-black text-lg uppercase leading-none mb-1">10x Água Fresca</p>
+                        <p className="text-amber-600 text-[11px] uppercase font-bold tracking-widest">Para começar bem sua jornada!</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="px-5 py-4 border-t border-slate-100">
+                  <button
+                    onClick={() => setShowOakStaminaModal(false)}
+                    style={{
+                      width: '100%', padding: '18px', borderRadius: '16px',
+                      background: '#16a34a', color: 'white', fontWeight: 900,
+                      fontSize: '16px', textTransform: 'uppercase', letterSpacing: '2px',
+                      border: 'none', cursor: 'pointer', minHeight: '64px',
+                      boxShadow: '0 4px 12px rgba(22,163,74,0.4)',
+                    }}
+                  >
+                    ENTENDI, PROFESSOR!
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}`;
+
+const newModal = `          {showOakStaminaModal && (
+            <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-black/70 backdrop-blur-md animate-fadeIn">
+              <div className="w-full max-w-[420px] bg-white rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] flex flex-col animate-bounceIn overflow-hidden" 
+                style={{ maxHeight: '90vh' }}>
+                <div className="overflow-y-auto flex-1 px-8 pt-10 pb-6 custom-scrollbar">
+
+                  <div className="flex items-center gap-4 mb-8 pl-2">
+                    <div className="bg-green-100 p-3 rounded-2xl shrink-0 shadow-inner">
+                      <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-14 h-14 object-contain" alt="Prof. Carvalho" />
+                    </div>
+                    <div>
+                      <p className="text-green-700 text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-1">Informativo</p>
+                      <p className="text-slate-800 font-black text-xl italic leading-tight">"Antes de partir — muito importante!"</p>
+                    </div>
+                  </div>
+
+                  <p className="text-slate-500 text-base font-semibold leading-relaxed mb-8 px-2">
+                    Seus Pokémon precisam se <strong className="text-green-600">alimentar</strong> durante as batalhas. Quanto mais lutam, mais energia gastam!
+                  </p>
+
+                  <div className="bg-slate-50 rounded-[2rem] p-6 border-2 border-slate-100 mb-6">
+                    <p className="text-slate-800 text-[10px] font-black uppercase tracking-widest mb-4 border-b border-slate-200 pb-2">O que eles comem:</p>
+                    <div className="flex flex-col gap-4">
+                      {[
+                        { img: 'oran-berry', text: '<strong>Berries</strong> — cultive na sua casa. Oran e Sitrus Berry são essenciais' },
+                        { img: 'fresh-water', text: '<strong>Água, Soda, Limonada</strong> — compre no Poké Mart' },
+                        { img: 'moomoo-milk', text: '<strong>Leite MooMoo</strong> — nutritivo, pós 4º ginásio' },
+                        { img: 'poke-toy', text: '<strong>Ração Pokémon</strong> — fabrique na Forja com materiais' }
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-100 shrink-0">
+                            <img src={\`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/\${item.img}.png\`} className="w-7 h-7 object-contain" alt="" />
+                          </div>
+                          <p className="text-slate-600 text-[13px] leading-relaxed px-1" dangerouslySetInnerHTML={{ __html: item.text }} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-red-50 rounded-2xl px-6 py-4 border-2 border-red-100 mb-6 flex gap-4 items-start">
+                    <span className="text-2xl mt-0.5">⚠️</span>
+                    <div>
+                      <p className="text-red-700 text-[10px] font-black mb-1 uppercase tracking-widest">Atenção Crítica</p>
+                      <p className="text-red-600 text-sm font-bold leading-relaxed px-1">Sem energia, seu Pokémon fica exausto e perde HP rapidamente a cada turno!</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-50 rounded-2xl px-6 py-4 border-2 border-amber-100 mb-6">
+                    <p className="text-amber-800 text-[10px] font-black uppercase tracking-widest mb-4">Presente do Professor:</p>
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-md border-2 border-amber-200">
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png" className="w-10 h-10 object-contain" alt="" />
+                      </div>
+                      <div className="px-1">
+                        <p className="text-amber-700 font-black text-xl uppercase tracking-tighter leading-none mb-1">10x Água Fresca</p>
+                        <p className="text-amber-600 text-[10px] uppercase font-bold tracking-widest">Para começar bem sua jornada!</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="px-8 py-6 bg-slate-50 border-t-2 border-slate-100">
+                  <button
+                    onClick={() => setShowOakStaminaModal(false)}
+                    style={{
+                      width: '100%', padding: '20px', borderRadius: '20px',
+                      background: '#16a34a', color: 'white', fontWeight: 900,
+                      fontSize: '18px', textTransform: 'uppercase', letterSpacing: '2px',
+                      border: 'none', cursor: 'pointer', minHeight: '72px',
+                      boxShadow: '0 8px 24px rgba(22,163,74,0.4)',
+                    }}
+                    className="hover:scale-[1.02] active:scale-95 transition-all"
+                  >
+                    ENTENDI, PROFESSOR!
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}`;
+
+if (content.includes(oldModal)) {
+    content = content.replace(oldModal, newModal);
+    fs.writeFileSync('src/AppRoot.jsx', content);
+    console.log('Success');
+} else {
+    console.log('Old block not found');
+}

@@ -2750,38 +2750,26 @@ export default function App() {
                 alt="Oak" />
             </div>
 
-            {/* ⛔ PROTECTED: Balão de Diálogo Intro — NÃO ALTERAR SEM AUTORIZAÇÃO */}
+            {/* ⛔ PROTECTED: Balão de Diálogo Intro — Padrão Oficial 1.9.6 */}
             <div style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
+              position: 'fixed',
+              bottom: 0, left: 0, right: 0,
               background: 'white',
               borderRadius: '24px 24px 0 0',
-              padding: '16px 20px 20px 20px',
+              padding: '20px 20px 36px 20px',
               boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
-              zIndex: 10,
-            }}>
-              {/* NPC */}
-              <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'10px'}}>
-                <img
-                  src="https://play.pokemonshowdown.com/sprites/trainers/oak.png"
-                  style={{width:'28px', height:'28px', objectFit:'contain'}}
-                  alt="Prof. Carvalho"
-                />
-                <span style={{fontSize:'10px', fontWeight:900, color:'#64748b', textTransform:'uppercase', letterSpacing:'1px'}}>
-                  Prof. Carvalho
-                </span>
-              </div>
-
-              {/* Texto do diálogo */}
+              zIndex: 50,
+            }} className="animate-slideUp">
               <p style={{
-                fontSize:'15px', fontWeight:700, color:'#1e293b',
-                lineHeight:'1.5', marginBottom:'14px', minHeight:'48px', textAlign: 'left'
-              }}>
-                {introTexts[introStep]}
-              </p>
-
+                fontSize: '11px', fontWeight: 900,
+                color: '#16a34a',
+                textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px',
+              }}>Prof. Carvalho:</p>
+              <p style={{
+                fontSize: '14px', fontWeight: 700,
+                color: '#1e293b', lineHeight: '1.5', marginBottom: '16px',
+              }}>{introTexts[introStep]}</p>
+              
               {isLastStep && (
                 <div style={{marginBottom: '16px'}} className="animate-bounceIn">
                   <input 
@@ -2800,41 +2788,26 @@ export default function App() {
                 </div>
               )}
 
-              {/* Botão PRÓXIMO */}
-              <button
-                onClick={() => {
-                  if (isLastStep) {
-                    if (!gameState.trainer?.name || gameState.trainer.name.length < 2) {
-                      showConfirm({
-                        title: 'Nome Inválido',
-                        message: 'Diga-me seu nome para continuarmos!',
-                        onConfirm: closeConfirm
-                      });
-                      return;
-                    }
-                    setCurrentView('trainer_creation');
-                  } else {
-                    setIntroStep(s => s + 1);
+              <button onClick={() => {
+                if (isLastStep) {
+                  if (!gameState.trainer?.name || gameState.trainer.name.length < 2) {
+                    showConfirm({ title: 'Nome Inválido', message: 'Diga-me seu nome para continuarmos!', onConfirm: closeConfirm });
+                    return;
                   }
-                }}
-                style={{
-                  width: '100%',
-                  padding: '16px',
-                  borderRadius: '16px',
-                  background: '#1d4ed8',
-                  color: 'white',
-                  fontWeight: 900,
-                  fontSize: '16px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '2px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  marginTop: '12px',
-                  boxShadow: '0 4px 12px rgba(29,78,216,0.4)',
-                }}
-              >
-                {isLastStep ? 'Tudo Pronto!' : 'PRÓXIMO ▶'}
-              </button>
+                  setCurrentView('trainer_creation');
+                } else {
+                  setIntroStep(s => s + 1);
+                }
+              }} style={{
+                width: '100%', padding: '18px',
+                borderRadius: '16px',
+                background: '#16a34a',
+                color: 'white', fontWeight: 900,
+                fontSize: '16px', textTransform: 'uppercase',
+                letterSpacing: '2px', border: 'none', cursor: 'pointer',
+                minHeight: '64px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+              }}>{isLastStep ? 'Tudo Pronto!' : 'PRÓXIMO ▶'}</button>
             </div>
           </div>
         );
@@ -3212,7 +3185,7 @@ export default function App() {
       case 'rival_post_battle': {
         return (
           <div
-            className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
+            className="relative h-full flex flex-col items-center justify-center overflow-hidden"
             style={{
               backgroundImage: "url('/battle_bg_lab_1776866008842.png')",
               backgroundSize: 'cover',
@@ -3231,56 +3204,35 @@ export default function App() {
               />
             </div>
 
-            {/* Balão na parte inferior */}
+            {/* Balão na parte inferior — Padrão Oficial 1.9.6 */}
             <div style={{
               position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
+              bottom: 0, left: 0, right: 0,
               background: 'white',
               borderRadius: '24px 24px 0 0',
-              padding: '16px 20px 80px 20px',
+              padding: '20px 20px 36px 20px',
               boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
               zIndex: 10,
             }} className="animate-slideUp">
               <p style={{
-                fontSize: '11px',
-                fontWeight: 900,
+                fontSize: '11px', fontWeight: 900,
                 color: '#dc2626',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                marginBottom: '8px',
-              }}>
-                Rival — Azul:
-              </p>
+                textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px',
+              }}>Rival — Azul:</p>
               <p style={{
-                fontSize: '14px',
-                fontWeight: 700,
-                color: '#1e293b',
-                lineHeight: '1.5',
-                marginBottom: '14px',
-              }}>
-                "Beleza... Vou fazer meu Pokémon lutar para deixá-lo mais forte. Da próxima vez não vou perder!"
-              </p>
-              <button
-                onClick={() => setCurrentView('city')}
-                style={{
-                  width: '100%',
-                  padding: '16px',
-                  borderRadius: '16px',
-                  background: '#dc2626',
-                  color: 'white',
-                  fontWeight: 900,
-                  fontSize: '16px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '2px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(220,38,38,0.4)',
-                }}
-              >
-                CONTINUAR →
-              </button>
+                fontSize: '14px', fontWeight: 700,
+                color: '#1e293b', lineHeight: '1.5', marginBottom: '16px',
+              }}>"Beleza... Vou fazer meu Pokémon lutar para deixá-lo mais forte. Da próxima vez não vou perder!"</p>
+              <button onClick={() => setCurrentView('city')} style={{
+                width: '100%', padding: '18px',
+                borderRadius: '16px',
+                background: '#dc2626',
+                color: 'white', fontWeight: 900,
+                fontSize: '16px', textTransform: 'uppercase',
+                letterSpacing: '2px', border: 'none', cursor: 'pointer',
+                minHeight: '64px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+              }}>CONTINUAR →</button>
             </div>
           </div>
         );
@@ -3522,80 +3474,79 @@ export default function App() {
           )}
 
           {showOakStaminaModal && (
-            <div className="absolute inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
-              <div className="w-full max-w-md bg-white rounded-[3rem] overflow-hidden shadow-2xl animate-bounceIn border-b-[12px] border-slate-200">
-                <div className="bg-green-50 p-5 overflow-y-auto max-h-[80vh]">
+            <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-black/70 backdrop-blur-md animate-fadeIn">
+              <div className="w-full max-w-[420px] bg-white rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] flex flex-col animate-bounceIn overflow-hidden" 
+                style={{ maxHeight: '90vh' }}>
+                <div className="overflow-y-auto flex-1 px-8 pt-10 pb-6 custom-scrollbar">
 
-                  <div className="flex items-center gap-3 mb-4">
-                    <img
-                      src="https://play.pokemonshowdown.com/sprites/trainers/oak.png"
-                      className="w-16 h-16 object-contain shrink-0"
-                      alt="Prof. Carvalho"
-                    />
+                  <div className="flex items-center gap-4 mb-8 pl-2">
+                    <div className="bg-green-100 p-3 rounded-2xl shrink-0 shadow-inner">
+                      <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-14 h-14 object-contain" alt="Prof. Carvalho" />
+                    </div>
                     <div>
-                      <p className="text-green-900 text-[10px] font-black uppercase tracking-widest">Professor Carvalho</p>
-                      <p className="text-green-800 font-black text-sm italic leading-tight">
-                        "Antes de partir â€” muito importante!"
-                      </p>
+                      <p className="text-green-700 text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-1">Informativo</p>
+                      <p className="text-slate-800 font-black text-xl italic leading-tight">"Antes de partir — muito importante!"</p>
                     </div>
                   </div>
 
-                  <p className="text-green-900 text-sm leading-relaxed mb-4">
-                    Seus Pokemon precisam se <strong>alimentar</strong> durante as batalhas. Quanto mais lutam, mais energia gastam!
+                  <p className="text-slate-500 text-base font-semibold leading-relaxed mb-8 px-2">
+                    Seus Pokémon precisam se <strong className="text-green-600">alimentar</strong> durante as batalhas. Quanto mais lutam, mais energia gastam!
                   </p>
 
-                  <div className="bg-white rounded-2xl p-3 border border-green-200 mb-3">
-                    <p className="text-green-800 text-xs font-black mb-2">O que alimenta seus Pokemon:</p>
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-2">
-                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png" className="w-6 h-6 object-contain shrink-0" alt="" />
-                        <p className="text-green-700 text-xs"><strong>Berries</strong> â€” cultive na sua casa. Oran e Sitrus Berry sao essenciais</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png" className="w-6 h-6 object-contain shrink-0" alt="" />
-                        <p className="text-green-700 text-xs"><strong>Agua Fresca, Soda Pop, Limonada</strong> â€” compre no Poke Mart</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moomoo-milk.png" className="w-6 h-6 object-contain shrink-0" alt="" />
-                        <p className="text-green-700 text-xs"><strong>Leite MooMoo</strong> â€” o mais nutritivo, disponivel apos o 4o ginasio</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lure.png" className="w-6 h-6 object-contain shrink-0" alt="" />
-                        <p className="text-green-700 text-xs"><strong>Racao Pokemon</strong> â€” fabricavel na Forja com materiais</p>
-                      </div>
+                  <div className="bg-slate-50 rounded-[2rem] p-6 border-2 border-slate-100 mb-6">
+                    <p className="text-slate-800 text-[10px] font-black uppercase tracking-widest mb-4 border-b border-slate-200 pb-2">O que eles comem:</p>
+                    <div className="flex flex-col gap-4">
+                      {[
+                        { img: 'oran-berry', text: '<strong>Berries</strong> — cultive na sua casa. Oran e Sitrus Berry são essenciais' },
+                        { img: 'fresh-water', text: '<strong>Água, Soda, Limonada</strong> — compre no Poké Mart' },
+                        { img: 'moomoo-milk', text: '<strong>Leite MooMoo</strong> — nutritivo, pós 4º ginásio' },
+                        { img: 'poke-toy', text: '<strong>Ração Pokémon</strong> — fabrique na Forja com materiais' }
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-100 shrink-0">
+                            <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${item.img}.png`} className="w-7 h-7 object-contain" alt="" />
+                          </div>
+                          <p className="text-slate-600 text-[13px] leading-relaxed px-1" dangerouslySetInnerHTML={{ __html: item.text }} />
+                        </div>
+                      ))}
                     </div>
                   </div>
 
-                  <div className="bg-red-50 rounded-2xl p-3 border border-red-200 mb-3">
-                    <p className="text-red-700 text-xs font-black mb-1">PERIGO!</p>
-                    <p className="text-red-600 text-xs leading-relaxed">
-                      Quando a energia zera, seu Pokemon fica exausto e perde HP. Se desmaiar assim â€” conta como derrota!
-                    </p>
-                  </div>
-
-                  <div className="bg-blue-50 rounded-2xl p-3 border border-blue-200 mb-4">
-                    <p className="text-blue-700 text-xs font-black mb-1">DICA:</p>
-                    <p className="text-blue-600 text-xs leading-relaxed">
-                      O sistema alimenta automaticamente com o melhor item disponivel. Sempre tenha estoque!
-                    </p>
-                  </div>
-
-                  <div className="bg-amber-50 rounded-2xl p-3 border border-amber-200 mb-4">
-                    <p className="text-amber-800 text-xs font-black mb-2">Presente do Professor Carvalho:</p>
-                    <div className="flex items-center gap-2">
-                      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png" className="w-8 h-8 object-contain" alt="" />
-                      <div>
-                        <p className="text-amber-700 font-black text-sm">10x Agua Fresca</p>
-                        <p className="text-amber-600 text-[10px] uppercase font-bold">Para comecar sua jornada!</p>
-                      </div>
+                  <div className="bg-red-50 rounded-2xl px-6 py-4 border-2 border-red-100 mb-6 flex gap-4 items-start">
+                    <span className="text-2xl mt-0.5">⚠️</span>
+                    <div>
+                      <p className="text-red-700 text-[10px] font-black mb-1 uppercase tracking-widest">Atenção Crítica</p>
+                      <p className="text-red-600 text-sm font-bold leading-relaxed px-1">Sem energia, seu Pokémon fica exausto e perde HP rapidamente a cada turno!</p>
                     </div>
                   </div>
 
+                  <div className="bg-amber-50 rounded-2xl px-6 py-4 border-2 border-amber-100 mb-6">
+                    <p className="text-amber-800 text-[10px] font-black uppercase tracking-widest mb-4">Presente do Professor:</p>
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-md border-2 border-amber-200">
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png" className="w-10 h-10 object-contain" alt="" />
+                      </div>
+                      <div className="px-1">
+                        <p className="text-amber-700 font-black text-xl uppercase tracking-tighter leading-none mb-1">10x Água Fresca</p>
+                        <p className="text-amber-600 text-[10px] uppercase font-bold tracking-widest">Para começar bem sua jornada!</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="px-8 py-6 bg-slate-50 border-t-2 border-slate-100">
                   <button
                     onClick={() => setShowOakStaminaModal(false)}
-                    className="w-full bg-green-600 text-white py-4 rounded-2xl font-black uppercase text-sm hover:bg-green-500 transition-all active:scale-95"
+                    style={{
+                      width: '100%', padding: '20px', borderRadius: '20px',
+                      background: '#16a34a', color: 'white', fontWeight: 900,
+                      fontSize: '18px', textTransform: 'uppercase', letterSpacing: '2px',
+                      border: 'none', cursor: 'pointer', minHeight: '72px',
+                      boxShadow: '0 8px 24px rgba(22,163,74,0.4)',
+                    }}
+                    className="hover:scale-[1.02] active:scale-95 transition-all"
                   >
-                    Entendi, Professor!
+                    ENTENDI, PROFESSOR!
                   </button>
                 </div>
               </div>
