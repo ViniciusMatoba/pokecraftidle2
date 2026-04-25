@@ -1,0 +1,175 @@
+﻿          },
+        };
+
+        addLog(`( ${recipe.name} ativado por ${recipe.durationLabel}!`, 'system');
+
+        return {
+          ...prev,
+          inventory: { ...prev.inventory, items: newItems },
+          activeEffects: newEffects,
+        };
+      }
+      
+      return { ...prev, inventory: newInventory };
+    });
+  }, [currentEnemy, activeMemberIndex, addLog, spawnEnemy]);
+
+  const startKeyBattle = useCallback((battleData) => {
+    const teamMember = (battleData.team && battleData.team.length > 0) ? battleData.team[0] : null;
+    if (!teamMember) return;
+    const base = POKEDEX[teamMember.id];
+    if (!base) return;
+
+    const lvl = teamMember.level || 5;
+    const maxHp = Math.ceil((base.maxHp || base.hp || 50) * 1.8 * (lvl / 20)); 
+    const statScale = (lvl / 10) * 0.95;
+
+    // Golpes baseados no learnset
+    const learnset = base.learnset || [];
+    const availableMoves = learnset
+      .filter(m => m.level <= lvl)
+      .map(m => {
+        const mk = (m.move || '').toLowerCase();
+        const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
+        return { ...md, name: MOVE_TRANSLATIONS[mk] || md.name || m.move };
+      });
+    const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
+
+    setCurrentEnemy({
+      ...base,
+      level: lvl,
+      hp: maxHp, maxHp,
+      attack: Math.ceil((base.attack || 10) * statScale),
+      defense: Math.ceil((base.defense || 10) * statScale),
+      spAtk: Math.ceil((base.spAtk || 10) * statScale),
+      spDef: Math.ceil((base.spDef || 10) * statScale),
+      speed: Math.ceil((base.speed || 10) * statScale),
+      isShiny: false, status: [],
+      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
+      moves: finalMoves,
+      isTrainer: true,
+      trainerName: battleData.name,
+      trainerSprite: battleData.sprite,
+      trainerReward: battleData.reward || 500,
+      isBoss: true,
+      isRocket: battleData.category === 'rocket',
+      isLegendary: battleData.category === 'legendary',
+      unlockFlag: battleData.unlockFlag,
+      instanceId: Date.now(),
+      spawnTime: Date.now(),
+      opponentTeam: battleData.team,
+      opponentTeamIndex: 0
+    });
+    setCurrentView('battles');
+    // BGM agora gerenciado pelas configuraçííµes
+    addLog(`🚀â€Â¥ DESAFIO: ${battleData.name} iniciou a batalha!`, 'system');
+    isProcessingVictory.current = false;
+  }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
+
+  const handleChallengeGym = useCallback((gymData) => {
+    // Começa sempre pelo primeiro Pokémon do time
+    const teamList = gymData.team || [];
+    const leaderPoke = teamList[0];
+    if (!leaderPoke) return;
+    const base = POKEDEX[leaderPoke.id];
+    if (!base) return;
+    const lvl = leaderPoke.level || 20;
+    const maxHp = Math.ceil((base.maxHp || base.hp || 50) * 1.6 * (lvl / 20)); 
+    const statScale = (lvl / 10) * 0.85; 
+
+    // Golpes baseados no learnset do Pokémon até o nível do líder
+    const learnset = base.learnset || [];
+    const availableMoves = learnset
+      .filter(m => m.level <= lvl)
+      .map(m => {
+        const mk = (m.move || '').toLowerCase();
+        const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
+        return { ...md, name: MOVE_TRANSLATIONS[mk] || md.name || m.move };
+      });
+    const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
+
+    setCurrentEnemy({
+      ...base,
+      level: lvl,
+      hp: maxHp, maxHp,
+      attack: Math.ceil((base.attack || 10) * statScale),
+      defense: Math.ceil((base.defense || 10) * statScale),
+      spAtk: Math.ceil((base.spAtk || 10) * statScale),
+      spDef: Math.ceil((base.spDef || 10) * statScale),
+      speed: Math.ceil((base.speed || 10) * statScale),
+      isShiny: false, status: [],
+      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
+      moves: finalMoves,
+      isTrainer: true,
+      trainerName: gymData.title || gymData.name,
+      trainerSprite: gymData.sprite,
+      trainerReward: gymData.reward || 1000,
+      isGymLeader: true,
+      gymId: gymData.id,
+      badgeToGive: gymData.badge || null,
+      background: gymData.background || null,
+      instanceId: Date.now(),
+      spawnTime: Date.now(),
+      opponentTeam: teamList,
+      opponentTeamIndex: 0
+    });
+    setCurrentView('battles');
+    // BGM agora gerenciado pelas configuraçííµes
+    addLog(`ÂíÂ¢â‚¬Â  GINíÂSIO: Líder ${gymData.name} enviou ${base.name}! Nv.${lvl}`, 'system');
+    isProcessingVictory.current = false;
+  }, [setCurrentEnemy, setCurrentView, addLog, playBGM, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
+
+  const handleCraft = (recipe) => {
+    setGameState(prev => {
+      // 1. Verificar se tem todos os materiais e dinheiro
+      const hasMaterials = Object.entries(recipe.cost).every(([material, amount]) => {
+        if (material === 'currency') return prev.currency >= amount;
+        return (prev.inventory.materials[material] || 0) >= amount;
+      });
+
+      if (!hasMaterials) {
+        addLog("íÂ¢íâ€šÂíâ€¦â€™ Materiais ou Moedas insuficientes!", 'system');
+        return prev;
+      }
+
+      // 2. Deduzir os custos
+      const newMaterials = { ...prev.inventory.materials };
+      let newCurrency = prev.currency;
+
+      Object.entries(recipe.cost).forEach(([material, amount]) => {
+        if (material === 'currency') {
+          newCurrency -= amount;
+        } else {
+          newMaterials[material] -= amount;
+        }
+      });
+
+      // 3. Adicionar o item ao inventário
+      const newItems = { ...prev.inventory.items };
+      newItems[recipe.id] = (newItems[recipe.id] || 0) + 1;
+
+      addLog(`💖💖íÂ¢íâ€šâ‚¬íâ€šÂºíâ€š íÂ¯íâ€š💖íâ€šíâ€šÂ Você fabricou: ${recipe.name}!`, 'drop');
+
+      return {
+        ...prev,
+        currency: newCurrency,
+        inventory: {
+          ...prev.inventory,
+          materials: newMaterials,
+          items: newItems
+        }
+      };
+    });
+  };
+
+  // ⛏️” PROTECTED: handleUseCandy — NÃO EDITAR SEM AUTORIZAÇÃO EXPLíCITA
+  const handleUseCandy = useCallback((pokemonInstanceId, candyId, useId) => {
+    const use = CANDY_USES[useId];
+    if (!use) return;
+
+    setGameState(prev => {
+      const inventory = prev.inventory || {};
+      const candies = inventory.candies || {};
+      const currentCount = candies[candyId] || 0;
+      
+      if (currentCount < use.cost) {

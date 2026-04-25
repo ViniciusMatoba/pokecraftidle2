@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import GymScreen from './GymScreen';
 import ChallengesScreen from './ChallengesScreen';
 
-const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentView, initialTab, setVsInitialTab, initialCategory, setVsInitialCategory }) => {
+const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentView, initialTab, setVsInitialTab, initialCategory, setVsInitialCategory, fixPath }) => {
   const [activeTab, setActiveTab] = useState(initialTab || 'challenges'); // 'challenges', 'gyms', 'legendary'
 
   React.useEffect(() => {
@@ -67,6 +67,7 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
               setVsInitialTab={setVsInitialTab}
               initialCategory={initialCategory}
               setVsInitialCategory={setVsInitialCategory}
+              fixPath={fixPath}
             />
           )}
           {activeTab === 'gyms' && (
@@ -78,6 +79,7 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
               setCurrentView={setCurrentView}
               setVsInitialTab={setVsInitialTab}
               setVsInitialCategory={setVsInitialCategory}
+              fixPath={fixPath}
             />
           )}
           {activeTab === 'legendary' && (
@@ -89,6 +91,7 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
               filterCategories={['legendary']}
               setCurrentView={setCurrentView}
               setVsInitialTab={setVsInitialTab}
+              fixPath={fixPath}
             />
           )}
         </div>

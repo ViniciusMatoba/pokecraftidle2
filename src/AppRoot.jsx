@@ -1546,7 +1546,7 @@ export default function App() {
       
       if (itemId === 'pokeballs' || itemId === 'great_ball' || itemId === 'ultra_ball') {
         if (currentEnemy.isTrainer) {
-          addLog("ðŸš« Você não pode capturar Pokémons de outros treinadores!", 'enemy');
+          addLog("🚫 Você não pode capturar Pokémons de outros treinadores!", 'enemy');
           return prev;
         }
         
@@ -1618,7 +1618,7 @@ export default function App() {
           return { ...prev, inventory: newInventory, team: newTeam, pc: newPC, caughtData: newCaughtData, speciesMastery: newMastery, ...questUpdate };
         } else {
           const enemyName = currentEnemy.name || 'Desconhecido';
-          addLog(`ðŸ’¨ O ${enemyName} escapou da Pokébola!`, 'enemy');
+          addLog(`💨 O ${enemyName} escapou da Pokébola!`, 'enemy');
         }
       } else if (itemId === 'potions') {
         const activePoke = prev.team[activeMemberIndex];
@@ -1643,7 +1643,7 @@ export default function App() {
 
           const newTeam = prev.team.map((p, i) => i === activeMemberIndex ? updatedPoke : p);
           const itemName = ITEM_LABELS[itemId]?.name || itemId;
-          addLog(`<t ${activePoke.name} consumiu ${itemName}! Energia restaurada.`, 'system');
+          addLog(`🔋 ${activePoke.name} consumiu ${itemName}! Energia restaurada.`, 'system');
 
           return { 
             ...prev, 
@@ -3587,6 +3587,7 @@ export default function App() {
           setVsInitialTab={setVsInitialTab}
           initialCategory={vsInitialCategory}
           setVsInitialCategory={setVsInitialCategory}
+          fixPath={fixPath}
         />
       );
 

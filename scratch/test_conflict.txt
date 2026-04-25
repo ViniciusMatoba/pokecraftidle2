@@ -1,0 +1,13 @@
+Line 1
+<<<<<<< HEAD
+HEAD Block
+=======
+Incoming Block
+>>>>>>> commit-id
+Line 2
+<<<<<<< HEAD
+Another HEAD
+=======
+Another Incoming
+>>>>>>> other-id
+Line 3

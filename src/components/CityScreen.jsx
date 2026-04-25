@@ -100,8 +100,24 @@ const CityScreen = ({
   }
 
 
+  const currentRoute = gameState.currentRoute || 'pallet_town';
+  const routeData = ROUTES[currentRoute] || ROUTES.pallet_town;
+
   return (
-    <div className="h-full flex flex-col animate-fadeIn pb-24 relative overflow-y-auto custom-scrollbar">
+    <div className="h-full flex flex-col relative overflow-hidden bg-slate-900 animate-fadeIn pb-24 overflow-y-auto custom-scrollbar">
+      {/* Background Layer */}
+      {routeData.background && (
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-20 z-0"
+          style={{ 
+            backgroundImage: `url('${fixPath ? fixPath(routeData.background) : routeData.background}')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'blur(2px)'
+          }}
+        />
+      )}
+
       <div className="relative z-10 p-4 md:p-6 flex flex-col gap-4 md:gap-6">
         <TrainerCard trainer={gameState.trainer} badges={gameState.badges || []} caughtCount={Object.keys(gameState.caughtData || {}).length} />
         

@@ -1,4 +1,12 @@
 import React, { useState } from 'react';
+
+const formatBg = (bg, fixPath) => {
+  if (!bg) return null;
+  if (bg.includes('gradient')) return bg;
+  if (bg.includes('url(')) return bg;
+  return `url('${fixPath ? fixPath(bg) : bg}')`;
+};
+
 import { GYMS, ELITE_FOUR, TYPE_COLOR_HEX } from '../data/gyms';
 import { BadgeSVG } from './CommonUI';
 
@@ -11,14 +19,14 @@ const BadgeIcon = ({ badgeId, earned }) => (
   </div>
 );
 
-const GymCard = ({ gym, earned, locked, onClick }) => {
+const GymCard = ({ gym, earned, locked, onClick, fixPath }) => {
   const col = TYPE_COLOR_HEX[gym.type] || '#555';
   const c2 = col + 'bb';
 
   return (
     <div
       className={`relative rounded-[2.5rem] overflow-hidden shadow-2xl transition-all mb-4 ${locked ? 'opacity-40 grayscale-[0.5]' : 'hover:scale-[1.02] active:scale-[0.98] cursor-pointer group'}`}
-      style={{ background: `linear-gradient(165deg, ${col} 0%, ${c2} 40%, #0a0a15 100%)`, minHeight: '180px' }}
+      style={{ background: gym.background ? formatBg(gym.background, fixPath) : `linear-gradient(165deg, ${col} 0%, ${c2} 40%, #0a0a15 100%)`, backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '180px' }}
       onClick={() => onClick(gym)}
     >
       <div className="absolute inset-0 pointer-events-none opacity-20"
@@ -41,7 +49,7 @@ const GymCard = ({ gym, earned, locked, onClick }) => {
 
       <div className="flex justify-end pr-4 pt-12 relative z-10 pointer-events-none">
         <img
-          src={gym.sprite}
+          src={fixPath ? fixPath(gym.sprite) : gym.sprite}
           alt={gym.name}
           className="w-32 h-32 object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)] scale-110 translate-y-4 group-hover:scale-125 transition-transform duration-500"
           onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'; }}
@@ -66,7 +74,7 @@ const GymCard = ({ gym, earned, locked, onClick }) => {
   );
 };
 
-const EliteCard = ({ member, index, earned, locked, onClick }) => {
+const EliteCard = ({ member, index, earned, locked, onClick, fixPath }) => {
   const col = TYPE_COLOR_HEX[member.type] || '#333';
   const c2 = col + 'bb';
 
@@ -92,7 +100,7 @@ const EliteCard = ({ member, index, earned, locked, onClick }) => {
 
       <div className="flex justify-end pr-2 pt-4 relative z-10 pointer-events-none overflow-hidden h-24">
         <img
-          src={member.sprite}
+          src={fixPath ? fixPath(member.sprite) : member.sprite}
           alt={member.name}
           className="w-32 h-32 object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] translate-y-2 group-hover:scale-110 transition-transform"
         />
@@ -135,7 +143,7 @@ const GymAlertModal = ({ req, onGo, onClose }) => (
   </div>
 );
 
-const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, setCurrentView, setVsInitialTab, setVsInitialCategory }) => {
+const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, setCurrentView, setVsInitialTab, setVsInitialCategory, fixPath }) => {
   const col = TYPE_COLOR_HEX[gym.type] || '#555';
   const [alertReq, setAlertReq] = useState(null);
 
@@ -196,9 +204,13 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
         onClick={e => e.stopPropagation()}
       >
         {/* Header Colorido */}
-        <div className="p-8 pb-4 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${col} 0%, #0f172a 100%)` }}>
+        <div className="p-8 pb-4 relative overflow-hidden" style={{ 
+          background: gym.background ? formatBg(gym.background, fixPath) : `linear-gradient(135deg, ${col} 0%, #0f172a 100%)`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}>
           <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12">
-             <img src={gym.badgeImg || gym.typeIcon} className="w-32 h-32" alt="" />
+             <img src={fixPath ? fixPath(gym.badgeImg || gym.typeIcon) : (gym.badgeImg || gym.typeIcon)} className="w-32 h-32" alt="" />
           </div>
           
           <button onClick={onClose} className="absolute top-6 right-6 text-white/40 hover:text-white text-2xl font-black transition-all"></button>
@@ -352,7 +364,7 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
   );
 };
 
-const GymScreen = ({ gameState, onChallengeGym, onClose, initialSection, isEmbedded = false, setCurrentView, setVsInitialTab, setVsInitialCategory }) => {
+const GymScreen = ({ gameState, onChallengeGym, onClose, initialSection, isEmbedded = false, setCurrentView, setVsInitialTab, setVsInitialCategory, fixPath }) => {
   const [selectedGym, setSelectedGym] = React.useState(null);
   const scrollRef = React.useRef(null);
 
@@ -422,6 +434,7 @@ const GymScreen = ({ gameState, onChallengeGym, onClose, initialSection, isEmbed
               earned={hasBadge(gym.badge)}
               locked={gymLocked(gym)}
               onClick={setSelectedGym}
+              fixPath={fixPath}
             />
           ))}
 
@@ -436,6 +449,7 @@ const GymScreen = ({ gameState, onChallengeGym, onClose, initialSection, isEmbed
               setCurrentView={setCurrentView}
               setVsInitialTab={setVsInitialTab}
               setVsInitialCategory={setVsInitialCategory}
+              fixPath={fixPath}
             />
           )}
 
@@ -469,6 +483,7 @@ const GymScreen = ({ gameState, onChallengeGym, onClose, initialSection, isEmbed
                     earned={eliteDefeated(member.id)}
                     locked={eliteLocked(idx)}
                     onClick={setSelectedGym}
+                    fixPath={fixPath}
                   />
                 ))}
               </div>
