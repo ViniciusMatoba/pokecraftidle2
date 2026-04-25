@@ -1,48 +1,32 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
-*, *::before, *::after { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 html, body, #root {
   height: 100%;
-  height: 100dvh;
   margin: 0;
   padding: 0;
 }
 
 body {
-  font-family: var(--font-sans, sans-serif);
-  background-color: #3B4CCA;
-  background-image: radial-gradient(ellipse at top left, #1a2a8a 0%, #3B4CCA 50%, #1a5276 100%);
-  overflow: hidden;
-}
-
-body::before,
-body::after {
-  content: '';
-  position: fixed;
-  border-radius: 50%;
-  border: 20px solid rgba(255,255,255,0.06);
-  pointer-events: none;
-  z-index: 0;
-}
-body::before {
-  width: 500px; height: 500px;
-  top: -100px; left: -100px;
-  animation: float-slow 12s ease-in-out infinite;
-}
-body::after {
-  width: 700px; height: 700px;
-  bottom: -200px; right: -150px;
-  animation: float-slow 16s ease-in-out infinite 3s;
-}
-
-#root {
+  background: #1a1a2e;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  height: 100dvh;
+  overflow: hidden;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   z-index: 1;
 }
@@ -52,53 +36,49 @@ body::after {
   display: flex;
   flex-direction: column;
   background: #f8fafc;
-  width: 100vw;
+  overflow: hidden;
+  width: 100%;
+  max-width: 430px;
   height: 100vh;
   height: 100dvh;
-  overflow: hidden;
 }
 
 @media (min-width: 768px) {
   .app-shell {
-    width: 430px;
     height: min(900px, 95vh);
     border-radius: 40px;
-    margin: auto;
-    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
-    overflow: hidden;
-    position: relative;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
   }
-
 }
 
-/* Conteúdo principal — sempre entre header e nav */
-.app-shell .game-content {
+/* Conteúdo principal entre header e nav */
+.game-content {
   position: absolute;
-  top: 56px;    /* altura do header */
-  bottom: 60px; /* altura do nav */
+  top: 56px;
+  bottom: 60px;
   left: 0;
   right: 0;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  background: #f8fafc;
 }
 
-/* Header e nav sempre fixos dentro do app-shell */
+/* Header fixo dentro do container */
 .app-shell header {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 56px;
   z-index: 50;
 }
 
+/* Nav fixo dentro do container */
 .app-shell nav {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60px;
   z-index: 50;
 }
 
