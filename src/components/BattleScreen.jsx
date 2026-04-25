@@ -93,7 +93,7 @@ const BattleScreen = ({
 
 
   return (
-    <div className="flex flex-col h-full pt-14 animate-fadeIn pb-4 gap-2 overflow-y-auto custom-scrollbar">
+    <div className="flex flex-col h-full animate-fadeIn pb-4 gap-2 overflow-y-auto custom-scrollbar" style={{paddingTop: '8px'}}>
       {/*    BARRA DE EFEITOS ATIVOS    */}
       <ActiveEffectsBar activeEffects={gameState.activeEffects} />
 
