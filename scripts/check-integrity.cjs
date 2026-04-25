@@ -36,6 +36,7 @@ const blocks = [
   { name: 'rival_batalhar_btn',   marker: "BATALHAR!" },
   { name: 'battle_my_pokemon_card', file: './src/components/BattleScreen.jsx', marker: "minWidth: '130px'" },
   { name: 'battle_enemy_card',      file: './src/components/BattleScreen.jsx', marker: "top: '12px'" },
+  { name: 'route_preview_modal',   file: './src/components/TravelScreen.jsx', marker: "alignItems: 'center'" },
 ];
 
 const HASH_FILE = './scripts/.integrity-hashes.json';

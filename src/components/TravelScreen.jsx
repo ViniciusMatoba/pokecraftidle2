@@ -246,50 +246,110 @@ const TravelScreen = ({
             ))}
           </div>
       </div>
-           {/* Modal de Detalhes da Rota */}
       {selectedRoute && (
-        <div className="absolute inset-0 z-[200] flex items-center justify-center p-3 md:p-4 bg-slate-900/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-bounceIn" style={{ maxHeight: '92dvh' }}>
-            <div className="overflow-y-auto custom-scrollbar flex-1">
-            <div className="h-40 relative flex-shrink-0">
-              <img src={fixPath(selectedRoute.background)} className="w-full h-full object-cover" alt="" />
-              <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
-              <button 
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 200,
+          background: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',        // ← centralizado verticalmente
+          justifyContent: 'center',
+          padding: '16px',
+        }}>
+
+          {/* Container interno — largura total */}
+          <div style={{
+            width: '100%',
+            maxWidth: '430px',
+            maxHeight: '85vh',
+            background: 'white',
+            borderRadius: '24px',      // ← bordas em todos os lados
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
+          }}>
+            {/* Header */}
+            <div style={{
+              padding: '16px 20px 12px 20px',
+              borderBottom: '1px solid #f1f5f9',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexShrink: 0,
+            }}>
+              <div style={{display:'flex', flexDirection:'column'}}>
+                <h3 style={{fontSize:'16px', fontWeight:900, textTransform:'uppercase', fontStyle:'italic', color:'#1e293b', margin:0}}>
+                  {selectedRoute.name}
+                </h3>
+                <span style={{
+                  fontSize:'10px', 
+                  fontWeight:900, 
+                  textTransform:'uppercase', 
+                  letterSpacing:'1px',
+                  color: isRouteUnlocked(selectedRoute) ? '#22c55e' : '#ef4444'
+                }}>
+                  {isRouteUnlocked(selectedRoute) ? 'Liberada' : 'Bloqueada'}
+                </span>
+              </div>
+              <button
                 onClick={() => setSelectedRoute(null)}
-                className="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform z-30"
-              ></button>
+                style={{
+                  width:'32px', height:'32px', borderRadius:'50%',
+                  background:'#f1f5f9', border:'none',
+                  fontSize:'14px', fontWeight:900,
+                  cursor:'pointer', color:'#64748b',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                }}
+              >
+                ✕
+              </button>
             </div>
 
-            <div className="p-8 -mt-10 relative z-10">
-              <div className="flex justify-between items-start mb-1">
-                 <h2 className="text-3xl font-black text-slate-800 uppercase italic tracking-tighter">{selectedRoute.name}</h2>
-                 <span className={`text-[9px] font-black px-3 py-1 rounded-full uppercase ${isRouteUnlocked(selectedRoute) ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                   {isRouteUnlocked(selectedRoute) ? 'Liberada' : 'Bloqueada'}
-                 </span>
+            {/* Conteúdo com scroll */}
+            <div style={{flex:1, overflowY:'auto', padding:'16px 20px'}} className="custom-scrollbar">
+              <div style={{height:'160px', position:'relative', borderRadius:'20px', overflow:'hidden', marginBottom:'20px', flexShrink:0}}>
+                <img src={fixPath(selectedRoute.background)} style={{width:'100%', height:'100%', objectCover:'cover'}} alt="" />
+                <div style={{position:'absolute', inset:0, background:'linear-gradient(to top, rgba(255,255,255,0.2), transparent)'}}></div>
               </div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 italic">{selectedRoute.description || 'Uma área de treinamento em Kanto.'}</p>
+
+              <p style={{fontSize:'11px', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'20px', fontStyle:'italic'}}>
+                {selectedRoute.description || 'Uma área de treinamento em Kanto.'}
+              </p>
 
               {!isRouteUnlocked(selectedRoute) && (
-                <div className="bg-red-50 border-2 border-red-100 rounded-3xl p-5 mb-6">
-                  <h4 className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                <div style={{background:'#fef2f2', border:'2px solid #fee2e2', borderRadius:'20px', padding:'16px', marginBottom:'20px'}}>
+                  <h4 style={{fontSize:'10px', fontWeight:900, color:'#f87171', textTransform:'uppercase', letterSpacing:'1px', marginBottom:'12px', display:'flex', alignItems:'center', gap:'8px'}}>
                     <span>🔒</span> Requisitos Necessários
                   </h4>
-                  <ul className="flex flex-col gap-2">
+                  <ul style={{display:'flex', flexDirection:'column', gap:'8px', listStyle:'none', padding:0, margin:0}}>
                     {selectedRoute.requirements.map(req => {
                       const met = isRequirementMet(req);
                       return (
                         <li key={req} 
                           onClick={() => handleRequirementClick(req)}
-                          className={`text-xs font-bold flex items-center gap-2 italic p-2 rounded-xl transition-all ${met ? 'text-green-600 bg-green-50/50' : 'text-red-600 hover:bg-red-100/50 cursor-pointer'}`}
+                          style={{
+                            fontSize:'12px', fontWeight:700, display:'flex', alignItems:'center', gap:'8px', fontStyle:'italic', 
+                            padding:'8px', borderRadius:'12px', transition:'all 0.2s',
+                            color: met ? '#166534' : '#b91c1c',
+                            background: met ? 'rgba(240,253,244,0.5)' : 'transparent',
+                            cursor: met ? 'default' : 'pointer'
+                          }}
                         >
-                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow-sm ${met ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                            {met ? '' : '='}
+                          <div style={{
+                            width:'20px', height:'20px', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'10px', shadow:'0 1px 2px rgba(0,0,0,0.05)',
+                            background: met ? '#dcfce7' : '#fee2e2',
+                            color: met ? '#16a34a' : '#ef4444'
+                          }}>
+                            {met ? '✓' : '×'}
                           </div>
-                          <span className="flex-1">{formatRequirement(req)}</span>
+                          <span style={{flex:1}}>{formatRequirement(req)}</span>
                           {met ? (
-                            <span className="text-[8px] font-black uppercase bg-green-200 px-2 py-0.5 rounded-lg">OK</span>
+                            <span style={{fontSize:'8px', fontWeight:900, textTransform:'uppercase', background:'#bbf7d0', px:'8px', py:'2px', borderRadius:'8px'}}>OK</span>
                           ) : (
-                            <span className="text-[8px] font-black uppercase opacity-40">Ir para →</span>
+                            <span style={{fontSize:'8px', fontWeight:900, textTransform:'uppercase', opacity:0.4}}>Ir para →</span>
                           )}
                         </li>
                       );
@@ -298,30 +358,40 @@ const TravelScreen = ({
                 </div>
               )}
 
-              <div className="flex flex-col gap-6 mb-8">
+              <div style={{display:'flex', flexDirection:'column', gap:'24px'}}>
                 {/* ENCONTROS */}
-                <div className="bg-slate-50 rounded-3xl p-5 border-2 border-slate-100">
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Pokémons na Área</h4>
-                    <span className="text-[9px] font-bold text-slate-400 italic">Toque para detalhes</span>
+                <div style={{background:'#f8fafc', borderRadius:'20px', padding:'16px', border:'2px solid #f1f5f9'}}>
+                  <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'12px'}}>
+                    <h4 style={{fontSize:'10px', fontWeight:900, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'1.5px', fontStyle:'italic', margin:0}}>Pokémons na Área</h4>
                   </div>
-                  <div className="grid grid-cols-4 gap-4">
+                  <div style={{display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:'12px'}}>
                     {selectedRoute.enemies?.slice(0, 12).map(p => {
                       const caught = gameState.caughtData?.[p.id];
                       return (
                         <button 
                           key={p.id} 
                           onClick={() => setSelectedPoke(p)}
-                          className="relative group/poke flex flex-col items-center gap-1">
-                          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${caught ? 'bg-white shadow-sm border border-slate-100 group-hover/poke:border-pokeBlue' : 'bg-slate-100/50'}`}>
+                          style={{position:'relative', display:'flex', flexDirection:'column', alignItems:'center', gap:'4px', background:'none', border:'none', padding:0}}>
+                          <div style={{
+                            width:'52px', height:'52px', borderRadius:'16px', display:'flex', alignItems:'center', justifyContent:'center', transition:'all 0.2s',
+                            background: caught ? 'white' : 'rgba(241,245,249,0.5)',
+                            boxShadow: caught ? '0 1px 3px rgba(0,0,0,0.05)' : 'none',
+                            border: caught ? '1px solid #f1f5f9' : 'none'
+                          }}>
                             <img 
                               src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} 
-                              className={`w-12 h-12 object-contain transition-all ${caught ? 'group-hover/poke:scale-125' : 'brightness-0 opacity-10'}`} 
+                              style={{
+                                width:'44px', height:'44px', objectFit:'contain', transition:'all 0.2s',
+                                filter: caught ? 'none' : 'brightness(0) opacity(0.1)'
+                              }} 
                               alt={caught ? p.name : '???'}
                             />
-                            {!caught && <span className="absolute text-xs opacity-20 font-black">?</span>}
+                            {!caught && <span style={{position:'absolute', fontSize:'12px', opacity:0.2, fontWeight:900}}>?</span>}
                           </div>
-                          <span className={`text-[8px] font-black uppercase truncate w-full text-center ${caught ? 'text-slate-600' : 'text-slate-300'}`}>
+                          <span style={{
+                            fontSize:'8px', fontWeight:900, textTransform:'uppercase', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', width:'100%', textAlign:'center',
+                            color: caught ? '#475569' : '#cbd5e1'
+                          }}>
                              {caught ? POKEDEX[p.id]?.name : '???'}
                           </span>
                         </button>
@@ -331,55 +401,65 @@ const TravelScreen = ({
                 </div>
 
                 {/* DROPS */}
-                <div className="bg-slate-50 rounded-3xl p-5 border-2 border-slate-100">
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Materiais & Drops</h4>
-                    <span className="text-[9px] font-bold text-slate-400 italic">Ver utilidade</span>
+                <div style={{background:'#f8fafc', borderRadius:'20px', padding:'16px', border:'2px solid #f1f5f9'}}>
+                  <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'12px'}}>
+                    <h4 style={{fontSize:'10px', fontWeight:900, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'1.5px', fontStyle:'italic', margin:0}}>Materiais & Drops</h4>
                   </div>
-                  <div className="flex flex-wrap gap-3">
+                  <div style={{display:'flex', flexWrap:'wrap', gap:'8px'}}>
                      {getRouteDrops(selectedRoute).map(drop => (
                       <button 
                         key={drop} 
                         onClick={() => setSelectedDrop(drop)}
-                        className="bg-white px-4 py-2.5 rounded-2xl shadow-sm border-2 border-slate-100 hover:border-pokeBlue hover:scale-105 transition-all flex items-center gap-2 group/drop">
-                        <div className={`w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover/drop:rotate-12 transition-transform`}>
-                           <img src={getDropIcon(drop)} className="w-6 h-6 object-contain" alt={drop} />
-                        </div>
-                        <span className="text-[10px] font-black text-slate-600 uppercase italic leading-none">{drop.replace('_essence', '').replace('_', ' ')}</span>
+                        style={{
+                          background:'white', padding:'8px 12px', borderRadius:'12px', shadow:'0 1px 2px rgba(0,0,0,0.05)', border:'1px solid #f1f5f9', cursor:'pointer',
+                          display:'flex', alignItems:'center', gap:'8px', transition:'all 0.2s'
+                        }}>
+                        <img src={getDropIcon(drop)} style={{width:'20px', height:'20px', objectFit:'contain'}} alt={drop} />
+                        <span style={{fontSize:'9px', fontWeight:900, color:'#475569', textTransform:'uppercase', fontStyle:'italic'}}>{drop.replace('_essence', '').replace('_', ' ')}</span>
                       </button>
                     ))}
                   </div>
                 </div>
               </div>
-
-              {/* Espaço extra para garantir que o scroll chegue ao fim */}
-              <div className="h-12"></div>
             </div>
-          </div>{/* fecha scroll */}
 
-          {/* Footer Fixo — Padrão Mobile Premium com Margem de Segurança */}
-          <div className="p-6 pb-12 bg-slate-50 border-t-2 border-slate-100 flex-shrink-0 z-20">
-            {isRouteUnlocked(selectedRoute) ? (
-              <button 
-                onClick={() => {
-                  setGameState(prev => ({ ...prev, currentRoute: selectedRoute.id }));
-                  setCurrentEnemy(null);
-                  setCurrentView('battles');
-                  setSelectedRoute(null);
-                }}
-                className="w-full bg-pokeBlue text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95 border-b-4 border-blue-800 flex items-center justify-center gap-3"
-              >
-                <span className="text-xl">⚔️</span>
-                Começar Treino
-              </button>
-            ) : (
-              <button 
-                disabled
-                className="w-full bg-slate-200 text-slate-400 py-4 rounded-2xl font-black uppercase tracking-widest cursor-not-allowed border-b-4 border-slate-300"
-              >Caminho Bloqueado</button>
-            )}
+            {/* Footer com botão */}
+            <div style={{padding:'12px 20px 20px 20px', borderTop:'1px solid #f1f5f9', flexShrink:0}}>
+              {isRouteUnlocked(selectedRoute) ? (
+                <button 
+                  onClick={() => {
+                    setGameState(prev => ({ ...prev, currentRoute: selectedRoute.id }));
+                    setCurrentEnemy(null);
+                    setCurrentView('battles');
+                    setSelectedRoute(null);
+                  }}
+                  style={{
+                    width:'100%', padding:'16px',
+                    borderRadius:'16px', background:'#2563eb',
+                    color:'white', fontWeight:900, fontSize:'15px',
+                    textTransform:'uppercase', letterSpacing:'1px',
+                    border:'none', cursor:'pointer',
+                    boxShadow:'0 4px 12px rgba(37,99,235,0.3)',
+                    display:'flex', alignItems:'center', justifyContent:'center', gap:'12px'
+                  }}
+                >
+                  <span style={{fontSize:'20px'}}>⚔️</span>
+                  Começar Treino
+                </button>
+              ) : (
+                <button 
+                  disabled
+                  style={{
+                    width:'100%', padding:'16px',
+                    borderRadius:'16px', background:'#94a3b8',
+                    color:'white', fontWeight:900, fontSize:'15px',
+                    textTransform:'uppercase', letterSpacing:'1px',
+                    border:'none', cursor:'not-allowed', opacity:0.5
+                  }}
+                >Caminho Bloqueado</button>
+              )}
+            </div>
           </div>
-        </div>{/* fecha card */}
         </div>
       )}
 

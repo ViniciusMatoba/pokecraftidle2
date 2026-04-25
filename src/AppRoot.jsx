@@ -3557,18 +3557,6 @@ export default function App() {
               </div>
             </div>
           )}
-
-          {showExpeditions && (
-            <ExpeditionsScreen
-              gameState={gameState}
-              onClose={() => setShowExpeditions(false)}
-              onStartExpedition={(biomeId, team) => {
-                handleStartExpedition(biomeId, team);
-                setShowExpeditions(false);
-              }}
-              onClaimExpedition={(biomeId) => handleClaimExpedition(biomeId)}
-            />
-          )}
         </>
       );
 
@@ -3717,7 +3705,7 @@ export default function App() {
            <div className="relative z-10 w-full max-w-2xl">
               <div className="flex items-center gap-4 mb-8">
                  <button onClick={() => setCurrentView('city')} className="bg-slate-800 p-4 rounded-3xl shadow-xl hover:bg-slate-700 transition-all">
-                    <span className="text-xl text-white">─Â íâ€šÂ</span>
+                    <span className="text-xl text-white">◀</span>
                  </button>
                  <div>
                     <h2 className="text-4xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">Forja Pokémon</h2>
@@ -3919,16 +3907,12 @@ export default function App() {
 
           <main className="game-content px-4 pt-4 custom-scrollbar">
             {renderView({ 
-          showConfirm, 
-          closeConfirm,
-          setActiveQuestModal,
-          activeQuestModal
-        })}
+              showConfirm, 
+              closeConfirm,
+              setActiveQuestModal,
+              activeQuestModal
+            })}
           </main>
-        </>
-      ) : (
-        renderView()
-      )}
 
       {sessionStats && (
         <div className="absolute inset-0 z-[100] flex items-end justify-center pb-20 px-4" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
@@ -3981,7 +3965,7 @@ export default function App() {
               {sessionStats.captures.length > 0 && (
                 <div className="bg-blue-50/50 p-4 rounded-3xl border border-blue-100">
                    <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <span className="text-sm">ðŸŽ’</span> Capturados ({sessionStats.captures.length})
+                    <span className="text-sm">📦</span> Capturados ({sessionStats.captures.length})
                   </p>
                   <div className="grid grid-cols-1 gap-2">
                     {sessionStats.captures.map((cap, i) => (
@@ -4052,7 +4036,7 @@ export default function App() {
               <img
                 src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/boulder-badge.png"
                 className="w-7 h-7 object-contain" alt=""
-                onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML += '<span style="font-size:24px">⚔️</span>'; }}
+                onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML += '<span style="font-size:24px">⚔️ </span>'; }}
               />
               <span className="text-[9px] font-black uppercase mt-0.5">Modo VS</span>
             </button>
@@ -4104,290 +4088,293 @@ export default function App() {
 
       {activeQuestModal && (
         <QuestModal 
-         activeQuest={activeQuestModal} 
-         onClose={() => setActiveQuestModal(null)} 
+          activeQuest={activeQuestModal} 
+          onClose={() => setActiveQuestModal(null)} 
         />
       )}
 
       {activeBuildingModal && (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
-           <div className="max-w-md w-[95%] bg-white rounded-[2.5rem] shadow-2xl flex flex-col relative border-b-[12px] border-slate-800 animate-slideInUp overflow-hidden" style={{ maxHeight: '92dvh' }}>
+        <div className="modal-overlay animate-fadeIn">
+          <div className="modal-container animate-slideInUp">
+            <div className="modal-header">
+              <h3>
+                {activeBuildingModal === 'pokecenter' ? 'Centro Pokémon' : 
+                 activeBuildingModal === 'mart' ? 'Poké Mart' : 'Forja Pokémon'}
+              </h3>
+              <button className="modal-close-btn" onClick={() => setActiveBuildingModal(null)}>✕</button>
+            </div>
 
-              
-              <button 
-                onClick={() => setActiveBuildingModal(null)}
-                className="absolute top-6 right-6 z-20 bg-white/80 backdrop-blur-md w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:rotate-90 transition-all border-2 border-slate-100"
-              >✖</button>
-
-              {activeBuildingModal === 'pokecenter' && (
-                <div className="flex-1 flex flex-col overflow-hidden">
-                   <div className="h-56 relative overflow-hidden shrink-0">
-                      <img src={fixPath('battle_bg_pokecenter_1776868686753.png')} className="w-full h-full object-cover" alt="Pokecenter" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
-                      <img src="https://play.pokemonshowdown.com/sprites/ani/chansey.gif" className="absolute bottom-4 left-1/2 -translate-x-1/2 h-24 drop-shadow-lg" alt="Chansey" />
-                   </div>
-                   <div className="p-10 text-center overflow-y-auto custom-scrollbar flex-1 flex flex-col justify-center">
-                      <h2 className="text-3xl font-black text-slate-800 uppercase italic tracking-tighter mb-4">Centro Pokémon</h2>
-                      <p className="text-slate-500 font-bold mb-8 italic">"Bem-vindo! Podemos curar seus Pokémon?"</p>
-                      <button 
-                        onClick={() => {
-                          if (isHealing) return;
-                          stopSFX();
-                          sfxHeal();
-                          setIsHealing(true);
-                          setGameState(prev => {
-                            const newStamina = { ...prev.stamina };
-                            prev.team.forEach(p => {
-                              if (p?.instanceId) {
-                                newStamina[p.instanceId] = { value: 100, lastFed: Date.now() };
-                              }
-                            });
-                            return {
-                              ...prev,
-                              team: prev.team.map(p => ({
-                                ...p,
-                                hp: p.maxHp,
-                                status: [],
-                                stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
-                              })),
-                              stamina: newStamina,
-                            };
-                          });
-                          addLog("💖💖íâ€šíâ€šÂíâ€šíâ€šÂ¥ Todos os Pokémon da equipe foram curados!", "system");
-                          
-                          setTimeout(() => {
-                            setActiveBuildingModal(null);
-                            setIsHealing(false);
-                          }, 2000);
-                        }}
-                        className={`w-full ${isHealing ? 'bg-slate-400 animate-pulse cursor-not-allowed' : 'bg-red-500 hover:bg-red-600 active:scale-95'} text-white py-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl shadow-red-200`}
-                      >
-                        {isHealing ? 'Cuidando...' : 'Sim, por favor!'}
-                      </button>
-                   </div>
+            {activeBuildingModal === 'pokecenter' && (
+              <>
+                <div className="modal-content">
+                  <div className="h-44 relative overflow-hidden rounded-2xl mb-6 shrink-0">
+                    <img src={fixPath('battle_bg_pokecenter_1776868686753.png')} className="w-full h-full object-cover" alt="Pokecenter" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
+                    <img src="https://play.pokemonshowdown.com/sprites/ani/chansey.gif" className="absolute bottom-2 left-1/2 -translate-x-1/2 h-20 drop-shadow-lg" alt="Chansey" />
+                  </div>
+                  <div className="text-center px-4">
+                    <p className="text-slate-500 font-bold mb-4 italic">"Bem-vindo! Podemos curar seus Pokémon?"</p>
+                  </div>
                 </div>
-              )}
-
-              {activeBuildingModal === 'mart' && (
-                <div className="p-6 flex-1 flex flex-col overflow-hidden">
-                   <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">ÂðŸ›’</div>
-                      <div className="flex-1">
-                         <h2 className="text-xl font-black text-slate-800 uppercase italic leading-none">Poké Mart</h2>
-                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Suprimentos de Viagem</p>
-                      </div>
-                      <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm mr-20">
-                         💰 {gameState.currency}
-                      </div>
-                   </div>
-
-                   <div className="flex flex-col gap-3 overflow-y-auto pr-1 custom-scrollbar flex-1 pb-4">
-                      {[
-                        { id: 'pokeballs', name: 'Poké Bola', price: 200, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', desc: 'Captura Pokémon selvagens' },
-                        { id: 'potions', name: 'Poção', price: 300, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png', desc: 'Restaura 20 HP' },
-                        { id: 'revive', name: 'Revive', price: 1500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', desc: 'Revive Pokémon desmaiado' },
-                        ...POKE_MART_DRINKS.filter(drink => {
-                           if (!drink.availableFrom) return true;
-                           const badgeMap = { boulder_badge: 1, cascade_badge: 2, thunder_badge: 3, rainbow_badge: 4 };
-                           const badgeId = badgeMap[drink.availableFrom];
-                           return badgeId ? (gameState.badges || []).includes(badgeId) : (gameState.worldFlags || []).includes(drink.availableFrom);
-                        }).map(d => ({ ...d, desc: d.description }))
-                      ].map(item => {
-                        const maxQty = Math.floor(gameState.currency / item.price);
-                        const buyFn = (qty) => {
-                          if (qty < 1) return;
-                          setGameState(prev => ({
-                            ...prev,
-                            currency: prev.currency - item.price * qty,
-                            inventory: {
-                              ...prev.inventory,
-                              items: { ...prev.inventory.items, [item.id]: (prev.inventory.items[item.id] || 0) + qty }
-                            }
-                          }));
-                          addLog(`Â🚀ÂÂª Comprado: ${qty}x ${item.name}`, 'system');
+                <div className="modal-footer">
+                  <button 
+                    onClick={() => {
+                      if (isHealing) return;
+                      stopSFX();
+                      sfxHeal();
+                      setIsHealing(true);
+                      setGameState(prev => {
+                        const newStamina = { ...prev.stamina };
+                        prev.team.forEach(p => {
+                          if (p?.instanceId) {
+                            newStamina[p.instanceId] = { value: 100, lastFed: Date.now() };
+                          }
+                        });
+                        return {
+                          ...prev,
+                          team: prev.team.map(p => ({
+                            ...p,
+                            hp: p.maxHp,
+                            status: [],
+                            stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
+                          })),
+                          stamina: newStamina,
                         };
-                        return (
-                          <div key={item.id} className="bg-white p-4 rounded-2xl border-2 border-slate-100 shadow-sm">
-                             <div className="flex items-center gap-3 mb-3">
-                                <div className="bg-blue-50 w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
-                                   <img src={item.img} className="w-9 h-9 object-contain" alt={item.name} />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                   <h4 className="font-black text-slate-800 uppercase italic text-sm leading-tight">{item.name}</h4>
-                                   <p className="text-[10px] text-slate-400 font-bold">{item.desc}</p>
-                                </div>
-                                <div className="text-right">
-                                   <p className="text-[10px] font-black text-slate-400 uppercase">Preço</p>
-                                   <p className="font-black text-amber-600 text-sm">💰 {item.price}</p>
-                                </div>
-                             </div>
-                             <div className="grid grid-cols-3 gap-2">
-                                {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'Máx',qty:maxQty}].map(opt => (
-                                  <button key={opt.label}
-                                    disabled={gameState.currency < item.price || (opt.qty < 1)}
-                                    onClick={() => buyFn(opt.qty)}
-                                    className="py-2 rounded-xl font-black text-xs uppercase transition-all bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-30 disabled:cursor-not-allowed"
-                                  >
-                                    {opt.label}{opt.label==='Máx'&&maxQty>0?` (${maxQty})`:''}
-                                  </button>
-                                ))}
-                             </div>
-                          </div>
-                        );
-                      })}
-                   </div>
+                      });
+                      addLog("💖💖 Todos os Pokémon da equipe foram curados!", "system");
+                      
+                      setTimeout(() => {
+                        setActiveBuildingModal(null);
+                        setIsHealing(false);
+                      }, 2000);
+                    }}
+                    className={`modal-btn modal-btn-primary ${isHealing ? 'opacity-50 animate-pulse cursor-not-allowed' : ''}`}
+                  >
+                    {isHealing ? 'Cuidando...' : 'Sim, por favor!'}
+                  </button>
                 </div>
-              )}
+              </>
+            )}
 
-              {activeBuildingModal === 'forge' && (
-                <div className="p-6 flex-1 flex flex-col overflow-hidden">
-                   <div className="flex items-center gap-4 mb-5">
-                      <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center text-2xl">🔨</div>
-                      <div className="flex-1">
-                         <h2 className="text-xl font-black text-slate-800 uppercase italic leading-none">Forja Pokémon</h2>
-                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Materiais e Equipamentos</p>
-                      </div>
-                      <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm mr-20">
-                         💰 {gameState.currency}
-                      </div>
-                   </div>
+            {activeBuildingModal === 'mart' && (
+              <>
+                <div className="modal-content">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm">
+                       💰 {gameState.currency}
+                    </div>
+                  </div>
 
-                   <div className="space-y-6 overflow-y-auto pr-1 custom-scrollbar flex-1 pb-4">
-                      {Object.entries(CRAFTING_RECIPES).map(([category, items]) => (
-                        <div key={category} className="space-y-3">
-                           <div className="flex items-center gap-2 border-b-2 border-slate-100 pb-2">
-                              <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                              <h3 className="text-xs font-black uppercase text-slate-400 tracking-[0.2em]">{category.replace(/_/g, ' ')}</h3>
+                  <div className="space-y-3">
+                    {[
+                      { id: 'pokeballs', name: 'Poké Bola', price: 200, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', desc: 'Captura Pokémon selvagens' },
+                      { id: 'potions', name: 'Poção', price: 300, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png', desc: 'Restaura 20 HP' },
+                      { id: 'revive', name: 'Revive', price: 1500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', desc: 'Revive Pokémon desmaiado' },
+                      ...POKE_MART_DRINKS.filter(drink => {
+                         if (!drink.availableFrom) return true;
+                         const badgeMap = { boulder_badge: 1, cascade_badge: 2, thunder_badge: 3, rainbow_badge: 4 };
+                         const badgeId = badgeMap[drink.availableFrom];
+                         return badgeId ? (gameState.badges || []).includes(badgeId) : (gameState.worldFlags || []).includes(drink.availableFrom);
+                      }).map(d => ({ ...d, desc: d.description }))
+                    ].map(item => {
+                      const maxQty = Math.floor(gameState.currency / item.price);
+                      const buyFn = (qty) => {
+                        if (qty < 1) return;
+                        setGameState(prev => ({
+                          ...prev,
+                          currency: prev.currency - item.price * qty,
+                          inventory: {
+                            ...prev.inventory,
+                            items: { ...prev.inventory.items, [item.id]: (prev.inventory.items[item.id] || 0) + qty }
+                          }
+                        }));
+                        addLog(`🚀 Comprado: ${qty}x ${item.name}`, 'system');
+                      };
+                      return (
+                        <div key={item.id} className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                           <div className="flex items-center gap-3 mb-3">
+                              <div className="bg-white w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border border-slate-100">
+                                 <img src={item.img} className="w-7 h-7 object-contain" alt={item.name} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                 <h4 className="font-black text-slate-800 uppercase italic text-xs leading-tight">{item.name}</h4>
+                                 <p className="text-[9px] text-slate-400 font-bold">{item.desc}</p>
+                              </div>
+                              <div className="text-right">
+                                 <p className="font-black text-amber-600 text-xs">💰 {item.price}</p>
+                              </div>
                            </div>
-                           <div className="flex flex-col gap-3">
-                              {items.map(item => {
-                                const canCraftOne = Object.entries(item.cost).every(([mat, amount]) => {
-                                  if (mat === 'currency') return gameState.currency >= amount;
-                                  return (gameState.inventory.materials?.[mat] || 0) >= amount;
-                                });
-                                const getMaxCraft = () => {
-                                  let maxN = Infinity;
-                                  Object.entries(item.cost).forEach(([mat, amount]) => {
-                                    const have = mat === 'currency' ? gameState.currency : (gameState.inventory.materials?.[mat] || 0);
-                                    maxN = Math.min(maxN, Math.floor(have / amount));
-                                  });
-                                  return maxN === Infinity ? 0 : maxN;
-                                };
-                                const craftFn = (qty) => {
-                                  if (qty < 1) return;
-                                  setGameState(prev => {
-                                    const newInv = { ...prev.inventory, materials: { ...prev.inventory.materials } };
-                                    Object.entries(item.cost).forEach(([mat, amount]) => {
-                                      if (mat !== 'currency') newInv.materials[mat] = (newInv.materials[mat] || 0) - amount * qty;
-                                    });
-                                    return {
-                                      ...prev,
-                                      currency: prev.currency - (item.cost.currency || 0) * qty,
-                                      inventory: { ...newInv, items: { ...newInv.items, [item.id]: (newInv.items[item.id] || 0) + qty } }
-                                    };
-                                  });
-                                  addLog(`🔨 Forjado: ${qty}x ${item.name}`, 'system');
-                                };
-                                const maxCraft = getMaxCraft();
-                                return (
-                                  <div key={item.id} className="bg-white p-4 rounded-2xl border-2 border-slate-100 shadow-sm">
-                                     <div className="flex items-center gap-3 mb-3">
-                                        <div className="bg-orange-50 w-12 h-12 rounded-xl flex items-center justify-center shrink-0">
-                                           <img src={item.img} className="w-9 h-9 object-contain" alt={item.name} />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                           <h4 className="font-black text-slate-800 uppercase italic text-sm leading-tight">{item.name}</h4>
-                                           <p className="text-[10px] font-bold text-slate-400 truncate">{typeof item.effect === 'string' ? item.effect : (item.description || 'Item de Crafting')}</p>
-                                        </div>
-                                     </div>
-                                     <div className="flex flex-wrap gap-1.5 mb-3">
-                                        {Object.entries(item.cost).map(([mat, amount]) => {
-                                          const have = mat === 'currency' ? gameState.currency : (gameState.inventory.materials?.[mat] || 0);
-                                          const ok = have >= amount;
-                                          return (
-                                            <button key={mat} onClick={() => setActiveMaterialModal(mat)}
-                                              className={`px-2 py-1 rounded-lg border text-[9px] font-black uppercase ${ok ? 'border-green-200 bg-green-50 text-green-700' : 'border-red-200 bg-red-50 text-red-600'}`}
-                                            >
-                                              {mat.replace(/_/g,' ')}: {have}/{amount}
-                                            </button>
-                                          );
-                                        })}
-                                     </div>
-                                     <div className="grid grid-cols-3 gap-2">
-                                        {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'Máx',qty:maxCraft}].map(opt => (
-                                          <button key={opt.label}
-                                            disabled={!canCraftOne || opt.qty < 1}
-                                            onClick={() => craftFn(opt.qty)}
-                                            className="py-2 rounded-xl font-black text-xs uppercase transition-all bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-30 disabled:cursor-not-allowed"
-                                          >
-                                            {opt.label}{opt.label==='Máx'&&maxCraft>0?` (${maxCraft})`:''}
-                                          </button>
-                                        ))}
-                                     </div>
-                                  </div>
-                                );
-                              })}
+                           <div className="grid grid-cols-3 gap-2">
+                              {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'Máx',qty:maxQty}].map(opt => (
+                                <button key={opt.label}
+                                  disabled={gameState.currency < item.price || (opt.qty < 1)}
+                                  onClick={() => buyFn(opt.qty)}
+                                  className="modal-btn text-[10px] py-1.5"
+                                >
+                                  {opt.label}{opt.label==='Máx'&&maxQty>0?` (${maxQty})`:''}
+                                </button>
+                              ))}
                            </div>
                         </div>
-                      ))}
-                   </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              )}
-           </div>
+                <div className="modal-footer">
+                  <button onClick={() => setActiveBuildingModal(null)} className="modal-btn w-full">Sair da Loja</button>
+                </div>
+              </>
+            )}
+
+            {activeBuildingModal === 'forge' && (
+              <>
+                <div className="modal-content">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm">
+                       💰 {gameState.currency}
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    {Object.entries(CRAFTING_RECIPES).map(([category, items]) => (
+                      <div key={category} className="space-y-3">
+                         <div className="flex items-center gap-2 border-b border-slate-100 pb-1">
+                            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{category.replace(/_/g, ' ')}</h3>
+                         </div>
+                         <div className="space-y-3">
+                            {items.map(item => {
+                              const canCraftOne = Object.entries(item.cost).every(([mat, amount]) => {
+                                if (mat === 'currency') return gameState.currency >= amount;
+                                return (gameState.inventory.materials?.[mat] || 0) >= amount;
+                              });
+                              const getMaxCraft = () => {
+                                let maxN = Infinity;
+                                Object.entries(item.cost).forEach(([mat, amount]) => {
+                                  const have = mat === 'currency' ? gameState.currency : (gameState.inventory.materials?.[mat] || 0);
+                                  maxN = Math.min(maxN, Math.floor(have / amount));
+                                });
+                                return maxN === Infinity ? 0 : maxN;
+                              };
+                              const craftFn = (qty) => {
+                                if (qty < 1) return;
+                                setGameState(prev => {
+                                  const newInv = { ...prev.inventory, materials: { ...prev.inventory.materials } };
+                                  Object.entries(item.cost).forEach(([mat, amount]) => {
+                                    if (mat !== 'currency') newInv.materials[mat] = (newInv.materials[mat] || 0) - amount * qty;
+                                  });
+                                  return {
+                                    ...prev,
+                                    currency: prev.currency - (item.cost.currency || 0) * qty,
+                                    inventory: { ...newInv, items: { ...newInv.items, [item.id]: (newInv.items[item.id] || 0) + qty } }
+                                  };
+                                });
+                                addLog(`🔨 Forjado: ${qty}x ${item.name}`, 'system');
+                              };
+                              const maxCraft = getMaxCraft();
+                              return (
+                                <div key={item.id} className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                                   <div className="flex items-center gap-3 mb-2">
+                                      <div className="bg-white w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-slate-100">
+                                         <img src={item.img} className="w-7 h-7 object-contain" alt={item.name} />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                         <h4 className="font-black text-slate-800 uppercase italic text-xs leading-tight">{item.name}</h4>
+                                         <p className="text-[9px] font-bold text-slate-400 truncate">{typeof item.effect === 'string' ? item.effect : (item.description || 'Item de Crafting')}</p>
+                                      </div>
+                                   </div>
+                                   <div className="flex flex-wrap gap-1 mb-2">
+                                      {Object.entries(item.cost).map(([mat, amount]) => {
+                                        const have = mat === 'currency' ? gameState.currency : (gameState.inventory.materials?.[mat] || 0);
+                                        const ok = have >= amount;
+                                        return (
+                                          <button key={mat} onClick={() => setActiveMaterialModal(mat)}
+                                            className={`px-1.5 py-0.5 rounded-lg border text-[8px] font-black uppercase ${ok ? 'border-green-200 bg-green-50 text-green-700' : 'border-red-200 bg-red-50 text-red-600'}`}
+                                          >
+                                            {mat.replace(/_/g,' ')}: {have}/{amount}
+                                          </button>
+                                        );
+                                      })}
+                                   </div>
+                                   <div className="grid grid-cols-3 gap-2">
+                                      {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'Máx',qty:maxCraft}].map(opt => (
+                                        <button key={opt.label}
+                                          disabled={!canCraftOne || opt.qty < 1}
+                                          onClick={() => craftFn(opt.qty)}
+                                          className="modal-btn text-[10px] py-1.5"
+                                        >
+                                          {opt.label}{opt.label==='Máx'&&maxCraft>0?` (${maxCraft})`:''}
+                                        </button>
+                                      ))}
+                                   </div>
+                                </div>
+                              );
+                            })}
+                         </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button onClick={() => setActiveBuildingModal(null)} className="modal-btn w-full">Sair da Forja</button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
+
       {/* MODAL DE DICA DE MATERIAL */}
       {activeMaterialModal && (
-        <div className="absolute inset-0 z-[110] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
-           <div className="max-w-lg w-full bg-white rounded-[3.5rem] shadow-2xl p-10 border-b-[12px] border-slate-800 animate-bounceIn overflow-hidden relative">
-              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 opacity-20"></div>
-              
-              <div className="flex justify-between items-center mb-8">
-                 <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter">Onde encontrar?</h3>
-                 <button onClick={() => setActiveMaterialModal(null)} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 transition-colors">✖</button>
-              </div>
-              
-              <div className="flex items-center gap-6 bg-slate-50 p-6 rounded-[2.5rem] border-2 border-slate-100 mb-8 shadow-inner">
-                 <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg text-3xl">💎</div>
+        <div className="modal-overlay animate-fadeIn" style={{zIndex: 210}}>
+          <div className="modal-container animate-bounceIn" style={{maxHeight: '80vh', borderRadius: '32px'}}>
+            <div className="modal-header">
+              <h3>Onde encontrar?</h3>
+              <button className="modal-close-btn" onClick={() => setActiveMaterialModal(null)}>✕</button>
+            </div>
+            
+            <div className="modal-content">
+              <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-3xl border border-slate-100 mb-4">
+                 <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm text-2xl border border-slate-100">💎</div>
                  <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Recurso:</p>
-                    <h4 className="text-xl font-black text-slate-800 uppercase italic mt-1">{activeMaterialModal.replace(/_/g, ' ')}</h4>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Recurso:</p>
+                    <h4 className="text-sm font-black text-slate-800 uppercase italic">{activeMaterialModal.replace(/_/g, ' ')}</h4>
                  </div>
               </div>
 
-              <div className="space-y-4">
-                 <p className="text-sm font-medium text-slate-600 leading-relaxed">
-                    {(() => {
-                       switch(activeMaterialModal) {
-                          case 'currency': return 'Obtido derrotando Pokémons em qualquer rota ou vendendo itens raros.';
-                          case 'normal_essence': return 'Dropado por Pokémons tipo NORMAL (ex: Pidgey, Rattata) na Rota 1 e Pallet.';
-                          case 'fire_essence': return 'Dropado por Pokémons tipo FOGO. Procure em áreas vulcvulcí¢nicas ou raramente na Rota 1.';
-                          case 'water_essence': return 'Dropado por Pokémons tipo ííâ€šíâ€šÂGUA em rios, lagos e oceanos.';
-                          case 'grass_essence': return 'Dropado por Pokémons tipo PLANTA na Rota 1 e Floresta de Viridian.';
-                          case 'electric_essence': return 'Dropado por Pokémons tipo ELÉTRICO. Tente a Usina de Energia.';
-                          case 'ice_essence': return 'Dropado por Pokémons tipo GELO em cavernas geladas ou Ilhas Seafoam.';
-                          case 'fighting_essence': return 'Dropado por Pokémons tipo LUTADOR na Rota 22 ou Victory Road.';
-                          case 'poison_essence': return 'Dropado por Pokémons tipo VENENO na Floresta de Viridian e pí¢ntanos.';
-                          case 'ground_essence': return 'Dropado por Pokémons tipo TERRA em cavernas, como a Caverna Diglett.';
-                          case 'flying_essence': return 'Dropado por Pokémons tipo VOADOR em rotas abertas e céus.';
-                          case 'psychic_essence': return 'Dropado por Pokémons tipo PSííâ€šíâ€šÂQUICO em locais misteriosos ou Mansões.';
-                          case 'bug_essence': return 'Dropado por Pokémons tipo INSETO na Floresta de Viridian.';
-                          case 'rock_essence': return 'Dropado por Pokémons tipo PEDRA em túneis de rocha e cavernas.';
-                          case 'ghost_essence': return 'Dropado por Pokémons tipo FANTASMA na Torre Pokémon de Lavender.';
-                          case 'dragon_essence': return 'Dropado por Pokémons tipo DRAGíO em locais sagrados ou Victory Road.';
-                          case 'steel_essence': return 'Dropado por Pokémons tipo Aí‡O em áreas industriais ou usinas.';
-                          case 'fairy_essence': return 'Dropado por Pokémons tipo FADA no Monte Lua.';
-                          case 'dark_essence': return 'Dropado por Pokémons tipo SOMBRIO em locais escuros ou mansíµes.';
-                          default: return 'Explore diferentes rotas e derrote Pokémons de tipos variados para coletar este material.';
-                       }
-                    })()}
-                 </p>
-                 <button 
-                   onClick={() => setActiveMaterialModal(null)}
-                   className="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg"
-                 >Entendido!</button>
-              </div>
-           </div>
+              <p className="text-xs font-medium text-slate-600 leading-relaxed px-1">
+                {(() => {
+                   switch(activeMaterialModal) {
+                      case 'currency': return 'Obtido derrotando Pokémons em qualquer rota ou vendendo itens raros.';
+                      case 'normal_essence': return 'Dropado por Pokémons tipo NORMAL (ex: Pidgey, Rattata) na Rota 1 e Pallet.';
+                      case 'fire_essence': return 'Dropado por Pokémons tipo FOGO. Procure em áreas vulcânicas ou raramente na Rota 1.';
+                      case 'water_essence': return 'Dropado por Pokémons tipo ÁGUA em rios, lagos e oceanos.';
+                      case 'grass_essence': return 'Dropado por Pokémons tipo PLANTA na Rota 1 e Floresta de Viridian.';
+                      case 'electric_essence': return 'Dropado por Pokémons tipo ELÉTRICO. Tente a Usina de Energia.';
+                      case 'ice_essence': return 'Dropado por Pokémons tipo GELO em cavernas geladas ou Ilhas Seafoam.';
+                      case 'fighting_essence': return 'Dropado por Pokémons tipo LUTADOR na Rota 22 ou Victory Road.';
+                      case 'poison_essence': return 'Dropado por Pokémons tipo VENENO na Floresta de Viridian e pântanos.';
+                      case 'ground_essence': return 'Dropado por Pokémons tipo TERRA em cavernas, como a Caverna Diglett.';
+                      case 'flying_essence': return 'Dropado por Pokémons tipo VOADOR em rotas abertas e céus.';
+                      case 'psychic_essence': return 'Dropado por Pokémons tipo PSÍQUICO em locais misteriosos ou Mansões.';
+                      case 'bug_essence': return 'Dropado por Pokémons tipo INSETO na Floresta de Viridian.';
+                      case 'rock_essence': return 'Dropado por Pokémons tipo PEDRA em túneis de rocha e cavernas.';
+                      case 'ghost_essence': return 'Dropado por Pokémons tipo FANTASMA na Torre Pokémon de Lavender.';
+                      case 'dragon_essence': return 'Dropado por Pokémons tipo DRAGÃO em locais sagrados ou Victory Road.';
+                      case 'steel_essence': return 'Dropado por Pokémons tipo AÇO em áreas industriais ou usinas.';
+                      case 'fairy_essence': return 'Dropado por Pokémons tipo FADA no Monte Lua.';
+                      case 'dark_essence': return 'Dropado por Pokémons tipo SOMBRIO em locais escuros ou mansões.';
+                      default: return 'Explore diferentes rotas e derrote Pokémons de tipos variados para coletar este material.';
+                   }
+                })()}
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button 
+                onClick={() => setActiveMaterialModal(null)}
+                className="modal-btn modal-btn-primary w-full"
+              >Entendido!</button>
+            </div>
+          </div>
         </div>
       )}
       <EvolutionScreen 
@@ -4442,6 +4429,10 @@ export default function App() {
           onConfirm={confirmModal.onConfirm}
           onCancel={confirmModal.onCancel || closeConfirm}
         />
+      )}
+        </>
+      ) : (
+        <AuthScreen />
       )}
       <NotificationSystem />
     </div>
