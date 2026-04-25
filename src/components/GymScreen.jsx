@@ -184,14 +184,16 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
       if (setVsInitialCategory) setVsInitialCategory('rocket');
       setCurrentView('vs');
       onClose();
-    } else if (req.includes('badges')) {
-       // Já está em Gyms, mas se for Elite 4, talvez precise voltar pros ginásios?
-       // O usuário já está vendo os ginásios.
     }
   };
   
   return (
-    <div className="absolute inset-0 z-[300] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-fadeIn" onClick={onClose}>
+    <div style={{
+      position:'absolute', inset:0, zIndex:300,
+      display:'flex', alignItems:'center', justifyContent:'center',
+      padding:'24px', background:'rgba(0,0,0,0.9)', backdropFilter:'blur(20px)',
+      animation:'fadeIn 0.3s ease-out'
+    }} onClick={onClose}>
       {alertReq && (
         <GymAlertModal 
           req={formatReq(alertReq)} 
@@ -200,32 +202,51 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
         />
       )}
       <div 
-        className="bg-slate-900 w-full max-w-md rounded-[3rem] shadow-2xl overflow-hidden border-2 border-white/10 animate-bounceIn"
+        style={{
+          background:'#0f172a', width:'100%', maxWidth:'400px',
+          borderRadius:'48px', boxShadow:'0 25px 50px -12px rgba(0,0,0,0.5)',
+          overflow:'hidden', border:'2px solid rgba(255,255,255,0.1)',
+          animation:'bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)'
+        }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header Colorido */}
-        <div className="p-8 pb-4 relative overflow-hidden" style={{ 
+        <div style={{ 
+          padding:'32px 32px 16px 32px', position:'relative', overflow:'hidden',
           background: gym.background ? formatBg(gym.background, fixPath) : `linear-gradient(135deg, ${col} 0%, #0f172a 100%)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}>
-          <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12">
-             <img src={fixPath ? fixPath(gym.badgeImg || gym.typeIcon) : (gym.badgeImg || gym.typeIcon)} className="w-32 h-32" alt="" />
+          <div style={{position:'absolute', top:0, right:0, padding:'32px', opacity:0.1, transform:'rotate(12deg)'}}>
+             <img src={fixPath ? fixPath(gym.badgeImg || gym.typeIcon) : (gym.badgeImg || gym.typeIcon)} style={{width:'128px', height:'128px'}} alt="" />
           </div>
           
-          <button onClick={onClose} className="absolute top-6 right-6 text-white/40 hover:text-white text-2xl font-black transition-all"></button>
+          <button onClick={onClose} style={{
+            position:'absolute', top:'24px', right:'24px',
+            background:'none', border:'none', color:'rgba(255,255,255,0.4)',
+            fontSize:'24px', fontWeight:900, cursor:'pointer', transition:'all 0.2s'
+          }}>✕</button>
           
-          <div className="relative z-10 text-left">
-            <h3 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-none mb-2">{gym.name}</h3>
-            <div className="flex items-center gap-3">
-              <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 flex items-center gap-2">
-                 {gym.typeIcon && <img src={gym.typeIcon} className="w-3 h-3 invert" alt="" />}
-                 <span className="text-white text-[10px] font-black uppercase tracking-widest">Especialista em {gym.type}</span>
+          <div style={{position:'relative', zIndex:10, textAlign:'left'}}>
+            <h3 style={{
+              fontSize:'36px', fontWeight:900, color:'white',
+              textTransform:'uppercase', fontStyle:'italic', letterSpacing:'-2px',
+              lineHeight:1, margin:'0 0 8px 0'
+            }}>{gym.name}</h3>
+            <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
+              <div style={{
+                background:'rgba(255,255,255,0.2)', backdropFilter:'blur(12px)',
+                padding:'4px 12px', borderRadius:'9999px',
+                border:'1px solid rgba(255,255,255,0.2)', display:'flex', alignItems:'center', gap:'8px'
+              }}>
+                 {gym.typeIcon && <img src={gym.typeIcon} style={{width:'12px', height:'12px', filter:'invert(1)'}} alt="" />}
+                 <span style={{color:'white', fontSize:'10px', fontWeight:900, textTransform:'uppercase', letterSpacing:'1px'}}>Especialista em {gym.type}</span>
               </div>
-              <span className="text-white/40 text-[10px] font-black uppercase">{gym.city}</span>
+              <span style={{color:'rgba(255,255,255,0.4)', fontSize:'10px', fontWeight:900, textTransform:'uppercase'}}>{gym.city}</span>
             </div>
           </div>
         </div>
+       </div>
 
         <div style={{flex:1, overflowY:'auto'}}>
 
