@@ -248,8 +248,8 @@ const TravelScreen = ({
       </div>
            {/* Modal de Detalhes da Rota */}
       {selectedRoute && (
-        <div className="absolute inset-0 z-[200] flex items-end md:items-center justify-center p-3 md:p-4 bg-slate-900/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white w-full max-w-md rounded-t-[2.5rem] md:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col animate-slideInUp" style={{ maxHeight: '85dvh' }}>
+        <div className="absolute inset-0 z-[200] flex items-center justify-center p-3 md:p-4 bg-slate-900/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-bounceIn" style={{ maxHeight: '92dvh' }}>
             <div className="overflow-y-auto custom-scrollbar flex-1">
             <div className="h-40 relative flex-shrink-0">
               <img src={fixPath(selectedRoute.background)} className="w-full h-full object-cover" alt="" />
@@ -352,31 +352,34 @@ const TravelScreen = ({
                 </div>
               </div>
 
-              {isRouteUnlocked(selectedRoute) ? (
-                <button 
-                  onClick={() => {
-                    setGameState(prev => ({ ...prev, currentRoute: selectedRoute.id }));
-                    setCurrentEnemy(null);
-                    setCurrentView('battles');
-                    setSelectedRoute(null);
-                  }}
-                  className="w-full bg-pokeBlue text-white py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] hover:bg-blue-600 transition-all shadow-xl hover:-translate-y-1 active:scale-95 border-b-8 border-blue-800 flex items-center justify-center gap-3"
-                >
-                  <span className="text-xl">⚔️</span>
-                  Começar Treino
-                </button>
-              ) : (
-                <button 
-                  disabled
-                  className="w-full bg-slate-200 text-slate-400 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] cursor-not-allowed border-b-8 border-slate-300"
-                >Caminho Bloqueado</button>
-              )}
-              
               {/* Espaço extra para garantir que o scroll chegue ao fim */}
-              <div className="h-24"></div>
+              <div className="h-12"></div>
             </div>
           </div>{/* fecha scroll */}
-          </div>{/* fecha card */}
+
+          {/* Footer Fixo — Padrão Mobile Premium com Margem de Segurança */}
+          <div className="p-6 pb-12 bg-slate-50 border-t-2 border-slate-100 flex-shrink-0 z-20">
+            {isRouteUnlocked(selectedRoute) ? (
+              <button 
+                onClick={() => {
+                  setGameState(prev => ({ ...prev, currentRoute: selectedRoute.id }));
+                  setCurrentEnemy(null);
+                  setCurrentView('battles');
+                  setSelectedRoute(null);
+                }}
+                className="w-full bg-pokeBlue text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95 border-b-4 border-blue-800 flex items-center justify-center gap-3"
+              >
+                <span className="text-xl">⚔️</span>
+                Começar Treino
+              </button>
+            ) : (
+              <button 
+                disabled
+                className="w-full bg-slate-200 text-slate-400 py-4 rounded-2xl font-black uppercase tracking-widest cursor-not-allowed border-b-4 border-slate-300"
+              >Caminho Bloqueado</button>
+            )}
+          </div>
+        </div>{/* fecha card */}
         </div>
       )}
 

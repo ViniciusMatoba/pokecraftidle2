@@ -118,8 +118,8 @@ const BattleScreen = ({
         </button>
 
         {/* HUD INIMIGO - Canto Superior Esquerdo */}
-        <div className={`absolute top-2 left-2 min-w-[150px] transition-all duration-700 z-10 ${currentEnemy.hp > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-          <div className="bg-white/95 rounded-xl px-3 py-2 shadow-lg border-l-4 border-slate-200 relative overflow-hidden">
+        <div className={`absolute top-2 left-2 w-[185px] transition-all duration-700 z-10 ${currentEnemy.hp > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <div className="bg-white/95 rounded-2xl px-3 py-2.5 shadow-lg border-l-4 border-slate-200 relative overflow-hidden flex flex-col justify-center">
             {showTrainer && currentEnemy.isTrainer ? (
               <div className="animate-fadeIn">
                  <span className="text-[8px] font-black text-pokeGold uppercase tracking-widest block mb-0.5">Desafiante</span>
@@ -127,20 +127,20 @@ const BattleScreen = ({
               </div>
             ) : (
               <>
-                <div className="flex justify-between items-center gap-2 mb-1">
-                   <span className="font-black text-[11px] uppercase text-slate-800 truncate max-w-[110px]">
+                <div className="flex items-center gap-1.5 mb-1">
+                   <span className="text-[11px] uppercase text-slate-800 truncate max-w-[110px]">
                       {currentEnemy.isTrainer ? currentEnemy.trainerName : currentEnemy.name}
                       {currentEnemy.isShiny && ' ✨'}
                    </span>
-                   <span className="text-[10px] font-bold text-slate-500 shrink-0">Nv.{currentEnemy.level || '??'}</span>
+                   <span className="text-[10px] text-slate-500 shrink-0">Nv.{currentEnemy.level || '??'}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                   <span className="text-[7px] font-black text-slate-400 w-4">HP</span>
+                <div className="flex items-center gap-1.5">
+                   <span className="text-[8px] text-slate-400 w-4">HP</span>
                    <div className="flex-1 bg-slate-200 h-2 rounded-full overflow-hidden shadow-inner">
                      <div className={`h-full transition-all duration-500 ${hpPercent > 50 ? 'bg-green-500' : hpPercent > 20 ? 'bg-yellow-400' : 'bg-red-500'}`} style={{ width: `${hpPercent}%` }} />
                    </div>
                 </div>
-                <div className="mt-1">
+                <div className="mt-1 flex items-center justify-between min-h-[12px]">
                    <StatusBadges status={currentEnemy.status || []} stages={currentEnemy.stages || {}} />
                 </div>
               </>
@@ -168,51 +168,53 @@ const BattleScreen = ({
         </div>
 
         {/* HUD JOGADOR - Canto Inferior Direito */}
-        <div className="absolute bottom-2 right-2 z-10 min-w-[150px]">
+        <div className="absolute bottom-2 right-2 z-10 w-[185px]">
           {activePoke ? (
-            <div className="bg-white/95 rounded-xl px-3 py-2 shadow-lg border-r-4 border-pokeBlue w-full text-right">
-              <div className="flex justify-between items-center mb-1 flex-row-reverse">
-                <span className="font-black text-[11px] uppercase text-slate-800 truncate max-w-[100px]">
+            <div className="bg-white/95 rounded-2xl px-3 py-2.5 shadow-lg border-r-4 border-pokeBlue w-full flex flex-col justify-center">
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-[11px] uppercase text-slate-800 truncate max-w-[110px]">
                   {activePoke.name}{activePoke.isShiny && ' ✨'}
                 </span>
-                <span className="text-[10px] font-bold text-slate-500">Nv.{activePoke.level || 5}</span>
+                <span className="text-[10px] text-slate-500">Nv.{activePoke.level || 5}</span>
               </div>
-              <div className="flex items-center gap-1 flex-row-reverse">
-                <span className="text-[7px] font-black text-slate-400 w-4">HP</span>
-                <div className="flex-1 bg-slate-200 h-2 rounded-full overflow-hidden">
-                  <div className="bg-green-500 h-full transition-all duration-300" style={{ width: `${(activePoke.hp / activePoke.maxHp) * 100}%` }} />
+              
+              <div className="flex items-center gap-1.5">
+                <span className="text-[8px] text-slate-400 w-4">HP</span>
+                <div className="flex-1 bg-slate-200 h-2 rounded-full overflow-hidden shadow-inner">
+                  <div className="bg-green-500 h-full transition-all duration-300 shadow-[0_0_8px_rgba(34,197,94,0.4)]" style={{ width: `${(activePoke.hp / activePoke.maxHp) * 100}%` }} />
                 </div>
-                <span className="text-[7px] font-black text-slate-500 shrink-0">{activePoke.hp}/{activePoke.maxHp}</span>
+                <span className="text-[8px] text-slate-500 shrink-0">{activePoke.hp}/{activePoke.maxHp}</span>
               </div>
-              <div className="flex items-center gap-1 mt-0.5 flex-row-reverse">
-                <span className="text-[7px] font-black text-slate-400 w-4">XP</span>
-                <div className="flex-1 bg-slate-200 h-2 rounded-full overflow-hidden">
+
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-[8px] text-slate-400 w-4">XP</span>
+                <div className="flex-1 bg-slate-200 h-1.5 rounded-full overflow-hidden shadow-inner">
                   <div className="bg-pokeBlue h-full transition-all duration-300" style={{ width: `${Math.min(100, ((activePoke.xp || 0) / ((activePoke.level || 5) * 50)) * 100)}%` }} />
                 </div>
               </div>
+
               {(() => {
                 const stamina = gameState.stamina?.[activePoke?.instanceId]?.value ?? 100;
                 const color  = stamina > 60 ? '#22c55e' : stamina > 30 ? '#f59e0b' : '#ef4444';
                 const emoji  = stamina > 60 ? '🟢' : stamina > 30 ? '🟡' : stamina > 0 ? '🔴' : '💀';
                 return (
-                  <div className="mt-0.5">
-                    <div className="flex items-center justify-between mb-0.5 flex-row-reverse text-right">
-                      <span className="text-[7px] font-black text-slate-400 uppercase">ENERGIA {emoji}</span>
-                      <span className="text-[7px] font-black" style={{ color }}>{Math.floor(stamina)}%</span>
+                  <div className="mt-1">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span className="text-[8px] text-slate-400 uppercase tracking-tighter">ENERGIA {emoji}</span>
+                      <span className="text-[8px]" style={{ color }}>{Math.floor(stamina)}%</span>
                     </div>
                     <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden shadow-inner">
                       <div className="h-full rounded-full transition-all duration-500" style={{ width: `${stamina}%`, background: color }} />
                     </div>
-                    {stamina <= 0 && (
-                      <div className="mt-1 bg-red-500/20 border border-red-500/40 rounded-xl px-1.5 py-1">
-                        <p className="text-red-400 text-[7px] font-black uppercase text-center animate-pulse">😵 Exausto</p>
-                      </div>
-                    )}
                   </div>
                 );
               })()}
-              <div className="flex justify-end mt-1">
+              
+              <div className="flex justify-between items-center mt-1.5 min-h-[12px]">
                 <StatusBadges status={activePoke.status || []} stages={activePoke.stages || {}} />
+                {gameState.stamina?.[activePoke?.instanceId]?.value <= 0 && (
+                  <span className="text-red-500 text-[8px] font-black uppercase animate-pulse">😵 Exausto</span>
+                )}
               </div>
             </div>
           ) : <div className="text-white bg-black/50 px-3 py-2 rounded-xl italic text-[10px]">Aguardando...</div>}
