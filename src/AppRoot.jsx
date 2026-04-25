@@ -3670,56 +3670,72 @@ export default function App() {
     <div className={`app-shell ${gameState.settings?.displayMode === 'pc' ? 'pc-mode' : ''}`}>
       {(!loading && user) ? (
         <>
-          <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-2 bg-red-600 shadow-lg max-w-md mx-auto">
-            {/* Esquerda â€” sempre visível */}
-            <div className="flex items-center gap-2">
+          {/* ⛔ PROTECTED: Header principal — NÃO ALTERAR ESTRUTURA, CORES OU POSICIONAMENTO SEM AUTORIZAÇÃO */}
+          <header style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            background: '#dc2626',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '8px 16px',
+            minHeight: '56px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+          }}>
+            {/* Esquerda — Logo */}
+            <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
               <img
                 src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
-                className="w-6 h-6 object-contain"
-                alt="PokéCraft"
+                style={{width:'28px', height:'28px', objectFit:'contain'}}
+                alt=""
               />
-              <span className="text-white font-black text-sm uppercase tracking-tight leading-none">
-                POKÉCRAFT<br/>
-                <span className="text-yellow-300 text-[10px]">IDLE</span>
-              </span>
+              <div style={{lineHeight:1}}>
+                <div style={{color:'white', fontWeight:900, fontSize:'14px', textTransform:'uppercase', letterSpacing:'1px'}}>
+                  POKÉCRAFT
+                </div>
+                <div style={{color:'#fde047', fontWeight:900, fontSize:'10px', textTransform:'uppercase', letterSpacing:'2px'}}>
+                  IDLE
+                </div>
+              </div>
             </div>
 
-            {/* Centro â€” moeda e período SOMENTE em rotas e lojas */}
+            {/* Centro — moeda e período SOMENTE em batalhas/lojas */}
             {(isInRoute || isInShop) && (
-              <div className="flex items-center gap-2">
-                <span className="text-yellow-300 font-black text-xs">
-                  ðŸ’° {(gameState.currency || 0).toLocaleString()}
+              <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                <span style={{color:'#fde047', fontWeight:900, fontSize:'12px'}}>
+                  💰 {(gameState.currency || 0).toLocaleString()}
                 </span>
-                <span className="text-white/70 text-[10px] font-bold uppercase">
+                <span style={{color:'rgba(255,255,255,0.7)', fontSize:'10px', fontWeight:700}}>
                   {TIME_CONFIG[timeOfDay]?.emoji} {TIME_CONFIG[timeOfDay]?.label}
                 </span>
               </div>
             )}
 
-            {/* Direita â€” sempre visível quando isInGame */}
+            {/* Direita — botões SOMENTE in-game */}
             {isInGame && (
-              <div className="flex items-center gap-2">
-                {/* Música */}
+              <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
                 <button
                   onClick={() => toggleMute()}
-                  className="bg-white/20 hover:bg-white/30 text-white p-1.5 rounded-xl transition-all"
+                  style={{background:'rgba(255,255,255,0.2)', border:'none', borderRadius:'12px', padding:'6px', cursor:'pointer', color:'white', fontSize:'16px'}}
                 >
-                  {muted ? 'ðŸ”‡' : 'ðŸŽµ'}
+                  {muted ? '🔇' : '🎵'}
                 </button>
-                {/* Voltar para HOME */}
                 <button
                   onClick={() => showConfirm({
-                    type: 'confirm',
-                    title: 'Voltar para o início?',
-                    message: 'Seu progresso foi salvo automaticamente.',
-                    confirmLabel: 'Voltar',
-                    cancelLabel: 'Continuar',
-                    onConfirm: () => { closeConfirm(); setCurrentView('landing'); },
+                    type:'confirm',
+                    title:'Voltar ao início?',
+                    message:'Seu progresso foi salvo.',
+                    confirmLabel:'Voltar',
+                    cancelLabel:'Continuar',
+                    onConfirm:() => { closeConfirm(); setCurrentView('landing'); },
                     onCancel: closeConfirm,
                   })}
-                  className="bg-white/20 hover:bg-white/30 text-white p-1.5 rounded-xl transition-all"
+                  style={{background:'rgba(255,255,255,0.2)', border:'none', borderRadius:'12px', padding:'6px', cursor:'pointer', color:'white', fontSize:'16px'}}
                 >
-                  ðŸ 
+                  🏠
                 </button>
               </div>
             )}
