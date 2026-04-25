@@ -3446,7 +3446,7 @@ export default function App() {
                   "Parece que Bulbasaur, Charmander e outros iniciais estão aparecendo raramente por aqui. Fique atento!"
                 </p>
                 <div className="bg-amber-50 p-4 rounded-2xl border-2 border-amber-200 mb-4">
-                   <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Desbloqueio Especial </p>
+                   <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Desbloqueio Especial  </p>
                    <p className="text-xs font-bold text-slate-800 uppercase mt-1 italic">Iniciais Raríssimos agora aparecem nas Rotas 1, 22 e Floresta!</p>
                 </div>
                 <button
@@ -3479,7 +3479,7 @@ export default function App() {
                    }}
                    className="group bg-white p-8 rounded-[3rem] border-4 border-slate-200 hover:border-red-400 transition-all shadow-xl hover:shadow-red-100 flex flex-col items-center gap-4 active:scale-95"
                  >
-                    <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">🚀ÂËœ</div>
+                    <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">🚀Â Ëœ </div>
                     <div>
                        <h3 className="font-black text-xl text-slate-800 uppercase italic">Cidade de Pallet</h3>
                        <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Descansar e Preparar</p>
@@ -3539,62 +3539,118 @@ export default function App() {
           />
 
           {/* Modal do Prof. Carvalho sobre a Casa */}
-          {showOakHouseModal && (
-            <div className="absolute inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
-              <div className="w-full max-w-xl bg-white rounded-[4rem] overflow-hidden shadow-2xl animate-bounceIn border-b-[12px] border-slate-200">
-                <div className="bg-amber-50 p-10">
-                  <div className="flex items-center gap-6 mb-6">
+                    {showOakHouseModal && (
+            <div style={{
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              zIndex: 9999,
+              background: 'rgba(0,0,0,0.7)',
+              backdropFilter: 'blur(6px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '16px',
+            }}>
+              <div style={{
+                width: '100%',
+                maxWidth: '400px',
+                maxHeight: '85vh',
+                background: 'white',
+                borderRadius: '24px',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
+              }}>
+          
+                {/* Header âmbar */}
+                <div style={{background:'#92400e', padding:'20px 20px 16px 20px', flexShrink:0}}>
+                  <p style={{color:'rgba(255,255,255,0.7)', fontSize:'10px', fontWeight:700, textTransform:'uppercase', letterSpacing:'2px', margin:'0 0 2px 0'}}>
+                    Professor Carvalho
+                  </p>
+                  <h3 style={{color:'white', fontSize:'16px', fontWeight:900, fontStyle:'italic', margin:0}}>
+                    "Sua jornada merece uma base!"
+                  </h3>
+                </div>
+          
+                {/* Conteúdo com scroll */}
+                <div style={{flex:1, overflowY:'auto', padding:'16px 20px'}}>
+          
+                  {/* Sprite + texto */}
+                  <div style={{display:'flex', gap:'12px', alignItems:'flex-start', marginBottom:'16px'}}>
                     <img
                       src="https://play.pokemonshowdown.com/sprites/trainers/oak.png"
-                      className="w-24 h-24 object-contain"
+                      style={{width:'64px', height:'64px', objectFit:'contain', flexShrink:0}}
                       alt="Prof. Carvalho"
                     />
-                    <div>
-                      <p className="text-amber-900 text-[10px] font-black uppercase tracking-widest">Professor Carvalho</p>
-                      <p className="text-amber-800 font-black text-2xl italic leading-tight">
-                        "Sua jornada merece uma base!"
-                      </p>
-                    </div>
+                    <p style={{fontSize:'13px', color:'#78350f', fontWeight:600, lineHeight:1.6, margin:0}}>
+                      Parabéns por vencer o Ginásio de Pewter! Você está crescendo como treinador.
+                      Que tal ter sua própria casa? Lá você pode cultivar Berries e Apricorns para
+                      fabricar Pokébolas especiais e itens raros. Com Pokémon de Grama e Água como
+                      cuidadores, suas plantações crescerão muito mais rápido!
+                    </p>
                   </div>
-                  <p className="text-amber-900 text-sm leading-relaxed mb-6 font-medium">
-                    Parabéns por vencer o Ginásio de Pewter! Você está crescendo como treinador.
-                    Que tal ter sua própria casa? Lá você pode cultivar Berries e Apricorns para
-                    fabricar Pokébolas especiais e itens raros. Com Pokémon de Grama e íÂ gua como
-                    cuidadores, suas plantaçííµes crescerão muito mais rápido!
-                  </p>
-                  <div className="bg-white/60 rounded-3xl p-5 mb-6 border-2 border-amber-200 shadow-inner">
-                    <p className="text-amber-800 font-black text-lg flex items-center gap-2">🚀ÂÂ  Custo da Casa</p>
-                    <div className="flex justify-between items-center mt-2">
-                       <p className="text-amber-900 text-sm font-bold">
-                          💰 {HOUSE_PURCHASE_COST.toLocaleString()} coins
-                       </p>
-                       <p className="text-amber-700 text-xs font-black uppercase tracking-widest">4 canteiros iniciais</p>
+          
+                  {/* Card de custo */}
+                  <div style={{
+                    background:'#fffbeb', borderRadius:'16px',
+                    padding:'14px 16px', marginBottom:'16px',
+                    border:'1px solid #fde68a',
+                  }}>
+                    <p style={{fontSize:'12px', fontWeight:900, color:'#92400e', margin:'0 0 8px 0'}}>
+                      🏠 Custo da Casa
+                    </p>
+                    <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                      <span style={{fontSize:'14px', fontWeight:900, color:'#92400e'}}>
+                        💰 {(HOUSE_PURCHASE_COST || 5000).toLocaleString()} coins
+                      </span>
+                      <span style={{fontSize:'10px', fontWeight:700, color:'#b45309'}}>
+                        4 canteiros iniciais
+                      </span>
                     </div>
-                    <div className={`mt-3 p-3 rounded-xl font-black text-xs uppercase text-center ${(gameState.currency || 0) >= HOUSE_PURCHASE_COST ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                    <div style={{
+                      marginTop:'10px', padding:'8px 12px',
+                      borderRadius:'10px', textAlign:'center',
+                      background: (gameState.currency || 0) >= HOUSE_PURCHASE_COST ? '#dcfce7' : '#fee2e2',
+                      color: (gameState.currency || 0) >= HOUSE_PURCHASE_COST ? '#166534' : '#991b1b',
+                      fontSize:'11px', fontWeight:900, textTransform:'uppercase',
+                    }}>
                       {(gameState.currency || 0) >= HOUSE_PURCHASE_COST
-                        ? "íÂ¢íâ€šÅ“íâ€šâ€¦ Você tem coins suficientes!"
-                        : `L Falta ${(HOUSE_PURCHASE_COST - (gameState.currency || 0)).toLocaleString()} coins`}
+                        ? '✅ Você tem coins suficientes!'
+                        : `❌ Falta ${((HOUSE_PURCHASE_COST || 5000) - (gameState.currency || 0)).toLocaleString()} coins`
+                      }
                     </div>
                   </div>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => setShowOakHouseModal(false)}
-                      className="flex-1 bg-slate-200 text-slate-700 py-5 rounded-2xl font-black uppercase text-sm hover:bg-slate-300 transition-all"
-                    >
-                      Depois
-                    </button>
-                    <button
-                      onClick={handleBuyHouse}
-                      disabled={(gameState.currency || 0) < HOUSE_PURCHASE_COST}
-                      className={`flex-[2] py-5 rounded-2xl font-black uppercase text-sm shadow-xl transition-all active:scale-95 ${
-                        (gameState.currency || 0) >= HOUSE_PURCHASE_COST
-                          ? "bg-amber-500 text-white hover:bg-amber-400"
-                          : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
-                      }`}
-                    >
-                      🚀ÂÂ  Comprar Casa!
-                    </button>
-                  </div>
+                </div>
+          
+                {/* Footer — botões */}
+                <div style={{padding:'12px 20px 24px 20px', borderTop:'1px solid #f1f5f9', display:'flex', gap:'10px', flexShrink:0}}>
+                  <button
+                    onClick={() => setShowOakHouseModal(false)}
+                    style={{
+                      flex:1, padding:'16px', borderRadius:'16px',
+                      background:'#f1f5f9', color:'#475569',
+                      fontWeight:900, fontSize:'14px',
+                      textTransform:'uppercase', border:'none', cursor:'pointer',
+                    }}
+                  >
+                    Depois
+                  </button>
+                  <button
+                    onClick={handleBuyHouse}
+                    disabled={(gameState.currency || 0) < HOUSE_PURCHASE_COST}
+                    style={{
+                      flex:2, padding:'16px', borderRadius:'16px',
+                      background: (gameState.currency || 0) >= HOUSE_PURCHASE_COST ? '#d97706' : '#e2e8f0',
+                      color: (gameState.currency || 0) >= HOUSE_PURCHASE_COST ? 'white' : '#94a3b8',
+                      fontWeight:900, fontSize:'14px',
+                      textTransform:'uppercase', border:'none',
+                      cursor: (gameState.currency || 0) >= HOUSE_PURCHASE_COST ? 'pointer' : 'not-allowed',
+                      boxShadow: (gameState.currency || 0) >= HOUSE_PURCHASE_COST ? '0 4px 12px rgba(217,119,6,0.3)' : 'none',
+                    }}
+                  >
+                    🏠 Comprar Casa!
+                  </button>
                 </div>
               </div>
             </div>

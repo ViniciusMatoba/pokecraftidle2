@@ -183,7 +183,17 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
   };
   
   return (
-    <div className="absolute inset-0 z-[300] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-fadeIn" onClick={onClose}>
+    <div style={{
+      position: 'fixed',
+      top: 0, left: 0, right: 0, bottom: 0,
+      zIndex: 9999,
+      background: 'rgba(0,0,0,0.85)',
+      backdropFilter: 'blur(8px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '16px',
+    }} onClick={onClose}>
       {alertReq && (
         <GymAlertModal 
           req={formatReq(alertReq)} 
@@ -191,17 +201,42 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
           onGo={() => { handleReqClick(alertReq); setAlertReq(null); }} 
         />
       )}
-      <div 
-        className="bg-slate-900 w-full max-w-md rounded-[3rem] shadow-2xl overflow-hidden border-2 border-white/10 animate-bounceIn"
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Header Colorido */}
-        <div className="p-8 pb-4 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${col} 0%, #0f172a 100%)` }}>
+      <div style={{
+        width: '100%',
+        maxWidth: '400px',
+        maxHeight: '85vh',
+        background: '#0f172a',
+        borderRadius: '24px',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: '0 8px 40px rgba(0,0,0,0.5)',
+        border: '1px solid rgba(255,255,255,0.1)',
+      }} onClick={e => e.stopPropagation()}>
+        {/* Header — flexShrink 0 */}
+        <div className="relative overflow-hidden shrink-0" style={{ padding: '40px 24px 24px', background: `linear-gradient(135deg, ${col} 0%, #0f172a 100%)` }}>
           <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12">
              <img src={gym.badgeImg || gym.typeIcon} className="w-32 h-32" alt="" />
           </div>
           
-          <button onClick={onClose} className="absolute top-6 right-6 text-white/40 hover:text-white text-2xl font-black transition-all"></button>
+          <button onClick={onClose} style={{
+            position: 'absolute',
+            top: '12px',
+            right: '12px',
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            background: 'rgba(0,0,0,0.3)',
+            border: '2px solid rgba(255,255,255,0.3)',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: 900,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10,
+          }}>✕</button>
           
           <div className="relative z-10 text-left">
             <h3 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-none mb-2">{gym.name}</h3>
@@ -215,8 +250,10 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
           </div>
         </div>
 
-        {/* Citação */}
-        <div className="px-8 py-6 bg-black/20 italic text-white/70 text-sm font-bold border-b border-white/5 text-left">
+        {/* Conteúdo com scroll */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
+          {/* Citação */}
+          <div className="px-8 py-6 bg-black/20 italic text-white/70 text-sm font-bold border-b border-white/5 text-left">
           "{gym.quote}"
         </div>
 
@@ -277,18 +314,27 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
 
             {/* Botão Ação */}
             <div className="mt-8 flex flex-col gap-3">
-               {!locked && (
-                 <button 
-                   onClick={() => { onChallenge(gym); onClose(); }}
-                   className={`w-full py-5 rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-xl active:scale-95 border-b-8 ${
-                     earned 
-                     ? 'bg-emerald-600 text-white hover:bg-emerald-500 border-emerald-800' 
-                     : 'bg-white text-slate-900 hover:bg-yellow-400 border-slate-200'
-                   }`}
-                 >
-                   {earned ? '🔥 Desafiar Novamente (Rematch)' : '⚔️ Desafiar Agora!'}
-                 </button>
-               )}
+                {!locked && (
+                  <button 
+                    onClick={() => { onChallenge(gym); onClose(); }}
+                    style={{
+                      width: '100%',
+                      padding: '16px',
+                      borderRadius: '16px',
+                      border: 'none',
+                      fontWeight: 900,
+                      fontSize: '15px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px',
+                      cursor: 'pointer',
+                      background: earned ? '#059669' : col,  // ← cor do tipo do ginásio
+                      color: 'white',
+                      boxShadow: `0 4px 12px ${col}66`,
+                    }}
+                  >
+                    {earned ? '🔥 Desafiar Novamente (Rematch)' : '⚔️ Desafiar Agora!'}
+                  </button>
+                )}
                {locked && (
                  <button 
                    onClick={() => {
@@ -301,6 +347,7 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
                  </button>
                )}
             </div>
+          </div>
         </div>
       </div>
     </div>
