@@ -330,39 +330,6 @@ export default function App() {
 
   // Trigger de notificação ao mudar de rota com auto-captura ativa
   const lastNotifiedRouteRef = useRef(null);
-  useEffect(() => {
-    if (currentView !== 'battles' || !gameState.currentRoute) {
-      if (currentView !== 'battles') lastNotifiedRouteRef.current = null;
-      return;
-    }
-
-    if (gameState.autoCapture && lastNotifiedRouteRef.current !== gameState.currentRoute) {
-      lastNotifiedRouteRef.current = gameState.currentRoute;
-      const routeName = ROUTES[gameState.currentRoute]?.name || 'nova rota';
-
-      notify({
-        type: 'warning',
-        title: 'Auto-Captura Ativa!',
-        message: `Você entrou em ${routeName}. Verifique as configurações de captura!`,
-        duration: 5000,
-      });
-
-      setTimeout(() => {
-        showConfirm({
-          type: 'confirm',
-          title: 'Reconfigurar Auto-Captura?',
-          message: `Você entrou em ${routeName}. Deseja revisar as configurações de captura para esta rota?`,
-          confirmLabel: 'Configurar agora',
-          cancelLabel: 'Manter atual',
-          onConfirm: () => {
-            closeConfirm();
-            setShowAutoCaptureModal(true);
-          },
-          onCancel: closeConfirm,
-        });
-      }, 1000);
-    }
-  }, [gameState.currentRoute, currentView, gameState.autoCapture]);
 
   const goToCity = (fromBattle = false) => {
     handleGoToCity();
@@ -2073,22 +2040,7 @@ export default function App() {
     addLog('🚀â€Â´ Auto-captura desativada nesta rota.', 'system');
   }, [gameState.currentRoute, addLog]);
 
-  // Disparar modal ao entrar em nova rota
-  useEffect(() => {
-    const routeId = gameState.currentRoute;
-    const route = processedRoutes[routeId];
-    const config = gameState.autoCaptureConfig;
-
-    if (
-      config?.enabled &&
-      route?.type === 'farm' &&
-      route?.enemies?.length > 0 &&
-      !config?.shownRoutes?.includes(routeId)
-    ) {
-      const timer = setTimeout(() => setShowAutoCaptureModal(true), 800);
-      return () => clearTimeout(timer);
-    }
-  }, [gameState.currentRoute, gameState.autoCaptureConfig, processedRoutes]);
+  // Disparar modal ao entrar em nova rota (desativado automaticamente)
   // ───────────────────────────────────────────────────────────────────
 
   // Comprar a casa
@@ -4103,14 +4055,25 @@ export default function App() {
                                 className="w-8 h-8 object-contain" 
                                 alt={poke.name} 
                               />
-                              {poke.count > 1 && (
-                                <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow-sm">
-                                  {poke.count}
-                                </span>
-                              )}
                             </div>
-                            <span className="font-black text-slate-800 text-[11px] uppercase tracking-tighter">{poke.name}</span>
-                            {poke.isShiny && <span className="ml-auto text-[8px] bg-yellow-100 text-yellow-700 font-extrabold px-2 py-0.5 rounded-full border border-yellow-200">✨ SHINY</span>}
+                            <div style={{flex:1}}>
+                              <p style={{fontSize:'12px', fontWeight:900, color:'#1e293b', margin:0}}>
+                                {poke.name}
+                                {poke.count > 1 && (
+                                  <span style={{
+                                    fontWeight:700,
+                                    color:'#64748b',
+                                    fontSize:'11px',
+                                    marginLeft:'6px',
+                                  }}>
+                                    x{poke.count}
+                                  </span>
+                                )}
+                                {poke.isShiny && (
+                                  <span style={{marginLeft:'6px', fontSize:'10px', color:'#f59e0b'}}>✨</span>
+                                )}
+                              </p>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -4187,29 +4150,23 @@ export default function App() {
             <button onClick={() => menuUnlocked && setCurrentView('vs')}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${['vs','gyms','challenges'].includes(currentView) ? 'text-yellow-600' : 'text-slate-400'}`}>
+              <span className="text-[9px] font-black uppercase mb-0.5">Modo VS</span>
               <img
                 src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/boulder-badge.png"
                 className="w-7 h-7 object-contain" alt=""
                 onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML += '<span style="font-size:24px">⚔️ </span>'; }}
               />
-              <span className="text-[9px] font-black uppercase mt-0.5">Modo VS</span>
             </button>
 
             <button onClick={() => menuUnlocked && handleGoToCity()}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${currentView === 'city' ? 'text-indigo-600' : 'text-slate-400'}`}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <path d="M3 21h18" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M3 7l9-4 9 4" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"/>
-                <rect x="4" y="7" width="4" height="14" fill="#818cf8" rx="0.5"/>
-                <rect x="16" y="7" width="4" height="14" fill="#818cf8" rx="0.5"/>
-                <rect x="9" y="12" width="6" height="9" fill="#4f46e5" rx="0.5"/>
-                <rect x="10.5" y="8.5" width="1.5" height="1.5" fill="#fbbf24" rx="0.2"/>
-                <rect x="13" y="8.5" width="1.5" height="1.5" fill="#fbbf24" rx="0.2"/>
-                <rect x="6" y="9" width="1.5" height="1.5" fill="#fbbf24" rx="0.2"/>
-                <rect x="6" y="12" width="1.5" height="1.5" fill="#fbbf24" rx="0.2"/>
-                <rect x="17" y="9" width="1.5" height="1.5" fill="#fbbf24" rx="0.2"/>
-                <rect x="17" y="12" width="1.5" height="1.5" fill="#fbbf24" rx="0.2"/>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 21h18"/>
+                <path d="M3 7l9-4 9 4"/>
+                <path d="M4 7v14M20 7v14"/>
+                <path d="M9 21V12h6v9"/>
+                <path d="M9 7h.01M15 7h.01"/>
               </svg>
               <span className="text-[9px] font-black uppercase mt-0.5">Cidade</span>
             </button>
@@ -4217,9 +4174,11 @@ export default function App() {
             <button onClick={() => menuUnlocked && setCurrentView('menu')}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${currentView === 'menu' ? 'text-slate-800' : 'text-slate-400'}`}>
-              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pokedex.png"
+              <img
+                src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pokedex.png"
                 className="w-7 h-7 object-contain" alt=""
-                onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML += '<span style="font-size:22px">📱</span>'; }} />
+                onError={e => { e.target.style.display='none'; }}
+              />
               <span className="text-[9px] font-black uppercase mt-0.5">Menu</span>
             </button>
 
@@ -4971,15 +4930,7 @@ export default function App() {
            </div>
         </div>
       )}
-      {showAutoCaptureModal && (
-        <AutoCaptureModal
-          route={processedRoutes[gameState.currentRoute]}
-          gameState={gameState}
-          onSave={handleSaveAutoCaptureConfig}
-          onClose={() => setShowAutoCaptureModal(false)}
-          onDisable={handleDisableAutoCapture}
-        />
-      )}
+
 
       {/* Modal de confirmação global */}
       {confirmModal && (
@@ -4994,6 +4945,7 @@ export default function App() {
         />
       )}
 
+      {/* ⛔ PROTECTED: Modal Painel Automatico — NAO ALTERAR SEM AUTORIZAÇÃO */}
       {showAutoConfigModal && (
         <div
           style={{
