@@ -73,6 +73,8 @@ export default function App() {
     toggleMute, isMuted, muted 
   } = useSound();
 
+  const lastLevelUpRef = useRef({});
+
   const loadGameState = async (uid) => {
     try {
       const docRef = doc(db, "saves", uid);
@@ -2531,7 +2533,12 @@ export default function App() {
 
           const newLevel = (p.level || 5) + 1;
           addLog(`🎉 ${p.name} subiu para Nv. ${newLevel}!`, 'system');
-          notify({ type: 'level_up', title: `${p.name} subiu para Nv.${newLevel}!`, message: 'Continue treinando!' });
+          const levelKey = `${p.name}_${newLevel}`;
+          if (!lastLevelUpRef.current[levelKey]) {
+            lastLevelUpRef.current[levelKey] = true;
+            notify({ type: 'level_up', title: `${p.name} subiu para Nv.${newLevel}!`, message: 'Continue treinando!' });
+            setTimeout(() => { delete lastLevelUpRef.current[levelKey]; }, 3000);
+          }
           sfxLevelUp();
 
           let newMoves = [...(p.moves || [])];

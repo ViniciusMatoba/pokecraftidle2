@@ -38,7 +38,18 @@ const NotificationSystem = () => {
   }, [addNotification]);
 
   return (
-    <div className="fixed top-4 right-4 z-[300] flex flex-col gap-2 max-w-[280px]">
+    <div style={{
+      position: 'absolute',
+      top: '100px',
+      right: '12px',
+      zIndex: 300,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px',
+      pointerEvents: 'none',
+      maxWidth: '260px',
+      width: '100%',
+    }}>
       {notifications.map(n => {
         const cfg = NOTIF_COLORS[n.type] || NOTIF_COLORS.info;
         return (
