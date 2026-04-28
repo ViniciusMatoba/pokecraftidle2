@@ -113,7 +113,7 @@ export const ROUTES = {
     id: 'viridian_forest', name: 'Floresta de Viridian', type: 'farm', group: 'Viridian City',
     unlockLevel: 5, requirements: ['has_starter', 'rival_1_defeated'],
     biome: 'forest',
-    enemies: pk([10, 13, 11, 14], 6),
+    enemies: pk([10, 13], 6),
     trainerChance: 0.05,
     trainers: [
       { name: 'Bug Catcher Rick',    sprite: S.bugcatcher, team: pk([10, 13], 6),      reward: 90  },
@@ -139,7 +139,7 @@ export const ROUTES = {
     id: 'route_3', name: 'Rota 3', type: 'farm', group: 'Pewter City',
     unlockLevel: 12, requirements: ['boulder_badge'],
     biome: 'grass',
-    enemies: pk([21, 39, 11, 14, 29, 32], 10),
+    enemies: pk([21, 39, 29, 32], 10),
     trainerChance: 0.05,
     trainers: [
       { name: 'Lass Janice',         sprite: S.lass,       team: pk([39, 16], 10),   reward: 180 },
@@ -502,7 +502,7 @@ export const ROUTES = {
     id: 'johto_route_29', name: 'Rota 29', type: 'farm', group: 'New Bark Town',
     unlockLevel: 60, requirements: ['johto_started'], unlocks: 'johto_route_29_cleared',
     biome: 'grass',
-    enemies: pk([161, 162, 163, 164, 165, 167, 179, 187, 172], 4),
+    enemies: pk([161, 163, 165, 167, 179, 187, 172], 4),
     trainerChance: 0.06,
     trainers: [
       { name: 'Youngster Mikey', sprite: S.youngster, team: pk([161, 165], 5), reward: 120 },
@@ -525,7 +525,7 @@ export const ROUTES = {
     id: 'johto_route_30', name: 'Rota 30', type: 'farm', group: 'Cherrygrove City',
     unlockLevel: 62, requirements: ['johto_rival_1_defeated'],
     biome: 'forest',
-    enemies: pk([10, 11, 13, 14, 16, 163, 165, 167, 187, 175], 7),
+    enemies: pk([10, 13, 16, 163, 165, 167, 187, 175], 7),
     trainerChance: 0.07,
     trainers: [
       { name: 'Bug Catcher Don', sprite: S.bugcatcher, team: pk([10, 13, 165], 8), reward: 160 },
@@ -622,7 +622,7 @@ export const ROUTES = {
     id: 'slowpoke_well', name: 'Poco Slowpoke', type: 'farm', group: 'Azalea Town',
     unlockLevel: 64, requirements: ['johto_slowpoke_well_cleared'],
     biome: 'cave',
-    enemies: pk([41, 42, 79, 199, 194, 195], 16),
+    enemies: pk([41, 79, 194], 16),
     trainerChance: 0.05,
     trainers: [
       { name: 'Rocket Lookout', sprite: S.rocket, team: pk([41, 109], 18), reward: 420 },

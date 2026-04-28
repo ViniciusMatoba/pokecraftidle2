@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { hasProgressRequirement } from '../utils/progress';
+import { TYPE_COLOR_HEX } from '../data/gyms';
 
 const CHALLENGES = [
   // RIVAIS
@@ -299,6 +300,7 @@ const CHALLENGES = [
     region: 'johto',
     id: 'johto_falkner',
     category: 'johto',
+    type: 'Flying',
     name: 'Falkner',
     subtitle: 'Insignia Zephyr',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/falkner.png',
@@ -314,6 +316,7 @@ const CHALLENGES = [
     region: 'johto',
     id: 'johto_bugsy',
     category: 'johto',
+    type: 'Bug',
     name: 'Bugsy',
     subtitle: 'Insignia Hive',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/bugsy.png',
@@ -329,6 +332,7 @@ const CHALLENGES = [
     region: 'johto',
     id: 'johto_whitney',
     category: 'johto',
+    type: 'Normal',
     name: 'Whitney',
     subtitle: 'Insignia Plain',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/whitney.png',
@@ -344,6 +348,7 @@ const CHALLENGES = [
     region: 'johto',
     id: 'johto_morty',
     category: 'johto',
+    type: 'Ghost',
     name: 'Morty',
     subtitle: 'Insignia Fog',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/morty.png',
@@ -359,6 +364,7 @@ const CHALLENGES = [
     region: 'johto',
     id: 'johto_chuck',
     category: 'johto',
+    type: 'Fighting',
     name: 'Chuck',
     subtitle: 'Insignia Storm',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/chuck.png',
@@ -374,6 +380,7 @@ const CHALLENGES = [
     region: 'johto',
     id: 'johto_jasmine',
     category: 'johto',
+    type: 'Steel',
     name: 'Jasmine',
     subtitle: 'Insignia Mineral',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/jasmine.png',
@@ -404,6 +411,7 @@ const CHALLENGES = [
     region: 'johto',
     id: 'johto_pryce',
     category: 'johto',
+    type: 'Ice',
     name: 'Pryce',
     subtitle: 'Insignia Glacier',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/pryce.png',
@@ -419,6 +427,7 @@ const CHALLENGES = [
     region: 'johto',
     id: 'johto_clair',
     category: 'johto',
+    type: 'Dragon',
     name: 'Clair',
     subtitle: 'Insignia Rising',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/clair.png',
@@ -1105,7 +1114,12 @@ const ChallengesScreen = ({
                 className={`relative rounded-[1.75rem] overflow-hidden shadow-xl transition-all border border-white/10 ${
                   unlocked && !defeated ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]' : 'grayscale cursor-not-allowed opacity-60'
                 }`}
-                style={{ background: challenge.background || challenge.bg, minHeight: '116px' }}
+                style={{ 
+                  background: (challenge.category === 'johto' && challenge.type && TYPE_COLOR_HEX[challenge.type])
+                    ? `linear-gradient(165deg, ${TYPE_COLOR_HEX[challenge.type]} 0%, ${TYPE_COLOR_HEX[challenge.type]}bb 40%, #0a0a15 100%)`
+                    : (challenge.background || challenge.bg), 
+                  minHeight: '116px' 
+                }}
               >
                 <div className="absolute inset-0 pointer-events-none opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                 

@@ -276,7 +276,6 @@ const PokemonManagement = ({
               >
                 <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center relative">
                   <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className="w-14 h-14 object-contain" alt={p.name} />
-                  {p.isShiny && <span className="absolute -top-1 -right-1 text-xs">(</span>}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-start">
