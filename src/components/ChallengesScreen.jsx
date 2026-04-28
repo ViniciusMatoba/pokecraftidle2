@@ -1111,37 +1111,42 @@ const ChallengesScreen = ({
               <div
                 key={challenge.id}
                 onClick={() => unlocked && !defeated && setSelectedChallenge(challenge)}
-                className={`relative rounded-[1.75rem] overflow-hidden shadow-xl transition-all border border-white/10 ${
-                  unlocked && !defeated ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]' : 'grayscale cursor-not-allowed opacity-60'
+                className={`relative rounded-[2.5rem] overflow-hidden shadow-xl transition-all bg-white border-2 ${
+                  unlocked && !defeated ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98] border-slate-100 hover:border-pokeBlue/30' : 'grayscale cursor-not-allowed opacity-60 border-slate-200'
                 }`}
-                style={{ 
-                  background: (challenge.category === 'johto' && challenge.type && TYPE_COLOR_HEX[challenge.type])
-                    ? `linear-gradient(165deg, ${TYPE_COLOR_HEX[challenge.type]} 0%, ${TYPE_COLOR_HEX[challenge.type]}bb 40%, #0a0a15 100%)`
-                    : (challenge.background || challenge.bg), 
-                  minHeight: '116px' 
-                }}
+                style={{ minHeight: '120px' }}
+                onClick={() => unlocked && !defeated && setSelectedChallenge(challenge)}
               >
-                <div className="absolute inset-0 pointer-events-none opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+                {/* Accent de canto */}
+                <div 
+                  className="absolute top-0 right-0 w-32 h-32 -mr-12 -mt-12 rounded-full opacity-15"
+                  style={{ backgroundColor: challenge.category === 'johto' && challenge.type ? (TYPE_COLOR_HEX[challenge.type] || '#555') : '#555' }}
+                />
+
+                <div className="absolute inset-0 pointer-events-none opacity-5" style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                 
                 {defeated && (
-                  <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] z-20 flex items-center justify-center pointer-events-none">
-                    <div className="bg-white/10 border border-white/20 px-6 py-2 rounded-full rotate-[-5deg] shadow-2xl backdrop-blur-md">
-                      <span className="text-white font-black italic uppercase tracking-widest text-sm flex items-center gap-2">
-                         <span className="text-yellow-400">OK</span> CONCLUIDO
+                  <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px] z-20 flex items-center justify-center pointer-events-none">
+                    <div className="bg-white/90 border border-white px-6 py-2 rounded-full rotate-[-5deg] shadow-2xl">
+                      <span className="text-slate-800 font-black italic uppercase tracking-widest text-[10px] flex items-center gap-2">
+                         <span className="text-emerald-500 font-black">✓</span> CONCLUÍDO
                       </span>
                     </div>
                   </div>
                 )}
 
-                <div className="relative z-10 flex items-center gap-4 p-5">
+                <div className="relative z-10 flex items-center gap-4 p-5 text-left">
                   <img src={challenge.sprite} alt={challenge.name} className="w-[72px] h-[72px] object-contain drop-shadow-xl shrink-0" onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'; }} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-white/60 text-[9px] font-black uppercase tracking-widest">{challenge.subtitle}</p>
-                    <h3 className="text-white font-black text-base uppercase italic leading-tight">{challenge.name}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[9px] font-black text-yellow-400 uppercase">{challenge.reward.toLocaleString()} coins</span>
-                      <span className="text-white/30">|</span>
-                      <span className="text-[9px] font-black text-white/50 uppercase">{challenge.team.length} Pokemon</span>
+                    <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest leading-none mb-1">{challenge.subtitle}</p>
+                    <h3 className="text-slate-800 font-black text-lg uppercase italic leading-tight tracking-tighter">{challenge.name}</h3>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className="text-[9px] font-black text-amber-500 uppercase flex items-center gap-1">
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-3 h-3 object-contain" alt="" />
+                        {challenge.reward.toLocaleString()}
+                      </span>
+                      <span className="text-slate-200">|</span>
+                      <span className="text-[9px] font-black text-slate-400 uppercase">{challenge.team.length} Pokemons</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-2">

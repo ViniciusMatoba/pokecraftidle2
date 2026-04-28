@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { TYPE_COLOR_HEX } from '../data/gyms';
 
@@ -66,6 +66,7 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], onBack }) => 
                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} 
                      className="w-12 h-12 object-contain group-hover:scale-110 transition-transform" 
                      alt={p.name} 
+                     loading="lazy"
                    />
                    <span className="text-[9px] font-black uppercase text-slate-600 truncate w-full text-center">{isCaught ? p.name : '???'}</span>
                    {isCaught && <div className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full"></div>}
@@ -123,6 +124,7 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], onBack }) => 
                   src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${displayPoke.isShiny ? 'shiny/' : ''}${displayPoke.id}.png`}
                   className={`absolute left-1/2 top-12 z-10 w-28 h-28 -translate-x-1/2 object-contain drop-shadow-2xl ${isCaught ? '' : 'brightness-0 opacity-25 grayscale blur-[1px]'}`}
                   alt={displayPoke.name}
+                  loading="lazy"
                 />
               </div>
 

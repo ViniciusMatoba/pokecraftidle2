@@ -30,7 +30,7 @@ const RECIPE_FRAGMENT_DROPS = {
   93: 'recipe_cleanse_tag',
 };
 import { TYPE_COLOR_HEX } from '../data/gyms';
-import { NIGHT_ONLY_POKEMON, TIME_CONFIG } from '../utils/timeSystem';
+import { NIGHT_ONLY_POKEMON, TIME_CONFIG, getTimeOfDay } from '../utils/timeSystem';
 import { hasProgressRequirement } from '../utils/progress';
 
 const TravelScreen = ({ 
@@ -52,6 +52,16 @@ const TravelScreen = ({
   const [selectedDrop, setSelectedDrop] = React.useState(null);
   const [routeRegionTab, setRouteRegionTab] = React.useState('kanto');
   const [alertMessage, setAlertMessage] = React.useState(null);
+  const [activePeriodTab, setActivePeriodTab] = React.useState(null);
+
+  // Define o período inicial baseado no tempo atual ao abrir o modal
+  React.useEffect(() => {
+    if (selectedRoute && !activePeriodTab) {
+      setActivePeriodTab(getTimeOfDay());
+    } else if (!selectedRoute) {
+      setActivePeriodTab(null);
+    }
+  }, [selectedRoute]);
 
   const isRouteUnlocked = (route) => checkRouteUnlocked(route, gameState);
   const kantoChampion = (gameState.worldFlags || []).includes('champion');
@@ -71,6 +81,14 @@ const TravelScreen = ({
       setRouteRegionTab('johto');
     }
   }, [kantoChampion, johtoStarted, gameState.currentRoute, ROUTES]);
+
+  // ===== PRELOADER DE BACKGROUND DA ROTA =====
+  React.useEffect(() => {
+    if (selectedRoute?.background) {
+      const img = new Image();
+      img.src = fixPath(selectedRoute.background);
+    }
+  }, [selectedRoute, fixPath]);
   const periodOrder = ['morning', 'day', 'evening', 'night'];
   const periodHours = {
     morning: '05:00 - 09:59',
@@ -95,6 +113,7 @@ const TravelScreen = ({
         : [];
       const unique = new Map();
       [...baseEnemies, ...extras].forEach(p => {
+        if (!p || p.id === undefined) return;
         const id = Number(p.id);
         if (!Number.isNaN(id) && !unique.has(id)) unique.set(id, { ...p, id });
       });
@@ -271,12 +290,19 @@ const TravelScreen = ({
         if (setVsInitialTab) setVsInitialTab('challenges');
         if (setVsInitialCategory) setVsInitialCategory(req.includes('rival_') ? 'rival' : 'rocket');
         if (setVsInitialRegion) setVsInitialRegion('johto');
-      } else {
-        if (setVsInitialTab) setVsInitialTab(req === 'johto_started' ? 'challenges' : 'gyms');
-        if (setVsInitialCategory) setVsInitialCategory(req === 'johto_started' ? 'johto' : 'johto');
+        setCurrentView('vs');
+      } else if (req.includes('_badge') || req.includes('gym_') || req.includes('clear')) {
+        if (setVsInitialTab) setVsInitialTab('gyms');
+        if (setVsInitialCategory) setVsInitialCategory('johto');
         if (setVsInitialRegion) setVsInitialRegion('johto');
+        setCurrentView('vs');
+      } else if (req === 'johto_started') {
+        setCurrentView('city');
+      } else {
+        if (setVsInitialTab) setVsInitialTab('gyms');
+        if (setVsInitialRegion) setVsInitialRegion('johto');
+        setCurrentView('vs');
       }
-      setCurrentView(req === 'johto_started' ? 'city' : 'vs');
       setSelectedRoute(null);
     } else if (req.includes('rival_') || req.includes('rocket_hideout') || req.includes('silph_co') || req.includes('tower_cleared') || req === 'viridian_forest_cleared') {
       if (setVsInitialTab) setVsInitialTab('challenges');
@@ -463,51 +489,73 @@ const TravelScreen = ({
                     <span className="text-[9px] font-bold text-slate-400 italic">Toque para detalhes</span>
                   </div>
                   <div className="flex flex-col gap-4">
-                    {getRouteEncountersByPeriod(selectedRoute).map(period => (
-                      <div key={period.id} className="bg-white rounded-3xl border-2 border-slate-100 p-3 shadow-sm">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-9 h-9 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0">
-                               <span className="text-xl leading-none">{period.icon}</span>
+                    {/* Tabs de Período */}
+                    <div className="flex p-1 bg-slate-200/50 rounded-2xl gap-1">
+                      {getRouteEncountersByPeriod(selectedRoute).map(period => (
+                        <button
+                          key={period.id}
+                          onClick={() => setActivePeriodTab(period.id)}
+                          className={`flex-1 flex flex-col items-center py-2 rounded-xl transition-all ${
+                            activePeriodTab === period.id 
+                              ? 'bg-white shadow-md scale-[1.02] text-slate-800' 
+                              : 'text-slate-400 hover:bg-white/30'
+                          }`}
+                        >
+                          <span className="text-sm leading-none mb-1">{period.icon}</span>
+                          <span className="text-[7px] font-black uppercase tracking-tighter">{period.label}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Conteúdo da Aba Ativa */}
+                    {getRouteEncountersByPeriod(selectedRoute)
+                      .filter(p => p.id === activePeriodTab)
+                      .map(period => (
+                        <div key={period.id} className="bg-white rounded-3xl border-2 border-slate-100 p-4 shadow-sm animate-fadeIn">
+                          <div className="flex items-center justify-between mb-4 border-b border-slate-50 pb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 shadow-inner">
+                                 <span className="text-xl leading-none">{period.icon}</span>
+                              </div>
+                              <div>
+                                <p className="text-[11px] font-black text-slate-700 uppercase italic leading-none">{period.label}</p>
+                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1.5">{period.hours}</p>
+                              </div>
                             </div>
-                            <div className="min-w-0">
-                              <p className="text-[11px] font-black text-slate-700 uppercase italic leading-none">{period.label}</p>
-                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1">{period.hours}</p>
-                            </div>
+                            {period.id === 'night' && (
+                              <span className="text-[8px] font-black uppercase px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-500 border border-indigo-100 animate-pulse">
+                                extras noturnos
+                              </span>
+                            )}
                           </div>
-                          {period.id === 'night' && (
-                            <span className="text-[8px] font-black uppercase px-2 py-1 rounded-full bg-indigo-50 text-indigo-500 border border-indigo-100">
-                              extras noturnos
-                            </span>
-                          )}
+                          <div className="grid grid-cols-4 gap-3">
+                            {period.encounters.slice(0, 16).map(p => {
+                              const caught = gameState.caughtData?.[p.id];
+                              const name = POKEDEX[p.id]?.name || p.name || 'Pokemon';
+                              return (
+                                <button
+                                  key={`${period.id}-${p.id}`}
+                                  onClick={() => setSelectedPoke(p)}
+                                  className="relative group/poke flex flex-col items-center gap-1.5 min-h-[82px]"
+                                >
+                                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${caught ? 'bg-slate-50 shadow-inner border border-slate-100 group-hover/poke:border-pokeBlue' : 'bg-slate-100/50'}`}>
+                                    <img
+                                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`}
+                                      className={`w-12 h-12 object-contain transition-all ${caught ? 'group-hover/poke:scale-125' : 'brightness-0 opacity-10'}`}
+                                      alt={caught ? name : '???'}
+                                      loading="lazy"
+                                    />
+                                    {!caught && <span className="absolute text-xs opacity-20 font-black">?</span>}
+                                  </div>
+                                  <span className={`text-[8px] font-black uppercase truncate w-full text-center ${caught ? 'text-slate-600' : 'text-slate-300'}`}>
+                                    {caught ? name : '???'}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
-                        <div className="grid grid-cols-4 gap-3">
-                          {period.encounters.slice(0, 12).map(p => {
-                            const caught = gameState.caughtData?.[p.id];
-                            const name = POKEDEX[p.id]?.name || p.name || 'Pokemon';
-                            return (
-                              <button
-                                key={`${period.id}-${p.id}`}
-                                onClick={() => setSelectedPoke(p)}
-                                className="relative group/poke flex flex-col items-center gap-1 min-h-[76px]"
-                              >
-                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${caught ? 'bg-white shadow-sm border border-slate-100 group-hover/poke:border-pokeBlue' : 'bg-slate-100/50'}`}>
-                                  <img
-                                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`}
-                                    className={`w-11 h-11 object-contain transition-all ${caught ? 'group-hover/poke:scale-125' : 'brightness-0 opacity-10'}`}
-                                    alt={caught ? name : '???'}
-                                  />
-                                  {!caught && <span className="absolute text-xs opacity-20 font-black">?</span>}
-                                </div>
-                                <span className={`text-[7px] font-black uppercase truncate w-full text-center ${caught ? 'text-slate-600' : 'text-slate-300'}`}>
-                                  {caught ? name : '???'}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                   <div className="hidden">
                     {selectedRoute.enemies?.slice(0, 12).map(p => {
@@ -522,6 +570,7 @@ const TravelScreen = ({
                               src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} 
                               className={`w-12 h-12 object-contain transition-all ${caught ? 'group-hover/poke:scale-125' : 'brightness-0 opacity-10'}`} 
                               alt={caught ? p.name : '???'}
+                              loading="lazy"
                             />
                             {!caught && <span className="absolute text-xs opacity-20 font-black">?</span>}
                           </div>

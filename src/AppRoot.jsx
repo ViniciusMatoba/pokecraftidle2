@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { useAutoFarm } from './hooks/useAutoFarm';
 import { useSound } from './hooks/useSound';
 import { ROUTES, getRivalSprite } from './data/routes';
@@ -14,12 +14,16 @@ import TravelScreen from './components/TravelScreen';
 import PokemonManagement from './components/PokemonManagement';
 import BattleScreen from './components/BattleScreen';
 import CityScreen from './components/CityScreen';
-import CraftingStation from './components/CraftingStation';
-import EvolutionScreen from './components/EvolutionScreen';
-import PokedexScreen from './components/PokedexScreen';
-import VsScreen from './components/VsScreen';
-import GymScreen from './components/GymScreen';
-import ChallengesScreen from './components/ChallengesScreen';
+
+// Lazy loaded components for better performance
+const CraftingStation = lazy(() => import('./components/CraftingStation'));
+const EvolutionScreen = lazy(() => import('./components/EvolutionScreen'));
+const PokedexScreen = lazy(() => import('./components/PokedexScreen'));
+const VsScreen = lazy(() => import('./components/VsScreen'));
+const GymScreen = lazy(() => import('./components/GymScreen'));
+const ChallengesScreen = lazy(() => import('./components/ChallengesScreen'));
+const HouseScreen = lazy(() => import('./components/HouseScreen'));
+const ExpeditionsScreen = lazy(() => import('./components/ExpeditionsScreen'));
 import { MoveCategoryIcon, StatusBadges, QuickInventory, TrainerCard } from './components/CommonUI';
 import { GYMS, ELITE_FOUR } from './data/gyms';
 import { auth, db } from './firebase';
@@ -36,8 +40,8 @@ import { getTypeEffectiveness } from './data/typeChart';
 import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
 import { calcExpeditionDuration, calcExpeditionDrops, calcExpeditionXP, EXPEDITION_BIOMES } from './data/expeditions';
 import { calcHarvestDrops, calcGrowthTime, calcCombinedCaretakerBonus, PLANTABLE_ITEMS, HOUSE_PURCHASE_COST } from './data/house';
-import HouseScreen from './components/HouseScreen';
-import ExpeditionsScreen from './components/ExpeditionsScreen';
+// import HouseScreen from './components/HouseScreen';
+// import ExpeditionsScreen from './components/ExpeditionsScreen';
 import AutoCaptureModal from './components/AutoCaptureModal';
 import ConfirmModal from './components/ConfirmModal';
 
@@ -277,6 +281,8 @@ export default function App() {
   const [sessionStats, setSessionStats] = useState(null);
   const sessionRef = useRef({ kills: 0, coins: 0, trainers: 0, shinyKills: 0, drops: {}, captures: [] });
 
+
+
   const handleSelectAvatar = (avatar) => {
     setSelectedAvatar(avatar);
     setGameState(prev => ({ 
@@ -374,6 +380,24 @@ export default function App() {
     return newRoutes;
   }, [gameState.worldFlags]);
 
+  // ===== IMAGE PRELOADER PARA OTIMIZAÇÃO =====
+  useEffect(() => {
+    if (!gameState || !processedRoutes) return;
+    const criticalImages = [
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
+      'https://play.pokemonshowdown.com/sprites/trainers/oak.png',
+      'https://play.pokemonshowdown.com/sprites/trainers/nurse.png',
+      ...(gameState.team || []).map(p => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`),
+      fixPath(processedRoutes[gameState.currentRoute]?.background || '')
+    ].flat().filter(src => src && src.length > 5);
+
+    criticalImages.forEach(src => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, [gameState.currentRoute, gameState.team, processedRoutes]);
+
+
   // 🛡️ PROTECTED: handleSafeNavigation — Gerenciamento centralizado de transições de tela
   const handleSafeNavigation = useCallback((targetView, extraAction = null) => {
     const isTraining = !currentEnemy?.isTrainer && !currentEnemy?.isWildBoss && !currentEnemy?.isLegendary;
@@ -404,7 +428,7 @@ export default function App() {
     setCurrentView(targetView);
   }, [currentEnemy, gameState.currentRoute, showConfirm, closeConfirm, setCurrentView]);
 
-  // ⛏️” PROTECTED: handleGoToCity — NíO EDITAR SEM AUTORIZAÇíO EXPLí CITA
+  // 🛡️ PROTECTED: handleGoToCity — NÃO EDITAR SEM AUTORIZAÇÃO EXPLÍCITA
   const handleGoToCity = useCallback(() => {
     const currentR = ROUTES[gameState.currentRoute];
     const isTraining = !currentEnemy?.isTrainer && !currentEnemy?.isWildBoss && !currentEnemy?.isLegendary;
@@ -960,6 +984,12 @@ export default function App() {
   const spawnEnemy = useCallback(() => {
     isProcessingVictory.current = false; // Reset de segurança
     const route = processedRoutes[gameState.currentRoute] || processedRoutes.pallet_town;
+    
+    // Identificar IDs evoluídos (para filtrar rotas iniciais)
+    const evolvedIds = new Set();
+    Object.values(POKEDEX).forEach(p => {
+      if (p.evolution && p.evolution.id) evolvedIds.add(Number(p.evolution.id));
+    });
 
     // Chance de encontrar um treinador NPC (~3% por padrão, configurável por rota)
     const trainerChance = route.trainerChance || 0.03;
@@ -1005,7 +1035,7 @@ export default function App() {
         villainColor: teamData.color,
         instanceId: Date.now()
       });
-      addLog(`í¢Å¡Â Â EMBOSCADA! ${teamData.name} ${reason}`, 'enemy');
+      addLog(`⚠️ EMBOSCADA! ${teamData.name} ${reason}`, 'enemy');
       return;
     }
 
@@ -1090,6 +1120,13 @@ export default function App() {
       }
       return true;
     });
+
+    // ── 2.5 FILTRO DE EVOLUÍDOS (Rotas Iniciais) ──
+    const avgLevel = route.enemies?.[0]?.level || 5;
+    if (avgLevel <= 15 && enemyPool.length > 1) {
+      const filteredPool = enemyPool.filter(e => !evolvedIds.has(Number(e.id)));
+      if (filteredPool.length > 0) enemyPool = filteredPool;
+    }
     
     // Bônus de Horário
     const currentTime = getTimeOfDay();
@@ -2048,7 +2085,7 @@ export default function App() {
     });
     setCurrentView('battles');
     // BGM agora gerenciado pelas configurações
-    addLog(`🚀â€ Â¥ DESAFIO: ${battleData.name} iniciou a batalha!`, 'system');
+    addLog(`🚀 DESAFIO: ${battleData.name} iniciou a batalha!`, 'system');
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
 
@@ -2122,7 +2159,7 @@ export default function App() {
     });
     setCurrentView('battles');
     // BGM agora gerenciado pelas configurações
-    addLog(`íÂ¢â‚¬Â  GINíSIO: Líder ${gymData.name} enviou ${base.name}! Nv.${lvl}`, 'system');
+    addLog(`† GINÁSIO: Líder ${gymData.name} enviou ${base.name}! Nv.${lvl}`, 'system');
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS, gameState]);
 
@@ -2135,7 +2172,7 @@ export default function App() {
       });
 
       if (!hasMaterials) {
-        addLog("íÂ¢íâ€šíâ€¦â€™ Materiais ou Moedas insuficientes!", 'system');
+        addLog("💰 Materiais ou Moedas insuficientes!", 'system');
         return prev;
       }
 
@@ -2155,7 +2192,7 @@ export default function App() {
       const newItems = { ...prev.inventory.items };
       newItems[recipe.id] = (newItems[recipe.id] || 0) + 1;
 
-      addLog(`💖💖íÂ¢íâ€šâ‚¬íâ€šÂºíâ€š íÂ¯íâ€š💖íâ€šíâ€š Você fabricou: ${recipe.name}!`, 'drop');
+      addLog(`✨ Você fabricou: ${recipe.name}!`, 'drop');
 
       return {
         ...prev,
@@ -2169,7 +2206,7 @@ export default function App() {
     });
   };
 
-  // ⛏️” PROTECTED: handleUseCandy — NíO EDITAR SEM AUTORIZAÇíO EXPLí CITA
+  // ⛏️” PROTECTED: handleUseCandy — NÃO EDITAR SEM AUTORIZAÇÃO EXPLÍCITA
   const handleUseCandy = useCallback((pokemonInstanceId, candyId, useId) => {
     const use = CANDY_USES[useId];
     if (!use) return;
@@ -2180,7 +2217,7 @@ export default function App() {
       const currentCount = candies[candyId] || 0;
       
       if (currentCount < use.cost) {
-        addLog(`íÂ¢íâ€šíâ€¦â€™ Candies insuficientes (${currentCount}/${use.cost})`, 'system');
+        addLog(`❌ Candies insuficientes (${currentCount}/${use.cost})`, 'system');
         return prev;
       }
 
@@ -2198,7 +2235,7 @@ export default function App() {
       if (use.effect === 'xp_boost') {
         const n = p.level || 1; const xpNeeded = Math.pow(n + 1, 3) - Math.pow(n, 3);
         p.xp = xpNeeded; 
-        addLog(`💖💖íâ€šíâ€šíâ€š ${p.name} consumiu candies e ganhou experiência!`, 'system');
+        addLog(`✨ ${p.name} consumiu candies e ganhou experiência!`, 'system');
       } else if (use.effect === 'stat_atk') {
         p.attack = (p.attack || 10) + 2;
         addLog(` ${p.name} aumentou o Ataque permanentemente!`, 'system');
@@ -2221,7 +2258,7 @@ export default function App() {
           setEvolutionPending({ ...p, teamIndex: location === 'team' ? pokemonIndex : null, pcIndex: location === 'pc' ? pokemonIndex : null });
           return { ...prev, inventory: newInventory };
         } else {
-           addLog(`íÂ¢íâ€šíâ€š💖íâ€šâ€™ ${p.name} não pode evoluir mais.`, 'system');
+           addLog(`✨ ${p.name} não pode evoluir mais.`, 'system');
            return prev;
         }
       }
@@ -2233,7 +2270,7 @@ export default function App() {
     });
   }, [addLog, setEvolutionPending]);
 
-  // ⛏️” PROTECTED: handleStartExpedition — NíO EDITAR SEM AUTORIZAÇíO EXPLí CITA
+  // ⛏️” PROTECTED: handleStartExpedition — NÃO EDITAR SEM AUTORIZAÇÃO EXPLÍCITA
   const handleStartExpedition = useCallback((biomeId, team) => {
     const biome = EXPEDITION_BIOMES[biomeId];
     if (!biome || !team.length) return;
@@ -2268,7 +2305,7 @@ export default function App() {
       notify({ type: 'expedition', title: 'Expedição concluída!', message: `${biome.name} retornou com itens!` });
       const duration = Date.now() - exp.startedAt;
       const rawDrops = calcExpeditionDrops(exp.team, biome, duration);
-      // Candies são exclusivos do farm nas rotas â€” remover das expedições
+      // Candies são exclusivos do farm nas rotas — remover das expedições
       const drops = Object.fromEntries(
         Object.entries(rawDrops).filter(([key]) => !key.includes('_candy'))
       );
@@ -2303,9 +2340,9 @@ export default function App() {
     });
   }, [addLog]);
 
-  // â–€â–€â–€ HOUSE SYSTEM HANDLERS â–€â–€â–€
-  // â–€â–€â–€ AUTO-CAPTURA HANDLERS â–€â–€â–€
-  // ⛏️” PROTECTED: AutoCapture — NíO EDITAR SEM AUTORIZAÇíO EXPLí CITA
+  // ——— HOUSE SYSTEM HANDLERS ———
+  // ——— AUTO-CAPTURA HANDLERS ———
+  // ⛏️” PROTECTED: AutoCapture — NÃO EDITAR SEM AUTORIZAÇÃO EXPLÍCITA
   const handleSaveAutoCaptureConfig = useCallback((config) => {
     const route = processedRoutes[gameState.currentRoute];
     setGameState(prev => ({
@@ -2346,7 +2383,7 @@ export default function App() {
       },
     }));
     setShowAutoCaptureModal(false);
-    addLog('🚀â€ Â´ Auto-captura desativada nesta rota.', 'system');
+    addLog('🚀 Auto-captura desativada nesta rota.', 'system');
   }, [gameState.currentRoute, addLog]);
 
   // Disparar modal ao entrar em nova rota
@@ -2371,17 +2408,17 @@ export default function App() {
       setShowKantoChampionModal(true);
     }
   }, [gameState.worldFlags]);
-  // â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€â–€
+  // ————————————————————————————————————————————————————————————
 
   // Comprar a casa
-  // ⛏️” PROTECTED: handleBuyHouse — NíO EDITAR SEM AUTORIZAÇíO EXPLí CITA
+  // ⛏️” PROTECTED: handleBuyHouse — NÃO EDITAR SEM AUTORIZAÇÃO EXPLÍCITA
   const handleBuyHouse = useCallback(() => {
     setGameState(prev => {
       if ((prev.currency || 0) < HOUSE_PURCHASE_COST) {
-        addLog(`í¢Å’ Coins insuficientes! A casa custa ${HOUSE_PURCHASE_COST} coins.`, 'system');
+        addLog(`💰 Coins insuficientes! A casa custa ${HOUSE_PURCHASE_COST} coins.`, 'system');
         return prev;
       }
-      addLog(`  Casa comprada! Prof. Carvalho ficou orgulhoso!`, 'system');
+      addLog(`🏠 Casa comprada! Prof. Carvalho ficou orgulhoso!`, 'system');
       return {
         ...prev,
         currency: prev.currency - HOUSE_PURCHASE_COST,
@@ -2464,14 +2501,14 @@ export default function App() {
 
       // Descontar coins do custo da semente
       if ((prev.currency || 0) < plant.cost) {
-        addLog(`íÂ¢íâ€šíâ€¦â€™ Coins insuficientes para plantar ${plant.name}!`, 'system');
+        addLog(`💰 Coins insuficientes para plantar ${plant.name}!`, 'system');
         return prev;
       }
 
       const newSlots = [...(prev.house?.slots || [])];
       newSlots[slotIndex] = { plantId, plantedAt: Date.now(), growthTime };
 
-      addLog(`🚀Å’Â± ${plant.name} plantado! Pronto em ${Math.floor(growthTime / 60000)} min.`, 'system');
+      addLog(`🌱 ${plant.name} plantado! Pronto em ${Math.floor(growthTime / 60000)} min.`, 'system');
       return {
         ...prev,
         currency: prev.currency - plant.cost,
@@ -2500,7 +2537,7 @@ export default function App() {
       }
 
       const dropSummary = Object.entries(drops).map(([k, v]) => `${v}x ${k}`).join(', ');
-      addLog(`<> Colheu ${plant.name}: ${dropSummary}`, 'drop');
+      addLog(`🧺 Colheu ${plant.name}: ${dropSummary}`, 'drop');
 
       return {
         ...prev,
@@ -2514,7 +2551,7 @@ export default function App() {
   const handleBuySlot = useCallback((expansion) => {
     setGameState(prev => {
       if ((prev.currency || 0) < expansion.cost) return prev;
-      addLog(`í¢â‚¬â€  Jardim expandido para ${expansion.totalSlots} canteiros!`, 'system');
+      addLog(`🛠️ Jardim expandido para ${expansion.totalSlots} canteiros!`, 'system');
       return {
         ...prev,
         currency: prev.currency - expansion.cost,
@@ -2528,7 +2565,7 @@ export default function App() {
     setGameState(prev => {
       const newPC         = (prev.pc || []).filter(p => p.instanceId !== pokemon.instanceId);
       const newCaretakers = [...(prev.house?.caretakers || []), pokemon];
-      addLog(`íâ€šÂ¾ ${pokemon.name} agora cuida do jardim!`, 'system');
+      addLog(`🌻 ${pokemon.name} agora cuida do jardim!`, 'system');
       return {
         ...prev,
         pc: newPC,
@@ -2543,7 +2580,7 @@ export default function App() {
       const pokemon       = (prev.house?.caretakers || []).find(p => p.instanceId === instanceId);
       const newCaretakers = (prev.house?.caretakers || []).filter(p => p.instanceId !== instanceId);
       const newPC         = [...(prev.pc || []), pokemon].filter(Boolean);
-      if (pokemon) addLog(`íâ€šÂ¾ ${pokemon.name} voltou ao PC.`, 'system');
+      if (pokemon) addLog(`🏠 ${pokemon.name} voltou ao PC.`, 'system');
       return {
         ...prev,
         pc: newPC,
@@ -2577,7 +2614,7 @@ export default function App() {
         opponentTeamIndex: 0
       });
       setCurrentView('battles');
-      addLog(`íÂ¢íâ€šÅ¡íâ€šâ€ íÂ¯💖íâ€šíÂ¯íâ€š💖íâ€šíâ€š RIVAL: ${battleData.name} desafiou você!`, 'system');
+      addLog(`⚔️ RIVAL: ${battleData.name} desafiou você!`, 'system');
       isProcessingVictory.current = false;
       return;
     }
@@ -2704,7 +2741,7 @@ export default function App() {
           unlocks.forEach(u => {
             if (!newFlags.includes(u)) {
                newFlags.push(u);
-               addLog(`( Desbloqueado: ${u.replace('_', ' ')}!`, 'system');
+               addLog(`🚀 Desbloqueado: ${u.replace('_', ' ')}!`, 'system');
             }
           });
         }
@@ -3996,27 +4033,31 @@ export default function App() {
           )}
 
           {showHouse && (
-            <HouseScreen
-              gameState={gameState}
-              onClose={() => setShowHouse(false)}
-              onPlant={handlePlant}
-              onHarvest={handleHarvest}
-              onBuySlot={handleBuySlot}
-              onAssignCaretaker={handleAssignCaretaker}
-              onRemoveCaretaker={handleRemoveCaretaker}
-            />
+            <Suspense fallback={null}>
+              <HouseScreen
+                gameState={gameState}
+                onClose={() => setShowHouse(false)}
+                onPlant={handlePlant}
+                onHarvest={handleHarvest}
+                onBuySlot={handleBuySlot}
+                onAssignCaretaker={handleAssignCaretaker}
+                onRemoveCaretaker={handleRemoveCaretaker}
+              />
+            </Suspense>
           )}
 
           {showExpeditions && (
-            <ExpeditionsScreen
-              gameState={gameState}
-              onClose={() => setShowExpeditions(false)}
-              onStartExpedition={(biomeId, team) => {
-                handleStartExpedition(biomeId, team);
-                setShowExpeditions(false);
-              }}
-              onClaimExpedition={(biomeId) => handleClaimExpedition(biomeId)}
-            />
+            <Suspense fallback={null}>
+              <ExpeditionsScreen
+                gameState={gameState}
+                onClose={() => setShowExpeditions(false)}
+                onStartExpedition={(biomeId, team) => {
+                  handleStartExpedition(biomeId, team);
+                  setShowExpeditions(false);
+                }}
+                onClaimExpedition={(biomeId) => handleClaimExpedition(biomeId)}
+              />
+            </Suspense>
           )}
 
           {showOakStaminaModal && (
@@ -4106,37 +4147,41 @@ export default function App() {
           )}
 
           {showExpeditions && (
-            <ExpeditionsScreen
-              gameState={gameState}
-              onClose={() => setShowExpeditions(false)}
-              onStartExpedition={(biomeId, team) => {
-                handleStartExpedition(biomeId, team);
-                setShowExpeditions(false);
-              }}
-              onClaimExpedition={(biomeId) => handleClaimExpedition(biomeId)}
-            />
+            <Suspense fallback={null}>
+              <ExpeditionsScreen
+                gameState={gameState}
+                onClose={() => setShowExpeditions(false)}
+                onStartExpedition={(biomeId, team) => {
+                  handleStartExpedition(biomeId, team);
+                  setShowExpeditions(false);
+                }}
+                onClaimExpedition={(biomeId) => handleClaimExpedition(biomeId)}
+              />
+            </Suspense>
           )}
         </>
       );
 
       case 'vs': return (
-        <VsScreen
-          gameState={gameState}
-          onChallengeGym={(gymData) => {
-            handleChallengeGym(gymData);
-          }}
-          onChallenge={(challenge) => {
-            startKeyBattle(challenge);
-          }}
-          onClose={() => setCurrentView('city')}
-          setCurrentView={setCurrentView}
-          initialTab={vsInitialTab}
-          setVsInitialTab={setVsInitialTab}
-          initialCategory={vsInitialCategory}
-          setVsInitialCategory={setVsInitialCategory}
-          initialRegion={vsInitialRegion}
-          setVsInitialRegion={setVsInitialRegion}
-        />
+        <Suspense fallback={<div className="h-full flex items-center justify-center bg-slate-900 text-white font-black uppercase tracking-[0.3em] animate-pulse">Carregando Desafios...</div>}>
+          <VsScreen
+            gameState={gameState}
+            onChallengeGym={(gymData) => {
+              handleChallengeGym(gymData);
+            }}
+            onChallenge={(challenge) => {
+              startKeyBattle(challenge);
+            }}
+            onClose={() => setCurrentView('city')}
+            setCurrentView={setCurrentView}
+            initialTab={vsInitialTab}
+            setVsInitialTab={setVsInitialTab}
+            initialCategory={vsInitialCategory}
+            setVsInitialCategory={setVsInitialCategory}
+            initialRegion={vsInitialRegion}
+            setVsInitialRegion={setVsInitialRegion}
+          />
+        </Suspense>
       );
 
       case 'prof_oak_starters_announcement': return (
@@ -4314,12 +4359,14 @@ export default function App() {
                  </div>
               </div>
 
-              <CraftingStation 
-                recipes={CRAFTING_RECIPES}
-                inventory={gameState.inventory}
-                currency={gameState.currency}
-                onCraft={handleCraft}
-              />
+              <Suspense fallback={<div className="p-10 text-center font-black text-slate-400">Carregando Forja...</div>}>
+                <CraftingStation 
+                  recipes={CRAFTING_RECIPES}
+                  inventory={gameState.inventory}
+                  currency={gameState.currency}
+                  onCraft={handleCraft}
+                />
+              </Suspense>
 
               <button 
                 onClick={() => setCurrentView('city')}
@@ -4368,13 +4415,15 @@ export default function App() {
         </div>
       );
       case 'pokedex': return (
-        <PokedexScreen 
-          POKEDEX={Object.fromEntries(Object.entries(POKEDEX).filter(([id]) => Number(id) <= (gameState.worldFlags?.includes('johto_started') ? 251 : 151)))} 
-          caughtData={gameState.caughtData} 
-          team={gameState.team}
-          box={gameState.pc}
-          onBack={() => setCurrentView(lastNonMenuView.current)} 
-        />
+        <Suspense fallback={<div className="h-full bg-slate-900 flex items-center justify-center text-pokeGold font-black uppercase tracking-[0.5em] animate-pulse">Sincronizando Pokédex...</div>}>
+          <PokedexScreen 
+            POKEDEX={Object.fromEntries(Object.entries(POKEDEX).filter(([id]) => Number(id) <= (gameState.worldFlags?.includes('johto_started') ? 251 : 151)))} 
+            caughtData={gameState.caughtData} 
+            team={gameState.team}
+            box={gameState.pc}
+            onBack={() => setCurrentView(lastNonMenuView.current)} 
+          />
+        </Suspense>
       );
       case 'heal_after_defeat': return (
         <div className="absolute inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-100 p-6 text-center animate-fadeIn overflow-hidden">
