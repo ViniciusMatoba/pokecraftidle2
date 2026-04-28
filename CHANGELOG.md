@@ -1,4 +1,10 @@
 # Changelog - PokéCraft Idle
+## [1.22.0] - 2026-04-28 (16:03)
+### ⚡ Performance & Preloader
+- **Sistema de Preloader:** Implementada tela de carregamento inicial que pré-carrega backgrounds e sons críticos.
+- **Cache Agressivo:** Configurado Cache-Control para expiração de 1 ano em assets estáticos (Imagens/Áudio) no Firebase.
+- **Barra de Progresso:** Adicionada UI premium com tracking real do download dos assets iniciais.
+- **Otimização de Inicialização:** Redução de flashes brancos e elementos sem estilo durante o carregamento de imagens.
 
 ## [1.21.0] - 2026-04-28 (15:57)
 ### ⚔️ Gestão de Golpes & Paridade Johto

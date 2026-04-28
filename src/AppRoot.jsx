@@ -47,8 +47,8 @@ import ConfirmModal from './components/ConfirmModal';
 
 import { QUESTS, getActiveQuest, updateQuestProgress, getAvailableQuest } from './data/quests';
 import NotificationSystem, { notify } from './components/NotificationSystem';
-import { getTimeOfDay, TIME_CONFIG, NIGHT_ONLY_POKEMON } from './utils/timeSystem';
 import { getCaptureRate, pickWeightedEncounter } from './utils/pokemonDifficulty';
+import { preloadAssets } from './utils/preloader';
 
 const fixPath = (path) => {
   if (typeof path !== 'string') return path;
@@ -159,6 +159,8 @@ const MUSIC_LIST = [
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isPreloaded, setIsPreloaded] = useState(false);
+  const [preloadProgress, setPreloadProgress] = useState(0);
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [avatarTab, setAvatarTab] = useState('male');
   const { 
@@ -219,6 +221,40 @@ export default function App() {
       unsubscribe();
       clearTimeout(loadTimeout);
     };
+  }, []);
+
+  // Preloader Effect
+  useEffect(() => {
+    const assets = {
+      images: [
+        '/battle_bg_grass_1776863779024.png',
+        '/battle_bg_forest_1776863795763.png',
+        '/battle_bg_cave_1776863810604.png',
+        'https://play.pokemonshowdown.com/sprites/trainers/red.png',
+        'https://play.pokemonshowdown.com/sprites/trainers/leaf-gen3.png',
+        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
+        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png'
+      ],
+      sounds: [
+        '/sounds/DERROTA.mp3',
+        '/sounds/NIVEL.mp3',
+        '/sounds/POKE CENTER.mp3',
+        '/sounds/GYM.mp3'
+      ]
+    };
+
+    const initPreload = async () => {
+      try {
+        await preloadAssets(assets.images, assets.sounds, (p) => setPreloadProgress(p));
+        // Pequeno delay para o user ver o 100%
+        setTimeout(() => setIsPreloaded(true), 500);
+      } catch (err) {
+        console.error("Preload error:", err);
+        setIsPreloaded(true);
+      }
+    };
+
+    initPreload();
   }, []);
 
   // ===== LISTENER DE FORCE-UPDATE (Firestore config/app) =====
@@ -4510,6 +4546,45 @@ export default function App() {
       <path d="M19.4 13.5a7.8 7.8 0 0 0 0-3l2-1.35-2-3.46-2.36.98a8.04 8.04 0 0 0-2.6-1.5L14.1 2.6h-4l-.35 2.57a8.04 8.04 0 0 0-2.6 1.5l-2.36-.98-2 3.46 2 1.35a7.8 7.8 0 0 0 0 3l-2 1.35 2 3.46 2.36-.98a8.04 8.04 0 0 0 2.6 1.5l.35 2.57h4l.35-2.57a8.04 8.04 0 0 0 2.6-1.5l2.36.98 2-3.46-2-1.35Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
     </svg>
   );
+
+  if (!isPreloaded) {
+    return (
+      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center p-8 relative overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full animate-pulse"></div>
+        <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-indigo-600/5 blur-[60px] rounded-full animate-bounce"></div>
+        
+        <div className="relative z-10 w-full max-w-xs flex flex-col items-center">
+           {/* PokeBall Icon Animated */}
+           <div className="w-24 h-24 mb-12 relative">
+              <div className="absolute inset-0 border-8 border-white/10 rounded-full"></div>
+              <div className="absolute inset-0 border-t-8 border-blue-500 rounded-full animate-spin"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-[0_0_15px_white]"></div>
+           </div>
+
+           <div className="w-full space-y-4">
+              <div className="flex items-end justify-between px-2">
+                 <h2 className="text-white font-black italic tracking-tighter text-2xl uppercase leading-none">PokéCraft</h2>
+                 <span className="text-blue-500 font-black text-sm tabular-nums">{preloadProgress}%</span>
+              </div>
+              
+              <div className="w-full h-3 bg-white/5 rounded-full p-1 border border-white/10 overflow-hidden">
+                 <div 
+                   className="h-full bg-gradient-to-r from-blue-600 to-indigo-500 rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+                   style={{ width: `${preloadProgress}%` }}
+                 ></div>
+              </div>
+              
+              <p className="text-white/40 font-black uppercase tracking-[0.3em] text-[9px] text-center animate-pulse pt-2">Sincronizando Banco de Dados...</p>
+           </div>
+
+           <div className="mt-24 text-white/20 font-black text-[10px] tracking-widest uppercase italic">
+              v{APP_VERSION}
+           </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`app-shell ${showStatusStrip ? 'info-strip-open' : ''} ${gameState.settings?.displayMode === 'pc' ? 'pc-mode' : ''}`}>
