@@ -1,5 +1,7 @@
-export const APP_VERSION = '1.18.0';
-export const APP_VERSION_DATE = '28/04/2026 11:51';
+import { VERSION, LAST_UPDATE } from '../version';
+
+export const APP_VERSION = VERSION;
+export const APP_VERSION_DATE = LAST_UPDATE;
 
 export const NATURE_LIST = ['Adamant', 'Modest', 'Jolly', 'Timid', 'Bold', 'Calm', 'Impish', 'Careful', 'Brave', 'Quiet'];
 
