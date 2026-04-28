@@ -395,7 +395,7 @@ const CHALLENGES = [
   {
     region: 'johto',
     id: 'johto_rocket_radio',
-    category: 'johto',
+    category: 'rocket',
     name: 'Rocket - Radio Tower',
     subtitle: 'Crise em Goldenrod',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/rocketexecutive.png',
@@ -442,7 +442,7 @@ const CHALLENGES = [
   {
     region: 'johto',
     id: 'johto_rival_victory',
-    category: 'johto',
+    category: 'rival',
     name: 'Rival - Victory Road',
     subtitle: 'Ultima barreira',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/silver.png',
@@ -927,9 +927,9 @@ const CHALLENGES = [
 ];
 
 const CATEGORY_CONFIG = {
-  rival:     { label: 'Rival',         color: '#1a56db', emoji: '⚔️'  },
+  rival:     { label: 'Rival',         color: '#1a56db', emoji: '👤'  },
   rocket:    { label: 'Equipe Rocket', color: '#cc0000', emoji: '🚀'  },
-  johto:     { label: 'Johto',         color: '#059669', emoji: 'J'  },
+  johto:     { label: 'Lideres',       color: '#059669', emoji: '🏆'  },
   rematch:   { label: 'Revanche',      color: '#f59e0b', emoji: '🔥'  },
   legendary: { label: 'Lendários',     color: '#7c3aed', emoji: '✨'  },
 };
@@ -995,18 +995,19 @@ const ChallengesScreen = ({
     if (!flag) return;
     const johtoRequirements = ['johto_started', 'johto_route_29_cleared', 'johto_slowpoke_well_cleared', 'zephyr_badge', 'hive_badge', 'plain_badge', 'fog_badge', 'storm_badge', 'mineral_badge', 'johto_rocket_radio_cleared', 'glacier_badge', 'rising_badge', 'johto_rival_victory_defeated', 'johto_rival_1_defeated', 'johto_rival_azalea_defeated', 'johto_rival_ecruteak_defeated', 'johto_rocket_mahogany_cleared', 'johto_rival_tunnel_defeated'];
     if (johtoRequirements.includes(flag)) {
-      if (flag.includes('rival_') || flag.includes('rocket_')) {
+      if (flag.includes('rival_') || flag.includes('rocket_') || flag.includes('_defeated') || flag.includes('_well_cleared') || flag.includes('_radio_cleared')) {
         if (setVsInitialTab) setVsInitialTab('challenges');
-        if (setVsInitialCategory) setVsInitialCategory(flag.includes('rival_') ? 'rival' : 'rocket');
+        let cat = 'rival';
+        if (flag.includes('rocket_') || flag.includes('_well_') || flag.includes('_radio_') || flag.includes('_mahogany_')) cat = 'rocket';
+        if (setVsInitialCategory) setVsInitialCategory(cat);
         if (setVsInitialRegion) setVsInitialRegion('johto');
       } else {
         if (setVsInitialTab) setVsInitialTab(flag === 'johto_started' ? 'challenges' : 'gyms');
-        if (setVsInitialCategory) setVsInitialCategory('johto');
+        if (setVsInitialCategory) setVsInitialCategory(flag === 'johto_started' ? 'rival' : 'johto');
         if (setVsInitialRegion) setVsInitialRegion('johto');
       }
       setCurrentView(flag === 'johto_started' ? 'city' : 'vs');
     } else if (flag.includes('_badge')) {
-      // Já está em VS, mas forçamos o redirecionamento correto se necessário
       if (setVsInitialTab) setVsInitialTab('gyms');
       setCurrentView('vs');
     } else if (flag.includes('_cleared') || flag === 'has_starter') {

@@ -27,6 +27,7 @@ const PokemonManagement = ({
   const [pcSearch, setPcSearch] = useState('');
   const [pcSort, setPcSort] = useState('number');
   const [showTeamReorder, setShowTeamReorder] = useState(false);
+  const [moveSwapMode, setMoveSwapMode] = useState(null); // { activeIdx, currentMove }
   const activePokemonKey = activePokemonDetails?.pokemon?.instanceId || activePokemonDetails?.pokemon?.id || null;
 
   useEffect(() => {
@@ -157,6 +158,44 @@ const PokemonManagement = ({
        return { ...prev, pokemon: { ...poke, moves: newMoves, learnedMoves: newLearnedMoves } };
     });
     addLog(`${activePokemonDetails.pokemon.name} aprendeu ${moveObj.name}!`, 'system');
+  };
+
+  const swapMove = (activeIdx, newMoveName) => {
+    if (!activePokemonDetails || !newMoveName) return;
+    const moveData = MOVES[newMoveName];
+    if (!moveData) return;
+
+    setGameState(prev => {
+      const newList = [...prev[activePokemonDetails.location]];
+      const poke = { ...newList[activePokemonDetails.index] };
+      const newMoves = [...poke.moves];
+      
+      // Se já tiver o golpe em outra posição, apenas troca de lugar (reordenar)
+      const existingIdx = newMoves.findIndex(m => m.name === newMoveName);
+      if (existingIdx !== -1) {
+        [newMoves[activeIdx], newMoves[existingIdx]] = [newMoves[existingIdx], newMoves[activeIdx]];
+      } else {
+        newMoves[activeIdx] = { name: newMoveName };
+      }
+
+      poke.moves = newMoves;
+      newList[activePokemonDetails.index] = poke;
+      return { ...prev, [activePokemonDetails.location]: newList };
+    });
+
+    setActivePokemonDetails(prev => {
+      const poke = { ...prev.pokemon };
+      const newMoves = [...poke.moves];
+      const existingIdx = newMoves.findIndex(m => m.name === newMoveName);
+      if (existingIdx !== -1) {
+        [newMoves[activeIdx], newMoves[existingIdx]] = [newMoves[existingIdx], newMoves[activeIdx]];
+      } else {
+        newMoves[activeIdx] = { name: newMoveName };
+      }
+      return { ...prev, pokemon: { ...poke, moves: newMoves } };
+    });
+
+    setMoveSwapMode(null);
   };
 
   const useStoneEvolution = (stoneId) => {
@@ -536,7 +575,11 @@ const PokemonManagement = ({
                       {activePokemonDetails.pokemon.moves.map((m, idx) => {
                         const moveData = MOVES[m.name];
                         return (
-                          <div key={idx} className="bg-white border border-slate-100 p-3 rounded-2xl flex items-center gap-3 group transition-all hover:border-pokeBlue/30 shadow-sm relative overflow-hidden">
+                          <div 
+                            key={idx} 
+                            onClick={() => setMoveSwapMode({ activeIdx: idx, currentMove: m.name })}
+                            className="bg-white border border-slate-100 p-3 rounded-2xl flex items-center gap-3 group transition-all hover:border-pokeBlue/30 hover:bg-blue-50/20 cursor-pointer shadow-sm relative overflow-hidden active:scale-95"
+                          >
                              <div className="w-1 bg-slate-200 absolute left-0 top-0 bottom-0 group-hover:bg-pokeBlue transition-colors"></div>
                              <div className="flex-1 text-left pl-1">
                                 <div className="flex items-center gap-2 mb-0.5">
@@ -552,13 +595,94 @@ const PokemonManagement = ({
                                 </div>
                              </div>
                              <div className="flex flex-col items-center justify-center bg-slate-50 w-8 h-8 rounded-lg shrink-0 border border-slate-100">
-                                <span className="text-[10px]">{moveData?.category === 'physical' ? '👊' : moveData?.category === 'special' ? '✨' : '🛡'}</span>
+                                <span className="text-[10px]">{moveData?.category === 'Physical' || moveData?.category === 'physical' ? '👊' : moveData?.category === 'Special' || moveData?.category === 'special' ? '✨' : '🛡'}</span>
+                             </div>
+                             <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="text-[10px] text-pokeBlue font-black italic">TROCAR</span>
                              </div>
                           </div>
                         );
                       })}
                     </div>
                   </div>
+
+                  {/* MODAL DE TROCA DE GOLPES (OVERLAY LOCAL) */}
+                  {moveSwapMode && (
+                    <div className="absolute inset-0 z-[100] bg-slate-900/90 backdrop-blur-sm animate-fadeIn flex flex-col p-6">
+                      <div className="flex justify-between items-center mb-6">
+                        <div className="text-left">
+                          <h4 className="text-white font-black uppercase text-sm italic leading-none">Trocar Golpe</h4>
+                          <p className="text-slate-400 text-[10px] font-bold uppercase mt-1">Selecione o novo golpe para o Slot {moveSwapMode.activeIdx + 1}</p>
+                        </div>
+                        <button onClick={() => setMoveSwapMode(null)} className="text-white bg-white/10 w-8 h-8 rounded-full font-black text-xs">✕</button>
+                      </div>
+
+                      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-2">
+                        {(() => {
+                          const learned = activePokemonDetails.pokemon.learnedMoves || activePokemonDetails.pokemon.moves || [];
+                          const available = learned.filter(m => !activePokemonDetails.pokemon.moves.some(active => active.name === m.name));
+                          
+                          // Adiciona opção de reordenar (golpes já ativos)
+                          const currentActive = activePokemonDetails.pokemon.moves;
+
+                          return (
+                            <>
+                              <div className="mb-4">
+                                <p className="text-[9px] font-black text-pokeBlue uppercase mb-2 tracking-widest opacity-80">Reordenar Atuais</p>
+                                <div className="grid grid-cols-1 gap-2">
+                                  {currentActive.map((m, i) => (
+                                    <button 
+                                      key={`active-${i}`}
+                                      disabled={i === moveSwapMode.activeIdx}
+                                      onClick={() => swapMove(moveSwapMode.activeIdx, m.name)}
+                                      className={`p-3 rounded-xl border-2 flex items-center justify-between transition-all ${i === moveSwapMode.activeIdx ? 'border-pokeBlue bg-blue-500/20 opacity-50 grayscale' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
+                                    >
+                                      <span className="text-white font-black uppercase text-[10px] italic">{translateMove(m.name)}</span>
+                                      <span className="text-slate-500 font-black text-[8px] uppercase">Slot {i + 1}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div>
+                                <p className="text-[9px] font-black text-pokeGold uppercase mb-2 tracking-widest opacity-80">Golpes Aprendidos</p>
+                                {available.length === 0 ? (
+                                  <p className="text-slate-500 text-[10px] font-bold italic py-4">Nenhum golpe adicional disponível...</p>
+                                ) : (
+                                  <div className="grid grid-cols-1 gap-2">
+                                    {available.map((m, i) => {
+                                      const mData = MOVES[m.name];
+                                      return (
+                                        <button 
+                                          key={`learned-${i}`}
+                                          onClick={() => swapMove(moveSwapMode.activeIdx, m.name)}
+                                          className="p-3 rounded-xl border-2 border-white/5 bg-white/5 hover:bg-white/10 hover:border-pokeGold/30 transition-all flex items-center gap-3 text-left group"
+                                        >
+                                          <div className="w-1.5 h-1.5 rounded-full" style={{ background: typeColorMap[mData?.type] || '#64748b' }}></div>
+                                          <div className="flex-1">
+                                            <p className="text-white font-black uppercase text-[10px] italic leading-none">{translateMove(m.name)}</p>
+                                            <div className="flex gap-3 mt-1 opacity-60">
+                                              <span className="text-[7px] font-bold text-slate-300 uppercase">Pwr: {mData?.power || '-'}</span>
+                                              <span className="text-[7px] font-bold text-slate-300 uppercase">Acc: {mData?.accuracy || '-'}</span>
+                                            </div>
+                                          </div>
+                                          <div className="px-2 py-0.5 rounded bg-white/10 text-[7px] font-black text-white uppercase tracking-widest">{mData?.type}</div>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
+                      
+                      <div className="mt-4 pt-4 border-t border-white/10">
+                        <p className="text-[8px] text-slate-500 font-bold uppercase italic text-center italic">Dica: Você pode reordenar seus golpes clicando neles!</p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* GUIA DE EVOLUCAO */}
                   {(() => {

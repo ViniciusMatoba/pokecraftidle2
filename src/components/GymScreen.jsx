@@ -40,49 +40,61 @@ const GymCard = ({ gym, earned, locked, onClick }) => {
 
   return (
     <div
-      className={`relative rounded-[2rem] overflow-hidden shadow-xl transition-all bg-white border-2 ${locked ? 'opacity-40 grayscale-[0.5] border-slate-100' : 'hover:scale-[1.02] active:scale-[0.98] cursor-pointer group border-slate-100 hover:border-pokeBlue/30'}`}
-      style={{ minHeight: '170px' }}
+      className={`relative rounded-[2.5rem] overflow-hidden shadow-xl transition-all bg-white border-2 ${locked ? 'opacity-40 grayscale-[0.5] border-slate-100' : 'hover:scale-[1.02] active:scale-[0.98] cursor-pointer group border-slate-100 hover:border-pokeBlue/30'}`}
+      style={{ minHeight: '180px' }}
       onClick={() => onClick(gym)}
     >
-      {/* Canto colorido (Accent) */}
+      {/* Background Accent */}
       <div 
-        className="absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8 rounded-full opacity-20 transition-all group-hover:scale-110"
+        className="absolute top-0 right-0 w-48 h-48 -mr-16 -mt-16 rounded-full opacity-10 transition-all group-hover:scale-110 group-hover:opacity-20"
         style={{ backgroundColor: col }}
       />
       
-      <div className="absolute top-5 left-6 z-20 text-left">
+      {/* Type Icon Floating Background */}
+      <div className="absolute top-6 right-6 opacity-5 group-hover:opacity-15 transition-opacity">
+        {gym.typeIcon && <img src={gym.typeIcon} className="w-24 h-24" alt="" style={{ filter: 'grayscale(1) brightness(0)' }} />}
+      </div>
+
+      <div className="absolute top-6 left-8 z-20 text-left">
         <h4 className="text-slate-400 font-black text-[10px] uppercase tracking-widest leading-none">
-          GYM {gym.badgeOrder}
+          GINÁSIO #{gym.badgeOrder}
         </h4>
-        <p className="text-slate-800 font-black text-xl uppercase italic leading-none tracking-tighter mt-1">
+        <p className="text-slate-800 font-black text-2xl uppercase italic leading-none tracking-tighter mt-1.5">
           {gym.name}
         </p>
-        <div className="mt-3 flex items-center gap-2 bg-slate-50 w-fit px-2.5 py-1.5 rounded-xl border border-slate-100 shadow-sm">
-          {gym.typeIcon && <img src={gym.typeIcon} className="w-3.5 h-3.5" alt={gym.type} style={{ filter: 'none' }} />}
-          <span className="text-slate-600 text-[9px] font-black uppercase tracking-widest">{gym.type}</span>
+        <div className="mt-4 flex items-center gap-2.5 bg-white/90 backdrop-blur-sm w-fit px-3 py-2 rounded-xl border border-slate-100 shadow-sm">
+          <div className="w-5 h-5 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: col }}>
+             {gym.typeIcon && <img src={gym.typeIcon} className="w-3.5 h-3.5 invert" alt={gym.type} />}
+          </div>
+          <span className="text-slate-600 text-[10px] font-black uppercase tracking-widest">{gym.type}</span>
         </div>
-        <div className="flex items-center gap-2 mt-3">
-          {earned && <span className="bg-emerald-500 text-white text-[9px] font-black px-3 py-1 rounded-full shadow-lg shadow-emerald-100">VENCIDO</span>}
-          {locked && <span className="bg-slate-100 text-slate-400 text-[9px] font-black px-3 py-1 rounded-full">BLOQUEADO</span>}
+        <div className="flex items-center gap-2 mt-4">
+          {earned && <span className="bg-emerald-500 text-white text-[9px] font-black px-3 py-1 rounded-full shadow-lg shadow-emerald-100 animate-pulse">VENCIDO</span>}
+          {locked && <span className="bg-slate-100 text-slate-400 text-[9px] font-black px-3 py-1 rounded-full border border-slate-200">BLOQUEADO</span>}
         </div>
       </div>
 
-      <div className="flex justify-end pr-4 pt-10 relative z-10 pointer-events-none">
+      <div className="flex justify-end pr-4 pt-12 relative z-10 pointer-events-none">
         <img
           src={gym.sprite}
           alt={gym.name}
-          className="w-32 h-32 object-contain drop-shadow-xl translate-y-4 group-hover:scale-110 transition-transform duration-500"
+          className="w-36 h-36 object-contain drop-shadow-2xl translate-y-6 group-hover:scale-110 transition-transform duration-500 group-hover:rotate-2"
           onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'; }}
         />
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 p-5 z-20 bg-gradient-to-t from-white via-white/90 to-transparent">
+      <div className="absolute bottom-0 left-0 right-0 p-6 z-20 bg-gradient-to-t from-white via-white/95 to-transparent">
          <div className="flex items-center gap-4">
             <BadgeIcon badgeId={gym.badge} earned={earned} compact />
             <div className="flex-1 text-left">
-               <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest">{gym.city}</p>
-               <p className="text-pokeBlue text-[10px] font-black uppercase italic">Desafiar Lider</p>
+               <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest leading-none mb-1.5">{gym.city}</p>
+               <p className="text-pokeBlue text-[11px] font-black uppercase italic tracking-tight">Desafiar Líder</p>
             </div>
+            {!locked && (
+              <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-pokeBlue group-hover:text-white transition-colors shadow-sm">
+                <span className="text-lg">⚔️</span>
+              </div>
+            )}
          </div>
       </div>
     </div>
@@ -95,38 +107,41 @@ const EliteCard = ({ member, index, earned, locked, onClick }) => {
   return (
     <div
       className={`relative rounded-[2.5rem] overflow-hidden shadow-xl transition-all mb-4 bg-white border-2 ${locked ? 'opacity-40 grayscale-[0.5] border-slate-100' : 'hover:scale-[1.02] active:scale-[0.98] cursor-pointer group border-slate-100 hover:border-pokeGold/30'}`}
-      style={{ minHeight: '120px' }}
+      style={{ minHeight: '130px' }}
       onClick={() => !locked && onClick(member)}
     >
       {/* Accent de canto para Elite 4 */}
       <div 
-        className="absolute top-0 left-0 w-24 h-24 -ml-10 -mt-10 rounded-full opacity-15"
+        className="absolute top-0 left-0 w-32 h-32 -ml-12 -mt-12 rounded-full opacity-15"
         style={{ backgroundColor: col }}
       />
 
-      <div className="absolute top-4 left-6 z-20 text-left">
+      <div className="absolute top-6 left-8 z-20 text-left">
         <h4 className="text-slate-400 font-black text-[9px] uppercase tracking-widest leading-none">
-          Elite 4 #{index + 1}
+          ELITE FOUR #{index + 1}
         </h4>
-        <p className="text-slate-800 font-black text-xl uppercase italic leading-none tracking-tighter mt-1">{member.name}</p>
-        <div className="mt-2 flex items-center gap-2 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100 w-fit">
-          {member.typeIcon && <img src={member.typeIcon} className="w-3 h-3" alt="" />}
-          <span className="text-slate-500 text-[8px] font-black uppercase tracking-widest">{member.type}</span>
+        <p className="text-slate-800 font-black text-2xl uppercase italic leading-none tracking-tighter mt-1.5">{member.name}</p>
+        <div className="mt-3 flex items-center gap-2 bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-100 w-fit shadow-sm">
+          {member.typeIcon && <img src={member.typeIcon} className="w-3.5 h-3.5" alt="" />}
+          <span className="text-slate-500 text-[9px] font-black uppercase tracking-widest">{member.type}</span>
         </div>
       </div>
 
-      <div className="flex justify-end pr-4 pt-4 relative z-10 pointer-events-none overflow-hidden h-24">
+      <div className="flex justify-end pr-6 pt-6 relative z-10 pointer-events-none overflow-hidden h-28">
         <img
           src={member.sprite}
           alt={member.name}
-          className="w-28 h-28 object-contain drop-shadow-lg translate-y-2 group-hover:scale-110 transition-transform"
+          className="w-32 h-32 object-contain drop-shadow-lg translate-y-3 group-hover:scale-110 transition-transform"
         />
       </div>
 
-      <div className="absolute bottom-3 left-6 z-20">
-         <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest">Nv. {member.team[0]?.level}+</p>
-            {earned && <span className="bg-pokeGold/20 text-pokeGold text-[8px] font-black px-2 py-0.5 rounded-full">CONCLUÍDO</span>}
+      <div className="absolute bottom-4 left-8 z-20">
+         <div className="flex items-center gap-3 flex-wrap">
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
+               <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+               Nv. {member.team[0]?.level}+
+            </p>
+            {earned && <span className="bg-pokeGold/20 text-pokeGold text-[9px] font-black px-2.5 py-0.5 rounded-full border border-pokeGold/20">CONCLUÍDO</span>}
          </div>
       </div>
     </div>
@@ -184,11 +199,17 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
   };
 
   const handleReqClick = (req) => {
-    if (req === 'viridian_forest_cleared') {
+    if (req === 'viridian_forest_cleared' || req.includes('rocket_') || req.includes('rival_') || req.includes('_defeated')) {
       if (setVsInitialTab) setVsInitialTab('challenges');
-      if (setVsInitialCategory) setVsInitialCategory('rocket');
+      let cat = 'rival';
+      if (req.includes('rocket_') || req.includes('_well_') || req.includes('_radio_')) cat = 'rocket';
+      if (setVsInitialCategory) setVsInitialCategory(cat);
       if (setCurrentView) setCurrentView('vs');
       onClose();
+    } else if (req.includes('_badge')) {
+       if (setVsInitialTab) setVsInitialTab('gyms');
+       if (setCurrentView) setCurrentView('vs');
+       onClose();
     }
   };
 

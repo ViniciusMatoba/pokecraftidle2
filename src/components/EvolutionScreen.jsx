@@ -59,6 +59,23 @@ const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setE
                                   const calcStat = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + 5) * shinyMult));
                                   const calcHp   = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + lv + 10) * shinyMult));
 
+                                  let newMoves = [...(p.moves || [])];
+                                  let newLearnedMoves = p.learnedMoves ? [...p.learnedMoves] : [...newMoves];
+                                  
+                                  if (nextPoke.learnset) {
+                                     const movesAtLevel = nextPoke.learnset.filter(l => l.level <= p.level);
+                                     movesAtLevel.forEach(learn => {
+                                        const moveName = learn.move; 
+                                        if (!newLearnedMoves.some(m => m.name === moveName)) {
+                                           const moveObj = { name: moveName };
+                                           newLearnedMoves.push(moveObj);
+                                           if (newMoves.length < 4) {
+                                              newMoves.push(moveObj);
+                                           }
+                                        }
+                                     });
+                                  }
+
                                   return {
                                      ...p,
                                      id: evoData.id,
@@ -70,7 +87,9 @@ const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setE
                                      defense: calcStat(nextPoke.defense || 40, p.level),
                                      spAtk: calcStat(nextPoke.spAtk || 40, p.level),
                                      spDef: calcStat(nextPoke.spDef || 40, p.level),
-                                     speed: calcStat(nextPoke.speed || 40, p.level)
+                                     speed: calcStat(nextPoke.speed || 40, p.level),
+                                     moves: newMoves,
+                                     learnedMoves: newLearnedMoves
                                   };
                                }
                                return p;

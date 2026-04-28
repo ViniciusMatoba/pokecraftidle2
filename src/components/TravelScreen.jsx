@@ -400,21 +400,24 @@ const TravelScreen = ({
                              <img src={fixPath(route.background)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={route.name} />
                              {!unlocked && (
                                <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex items-center justify-center">
-                                 <span className="text-lg">=</span>
+                                 <span className="text-lg">= </span>
                                </div>
                              )}
                            </div>
                            <div className="text-left">
                              <h3 className="text-lg font-black text-slate-800 uppercase italic leading-none">{route.name}</h3>
-                             {/* Preview de Encounters e Drops removido a pedido do usuário */}
-                            </div>
-
-                             <div className="flex items-center gap-2 mt-1.5">
+                             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                                 <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase border ${unlocked ? 'bg-green-100 text-green-600 border-green-200' : 'bg-red-100 text-red-600 border-red-200'}`}>
                                   {unlocked ? 'Disponível' : 'Bloqueado'}
                                 </span>
+                                {route.enemies && route.enemies.length > 0 && (
+                                  <span className="text-[8px] font-black px-2 py-0.5 rounded-full uppercase bg-slate-100 text-slate-500 border border-slate-200">
+                                    Nível: {Math.min(...route.enemies.map(e => e.level || 0))} - {Math.max(...route.enemies.map(e => e.level || 0))}
+                                  </span>
+                                )}
                              </div>
                            </div>
+                         </div>
 
                          {isCurrent && (
                            <div className="absolute right-0 top-0 bottom-0 w-1.5 bg-pokeBlue"></div>

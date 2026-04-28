@@ -66,6 +66,56 @@ export const BadgeSVG = ({ badgeId, earned, size = 20 }) => {
       path: "M12 2L4 12L12 22L20 12L12 2Z",
       colors: ['#34D399', '#059669'],
       stroke: '#064E3B'
+    },
+    zephyr_badge: {
+      path: "M12 2L20 8V16L12 22L4 16V8L12 2Z",
+      colors: ['#93C5FD', '#3B82F6'],
+      stroke: '#1D4ED8',
+      inner: <path d="M12 6L14 12H10L12 6Z" fill="white" />
+    },
+    hive_badge: {
+      path: "M12 2L20 7V17L12 22L4 17V7L12 2Z",
+      colors: ['#A3E635', '#4D7C0F'],
+      stroke: '#365314',
+      inner: <circle cx="12" cy="12" r="4" fill="#FEF08A" />
+    },
+    plain_badge: {
+       isCustom: true,
+       render: () => (
+         <svg {...commonProps}>
+           <rect x="4" y="4" width="16" height="16" rx="4" fill="#F472B6" stroke="#9D174D" strokeWidth="1" />
+           <circle cx="12" cy="12" r="4" fill="#FDF2F8" />
+         </svg>
+       )
+    },
+    fog_badge: {
+      path: "M12 2C7 2 3 6 3 11C3 16 7 20 12 22C17 20 21 16 21 11C21 6 17 2 12 2Z",
+      colors: ['#C084FC', '#7E22CE'],
+      stroke: '#581C87',
+      inner: <path d="M8 12C8 12 10 10 12 10C14 10 16 12 16 12" stroke="white" strokeWidth="2" />
+    },
+    storm_badge: {
+      path: "M12 2L22 12L12 22L2 12L12 2Z",
+      colors: ['#94A3B8', '#334155'],
+      stroke: '#0F172A',
+      inner: <path d="M10 8L14 16H6L10 8Z" fill="#FBBF24" />
+    },
+    mineral_badge: {
+      path: "M4 4H20V20H4V4Z",
+      colors: ['#CBD5E1', '#475569'],
+      stroke: '#1E293B'
+    },
+    glacier_badge: {
+      path: "M12 2L20 12L12 22L4 12L12 2Z",
+      colors: ['#7DD3FC', '#0EA5E9'],
+      stroke: '#0369A1',
+      inner: <circle cx="12" cy="12" r="3" fill="white" />
+    },
+    rising_badge: {
+      path: "M12 2C12 2 20 8 20 16C20 20 16 23 12 23C8 23 4 20 4 16C4 8 12 2 12 2Z",
+      colors: ['#818CF8', '#4338CA'],
+      stroke: '#312E81',
+      inner: <path d="M12 8V16M8 12H16" stroke="white" strokeWidth="2" />
     }
   };
 
