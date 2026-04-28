@@ -283,6 +283,7 @@ const PokemonManagement = ({
                     <div>
                       <h4 className="font-black uppercase text-slate-800 text-sm italic leading-none flex items-baseline gap-2">
                         <span>{p.name}</span>
+                        {p.isShiny && <span className="text-yellow-500 text-xs animate-pulse">⭐</span>}
                         <span className="text-[10px] font-black text-slate-400 not-italic">Nv. {p.level}</span>
                       </h4>
                       <div className="flex gap-2 mt-1">
@@ -353,7 +354,10 @@ const PokemonManagement = ({
                   <div key={p.instanceId || p.originalIndex} onClick={() => setActivePokemonDetails({ pokemon: p, index: p.originalIndex, location: 'pc' })} className="bg-white p-3 rounded-2xl border-2 border-slate-100 flex flex-col items-center gap-2 group relative cursor-pointer hover:border-pokeGold transition-all">
                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className="w-12 h-12 object-contain" alt={p.name} />
                      <div className="text-center">
-                       <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none">{p.name}</p>
+                       <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none flex items-center justify-center gap-1">
+                         {p.name}
+                         {p.isShiny && <span className="text-yellow-500 text-[8px]">⭐</span>}
+                       </p>
                        <p className="text-[8px] font-bold text-slate-400 mt-0.5">Nv. {p.level}</p>
                      </div>
                      <button onClick={(e) => { e.stopPropagation(); moveToTeam(p.originalIndex); }} className="absolute top-1 right-1 bg-blue-50 text-blue-500 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75">
@@ -451,9 +455,9 @@ const PokemonManagement = ({
                })()}
                <div className="flex-1 overflow-y-auto px-5 pt-6 pb-6 custom-scrollbar">
                   <div className="text-center mb-5">
-                     <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">
+                     <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter leading-none flex items-center justify-center gap-2">
                        {activePokemonDetails.pokemon.name}
-                       {activePokemonDetails.pokemon.isShiny && <span className="ml-2 text-yellow-500">P</span>}
+                       {activePokemonDetails.pokemon.isShiny && <span className="text-yellow-500 text-xl animate-pulse">⭐</span>}
                      </h3>
                      <div className="flex items-center justify-center gap-2 mt-2">
                         <span className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Nv. {activePokemonDetails.pokemon.level}</span>
