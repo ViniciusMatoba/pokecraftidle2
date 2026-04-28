@@ -1,5 +1,5 @@
-export const APP_VERSION = '1.10.0';
-export const APP_VERSION_DATE = '27/04/2026 14:22';
+export const APP_VERSION = '1.11.0';
+export const APP_VERSION_DATE = '27/04/2026 23:05';
 
 export const NATURE_LIST = ['Adamant', 'Modest', 'Jolly', 'Timid', 'Bold', 'Calm', 'Impish', 'Careful', 'Brave', 'Quiet'];
 
