@@ -2976,7 +2976,7 @@ export default function App() {
       case 'landing': {
         const hasSave = (gameState.team && gameState.team.length > 0);
         const startNewJourney = async () => {
-          const freshState = removeUndefinedFields({ ...DEFAULT_GAME_STATE, version: '1.10.0', lastUpdate: '27/04/2026' });
+          const freshState = removeUndefinedFields({ ...DEFAULT_GAME_STATE, version: APP_VERSION, lastUpdate: APP_VERSION_DATE });
           setGameState(freshState);
           resetSession();
           setIntroStep(0);
@@ -3068,9 +3068,9 @@ export default function App() {
                   {/* ⛔ END PROTECTED: Botões Landing */}
                 </div>
 
-                 <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest text-center mt-4">
-                   POKÉCRAFT IDLE 1.10.0 • 27/04/2026
-                 </p>
+                  <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest text-center mt-4">
+                    POKÉCRAFT IDLE {APP_VERSION} • {APP_VERSION_DATE}
+                  </p>
               </div>
 
              {/* FOREGROUND DECOR - FRONT LAYER */}
