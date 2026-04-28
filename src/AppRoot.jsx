@@ -1012,17 +1012,19 @@ export default function App() {
     let enemyPool = [...route.enemies];
     
     // ── 2. FILTRO DE LENDÁRIOS ──
-    const legendaryIds = [144, 145, 146, 150];
+    const legendaryIds = [144, 145, 146, 150, 243, 244, 245, 249, 250, 251];
     const todayStr = new Date().toISOString().split('T')[0];
 
     enemyPool = enemyPool.filter(e => {
       const id = Number(e.id);
       if (legendaryIds.includes(id)) {
         // Verifica se já derrotou o boss correspondente nas flags globais
-        const flag = id === 144 ? 'articuno_defeated' :
-                     id === 145 ? 'zapdos_defeated' :
-                     id === 146 ? 'moltres_defeated' :
-                     id === 150 ? 'mewtwo_defeated' : null;
+        const flagMap = {
+          144: 'articuno_defeated', 145: 'zapdos_defeated', 146: 'moltres_defeated', 150: 'mewtwo_defeated',
+          243: 'raikou_defeated', 244: 'entei_defeated', 245: 'suicune_defeated',
+          249: 'lugia_defeated', 250: 'ho_oh_defeated', 251: 'celebi_defeated'
+        };
+        const flag = flagMap[id];
         
         if (flag && !gameState.worldFlags?.includes(flag)) return false;
 
@@ -1162,7 +1164,13 @@ export default function App() {
       144: '/battle_bg_articuno_ice_1777302843450.png',
       145: '/battle_bg_zapdos_power_1777302859488.png',
       146: '/battle_bg_moltres_fire_1777302877103.png',
-      150: '/battle_bg_mewtwo_cave_1777302825303.png'
+      150: '/battle_bg_mewtwo_cave_1777302825303.png',
+      243: '/bg_burned_tower.png',
+      244: '/bg_burned_tower.png',
+      245: '/bg_lake_of_rage.png',
+      249: '/bg_whirl_islands.png',
+      250: '/bg_tin_tower.png',
+      251: '/bg_ilex_forest.png'
     };
     const specialBg = legendaryBgs[Number(finalBase.id)] || null;
 
@@ -2155,7 +2163,7 @@ export default function App() {
         addLog(` ${p.name} aumentou o Ataque Especial!`, 'system');
       } else if (use.effect === 'force_evolve') {
         const pokeData = POKEDEX[p.id];
-        if (pokeData?.evolution && pokeData.evolution.id <= 151) {
+        if (pokeData?.evolution && pokeData.evolution.id <= 251) {
           setEvolutionPending({ ...p, teamIndex: location === 'team' ? pokemonIndex : null, pcIndex: location === 'pc' ? pokemonIndex : null });
           return { ...prev, inventory: newInventory };
         } else {
@@ -2698,11 +2706,20 @@ export default function App() {
 
         const levelDiff = (p.level || 1) - (currentEnemy.level || 1);
         let levelScalingMult = 1.0;
-        if (finalBadges.length >= 8) {
+
+        // Regras de Anti-Overlevel (Mesmo padrão de Kanto aplicado a Johto)
+        const totalBadges = finalBadges.length;
+        const johtoStarted = newFlags.includes('johto_started');
+        // Fase de Ginásios: < 8 em Kanto OU < 16 em Johto
+        const isGymPhase = (!johtoStarted && totalBadges < 8) || (johtoStarted && totalBadges < 16);
+
+        if (!isGymPhase) {
+          // Fase Pós-Liga (Kanto ou Johto): Limite Suave
           if (levelDiff >= 40) levelScalingMult = 0.15;
           else if (levelDiff >= 30) levelScalingMult = 0.30;
           else if (levelDiff >= 20) levelScalingMult = 0.50;
         } else if (levelDiff >= 20) {
+          // Fase de Ginásios: Limite Estrito
           levelScalingMult = 0.001;
         }
 
@@ -2769,7 +2786,7 @@ export default function App() {
             });
           }
 
-           if (pokeData?.evolution?.level && !pokeData.evolution.item && newLevel >= pokeData.evolution.level && (pokeData.evolution.id <= 151)) {
+           if (pokeData?.evolution?.level && !pokeData.evolution.item && newLevel >= pokeData.evolution.level && (pokeData.evolution.id <= 251)) {
              setEvolutionPending({ ...p, level: newLevel, teamIndex: i });
           }
 

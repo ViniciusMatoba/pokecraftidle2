@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '../data/candies';
@@ -21,9 +21,10 @@ const PokemonManagement = ({
   showConfirm,
   closeConfirm
 }) => {
-  const [candyExpanded, setCandyExpanded] = useState(false);
   const [dragTeamIndex, setDragTeamIndex] = useState(null);
   const [dragMoved, setDragMoved] = useState(false);
+  const [pcSearch, setPcSearch] = useState('');
+  const [pcSort, setPcSort] = useState('number');
   const activePokemonKey = activePokemonDetails?.pokemon?.instanceId || activePokemonDetails?.pokemon?.id || null;
 
   useEffect(() => {
@@ -64,14 +65,6 @@ const PokemonManagement = ({
       return;
     }
     const poke = gameState.pc[index];
-    if (poke?.lockedUntilFlag && !(gameState.worldFlags || []).includes(poke.lockedUntilFlag)) {
-      showConfirm({
-        title: 'Bloqueado em Johto',
-        message: poke.lockReason || 'Este Pokemon esta guardado no PC regional ate voce vencer a Liga de Johto pela primeira vez.',
-        onConfirm: closeConfirm
-      });
-      return;
-    }
     setGameState(prev => {
       const newPC = prev.pc.filter((_, i) => i !== index);
       const newTeam = [...prev.team, poke];
@@ -306,22 +299,72 @@ const PokemonManagement = ({
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
-            {(gameState.pc || []).length === 0 && <p className="col-span-2 text-center py-10 text-slate-400 font-bold uppercase italic">O PC esta vazio...</p>}
-            {(gameState.pc || []).map((p, i) => (
-              <div key={p.instanceId || i} onClick={() => setActivePokemonDetails({ pokemon: p, index: i, location: 'pc' })} className="bg-white p-3 rounded-2xl border-2 border-slate-100 flex flex-col items-center gap-2 group relative cursor-pointer hover:border-pokeGold transition-all">
-                 <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className="w-12 h-12 object-contain" alt={p.name} />
-                 <div className="text-center">
-                   <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none">{p.name}</p>
-                   <p className="text-[8px] font-bold text-slate-400 mt-0.5">Nv. {p.level}</p>
-                 </div>
-                 <button onClick={(e) => { e.stopPropagation(); moveToTeam(i); }} className="absolute top-1 right-1 bg-blue-50 text-blue-500 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75">
-                   <span className="font-black text-[8px] uppercase">+ Team</span>
-                 </button>
-              </div>
-            ))}
+          <div className="flex flex-col gap-4">
+            {/* Barra de Busca e Filtros */}
+            <div className="flex flex-col sm:flex-row gap-3 bg-white p-4 rounded-3xl border-2 border-slate-100 shadow-sm">
+               <div className="flex-1 relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+                  <input 
+                    type="text"
+                    placeholder="Buscar por nome ou n..."
+                    value={pcSearch}
+                    onChange={(e) => setPcSearch(e.target.value)}
+                    className="w-full bg-slate-50 border-none rounded-xl py-2.5 pl-10 pr-4 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-pokeGold/50 transition-all placeholder:text-slate-300"
+                  />
+               </div>
+               <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black uppercase text-slate-400 whitespace-nowrap">Ordenar:</span>
+                  <select 
+                    value={pcSort}
+                    onChange={(e) => setPcSort(e.target.value)}
+                    className="bg-slate-50 border-none rounded-xl py-2.5 px-4 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-pokeGold/50 outline-none transition-all cursor-pointer"
+                  >
+                    <option value="number">Nº Pokedex (1-251)</option>
+                    <option value="number-desc">Nº Pokedex (251-1)</option>
+                    <option value="alpha">Ordem Alfabética (A-Z)</option>
+                    <option value="level">Maior Nível</option>
+                    <option value="type">Por Tipo</option>
+                  </select>
+               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {(() => {
+                const filtered = (gameState.pc || [])
+                  .map((p, idx) => ({ ...p, originalIndex: idx }))
+                  .filter(p => {
+                    const term = pcSearch.toLowerCase();
+                    return p.name.toLowerCase().includes(term) || String(p.id).includes(term);
+                  })
+                  .sort((a, b) => {
+                    if (pcSort === 'alpha') return a.name.localeCompare(b.name);
+                    if (pcSort === 'level') return b.level - a.level;
+                    if (pcSort === 'type') return (a.type || 'Normal').localeCompare(b.type || 'Normal');
+                    if (pcSort === 'number-desc') return b.id - a.id;
+                    return a.id - b.id;
+                  });
+
+                if (filtered.length === 0) {
+                  return <p className="col-span-2 text-center py-10 text-slate-400 font-bold uppercase italic">{pcSearch ? 'Nenhum Pokemon encontrado...' : 'O PC esta vazio...'}</p>;
+                }
+
+                return filtered.map((p) => (
+                  <div key={p.instanceId || p.originalIndex} onClick={() => setActivePokemonDetails({ pokemon: p, index: p.originalIndex, location: 'pc' })} className="bg-white p-3 rounded-2xl border-2 border-slate-100 flex flex-col items-center gap-2 group relative cursor-pointer hover:border-pokeGold transition-all">
+                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className="w-12 h-12 object-contain" alt={p.name} />
+                     <div className="text-center">
+                       <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none">{p.name}</p>
+                       <p className="text-[8px] font-bold text-slate-400 mt-0.5">Nv. {p.level}</p>
+                     </div>
+                     <button onClick={(e) => { e.stopPropagation(); moveToTeam(p.originalIndex); }} className="absolute top-1 right-1 bg-blue-50 text-blue-500 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75">
+                       <span className="font-black text-[8px] uppercase">+ Team</span>
+                     </button>
+                  </div>
+                ));
+              })()}
+            </div>
           </div>
         )}
+
       </div>
 
       {activePokemonDetails && typeof document !== 'undefined' && createPortal((
@@ -659,7 +702,7 @@ const PokemonManagement = ({
                                  <p className="text-[11px] font-black text-slate-800 uppercase text-left">Evolucao por Pedra</p>
                                  <p className="text-[9px] font-bold text-slate-500 text-left">Requer: {stoneNames[stoneEvol] || stoneEvol}</p>
                                </div>
-                               {hasStone && pokeData?.evolution?.id <= 151 && (
+                               {hasStone && pokeData?.evolution?.id <= 251 && (
                                  <button onClick={() => useStoneEvolution(stoneEvol)} className="bg-gradient-to-br from-yellow-400 to-amber-500 text-white font-black text-[10px] px-4 py-2.5 rounded-xl shadow-lg uppercase hover:scale-105 transition-transform animate-pulse text-center">Evoluir!</button>
                                )}
                              </div>
@@ -674,7 +717,7 @@ const PokemonManagement = ({
                            {/* Evolucao */}
                            <div className="bg-slate-50 p-4 rounded-2xl mb-4 border-2 border-slate-100">
                              <p className="text-[9px] font-black text-slate-400 uppercase mb-1 text-left">Proxima Evolucao</p>
-                             {pokeData?.evolution && pokeData.evolution.id <= 151 ? (
+                             {pokeData?.evolution && pokeData.evolution.id <= 251 ? (
                                <div className="flex flex-col gap-3">
                                  <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-100">

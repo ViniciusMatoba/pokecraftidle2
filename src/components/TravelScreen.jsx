@@ -50,6 +50,7 @@ const TravelScreen = ({
   const [selectedPoke, setSelectedPoke] = React.useState(null);
   const [selectedDrop, setSelectedDrop] = React.useState(null);
   const [routeRegionTab, setRouteRegionTab] = React.useState('kanto');
+  const [alertMessage, setAlertMessage] = React.useState(null);
 
   const isRouteUnlocked = (route) => checkRouteUnlocked(route, gameState);
   const kantoChampion = (gameState.worldFlags || []).includes('champion');
@@ -234,7 +235,9 @@ const TravelScreen = ({
       'johto_rocket_radio_cleared': 'Salvar a Radio Tower',
       'glacier_badge': 'Insignia Glacier (Pryce)',
       'rising_badge': 'Insignia Rising (Clair)',
-      'johto_rival_victory_defeated': 'Derrotar o Rival na Victory Road'
+      'johto_rival_victory_defeated': 'Derrotar o Rival na Victory Road',
+      'johto_rival_1_defeated': 'Derrotar o Rival em New Bark',
+      'johto_champion': 'Vencer a Liga de Johto'
     };
     return map[req] || req;
   };
@@ -550,6 +553,13 @@ const TravelScreen = ({
             {isRouteUnlocked(selectedRoute) ? (
               <button 
                 onClick={() => {
+                  if (isJohtoRoute(selectedRoute)) {
+                    const hasLocked = gameState.team.some(p => p.lockedUntilFlag && !(gameState.worldFlags || []).includes(p.lockedUntilFlag));
+                    if (hasLocked) {
+                      setAlertMessage("Você não pode viajar para Johto com Pokémon guardados pelo Prof. Elm. Guarde-os no PC antes de prosseguir!");
+                      return;
+                    }
+                  }
                   setGameState(prev => ({ ...prev, currentRoute: selectedRoute.id }));
                   setCurrentEnemy(null);
                   setCurrentView('battles');
@@ -709,11 +719,28 @@ const TravelScreen = ({
                     )}
                  </div>
 
-                 <button 
+                  <button 
                    onClick={() => setSelectedDrop(null)}
                    className="w-full mt-10 bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-slate-700 active:scale-95 transition-all shadow-lg"
                  >Voltar ao Mapa</button>
               </div>
+           </div>
+        </div>
+      ), document.body)}
+
+      {/* Modal de Alerta Local */}
+      {alertMessage && typeof document !== 'undefined' && createPortal((
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
+           <div className="bg-white w-full max-w-sm rounded-[3rem] shadow-2xl p-8 animate-bounceIn text-center border-4 border-red-500">
+              <div className="text-4xl mb-4">🚫</div>
+              <h3 className="text-xl font-black text-slate-800 uppercase italic mb-4">Acesso Bloqueado</h3>
+              <p className="text-sm font-bold text-slate-500 mb-8">{alertMessage}</p>
+              <button 
+                onClick={() => setAlertMessage(null)}
+                className="w-full bg-red-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-red-600 active:scale-95 transition-all shadow-lg"
+              >
+                Entendi
+              </button>
            </div>
         </div>
       ), document.body)}
