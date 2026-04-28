@@ -21,6 +21,7 @@ const PokemonManagement = ({
   showConfirm,
   closeConfirm
 }) => {
+  const [candyExpanded, setCandyExpanded] = useState(false);
   const [dragTeamIndex, setDragTeamIndex] = useState(null);
   const [dragMoved, setDragMoved] = useState(false);
   const [pcSearch, setPcSearch] = useState('');
