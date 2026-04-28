@@ -1,5 +1,14 @@
 # Changelog - PokéCraft Idle
 
+## [1.17.1] - 2026-04-28
+### Adicionado
+- **Expansão de Desafios Johto:** Adicionadas 4 novas batalhas canônicas (Silver em Azalea, Burned Tower e Goldenrod Tunnel; Executivo Rocket em Mahogany).
+- **Progressão Vinculada:** Novos desafios agora atuam como bloqueios de rota. Ex: Ilex Forest exige vitória contra Rival em Azalea.
+- **Navegação Inteligente:** Requisitos clicáveis no mapa e em desafios agora redirecionam automaticamente para a aba e categoria correta no Modo VS.
+
+### Corrigido
+- **Filtragem Regional (Modo VS):** Corrigida falha lógica que permitia a exibição de desafios de Kanto quando a aba Johto estava selecionada.
+
 ## [1.17.0] - 2026-04-28
 ### Adicionado
 - **Expansão Regional (Johto):** Implementado suporte completo para a região de Johto no Modo VS.

@@ -634,7 +634,7 @@ export const ROUTES = {
 
   ilex_forest: {
     id: 'ilex_forest', name: 'Ilex Forest', type: 'farm', group: 'Azalea Town',
-    unlockLevel: 67, requirements: ['hive_badge'],
+    unlockLevel: 67, requirements: ['hive_badge', 'johto_rival_azalea_defeated'],
     biome: 'forest',
     enemies: [
       { id: 10, level: 20, drop: 'bug_essence', dropChance: 0.18 },
@@ -724,7 +724,7 @@ export const ROUTES = {
   // ── GRUPO: OLIVINE CITY ──────────────────────────────────────────
   route_38_39: {
     id: 'route_38_39', name: 'Rotas 38 e 39', type: 'farm', group: 'Olivine City',
-    unlockLevel: 72, requirements: ['fog_badge'],
+    unlockLevel: 72, requirements: ['fog_badge', 'johto_rival_ecruteak_defeated'],
     biome: 'grass',
     enemies: [
       { id: 52, level: 32, drop: 'recipe_amulet_coin', dropChance: 0.06 },
@@ -795,7 +795,7 @@ export const ROUTES = {
   // ── GRUPO: MAHOGANY TOWN ─────────────────────────────────────────
   route_42_mortar: {
     id: 'route_42_mortar', name: 'Rota 42 / Mt. Mortar', type: 'farm', group: 'Mahogany Town',
-    unlockLevel: 76, requirements: ['mineral_badge'],
+    unlockLevel: 76, requirements: ['mineral_badge', 'johto_rocket_mahogany_cleared'],
     biome: 'mountain',
     enemies: [
       { id: 41, level: 40, drop: 'link_cable_part', dropChance: 0.08 },

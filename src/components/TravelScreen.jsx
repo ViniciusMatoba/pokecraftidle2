@@ -236,7 +236,11 @@ const TravelScreen = ({
       'glacier_badge': 'Insignia Glacier (Pryce)',
       'rising_badge': 'Insignia Rising (Clair)',
       'johto_rival_victory_defeated': 'Derrotar o Rival na Victory Road',
-      'johto_rival_1_defeated': 'Derrotar o Rival em New Bark',
+      'johto_rival_1_defeated': 'Derrotar o Rival em Cherrygrove',
+      'johto_rival_azalea_defeated': 'Vencer o Rival em Azalea',
+      'johto_rival_ecruteak_defeated': 'Vencer o Rival na Torre Queimada',
+      'johto_rocket_mahogany_cleared': 'Limpar a Base Rocket em Mahogany',
+      'johto_rival_tunnel_defeated': 'Vencer o Rival no Tunel de Goldenrod',
       'johto_champion': 'Vencer a Liga de Johto'
     };
     return map[req] || req;
@@ -261,8 +265,13 @@ const TravelScreen = ({
       setCurrentView('vs');
       setSelectedRoute(null);
     } else if (req.includes('johto_')) {
-      if (setVsInitialTab) setVsInitialTab(req === 'johto_started' ? 'challenges' : 'gyms');
-      if (setVsInitialCategory) setVsInitialCategory(req === 'johto_started' ? 'rival' : 'johto');
+      if (req.includes('rival_') || req.includes('rocket_')) {
+        if (setVsInitialTab) setVsInitialTab('challenges');
+        if (setVsInitialCategory) setVsInitialCategory(req.includes('rival_') ? 'rival' : 'rocket');
+      } else {
+        if (setVsInitialTab) setVsInitialTab(req === 'johto_started' ? 'challenges' : 'gyms');
+        if (setVsInitialCategory) setVsInitialCategory(req === 'johto_started' ? 'johto' : 'johto');
+      }
       setCurrentView(req === 'johto_started' ? 'city' : 'vs');
       setSelectedRoute(null);
     } else if (req.includes('rival_') || req.includes('rocket_hideout') || req.includes('silph_co') || req.includes('tower_cleared') || req === 'viridian_forest_cleared') {

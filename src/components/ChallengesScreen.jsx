@@ -217,6 +217,86 @@ const CHALLENGES = [
   },
   {
     region: 'johto',
+    id: 'johto_rival_azalea',
+    category: 'rival',
+    name: 'Rival - Azalea Town',
+    subtitle: 'Confronto em Azalea',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/silver.png',
+    quote: '"Voce demorou demais. Vamos ver se seus Pokemon sao lentos como voce!"',
+    reward: 13000,
+    unlockFlag: 'johto_rival_azalea_defeated',
+    requiresFlag: 'hive_badge',
+    team: [
+      { id: 92, level: 14 },  // Gastly
+      { id: 41, level: 16 },  // Zubat
+      { id: 156, level: 18 }, // Quilava (exemplo)
+    ],
+    background: "url('/bg_violet_city.png') center/cover no-repeat",
+    location: 'Azalea Town - Saida',
+  },
+  {
+    region: 'johto',
+    id: 'johto_rival_ecruteak',
+    category: 'rival',
+    name: 'Rival - Torre Queimada',
+    subtitle: 'Encontro em Ecruteak',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/silver.png',
+    quote: '"Esta torre guarda lendas, mas voce nao e uma delas!"',
+    reward: 15000,
+    unlockFlag: 'johto_rival_ecruteak_defeated',
+    requiresFlag: 'plain_badge',
+    team: [
+      { id: 93, level: 20 },  // Haunter
+      { id: 81, level: 20 },  // Magnemite
+      { id: 42, level: 22 },  // Golbat
+      { id: 159, level: 24 }, // Croconaw
+    ],
+    background: "url('/bg_ecruteak_city.png') center/cover no-repeat",
+    location: 'Burned Tower - Ecruteak',
+  },
+  {
+    region: 'johto',
+    id: 'johto_rocket_mahogany',
+    category: 'rocket',
+    name: 'Executivo Rocket - Mahogany',
+    subtitle: 'Base Secreta',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/rocketexecutive.png',
+    quote: '"Ninguem interrompe os planos da Equipe Rocket!"',
+    reward: 16000,
+    unlockFlag: 'johto_rocket_mahogany_cleared',
+    requiresFlag: 'storm_badge',
+    team: [
+      { id: 42, level: 24 },  // Golbat
+      { id: 110, level: 24 }, // Weezing
+      { id: 198, level: 26 }, // Murkrow
+    ],
+    background: "url('/bg_radio_tower_interior.png') center/cover no-repeat",
+    location: 'Esconderijo Rocket - Mahogany',
+  },
+  {
+    region: 'johto',
+    id: 'johto_rival_goldenrod_tunnel',
+    category: 'rival',
+    name: 'Rival - Tunel de Goldenrod',
+    subtitle: 'Invasao a Torre de Radio',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/silver.png',
+    quote: '"Eu tambem estou atras da Equipe Rocket, mas voce esta no meu caminho!"',
+    reward: 18000,
+    unlockFlag: 'johto_rival_tunnel_defeated',
+    requiresFlag: 'mineral_badge',
+    team: [
+      { id: 169, level: 32 }, // Crobat
+      { id: 82, level: 30 },  // Magneton
+      { id: 93, level: 32 },  // Haunter
+      { id: 130, level: 32 }, // Gyarados
+      { id: 215, level: 34 }, // Sneasel
+      { id: 160, level: 36 }, // Feraligatr
+    ],
+    background: "url('/bg_goldenrod_city.png') center/cover no-repeat",
+    location: 'Tunel Subterraneo - Goldenrod',
+  },
+  {
+    region: 'johto',
     id: 'johto_falkner',
     category: 'johto',
     name: 'Falkner',
@@ -894,15 +974,25 @@ const ChallengesScreen = ({
     'johto_rocket_radio_cleared': 'Salvar a Radio Tower',
     'glacier_badge': 'Insignia Glacier (Pryce)',
     'rising_badge': 'Insignia Rising (Clair)',
+    'johto_rival_1_defeated': 'Derrotar o Rival em Cherrygrove',
+    'johto_rival_azalea_defeated': 'Vencer o Rival em Azalea',
+    'johto_rival_ecruteak_defeated': 'Vencer o Rival na Torre Queimada',
+    'johto_rocket_mahogany_cleared': 'Limpar a Base Rocket em Mahogany',
+    'johto_rival_tunnel_defeated': 'Vencer o Rival no Tunel de Goldenrod',
     'johto_rival_victory_defeated': 'Derrotar o Rival na Victory Road'
   };
 
   const handleRequirementClick = (flag) => {
     if (!flag) return;
-    const johtoRequirements = ['johto_started', 'johto_route_29_cleared', 'johto_slowpoke_well_cleared', 'zephyr_badge', 'hive_badge', 'plain_badge', 'fog_badge', 'storm_badge', 'mineral_badge', 'johto_rocket_radio_cleared', 'glacier_badge', 'rising_badge', 'johto_rival_victory_defeated'];
+    const johtoRequirements = ['johto_started', 'johto_route_29_cleared', 'johto_slowpoke_well_cleared', 'zephyr_badge', 'hive_badge', 'plain_badge', 'fog_badge', 'storm_badge', 'mineral_badge', 'johto_rocket_radio_cleared', 'glacier_badge', 'rising_badge', 'johto_rival_victory_defeated', 'johto_rival_1_defeated', 'johto_rival_azalea_defeated', 'johto_rival_ecruteak_defeated', 'johto_rocket_mahogany_cleared', 'johto_rival_tunnel_defeated'];
     if (johtoRequirements.includes(flag)) {
-      if (setVsInitialTab) setVsInitialTab(flag === 'johto_started' ? 'challenges' : 'gyms');
-      if (setVsInitialCategory) setVsInitialCategory('johto');
+      if (flag.includes('rival_') || flag.includes('rocket_')) {
+        if (setVsInitialTab) setVsInitialTab('challenges');
+        if (setVsInitialCategory) setVsInitialCategory(flag.includes('rival_') ? 'rival' : 'rocket');
+      } else {
+        if (setVsInitialTab) setVsInitialTab(flag === 'johto_started' ? 'challenges' : 'gyms');
+        if (setVsInitialCategory) setVsInitialCategory('johto');
+      }
       setCurrentView(flag === 'johto_started' ? 'city' : 'vs');
     } else if (flag.includes('_badge')) {
       // Já está em VS, mas forçamos o redirecionamento correto se necessário
@@ -928,7 +1018,7 @@ const ChallengesScreen = ({
     return (gameState.worldFlags || []).includes(challenge.unlockFlag);
   };
 
-  const filtered = CHALLENGES.filter(c => c.category === selectedCategory && (filterCategories ? true : c.region === challengeRegion));
+  const filtered = CHALLENGES.filter(c => c.category === selectedCategory && c.region === challengeRegion);
 
   return (
     <div className={isEmbedded ? "h-full flex flex-col bg-slate-950" : "absolute inset-0 z-[110] flex items-end justify-center bg-black/80 backdrop-blur-sm animate-fadeIn"} onClick={!isEmbedded ? onClose : undefined}>
