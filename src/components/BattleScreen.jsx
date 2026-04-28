@@ -158,7 +158,7 @@ const BattleScreen = ({
             overflow: 'hidden', textOverflow: 'ellipsis',
             whiteSpace: 'nowrap', marginBottom: '2px',
           }}>
-            {currentEnemy?.pokemonName || currentEnemy?.name} <span style={{fontWeight:500, fontSize:'10px'}}>Nv.{currentEnemy?.level}{currentEnemy?.isWildBoss && ' 💀'}</span>
+            {currentEnemy?.pokemonName || currentEnemy?.name} {currentEnemy?.isShiny && '✨'} <span style={{fontWeight:500, fontSize:'10px'}}>Nv.{currentEnemy?.level}{currentEnemy?.isWildBoss && ' 💀'}</span>
           </p>
           {/* Barra HP */}
           <div style={{marginBottom:'2px'}}>
@@ -224,7 +224,7 @@ const BattleScreen = ({
                 overflow: 'hidden', textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap', marginBottom: '2px',
               }}>
-                {activePoke?.name} <span style={{fontWeight:500, fontSize:'8px'}}>Nv.{activePoke?.level}</span>
+                {activePoke?.name} {activePoke?.isShiny && '✨'} <span style={{fontWeight:500, fontSize:'8px'}}>Nv.{activePoke?.level}</span>
               </p>
 
               {/* HP — label + barra na mesma linha */}

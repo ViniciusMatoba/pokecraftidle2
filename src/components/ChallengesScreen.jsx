@@ -847,13 +847,19 @@ const CATEGORY_CONFIG = {
 
 const ChallengesScreen = ({ 
   gameState, onChallenge, onClose, isEmbedded = false, 
-  filterCategories = null, setCurrentView, setVsInitialTab,
+  filterCategories = null, forcedRegion = null, setCurrentView, setVsInitialTab,
   initialCategory, setVsInitialCategory 
 }) => {
   const kantoChampion = (gameState.worldFlags || []).includes('champion');
-  const [challengeRegion, setChallengeRegion] = React.useState('kanto');
+  const [challengeRegion, setChallengeRegion] = React.useState(forcedRegion || 'kanto');
   const [selectedCategory, setSelectedCategory] = React.useState(initialCategory || (filterCategories ? filterCategories[0] : 'rival'));
   const [alertMessage, setAlertMessage] = React.useState(null);
+
+  React.useEffect(() => {
+    if (forcedRegion) {
+      setChallengeRegion(forcedRegion);
+    }
+  }, [forcedRegion]);
 
   React.useEffect(() => {
     if (!kantoChampion && challengeRegion === 'johto') setChallengeRegion('kanto');
@@ -944,9 +950,9 @@ const ChallengesScreen = ({
           </div>
         )}
 
-        {(!isEmbedded || (filterCategories && filterCategories.length > 1)) && (
+        {(!isEmbedded || (filterCategories && filterCategories.length >= 1)) && (
           <div className="flex flex-col p-4 pb-2 gap-3 bg-slate-900 border-b border-white/5 justify-center">
-            {kantoChampion && !filterCategories && (
+            {kantoChampion && !forcedRegion && (
               <div className="grid grid-cols-2 gap-2 mb-2 w-full max-w-sm mx-auto">
                 {[
                   { id: 'kanto', label: 'Kanto' },
@@ -972,9 +978,8 @@ const ChallengesScreen = ({
             )}
             <div className="flex w-full max-w-sm mx-auto gap-2">
               {Object.entries(CATEGORY_CONFIG)
-                .filter(([id]) => !filterCategories || filterCategories.includes(id))
                 .filter(([id]) => {
-                  if (filterCategories) return true;
+                  if (filterCategories) return filterCategories.includes(id);
                   if (challengeRegion === 'kanto') return id !== 'johto';
                   if (challengeRegion === 'johto') return id === 'johto' || id === 'legendary' || id === 'rocket' || id === 'rival';
                   return true;

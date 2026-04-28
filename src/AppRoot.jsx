@@ -373,10 +373,41 @@ export default function App() {
     return newRoutes;
   }, [gameState.worldFlags]);
 
-  // ⛏️” PROTECTED: handleGoToCity — NíO EDITAR SEM AUTORIZAÇíO EXPLíCITA
+  // 🛡️ PROTECTED: handleSafeNavigation — Gerenciamento centralizado de transições de tela
+  const handleSafeNavigation = useCallback((targetView, extraAction = null) => {
+    const isTraining = !currentEnemy?.isTrainer && !currentEnemy?.isWildBoss && !currentEnemy?.isLegendary;
+    const isKeyBattle = currentEnemy && !isTraining;
+
+    if (isKeyBattle) {
+      showConfirm({
+        type: 'confirm',
+        title: 'Abandonar Batalha?',
+        message: 'Se você sair agora, perderá o progresso desta batalha importante. Deseja continuar?',
+        confirmLabel: 'Sair e ver resumo',
+        cancelLabel: 'Continuar lutando',
+        onConfirm: () => {
+          closeConfirm();
+          // Registra o progresso atual e encerra a sessão
+          setSessionStats({ ...sessionRef.current, targetRoute: gameState.currentRoute });
+          setCurrentEnemy(null);
+          if (extraAction) extraAction();
+          setCurrentView(targetView);
+        },
+        onCancel: closeConfirm
+      });
+      return;
+    }
+
+    // Navegação direta para rotas de treino ou menus
+    if (extraAction) extraAction();
+    setCurrentView(targetView);
+  }, [currentEnemy, gameState.currentRoute, showConfirm, closeConfirm, setCurrentView]);
+
+  // ⛏️” PROTECTED: handleGoToCity — NíO EDITAR SEM AUTORIZAÇíO EXPLí CITA
   const handleGoToCity = useCallback(() => {
     const currentR = ROUTES[gameState.currentRoute];
-    const isFarm = currentR && currentR.type === 'farm';
+    const isTraining = !currentEnemy?.isTrainer && !currentEnemy?.isWildBoss && !currentEnemy?.isLegendary;
+    const isKeyBattle = currentEnemy && !isTraining;
     let targetCityId = null;
 
     if (currentR && currentR.group) {
@@ -386,18 +417,40 @@ export default function App() {
       );
     }
 
-    if (currentView === 'battles' && (sessionRef.current.kills > 0 || sessionRef.current.captures.length > 0)) {
-      setSessionStats({ ...sessionRef.current, targetRoute: targetCityId || gameState.currentRoute });
+    const performExit = () => {
+      if (currentView === 'battles' && (sessionRef.current.kills > 0 || sessionRef.current.captures.length > 0)) {
+        setSessionStats({ ...sessionRef.current, targetRoute: targetCityId || gameState.currentRoute });
+        return;
+      }
+      
+      setGameState(prev => ({ 
+        ...prev, 
+        lastFarmingRoute: (ROUTES[prev.currentRoute]?.type === 'farm') ? prev.currentRoute : prev.lastFarmingRoute,
+        currentRoute: targetCityId || prev.currentRoute 
+      }));
+      setCurrentEnemy(null);
+      resetSession();
+      setCurrentView('city');
+    };
+
+    if (isKeyBattle) {
+      showConfirm({
+        type: 'confirm',
+        title: 'Abandonar Batalha?',
+        message: 'Se você sair agora, perderá o progresso desta batalha importante. Deseja ver o resumo do que obteve até aqui?',
+        confirmLabel: 'Sim, sair',
+        cancelLabel: 'Continuar lutando',
+        onConfirm: () => {
+          closeConfirm();
+          performExit();
+        },
+        onCancel: closeConfirm
+      });
       return;
     }
 
-    setGameState(prev => ({ 
-      ...prev, 
-      currentRoute: targetCityId || prev.currentRoute,
-      lastFarmingRoute: isFarm ? prev.currentRoute : prev.lastFarmingRoute 
-    }));
-    setCurrentView('city');
-  }, [gameState.currentRoute, currentView, setGameState, setCurrentView, stopSFX]);
+    performExit();
+  }, [currentEnemy, gameState.currentRoute, currentView, ROUTES, showConfirm, closeConfirm, setGameState, setCurrentView, resetSession]);
 
 
 
@@ -4585,8 +4638,6 @@ export default function App() {
                 "Parabens! Voce venceu a Liga de Kanto e provou que sua jornada virou historia."
               </p>
               <p className="text-sm font-black text-slate-800 leading-relaxed mb-4 uppercase">
-                "A partir de agora, uma coroa aparecera ao lado das suas insignias de Kanto no card de treinador. Ela marca oficialmente seu titulo de campeao."
-              </p>
               <div className="bg-emerald-50 border-2 border-emerald-100 rounded-3xl p-4 mb-5">
                 <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Nova regiao</p>
                 <p className="text-xs font-bold text-emerald-900">
@@ -4679,7 +4730,7 @@ export default function App() {
                   </div>
                 </div>
               )}
-
+              
               {/* CAPTURAS */}
               {sessionStats.captures.length > 0 && (
                 <div className="bg-blue-50/50 p-4 rounded-3xl border border-blue-100">
@@ -4746,7 +4797,7 @@ export default function App() {
         return (
           <nav className="absolute bottom-0 left-0 right-0 w-full bg-white border-t border-slate-200 flex items-center justify-around px-2 py-2 z-50 shadow-xl">
 
-            <button onClick={() => menuUnlocked && setCurrentView('routes')}
+            <button onClick={() => menuUnlocked && handleSafeNavigation('routes')}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${['routes','battles'].includes(currentView) ? 'text-blue-600' : 'text-slate-400'}`}>
               <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png"
@@ -4755,7 +4806,7 @@ export default function App() {
               <span className="text-[9px] font-black uppercase mt-0.5">Rotas</span>
             </button>
 
-            <button onClick={() => menuUnlocked && setCurrentView('pokemon_management')}
+            <button onClick={() => menuUnlocked && handleSafeNavigation('pokemon_management')}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${currentView === 'pokemon_management' ? 'text-red-600' : 'text-slate-400'}`}>
               <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
@@ -4764,7 +4815,7 @@ export default function App() {
               <span className="text-[9px] font-black uppercase mt-0.5">Equipe</span>
             </button>
 
-            <button onClick={() => menuUnlocked && setCurrentView('vs')}
+            <button onClick={() => menuUnlocked && handleSafeNavigation('vs')}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${['vs','gyms','challenges'].includes(currentView) ? 'text-yellow-600' : 'text-slate-400'}`}>
               <img
@@ -4775,7 +4826,7 @@ export default function App() {
               <span className="text-[9px] font-black uppercase mt-0.5">Modo VS</span>
             </button>
 
-            <button onClick={() => menuUnlocked && handleGoToCity()}
+            <button onClick={() => menuUnlocked && handleSafeNavigation('city', handleGoToCity)}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${currentView === 'city' ? 'text-indigo-600' : 'text-slate-400'}`}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
@@ -4794,7 +4845,7 @@ export default function App() {
               <span className="text-[9px] font-black uppercase mt-0.5">Cidade</span>
             </button>
 
-            <button onClick={() => menuUnlocked && setCurrentView('menu')}
+            <button onClick={() => menuUnlocked && handleSafeNavigation('menu')}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${currentView === 'menu' ? 'text-slate-800' : 'text-slate-400'}`}>
               <img src="/assets/menu/pokedex.png"

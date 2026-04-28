@@ -5,12 +5,21 @@ import ChallengesScreen from './ChallengesScreen';
 const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentView, initialTab, setVsInitialTab, initialCategory, setVsInitialCategory }) => {
   const normalizeTab = (tab) => tab === 'johto' ? 'gyms' : (tab || 'challenges');
   const [activeTab, setActiveTab] = useState(normalizeTab(initialTab)); // 'challenges', 'gyms', 'legendary'
+  const [region, setRegion] = useState(initialCategory === 'johto' ? 'johto' : 'kanto');
+
+  const kantoChampion = (gameState.worldFlags || []).includes('champion');
 
   React.useEffect(() => {
     if (initialTab) {
       setActiveTab(normalizeTab(initialTab));
     }
   }, [initialTab]);
+
+  React.useEffect(() => {
+    if (initialCategory === 'johto') {
+      setRegion('johto');
+    }
+  }, [initialCategory]);
 
   const tabs = [
     { id: 'challenges', name: 'Desafios', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png', desc: 'Rivais & Rocket' },
@@ -26,13 +35,31 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
       >
         {/* Header & Tabs */}
         <div className="bg-slate-900 border-b border-white/10 pt-8 px-4 pb-0 shrink-0">
-          <div className="flex items-center justify-between mb-6 px-2">
+          <div className="flex items-center justify-between mb-4 px-2">
             <div>
               <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter leading-none">MODO VS</h2>
               <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Sua jornada competitiva</p>
             </div>
             <button onClick={onClose} className="text-white/40 hover:text-white text-xl font-black w-10 h-10 flex items-center justify-center">x</button>
           </div>
+
+          {/* Region Selector */}
+          {kantoChampion && (
+            <div className="grid grid-cols-2 gap-2 mb-4 px-2">
+              <button
+                onClick={() => setRegion('kanto')}
+                className={`py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${region === 'kanto' ? 'bg-pokeGold text-slate-950 shadow-lg' : 'bg-white/5 text-white/40'}`}
+              >
+                Kanto
+              </button>
+              <button
+                onClick={() => setRegion('johto')}
+                className={`py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${region === 'johto' ? 'bg-pokeGold text-slate-950 shadow-lg' : 'bg-white/5 text-white/40'}`}
+              >
+                Johto
+              </button>
+            </div>
+          )}
 
           <div className="flex gap-4 pb-1">
             {tabs.map(tab => (
@@ -64,6 +91,7 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
               onClose={onClose}
               isEmbedded={true}
               filterCategories={['rival', 'rocket']}
+              forcedRegion={region}
               setCurrentView={setCurrentView}
               setVsInitialTab={setVsInitialTab}
               initialCategory={initialCategory}
@@ -77,6 +105,7 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
               onChallenge={onChallenge}
               onClose={onClose}
               initialSection={initialCategory}
+              forcedRegion={region}
               isEmbedded={true}
               setCurrentView={setCurrentView}
               setVsInitialTab={setVsInitialTab}
@@ -90,6 +119,7 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
               onClose={onClose}
               isEmbedded={true}
               filterCategories={['legendary']}
+              forcedRegion={region}
               setCurrentView={setCurrentView}
               setVsInitialTab={setVsInitialTab}
             />

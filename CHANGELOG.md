@@ -1,5 +1,18 @@
 # Changelog - PokéCraft Idle
 
+## [1.17.0] - 2026-04-28
+### Adicionado
+- **Expansão Regional (Johto):** Implementado suporte completo para a região de Johto no Modo VS.
+- **Seletor de Região:** Novo controle no Modo VS que alterna entre Kanto e Johto em Desafios e Ginásios.
+- **Bloqueio de Batalha (Battle Lock):** Sistema de proteção que impede a saída acidental de batalhas importantes (Treinadores, Chefes e Lendários) sem confirmação.
+- **Indicador Shiny:** Adicionado o ícone ✨ ao lado do nome de Pokémon Shiny no BattleScreen e Inventário para melhor feedback visual.
+
+### Alterado
+- **Navegação Segura:** Todos os botões do menu inferior agora utilizam o `handleSafeNavigation` para garantir integridade durante combates.
+- **Resumo de Sessão:** Melhorada a lógica de desistência de batalha para exibir o resumo de recompensas ao abandonar via confirmação.
+- **Consolidação de UI:** Removidos seletores regionais duplicados dentro de componentes embutidos para uma interface mais limpa.
+
+
 ## [1.7.6] - 2026-04-23
 ### Fixed
 - Fixed Enemy HUD (Name/Lv/HP) visibility issues by adding `instanceId` tracking.

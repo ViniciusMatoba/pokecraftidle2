@@ -329,10 +329,16 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
   ), document.body);
 };
 
-const GymScreen = ({ gameState, onChallengeGym, onChallenge, onClose, initialSection, isEmbedded = false, setCurrentView, setVsInitialTab, setVsInitialCategory }) => {
+const GymScreen = ({ gameState, onChallengeGym, onChallenge, onClose, initialSection, forcedRegion = null, isEmbedded = false, setCurrentView, setVsInitialTab, setVsInitialCategory }) => {
   const [selectedGym, setSelectedGym] = React.useState(null);
-  const [leagueRegion, setLeagueRegion] = React.useState('kanto');
+  const [leagueRegion, setLeagueRegion] = React.useState(forcedRegion || 'kanto');
   const scrollRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (forcedRegion) {
+      setLeagueRegion(forcedRegion);
+    }
+  }, [forcedRegion]);
 
   React.useEffect(() => {
     if (initialSection === 'elite4' && scrollRef.current) {
@@ -393,7 +399,7 @@ const GymScreen = ({ gameState, onChallengeGym, onChallenge, onClose, initialSec
 
         {/* Badge Strip */}
         <div className="flex-shrink-0 px-3 py-3 border-b border-white/10">
-          {kantoChampion && (
+          {kantoChampion && !forcedRegion && (
             <div className="grid grid-cols-2 gap-2 mb-3">
               {[
                 { id: 'kanto', label: 'Kanto' },
@@ -436,6 +442,7 @@ const GymScreen = ({ gameState, onChallengeGym, onChallenge, onClose, initialSec
               onClose={onClose}
               isEmbedded={true}
               filterCategories={['johto']}
+              forcedRegion="johto"
               setCurrentView={setCurrentView}
               setVsInitialTab={setVsInitialTab}
               initialCategory="johto"
