@@ -4637,7 +4637,6 @@ export default function App() {
               <p className="text-sm font-bold text-slate-600 leading-relaxed italic mb-3">
                 "Parabens! Voce venceu a Liga de Kanto e provou que sua jornada virou historia."
               </p>
-              <p className="text-sm font-black text-slate-800 leading-relaxed mb-4 uppercase">
               <div className="bg-emerald-50 border-2 border-emerald-100 rounded-3xl p-4 mb-5">
                 <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Nova regiao</p>
                 <p className="text-xs font-bold text-emerald-900">
