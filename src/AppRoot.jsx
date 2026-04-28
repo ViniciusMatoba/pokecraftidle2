@@ -272,6 +272,7 @@ export default function App() {
   const [showTimeInfoModal, setShowTimeInfoModal] = useState(false);
   const [vsInitialTab, setVsInitialTab] = useState('challenges'); // 'challenges', 'gyms', 'legendary'
   const [vsInitialCategory, setVsInitialCategory] = useState(null); // 'rival', 'boss', 'rocket', 'legendary'
+  const [vsInitialRegion, setVsInitialRegion] = useState('kanto'); // 'kanto', 'johto'
 
   const [sessionStats, setSessionStats] = useState(null);
   const sessionRef = useRef({ kills: 0, coins: 0, trainers: 0, shinyKills: 0, drops: {}, captures: [] });
@@ -4133,6 +4134,8 @@ export default function App() {
           setVsInitialTab={setVsInitialTab}
           initialCategory={vsInitialCategory}
           setVsInitialCategory={setVsInitialCategory}
+          initialRegion={vsInitialRegion}
+          setVsInitialRegion={setVsInitialRegion}
         />
       );
 
@@ -4249,6 +4252,7 @@ export default function App() {
           setCurrentView={setCurrentView}
           setVsInitialTab={setVsInitialTab}
           setVsInitialCategory={setVsInitialCategory}
+          setVsInitialRegion={setVsInitialRegion}
           fixPath={fixPath}
           POKEDEX={POKEDEX}
         />

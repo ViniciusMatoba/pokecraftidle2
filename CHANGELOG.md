@@ -1,5 +1,9 @@
 # Changelog - PokéCraft Idle
 
+## [1.17.2] - 2026-04-28
+### Corrigido
+- **Navegação Regional (Click-to-go):** Implementado o estado `vsInitialRegion` para garantir que cliques em requisitos de Johto (Rival/Rocket) abram a aba regional correta no Modo VS.
+
 ## [1.17.1] - 2026-04-28
 ### Adicionado
 - **Expansão de Desafios Johto:** Adicionadas 4 novas batalhas canônicas (Silver em Azalea, Burned Tower e Goldenrod Tunnel; Executivo Rocket em Mahogany).

@@ -43,6 +43,7 @@ const TravelScreen = ({
   setCurrentView,
   setVsInitialTab,
   setVsInitialCategory,
+  setVsInitialRegion,
   fixPath,
   POKEDEX
 }) => {
@@ -258,6 +259,7 @@ const TravelScreen = ({
     if (johtoBadges.includes(req)) {
       if (setVsInitialTab) setVsInitialTab('gyms');
       if (setVsInitialCategory) setVsInitialCategory('johto');
+      if (setVsInitialRegion) setVsInitialRegion('johto');
       setCurrentView('vs');
       setSelectedRoute(null);
     } else if (req.includes('_badge')) {
@@ -268,9 +270,11 @@ const TravelScreen = ({
       if (req.includes('rival_') || req.includes('rocket_')) {
         if (setVsInitialTab) setVsInitialTab('challenges');
         if (setVsInitialCategory) setVsInitialCategory(req.includes('rival_') ? 'rival' : 'rocket');
+        if (setVsInitialRegion) setVsInitialRegion('johto');
       } else {
         if (setVsInitialTab) setVsInitialTab(req === 'johto_started' ? 'challenges' : 'gyms');
         if (setVsInitialCategory) setVsInitialCategory(req === 'johto_started' ? 'johto' : 'johto');
+        if (setVsInitialRegion) setVsInitialRegion('johto');
       }
       setCurrentView(req === 'johto_started' ? 'city' : 'vs');
       setSelectedRoute(null);

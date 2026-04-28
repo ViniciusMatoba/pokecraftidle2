@@ -928,7 +928,7 @@ const CATEGORY_CONFIG = {
 const ChallengesScreen = ({ 
   gameState, onChallenge, onClose, isEmbedded = false, 
   filterCategories = null, forcedRegion = null, setCurrentView, setVsInitialTab,
-  initialCategory, setVsInitialCategory 
+  initialCategory, setVsInitialCategory, setVsInitialRegion
 }) => {
   const kantoChampion = (gameState.worldFlags || []).includes('champion');
   const [challengeRegion, setChallengeRegion] = React.useState(forcedRegion || 'kanto');
@@ -989,9 +989,11 @@ const ChallengesScreen = ({
       if (flag.includes('rival_') || flag.includes('rocket_')) {
         if (setVsInitialTab) setVsInitialTab('challenges');
         if (setVsInitialCategory) setVsInitialCategory(flag.includes('rival_') ? 'rival' : 'rocket');
+        if (setVsInitialRegion) setVsInitialRegion('johto');
       } else {
         if (setVsInitialTab) setVsInitialTab(flag === 'johto_started' ? 'challenges' : 'gyms');
         if (setVsInitialCategory) setVsInitialCategory('johto');
+        if (setVsInitialRegion) setVsInitialRegion('johto');
       }
       setCurrentView(flag === 'johto_started' ? 'city' : 'vs');
     } else if (flag.includes('_badge')) {

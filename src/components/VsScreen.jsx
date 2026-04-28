@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import GymScreen from './GymScreen';
 import ChallengesScreen from './ChallengesScreen';
 
-const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentView, initialTab, setVsInitialTab, initialCategory, setVsInitialCategory }) => {
+const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentView, initialTab, setVsInitialTab, initialCategory, setVsInitialCategory, initialRegion, setVsInitialRegion }) => {
   const normalizeTab = (tab) => tab === 'johto' ? 'gyms' : (tab || 'challenges');
   const [activeTab, setActiveTab] = useState(normalizeTab(initialTab)); // 'challenges', 'gyms', 'legendary'
-  const [region, setRegion] = useState(initialCategory === 'johto' ? 'johto' : 'kanto');
+  const [region, setRegion] = useState(initialRegion || (initialCategory === 'johto' ? 'johto' : 'kanto'));
 
   const kantoChampion = (gameState.worldFlags || []).includes('champion');
 
@@ -16,10 +16,12 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
   }, [initialTab]);
 
   React.useEffect(() => {
-    if (initialCategory === 'johto') {
+    if (initialRegion) {
+      setRegion(initialRegion);
+    } else if (initialCategory === 'johto') {
       setRegion('johto');
     }
-  }, [initialCategory]);
+  }, [initialCategory, initialRegion]);
 
   const tabs = [
     { id: 'challenges', name: 'Desafios', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png', desc: 'Rivais & Rocket' },
