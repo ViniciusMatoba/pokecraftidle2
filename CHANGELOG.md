@@ -1,6 +1,19 @@
 # Changelog - PokéCraft Idle
 
-## [1.19.0] - 2026-04-28
+## [1.21.0] - 2026-04-28 (15:57)
+### ⚔️ Gestão de Golpes & Paridade Johto
+- **Gestão de Golpes (Summary):** Implementada interface para troca e reordenação de golpes ativos. Agora é possível escolher quais ataques seu Pokémon usará no modo idle.
+- **Aprendizado Inteligente:** Pokémon agora mantêm uma "Memória de Golpes" (`learnedMoves`), permitindo recuperar ataques antigos a qualquer momento.
+- **Evolução com Golpes:** Ao evoluir, o Pokémon aprende automaticamente todos os golpes da nova espécie correspondentes ao seu nível atual.
+- **Insígnias de Johto:** Implementados os 8 designs SVG exclusivos para as insígnias de Johto, agora visíveis no TrainerCard e MODO VS.
+- **UI de Batalha:** Melhorado o feedback visual de troca de golpes e animações de modal.
+
+## [1.20.0] - 2026-04-28 (15:05)
+### 🗺️ Navegação & Progressão
+- **Johto Region Parity:** Refatoração do MODO VS para correta segregação de Desafios (Rocket/Rival) e Ginásios na região de Johto.
+- **Click-to-Go:** Implementada navegação direta para locais de desafio a partir de modais de requisitos.
+- **Level Labels:** Adicionados indicadores de nível `[Min] - [Max]` em todos os cards de rota.
+
 ### 🚀 Estabilidade & UI Modernizada
 - **Correção Crítica (Rotas):** Resolvido crash fatal na Sprout Tower e rotas de Johto causado por vírgulas duplicadas no banco de dados.
 - **Refatoração Pokemon Management:** Modal totalmente reconstruído com visualização moderna de golpes (Type Badges/Stats), sistema de Candies expansível e painel de reordenamento de equipe simplificado.
