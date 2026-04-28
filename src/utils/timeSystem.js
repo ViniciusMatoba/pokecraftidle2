@@ -48,3 +48,88 @@ export const TIME_CONFIG = {
 // Pokémon exclusivos de noite que podem aparecer em qualquer rota com Ghost/Poison
 export const NIGHT_ONLY_POKEMON = [92, 93, 94, 41, 42, 52, 88];
 export const MORNING_BONUS_POKEMON = [16, 17, 18, 19, 20, 21, 22];
+
+const TIME_EXTRA_POKEMON = {
+  morning: [16, 17, 19, 21, 161, 165, 172, 179, 187, 191],
+  day: [10, 13, 16, 19, 21, 46, 48, 161, 165, 179, 187, 191],
+  evening: [23, 41, 77, 163, 167, 179, 198, 200, 228],
+  night: [41, 42, 52, 88, 92, 93, 163, 164, 167, 168, 198, 200, 228],
+};
+
+const NOCTURNAL_IDS = new Set([41, 42, 52, 88, 92, 93, 94, 163, 164, 167, 168, 198, 200, 228, 229]);
+const EARLY_IDS = new Set([16, 17, 18, 19, 20, 21, 22, 161, 162, 165, 166, 172, 179, 187, 188, 191, 192]);
+
+const getTypes = (entry, pokedex = {}) => {
+  const data = pokedex?.[Number(entry?.id)] || entry || {};
+  return data.types || (data.type ? [data.type] : []);
+};
+
+const getTimeMultiplier = (entry, period, route, pokedex = {}) => {
+  const id = Number(entry?.id);
+  const types = getTypes(entry, pokedex);
+  const biome = route?.biome || '';
+
+  if (period === 'morning') {
+    if (EARLY_IDS.has(id)) return 1.85;
+    if (types.includes('Flying') || types.includes('Normal') || types.includes('Grass')) return 1.35;
+    if (NOCTURNAL_IDS.has(id) || types.includes('Ghost') || types.includes('Dark')) return 0.22;
+    return 0.9;
+  }
+
+  if (period === 'day') {
+    if (NOCTURNAL_IDS.has(id) || types.includes('Ghost') || types.includes('Dark')) return 0.18;
+    if (types.includes('Bug') || types.includes('Grass') || types.includes('Normal') || types.includes('Flying')) return 1.25;
+    return 1;
+  }
+
+  if (period === 'evening') {
+    if (NOCTURNAL_IDS.has(id)) return 1.7;
+    if (types.includes('Fire') || types.includes('Electric') || types.includes('Poison')) return 1.35;
+    if (EARLY_IDS.has(id)) return 0.65;
+    return biome === 'cave' ? 1.15 : 0.85;
+  }
+
+  if (period === 'night') {
+    if (NOCTURNAL_IDS.has(id) || types.includes('Ghost') || types.includes('Dark')) return 2.4;
+    if (types.includes('Poison') || types.includes('Psychic')) return 1.35;
+    if (EARLY_IDS.has(id) || types.includes('Bug') || types.includes('Grass')) return 0.28;
+    return biome === 'cave' ? 1.35 : 0.55;
+  }
+
+  return 1;
+};
+
+export const getTimeAdjustedEnemyPool = (route, period = getTimeOfDay(), pokedex = {}, options = {}) => {
+  const baseEnemies = route?.enemies || [];
+  const unique = new Map();
+
+  baseEnemies.forEach(entry => {
+    if (!entry || entry.id === undefined) return;
+    const multiplier = getTimeMultiplier(entry, period, route, pokedex);
+    if (options.preview && multiplier < 0.45) return;
+    const spawnWeight = Math.max(1, Math.round((entry.spawnWeight || 100) * multiplier));
+    unique.set(Number(entry.id), { ...entry, spawnWeight, timeMultiplier: multiplier });
+  });
+
+  const baseLevel = baseEnemies[0]?.level || 5;
+  const extraLimit = options.preview ? 3 : 2;
+  const extras = (TIME_EXTRA_POKEMON[period] || [])
+    .filter(id => pokedex?.[id])
+    .filter(id => !unique.has(Number(id)))
+    .filter(id => {
+      const types = getTypes({ id }, pokedex);
+      const biome = route?.biome || '';
+      if (period === 'night') return biome === 'cave' || NOCTURNAL_IDS.has(Number(id)) || types.includes('Ghost') || types.includes('Dark') || types.includes('Poison');
+      if (period === 'morning') return biome !== 'cave';
+      if (period === 'evening') return biome !== 'water' || types.includes('Electric') || types.includes('Poison');
+      return biome !== 'cave';
+    })
+    .slice(0, extraLimit)
+    .map(id => ({ id, level: baseLevel, spawnWeight: options.preview ? 80 : 18, timeBonus: true }));
+
+  extras.forEach(entry => unique.set(Number(entry.id), entry));
+
+  const result = Array.from(unique.values());
+  if (result.length > 0) return result;
+  return baseEnemies;
+};

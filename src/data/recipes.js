@@ -10,7 +10,7 @@ export const CRAFTING_RECIPES = {
     { id: 'leaf_stone', name: 'Leaf Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png', cost: { leaf_stone_shard: 5, grass_essence: 20, currency: 2500 }, type: 'evolution' },
     { id: 'thunder_stone', name: 'Thunder Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png', cost: { thunder_stone_shard: 5, electric_essence: 20, currency: 2500 }, type: 'evolution' },
     { id: 'moon_stone', name: 'Moon Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png', cost: { moon_stone_shard: 5, normal_essence: 20, currency: 2500 }, type: 'evolution' },
-    { id: 'link_cable', name: 'Link Cable', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/up-grade.png', cost: { link_cable_part: 5, electric_essence: 10, normal_essence: 10, currency: 5000 }, type: 'evolution' }
+    { id: 'link_cable', name: 'Link Cable', img: '/assets/items/link-cable-custom.png', cost: { link_cable_part: 5, electric_essence: 10, normal_essence: 10, currency: 5000 }, type: 'evolution' }
   ],
   hold_items: [
     { id: 'charcoal', name: 'Charcoal', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/charcoal.png', cost: { fire_essence: 50, currency: 5000 }, effect: '+20% Fire Dmg' },
@@ -252,7 +252,7 @@ export const CRAFTING_RECIPES = {
     {
       id: 'poke_food',
       name: 'Ração Pokémon',
-      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
+      img: '/assets/items/poke-food-bag.png',
       description: 'Ração básica. Restaura 30% de Energia. Pode ser fabricada com materiais simples.',
       effect: { type: 'stamina', restore: 30 },
       cost: { apricorn: 5, normal_essence: 10, currency: 200 },
@@ -261,7 +261,7 @@ export const CRAFTING_RECIPES = {
     {
       id: 'poke_food_premium',
       name: 'Ração Premium',
-      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
+      img: '/assets/items/poke-food-premium-bag.png',
       description: 'Ração de alta qualidade. Restaura 60% de Energia e cura status.',
       effect: { type: 'stamina', restore: 60, cureStatus: true },
       cost: { apricorn: 10, grass_essence: 15, normal_essence: 20, currency: 800 },

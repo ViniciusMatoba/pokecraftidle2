@@ -30,7 +30,7 @@ const RECIPE_FRAGMENT_DROPS = {
   93: 'recipe_cleanse_tag',
 };
 import { TYPE_COLOR_HEX } from '../data/gyms';
-import { NIGHT_ONLY_POKEMON, TIME_CONFIG, getTimeOfDay } from '../utils/timeSystem';
+import { TIME_CONFIG, getTimeOfDay, getTimeAdjustedEnemyPool } from '../utils/timeSystem';
 import { hasProgressRequirement } from '../utils/progress';
 
 const TravelScreen = ({ 
@@ -104,25 +104,13 @@ const TravelScreen = ({
   };
 
   const getRouteEncountersByPeriod = (route) => {
-    const baseEnemies = route?.enemies || [];
     return periodOrder.map(period => {
-      const extras = period === 'night'
-        ? NIGHT_ONLY_POKEMON
-          .filter(id => POKEDEX?.[id])
-          .map(id => ({ id, level: baseEnemies[0]?.level || 5, timeBonus: true }))
-        : [];
-      const unique = new Map();
-      [...baseEnemies, ...extras].forEach(p => {
-        if (!p || p.id === undefined) return;
-        const id = Number(p.id);
-        if (!Number.isNaN(id) && !unique.has(id)) unique.set(id, { ...p, id });
-      });
       return {
         id: period,
         label: TIME_CONFIG[period]?.label || period,
         hours: periodHours[period],
         icon: periodIcons[period],
-        encounters: Array.from(unique.values()),
+        encounters: getTimeAdjustedEnemyPool(route, period, POKEDEX, { preview: true }),
       };
     });
   };
@@ -435,9 +423,9 @@ const TravelScreen = ({
            {/* Modal de Detalhes da Rota */}
       {selectedRoute && typeof document !== 'undefined' && createPortal((
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 md:p-4 bg-slate-900/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-bounceIn" style={{ maxHeight: '92dvh' }}>
+          <div className="bg-white w-full max-w-[400px] md:max-w-md rounded-[2rem] shadow-2xl overflow-hidden flex flex-col animate-bounceIn" style={{ maxHeight: '94dvh' }}>
             <div className="overflow-y-auto custom-scrollbar flex-1">
-            <div className="h-40 relative flex-shrink-0">
+            <div className="h-36 sm:h-40 relative flex-shrink-0">
               <img src={fixPath(selectedRoute.background)} className="w-full h-full object-cover" alt="" />
               <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
               <button 
@@ -446,7 +434,7 @@ const TravelScreen = ({
               >x</button>
             </div>
 
-            <div className="p-8 -mt-10 relative z-10">
+            <div className="p-5 sm:p-8 -mt-8 sm:-mt-10 relative z-10">
               <div className="flex justify-between items-start mb-1">
                  <h2 className="text-3xl font-black text-slate-800 uppercase italic tracking-tighter">{selectedRoute.name}</h2>
                  <span className={`text-[9px] font-black px-3 py-1 rounded-full uppercase ${isRouteUnlocked(selectedRoute) ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
@@ -484,7 +472,7 @@ const TravelScreen = ({
                 </div>
               )}
 
-              <div className="flex flex-col gap-6 mb-8">
+              <div className="flex flex-col gap-5 mb-5">
                 {/* ENCONTROS */}
                 <div className="bg-slate-50 rounded-3xl p-5 border-2 border-slate-100">
                   <div className="flex justify-between items-center mb-4">
@@ -609,12 +597,12 @@ const TravelScreen = ({
               </div>
 
               {/* Espaço extra para garantir que o scroll chegue ao fim */}
-              <div className="h-12"></div>
+              <div className="h-5"></div>
             </div>
           </div>{/* fecha scroll */}
 
           {/* Footer Fixo — Padrão Mobile Premium com Margem de Segurança */}
-          <div className="p-6 pb-12 bg-slate-50 border-t-2 border-slate-100 flex-shrink-0 z-20">
+          <div className="px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-slate-50 border-t-2 border-slate-100 flex-shrink-0 z-20">
             {isRouteUnlocked(selectedRoute) ? (
               <button 
                 onClick={() => {
@@ -630,7 +618,7 @@ const TravelScreen = ({
                   setCurrentView('battles');
                   setSelectedRoute(null);
                 }}
-                className="w-full bg-pokeBlue text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95 border-b-4 border-blue-800 flex items-center justify-center gap-3"
+                className="w-full min-h-[54px] bg-pokeBlue text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95 border-b-[3px] border-blue-800 flex items-center justify-center gap-3"
               >
                 <span className="text-xl">⚔️</span>
                 Começar Treino
@@ -638,7 +626,7 @@ const TravelScreen = ({
             ) : (
               <button 
                 disabled
-                className="w-full bg-slate-200 text-slate-400 py-4 rounded-2xl font-black uppercase tracking-widest cursor-not-allowed border-b-4 border-slate-300"
+                className="w-full min-h-[54px] bg-slate-200 text-slate-400 py-3 rounded-xl font-black uppercase tracking-widest cursor-not-allowed border-b-[3px] border-slate-300"
               >Caminho Bloqueado</button>
             )}
           </div>
