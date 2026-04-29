@@ -927,12 +927,26 @@ const CHALLENGES = [
 ];
 
 const CATEGORY_CONFIG = {
-  rival:     { label: 'Rival',         color: '#2563eb', emoji: '👤'  },
-  rocket:    { label: 'Equipe Rocket', color: '#dc2626', emoji: '🚀'  },
-  johto:     { label: 'Lideres',       color: '#059669', emoji: '🏆'  },
-  rematch:   { label: 'Revanche',      color: '#f59e0b', emoji: '🔥'  },
-  legendary: { label: 'Lendários',     color: '#7c3aed', emoji: '✨'  },
+  rival:     { label: 'Rival',         color: '#2563eb', emoji: 'VS'  },
+  rocket:    { label: 'Equipe Rocket', color: '#dc2626', emoji: 'R'   },
+  johto:     { label: 'Lideres',       color: '#059669', emoji: 'GYM' },
+  rematch:   { label: 'Revanche',      color: '#f59e0b', emoji: 'EX'  },
+  legendary: { label: 'Lendarios',     color: '#7c3aed', emoji: 'L'   },
 };
+
+const JOHTO_GYM_ORDER = {
+  johto_falkner: 1,
+  johto_bugsy: 2,
+  johto_whitney: 3,
+  johto_morty: 4,
+  johto_chuck: 5,
+  johto_jasmine: 6,
+  johto_pryce: 7,
+  johto_clair: 8,
+};
+
+const getTypeIconUrl = (type) =>
+  type ? `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${type.toLowerCase()}.svg` : null;
 
 const getChallengeColor = (challenge) => {
   if (challenge.type && TYPE_COLOR_HEX[challenge.type]) return TYPE_COLOR_HEX[challenge.type];
@@ -942,6 +956,83 @@ const getChallengeColor = (challenge) => {
 const getChallengeCardBackground = (challenge) => {
   const color = getChallengeColor(challenge);
   return challenge.background || `linear-gradient(135deg, ${color} 0%, #0f172a 100%)`;
+};
+
+const JohtoLeaderCard = ({ challenge, unlocked, defeated, onSelect, onRequirementClick, requirementLabel }) => {
+  const accentColor = getChallengeColor(challenge);
+  const typeIcon = getTypeIconUrl(challenge.type);
+  const badgeOrder = JOHTO_GYM_ORDER[challenge.id] || '';
+
+  return (
+    <div
+      onClick={() => unlocked && !defeated && onSelect(challenge)}
+      className={`relative rounded-[2rem] overflow-hidden shadow-xl transition-all border-2 ${
+        unlocked && !defeated
+          ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98] group border-white/15 hover:border-pokeGold/60'
+          : 'grayscale cursor-not-allowed opacity-60 border-white/10'
+      }`}
+      style={{ minHeight: '188px', background: getChallengeCardBackground(challenge) }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/88 via-slate-950/55 to-slate-950/18" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-white/10" />
+      <div className="absolute top-0 right-0 w-48 h-48 -mr-16 -mt-16 rounded-full opacity-35 transition-all group-hover:scale-110 group-hover:opacity-50 blur-sm" style={{ backgroundColor: accentColor }} />
+
+      <div className="absolute top-6 right-6 opacity-10 group-hover:opacity-20 transition-opacity">
+        {typeIcon && <img src={typeIcon} className="w-24 h-24 invert" alt="" />}
+      </div>
+
+      <div className="absolute top-6 left-8 z-20 text-left max-w-[62%]">
+        <h4 className="text-white/60 font-black text-[10px] uppercase tracking-widest leading-none">GINASIO #{badgeOrder}</h4>
+        <p className="text-white font-black text-2xl uppercase italic leading-none tracking-tighter mt-1.5 drop-shadow-sm truncate">{challenge.name}</p>
+        <div className="mt-4 flex items-center gap-2.5 bg-white/15 backdrop-blur-sm w-fit px-3 py-2 rounded-xl border border-white/20 shadow-sm">
+          <div className="w-5 h-5 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: accentColor }}>
+            {typeIcon && <img src={typeIcon} className="w-3.5 h-3.5 invert" alt={challenge.type} />}
+          </div>
+          <span className="text-white text-[10px] font-black uppercase tracking-widest">{challenge.type}</span>
+        </div>
+        <div className="flex items-center gap-2 mt-4">
+          {defeated && <span className="bg-emerald-500 text-white text-[9px] font-black px-3 py-1 rounded-full shadow-lg shadow-emerald-950/30">VENCIDO</span>}
+          {!unlocked && <span className="bg-white/10 text-white/60 text-[9px] font-black px-3 py-1 rounded-full border border-white/15">BLOQUEADO</span>}
+        </div>
+      </div>
+
+      <div className="flex justify-end pr-4 pt-12 relative z-10 pointer-events-none">
+        <img
+          src={challenge.sprite}
+          alt={challenge.name}
+          className="w-36 h-36 object-contain drop-shadow-2xl translate-y-6 group-hover:scale-110 transition-transform duration-500 group-hover:rotate-2"
+          onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'; }}
+        />
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 p-6 z-20 bg-gradient-to-t from-slate-950 via-slate-950/85 to-transparent">
+        <div className="flex items-center gap-4">
+          <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all ${
+            defeated ? 'border-yellow-400 bg-white shadow-xl shadow-yellow-200/50' : 'border-slate-300/30 bg-slate-100/10 opacity-70'
+          }`}>
+            <span className="text-[10px] font-black text-white/70">{badgeOrder}</span>
+          </div>
+          <div className="flex-1 min-w-0 text-left">
+            <p className="text-white/45 text-[10px] font-black uppercase tracking-widest leading-none mb-1.5 truncate">{challenge.location}</p>
+            <p className="text-pokeGold text-[11px] font-black uppercase italic tracking-tight">Desafiar Lider</p>
+          </div>
+          {!unlocked && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onRequirementClick(challenge.requiresFlag); }}
+              className="max-w-[112px] text-[7px] font-black text-red-300 uppercase bg-black/40 px-2 py-1 rounded-lg border border-red-900/50 hover:bg-black/60 transition-all leading-tight"
+            >
+              REQ: {requirementLabel}
+            </button>
+          )}
+          {unlocked && !defeated && (
+            <div className="w-10 h-10 rounded-full bg-white/12 flex items-center justify-center border border-white/20 text-white group-hover:bg-pokeGold group-hover:text-slate-950 transition-colors shadow-sm">
+              <span className="text-lg">VS</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const ChallengesScreen = ({ 
@@ -1119,10 +1210,22 @@ const ChallengesScreen = ({
             const unlocked = isUnlocked(challenge);
             const defeated = isDefeated(challenge);
             const accentColor = getChallengeColor(challenge);
+            if (challenge.category === 'johto') {
+              return (
+                <JohtoLeaderCard
+                  key={challenge.id}
+                  challenge={challenge}
+                  unlocked={unlocked}
+                  defeated={defeated}
+                  onSelect={setSelectedChallenge}
+                  onRequirementClick={handleRequirementClick}
+                  requirementLabel={flagNames[challenge.requiresFlag] || challenge.requiresFlag}
+                />
+              );
+            }
             return (
               <div
                 key={challenge.id}
-                onClick={() => unlocked && !defeated && setSelectedChallenge(challenge)}
                 className={`relative rounded-[2rem] overflow-hidden shadow-xl transition-all border-2 ${
                   unlocked && !defeated ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98] border-white/15 hover:border-pokeGold/60' : 'grayscale cursor-not-allowed opacity-60 border-white/10'
                 }`}
