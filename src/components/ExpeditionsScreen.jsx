@@ -23,7 +23,7 @@ const EfficiencyBadge = ({ value }) => {
 const ExpeditionAlertModal = ({ req, onClose }) => (
   <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn">
     <div className="modal-panel-mobile bg-slate-900 p-6 border border-white/10 shadow-2xl animate-bounceIn text-center">
-      <div className="text-4xl mb-4">=</div>
+      <div className="text-4xl mb-4">🔒</div>
       <h3 className="text-white font-black uppercase italic tracking-tighter text-xl mb-4">Caminho Bloqueado!</h3>
       <p className="text-white/60 text-sm font-bold mb-8 leading-relaxed">
         Para explorar esta área, você precisa primeiro:<br/>
@@ -270,10 +270,10 @@ const ExpeditionsScreen = ({
                     P {selectedBiome.xpPerMinute} XP/min
                   </span>
                   <span className="text-[9px] bg-green-500/30 text-green-300 px-2 py-1 rounded-full font-bold">
-                     {selectedBiome.favoredTypes.join(', ')}
+                    ✓ {selectedBiome.favoredTypes.join(', ')}
                   </span>
                   <span className="text-[9px] bg-red-500/30 text-red-300 px-2 py-1 rounded-full font-bold">
-                    L {selectedBiome.enemyType.join(', ')}
+                    ⚠️ {selectedBiome.enemyType.join(', ')}
                   </span>
                 </div>
               </div>
@@ -388,16 +388,16 @@ const ExpeditionsScreen = ({
                             onError={e => { e.target.style.display = 'none'; }}
                           />
                           {p.isShiny && (
-                            <span className="absolute -top-1 -right-1 text-[8px]">(</span>
+                            <span className="absolute -top-1 -right-1 text-[8px]">✨</span>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-white font-black text-xs truncate">{p.name}</p>
-                          <p className="text-white/50 text-[9px]">Nv. {p.level}  {p.type}</p>
+                          <p className="text-white/50 text-[9px]">Nv. {p.level} - {p.type}</p>
                           <EfficiencyBadge value={eff} />
                         </div>
                         {selected && (
-                          <span className="text-blue-400 text-lg shrink-0"></span>
+                          <span className="text-blue-400 text-lg shrink-0">✓</span>
                         )}
                       </div>
                     );

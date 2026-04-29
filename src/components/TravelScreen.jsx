@@ -388,7 +388,7 @@ const TravelScreen = ({
                              <img src={fixPath(route.background)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={route.name} />
                              {!unlocked && (
                                <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex items-center justify-center">
-                                 <span className="text-lg">= </span>
+                                  <span className="text-lg">🔒</span>
                                </div>
                              )}
                            </div>
@@ -410,8 +410,7 @@ const TravelScreen = ({
                          {isCurrent && (
                            <div className="absolute right-0 top-0 bottom-0 w-1.5 bg-pokeBlue"></div>
                          )}
-                         <div className="text-xl opacity-20 group-hover:opacity-100 group-hover:translate-x-1 transition-all">=
-</div>
+                         <div className="text-xl opacity-20 group-hover:opacity-100 group-hover:translate-x-1 transition-all">›</div>
                       </button>
                     );
                   })}
@@ -457,7 +456,7 @@ const TravelScreen = ({
                           className={`text-xs font-bold flex items-center gap-2 italic p-2 rounded-xl transition-all ${met ? 'text-green-600 bg-green-50/50' : 'text-red-600 hover:bg-red-100/50 cursor-pointer'}`}
                         >
                           <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow-sm ${met ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                            {met ? '' : '='}
+                            {met ? '✓' : '→'}
                           </div>
                           <span className="flex-1">{formatRequirement(req)}</span>
                           {met ? (

@@ -120,7 +120,7 @@ const CityScreen = ({
       id: 'house_purchase',
       name: 'Comprar Casa',
       icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/berry-pots.png',
-      emoji: 'ðŸ¡',
+      emoji: '🏡',
       desc: canBuyHouse
         ? `${HOUSE_PURCHASE_COST.toLocaleString()} coins - liberar jardim e cuidadores.`
         : `Faltam ${(HOUSE_PURCHASE_COST - (gameState.currency || 0)).toLocaleString()} coins para comprar.`,

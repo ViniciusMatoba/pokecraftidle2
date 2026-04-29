@@ -5,9 +5,9 @@ export const GYM_BG = {
   Water:    "url('/battle_bg_gym_water.png') center/cover no-repeat",
   Electric: "url('/battle_bg_gym_electric.png') center/cover no-repeat",
   Elite:    "url('/battle_bg_elite_four.png') center/cover no-repeat",
-  Grass:    "url('/battle_bg_celadon_city_1776984667791.png') center/cover no-repeat",
-  Poison:   "url('/battle_bg_fuchsia_city_1776984680732.png') center/cover no-repeat",
-  Psychic:  "url('/battle_bg_saffron_city_1776984693604.png') center/cover no-repeat",
+  Grass:    "url('/battle_bg_forest_1776863795763.png') center/cover no-repeat",
+  Poison:   "url('/battle_bg_gym_1776863824590.png') center/cover no-repeat",
+  Psychic:  "url('/battle_bg_gym_1776863824590.png') center/cover no-repeat",
   Fire:     "url('/battle_bg_cave_1776863810604.png') center/cover no-repeat",
   Ground:   "url('/battle_bg_gym_1776863824590.png') center/cover no-repeat",
 };

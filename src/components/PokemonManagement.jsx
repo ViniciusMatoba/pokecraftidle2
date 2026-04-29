@@ -79,8 +79,8 @@ const PokemonManagement = ({
   const moveToPC = (index) => {
     if (gameState.team.length <= 1) {
       showConfirm({
-        title: 'AÃ§Ã£o Bloqueada',
-        message: 'VocÃª precisa de pelo menos um PokÃ©mon no seu time principal!',
+        title: 'Ação Bloqueada',
+        message: 'Você precisa de pelo menos um Pokémon no seu time principal!',
         onConfirm: closeConfirm
       });
       return;
@@ -98,7 +98,7 @@ const PokemonManagement = ({
     if (gameState.team.length >= 6) {
       showConfirm({
         title: 'Time Cheio',
-        message: 'Seu time jÃ¡ possui o limite mÃ¡ximo de 6 PokÃ©mon. Envie alguÃ©m para o PC primeiro!',
+        message: 'Seu time já possui o limite máximo de 6 Pokémon. Envie alguém para o PC primeiro!',
         onConfirm: closeConfirm
       });
       return;
@@ -206,7 +206,7 @@ const PokemonManagement = ({
       const poke = { ...newList[activePokemonDetails.index] };
       const newMoves = [...poke.moves];
 
-      // Se jÃ¡ tiver o golpe em outra posiÃ§Ã£o, apenas troca de lugar (reordenar)
+      // Se já tiver o golpe em outra posição, apenas troca de lugar (reordenar)
       const existingIdx = newMoves.findIndex(m => m.name === newMoveName);
       if (existingIdx !== -1) {
         [newMoves[activeIdx], newMoves[existingIdx]] = [newMoves[existingIdx], newMoves[activeIdx]];
@@ -317,7 +317,7 @@ const PokemonManagement = ({
                     <div>
                       <h4 className="font-black uppercase text-slate-800 text-sm italic leading-none flex items-baseline gap-2">
                         <span>{p.name}</span>
-                        {p.isShiny && <span className="text-yellow-500 text-xs animate-pulse">âœ¨</span>}
+                        {p.isShiny && <span className="text-yellow-500 text-xs animate-pulse">✨</span>}
                         <span className="text-[10px] font-black text-slate-400 not-italic">Nv. {p.level}</span>
                       </h4>
                       <div className="flex gap-2 mt-1">
@@ -338,10 +338,10 @@ const PokemonManagement = ({
           <div className="flex flex-col gap-4">
             <div className="flex flex-col sm:flex-row gap-3 bg-white p-4 rounded-3xl border-2 border-slate-100 shadow-sm">
                <div className="flex-1 relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">ðŸ”</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
                   <input
                     type="text"
-                    placeholder="Buscar por nome ou nÂº..."
+                    placeholder="Buscar por nome ou nº..."
                     value={pcSearch}
                     onChange={(e) => setPcSearch(e.target.value)}
                     className="w-full bg-slate-50 border-none rounded-xl py-2.5 pl-10 pr-4 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-pokeGold/50 transition-all placeholder:text-slate-300"
@@ -354,10 +354,10 @@ const PokemonManagement = ({
                     onChange={(e) => setPcSort(e.target.value)}
                     className="bg-slate-50 border-none rounded-xl py-2.5 px-4 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-pokeGold/50 outline-none transition-all cursor-pointer"
                   >
-                    <option value="number">NÂº Pokedex (1-251)</option>
-                    <option value="number-desc">NÂº Pokedex (251-1)</option>
-                    <option value="alpha">Ordem AlfabÃ©tica (A-Z)</option>
-                    <option value="level">Maior NÃ­vel</option>
+                    <option value="number">Nº Pokedex (1-251)</option>
+                    <option value="number-desc">Nº Pokedex (251-1)</option>
+                    <option value="alpha">Ordem Alfabética (A-Z)</option>
+                    <option value="level">Maior Nível</option>
                     <option value="type">Por Tipo</option>
                   </select>
                </div>
@@ -380,7 +380,7 @@ const PokemonManagement = ({
                   });
 
                 if (filtered.length === 0) {
-                  return <p className="col-span-2 text-center py-10 text-slate-400 font-bold uppercase italic">{pcSearch ? 'Nenhum PokÃ©mon encontrado...' : 'O PC estÃ¡ vazio...'}</p>;
+                  return <p className="col-span-2 text-center py-10 text-slate-400 font-bold uppercase italic">{pcSearch ? 'Nenhum Pokémon encontrado...' : 'O PC está vazio...'}</p>;
                 }
 
                 return filtered.map((p) => (
@@ -389,7 +389,7 @@ const PokemonManagement = ({
                      <div className="text-center">
                        <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none flex items-center justify-center gap-1">
                          {p.name}
-                         {p.isShiny && <span className="text-yellow-500 text-[8px]">âœ¨</span>}
+                         {p.isShiny && <span className="text-yellow-500 text-[8px]">✨</span>}
                        </p>
                        <p className="text-[8px] font-bold text-slate-400 mt-0.5">Nv. {p.level}</p>
                      </div>
@@ -475,7 +475,7 @@ const PokemonManagement = ({
                   <div className="text-center mb-5">
                      <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter leading-none flex items-center justify-center gap-2">
                        {activePokemonDetails.pokemon.name}
-                       {activePokemonDetails.pokemon.isShiny && <span className="text-yellow-500 text-xl animate-pulse">â­</span>}
+                       {activePokemonDetails.pokemon.isShiny && <span className="text-yellow-500 text-xl animate-pulse">⭐</span>}
                      </h3>
                      <div className="flex items-center justify-center gap-2 mt-2">
                         <span className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Nv. {activePokemonDetails.pokemon.level}</span>
@@ -494,7 +494,7 @@ const PokemonManagement = ({
                   </div>
 
                   <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100 mb-6 group hover:border-pokeBlue/30 transition-colors">
-                     <h4 className="font-black uppercase text-[8px] text-slate-400 mb-3 tracking-widest text-center">EstatÃ­sticas Reais</h4>
+                     <h4 className="font-black uppercase text-[8px] text-slate-400 mb-3 tracking-widest text-center">Estatísticas Reais</h4>
                      <div className="grid grid-cols-2 gap-x-8 gap-y-3 px-2">
                         <div className="flex justify-between items-center"><p className="text-[8px] font-black text-slate-400 uppercase">HP</p><p className="text-xs font-black text-slate-700">{activePokemonDetails.pokemon.hp}/{activePokemonDetails.pokemon.maxHp}</p></div>
                         <div className="flex justify-between items-center"><p className="text-[8px] font-black text-slate-400 uppercase">ATK</p><p className="text-xs font-black text-slate-700">{activePokemonDetails.pokemon.attack}</p></div>
@@ -506,7 +506,7 @@ const PokemonManagement = ({
                   </div>
 
                   <div className="flex flex-col gap-3">
-                    <h4 className="font-black uppercase text-[9px] text-slate-400 text-center tracking-widest mb-1">Treinamento AvanÃ§ado</h4>
+                    <h4 className="font-black uppercase text-[9px] text-slate-400 text-center tracking-widest mb-1">Treinamento Avançado</h4>
 
                     {/* NATUREZAS */}
                     <div className={`p-4 rounded-2xl border-2 transition-all shadow-sm ${masteryCount >= 5 ? 'border-pokeBlue bg-blue-50/70' : 'border-blue-100 bg-blue-50/40 opacity-80'}`}>
@@ -523,7 +523,7 @@ const PokemonManagement = ({
                         className="min-h-[44px] w-full bg-white border-2 border-pokeBlue/40 rounded-xl px-3 text-[11px] font-black text-slate-700 outline-none focus:border-pokeBlue shadow-sm"
                         disabled={masteryCount < 5}
                       >
-                        <option value="">PadrÃ£o (Neutro)</option>
+                        <option value="">Padrão (Neutro)</option>
                         {NATURE_LIST.slice(0, Math.floor(masteryCount / 5)).map((name) => {
                           const mods = NATURES[name];
                           return (
@@ -549,7 +549,7 @@ const PokemonManagement = ({
                             </div>
                             <div className="flex-1">
                               <h4 className="font-black uppercase text-xs text-slate-800 leading-none">{candyData.name}</h4>
-                              <p className="text-[10px] font-bold text-pokeBlue mt-1 uppercase tracking-wider">DisponÃ­vel: {currentCandyCount}</p>
+                              <p className="text-[10px] font-bold text-pokeBlue mt-1 uppercase tracking-wider">Disponível: {currentCandyCount}</p>
                             </div>
                             <span className="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-sm shrink-0">
                               {candyExpanded ? '-' : '+'}
@@ -577,7 +577,7 @@ const PokemonManagement = ({
                   {/* MOVESET MODERNIZADO */}
                   <div className="mt-7">
                     <h4 className="font-black uppercase text-[10px] text-slate-800 mb-3 flex items-center gap-2 leading-none">
-                       <span className="bg-pokeBlue text-white w-5 h-5 rounded-lg flex items-center justify-center text-[8px] shrink-0">âš”</span>
+                       <span className="bg-pokeBlue text-white w-5 h-5 rounded-lg flex items-center justify-center text-[8px] shrink-0">⚔</span>
                        <span className="leading-none">Golpes Atuais</span>
                     </h4>
                     <div className="space-y-2.5">
@@ -605,7 +605,7 @@ const PokemonManagement = ({
                                 </div>
                              </div>
                              <div className="flex flex-col items-center justify-center bg-slate-50 w-9 h-9 rounded-xl shrink-0 border border-slate-100">
-                                <span className="text-[12px] leading-none">{moveData?.category === 'Physical' || moveData?.category === 'physical' ? 'ðŸ‘Š' : moveData?.category === 'Special' || moveData?.category === 'special' ? 'âœ¨' : 'ðŸ›¡'}</span>
+                                <span className="text-[12px] leading-none">{moveData?.category === 'Physical' || moveData?.category === 'physical' ? '👊' : moveData?.category === 'Special' || moveData?.category === 'special' ? '✨' : '🛡'}</span>
                              </div>
                           </div>
                         );
@@ -630,7 +630,7 @@ const PokemonManagement = ({
                           const learned = activePokemonDetails.pokemon.learnedMoves || activePokemonDetails.pokemon.moves || [];
                           const available = learned.filter(m => !activePokemonDetails.pokemon.moves.some(active => getMoveKey(active) === getMoveKey(m)));
 
-                          // Adiciona opÃ§Ã£o de reordenar (golpes jÃ¡ ativos)
+                          // Adiciona opção de reordenar (golpes já ativos)
                           const currentActive = activePokemonDetails.pokemon.moves;
                           const rareMoves = (path?.rareMoves || []).map(rm => ({ ...rm, ...getMoveData(rm), name: rm.name }));
 
@@ -669,7 +669,7 @@ const PokemonManagement = ({
                               <div>
                                 <p className="text-[9px] font-black text-pokeGold uppercase mb-1.5 tracking-widest opacity-80">Golpes Aprendidos</p>
                                 {available.length === 0 ? (
-                                  <p className="text-slate-500 text-[10px] font-bold italic py-2">Nenhum golpe adicional disponÃ­vel...</p>
+                                  <p className="text-slate-500 text-[10px] font-bold italic py-2">Nenhum golpe adicional disponível...</p>
                                 ) : (
                                   <div className="grid grid-cols-1 gap-1.5">
                                     {available.map((m, i) => {
@@ -765,14 +765,14 @@ const PokemonManagement = ({
                       <div className="mt-8 border-t-2 border-slate-100 pt-6">
                         <h4 className="font-black uppercase text-[10px] text-slate-800 mb-4 flex items-center gap-2">
                            <span className="bg-pokeBlue text-white w-5 h-5 rounded-lg flex items-center justify-center text-[8px]">?</span>
-                           Guia de EvoluÃ§Ã£o
+                           Guia de Evolução
                         </h4>
                         {stoneEvol && (
                           <div className="bg-amber-50 border-2 border-amber-200 p-4 rounded-2xl mb-4">
                              <div className="flex items-center gap-4">
                                <img src={stoneIcons[stoneEvol]} className="w-10 h-10" alt="Stone" />
                                <div className="flex-1">
-                                 <p className="text-[11px] font-black text-slate-800 uppercase text-left">EvoluÃ§Ã£o por Pedra</p>
+                                 <p className="text-[11px] font-black text-slate-800 uppercase text-left">Evolução por Pedra</p>
                                  <p className="text-[9px] font-bold text-slate-500 text-left">Requer: {stoneNames[stoneEvol] || stoneEvol}</p>
                                </div>
                                {hasStone && pokeData?.evolution?.id <= 251 && (
@@ -789,7 +789,7 @@ const PokemonManagement = ({
                                 </div>
                                 <div className="text-left flex-1">
                                    <p className="text-xs font-black text-slate-800 uppercase italic">{POKEDEX[pokeData.evolution.id]?.name || '???'}</p>
-                                   <p className="text-[9px] font-bold text-pokeBlue mt-1 uppercase">{pokeData.evolution.level ? `NÃ­vel ${pokeData.evolution.level}` : `Requer Item`}</p>
+                                   <p className="text-[9px] font-bold text-pokeBlue mt-1 uppercase">{pokeData.evolution.level ? `Nível ${pokeData.evolution.level}` : `Requer Item`}</p>
                                 </div>
                                 {pokeData.evolution.level && poke.level >= pokeData.evolution.level && (
                                    <button onClick={() => { setActivePokemonDetails(null); setEvolutionPending({ ...poke, teamIndex: activePokemonDetails.location === 'team' ? activePokemonDetails.index : null, pcIndex: activePokemonDetails.location === 'pc' ? activePokemonDetails.index : null }); }} className="bg-pokeBlue text-white font-black text-[9px] px-3 py-2 rounded-lg uppercase animate-pulse">Evoluir</button>
@@ -797,7 +797,7 @@ const PokemonManagement = ({
                              </div>
                           </div>
                         ) : (
-                          <p className="text-xs font-bold text-slate-400 italic text-left px-2">Este PokÃ©mon atingiu sua forma final.</p>
+                          <p className="text-xs font-bold text-slate-400 italic text-left px-2">Este Pokémon atingiu sua forma final.</p>
                         )}
                       </div>
                     );
@@ -810,7 +810,7 @@ const PokemonManagement = ({
                     <div className="flex flex-col gap-3">
                       {showTeamReorder && (
                         <div className="animate-slideInUp bg-slate-50 p-4 rounded-[2rem] border-2 border-slate-100 mb-2">
-                           <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Mudar posiÃ§Ã£o no time</p>
+                           <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Mudar posição no time</p>
                            <div className="grid grid-cols-3 gap-2">
                              {gameState.team.map((teamPoke, slotIndex) => {
                                const isCurrent = slotIndex === activePokemonDetails.index;
@@ -831,7 +831,7 @@ const PokemonManagement = ({
                       )}
                       <div className="flex gap-3">
                         <button onClick={() => setShowTeamReorder(!showTeamReorder)} className={`flex-1 h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2 ${showTeamReorder ? 'bg-slate-100 text-slate-400' : 'bg-slate-50 text-slate-600 border-2 border-slate-100 hover:border-pokeBlue'}`}>
-                           <span>{showTeamReorder ? 'âœ• Fechar' : 'â‡„ Mudar PosiÃ§Ã£o'}</span>
+                           <span>{showTeamReorder ? '✕ Fechar' : '⇄ Mudar Posição'}</span>
                         </button>
                         <button onClick={() => { moveToPC(activePokemonDetails.index); setActivePokemonDetails(null); }} className="flex-1 h-14 bg-slate-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-800 transition-all active:scale-95 shadow-lg">Enviar p/ PC</button>
                       </div>

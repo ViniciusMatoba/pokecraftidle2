@@ -602,7 +602,7 @@ const CHALLENGES = [
     unlockFlag: 'rematch_sabrina_defeated',
     requiresFlag: 'champion',
     team: [{id: 65, level: 75}, {id: 122, level: 73}, {id: 196, level: 74}, {id: 124, level: 74}, {id: 97, level: 75}],
-    background: "url('/battle_bg_gym_psychic.png') center/cover no-repeat",
+    background: "url('/battle_bg_gym_1776863824590.png') center/cover no-repeat",
     location: 'Saffron Gym',
   },
   {
@@ -617,7 +617,7 @@ const CHALLENGES = [
     unlockFlag: 'rematch_blaine_defeated',
     requiresFlag: 'champion',
     team: [{id: 126, level: 75}, {id: 78, level: 75}, {id: 136, level: 76}, {id: 219, level: 76}, {id: 59, level: 78}],
-    background: "url('/battle_bg_volcano.png') center/cover no-repeat",
+    background: "url('/battle_bg_gym_1776863824590.png') center/cover no-repeat",
     location: 'Cinnabar Gym',
   },
   {
@@ -876,7 +876,7 @@ const CHALLENGES = [
     unlockFlag: 'suicune_defeated',
     requiresFlag: 'johto_champion',
     team: [{ id: 245, level: 50 }],
-    background: "url('/bg_route40_johto.png') center/cover no-repeat",
+    background: "url('/battle_bg_johto_water_1777340582200.png') center/cover no-repeat",
     location: 'Rotas de Johto',
   },
   {

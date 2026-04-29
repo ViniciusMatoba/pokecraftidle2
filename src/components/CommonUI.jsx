@@ -150,11 +150,11 @@ export const StatusBadges = ({ status = [], stages = {} }) => {
 
   const statusConfig = {
     burn:     { label: 'BRN', color: 'bg-red-500',    icon: '🔥' },
-    poison:   { label: 'PSN', color: 'bg-purple-600', icon: ' ' },
+    poison:   { label: 'PSN', color: 'bg-purple-600', icon: '☠️' },
     sleep:    { label: 'SLP', color: 'bg-slate-500',  icon: '💤' },
     paralyze: { label: 'PAR', color: 'bg-yellow-500', icon: '⚡' },
     confuse:  { label: 'CONF', color: 'bg-pink-500',   icon: '💫' },
-    freeze:   { label: 'FRZ', color: 'bg-cyan-500',   icon: 'D' },
+    freeze:   { label: 'FRZ', color: 'bg-cyan-500',   icon: '❄️' },
   };
 
   const stageLabels = { attack: 'ATK', defense: 'DEF', spAtk: 'SATK', spDef: 'SDEF', speed: 'SPD' };

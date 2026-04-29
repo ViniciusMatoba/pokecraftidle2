@@ -1,6 +1,6 @@
 import { hasProgressRequirement } from '../utils/progress';
 
-// POKEDEX resolvido em runtime pelo App  sem import circular
+// POKEDEX resolvido em runtime pelo App - sem import circular
 const pk = (ids, level) => ids.map(id => ({ id: Number(id), level }));
 
 export const getRivalSprite = (playerAvatarImg) => {
@@ -476,7 +476,7 @@ export const ROUTES = {
     hasGym: false,
     enemies: [], trainers: [], trainerChance: 0,
     background: '/battle_bg_gym_1776863824590.png',
-    description: 'Plateau Indigo  sede da Liga Pokemon de Kanto.',
+    description: 'Plateau Indigo - sede da Liga Pokemon de Kanto.',
   },
 
   cerulean_cave: {
@@ -780,7 +780,7 @@ export const ROUTES = {
       { name: 'Swimmer Simon', sprite: S.cooltrainer, team: pk([72, 170], 38), reward: 600 },
       { name: 'Fisher Tully', sprite: S.cooltrainer, team: pk([98, 223], 39), reward: 620 },
     ],
-    background: '/bg_route40_johto.png',
+    background: '/battle_bg_johto_water_1777340582200.png',
     description: 'Mar aberto de Johto rumo a Cianwood.',
   },
 
