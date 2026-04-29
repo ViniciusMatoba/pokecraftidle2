@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { hasProgressRequirement } from '../utils/progress';
 import { TYPE_COLOR_HEX } from '../data/gyms';
+import { BadgeSVG } from './CommonUI';
 
 const CHALLENGES = [
   // RIVAIS
@@ -41,6 +42,27 @@ const CHALLENGES = [
   },
   {
     region: 'kanto',
+    id: 'rival_pokemon_tower',
+    category: 'rival',
+    name: 'Azul - Torre Pokemon',
+    subtitle: 'Encontro em Lavender',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/blue.png',
+    quote: '"Voce chegou ate aqui? Entao prove que esta pronto para subir a torre!"',
+    reward: 3500,
+    unlockFlag: 'rival_pokemon_tower_defeated',
+    requiresFlag: 'rock_tunnel_cleared',
+    team: [
+      { id: 18, level: 28 },
+      { id: 64, level: 27 },
+      { id: 102, level: 27 },
+      { id: 130, level: 28 },
+      { id: 133, level: 30 },
+    ],
+    background: "url('/battle_bg_cave_1776863810604.png') center/cover no-repeat", // Torre (escuro)
+    location: 'Torre Pokémon - Lavender',
+  },
+  {
+    region: 'kanto',
     id: 'rival_silph_co',
     category: 'rival',
     name: 'Azul - Silph Co.',
@@ -60,27 +82,6 @@ const CHALLENGES = [
     ],
     background: "url('/battle_bg_gym_1776863824590.png') center/cover no-repeat", // Escritório
     location: 'Silph Co. - 11º Andar',
-  },
-  {
-    region: 'kanto',
-    id: 'rival_pokemon_tower',
-    category: 'rival',
-    name: 'Azul - Torre Pokemon',
-    subtitle: 'Encontro em Lavender',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/blue.png',
-    quote: '"Voce chegou ate aqui? Entao prove que esta pronto para subir a torre!"',
-    reward: 3500,
-    unlockFlag: 'rival_pokemon_tower_defeated',
-    requiresFlag: 'rock_tunnel_cleared',
-    team: [
-      { id: 18, level: 28 },
-      { id: 64, level: 27 },
-      { id: 102, level: 27 },
-      { id: 130, level: 28 },
-      { id: 133, level: 30 },
-    ],
-    background: "url('/battle_bg_cave_1776863810604.png') center/cover no-repeat", // Torre (escuro)
-    location: 'Torre Pokémon - Lavender',
   },
 
   // EQUIPE ROCKET
@@ -1010,7 +1011,8 @@ const JohtoLeaderCard = ({ challenge, unlocked, defeated, onSelect, onRequiremen
           <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all ${
             defeated ? 'border-yellow-400 bg-white shadow-xl shadow-yellow-200/50' : 'border-slate-300/30 bg-slate-100/10 opacity-70'
           }`}>
-            <span className="text-[10px] font-black text-white/70">{badgeOrder}</span>
+            <BadgeSVG badgeId={challenge.unlockFlag} earned={defeated} size={24} />
+            {!defeated && <span className="absolute text-[10px] font-black text-white/70">{badgeOrder}</span>}
           </div>
           <div className="flex-1 min-w-0 text-left">
             <p className="text-white/45 text-[10px] font-black uppercase tracking-widest leading-none mb-1.5 truncate">{challenge.location}</p>

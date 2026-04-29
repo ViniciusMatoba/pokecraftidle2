@@ -1,4 +1,36 @@
-# Changelog - PokeCraft Idle
+# Changelog - PokeCraft
+
+## [V1.25.0] - 29/04/2026 09:25
+### Etapa 3: Trava Financeira (PokéMart & Forja)
+- **Segurança Transacional:**
+  - Implementada validação rigorosa de saldo para evitar contas negativas.
+  - Botões de compra em lote (x10, Max) agora verificam o custo total antes de serem habilitados.
+- **Trava de Alto Valor:**
+  - Adicionada confirmação visual para compras e forjas acima de 5.000 Pokédollars, prevenindo gastos acidentais.
+- **Feedback UI:**
+  - Notificações de sucesso e erro integradas ao fluxo de compra e criação de itens.
+
+## [V1.24.0] - 29/04/2026 09:10
+### Etapa 2: Progressão e Ordenação (Modo VS)
+- **Reordenação por Level:**
+  - Ginásios de Kanto reordenados (Blaine agora é o 7º e Giovanni o 8º).
+  - **Buff do Chefe:** Níveis da equipe do Giovanni aumentados (50-55) para consolidar sua posição como o desafio final de Kanto.
+  - Desafios (CHALLENGES) reordenados por nível de dificuldade em todas as categorias (Rivais, Rocket, Johto).
+- **Interface Johto:**
+  - Implementada a renderização de **Insígnias Reais** no Modo VS de Johto.
+  - Círculos de conquista agora exibem o ícone SVG da insígnia quando o líder é derrotado, mantendo a paridade visual com Kanto.
+
+## [1.23.0] - 2026-04-29 (08:37)
+### ⚔️ Motor de Batalha & Ataques (Etapa 1)
+- **Correção de Imunidades:** Implementada lógica de dano real para imunidades (Ex: Normal vs Fantasma), garantindo 0 de dano em vez do mínimo de 1.
+- **Precisão de Golpes (Accuracy):** Integrado o atributo `accuracy` de cada movimento no cálculo de acerto. Agora golpes como *Thunder* ou *Hydro Pump* podem errar naturalmente.
+- **Novos Danos Fixos:** Adicionado suporte para os golpes *Super Fang* (50% do HP atual) e *Psywave* (dano variável baseado no nível).
+- **Feedback de Batalha:** 
+    - Adicionado log de "Errou!" quando um ataque falha por precisão.
+    - Adicionado floating text de dano para ataques dos inimigos (anteriormente invisíveis).
+    - Corrigida exibição de mensagens de efetividade em ataques que erraram.
+- **Estabilidade de Estado:** Corrigido bug crítico na confusão do inimigo que descartava o progresso do turno (stamina/exp) ao causar auto-dano.
+
 ## [1.22.1] - 2026-04-28 (18:11)
 ### Corrigido
 - Ajustado o modal de detalhes da rota para celular, mantendo o botao Comecar Treino acessivel sem corte no arredondamento inferior.

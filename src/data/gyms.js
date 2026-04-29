@@ -24,22 +24,22 @@ export const GYMS = [
     type: 'Rock',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/brock.png',
     typeIcon: 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/rock.svg',
-    unlockAfterBadges: 0, // primeiro ginásio, sempre disponível
+    unlockAfterBadges: 0, 
     reward: 1500,
     background: GYM_BG.Rock,
     location: 'Ginásio de Pewter',
     quote: '"Minha defesa de rocha vai te esmagar!"',
     team: [
-      { id: 74, level: 12 }, // Geodude
-      { id: 95, level: 14 }, // Onix
+      { id: 74, level: 12 }, 
+      { id: 95, level: 14 }, 
     ],
     rematchTeam: [
-      { id: 75, level: 45 }, // Graveler
-      { id: 111, level: 46 }, // Rhyhorn
-      { id: 138, level: 48 }, // Omanyte
-      { id: 140, level: 48 }, // Kabutops
-      { id: 95, level: 52 }, // Onix
-      { id: 142, level: 55 }, // Aerodactyl
+      { id: 75, level: 45 }, 
+      { id: 111, level: 46 }, 
+      { id: 138, level: 48 }, 
+      { id: 140, level: 48 }, 
+      { id: 95, level: 52 }, 
+      { id: 142, level: 55 }, 
     ]
   },
   {
@@ -59,16 +59,16 @@ export const GYMS = [
     location: 'Ginásio de Cerulean',
     quote: '"Minhas habilidades aquáticas vão te engolir!"',
     team: [
-      { id: 120, level: 18 }, // Staryu
-      { id: 121, level: 21 }, // Starmie
+      { id: 120, level: 18 }, 
+      { id: 121, level: 21 }, 
     ],
     rematchTeam: [
-      { id: 54, level: 48 }, // Psyduck
-      { id: 86, level: 49 }, // Seel
-      { id: 116, level: 50 }, // Horsea
-      { id: 131, level: 52 }, // Lapras
-      { id: 121, level: 54 }, // Starmie
-      { id: 130, level: 56 }, // Gyarados
+      { id: 54, level: 48 }, 
+      { id: 86, level: 49 }, 
+      { id: 116, level: 50 }, 
+      { id: 131, level: 52 }, 
+      { id: 121, level: 54 }, 
+      { id: 130, level: 56 }, 
     ]
   },
   {
@@ -88,16 +88,16 @@ export const GYMS = [
     location: 'Ginásio de Vermilion',
     quote: '"Eletricidade: o melhor tipo de batalha!"',
     team: [
-      { id: 100, level: 21 }, // Voltorb
-      { id: 25,  level: 21 }, // Pikachu
-      { id: 26,  level: 24 }, // Raichu
+      { id: 100, level: 21 }, 
+      { id: 25,  level: 21 }, 
+      { id: 26,  level: 24 }, 
     ],
     rematchTeam: [
-      { id: 101, level: 50 }, // Electrode
-      { id: 82, level: 51 }, // Magneton
-      { id: 125, level: 53 }, // Electabuzz
-      { id: 135, level: 54 }, // Jolteon
-      { id: 26, level: 56 }, // Raichu
+      { id: 101, level: 50 }, 
+      { id: 82, level: 51 }, 
+      { id: 125, level: 53 }, 
+      { id: 135, level: 54 }, 
+      { id: 26, level: 56 }, 
     ]
   },
   {
@@ -117,16 +117,16 @@ export const GYMS = [
     location: 'Ginásio de Celadon',
     quote: '"A natureza sempre vence. Bem-vindo ao meu jardim."',
     team: [
-      { id: 71,  level: 29 }, // Victreebel
-      { id: 114, level: 31 }, // Tangela
-      { id: 45,  level: 32 }, // Vileplume
+      { id: 71,  level: 29 }, 
+      { id: 114, level: 31 }, 
+      { id: 45,  level: 32 }, 
     ],
     rematchTeam: [
-      { id: 45, level: 52 }, // Vileplume
-      { id: 114, level: 53 }, // Tangela
-      { id: 71, level: 54 }, // Victreebel
-      { id: 103, level: 56 }, // Exeggutor
-      { id: 3, level: 60 }, // Venusaur
+      { id: 45, level: 52 }, 
+      { id: 114, level: 53 }, 
+      { id: 71, level: 54 }, 
+      { id: 103, level: 56 }, 
+      { id: 3, level: 60 }, 
     ]
   },
   {
@@ -146,16 +146,16 @@ export const GYMS = [
     location: 'Ginásio de Fuchsia',
     quote: '"O veneno age lentamente. Igual a minha vitória."',
     team: [
-      { id: 109, level: 37 }, // Koffing
-      { id: 109, level: 39 }, // Koffing
-      { id: 110, level: 43 }, // Weezing
+      { id: 109, level: 37 }, 
+      { id: 109, level: 39 }, 
+      { id: 110, level: 43 }, 
     ],
     rematchTeam: [
-      { id: 110, level: 54 }, // Weezing
-      { id: 89, level: 55 }, // Muk
-      { id: 73, level: 56 }, // Tentacruel
-      { id: 49, level: 57 }, // Venomoth
-      { id: 169, level: 60 }, // Crobat
+      { id: 110, level: 54 }, 
+      { id: 89, level: 55 }, 
+      { id: 73, level: 56 }, 
+      { id: 49, level: 57 }, 
+      { id: 169, level: 60 }, 
     ]
   },
   {
@@ -175,17 +175,17 @@ export const GYMS = [
     location: 'Ginásio de Saffron',
     quote: '"Já vi seu futuro. Você perde."',
     team: [
-      { id: 64,  level: 38 }, // Kadabra
-      { id: 122, level: 37 }, // Mr. Mime
-      { id: 49,  level: 38 }, // Venomoth
-      { id: 65,  level: 43 }, // Alakazam
+      { id: 64,  level: 38 }, 
+      { id: 122, level: 37 }, 
+      { id: 49,  level: 38 }, 
+      { id: 65,  level: 43 }, 
     ],
     rematchTeam: [
-      { id: 122, level: 55 }, // Mr. Mime
-      { id: 97, level: 56 }, // Hypno
-      { id: 124, level: 57 }, // Jynx
-      { id: 65, level: 60 }, // Alakazam
-      { id: 196, level: 62 }, // Espeon
+      { id: 122, level: 55 }, 
+      { id: 97, level: 56 }, 
+      { id: 124, level: 57 }, 
+      { id: 65, level: 60 }, 
+      { id: 196, level: 62 }, 
     ]
   },
   {
@@ -205,17 +205,17 @@ export const GYMS = [
     location: 'Ginásio de Cinnabar',
     quote: '"Meu fogo nunca se apaga!"',
     team: [
-      { id: 58,  level: 47 }, // Growlithe
-      { id: 77,  level: 48 }, // Ponyta
-      { id: 78,  level: 50 }, // Rapidash
-      { id: 59,  level: 50 }, // Arcanine
+      { id: 58,  level: 47 }, 
+      { id: 77,  level: 48 }, 
+      { id: 78,  level: 50 }, 
+      { id: 59,  level: 50 }, 
     ],
     rematchTeam: [
-      { id: 38, level: 58 }, // Ninetales
-      { id: 78, level: 59 }, // Rapidash
-      { id: 126, level: 60 }, // Magmar
-      { id: 59, level: 62 }, // Arcanine
-      { id: 6, level: 65 }, // Charizard
+      { id: 38, level: 58 }, 
+      { id: 78, level: 59 }, 
+      { id: 126, level: 60 }, 
+      { id: 59, level: 62 }, 
+      { id: 6, level: 65 }, 
     ]
   },
   {
@@ -235,18 +235,18 @@ export const GYMS = [
     location: 'Ginásio de Viridian',
     quote: '"Sou o chefe da Equipe Rocket. Você não pode me deter!"',
     team: [
-      { id: 111, level: 45 }, // Rhyhorn
-      { id: 51,  level: 42 }, // Dugtrio
-      { id: 112, level: 45 }, // Rhydon
-      { id: 51,  level: 47 }, // Dugtrio
-      { id: 112, level: 50 }, // Rhydon
+      { id: 111, level: 50 }, 
+      { id: 51,  level: 52 }, 
+      { id: 112, level: 53 }, 
+      { id: 34,  level: 54 }, 
+      { id: 112, level: 55 }, 
     ],
     rematchTeam: [
-      { id: 51, level: 60 }, // Dugtrio
-      { id: 34, level: 62 }, // Nidoking
-      { id: 31, level: 62 }, // Nidoqueen
-      { id: 112, level: 65 }, // Rhydon
-      { id: 130, level: 68 }, // Gyarados
+      { id: 51, level: 65 }, 
+      { id: 34, level: 68 }, 
+      { id: 31, level: 68 }, 
+      { id: 112, level: 72 }, 
+      { id: 130, level: 75 }, 
     ]
   },
 ];

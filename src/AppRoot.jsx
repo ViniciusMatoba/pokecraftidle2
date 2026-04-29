@@ -1,4 +1,4 @@
-﻿import { useState, useCallback, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { useAutoFarm } from './hooks/useAutoFarm';
 import { useSound } from './hooks/useSound';
 import { ROUTES, getRivalSprite } from './data/routes';
@@ -839,6 +839,12 @@ export default function App() {
     if (e.includes('inflicts damage equal to the user') && e.includes('level')) {
       result.fixedDamage = 'level'; return result;
     }
+    if (e.includes('inflicts damage between 50% and 150%')) {
+      result.fixedDamage = 'psywave'; return result;
+    }
+    if (e.includes('half the target') && e.includes('hp')) {
+      result.fixedDamage = 'half_hp'; return result;
+    }
     if (e.includes('inflicts 40 points')) {
       result.fixedDamage = 40; return result;
     }
@@ -939,7 +945,6 @@ export default function App() {
 
     const getStatMult = (stage = 0) => (2 + Math.max(0, stage)) / (2 - Math.min(0, stage));
 
-    // Proteção contra move ou name undefined
     const moveName = move?.name || 'Investida';
     const moveKey = (moveName || '').toLowerCase();
     const moveData = MOVES[moveKey.replace(/ /g, '-')] || move || {};
@@ -957,19 +962,28 @@ export default function App() {
     const stab = move.type === attacker.type ? 1.5 : 1.0;
     const effectiveness = getTypeEffectiveness(move.type, defender.type);
     
+    // Se for imune, dano é zero absoluto
+    if (effectiveness === 0) return 0;
+
     let base = ((((2 * level) / 5 + 2) * power * (atk / def)) / 50 + 2) * stab * effectiveness;
     if (isNaN(base)) base = 1;
-    const roll = 0.85 + Math.random() * 0.15; // Roll mais justo (85-100%)
+    const roll = 0.85 + Math.random() * 0.15;
     
-    // Verificar accuracy - se o atacante tem accuracy reduzida, o golpe pode errar
+    // Sistema de Precisão (Accuracy)
+    // 1. Pega a precisão base do golpe (default 100)
+    const baseAcc = move.accuracy || moveData.accuracy || 100;
+    
+    // 2. Calcula o multiplicador de estágios (Accuracy vs Evasion)
     const accStage = attacker.stages?.accuracy || 0;
     const evaStage = defender.stages?.evasion || 0;
-    const finalAccStage = accStage - evaStage;
-    const accMult = finalAccStage >= 0
+    const finalAccStage = Math.max(-6, Math.min(6, accStage - evaStage));
+    const accStageMult = finalAccStage >= 0
       ? (3 + finalAccStage) / 3
-      : 3 / (3 - finalAccStage);
+      : 3 / (3 - Math.abs(finalAccStage));
     
-    if (Math.random() > accMult) return 0; // errou
+    // 3. Chance final de acerto
+    const hitChance = baseAcc * accStageMult;
+    if (Math.random() * 100 > hitChance) return 0; // Errou
 
     return Math.max(1, Math.ceil(base * roll));
   }, []);
@@ -1661,7 +1675,12 @@ export default function App() {
           addFloat('OHKO!', '#ef4444');
 
         } else if (fx.fixedDamage !== null) {
-          const dmg = fx.fixedDamage === 'level' ? (myPoke.level || 5) : fx.fixedDamage;
+          let dmg = 0;
+          if (fx.fixedDamage === 'level') dmg = (myPoke.level || 5);
+          else if (fx.fixedDamage === 'psywave') dmg = Math.floor((myPoke.level || 5) * (0.5 + Math.random()));
+          else if (fx.fixedDamage === 'half_hp') dmg = Math.max(1, Math.floor(updatedEnemyFinal.hp / 2));
+          else dmg = fx.fixedDamage;
+
           updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - dmg);
           addLog(`${myPoke.name} usou ${move.name}! ${dmg} de dano!`, 'system');
           addFloat(`-${dmg}`, '#ef4444');
@@ -1743,11 +1762,17 @@ export default function App() {
       } else {
         const playerDmg = calcDamage(myPoke, move, updatedEnemyFinal);
         const eff = getTypeEffectiveness(move.type, updatedEnemyFinal.type);
-        updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - playerDmg);
-        addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
-        if (eff > 1) addLog("💥 É super efetivo!", 'system');
-        if (eff > 0 && eff < 1) addLog("💢 Não é muito efetivo!", 'system');
-        if (eff === 0) addLog("🚫 Não afetou o inimigo!", 'system');
+        
+        if (playerDmg === 0 && eff > 0) {
+          addLog(`${myPoke.name} usou ${move.name}... mas errou!`, 'system');
+          addFloat('Errou!', '#94a3b8');
+        } else {
+          updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - playerDmg);
+          addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
+          if (eff > 1) addLog("💥 É super efetivo!", 'system');
+          if (eff > 0 && eff < 1) addLog("💢 Não é muito efetivo!", 'system');
+          if (eff === 0) addLog("🚫 Não afetou o inimigo!", 'system');
+        }
       }
 
       // Dano de Status (Inimigo)
@@ -1759,7 +1784,8 @@ export default function App() {
 
       // Turno do Inimigo (apenas se ainda estiver vivo)
       if (updatedEnemyFinal.hp > 0) {
-        // Skip Inimigo
+        let canAct = true;
+
         if (enemyStatus.includes('confuse')) {
           addLog(`💫 ${updatedEnemyFinal.name} está confuso...`, 'enemy');
           if (Math.random() < 0.3) {
@@ -1769,24 +1795,24 @@ export default function App() {
             const selfDmg = Math.max(1, Math.floor(updatedEnemyFinal.maxHp / 10));
             updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - selfDmg);
             addLog(`💥 ${updatedEnemyFinal.name} feriu-se em sua confusão!`, 'enemy');
-            setCurrentEnemy(updatedEnemyFinal);
-            return prev;
+            canAct = false;
           }
         }
 
-        if (enemyStatus.includes('paralyze') && Math.random() < 0.25) {
-          addLog(`⚡ ${updatedEnemyFinal.name} está paralisado!`, 'enemy');
-        } else if (enemyStatus.includes('sleep')) {
-          addLog(`💤 ${updatedEnemyFinal.name} está dormindo...`, 'enemy');
-          if (Math.random() < 0.35) {
-            updatedEnemyFinal.status = enemyStatus.filter(s => s !== 'sleep');
-            addLog(`☀️ ${updatedEnemyFinal.name} acordou!`, 'enemy');
-          }
-        } else {
-          const enemyMoves = updatedEnemyFinal.moves || [];
-          const enemyMove = enemyMoves[Math.floor(Math.random() * (enemyMoves.length || 1))];
-          
-          if (enemyMove) {
+        if (canAct) {
+          if (enemyStatus.includes('paralyze') && Math.random() < 0.25) {
+            addLog(`⚡ ${updatedEnemyFinal.name} está paralisado!`, 'enemy');
+          } else if (enemyStatus.includes('sleep')) {
+            addLog(`💤 ${updatedEnemyFinal.name} está dormindo...`, 'enemy');
+            if (Math.random() < 0.35) {
+              updatedEnemyFinal.status = enemyStatus.filter(s => s !== 'sleep');
+              addLog(`☀️ ${updatedEnemyFinal.name} acordou!`, 'enemy');
+            }
+          } else {
+            const enemyMoves = updatedEnemyFinal.moves || [];
+            const enemyMove = enemyMoves[Math.floor(Math.random() * (enemyMoves.length || 1))];
+            
+            if (enemyMove) {
             if (enemyMove.category === 'Status' || enemyMove.power === 0) {
               const fxE = interpretMoveEffect(enemyMove);
 
@@ -1800,9 +1826,15 @@ export default function App() {
                 updatedTeamFinal[activeMemberIndex].hp = 0;
                 addLog(`💥 ${updatedEnemyFinal.name} usou ${enemyMove.name}! Golpe decisivo!`, 'enemy');
               } else if (fxE.fixedDamage !== null) {
-                const dmg = fxE.fixedDamage === 'level' ? (updatedEnemyFinal.level || 5) : fxE.fixedDamage;
-                updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - dmg);
-                addLog(`${updatedEnemyFinal.name} usou ${enemyMove.name}! ${dmg} de dano!`, 'enemy');
+                let dmgE = 0;
+                if (fxE.fixedDamage === 'level') dmgE = (updatedEnemyFinal.level || 5);
+                else if (fxE.fixedDamage === 'psywave') dmgE = Math.floor((updatedEnemyFinal.level || 5) * (0.5 + Math.random()));
+                else if (fxE.fixedDamage === 'half_hp') dmgE = Math.max(1, Math.floor(updatedTeamFinal[activeMemberIndex].hp / 2));
+                else dmgE = fxE.fixedDamage;
+
+                updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - dmgE);
+                addLog(`${updatedEnemyFinal.name} usou ${enemyMove.name}! ${dmgE} de dano!`, 'enemy');
+                addFloat(`-${dmgE}`, '#ef4444');
               } else {
                 fxE.statChanges.forEach(c => {
                   const statNames = { attack:'ATK', defense:'DEF', spAtk:'SATK', spDef:'SDEF', speed:'SPD' };
@@ -1834,14 +1866,21 @@ export default function App() {
               }
             } else {
               const enemyDmgRaw = calcDamage(updatedEnemyFinal, enemyMove, updatedTeamFinal[activeMemberIndex]);
-              const enemyDmg = Math.max(1, Math.floor(enemyDmgRaw * 0.75));
-              const eff = getTypeEffectiveness(enemyMove.type, updatedTeamFinal[activeMemberIndex].type);
-              updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - enemyDmg);
-              if (eff > 1) addLog(`💥 Golpe de ${updatedEnemyFinal.name} foi super efetivo!`, 'enemy');
-              if (eff > 0 && eff < 1) addLog(`💢 Golpe de ${updatedEnemyFinal.name} não foi muito efetivo...`, 'enemy');
-              if (eff === 0) addLog(`🚫 ${updatedTeamFinal[activeMemberIndex].name} é imune!`, 'enemy');
+              const effE = getTypeEffectiveness(enemyMove.type, updatedTeamFinal[activeMemberIndex].type);
+              
+              if (enemyDmgRaw === 0 && effE > 0) {
+                 addLog(`${updatedEnemyFinal.name} usou ${enemyMove.name}... mas errou!`, 'enemy');
+              } else {
+                const enemyDmg = Math.max(1, Math.floor(enemyDmgRaw * 0.75));
+                updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - enemyDmg);
+                addFloat(`-${enemyDmg}`, '#ef4444');
+                if (effE > 1) addLog("💥 É super efetivo!", 'enemy');
+                if (effE > 0 && effE < 1) addLog("💢 Não é muito efetivo!", 'enemy');
+                if (effE === 0) addLog("🚫 Não afetou seu Pokemon!", 'enemy');
+              }
             }
           }
+        }
         }
       }
 
@@ -5189,15 +5228,41 @@ export default function App() {
                         const maxQty = Math.floor(gameState.currency / item.price);
                         const buyFn = (qty) => {
                           if (qty < 1) return;
-                          setGameState(prev => ({
-                            ...prev,
-                            currency: prev.currency - item.price * qty,
-                            inventory: {
-                              ...prev.inventory,
-                              items: { ...prev.inventory.items, [item.id]: (prev.inventory.items[item.id] || 0) + qty }
-                            }
-                          }));
-                          addLog(`Comprado: ${qty}x ${item.name}`, 'system');
+                          const totalCost = item.price * qty;
+                          if (gameState.currency < totalCost) {
+                            notify('Saldo Insuficiente!', 'error');
+                            return;
+                          }
+
+                          const performPurchase = () => {
+                            setGameState(prev => ({
+                              ...prev,
+                              currency: prev.currency - totalCost,
+                              inventory: {
+                                ...prev.inventory,
+                                items: { ...prev.inventory.items, [item.id]: (prev.inventory.items[item.id] || 0) + qty }
+                              }
+                            }));
+                            addLog(`Comprado: ${qty}x ${item.name}`, 'system');
+                            notify(`Sucesso: +${qty} ${item.name}`, 'success');
+                          };
+
+                          if (totalCost >= 5000) {
+                            showConfirm({
+                              type: 'confirm',
+                              title: 'Confirmação de Compra',
+                              message: `Deseja gastar ${totalCost.toLocaleString()} Pokédollars em ${qty}x ${item.name}?`,
+                              confirmLabel: 'Sim, Comprar',
+                              cancelLabel: 'Cancelar',
+                              onConfirm: () => {
+                                closeConfirm();
+                                performPurchase();
+                              },
+                              onCancel: closeConfirm
+                            });
+                          } else {
+                            performPurchase();
+                          }
                         };
                         return (
                           <div key={item.id} className="bg-white p-4 rounded-2xl border-2 border-slate-100 shadow-sm">
@@ -5217,9 +5282,9 @@ export default function App() {
                              <div className="grid grid-cols-3 gap-2">
                                 {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'Max',qty:maxQty}].map(opt => (
                                   <button key={opt.label}
-                                    disabled={gameState.currency < item.price || (opt.qty < 1)}
+                                    disabled={gameState.currency < (item.price * opt.qty) || (opt.qty < 1)}
                                     onClick={() => buyFn(opt.qty)}
-                                    className="py-2 rounded-xl font-black text-xs uppercase transition-all bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                                    className="py-2 rounded-xl font-black text-xs uppercase transition-all bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed"
                                   >
                                     {opt.label}{opt.label==='Max'&&maxQty>0?` (${maxQty})`:''}
                                   </button>
@@ -5278,18 +5343,40 @@ export default function App() {
                                };
                                const craftFn = (qty) => {
                                  if (qty < 1) return;
-                                 setGameState(prev => {
-                                   const newInv = { ...prev.inventory, materials: { ...prev.inventory.materials } };
-                                   Object.entries(item.cost).forEach(([mat, amount]) => {
-                                     if (mat !== 'currency') newInv.materials[mat] = (newInv.materials[mat] || 0) - amount * qty;
+                                 const totalCurrency = (item.cost.currency || 0) * qty;
+                                 
+                                 const performCraft = () => {
+                                   setGameState(prev => {
+                                     const newInv = { ...prev.inventory, materials: { ...prev.inventory.materials } };
+                                     Object.entries(item.cost).forEach(([mat, amount]) => {
+                                       if (mat !== 'currency') newInv.materials[mat] = (newInv.materials[mat] || 0) - amount * qty;
+                                     });
+                                     return {
+                                       ...prev,
+                                       currency: prev.currency - totalCurrency,
+                                       inventory: { ...newInv, items: { ...newInv.items, [item.id]: (newInv.items[item.id] || 0) + qty } }
+                                     };
                                    });
-                                   return {
-                                     ...prev,
-                                     currency: prev.currency - (item.cost.currency || 0) * qty,
-                                     inventory: { ...newInv, items: { ...newInv.items, [item.id]: (newInv.items[item.id] || 0) + qty } }
-                                   };
-                                 });
-                                 addLog(`Forjado: ${qty}x ${item.name}`, 'system');
+                                   addLog(`Forjado: ${qty}x ${item.name}`, 'system');
+                                   notify(`Forjado: ${item.name}`, 'success');
+                                 };
+
+                                 if (totalCurrency >= 5000) {
+                                   showConfirm({
+                                     type: 'confirm',
+                                     title: 'Confirmar Forja de Alto Valor',
+                                     message: `Esta operação custará ${totalCurrency.toLocaleString()} Pokédollars. Prosseguir?`,
+                                     confirmLabel: 'Forjar',
+                                     cancelLabel: 'Cancelar',
+                                     onConfirm: () => {
+                                       closeConfirm();
+                                       performCraft();
+                                     },
+                                     onCancel: closeConfirm
+                                   });
+                                 } else {
+                                   performCraft();
+                                 }
                                };
                                const maxCraft = getMaxCraft();
                                return (
@@ -5319,15 +5406,21 @@ export default function App() {
                                        })}
                                     </div>
                                     <div className="grid grid-cols-3 gap-2 bg-orange-50/70 p-2">
-                                       {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'Max',qty:maxCraft}].map(opt => (
-                                         <button key={opt.label}
-                                           disabled={!canCraftOne || opt.qty < 1}
-                                           onClick={() => craftFn(opt.qty)}
-                                           className="min-h-[44px] rounded-xl font-black text-sm uppercase transition-all bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-30 disabled:cursor-not-allowed"
-                                         >
-                                           {opt.label}{opt.label==='Max'&&maxCraft>0?` (${maxCraft})`:''}
-                                         </button>
-                                       ))}
+                                       {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'Max',qty:maxCraft}].map(opt => {
+                                         const canAffordQty = Object.entries(item.cost).every(([mat, amount]) => {
+                                           const have = mat === 'currency' ? gameState.currency : (gameState.inventory.materials?.[mat] || 0);
+                                           return have >= amount * opt.qty;
+                                         });
+                                         return (
+                                           <button key={opt.label}
+                                             disabled={!canAffordQty || opt.qty < 1}
+                                             onClick={() => craftFn(opt.qty)}
+                                             className="min-h-[44px] rounded-xl font-black text-sm uppercase transition-all bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed"
+                                           >
+                                             {opt.label}{opt.label==='Max'&&maxCraft>0?` (${maxCraft})`:''}
+                                           </button>
+                                         );
+                                       })}
                                     </div>
                                  </div>
                                );
