@@ -1,6 +1,6 @@
 # Changelog - PokeCraft
 
-## [V1.25.0] - 29/04/2026 09:25
+## [V1.25.0] - 29/04/2026 12:15
 ### Etapa 3: Trava Financeira (PokéMart & Forja)
 - **Segurança Transacional:**
   - Implementada validação rigorosa de saldo para evitar contas negativas.
