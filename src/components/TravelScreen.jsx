@@ -355,7 +355,9 @@ const TravelScreen = ({
       <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
           <div className="flex flex-col gap-8 pb-8">
             {Object.entries(
-              visibleRouteEntries.reduce((acc, [id, r]) => {
+              visibleRouteEntries
+              .filter(([, r]) => r.type !== 'city' && r.type !== 'gym')
+              .reduce((acc, [id, r]) => {
                 const group = r.group || "Outros Destinos";
                 if (!acc[group]) acc[group] = [];
                 acc[group].push({ id, ...r });
@@ -375,8 +377,6 @@ const TravelScreen = ({
                     const unlocked = isRouteUnlocked(route);
                     const isCurrent = gameState.currentRoute === id;
                     
-                    if (route.type === 'city' || route.type === 'gym') return null;
-
                     return (
                       <button 
                         key={id} 

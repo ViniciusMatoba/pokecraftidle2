@@ -1008,7 +1008,7 @@ export default function App() {
        if (Math.random() < bonusChance) {
          const qty = 1;
          drops.candies = { [candyId]: qty }; 
-         messages.push(`?? 1x ${CANDY_FAMILIES[candyId].name}`);
+         messages.push(`Candy 1x ${CANDY_FAMILIES[candyId].name}`);
        }
     }
 
@@ -1024,7 +1024,7 @@ export default function App() {
     // 2. Mystic Dust para Shinies (100% se for shiny)
     if (enemy.isShiny) {
       drops.materials.mystic_dust = (drops.materials.mystic_dust || 0) + 5;
-      messages.push(`? 5x P? M?stico`);
+      messages.push(`5x Po Mistico`);
     }
 
     // Drops antigos (suporte para itens específicos de rota/pokemon)
@@ -1077,7 +1077,7 @@ export default function App() {
     // 4. Poké Ball Drop Chance (20% chance)
     if (Math.random() < 0.07) {
       drops.items.pokeballs = (drops.items.pokeballs || 0) + 1;
-      messages.push(`?? +1 Pok? Bola`);
+      messages.push(`+1 Poke Bola`);
     }
 
     return { drops, messages };
@@ -1091,14 +1091,14 @@ export default function App() {
       lastQuestTime: Date.now()
     }));
     setPendingQuest(null);
-    addLog(`?? Miss?o Aceita: ${quest.title}`, 'system');
+    addLog(`Missao Aceita: ${quest.title}`, 'system');
   }, [addLog]);
 
   const handleDeclineQuest = useCallback(() => {
     setPendingQuest(null);
   }, []);
 
-  // ⛏️” PROTECTED: spawnEnemy — NíO EDITAR SEM AUTORIZAÇíO EXPLíCITA
+  // PROTECTED: spawnEnemy - NAO EDITAR SEM AUTORIZACAO EXPLICITA
   const spawnEnemy = useCallback(() => {
     isProcessingVictory.current = false; // Reset de segurança
     const route = processedRoutes[gameState.currentRoute] || processedRoutes.pallet_town;
@@ -1252,7 +1252,7 @@ export default function App() {
     
     enemyPool = getTimeAdjustedEnemyPool({ ...route, enemies: enemyPool }, currentTime, POKEDEX);
     
-    // âŽ¯âŽ¯âŽ¯âŽ¯ 3. VARAS DE PESCA (Fishing Rods) âŽ¯âŽ¯âŽ¯âŽ¯
+    // 3. VARAS DE PESCA (Fishing Rods)
     if (route.biome === 'water' || route.name.toLowerCase().includes('oceano') || route.name.toLowerCase().includes('praia')) {
       const rods = ['super_rod', 'good_rod', 'old_rod'];
       const ownedRod = rods.find(r => (gameState.inventory?.items?.[r] || 0) > 0);
@@ -1504,7 +1504,7 @@ export default function App() {
         // Trocar automaticamente para o próximo viável
         setActiveMemberIndex(nextViable);
         addLog(
-          `?? ${myPoke.name} est? exausto demais para combater! ` +
+          `${myPoke.name} esta exausto demais para combater! ` +
           `${gameState.team[nextViable].name} entrou em campo!`,
           'system'
         );
@@ -1515,7 +1515,7 @@ export default function App() {
         stopBGM(300);
         sfxDefeat();
         addLog(
-          '?? Todo o time est? exausto! Volte ao Centro Pok?mon para recuperar seus Pok?mon!',
+          'Todo o time esta exausto! Volte ao Centro Pokemon para recuperar seus Pokemon!',
           'system'
         );
         setTimeout(() => {
@@ -1598,7 +1598,7 @@ export default function App() {
             const healed = Math.min(focusPoke.maxHp, focusPoke.hp + 20);
             const newTeam = [...prev.team];
             newTeam[focusIdx] = { ...focusPoke, hp: healed };
-            addLog(`?? Auto-Po??o usada em ${focusPoke.name}! (${focusPoke.hp} -> ${healed} HP)`, 'system');
+            addLog(`Auto-Pocao usada em ${focusPoke.name}! (${focusPoke.hp} -> ${healed} HP)`, 'system');
             return {
               ...prev,
               team: newTeam,
@@ -1614,14 +1614,14 @@ export default function App() {
 
       // Confuse Skip (Jogador)
       if (myStatus.includes('confuse')) {
-        addLog(`?? ${myPoke.name} est? confuso...`, 'system');
+        addLog(`${myPoke.name} esta confuso...`, 'system');
         if (Math.random() < 0.3) {
            updatedTeam[activeMemberIndex].status = myStatus.filter(s => s !== 'confuse');
            addLog(`✨ ${myPoke.name} não está mais confuso!`, 'system');
         } else if (Math.random() < 0.5) {
            const selfDmg = Math.max(1, Math.floor(myPoke.maxHp / 10));
            updatedTeam[activeMemberIndex].hp = Math.max(0, myPoke.hp - selfDmg);
-           addLog(`?? ${myPoke.name} feriu-se em sua confus?o!`, 'system');
+           addLog(`${myPoke.name} feriu-se em sua confusao!`, 'system');
            return { ...prev, team: updatedTeam };
         }
       }
@@ -1632,10 +1632,10 @@ export default function App() {
         return prev; 
       }
       if (myStatus.includes('sleep')) {
-        addLog(`?? ${myPoke.name} est? dormindo profundamente...`, 'system');
+        addLog(`${myPoke.name} esta dormindo profundamente...`, 'system');
         if (Math.random() < 0.3) {
           updatedTeam[activeMemberIndex].status = myStatus.filter(s => s !== 'sleep');
-          addLog(`?? ${myPoke.name} acordou!`, 'system');
+          addLog(`${myPoke.name} acordou!`, 'system');
         } else {
           return { ...prev, team: updatedTeam }; 
         }
@@ -1872,7 +1872,7 @@ export default function App() {
           hp: Math.max(0, (updatedTeamFinal[activeMemberIndex].hp || 0) - hpDrain),
         };
         if (Math.random() < 0.25) {
-          addLog(`?? ${myPoke.name} est? exausto! Perdendo vida por falta de comida!`, 'system');
+          addLog(`${myPoke.name} esta exausto! Perdendo vida por falta de comida!`, 'system');
         }
       }
 
@@ -1920,17 +1920,17 @@ export default function App() {
 
           staminaEntry = { value: newStamina, lastFed: Date.now() };
           const itemName = ITEM_LABELS[food.key]?.name || food.key;
-          addLog(`??? ${myPoke.name} comeu ${itemName} e recuperou energia!`, 'system');
+          addLog(`${myPoke.name} comeu ${itemName} e recuperou energia!`, 'system');
 
           // Se curar status
           if (restoreData?.cureStatus) {
             updatedTeamFinal[activeMemberIndex].status = [];
-            addLog(`? ${myPoke.name} foi curado de problemas de status!`, 'system');
+            addLog(`${myPoke.name} foi curado de problemas de status!`, 'system');
           } else if (restoreData?.cureStatus && Array.isArray(restoreData.cureStatus)) {
              const newStatus = updatedTeamFinal[activeMemberIndex].status.filter(s => !restoreData.cureStatus.includes(s));
              if (newStatus.length < updatedTeamFinal[activeMemberIndex].status.length) {
                updatedTeamFinal[activeMemberIndex].status = newStatus;
-                addLog(`? ${myPoke.name} recuperou-se!`, 'system');
+                addLog(`${myPoke.name} recuperou-se!`, 'system');
              }
           }
         } else {
@@ -1939,13 +1939,13 @@ export default function App() {
             // O bloco no início do tick vai cuidar da troca/derrota
             if (Math.random() < 0.3) {
               addLog(
-                `?? ${myPoke.name} colapsou de fome! Sem itens para aliment?-lo!`,
+                `${myPoke.name} colapsou de fome! Sem itens para alimenta-lo!`,
                 'system'
               );
             }
           } else if (newStamina < 20 && Math.random() < 0.25) {
             addLog(
-              `?? ${myPoke.name} est? faminto! Compre bebidas no Pok? Mart ou cultive Berries!`,
+              `${myPoke.name} esta faminto! Compre bebidas no Poke Mart ou cultive Berries!`,
               'system'
             );
           }
@@ -2327,7 +2327,7 @@ export default function App() {
       const currentCount = candies[candyId] || 0;
       
       if (currentCount < use.cost) {
-        addLog(`âŒ Candies insuficientes (${currentCount}/${use.cost})`, 'system');
+        addLog(`Candies insuficientes (${currentCount}/${use.cost})`, 'system');
         return prev;
       }
 
@@ -2859,7 +2859,7 @@ export default function App() {
 
       if (currentEnemy.badgeToGive && !newBadges.includes(currentEnemy.badgeToGive)) {
         newBadges.push(currentEnemy.badgeToGive);
-        addLog(`?? Recebeu a Ins?gnia: ${currentEnemy.badgeToGive.replace(/_/g, ' ')}!`, 'system');
+        addLog(`Recebeu a Insignia: ${currentEnemy.badgeToGive.replace(/_/g, ' ')}!`, 'system');
         sfxGym();
         
         const newShare = newBadges.length * 10;
@@ -4600,11 +4600,11 @@ export default function App() {
   };
   const currentPeriodMeta = periodMeta[timeOfDay] || periodMeta.day;
   const periodIcon = {
-    morning: 'â—’',
-    day: 'â˜€',
-    evening: 'â—',
-    night: 'â˜¾',
-  }[timeOfDay] || 'â˜€';
+    morning: 'AM',
+    day: 'DAY',
+    evening: 'PM',
+    night: 'NIGHT',
+  }[timeOfDay] || 'DAY';
   const autoEnabled = !!(gameState.autoFarm || gameState.autoCapture || gameState.autoConfig?.autoPotion || gameState.autoConfig?.autoStamina);
   
   const updateAutoConfig = (patch) => {

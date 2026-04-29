@@ -261,7 +261,7 @@ const CHALLENGES = [
     category: 'rocket',
     name: 'Executivo Rocket - Mahogany',
     subtitle: 'Base Secreta',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/rocketexecutive.png',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/teamrocket.png',
     quote: '"Ninguem interrompe os planos da Equipe Rocket!"',
     reward: 16000,
     unlockFlag: 'johto_rocket_mahogany_cleared',
@@ -398,7 +398,7 @@ const CHALLENGES = [
     category: 'rocket',
     name: 'Rocket - Radio Tower',
     subtitle: 'Crise em Goldenrod',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/rocketexecutive.png',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/teamrocket.png',
     quote: '"A transmissao da Equipe Rocket ecoara por toda Johto!"',
     reward: 15000,
     unlockFlag: 'johto_rocket_radio_cleared',
@@ -566,7 +566,7 @@ const CHALLENGES = [
     category: 'rematch',
     name: 'Lt. Surge (Revanche)',
     subtitle: 'Elite Kanto',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/surge.png',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/ltsurge.png',
     quote: '"Hah! Vou te dar um choque de realidade agora!"',
     reward: 25000,
     unlockFlag: 'rematch_surge_defeated',
@@ -927,11 +927,21 @@ const CHALLENGES = [
 ];
 
 const CATEGORY_CONFIG = {
-  rival:     { label: 'Rival',         color: '#1a56db', emoji: '👤'  },
-  rocket:    { label: 'Equipe Rocket', color: '#cc0000', emoji: '🚀'  },
+  rival:     { label: 'Rival',         color: '#2563eb', emoji: '👤'  },
+  rocket:    { label: 'Equipe Rocket', color: '#dc2626', emoji: '🚀'  },
   johto:     { label: 'Lideres',       color: '#059669', emoji: '🏆'  },
   rematch:   { label: 'Revanche',      color: '#f59e0b', emoji: '🔥'  },
   legendary: { label: 'Lendários',     color: '#7c3aed', emoji: '✨'  },
+};
+
+const getChallengeColor = (challenge) => {
+  if (challenge.type && TYPE_COLOR_HEX[challenge.type]) return TYPE_COLOR_HEX[challenge.type];
+  return CATEGORY_CONFIG[challenge.category]?.color || '#334155';
+};
+
+const getChallengeCardBackground = (challenge) => {
+  const color = getChallengeColor(challenge);
+  return challenge.background || `linear-gradient(135deg, ${color} 0%, #0f172a 100%)`;
 };
 
 const ChallengesScreen = ({ 
@@ -1108,23 +1118,22 @@ const ChallengesScreen = ({
           {filtered.map((challenge) => {
             const unlocked = isUnlocked(challenge);
             const defeated = isDefeated(challenge);
+            const accentColor = getChallengeColor(challenge);
             return (
               <div
                 key={challenge.id}
                 onClick={() => unlocked && !defeated && setSelectedChallenge(challenge)}
-                className={`relative rounded-[2.5rem] overflow-hidden shadow-xl transition-all bg-white border-2 ${
-                  unlocked && !defeated ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98] border-slate-100 hover:border-pokeBlue/30' : 'grayscale cursor-not-allowed opacity-60 border-slate-200'
+                className={`relative rounded-[2rem] overflow-hidden shadow-xl transition-all border-2 ${
+                  unlocked && !defeated ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98] border-white/15 hover:border-pokeGold/60' : 'grayscale cursor-not-allowed opacity-60 border-white/10'
                 }`}
-                style={{ minHeight: '120px' }}
+                style={{ minHeight: '132px', background: getChallengeCardBackground(challenge) }}
                 onClick={() => unlocked && !defeated && setSelectedChallenge(challenge)}
               >
-                {/* Accent de canto */}
-                <div 
-                  className="absolute top-0 right-0 w-32 h-32 -mr-12 -mt-12 rounded-full opacity-15"
-                  style={{ backgroundColor: challenge.category === 'johto' && challenge.type ? (TYPE_COLOR_HEX[challenge.type] || '#555') : '#555' }}
-                />
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/88 via-slate-950/54 to-slate-950/18" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-white/10" />
+                <div className="absolute top-0 right-0 w-36 h-36 -mr-12 -mt-12 rounded-full opacity-35 blur-sm" style={{ backgroundColor: accentColor }} />
 
-                <div className="absolute inset-0 pointer-events-none opacity-5" style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+                <div className="absolute inset-0 pointer-events-none opacity-15" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                 
                 {defeated && (
                   <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px] z-20 flex items-center justify-center pointer-events-none">
@@ -1136,18 +1145,21 @@ const ChallengesScreen = ({
                   </div>
                 )}
 
-                <div className="relative z-10 flex items-center gap-4 p-5 text-left">
-                  <img src={challenge.sprite} alt={challenge.name} className="w-[72px] h-[72px] object-contain drop-shadow-xl shrink-0" onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'; }} />
+                <div className="relative z-10 flex items-center gap-4 p-5 text-left min-h-[132px]">
+                  <div className="w-[76px] h-[76px] rounded-3xl bg-white/16 border border-white/20 flex items-center justify-center shrink-0 shadow-inner backdrop-blur-sm overflow-hidden">
+                    <img src={challenge.sprite} alt={challenge.name} className="w-[76px] h-[76px] object-contain drop-shadow-2xl" onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'; }} />
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest leading-none mb-1">{challenge.subtitle}</p>
-                    <h3 className="text-slate-800 font-black text-lg uppercase italic leading-tight tracking-tighter">{challenge.name}</h3>
+                    <p className="text-white/65 text-[9px] font-black uppercase tracking-widest leading-none mb-1">{challenge.subtitle}</p>
+                    <h3 className="text-white font-black text-lg uppercase italic leading-tight tracking-tighter drop-shadow-sm">{challenge.name}</h3>
+                    <p className="text-white/45 text-[9px] font-black uppercase tracking-widest mt-1 truncate">{challenge.location}</p>
                     <div className="flex items-center gap-2 mt-1.5">
-                      <span className="text-[9px] font-black text-amber-500 uppercase flex items-center gap-1">
+                      <span className="text-[9px] font-black text-amber-300 uppercase flex items-center gap-1">
                         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-3 h-3 object-contain" alt="" />
                         {challenge.reward.toLocaleString()}
                       </span>
-                      <span className="text-slate-200">|</span>
-                      <span className="text-[9px] font-black text-slate-400 uppercase">{challenge.team.length} Pokemons</span>
+                      <span className="text-white/30">|</span>
+                      <span className="text-[9px] font-black text-white/55 uppercase">{challenge.team.length} Pokemons</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-2">
@@ -1163,7 +1175,7 @@ const ChallengesScreen = ({
                         </button>
                       </div>
                     )}
-                    {unlocked && !defeated && <span className="text-white/60 text-xl">›</span>}
+                    {unlocked && !defeated && <span className="text-white/80 text-xl">›</span>}
                   </div>
                 </div>
               </div>

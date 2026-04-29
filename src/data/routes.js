@@ -294,7 +294,7 @@ export const ROUTES = {
     id: 'route_7_8', name: 'Rotas 7 e 8', type: 'farm', group: 'Celadon City',
     unlockLevel: 32, requirements: ['thunder_badge', 'rival_pokemon_tower_defeated'],
     biome: 'grass',
-    enemies: pk([58, 37, 43, 69, 96, 102, 52], 28),
+    enemies: pk([58, 37, 43, 69, 96, 102, 52, 122, 133], 28),
     trainerChance: 0.05,
     trainers: [
       { name: 'Gambler Dru',        sprite: S.gambler, team: pk([52, 96], 28),   reward: 700 },
@@ -351,7 +351,7 @@ export const ROUTES = {
     id: 'safari_zone', name: 'Zona Safari', type: 'farm', group: 'Fuchsia City',
     unlockLevel: 38, requirements: ['rainbow_badge'],
     biome: 'grass',
-    enemies: pk([102, 108, 113, 114, 115, 123, 127, 128], 35),
+    enemies: pk([102, 108, 113, 114, 115, 123, 127, 128, 1, 4, 7], 35),
     trainerChance: 0, trainers: [],
     background: '/battle_bg_grass_1776863779024.png',
     description: 'Reserva com Pokemon raros.',
@@ -483,7 +483,7 @@ export const ROUTES = {
     id: 'cerulean_cave', name: 'Caverna Cerulean', type: 'farm', group: 'Pos-Game',
     unlockLevel: 60, requirements: ['champion'],
     biome: 'mountain',
-    enemies: pk([42, 47, 67, 75, 95, 106, 107, 108, 113, 131, 132, 136, 138, 140, 142, 143, 150], 60),
+    enemies: pk([42, 47, 67, 75, 95, 106, 107, 108, 113, 131, 132, 136, 138, 140, 142, 143, 150, 151], 60),
     trainerChance: 0, trainers: [],
     background: '/battle_bg_cave_1776863810604.png',
     description: 'Caverna proibida   lar de uma lenda..',
@@ -644,6 +644,7 @@ export const ROUTES = {
       { id: 163, level: 21, drop: 'feather', dropChance: 0.12 },
       { id: 204, level: 20, drop: 'bug_essence', dropChance: 0.18 },
       { id: 214, level: 20, drop: 'bug_essence', dropChance: 0.18 },
+      { id: 152, level: 20, drop: 'grass_essence', dropChance: 0.12 },
       { id: 251, level: 21, drop: 'leaf_stone', dropChance: 0.05 }
     ],
     trainerChance: 0.06,
@@ -675,7 +676,8 @@ export const ROUTES = {
       { id: 191, level: 24, drop: 'leaf_stone_shard', dropChance: 0.08 },
       { id: 203, level: 25, drop: 'psychic_essence', dropChance: 0.18 },
       { id: 193, level: 24, drop: 'bug_essence', dropChance: 0.18 },
-      { id: 235, level: 24, drop: 'bug_essence', dropChance: 0.18 }
+      { id: 235, level: 24, drop: 'bug_essence', dropChance: 0.18 },
+      { id: 182, level: 26, drop: 'leaf_stone_shard', dropChance: 0.08 }
     ],
     trainerChance: 0.07,
     trainers: [
@@ -738,6 +740,10 @@ export const ROUTES = {
       { id: 227, level: 33, drop: 'normal_essence', dropChance: 0.18 },
       { id: 231, level: 33, drop: 'normal_essence', dropChance: 0.18 },
       { id: 234, level: 33, drop: 'normal_essence', dropChance: 0.18 },
+      { id: 135, level: 34, drop: 'thunder_stone_shard', dropChance: 0.08 },
+      { id: 136, level: 34, drop: 'fire_stone_shard', dropChance: 0.08 },
+      { id: 196, level: 34, drop: 'psychic_essence', dropChance: 0.12 },
+      { id: 197, level: 34, drop: 'dark_essence', dropChance: 0.12 },
       { id: 239, level: 33, drop: 'normal_essence', dropChance: 0.18 },
       { id: 250, level: 50, drop: 'fire_stone', dropChance: 0.05 }
     ],
@@ -773,6 +779,7 @@ export const ROUTES = {
       { id: 211, level: 37, drop: 'water_essence', dropChance: 0.18 },
       { id: 213, level: 37, drop: 'water_essence', dropChance: 0.18 },
       { id: 222, level: 37, drop: 'water_essence', dropChance: 0.18 },
+      { id: 226, level: 40, drop: 'water_essence', dropChance: 0.14 },
       { id: 249, level: 50, drop: 'water_stone', dropChance: 0.05 }
     ],
     trainerChance: 0.07,
@@ -804,6 +811,8 @@ export const ROUTES = {
       { id: 95, level: 41, drop: 'iron_ore', dropChance: 0.12 },
       { id: 183, level: 40, drop: 'water_stone_shard', dropChance: 0.08 },
       { id: 216, level: 41, drop: 'normal_essence', dropChance: 0.18 },
+      { id: 155, level: 41, drop: 'fire_essence', dropChance: 0.12 },
+      { id: 237, level: 42, drop: 'fighting_essence', dropChance: 0.12 },
       { id: 202, level: 40, drop: 'ground_essence', dropChance: 0.18 },
       { id: 207, level: 40, drop: 'ground_essence', dropChance: 0.18 },
       { id: 218, level: 40, drop: 'ground_essence', dropChance: 0.18 },
@@ -828,6 +837,8 @@ export const ROUTES = {
       { id: 161, level: 44, drop: 'normal_essence', dropChance: 0.18 },
       { id: 162, level: 45, drop: 'normal_essence', dropChance: 0.18 },
       { id: 170, level: 45, drop: 'thunder_stone_shard', dropChance: 0.08 },
+      { id: 186, level: 46, drop: 'water_stone_shard', dropChance: 0.08 },
+      { id: 199, level: 46, drop: 'water_stone_shard', dropChance: 0.08 },
       { id: 245, level: 40, drop: 'water_stone', dropChance: 0.05 }
     ],
     trainerChance: 0.06,
@@ -880,6 +891,7 @@ export const ROUTES = {
       { id: 129, level: 52, drop: 'water_essence', dropChance: 0.18 },
       { id: 147, level: 53, drop: 'dragon_essence', dropChance: 0.20 },
       { id: 148, level: 54, drop: 'dragon_essence', dropChance: 0.22 },
+      { id: 158, level: 53, drop: 'water_essence', dropChance: 0.12 },
     ],
     trainerChance: 0.06,
     trainers: [
@@ -893,7 +905,7 @@ export const ROUTES = {
   // ── GRUPO: JOHTO LIGA ────────────────────────────────────────────
   johto_victory_road: {
     id: 'johto_victory_road', name: 'Victory Road Johto', type: 'farm', group: 'Johto Liga',
-    unlockLevel: 84, requirements: ['johto_rival_victory_defeated'],
+    unlockLevel: 82, requirements: ['rising_badge'],
     biome: 'mountain',
     enemies: [
       { id: 42, level: 56, drop: 'link_cable_part', dropChance: 0.08 },
@@ -910,7 +922,7 @@ export const ROUTES = {
       { name: 'Dragon Tamer Lee', sprite: S.aceM, team: pk([148, 112], 59), reward: 1600 },
     ],
     background: '/bg_victory_road_johto.png',
-    description: 'Ultimo teste antes da Liga de Johto.',
+    description: 'Local de treino final antes da Liga de Johto.',
   },
 
   route_4: {
@@ -1006,7 +1018,7 @@ export const ROUTES = {
     id: 'seafoam_islands', name: 'Ilhas Seafoam', type: 'farm', group: 'Fuchsia City',
     unlockLevel: 40, requirements: ['soul_badge'],
     biome: 'water',
-    enemies: pk([79, 86, 87, 90, 91, 98, 124, 131, 144], 38),
+    enemies: pk([79, 86, 87, 90, 91, 98, 120, 124, 131, 144], 38),
     trainerChance: 0,
     trainers: [],
     background: '/battle_bg_seafoam.png',
