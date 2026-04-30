@@ -23,8 +23,15 @@ const AuthScreen = ({ onAuthSuccess }) => {
       const data = await response.json();
       
       if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.ready;
-        await registration.update();
+        // Timeout de 3s para o SW ready, para não travar o botão se o SW falhar
+        const registration = await Promise.race([
+          navigator.serviceWorker.ready,
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout SW')), 3000))
+        ]).catch(() => null);
+
+        if (registration) {
+          await registration.update();
+        }
       }
 
       if (data.version !== APP_VERSION) {
