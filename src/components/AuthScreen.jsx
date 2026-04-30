@@ -3,7 +3,7 @@ import { loginUser, registerUser } from '../auth';
 import { setPersistence, browserLocalPersistence, browserSessionPersistence, getAuth } from 'firebase/auth';
 import { APP_VERSION, APP_VERSION_DATE } from '../data/constants';
 
-const AuthScreen = ({ onAuthSuccess }) => {
+const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,23 +14,6 @@ const AuthScreen = ({ onAuthSuccess }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [updateStatus, setUpdateStatus] = useState('idle'); // 'idle', 'checking', 'updated'
-  const [installPrompt, setInstallPrompt] = useState(null);
-
-  useEffect(() => {
-    const handler = (e) => {
-      e.preventDefault();
-      setInstallPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
-  const handleInstallPWA = async () => {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    const { outcome } = await installPrompt.userChoice;
-    if (outcome === 'accepted') setInstallPrompt(null);
-  };
 
   const handleCheckUpdate = async () => {
     setUpdateStatus('checking');

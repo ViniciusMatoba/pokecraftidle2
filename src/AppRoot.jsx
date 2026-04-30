@@ -428,6 +428,24 @@ export default function App() {
   const lastSyncRef = useRef(0);
   const saveTimeoutRef = useRef(null);
 
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstallPWA = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') setInstallPrompt(null);
+  };
+
   const resetSession = () => {
     sessionRef.current = { kills: 0, coins: 0, trainers: 0, shinyKills: 0, drops: {}, captures: [] };
   };
@@ -3259,7 +3277,7 @@ export default function App() {
       </div>
     );
     
-    if (!user) return <AuthScreen onAuthSuccess={() => {}} />;
+    if (!user) return <AuthScreen onAuthSuccess={() => {}} installPrompt={installPrompt} handleInstallPWA={handleInstallPWA} />;
 
     switch(currentView) {
       case 'landing': {
@@ -3347,20 +3365,45 @@ export default function App() {
                       </button>
                     </>
                   )}
-                  {/* ⛔ PROTECTED: Botão REINICIAR JORNADA */}
-                  <button
-                    onClick={() => { showConfirm({ type:'danger', title:'Reiniciar Jornada', message:'Isso apagará todo seu progresso. Tem certeza?', confirmLabel:'Sim, reiniciar', cancelLabel:'Cancelar', onConfirm:() => { closeConfirm(); startNewJourney(); }, onCancel:closeConfirm }); }}
-                    style={{width:'100%', padding:'20px', borderRadius:'24px', fontWeight:'900', fontSize:'18px', textTransform:'uppercase', letterSpacing:'2px', background:'rgba(59,130,246,0.2)', color:'white', border:'2px solid rgba(255,255,255,0.3)', boxShadow:'0 4px 12px rgba(0,0,0,0.3)', cursor:'pointer'}}
-                  >
-                    REINICIAR JORNADA
-                  </button>
-                  {/* ⛔ END PROTECTED: Botões Landing */}
-                </div>
+                   {/* ⛔ END PROTECTED: Botões Landing */}
 
-                  <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest text-center mt-4">
-                    POKÉCRAFT IDLE {APP_VERSION} • {APP_VERSION_DATE}
-                  </p>
+                   {/* Botão de Instalação PWA na Landing */}
+                   {installPrompt && (
+                     <button
+                       onClick={handleInstallPWA}
+                       style={{
+                         width: '100%',
+                         marginTop: '8px',
+                         padding: '16px',
+                         borderRadius: '24px',
+                         fontWeight: '900',
+                         fontSize: '14px',
+                         textTransform: 'uppercase',
+                         letterSpacing: '1px',
+                         background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                         color: 'white',
+                         border: 'none',
+                         boxShadow: '0 4px 15px rgba(217, 119, 6, 0.4)',
+                         cursor: 'pointer',
+                       }}
+                       className="animate-bounce"
+                     >
+                       📥 Instalar Aplicativo (PWA)
+                     </button>
+                   )}
+                   {/* ⛔ PROTECTED: Botão REINICIAR JORNADA */}
+                   <button
+                     onClick={() => { showConfirm({ type:'danger', title:'Reiniciar Jornada', message:'Isso apagará todo seu progresso. Tem certeza?', confirmLabel:'Sim, reiniciar', cancelLabel:'Cancelar', onConfirm:() => { closeConfirm(); startNewJourney(); }, onCancel:closeConfirm }); }}
+                     style={{width:'100%', padding:'20px', borderRadius:'24px', fontWeight:'900', fontSize:'18px', textTransform:'uppercase', letterSpacing:'2px', background:'rgba(59,130,246,0.2)', color:'white', border:'2px solid rgba(255,255,255,0.3)', boxShadow:'0 4px 12px rgba(0,0,0,0.3)', cursor:'pointer'}}
+                   >
+                     REINICIAR JORNADA
+                   </button>
+                   <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest text-center mt-4">
+                     POKÉCRAFT IDLE {APP_VERSION} • {APP_VERSION_DATE}
+                   </p>
+                 </div>
               </div>
+
 
              {/* FOREGROUND DECOR - FRONT LAYER */}
              <div className="absolute inset-0 z-20 pointer-events-none opacity-40">
