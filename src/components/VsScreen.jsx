@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import GymScreen from './GymScreen';
 import ChallengesScreen from './ChallengesScreen';
+import BossScreen from './BossScreen';
 
 const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentView, initialTab, setVsInitialTab, initialCategory, setVsInitialCategory, initialRegion, setVsInitialRegion }) => {
   const normalizeTab = (tab) => tab === 'johto' ? 'gyms' : (tab || 'challenges');
@@ -27,6 +28,7 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
     { id: 'challenges', name: 'Desafios', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png', desc: 'Rivais & Rocket' },
     { id: 'gyms', name: 'Ginasios & Liga', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png', desc: 'Caminho do Mestre' },
     { id: 'legendary', name: 'Lendarios', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png', desc: 'Encontros Raros' },
+    { id: 'boss', name: 'BOSS', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png', desc: 'Desafio Global' },
   ];
 
   return (
@@ -124,6 +126,12 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
               forcedRegion={region}
               setCurrentView={setCurrentView}
               setVsInitialTab={setVsInitialTab}
+            />
+          )}
+          {activeTab === 'boss' && (
+            <BossScreen
+              gameState={gameState}
+              onChallengeBoss={(bossData) => onChallenge(bossData, 'boss')}
             />
           )}
         </div>

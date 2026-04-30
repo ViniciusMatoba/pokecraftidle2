@@ -62,7 +62,8 @@ export const DEFAULT_GAME_STATE = {
       electric_essence: 0, ice_essence: 0, fighting_essence: 0, poison_essence: 0,
       ground_essence: 0, flying_essence: 0, psychic_essence: 0, bug_essence: 0,
       rock_essence: 0, ghost_essence: 0, dragon_essence: 0, steel_essence: 0,
-      fairy_essence: 0, dark_essence: 0, mystic_dust: 0, iron_ore: 0
+      fairy_essence: 0, dark_essence: 0, mystic_dust: 0, iron_ore: 0,
+      armor_fragment: 0, fury_essence: 0, dragon_scale: 0, stardust: 0
     },
     items: { pokeballs: 5, potions: 2 },
     candies: {}
@@ -128,6 +129,17 @@ export const ITEM_LABELS = {
   gold_nugget: { icon: '🪙', name: 'Pepita de Ouro' },
   iron_ore: { icon: '⛏️', name: 'Minério de Ferro' },
   mystic_dust: { icon: '✨', name: 'Pó Místico' },
+  
+  // Materiais de Boss
+  armor_fragment: { icon: '🛡️', name: 'Fragmento de Armadura' },
+  fury_essence: { icon: '💢', name: 'Essência de Fúria' },
+  dragon_scale: { icon: '🦎', name: 'Escama de Dragão' },
+  stardust: { icon: '✨', name: 'Poeira Estelar' },
+
+  // Itens de Forja de Boss
+  titan_shield: { icon: '🏰', name: 'Escudo de Titã' },
+  adrenaline_potion: { icon: '💉', name: 'Poção de Adrenalina' },
+  penetration_pendant: { icon: '📿', name: 'Pingente de Penetração' },
   
   // Bebidas
   fresh_water:       { icon: '💧', name: 'Água Fresca' },

@@ -10,7 +10,7 @@ const BattleScreen = ({
   currentEnemy, gameState, activeMemberIndex, moveIndex, weather,
   setActiveMemberIndex, addLog, battleLog, floatingTexts,
   onUseItem, setGameState, setShowAutoCaptureModal, ROUTES, fixPath, TYPE_COLORS, onGoToCity, onChallengeBoss,
-  timeOfDay, showAutoConfigExternal = false, setShowAutoConfigExternal
+  timeOfDay, showAutoConfigExternal = false, setShowAutoConfigExternal, bossTimer
 }) => {
   const activePoke = gameState.team?.[activeMemberIndex];
   const autoConfig = gameState.autoConfig || { autoCapture: false, autoPotion: false, hpThreshold: 30, staminaThreshold: 30, autoStamina: false };
@@ -156,11 +156,55 @@ const BattleScreen = ({
         />
 
         {shinyFlash && !showTrainer && <ShinySparkles />}
+        
+        {/* WORLD BOSS HUD - GIGANTE NO TOPO */}
+        {currentEnemy.isWorldBoss && (
+          <div className="absolute top-4 left-4 right-4 z-[15] animate-fadeIn">
+            <div className="flex justify-between items-end mb-1 px-2">
+              <div className="flex flex-col">
+                <span className="text-[8px] font-black uppercase tracking-[0.2em] text-amber-400 drop-shadow-md animate-pulse">
+                  DESAFIO WORLD BOSS: {currentEnemy.bossType}
+                </span>
+                <h2 className="text-lg font-black text-white uppercase italic leading-none drop-shadow-md">
+                  {currentEnemy.trainerName || currentEnemy.pokemonName || currentEnemy.name}
+                </h2>
+              </div>
+              <div className="text-right">
+                <span className="text-xl font-black text-amber-500 italic drop-shadow-md">LV ???</span>
+              </div>
+            </div>
+            
+            {/* Giant Segmented HP Bar */}
+            <div className="h-6 bg-black/60 rounded-full p-1 border-2 border-amber-600/50 backdrop-blur-sm relative overflow-hidden shadow-2xl">
+               <div 
+                 className="h-full rounded-full transition-all duration-300 relative overflow-hidden"
+                 style={{ 
+                   width: `${hpPercent}%`,
+                   background: 'linear-gradient(90deg, #dc2626 0%, #f59e0b 50%, #dc2626 100%)',
+                   backgroundSize: '200% 100%',
+                 }}
+               >
+                 <div className="absolute inset-0 boss-bar-animation"></div>
+                 {/* Segments */}
+                 <div className="absolute inset-0 flex">
+                   {[...Array(10)].map((_, i) => (
+                     <div key={i} className="flex-1 border-r border-black/20" />
+                   ))}
+                 </div>
+               </div>
+            </div>
+            <div className="flex justify-end mt-1 px-2">
+               <span className="text-[10px] font-black text-white/60 tabular-nums">
+                 {currentEnemy.hp.toLocaleString()} / {currentEnemy.maxHp.toLocaleString()}
+               </span>
+            </div>
+          </div>
+        )}
 
         {/* HUD INIMIGO - Canto Superior Esquerdo */}
         <div style={{
           position: 'absolute',
-          top: '12px',
+          top: currentEnemy.isWorldBoss ? '80px' : '12px',
           left: '12px',
           right: 'auto',
           background: 'rgba(255,255,255,0.92)',
@@ -203,6 +247,23 @@ const BattleScreen = ({
             <StatusBadges status={currentEnemy.status || []} stages={currentEnemy.stages || {}} />
           </div>
         </div>
+
+        {/* ENRAGE TIMER - Centro Topo */}
+        {currentEnemy.isWorldBoss && bossTimer !== null && (
+          <div className="absolute top-[100px] left-1/2 -translate-x-1/2 z-[20] flex flex-col items-center pointer-events-none">
+            <div className={`px-4 py-1.5 rounded-full backdrop-blur-md border-2 ${bossTimer <= 30 ? 'border-red-500 bg-red-500/20 animate-pulse' : 'border-amber-500/50 bg-black/40'} flex items-center gap-2 transition-colors`}>
+              <span className={`text-[10px] font-black uppercase tracking-widest ${bossTimer <= 30 ? 'text-red-400' : 'text-amber-500'}`}>Enrage in</span>
+              <span className={`text-xl font-black tabular-nums ${bossTimer <= 30 ? 'text-white' : 'text-amber-400'} drop-shadow-md`}>
+                {Math.floor(bossTimer / 60)}:{String(bossTimer % 60).padStart(2, '0')}
+              </span>
+            </div>
+            {bossTimer <= 10 && bossTimer > 0 && (
+               <div className="mt-2 text-red-500 font-black text-3xl animate-bounce tracking-tighter drop-shadow-lg">
+                 {bossTimer}
+               </div>
+            )}
+          </div>
+        )}
 
         {/* SPRITE INIMIGO - Quadrante Superior Direito */}
         <div className="absolute top-12 right-10 z-10 w-24 h-24 flex items-center justify-center">

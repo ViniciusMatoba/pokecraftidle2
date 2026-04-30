@@ -212,8 +212,18 @@ const FORGE_UNLOCKS = {
 
 const isMartItemUnlocked = (gameState, itemId) => isProgressUnlocked(gameState, MART_UNLOCKS[itemId]);
 
-const isForgeItemUnlocked = (gameState, itemId) =>
-  hasForgeRecipe(gameState, itemId) && isProgressUnlocked(gameState, FORGE_UNLOCKS[itemId]);
+const isForgeItemUnlocked = (gameState, itemId, powerScore = 0) => {
+  const allRecipes = Object.values(CRAFTING_RECIPES).flat();
+  const recipe = allRecipes.find(r => r.id === itemId);
+  
+  const MATERIAL_RANK_PS = {
+    'Rank I': 0, 'Rank II': 50000, 'Rank III': 150000, 'Rank IV': 300000,
+    'Rank V': 500000, 'Rank VI': 800000, 'Rank VII': 1200000, 'Rank VIII': 1700000, 'Rank IX': 2500000,
+  };
+  
+  const requiredPS = MATERIAL_RANK_PS[recipe?.rank] || 0;
+  return powerScore >= requiredPS && hasForgeRecipe(gameState, itemId) && isProgressUnlocked(gameState, FORGE_UNLOCKS[itemId]);
+};
 
 const FORGE_CATEGORY_LABELS = {
   consumables: 'Itens',
@@ -225,6 +235,7 @@ const FORGE_CATEGORY_LABELS = {
   badges_items: 'Insignias',
   apricorn_balls: 'Balls',
   food: 'Racao',
+  elite_relics: 'Reliquias de Elite',
 };
 
 const getForgeCategoryLabel = (category) => FORGE_CATEGORY_LABELS[category] || category.replace(/_/g, ' ');
@@ -429,10 +440,38 @@ export default function App() {
   const lastSyncRef = useRef(0);
   const saveTimeoutRef = useRef(null);
   const [showRanking, setShowRanking] = useState(false);
+  const [bossDamage, setBossDamage] = useState(0);
+  const [bossTimer, setBossTimer] = useState(null);
+  const [bossLoot, setBossLoot] = useState(null);
 
   const [installPrompt, setInstallPrompt] = useState(null);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+
+  const powerScore = useMemo(() => {
+    const teamLevelsSum = (gameState.team || []).reduce((acc, p) => acc + (p.level || 0), 0);
+    const uniqueCapturesCount = Object.keys(gameState.caughtData || {}).length;
+    const badgeCount = getBadgeCount(gameState);
+    return (teamLevelsSum * uniqueCapturesCount) + (badgeCount * 1000);
+  }, [gameState.team, gameState.caughtData, gameState.badges, gameState.worldFlags]);
+
+  const MATERIAL_RANK_MILESTONES = {
+    'Rank I': 0,
+    'Rank II': 50000,
+    'Rank III': 150000,
+    'Rank IV': 300000,
+    'Rank V': 500000,
+    'Rank VI': 800000,
+    'Rank VII': 1200000,
+    'Rank VIII': 1700000,
+    'Rank IX': 2500000,
+  };
+
+  const currentRank = useMemo(() => {
+    const entries = Object.entries(MATERIAL_RANK_MILESTONES).sort((a, b) => b[1] - a[1]);
+    const found = entries.find(([_, ps]) => powerScore >= ps);
+    return found ? found[0] : 'Rank I';
+  }, [powerScore]);
 
   useEffect(() => {
     setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream);
@@ -483,7 +522,7 @@ export default function App() {
           const merged = {
             ...DEFAULT_GAME_STATE,           // novos campos com valores padrão
             ...loaded,                  // progresso real do jogador
-            version: APP_VERSION,
+            version: "1.40.0",
             team: loaded.team || DEFAULT_GAME_STATE.team,
             pc: loaded.pc || DEFAULT_GAME_STATE.pc,
             badges: loaded.badges || DEFAULT_GAME_STATE.badges,
@@ -856,6 +895,44 @@ export default function App() {
     }
   }, []);
 
+  const saveBossDamage = useCallback(async (damage) => {
+    const user = auth.currentUser;
+    if (!user || damage <= 0) return;
+    
+    try {
+      // 1. Atualizar Mini-Ranking Global do Boss
+      const userRef = doc(db, "bossRankings", user.uid);
+      const userSnap = await getDoc(userRef);
+      const currentBest = userSnap.exists() ? (userSnap.data().totalDamage || 0) : 0;
+      
+      if (damage > currentBest) {
+        await setDoc(userRef, {
+          name: gameState.trainer?.name || "Treinador",
+          totalDamage: damage,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        
+        // 2. Registrar histórico na sub-coleção bossEvents
+        const historyRef = doc(db, "users", user.uid, "bossEvents", Date.now().toString());
+        await setDoc(historyRef, {
+          damage: damage,
+          timestamp: serverTimestamp()
+        });
+        
+        console.log("🔥 Recorde de Dano no Boss sincronizado!");
+      }
+    } catch (e) {
+      console.error("Boss damage save fail:", e);
+    }
+  }, [gameState.trainer?.name]);
+
+  const debouncedSaveBossDamage = useCallback((damage) => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
+      saveBossDamage(damage);
+    }, 5000);
+  }, [saveBossDamage]);
+
   const debouncedSave = useCallback((data) => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
@@ -1059,6 +1136,28 @@ export default function App() {
     let base = ((((2 * level) / 5 + 2) * power * (atk / def)) / 50 + 2) * stab * effectiveness;
     if (isNaN(base)) base = 1;
     const roll = 0.85 + Math.random() * 0.15;
+    
+    // Efeitos Passivos de Itens de Boss
+    if (attacker.isWorldBoss || defender.isWorldBoss) {
+      const playerPokemon = attacker.isWorldBoss ? defender : attacker;
+      const playerIsAttacker = !attacker.isWorldBoss;
+      const holdItem = playerPokemon.holdItem || playerPokemon.item;
+      
+      // Busca dados extras da receita se disponível para verificar isBossItem
+      const itemData = Object.values(CRAFTING_RECIPES).flat().find(r => r.id === holdItem);
+      const isBossItem = itemData?.isBossItem || false;
+
+      // Só ativa bônus se for item de boss OU se não tiver restrição isBossItem explicitly set
+      // (os itens antigos não tinham essa flag, mantemos compatibilidade se necessário, mas o plano pede proteção)
+      if (isBossItem) {
+        if (playerIsAttacker) {
+          if (holdItem === 'adrenaline_potion') base *= 1.25;
+          if (holdItem === 'penetration_pendant') base *= 1.30;
+        } else {
+          if (holdItem === 'titan_shield') base *= 0.80;
+        }
+      }
+    }
     
     // Accuracy System
     const baseAcc = move.accuracy || moveData.accuracy || 100;
@@ -1586,6 +1685,69 @@ export default function App() {
     return () => clearTimeout(t);
   }, [currentEnemy?.instanceId]);
 
+  // Cronômetro do Boss (Enrage Timer)
+  useEffect(() => {
+    let timer;
+    if (bossTimer !== null && bossTimer > 0 && currentView === 'battles' && currentEnemy?.isWorldBoss) {
+      timer = setInterval(() => {
+        setBossTimer(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            handleBossTimeOut();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [bossTimer, currentView, currentEnemy?.isWorldBoss]);
+
+  const calculateBossLoot = useCallback((damage) => {
+    const loot = { coins: Math.floor(damage / 5), materials: {} };
+    if (damage >= 40000) {
+      loot.materials.stardust = 1 + Math.floor(Math.random() * 2);
+      loot.materials.dragon_scale = 1;
+      if (Math.random() > 0.5) loot.materials.fury_essence = 2;
+    } else if (damage >= 25000) {
+      loot.materials.fury_essence = 1 + Math.floor(Math.random() * 2);
+      if (Math.random() > 0.6) loot.materials.stardust = 1;
+    } else if (damage >= 10000) {
+      loot.materials.armor_fragment = 1 + Math.floor(Math.random() * 2);
+      if (Math.random() > 0.7) loot.materials.fury_essence = 1;
+    } else if (damage >= 2000) {
+      if (Math.random() > 0.5) loot.materials.armor_fragment = 1;
+    }
+    return loot;
+  }, []);
+
+  const handleBossTimeOut = useCallback(() => {
+    addLog(`🛑 TEMPO ESGOTADO! O Boss fugiu para outra dimensão!`, 'system');
+    
+    // Calcular e aplicar loot
+    const loot = calculateBossLoot(bossDamage);
+    setBossLoot(loot);
+
+    setGameState(prev => {
+      const newMaterials = { ...prev.inventory.materials };
+      Object.entries(loot.materials).forEach(([mat, qty]) => {
+        newMaterials[mat] = (newMaterials[mat] || 0) + qty;
+      });
+      return {
+        ...prev,
+        currency: prev.currency + loot.coins,
+        inventory: {
+          ...prev.inventory,
+          materials: newMaterials
+        }
+      };
+    });
+
+    debouncedSaveBossDamage(bossDamage);
+    
+    // O modal de loot segurará a saída da batalha
+  }, [bossDamage, debouncedSaveBossDamage, calculateBossLoot]);
+
   // TICK DE BATALHA
   // ⛏️” PROTECTED: handleBattleTick — NíO EDITAR SEM AUTORIZAÇíO EXPLíCITA
   const handleBattleTick = useCallback(() => {
@@ -1857,6 +2019,15 @@ export default function App() {
           addFloat('Errou!', '#94a3b8');
         } else {
           updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - playerDmg);
+          
+          if (updatedEnemyFinal.isWorldBoss) {
+            setBossDamage(prev => {
+              const newVal = prev + playerDmg;
+              debouncedSaveBossDamage(newVal);
+              return newVal;
+            });
+          }
+
           addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
           if (eff > 1) addLog("💥 É super efetivo!", 'system');
           if (eff > 0 && eff < 1) addLog("💢 Não é muito efetivo!", 'system');
@@ -1868,6 +2039,15 @@ export default function App() {
       if (enemyStatus.includes('poison') || enemyStatus.includes('burn')) {
         const dot = Math.max(1, Math.floor(updatedEnemyFinal.maxHp / 16));
         updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - dot);
+        
+        if (updatedEnemyFinal.isWorldBoss) {
+          setBossDamage(prev => {
+            const newVal = prev + dot;
+            debouncedSaveBossDamage(newVal);
+            return newVal;
+          });
+        }
+
         addLog(`☠️ ${updatedEnemyFinal.name} sofreu dano por status!`, 'enemy');
       }
 
@@ -2326,6 +2506,71 @@ export default function App() {
     addLog(`🚀 DESAFIO: ${battleData.name} iniciou a batalha!`, 'system');
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
+
+  const handleChallenge = useCallback((battleData, type) => {
+    if (type === 'boss') {
+      setBossDamage(0);
+      const teamMember = battleData.mainPokemon || (battleData.team && battleData.team.length > 0 ? battleData.team[0] : null);
+      if (!teamMember) return;
+
+      const base = POKEDEX[teamMember.id];
+      if (!base) return;
+
+      const lvl = 100; 
+      const hpMult = 100;
+      const statMult = 1.5;
+
+      const baseHp = Math.ceil((((2 * (base.maxHp || base.hp || 50) * lvl) / 100) + lvl + 10));
+      const maxHp = baseHp * hpMult;
+      const getStat = (b) => Math.ceil((((2 * (b || 10) * lvl) / 100) + 5) * statMult);
+
+      const boss = {
+        ...base,
+        instanceId: `worldboss-${Date.now()}`,
+        level: '???',
+        hp: maxHp,
+        maxHp: maxHp,
+        attack: getStat(base.attack),
+        defense: getStat(base.defense),
+        spAtk: getStat(base.spAtk),
+        spDef: getStat(base.spDef),
+        speed: getStat(base.speed),
+        status: [],
+        stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
+        learnset: base.learnset || []
+      };
+
+      const finalMoves = (base.learnset || []).slice(-4).map(m => {
+        const mk = (m.move || '').toLowerCase();
+        const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
+        return { ...md, name: MOVE_TRANSLATIONS[mk] || md.name || m.move };
+      });
+
+      setCurrentEnemy({
+        ...boss,
+        pokemonName: base.name,
+        moves: finalMoves,
+        isTrainer: true,
+        trainerName: battleData.name,
+        trainerSprite: battleData.sprite,
+        isBoss: true,
+        isWorldBoss: true,
+        bossType: battleData.bossType,
+        background: battleData.background,
+        locationName: "Fenda Dimensional",
+        spawnTime: Date.now(),
+        opponentTeam: [boss],
+        opponentTeamIndex: 0
+      });
+      setCurrentView('battles');
+      addLog(`⚠️ ALERTA: ${battleData.name} emergiu da fenda! HP SEGMENTADO DETECTADO!`, 'system');
+      setBossTimer(120); // 2 minutos
+      return;
+    }
+    
+    // Fallback para lutas de rivais de rota
+    startKeyBattle(battleData);
+  }, [POKEDEX, MOVES, MOVE_TRANSLATIONS, setCurrentEnemy, setCurrentView, addLog, startKeyBattle]);
 
   const handleChallengeGym = useCallback((gymData) => {
     const defeatCount = gameState.gymDefeatCounts?.[gymData.id] || 0;
@@ -3429,6 +3674,10 @@ export default function App() {
                      >
                        📥 {isIOS ? 'Como Instalar (iOS)' : 'Instalar Aplicativo (PWA)'}
                      </button>
+                   )}
+
+                   {showRanking && (
+                     <RankingModal onClose={() => setShowRanking(false)} />
                    )}
 
                    {/* Botão de Ranking Global na Landing */}
@@ -4564,13 +4813,14 @@ export default function App() {
             fixPath={fixPath}
             TYPE_COLORS={TYPE_COLORS}
             onGoToCity={handleGoToCity}
-            onChallengeBoss={(battle) => {
-              if (battle.type === 'rival') {
-                startBattleAgainstRival(battle);
-              } else if (battle.type === 'gym_leader' || battle.type === 'elite' || battle.type === 'boss' || battle.type === 'rocket' || battle.type === 'legendary') {
-                startKeyBattle(battle);
-              }
-            }}
+                bossTimer={bossTimer}
+                onChallengeBoss={(battle) => {
+                  if (battle.type === 'rival') {
+                    startBattleAgainstRival(battle);
+                  } else if (battle.type === 'gym_leader' || battle.type === 'elite' || battle.type === 'boss' || battle.type === 'rocket' || battle.type === 'legendary') {
+                    startKeyBattle(battle);
+                  }
+                }}
           />
         </div>
       );
@@ -4614,34 +4864,34 @@ export default function App() {
       );
 
       case 'forge_screen': return (
-        <div className="h-full bg-slate-100 flex flex-col items-center p-6 animate-fadeIn relative overflow-hidden">
-           <div className="absolute inset-0 opacity-5 pointer-events-none">
-              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/metal-coat.png" className="absolute top-10 right-10 w-64 h-64 -rotate-12" alt="" />
+        <div className="h-full bg-[#0a0f1e] flex flex-col items-center p-6 animate-fadeIn relative overflow-hidden">
+           <div className="absolute inset-0 opacity-10 pointer-events-none">
+              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/metal-coat.png" className="absolute top-10 right-10 w-64 h-64 -rotate-12 invert opacity-20" alt="" />
            </div>
 
            <div className="relative z-10 w-full max-w-2xl">
               <div className="flex items-center gap-4 mb-8">
-                 <button onClick={() => setCurrentView('city')} className="bg-slate-800 p-4 rounded-3xl shadow-xl hover:bg-slate-700 transition-all">
-                     <span className="text-xl text-white">?</span>
+                 <button onClick={() => setCurrentView('city')} className="bg-slate-800/50 backdrop-blur border border-white/10 p-4 rounded-3xl shadow-xl hover:bg-slate-700 transition-all">
+                     <span className="text-xl text-white">←</span>
                  </button>
                  <div>
-                    <h2 className="text-4xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">Forja Pokémon</h2>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">Transforme essências em poder</p>
+                    <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-none shadow-sm">Forja Pokémon</h2>
+                    <p className="text-[10px] font-black text-amber-500/60 uppercase tracking-[0.3em] mt-2">Mestria em Metalurgia e Essências</p>
                  </div>
               </div>
 
-              <div className="bg-white/50 backdrop-blur-md p-6 rounded-[2.5rem] border-2 border-white shadow-inner mb-6">
+              <div className="bg-slate-900/60 backdrop-blur-xl p-6 rounded-[2.5rem] border border-white/10 shadow-2xl mb-6">
                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Seus Materiais</h4>
-                    <span className="text-[10px] font-black text-pokeBlue uppercase bg-blue-50 px-3 py-1 rounded-full">💰 {gameState.currency} Coins</span>
+                    <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Inventário de Forja</h4>
+                    <span className="text-[10px] font-black text-amber-400 uppercase bg-amber-400/10 border border-amber-400/20 px-3 py-1.5 rounded-full shadow-[0_0_10px_rgba(251,191,36,0.1)]">💰 {gameState.currency.toLocaleString()} P$</span>
                  </div>
                  <div className="flex flex-wrap justify-center gap-3">
                     {Object.entries(gameState.inventory.materials)
                       .filter(([_, qty]) => qty > 0)
                       .map(([id, qty]) => (
-                        <div key={id} className="bg-white px-4 py-2 rounded-2xl shadow-sm border-2 border-slate-50 flex items-center gap-2">
-                           <span className="text-xs font-black text-slate-800">{qty}x</span>
-                           <span className="text-[9px] font-bold text-slate-500 uppercase">{id.replace('_essence', '').replace('_', ' ')}</span>
+                        <div key={id} className="bg-slate-800/80 px-4 py-2 rounded-2xl shadow-sm border border-white/5 flex items-center gap-2 hover:border-white/20 transition-all">
+                           <span className="text-xs font-black text-white">{qty}x</span>
+                           <span className="text-[9px] font-black text-white/50 uppercase">{ITEM_LABELS[id]?.name || id.replace('_essence', '').replace(/_/g, ' ')}</span>
                         </div>
                       ))}
                  </div>
@@ -5200,7 +5450,7 @@ export default function App() {
               <img
                 src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png"
                 className="w-7 h-7 object-contain" alt=""
-                onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML += '<span style="font-size:24px">⚔️</span>'; }}
+                onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML += '<span style="font-size:24px">⚔️ </span>'; }}
               />
               <span className="text-[9px] font-black uppercase mt-0.5">Modo VS</span>
             </button>
@@ -5438,7 +5688,15 @@ export default function App() {
 
               {activeBuildingModal === 'forge' && (
                 <div className="p-5 flex-1 flex flex-col overflow-hidden">
-                   <div className="flex items-center justify-end mb-4">
+                   <div className="flex items-center justify-between mb-4 gap-3">
+                      <div className="flex flex-col">
+                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Poder Global (PS)</span>
+                        <span className="text-sm font-black text-slate-800 tracking-tighter">{powerScore.toLocaleString()}</span>
+                      </div>
+                      <div className="flex flex-col items-center px-4 py-1.5 bg-slate-900 rounded-xl border border-white/10 shadow-lg">
+                        <span className="text-[7px] font-black text-amber-500 uppercase tracking-widest leading-none mb-0.5">Material Rank</span>
+                        <span className="text-[10px] font-black text-white italic leading-none">{currentRank}</span>
+                      </div>
                       <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm flex items-center gap-1 shrink-0">
                          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-4 h-4 object-contain" alt="" /> {gameState.currency}
                       </div>
@@ -5459,13 +5717,15 @@ export default function App() {
                    <div className="space-y-6 overflow-y-auto pr-1 custom-scrollbar flex-1 pb-6">
                       {Object.entries(CRAFTING_RECIPES).filter(([category]) => category === forgeCategory).map(([category, items]) => (
                         <div key={category} className="space-y-3">
-                           <div className="flex items-center gap-2 border-b-2 border-slate-100 pb-2">
-                              <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                              <h3 className="text-sm font-black uppercase text-slate-400 tracking-[0.18em]">{getForgeCategoryLabel(category)}</h3>
+                           <div className={`flex items-center gap-2 border-b-2 pb-2 ${category === 'elite_relics' ? 'border-amber-500/30' : 'border-slate-100'}`}>
+                              <div className={`w-2 h-2 rounded-full ${category === 'elite_relics' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]' : 'bg-orange-500'}`}></div>
+                              <h3 className={`text-sm font-black uppercase tracking-[0.18em] ${category === 'elite_relics' ? 'text-amber-600 italic' : 'text-slate-400'}`}>
+                                {getForgeCategoryLabel(category)}
+                              </h3>
                            </div>
                            <div className="flex flex-col gap-3">
                               {items
-                                .filter(item => isForgeItemUnlocked(gameState, item.id))
+                                .filter(item => isForgeItemUnlocked(gameState, item.id, powerScore))
                                 .filter(item => Object.keys(item.cost || {}).some(mat => mat === 'currency' || (gameState.inventory.materials?.[mat] || 0) > 0))
                                 .map(item => {
                                 const canCraftOne = Object.entries(item.cost).every(([mat, amount]) => {
@@ -5519,14 +5779,14 @@ export default function App() {
                                };
                                const maxCraft = getMaxCraft();
                                return (
-                                 <div key={item.id} className="bg-white rounded-2xl border-2 border-slate-100 shadow-sm overflow-hidden">
+                                 <div key={item.id} className={`rounded-2xl border-2 shadow-sm overflow-hidden transition-all ${category === 'elite_relics' ? 'bg-slate-900 border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'bg-white border-slate-100'}`}>
                                     <div className="flex items-start gap-3 p-3 pb-2">
-                                       <div className="bg-orange-50 w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border border-orange-100">
+                                       <div className={`${category === 'elite_relics' ? 'bg-amber-500/20 border-amber-500/40' : 'bg-orange-50 border-orange-100'} w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border`}>
                                           <img src={item.img} className="w-9 h-9 object-contain" alt={item.name} />
                                        </div>
                                        <div className="flex-1 min-w-0">
-                                          <h4 className="font-black text-slate-800 uppercase italic text-base leading-tight">{item.name}</h4>
-                                          <p className="text-[11px] font-bold text-slate-500 leading-snug mt-1" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                          <h4 className={`font-black uppercase italic text-base leading-tight ${category === 'elite_relics' ? 'text-amber-500' : 'text-slate-800'}`}>{item.name}</h4>
+                                          <p className={`text-[11px] font-bold leading-snug mt-1 ${category === 'elite_relics' ? 'text-white/40' : 'text-slate-500'}`} style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                                             {typeof item.effect === 'string' ? item.effect : (item.description || 'Item de Crafting')}
                                           </p>
                                        </div>
@@ -5673,6 +5933,57 @@ export default function App() {
           onClose={() => setShowAutoCaptureModal(false)}
           onDisable={handleDisableAutoCapture}
         />
+      )}
+
+      {/* 🛡️ Boss Loot Modal */}
+      {bossLoot && (
+        <div className="absolute inset-0 z-[150] flex items-center justify-center p-6 bg-black/80 backdrop-blur-xl animate-fadeIn">
+          <div className="w-full max-w-[400px] bg-slate-900 border-2 border-amber-500/30 rounded-[2.5rem] shadow-[0_0_50px_rgba(245,158,11,0.2)] overflow-hidden animate-bounceIn">
+            <div className="bg-gradient-to-b from-amber-500/20 to-transparent p-8 text-center border-b border-white/5">
+              <div className="w-20 h-20 mx-auto bg-amber-500/20 rounded-full flex items-center justify-center mb-4 border border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+                <span className="text-4xl">💰</span>
+              </div>
+              <h2 className="text-amber-500 font-black text-2xl uppercase italic tracking-tighter leading-tight">Saques Obtidos</h2>
+              <p className="text-amber-500/50 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Tier de Recompensa: {bossDamage >= 40000 ? 'S' : bossDamage >= 25000 ? 'A' : bossDamage >= 10000 ? 'B' : 'C'}</p>
+            </div>
+
+            <div className="p-8">
+              <div className="space-y-4 mb-8">
+                <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5">
+                   <div className="flex items-center gap-3">
+                     <span className="text-xl">🪙</span>
+                     <span className="text-white/60 text-xs font-bold uppercase">Moedas</span>
+                   </div>
+                   <span className="text-amber-400 font-black text-lg">+{bossLoot.coins.toLocaleString()}</span>
+                </div>
+
+                {Object.entries(bossLoot.materials).map(([id, qty]) => (
+                  <div key={id} className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5">
+                     <div className="flex items-center gap-3">
+                       <span className="text-xl">{ITEM_LABELS[id]?.icon || '📦'}</span>
+                       <span className="text-white/60 text-xs font-bold uppercase">{ITEM_LABELS[id]?.name || id}</span>
+                     </div>
+                     <span className="text-emerald-400 font-black text-lg">+{qty}</span>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={() => {
+                  setBossLoot(null);
+                  setBossDamage(0);
+                  setCurrentEnemy(null);
+                  setCurrentView('vs');
+                  setVsInitialTab('boss');
+                  setBossTimer(null);
+                }}
+                className="w-full bg-amber-500 text-slate-900 py-5 rounded-2xl font-black uppercase text-base tracking-widest hover:bg-amber-400 transition-all shadow-lg active:scale-95"
+              >
+                COLETAR E VOLTAR
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Modal de confirmação global */}

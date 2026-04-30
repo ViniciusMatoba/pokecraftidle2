@@ -19,6 +19,38 @@ export const CRAFTING_RECIPES = {
     { id: 'magnet', name: 'Magnet', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/magnet.png', cost: { electric_essence: 50, currency: 5000 }, effect: '+20% Electric Dmg' },
     { id: 'quick_claw', name: 'Quick Claw', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/quick-claw.png', cost: { flying_essence: 30, steel_essence: 10, currency: 7000 }, effect: 'Speed Priority' }
   ],
+  elite_relics: [
+    { 
+      id: 'titan_shield', 
+      name: 'Escudo de Titã', 
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron-plate.png', 
+      cost: { armor_fragment: 5, steel_essence: 30, iron_ore: 20, currency: 25000 }, 
+      effect: '-20% Dano de Boss',
+      description: 'Armadura reforçada que reduz o impacto dos ataques de Bosses Mundiais.',
+      type: 'hold_item',
+      isBossItem: true
+    },
+    { 
+      id: 'adrenaline_potion', 
+      name: 'Poção de Adrenalina', 
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/elixir.png', 
+      cost: { fury_essence: 10, psychic_essence: 20, currency: 15000 }, 
+      effect: '+25% Atk vs Boss',
+      description: 'Estimulante químico que aumenta o poder ofensivo especificamente contra Bosses.',
+      type: 'hold_item',
+      isBossItem: true
+    },
+    { 
+      id: 'penetration_pendant', 
+      name: 'Pingente de Penetração', 
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sharp-beak.png', 
+      cost: { stardust: 10, dragon_scale: 5, psychic_essence: 30, currency: 40000 }, 
+      effect: 'Ignora 30% Def Boss',
+      description: 'Pingente místico que permite encontrar brechas na armadura impenetrável de Bosses.',
+      type: 'hold_item',
+      isBossItem: true
+    }
+  ],
   tms: [
     { id: 'tm_flamethrower', name: 'TM Flamethrower', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-fire.png', cost: { fire_essence: 100, psychic_essence: 20, currency: 15000 } },
     { id: 'tm_thunderbolt', name: 'TM Thunderbolt', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-electric.png', cost: { electric_essence: 100, psychic_essence: 20, currency: 15000 } },

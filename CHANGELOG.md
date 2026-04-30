@@ -1,5 +1,37 @@
 # Changelog - PokeCraft
 
+## [V1.40.0] - 30/04/2026 08:27
+### Adicionado
+- **Reclassificação da Forja**: Nova categoria 'Relíquias de Elite' com estilo visual lendário.
+- **Power Score (PS)**: Implementado sistema de pontuação global baseado em níveis, capturas e insígnias.
+- **Material Ranks (I a IX)**: Sistema de escalonamento para 9 regiões vinculado ao Power Score.
+- **Segurança de Conteúdo**: Bônus de itens de Boss agora são protegidos e ativados exclusivamente em batalhas de Boss.
+- **Tema Dark RPG**: Interface da Forja completamente remodelada com estética sombria e imersiva.
+
+## [V1.33.0] - 30/04/2026 08:22
+### Adicionado
+- **Sistema de Drops de Boss**: Recompensas exclusivas (Fragmento de Armadura, Essência de Fúria, Escama de Dragão, Poeira Estelar) baseadas no dano causado.
+- **Novas Receitas de Forja**: Criados itens Lendários (Escudo de Titã, Poção de Adrenalina, Pingente de Penetração).
+- **Passivas de Gear**: Itens equipados agora concedem bônus reais contra Bosses (Redução de dano, Bônus de Atk e Penetração de Defesa).
+- **Modal de Saques**: Nova interface para visualização de prêmios conquistados após o Enrage Timer.
+- **Indicadores Visuais**: Novos ícones no BossScreen mostram quais passivas estão ativas antes da batalha.
+
+## [V1.32.1] - 30/04/2026 07:53
+### Adicionado
+- **Enrage Timer**: Cronômetro de 2 minutos para batalhas contra Bosses Mundiais com HUD dedicada.
+- **Backgrounds Dinâmicos**: Padronização dos cenários de Boss baseados no tipo do oponente (Ginásio, Lab, Caverna).
+- **Persistência Refinada**: Sistema de salvamento de dano final agora integrado ao ciclo de debounce de 5s.
+- **Navegação Inteligente**: Retorno automático para a aba de Boss no Modo VS após o término da batalha por tempo esgotado.
+
+## [V1.32.0] - 30/04/2026 07:45
+### Adicionado
+- **Sistema de Boss Raid Global**: Nova aba "BOSS" no Modo VS com geração dinâmica de oponentes.
+- **Escalonamento Épico**: Bosses possuem 100x HP e +50% de Atributos (ATK/DEF) para um desafio competitivo.
+- **HUD de Batalha Premium**: Barra de vida gigante, segmentada e pulsante exclusiva para confrontos contra Bosses Mundiais.
+- **Ranking de Dano (DPS)**: Sistema de persistência no Firestore (`bossRankings`) que rastreia os top 5 maiores danos.
+- **Sincronização Debounced**: Lógica de salvamento de dano com 5 segundos de debounce para otimização de performance.
+- **Dev Tools**: Botão de reset de Boss para facilitar testes em ambiente de desenvolvimento.
+
 ## [V1.31.0] - 30/04/2026 07:35
 ### Ranking Global & Power Score
 - **Sistema de Ranking:** Leaderboard Top 50 baseada em Power Score (Insígnias + Níveis Totais).
