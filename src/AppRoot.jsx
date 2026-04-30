@@ -426,6 +426,7 @@ export default function App() {
   const currentViewRef = useRef('landing');
   const lastNonMenuView = useRef('city');
   const lastSyncRef = useRef(0);
+  const saveTimeoutRef = useRef(null);
 
   const resetSession = () => {
     sessionRef.current = { kills: 0, coins: 0, trainers: 0, shinyKills: 0, drops: {}, captures: [] };
@@ -775,22 +776,53 @@ export default function App() {
     return () => unsubscribe();
   }, [addLog]);
 
-  // Sincronização de Estado (Vários destinos)
+  // 1. Sincronização LocalStorage (Sempre que o estado mudar)
   useEffect(() => {
-    // 1. LocalStorage (Instantaneo)
     localStorage.setItem('poke_idle_save', JSON.stringify({ gameState }));
-    
-    // 2. Firestore (Throttled - 30s)
-    const user = auth.currentUser;
-    const now = Date.now();
-    if (user && now - lastSyncRef.current > 30000) {
-      lastSyncRef.current = now;
-      setDoc(doc(db, "saves", user.uid), { 
-        gameState: removeUndefinedFields({ ...gameState, version: gameState.version || APP_VERSION }), 
-        updatedAt: serverTimestamp() 
-      }, { merge: true }).catch(e => console.error("Cloud Save Fail:", e));
-    }
   }, [gameState]);
+
+  // 2. Gatilhos de Salvamento na Nuvem (Debounced 5s)
+  // Baseado em: Fechamento de Modais ou Troca de Rota
+  const saveToCloud = useCallback(async (dataToSave) => {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    try {
+      lastSyncRef.current = Date.now();
+      await setDoc(doc(db, "saves", user.uid), { 
+        gameState: removeUndefinedFields({ ...dataToSave, version: dataToSave.version || APP_VERSION }), 
+        updatedAt: serverTimestamp() 
+      }, { merge: true });
+      console.log("☁️ Progress saved to cloud");
+    } catch (e) {
+      console.error("Cloud Save Fail:", e);
+    }
+  }, []);
+
+  const debouncedSave = useCallback((data) => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
+      saveToCloud(data);
+    }, 5000);
+  }, [saveToCloud]);
+
+  const prevView = useRef(currentView);
+  const prevRoute = useRef(gameState.currentRoute);
+
+  useEffect(() => {
+    const modalViews = ['battles', 'gym', 'vs_screen', 'pokedex', 'evolution', 'challenges'];
+    const viewChanged = prevView.current !== currentView;
+    const routeChanged = prevRoute.current !== gameState.currentRoute;
+
+    // Trigger save if route changed OR if a modal/important screen was closed
+    if (routeChanged || (viewChanged && modalViews.includes(prevView.current))) {
+       debouncedSave(gameState);
+    }
+
+    prevView.current = currentView;
+    prevRoute.current = gameState.currentRoute;
+  }, [currentView, gameState.currentRoute, debouncedSave, gameState]);
+
   
   const triggerSave = useCallback(async () => {
     const user = auth.currentUser;
