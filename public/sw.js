@@ -1,16 +1,33 @@
-const CACHE_NAME = 'pokecraft-cache-v1';
+const CACHE_NAME = 'pokecraft-cache-v2';
 const ASSETS_TO_CACHE = [
   '/',
-  '/index.html',
-  // Os arquivos principais de CSS/JS serão cacheados pelo Vite automaticamente se usarmos um plugin PWA,
-  // mas aqui faremos um interceptor genérico para assets em /public/
+  '/index.html'
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE);
     })
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    Promise.all([
+      self.clients.claim(),
+      // Limpa caches antigos
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== CACHE_NAME) {
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+    ])
   );
 });
 
