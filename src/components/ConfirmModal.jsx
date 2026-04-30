@@ -48,7 +48,7 @@ const ConfirmModal = ({
   const closeAction = onCancel || onConfirm;
 
   return (
-    <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-[20000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
       <div className="modal-panel-mobile bg-white overflow-hidden shadow-2xl animate-slideInUp flex flex-col border-b-[8px] border-slate-200">
         <div className="px-5 py-4 flex items-center justify-between gap-3 shrink-0" style={{ background: meta.color }}>
           <div className="flex items-center gap-3 min-w-0">
