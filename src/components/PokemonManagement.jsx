@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '../data/candies';
@@ -19,7 +19,8 @@ const PokemonManagement = ({
   setEvolutionPending,
   handleUseCandy,
   showConfirm,
-  closeConfirm
+  closeConfirm,
+  setCurrentView
 }) => {
   const [candyExpanded, setCandyExpanded] = useState(false);
   const [dragTeamIndex, setDragTeamIndex] = useState(null);
@@ -211,7 +212,7 @@ const PokemonManagement = ({
       if (existingIdx !== -1) {
         [newMoves[activeIdx], newMoves[existingIdx]] = [newMoves[existingIdx], newMoves[activeIdx]];
       } else {
-        newMoves[activeIdx] = { name: newMoveName };
+        newMoves[activeIdx] = moveData; // Fix: use full moveData instead of just { name }
       }
 
       poke.moves = newMoves;
@@ -226,7 +227,7 @@ const PokemonManagement = ({
       if (existingIdx !== -1) {
         [newMoves[activeIdx], newMoves[existingIdx]] = [newMoves[existingIdx], newMoves[activeIdx]];
       } else {
-        newMoves[activeIdx] = { name: newMoveName };
+        newMoves[activeIdx] = moveData; // Fix: use full moveData instead of just { name }
       }
       return { ...prev, pokemon: { ...poke, moves: newMoves } };
     });
@@ -274,7 +275,15 @@ const PokemonManagement = ({
 
       <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
         {activeTab === 'team' ? (
-          <div className="grid grid-cols-1 gap-3">
+          <div className="flex flex-col gap-4">
+            <button 
+              onClick={() => setCurrentView('battles')}
+              className="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-md border-b-4 border-slate-900 flex items-center justify-center gap-2 active:scale-95 mb-2"
+            >
+              <span>⚔️</span> Voltar ao Treino
+            </button>
+
+            <div className="grid grid-cols-1 gap-3">
             {gameState.team.map((p, i) => (
               <div
                 key={p.instanceId || i}
@@ -333,6 +342,7 @@ const PokemonManagement = ({
                 </div>
               </div>
             ))}
+            </div>
           </div>
         ) : (
           <div className="flex flex-col gap-4">
@@ -599,7 +609,13 @@ const PokemonManagement = ({
                                    </span>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 opacity-70">
-                                   <span className="text-[8px] font-black text-slate-500 uppercase whitespace-nowrap">Pwr: {moveData?.power ?? '-'}</span>
+                                   {moveData?.power > 0 ? (
+                                     <span className="text-[8px] font-black text-slate-500 uppercase whitespace-nowrap">Pwr: {moveData.power}</span>
+                                   ) : (moveData?.category === 'Physical' || moveData?.category === 'Special' || moveData?.category === 'physical' || moveData?.category === 'special') ? (
+                                     <span className="text-[8px] font-black text-red-500 uppercase whitespace-nowrap">Efeito: Dano</span>
+                                   ) : (
+                                     <span className="text-[8px] font-black text-purple-500 uppercase whitespace-nowrap">Efeito: Status</span>
+                                   )}
                                    <span className="text-[8px] font-black text-slate-500 uppercase whitespace-nowrap">Acc: {moveData?.accuracy ? `${moveData.accuracy}%` : '-'}</span>
                                    <span className="text-[8px] font-black text-slate-500 uppercase whitespace-nowrap">PP: {moveData?.pp ?? '-'}</span>
                                 </div>
@@ -652,7 +668,13 @@ const PokemonManagement = ({
                                         <div className="flex-1 min-w-0 text-left">
                                           <p className="text-white font-black uppercase text-[10px] leading-tight truncate">{getMoveLabel(m)}</p>
                                           <div className="flex gap-2 mt-1 opacity-70">
-                                            <span className="text-[7px] font-bold text-slate-300 uppercase">Pwr: {mData?.power ?? '-'}</span>
+                                            {mData?.power > 0 ? (
+                                              <span className="text-[7px] font-bold text-slate-300 uppercase">Pwr: {mData.power}</span>
+                                            ) : (mData?.category === 'Physical' || mData?.category === 'Special' || mData?.category === 'physical' || mData?.category === 'special') ? (
+                                              <span className="text-[7px] font-bold text-red-400 uppercase">Dano</span>
+                                            ) : (
+                                              <span className="text-[7px] font-bold text-purple-400 uppercase">Status</span>
+                                            )}
                                             <span className="text-[7px] font-bold text-slate-300 uppercase">Acc: {mData?.accuracy || '-'}</span>
                                           </div>
                                         </div>
@@ -685,7 +707,13 @@ const PokemonManagement = ({
                                           <div className="flex-1 min-w-0">
                                             <p className="text-white font-black uppercase text-[10px] leading-tight">{getMoveLabel(m)}</p>
                                             <div className="flex gap-3 mt-1 opacity-60">
-                                              <span className="text-[7px] font-bold text-slate-300 uppercase">Pwr: {mData?.power ?? '-'}</span>
+                                              {mData?.power > 0 ? (
+                                                <span className="text-[7px] font-bold text-slate-300 uppercase">Pwr: {mData.power}</span>
+                                              ) : (mData?.category === 'Physical' || mData?.category === 'Special' || mData?.category === 'physical' || mData?.category === 'special') ? (
+                                                <span className="text-[7px] font-bold text-red-400 uppercase">Dano</span>
+                                              ) : (
+                                                <span className="text-[7px] font-bold text-purple-400 uppercase">Status</span>
+                                              )}
                                               <span className="text-[7px] font-bold text-slate-300 uppercase">Acc: {mData?.accuracy || '-'}</span>
                                             </div>
                                           </div>
@@ -718,7 +746,13 @@ const PokemonManagement = ({
                                           <div className="flex-1 min-w-0">
                                             <p className="text-white font-black uppercase text-[10px] leading-tight truncate">{getMoveLabel(rm)}</p>
                                             <div className="flex gap-3 mt-1 opacity-70">
-                                              <span className="text-[7px] font-bold text-slate-300 uppercase">Pwr: {rm?.power ?? '-'}</span>
+                                              {rm?.power > 0 ? (
+                                                <span className="text-[7px] font-bold text-slate-300 uppercase">Pwr: {rm.power}</span>
+                                              ) : (rm?.category === 'Physical' || rm?.category === 'Special' || rm?.category === 'physical' || rm?.category === 'special') ? (
+                                                <span className="text-[7px] font-bold text-red-400 uppercase">Dano</span>
+                                              ) : (
+                                                <span className="text-[7px] font-bold text-purple-400 uppercase">Status</span>
+                                              )}
                                               <span className="text-[7px] font-bold text-slate-300 uppercase">Acc: {rm?.accuracy || '-'}</span>
                                             </div>
                                           </div>

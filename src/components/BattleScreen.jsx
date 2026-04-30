@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { StatusBadges } from './CommonUI';
 import { BATTLE_BACKGROUNDS } from '../data/battleBackgrounds';
 import ActiveEffectsBar from './ActiveEffectsBar';
+import { MOVES } from '../data/moves';
+import { MOVE_TRANSLATIONS } from '../data/translations';
 import { TIME_CONFIG } from '../utils/timeSystem';
 
 const BattleScreen = ({ 
@@ -78,7 +80,9 @@ const BattleScreen = ({
 
   const getMoveDesc = (move) => {
     if (!move) return '';
-    if (move.power > 0) return `Causa dano ${move.category === 'Special' ? 'especial' : 'físico'} com poder ${move.power}.`;
+    if (move.power > 0 || move.category === 'Physical' || move.category === 'Special' || move.category === 'physical' || move.category === 'special') {
+      return `Causa dano ${ (move.category === 'Special' || move.category === 'special') ? 'especial' : 'físico'} ${move.power > 0 ? `com poder ${move.power}` : 'com efeito de dano fixo'}.`;
+    }
     if (move.statChanges?.length > 0) {
       return move.statChanges.map(c => `${c.change > 0 ? 'Aumenta' : 'Diminui'} ${c.stat.toUpperCase()} do ${move.target === 'enemy' ? 'inimigo' : 'usuário'}.`).join(' ');
     }
@@ -355,27 +359,33 @@ const BattleScreen = ({
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-3 py-2.5 flex-shrink-0">
         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Ataques <span className="normal-case font-normal">(toque para detalhes)</span></p>
         <div className="grid grid-cols-2 gap-3">
-          {(activePoke?.moves || []).map((move, index) => {
+          {(activePoke?.moves || []).map((moveRef, index) => {
+            const moveName = typeof moveRef === 'string' ? moveRef : moveRef.name;
+            const moveKey = moveName.toLowerCase().replace(/ /g, '-');
+            const moveData = { ...MOVES[moveKey], ...(typeof moveRef === 'object' ? moveRef : {}) };
+            const moveLabel = MOVE_TRANSLATIONS[moveKey] || moveData.name || moveName;
+
             const isActive = index === (moveIndex % (activePoke?.moves?.length || 1));
-            const isSelected = selectedMove?.name === move.name;
+            const isSelected = selectedMove?.name === moveData.name;
             return (
               <div key={index}>
                 <div
-                  onClick={() => setSelectedMove(isSelected ? null : move)}
+                  onClick={() => setSelectedMove(isSelected ? null : moveData)}
                   className={`flex items-center gap-2 px-3 py-4 rounded-xl border-2 transition-all cursor-pointer min-h-[64px] ${isActive ? 'border-pokeYellow bg-yellow-50' : 'border-slate-100 bg-slate-50/50 opacity-60'} ${isSelected ? 'ring-2 ring-pokeBlue' : ''}`}>
                   <div className={`w-2 h-2 rounded-full flex-shrink-0 ${isActive ? 'bg-pokeYellow' : 'bg-slate-300'}`} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-black uppercase text-slate-800 truncate leading-none">{move.name}</p>
+                    <p className="text-[10px] font-black uppercase text-slate-800 truncate leading-none">{moveLabel}</p>
                     <div className="flex items-center gap-1 mt-0.5">
-                      <span className={`${TYPE_COLORS[move.type] || 'bg-slate-400'} text-white text-[7px] font-black px-1.5 py-0.5 rounded-full`}>{move.type}</span>
-                      {move.power > 0 && <span className="text-[8px] text-slate-400 font-bold">PWR {move.power}</span>}
-                      {move.power === 0 && <span className="text-[8px] text-purple-400 font-bold">STATUS</span>}
+                      <span className={`${TYPE_COLORS[moveData.type] || 'bg-slate-400'} text-white text-[7px] font-black px-1.5 py-0.5 rounded-full`}>{moveData.type}</span>
+                      {(moveData.power > 0) && <span className="text-[8px] text-slate-400 font-bold uppercase">PWR {moveData.power}</span>}
+                      {(moveData.power === 0 && (moveData.category === 'Physical' || moveData.category === 'Special' || moveData.category === 'physical' || moveData.category === 'special')) && <span className="text-[8px] text-red-400 font-bold uppercase">ESPECIAL</span>}
+                      {(moveData.power === 0 && (moveData.category === 'Status' || moveData.category === 'status')) && <span className="text-[8px] text-purple-400 font-bold uppercase">STATUS</span>}
                     </div>
                   </div>
                 </div>
                 {isSelected && (
                   <div className="mt-1 px-3 py-2 bg-blue-50 border-2 border-pokeBlue rounded-xl text-[9px] text-slate-700 font-bold leading-tight animate-fadeIn">
-                    {getMoveDesc(move)}
+                    {getMoveDesc(moveData)}
                   </div>
                 )}
               </div>

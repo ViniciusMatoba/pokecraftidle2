@@ -937,17 +937,20 @@ export default function App() {
     return result;
   };
 
-    // Efeitos especiais de dano
   const calcDamage = useCallback((attacker, move, defender) => {
-    if (!attacker || !defender || !move || !move.power) return 0;
-    const level = attacker.level || 5;
-    const power = move.power || 40;
-
-    const getStatMult = (stage = 0) => (2 + Math.max(0, stage)) / (2 - Math.min(0, stage));
-
+    if (!attacker || !defender || !move) return 0;
+    
     const moveName = move?.name || 'Investida';
     const moveKey = (moveName || '').toLowerCase();
+    // Resolve full move data from dataset for accuracy/power reliability
     const moveData = MOVES[moveKey.replace(/ /g, '-')] || move || {};
+    
+    const power = move.power || moveData.power || 0;
+    if (!power) return 0;
+
+    const level = attacker.level || 5;
+    const getStatMult = (stage = 0) => (2 + Math.max(0, stage)) / (2 - Math.min(0, stage));
+
     const isPhysical = (moveData.category || 'Physical') === 'Physical';
     
     const atkBase = isPhysical ? getEffectiveStat(attacker, 'attack') : getEffectiveStat(attacker, 'spAtk');
@@ -962,28 +965,25 @@ export default function App() {
     const stab = move.type === attacker.type ? 1.5 : 1.0;
     const effectiveness = getTypeEffectiveness(move.type, defender.type);
     
-    // Se for imune, dano é zero absoluto
     if (effectiveness === 0) return 0;
 
     let base = ((((2 * level) / 5 + 2) * power * (atk / def)) / 50 + 2) * stab * effectiveness;
     if (isNaN(base)) base = 1;
     const roll = 0.85 + Math.random() * 0.15;
     
-    // Sistema de Precisão (Accuracy)
-    // 1. Pega a precisão base do golpe (default 100)
+    // Accuracy System
     const baseAcc = move.accuracy || moveData.accuracy || 100;
     
-    // 2. Calcula o multiplicador de estágios (Accuracy vs Evasion)
+    // Formula: (3 + stage) / 3 for positive, 3 / (3 + abs(stage)) for negative
     const accStage = attacker.stages?.accuracy || 0;
     const evaStage = defender.stages?.evasion || 0;
     const finalAccStage = Math.max(-6, Math.min(6, accStage - evaStage));
     const accStageMult = finalAccStage >= 0
       ? (3 + finalAccStage) / 3
-      : 3 / (3 - Math.abs(finalAccStage));
+      : 3 / (3 + Math.abs(finalAccStage));
     
-    // 3. Chance final de acerto
     const hitChance = baseAcc * accStageMult;
-    if (Math.random() * 100 > hitChance) return 0; // Errou
+    if (Math.random() * 100 > hitChance) return 0; // Miss
 
     return Math.max(1, Math.ceil(base * roll));
   }, []);
@@ -1158,7 +1158,7 @@ export default function App() {
         spDef: calcStat(base.spDef, lvl),
         speed: calcStat(base.speed, lvl),
         isShiny: false, status: [],
-        stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
+        stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
         isTrainer: true,
         trainerName: teamData.gruntName,
         trainerSprite: teamData.sprite,
@@ -1204,7 +1204,7 @@ export default function App() {
         spDef: calcStat(trainerPoke.spDef, lvl),
         speed: calcStat(trainerPoke.speed, lvl),
         isShiny: false, status: [],
-        stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
+        stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
         isTrainer: true,
         trainerName: trainer.name,
         trainerSprite: trainer.sprite,
@@ -1399,7 +1399,7 @@ export default function App() {
       isWildBoss: isBossSpawn,
       spawnTime: Date.now(),
       status: [],
-      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
+      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
       attack: Math.ceil((((2 * (finalBase.attack || 10) * level) / 100) + 5) * statMult * atkRepelMult),
       defense: Math.ceil((((2 * (finalBase.defense || 10) * level) / 100) + 5) * statMult),
       spAtk: Math.ceil((((2 * (finalBase.spAtk || 10) * level) / 100) + 5) * statMult * atkRepelMult),
@@ -1584,7 +1584,7 @@ export default function App() {
           // Reseta stages do Pokémon que entra em campo
           const newTeam = prev.team.map((p, i) =>
             i === nextAlive
-              ? { ...p, stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 } }
+              ? { ...p, stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 } }
               : p
           );
           return { ...prev, team: newTeam };
@@ -2052,7 +2052,7 @@ export default function App() {
             hp: currentEnemy.maxHp, 
             xp: 0, 
             instanceId: Date.now(),
-            stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 }
+            stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
           };
           const newMastery = processCaptureMastery({ ...currentEnemy, id: Number(currentEnemy.id) }, prev);
           
@@ -2609,7 +2609,7 @@ export default function App() {
       instanceId: Date.now() + Math.random(),
       status: [],
       region: 'johto',
-      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
+      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
     };
   }, [POKEDEX, MOVES]);
 
@@ -2748,7 +2748,7 @@ export default function App() {
         ...bossPoke,
         hp: maxHp, maxHp,
         isShiny: false, status: [],
-        stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
+        stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
         isTrainer: true,
         trainerName: battleData.name,
         trainerSprite: battleData.sprite,
@@ -2785,7 +2785,7 @@ export default function App() {
       level: 5,
       moves: rivalPokeBase.moves || [],
       status: [],
-      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
+      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
       trainerName: 'Azul',
       trainerSprite: getRivalSprite(gameState.trainer?.avatarImg),
       isTrainer: true,
@@ -2849,7 +2849,7 @@ export default function App() {
           speed: calcStat(base.speed, lvl),
           moves: finalMoves,
           status: [],
-          stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 },
+          stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
           opponentTeamIndex: nextIdx,
           instanceId: Date.now(),
           spawnTime: Date.now()
@@ -2981,7 +2981,7 @@ export default function App() {
            if (p.hp > 0) return { 
              ...p, 
              status: (p.status || []).filter(s => s !== 'confuse'),
-             stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 } 
+             stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 } 
            };
            return p;
         }
@@ -2993,7 +2993,7 @@ export default function App() {
 
         if (newXp >= xpNeeded) {
           if (isLevelCapped) {
-            return { ...p, level: maxLevel, xp: xpNeeded - 1, stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 } };
+            return { ...p, level: maxLevel, xp: xpNeeded - 1, stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 } };
           }
 
           const newLevel = (p.level || 5) + 1;
@@ -3045,7 +3045,7 @@ export default function App() {
             spAtk:   calcStat(baseStats.spAtk   || 45, newLevel),
             spDef:   calcStat(baseStats.spDef   || 45, newLevel),
             speed:   calcStat(baseStats.speed   || 45, newLevel),
-            stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 }
+            stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
           };
         }
         return { ...p, xp: newXp, hp: Math.min(p.maxHp, p.hp + Math.ceil(p.maxHp * 0.50)), 
@@ -3690,7 +3690,7 @@ export default function App() {
                                  xp: 0, 
                                  instanceId: Date.now(), 
                                  status: [],
-                                 stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 }
+                                 stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
                                };
 
                               setGameState(prev => ({ 

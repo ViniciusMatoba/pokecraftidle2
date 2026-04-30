@@ -1,6 +1,34 @@
 # Changelog - PokeCraft
 
-## [V1.25.0] - 29/04/2026 12:18
+## [V1.26.2] - 29/04/2026 12:55
+### Correção: Motor de Combate (Precisão e Hit Rate)
+- **Cálculo de Precisão:**
+  - Corrigida a fórmula de multiplicador de precisão para estágios negativos (`accStageMult`). Antes, reduzir a precisão do jogador aumentava suas chances de acerto ou causava erros críticos.
+  - Sincronizada a fórmula com os padrões de Pokémon Gen 2-4: `3 / (3 + abs(stage))`.
+- **Integridade de Golpes:**
+  - Corrigido bug crítico em `PokemonManagement.jsx` onde trocar golpes de um Pokémon removia todas as propriedades (Poder, Precisão, Tipo) exceto o nome.
+  - Refatorado `calcDamage` no `AppRoot.jsx` para resolver dados de golpes diretamente da base mestra `MOVES` se o objeto de entrada estiver incompleto.
+  - Inicializados estágios de `accuracy` e `evasion` em todos os spawns e resets de batalha.
+- **Interface (Equipe):**
+  - Corrigido o botão **"Voltar ao Treino"** na tela de Equipe que não funcionava devido a uma falha na passagem de props.
+
+## [V1.26.1] - 29/04/2026 12:42
+### Correção: Consistência de Dados (Batalha & Troca)
+- **Data Resolution:**
+  - Corrigida falha no `BattleScreen` onde os golpes eram lidos apenas como nomes simples, perdendo as propriedades de categoria e poder. Agora o componente resolve os dados completos a partir da base de dados mestra.
+  - Sincronizado o visual do **Modal de Troca de Golpes** com a listagem principal, garantindo que "Dano" vs "Status" seja exibido corretamente em todos os menus.
+  - Corrigido erro de referência `move is not defined` no log de detalhes da batalha.
+
+## [V1.26.0] - 29/04/2026 15:35
+### Etapa 4: UI de Batalha & Navegação
+- **Correção de Golpes:**
+  - Golpes com dano fixo ou efeitos especiais que possuíam `power: 0` (ex: Guillotine, Seismic Toss) agora são corretamente identificados como **ESPECIAL** ou **DANO** na UI, em vez de serem rotulados genericamente como STATUS.
+  - Descrições de golpes atualizadas para refletir se o dano é físico, especial ou fixo.
+- **Navegação (UX):**
+  - Adicionado botão **"Voltar ao Treino"** na tela de Equipe, permitindo retorno imediato à rota de farm ativa sem passar pelo Hub.
+  - Melhorado o alinhamento de slots de golpes no resumo do Pokémon.
+
+## [V1.25.0] - 29/04/2026 12:22
 ### Etapa 3: Trava Financeira (PokéMart & Forja)
 - **Segurança Transacional:**
   - Implementada validação rigorosa de saldo para evitar contas negativas.
