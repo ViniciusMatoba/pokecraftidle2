@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [V1.29.0] - 30/04/2026 07:05
+### Melhorias de UI e PWA
+- **Z-Index Fix:** Elevado o `ConfirmModal` para `z-index: 20000` para garantir que apareça acima do Poké Mart e outros modais.
+- **Backgrounds de Batalha:** Corrigida a exibição dos fundos da arena em subdiretórios (GitHub Pages) usando caminhos dinâmicos.
+- **Instalação PWA:** Adicionado botão de instalação direta do App na página de login para facilitar o acesso como WebApp.
+
 ## [V1.28.0] - 30/04/2026 06:45
 ### Sistema de Verificação de Atualizações
 - **Botão de Verificação:** Adicionado botão "Verificar Atualizações" na tela de login com estilo Navy & Green.
