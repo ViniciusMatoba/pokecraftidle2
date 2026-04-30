@@ -1,5 +1,18 @@
 # Changelog - PokeCraft
 
+## [V1.27.0] - 30/04/2026 06:20
+### Otimização de Performance & Banda
+- **Cache Agressivo (Service Worker):**
+  - Implementado Service Worker (`sw.js`) para interceptação de requisições de assets (PNG, JPG, MP3).
+  - Estratégia **Cache-First**: arquivos pesados agora são servidos localmente após o primeiro download, reduzindo drasticamente o consumo de banda do Firebase.
+- **Headers de Cache (Firebase):**
+  - Configurados cabeçalhos `Cache-Control` no `firebase.json` para expiração em 1 semana para arquivos estáticos.
+- **Preloader Inteligente:**
+  - Refatorada a utilidade `preloadAssets` para verificar a existência de arquivos no **Cache Storage API** antes de realizar novos fetches.
+- **Auditoria de Recursos:**
+  - Identificados assets críticos para compressão (MP3 > 2MB e PNG > 1MB) com economia potencial de ~50% no tamanho da pasta `/public`.
+
+
 ## [V1.26.2] - 29/04/2026 12:55
 ### Correção: Motor de Combate (Precisão e Hit Rate)
 - **Cálculo de Precisão:**

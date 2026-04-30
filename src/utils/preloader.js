@@ -12,7 +12,19 @@ export const preloadAssets = async (images = [], sounds = [], onProgress = () =>
     onProgress(Math.floor((loaded / total) * 100));
   };
 
-  const imagePromises = images.map((src) => {
+  const isCached = async (src) => {
+    if ('caches' in window) {
+      const match = await caches.match(src);
+      return !!match;
+    }
+    return false;
+  };
+
+  const imagePromises = images.map(async (src) => {
+    if (await isCached(src)) {
+      tick();
+      return;
+    }
     return new Promise((resolve) => {
       const img = new Image();
       img.src = src;
@@ -28,7 +40,11 @@ export const preloadAssets = async (images = [], sounds = [], onProgress = () =>
     });
   });
 
-  const soundPromises = sounds.map((src) => {
+  const soundPromises = sounds.map(async (src) => {
+    if (await isCached(src)) {
+      tick();
+      return;
+    }
     return new Promise((resolve) => {
       const audio = new Audio();
       audio.src = src;
