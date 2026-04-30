@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { loginUser, registerUser } from '../auth';
 import { setPersistence, browserLocalPersistence, browserSessionPersistence, getAuth } from 'firebase/auth';
 import { APP_VERSION, APP_VERSION_DATE } from '../data/constants';
+import RankingModal from './RankingModal';
 
 const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isStandalone }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -14,6 +15,7 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [updateStatus, setUpdateStatus] = useState('idle'); // 'idle', 'checking', 'updated'
+  const [showRanking, setShowRanking] = useState(false);
 
   const handleCheckUpdate = async () => {
     setUpdateStatus('checking');
@@ -307,6 +309,16 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
               📥 {isIOS ? 'Como Instalar (iOS)' : 'Instalar Aplicativo (PWA)'}
             </button>
           )}
+
+          {/* Botão de Ranking Global */}
+          <button 
+            onClick={() => setShowRanking(true)}
+            className="w-full mt-2 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg border-b-4 border-slate-700 bg-slate-800 text-white hover:bg-slate-700 active:scale-95"
+          >
+            🏆 Ranking Global
+          </button>
+
+          {showRanking && <RankingModal onClose={() => setShowRanking(false)} />}
 
           <button
             onClick={() => { setIsLogin(!isLogin); setError(''); }}

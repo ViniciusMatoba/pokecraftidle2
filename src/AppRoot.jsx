@@ -45,6 +45,7 @@ import { getTimeOfDay, TIME_CONFIG, getTimeAdjustedEnemyPool } from './utils/tim
 // import ExpeditionsScreen from './components/ExpeditionsScreen';
 import AutoCaptureModal from './components/AutoCaptureModal';
 import ConfirmModal from './components/ConfirmModal';
+import RankingModal from './components/RankingModal';
 
 import { QUESTS, getActiveQuest, updateQuestProgress, getAvailableQuest } from './data/quests';
 import NotificationSystem, { notify } from './components/NotificationSystem';
@@ -427,6 +428,7 @@ export default function App() {
   const lastNonMenuView = useRef('city');
   const lastSyncRef = useRef(0);
   const saveTimeoutRef = useRef(null);
+  const [showRanking, setShowRanking] = useState(false);
 
   const [installPrompt, setInstallPrompt] = useState(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -826,12 +828,29 @@ export default function App() {
     if (!user) return;
     
     try {
+      // Cálculo do Power Score para Ranking Global
+      const badgeCount = getBadgeCount(dataToSave);
+      const levelsSum = (dataToSave.team || []).reduce((acc, p) => acc + (p.level || 0), 0);
+      const powerScore = (badgeCount * 1000) + levelsSum;
+
       lastSyncRef.current = Date.now();
+      
+      // 1. Salva o estado completo do jogo
       await setDoc(doc(db, "saves", user.uid), { 
         gameState: removeUndefinedFields({ ...dataToSave, version: dataToSave.version || APP_VERSION }), 
         updatedAt: serverTimestamp() 
       }, { merge: true });
-      console.log("☁️ Progress saved to cloud");
+
+      // 2. Sincroniza dados públicos para o Ranking Global
+      await setDoc(doc(db, "users", user.uid), {
+        name: dataToSave.trainer?.name || "Treinador",
+        avatar: dataToSave.trainer?.avatar || 1,
+        badges: badgeCount,
+        powerScore: powerScore,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      console.log("☁️ Progress and Ranking synced to cloud");
     } catch (e) {
       console.error("Cloud Save Fail:", e);
     }
@@ -3411,6 +3430,31 @@ export default function App() {
                        📥 {isIOS ? 'Como Instalar (iOS)' : 'Instalar Aplicativo (PWA)'}
                      </button>
                    )}
+
+                   {/* Botão de Ranking Global na Landing */}
+                   <button
+                     onClick={() => setShowRanking(true)}
+                     style={{
+                       width: '100%',
+                       marginTop: '8px',
+                       padding: '16px',
+                       borderRadius: '24px',
+                       fontWeight: '900',
+                       fontSize: '14px',
+                       textTransform: 'uppercase',
+                       letterSpacing: '1px',
+                       background: 'rgba(255,255,255,0.1)',
+                       color: 'white',
+                       border: '2px solid rgba(255,255,255,0.2)',
+                       boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                       cursor: 'pointer',
+                     }}
+                   >
+                     🏆 Ranking Global
+                   </button>
+
+                   {showRanking && <RankingModal onClose={() => setShowRanking(false)} />}
+
                    {/* ⛔ PROTECTED: Botão REINICIAR JORNADA */}
                    <button
                      onClick={() => { showConfirm({ type:'danger', title:'Reiniciar Jornada', message:'Isso apagará todo seu progresso. Tem certeza?', confirmLabel:'Sim, reiniciar', cancelLabel:'Cancelar', onConfirm:() => { closeConfirm(); startNewJourney(); }, onCancel:closeConfirm }); }}

@@ -1,5 +1,23 @@
 # Changelog - PokeCraft
 
+## [V1.31.0] - 30/04/2026 07:35
+### Ranking Global & Power Score
+- **Sistema de Ranking:** Leaderboard Top 50 baseada em Power Score (Insígnias + Níveis Totais).
+- **Power Score System:** Algoritmo de pontuação sincronizado com a nuvem a cada salvamento.
+- **Botão de Ranking:** Acesso rápido por ícone de troféu nas telas de Login e de Jornada.
+- **Sair da Batalha:** Botão de saída rápida integrado na tela de combate para retorno imediato ao mapa.
+- **Indicador de Rota:** Selo "Treinando Aqui" no mapa de viagens para localização instantânea.
+- **PWA Robusto:** Botão de instalação agora persistente com guia visual manual para usuários iOS (Safari).
+- **UI de Autenticação:** Modal de login expandido e espaçamento otimizado para melhor usabilidade.
+- **Design de Ranking:** Tema Dark Mode RPG com efeitos de brilho para o Top 3 e destaque para o próprio jogador.
+
+## [V1.30.0] - 30/04/2026 07:25
+### Melhorias de Navegação e PWA
+- **Sair da Batalha:** Implementado botão para abandonar rotas de farm diretamente da tela de combate.
+- **Indicador de Rota:** Adicionado selo visual no mapa indicando a rota onde o jogador está atualmente.
+- **UX de Login:** Aumento do card de autenticação para 680px e melhoria no espaçamento dos botões.
+- **Fallback PWA:** Adicionado guia de instalação para iOS e mensagens de ajuda para navegadores sem suporte ao prompt automático.
+
 ## [V1.29.0] - 30/04/2026 07:05
 ### Melhorias de UI e PWA
 - **Z-Index Fix:** Elevado o `ConfirmModal` para `z-index: 20000` para garantir que apareça acima do Poké Mart e outros modais.
