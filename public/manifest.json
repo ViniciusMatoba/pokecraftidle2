@@ -2,7 +2,7 @@
   "name": "PokéCraft Idle",
   "short_name": "PokéCraft",
   "description": "Uma jornada Pokémon ociosa e viciante.",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#1a237e",
   "theme_color": "#CC0000",

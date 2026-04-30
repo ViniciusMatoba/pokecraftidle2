@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/',
+  base: './',
   build: {
     minify: true, // REATIVADO - BUG ENCONTRADO E CORRIGIDO
     rollupOptions: {
