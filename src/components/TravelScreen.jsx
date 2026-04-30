@@ -408,7 +408,9 @@ const TravelScreen = ({
                          </div>
 
                          {isCurrent && (
-                           <div className="absolute right-0 top-0 bottom-0 w-1.5 bg-pokeBlue"></div>
+                            <div className="absolute right-0 top-0 bottom-0 w-2 bg-pokeBlue flex items-center justify-center">
+                              <span className="text-white text-[7px] font-black uppercase [writing-mode:vertical-lr] tracking-widest">Treinando Aqui</span>
+                            </div>
                          )}
                          <div className="text-xl opacity-20 group-hover:opacity-100 group-hover:translate-x-1 transition-all">›</div>
                       </button>

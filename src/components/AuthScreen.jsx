@@ -3,7 +3,7 @@ import { loginUser, registerUser } from '../auth';
 import { setPersistence, browserLocalPersistence, browserSessionPersistence, getAuth } from 'firebase/auth';
 import { APP_VERSION, APP_VERSION_DATE } from '../data/constants';
 
-const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA }) => {
+const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isStandalone }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -152,11 +152,17 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA }) => {
             style={{ imageRendering: 'pixelated', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' }}
             alt="Snorlax"
           />
-
-          {/* Subtítulo */}
-          <p className="text-red-100 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">
-            {isLogin ? '✦ Bem-vindo de volta, Treinador! ✦' : '✦ Inicie sua Jornada Pokémon! ✦'}
-          </p>
+          <div className="flex flex-col items-center text-center mb-8">
+            <div className="w-20 h-20 bg-pokeBlue/10 rounded-[2rem] flex items-center justify-center mb-4 shadow-inner border border-pokeBlue/5">
+              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-12 h-12 animate-bounce" alt="Logo" />
+            </div>
+            <h2 className="text-3xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">
+              {isLogin ? 'Bem-vindo' : 'Novo Treinador'}
+            </h2>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">
+              {isLogin ? 'Acesse sua conta mestra' : 'Comece sua jornada pokémon'}
+            </p>
+          </div>
         </div>
 
         {/* Divider decorativo */}
@@ -164,10 +170,9 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA }) => {
 
         {/* Formulário */}
         <div className="px-8 py-6 space-y-4 bg-white">
-          <form onSubmit={handleSubmit} className="space-y-4">
-
-            {/* E-mail */}
-            <div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6 flex-1">
+            {/* Campo E-mail */}
+            <div className="mb-2">
               <label className="text-[10px] font-black uppercase text-slate-400 ml-1">E-mail</label>
               <input
                 type="email"
@@ -184,7 +189,7 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA }) => {
             </div>
 
             {/* Senha + toggle mostrar */}
-            <div>
+            <div className="mb-2">
               <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Senha</label>
               <div className="relative mt-1">
                 <input
@@ -293,13 +298,13 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA }) => {
           </button>
 
           {/* Botão de Instalação PWA */}
-          {installPrompt && (
+          {!isStandalone && (
             <button
               onClick={handleInstallPWA}
               className="w-full mt-2 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg border-b-4 border-amber-700 animate-bounce"
               style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'white' }}
             >
-              📥 Instalar Aplicativo (PWA)
+              📥 {isIOS ? 'Como Instalar (iOS)' : 'Instalar Aplicativo (PWA)'}
             </button>
           )}
 

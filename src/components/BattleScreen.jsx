@@ -121,11 +121,19 @@ const BattleScreen = ({
 
   return (
     <div className="flex flex-col h-full animate-fadeIn pb-4 gap-2 overflow-y-auto custom-scrollbar" style={{paddingTop: '8px'}}>
-      {/* Nome da Rota */}
-      <div className="flex items-center gap-2 px-1 mb-1 animate-fadeIn">
-        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Localização:</span>
-        <span className="text-[11px] font-black uppercase tracking-tighter text-slate-800">{currentEnemy.locationName || route.name}</span>
+      {/* Nome da Rota e Botão Sair */}
+      <div className="flex items-center justify-between px-2 mb-1 animate-fadeIn">
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Localização:</span>
+          <span className="text-[11px] font-black uppercase tracking-tighter text-slate-800">{currentEnemy.locationName || route.name}</span>
+        </div>
+        <button 
+          onClick={() => onGoToCity && onGoToCity()}
+          className="bg-slate-100 hover:bg-slate-200 text-slate-500 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border border-slate-200"
+        >
+          Sair da Rota
+        </button>
       </div>
 
       <ActiveEffectsBar activeEffects={gameState.activeEffects} />

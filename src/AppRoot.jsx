@@ -429,8 +429,13 @@ export default function App() {
   const saveTimeoutRef = useRef(null);
 
   const [installPrompt, setInstallPrompt] = useState(null);
+  const [isIOS, setIsIOS] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
+    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream);
+    setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
+
     const handler = (e) => {
       e.preventDefault();
       setInstallPrompt(e);
@@ -440,10 +445,25 @@ export default function App() {
   }, []);
 
   const handleInstallPWA = async () => {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    const { outcome } = await installPrompt.userChoice;
-    if (outcome === 'accepted') setInstallPrompt(null);
+    if (installPrompt) {
+      installPrompt.prompt();
+      const { outcome } = await installPrompt.userChoice;
+      if (outcome === 'accepted') setInstallPrompt(null);
+    } else if (isIOS) {
+      showConfirm({
+        type: 'alert',
+        title: 'Instalar no iOS',
+        message: 'Para instalar: 1. Toque no ícone de "Compartilhar" (quadrado com seta) 2. Role para baixo e selecione "Adicionar à Tela de Início".',
+        confirmLabel: 'Entendido'
+      });
+    } else {
+      showConfirm({
+        type: 'alert',
+        title: 'Instalar PWA',
+        message: 'Use o menu do seu navegador (três pontos ou seta) e selecione "Instalar Aplicativo" ou "Adicionar à Tela de Início".',
+        confirmLabel: 'Entendido'
+      });
+    }
   };
 
   const resetSession = () => {
@@ -3277,7 +3297,7 @@ export default function App() {
       </div>
     );
     
-    if (!user) return <AuthScreen onAuthSuccess={() => {}} installPrompt={installPrompt} handleInstallPWA={handleInstallPWA} />;
+    if (!user) return <AuthScreen onAuthSuccess={() => {}} installPrompt={installPrompt} handleInstallPWA={handleInstallPWA} isIOS={isIOS} isStandalone={isStandalone} />;
 
     switch(currentView) {
       case 'landing': {
@@ -3367,8 +3387,8 @@ export default function App() {
                   )}
                    {/* ⛔ END PROTECTED: Botões Landing */}
 
-                   {/* Botão de Instalação PWA na Landing */}
-                   {installPrompt && (
+                   {/* Botão de Instalação PWA na Landing (Sempre visível se não for standalone) */}
+                   {!isStandalone && (
                      <button
                        onClick={handleInstallPWA}
                        style={{
@@ -3388,7 +3408,7 @@ export default function App() {
                        }}
                        className="animate-bounce"
                      >
-                       📥 Instalar Aplicativo (PWA)
+                       📥 {isIOS ? 'Como Instalar (iOS)' : 'Instalar Aplicativo (PWA)'}
                      </button>
                    )}
                    {/* ⛔ PROTECTED: Botão REINICIAR JORNADA */}
