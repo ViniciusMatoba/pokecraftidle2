@@ -103,8 +103,18 @@ const BattleScreen = ({
   
   const formatBg = (bg) => {
     if (!bg) return null;
-    if (bg.includes('gradient') || bg.includes('url(')) return bg;
-    return `url('${bg}')`;
+    if (bg.includes('gradient')) return bg;
+    
+    // Extrai o caminho de dentro de url() se existir
+    let path = bg;
+    if (bg.includes('url(')) {
+      const match = bg.match(/url\(['"]?([^'"]+)['"]?\)/);
+      if (match) path = match[1];
+    }
+    
+    // Aplica fixPath para garantir compatibilidade com subdiretórios (GH Pages)
+    const fixedPath = fixPath(path);
+    return `url('${fixedPath}')`;
   };
 
   const mainBackground = formatBg(customBg) || bgTheme.sky || 'linear-gradient(180deg, #87ceeb 0%, #b0e0ff 55%, #d4f0a0 55%, #7cb850 100%)';

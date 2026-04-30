@@ -14,6 +14,23 @@ const AuthScreen = ({ onAuthSuccess }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [updateStatus, setUpdateStatus] = useState('idle'); // 'idle', 'checking', 'updated'
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstallPWA = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') setInstallPrompt(null);
+  };
 
   const handleCheckUpdate = async () => {
     setUpdateStatus('checking');
@@ -292,6 +309,16 @@ const AuthScreen = ({ onAuthSuccess }) => {
             )}
           </button>
 
+          {/* Botão de Instalação PWA */}
+          {installPrompt && (
+            <button
+              onClick={handleInstallPWA}
+              className="w-full mt-2 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg border-b-4 border-amber-700 animate-bounce"
+              style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'white' }}
+            >
+              📥 Instalar Aplicativo (PWA)
+            </button>
+          )}
 
           <button
             onClick={() => { setIsLogin(!isLogin); setError(''); }}
