@@ -1,7 +1,7 @@
-import { VERSION, LAST_UPDATE } from '../version';
+import { APP_VERSION as V, APP_VERSION_DATE as D } from '../constants/version';
 
-export const APP_VERSION = VERSION;
-export const APP_VERSION_DATE = LAST_UPDATE;
+export const APP_VERSION = V;
+export const APP_VERSION_DATE = D;
 
 export const NATURE_LIST = ['Adamant', 'Modest', 'Jolly', 'Timid', 'Bold', 'Calm', 'Impish', 'Careful', 'Brave', 'Quiet'];
 

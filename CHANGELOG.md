@@ -1,5 +1,12 @@
 # Changelog - PokeCraft
 
+## [V1.28.0] - 30/04/2026 06:45
+### Sistema de Verificação de Atualizações
+- **Botão de Verificação:** Adicionado botão "Verificar Atualizações" na tela de login com estilo Navy & Green.
+- **Lógica de Versão:** Implementada comparação entre versão local e `version.json` no servidor.
+- **Force Update:** Integração com Service Worker e `window.location.reload(true)` para forçar a atualização imediata do App quando uma nova versão é detectada.
+- **Centralização:** Migrada a gestão de versão para `src/constants/version.js`.
+
 ## [V1.27.0] - 30/04/2026 06:20
 ### Otimização de Performance & Banda
 - **Cache Agressivo (Service Worker):**

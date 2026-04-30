@@ -13,6 +13,33 @@ const AuthScreen = ({ onAuthSuccess }) => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState('idle'); // 'idle', 'checking', 'updated'
+
+  const handleCheckUpdate = async () => {
+    setUpdateStatus('checking');
+    try {
+      // Forçamos o browser a buscar a versão mais recente ignorando cache do manifest/json se possível
+      const response = await fetch('./version.json?t=' + Date.now());
+      const data = await response.json();
+      
+      if ('serviceWorker' in navigator) {
+        const registration = await navigator.serviceWorker.ready;
+        await registration.update();
+      }
+
+      if (data.version !== APP_VERSION) {
+        if (window.confirm(`Nova versão disponível (${data.version})! Deseja atualizar agora?`)) {
+          window.location.reload(true);
+        }
+      } else {
+        setUpdateStatus('updated');
+        setTimeout(() => setUpdateStatus('idle'), 3000);
+      }
+    } catch (err) {
+      console.error('Update check failed:', err);
+      setUpdateStatus('idle');
+    }
+  };
 
   // Pré-preenche e-mail salvo se lembrar login ativo
   useEffect(() => {
@@ -229,6 +256,35 @@ const AuthScreen = ({ onAuthSuccess }) => {
               )}
             </button>
           </form>
+
+          {/* Botão de Verificação de Versão */}
+          <button
+            onClick={handleCheckUpdate}
+            disabled={updateStatus === 'checking'}
+            className="w-full mt-4 py-2 rounded-xl font-bold uppercase text-[10px] tracking-wider transition-all flex items-center justify-center gap-2 shadow-md border-b-2"
+            style={{ 
+              background: updateStatus === 'updated' 
+                ? 'linear-gradient(135deg, #166534 0%, #15803d 100%)' 
+                : 'linear-gradient(135deg, #0f172a 0%, #166534 100%)',
+              borderColor: updateStatus === 'updated' ? '#064e3b' : '#020617',
+              color: 'white'
+            }}
+          >
+            {updateStatus === 'checking' ? (
+              <>
+                <svg className="animate-spin h-3 w-3 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+                Verificando...
+              </>
+            ) : updateStatus === 'updated' ? (
+              <>✅ Versão Atualizada!</>
+            ) : (
+              <>🔄 Verificar Atualizações</>
+            )}
+          </button>
+
 
           <button
             onClick={() => { setIsLogin(!isLogin); setError(''); }}
