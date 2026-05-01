@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pokecraft-cache-v1.50.2';
+const CACHE_NAME = 'pokecraft-cache-v1.50.3';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -33,6 +33,12 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 // Estratégia de Fetch
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
@@ -52,7 +58,7 @@ self.addEventListener('fetch', (event) => {
     url.pathname.endsWith('.svg') || 
     url.pathname.endsWith('.js') || 
     url.pathname.endsWith('.css') ||
-    url.pathname.endsWith('.json')
+    (url.pathname.endsWith('.json') && !url.pathname.endsWith('/version.json'))
   );
 
   if (isStaticAsset) {
