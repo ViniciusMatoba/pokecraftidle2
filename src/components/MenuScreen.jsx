@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { APP_VERSION, APP_VERSION_DATE, ITEM_LABELS } from '../data/constants';
+import { CANDY_FAMILIES, getCandyIconUrl } from '../data/candies';
 
 const CURRENT_VERSION = APP_VERSION || '1.4';
 const VERSION_DATE = APP_VERSION_DATE || '2026-04-23';
@@ -196,13 +197,19 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         emoji: 'C',
         entries: Object.entries({ ...(candies || {}), ...Object.fromEntries(Object.entries(materials || {}).filter(([k]) => k.includes('_candy'))) })
           .filter(([k, v]) => v > 0)
-          .map(([k, v]) => ({
-            key: k,
-            label: k.replace(/_candy_xl/, ' XL').replace(/_candy/, '').replace(/_/g, ' '),
-            icon: 'C',
-            qty: v,
-            isXL: k.includes('_xl'),
-          })),
+          .map(([k, v]) => {
+            const baseCandyId = k.replace(/_xl$/, '');
+            const candyData = CANDY_FAMILIES[baseCandyId];
+            return {
+              key: k,
+              label: candyData?.name || k.replace(/_candy_xl/, ' XL').replace(/_candy/, '').replace(/_/g, ' '),
+              img: candyData ? getCandyIconUrl(candyData) : undefined,
+              icon: candyData ? null : 'C',
+              color: candyData?.color,
+              qty: v,
+              isXL: k.includes('_xl'),
+            };
+          }),
       },
       {
         id: 'key_items',
@@ -282,7 +289,16 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
                     key={entry.key}
                     className="bg-slate-50 border border-slate-100 rounded-2xl p-2 flex flex-col items-center gap-1 text-center"
                   >
-                    {entry.img ? (
+                    {entry.img && entry.color ? (
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center border-2 border-white shadow-sm" style={{ background: entry.color }}>
+                      <img
+                        src={entry.img}
+                        alt={entry.label}
+                        className="w-10 h-10 object-contain"
+                        onError={e => { e.target.style.display = 'none'; }}
+                      />
+                      </div>
+                    ) : entry.img ? (
                       <img
                         src={entry.img}
                         alt={entry.label}

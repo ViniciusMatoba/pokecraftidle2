@@ -176,7 +176,7 @@ const isEvolutionAllowedForRegion = (pokemon, evolutionId, activeRegion = 'kanto
   const targetRegion = getPokemonDexRegion(evolutionId);
   if (activeRegion === 'kanto') return targetRegion === 'kanto';
   if (activeRegion === 'johto') return targetRegion === 'kanto' || targetRegion === 'johto';
-  if (activeRegion === 'hoenn') return targetRegion === 'hoenn';
+  if (activeRegion === 'hoenn') return targetRegion === 'kanto' || targetRegion === 'johto' || targetRegion === 'hoenn';
   return false;
 };
 
@@ -5879,6 +5879,7 @@ export default function App() {
                         ...POKE_MART_DRINKS.map(d => ({ ...d, desc: d.description }))
                       ].filter(item => isMartItemUnlocked(gameState, item.id)).map(item => {
                         const maxQty = Math.floor(gameState.currency / item.price);
+                        const ownedQty = gameState.inventory?.items?.[item.id] || 0;
                         const buyFn = (qty) => {
                           if (qty < 1) return;
                           const totalCost = item.price * qty;
@@ -5924,6 +5925,9 @@ export default function App() {
                                 <div className="flex-1 min-w-0">
                                    <h4 className="font-black text-slate-800 uppercase italic text-sm leading-tight">{item.name}</h4>
                                    <p className="text-[10px] text-slate-400 font-bold">{item.desc}</p>
+                                   <p className="mt-1 inline-flex items-center rounded-lg bg-slate-100 px-2 py-0.5 text-[9px] font-black uppercase text-slate-600">
+                                      Na mochila: {ownedQty.toLocaleString()}
+                                   </p>
                                 </div>
                                 <div className="text-right">
                                    <p className="text-[10px] font-black text-slate-400 uppercase">Preco</p>
@@ -5990,6 +5994,7 @@ export default function App() {
                                 .filter(item => isForgeItemUnlocked(gameState, item.id, powerScore))
                                 .filter(item => Object.keys(item.cost || {}).some(mat => mat === 'currency' || (gameState.inventory.materials?.[mat] || 0) > 0))
                                 .map(item => {
+                                const ownedQty = gameState.inventory?.items?.[item.id] || 0;
                                 const canCraftOne = Object.entries(item.cost).every(([mat, amount]) => {
                                  if (mat === 'currency') return gameState.currency >= amount;
                                  return (gameState.inventory.materials?.[mat] || 0) >= amount;
@@ -6048,6 +6053,9 @@ export default function App() {
                                           <h4 className={`font-black uppercase italic text-base leading-tight ${category === 'elite_relics' ? 'text-amber-500' : 'text-slate-800'}`}>{item.name}</h4>
                                           <p className={`text-[11px] font-bold leading-snug mt-1 ${category === 'elite_relics' ? 'text-white/40' : 'text-slate-500'}`} style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                                             {typeof item.effect === 'string' ? item.effect : (item.description || 'Item de Crafting')}
+                                          </p>
+                                          <p className={`mt-2 inline-flex items-center rounded-lg px-2 py-0.5 text-[9px] font-black uppercase ${category === 'elite_relics' ? 'bg-white/10 text-white/70' : 'bg-slate-100 text-slate-600'}`}>
+                                            Na mochila: {ownedQty.toLocaleString()}
                                           </p>
                                        </div>
                                     </div>
