@@ -164,6 +164,27 @@ const getLevelGapXpMultiplier = (pokemonLevel = 1, enemyLevel = 1) => {
   return Math.pow(0.5, penaltySteps);
 };
 
+const getPokemonDexRegion = (pokemonId) => {
+  const id = Number(pokemonId);
+  if (id >= 1 && id <= 151) return 'kanto';
+  if (id >= 152 && id <= 251) return 'johto';
+  if (id >= 252 && id <= 386) return 'hoenn';
+  return 'future';
+};
+
+const isEvolutionAllowedForRegion = (pokemon, evolutionId, activeRegion = 'kanto') => {
+  const targetRegion = getPokemonDexRegion(evolutionId);
+  if (activeRegion === 'kanto') return targetRegion === 'kanto';
+  if (activeRegion === 'johto') return targetRegion === 'kanto' || targetRegion === 'johto';
+  if (activeRegion === 'hoenn') return targetRegion === 'hoenn';
+  return false;
+};
+
+const getEvolutionRegionLockMessage = (pokemonName, evolutionName, activeRegion = 'kanto') => {
+  const regionName = String(activeRegion || 'kanto').toUpperCase();
+  return `${pokemonName || 'Este Pokemon'} nao pode evoluir para ${evolutionName || 'esta forma'} na regiao de ${regionName}.`;
+};
+
 const WORLD_BOSS_FIGHT_SECONDS = 120;
 
 const isProgressUnlocked = (gameState = {}, requirement = {}) => {
@@ -2939,7 +2960,8 @@ export default function App() {
         addLog(` ${p.name} aumentou o Ataque Especial!`, 'system');
       } else if (use.effect === 'force_evolve') {
         const pokeData = POKEDEX[p.id];
-        if (pokeData?.evolution && pokeData.evolution.id <= 251) {
+        const evoData = pokeData?.evolution;
+        if (evoData && isEvolutionAllowedForRegion(p, evoData.id, prev.activeRegion || 'kanto')) {
           setEvolutionPending({ ...p, teamIndex: location === 'team' ? pokemonIndex : null, pcIndex: location === 'pc' ? pokemonIndex : null });
           return { ...prev, inventory: newInventory };
         } else {
@@ -3596,7 +3618,7 @@ export default function App() {
             });
           }
 
-           if (pokeData?.evolution?.level && !pokeData.evolution.item && newLevel >= pokeData.evolution.level && (pokeData.evolution.id <= 251)) {
+           if (pokeData?.evolution?.level && !pokeData.evolution.item && newLevel >= pokeData.evolution.level && isEvolutionAllowedForRegion(p, pokeData.evolution.id, prev.activeRegion || 'kanto')) {
              setEvolutionPending({ ...p, level: newLevel, teamIndex: i });
           }
 
@@ -5100,6 +5122,8 @@ export default function App() {
           setVsInitialTab={setVsInitialTab}
           validateTeamAccess={validateTeamAccess}
           activeRegion={gameState.activeRegion}
+          isEvolutionAllowedForRegion={isEvolutionAllowedForRegion}
+          getEvolutionRegionLockMessage={getEvolutionRegionLockMessage}
         />
       );
 
@@ -6136,6 +6160,9 @@ export default function App() {
         setGameState={setGameState} 
         addLog={addLog} 
         setEvolutionPending={setEvolutionPending} 
+        activeRegion={gameState.activeRegion}
+        isEvolutionAllowedForRegion={isEvolutionAllowedForRegion}
+        getEvolutionRegionLockMessage={getEvolutionRegionLockMessage}
       />
 
       {/* NOTIFICAÇíO DE MESTRIA */}

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setEvolutionPending }) => {
+const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setEvolutionPending, activeRegion = 'kanto', isEvolutionAllowedForRegion, getEvolutionRegionLockMessage }) => {
   if (!evolutionPending) return null;
 
   return (
@@ -52,6 +52,11 @@ const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setE
                      onClick={() => {
                          const evoData = POKEDEX[evolutionPending.id].evolution;
                          const nextPoke = POKEDEX[evoData.id];
+                         if (isEvolutionAllowedForRegion && !isEvolutionAllowedForRegion(evolutionPending, evoData.id, activeRegion)) {
+                            addLog(getEvolutionRegionLockMessage?.(evolutionPending.name, nextPoke?.name, activeRegion) || `${evolutionPending.name} nao pode evoluir nesta regiao.`, 'system');
+                            setEvolutionPending(null);
+                            return;
+                         }
                          setGameState(prev => {
                             const newTeam = prev.team.map((p, i) => {
                                if (i === evolutionPending.teamIndex) {

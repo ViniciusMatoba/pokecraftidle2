@@ -24,7 +24,9 @@ const PokemonManagement = ({
   closeConfirm,
   setCurrentView,
   validateTeamAccess,
-  activeRegion
+  activeRegion,
+  isEvolutionAllowedForRegion,
+  getEvolutionRegionLockMessage
 }) => {
   const [candyExpanded, setCandyExpanded] = useState(false);
   const [dragTeamIndex, setDragTeamIndex] = useState(null);
@@ -266,6 +268,10 @@ const PokemonManagement = ({
     const poke = activePokemonDetails.pokemon;
     const pokeData = POKEDEX[poke.id];
     if (!pokeData?.evolution?.item || pokeData.evolution.item !== stoneId) return;
+    if (isEvolutionAllowedForRegion && !isEvolutionAllowedForRegion(poke, pokeData.evolution.id, activeRegion || gameState.activeRegion || 'kanto')) {
+      addLog(getEvolutionRegionLockMessage?.(poke.name, POKEDEX[pokeData.evolution.id]?.name, activeRegion || gameState.activeRegion || 'kanto') || `${poke.name} nao pode evoluir nesta regiao.`, 'system');
+      return;
+    }
     const itemCount = (gameState.inventory?.items?.[stoneId] || 0);
     if (itemCount <= 0) return;
 
@@ -811,6 +817,10 @@ const PokemonManagement = ({
                     const poke = activePokemonDetails.pokemon;
                     const pokeData = POKEDEX[poke.id];
                     const stoneEvol = pokeData?.evolution?.item;
+                    const evolutionAllowed = !pokeData?.evolution || !isEvolutionAllowedForRegion || isEvolutionAllowedForRegion(poke, pokeData.evolution.id, activeRegion || gameState.activeRegion || 'kanto');
+                    const evolutionLockText = pokeData?.evolution && !evolutionAllowed
+                      ? (getEvolutionRegionLockMessage?.(poke.name, POKEDEX[pokeData.evolution.id]?.name, activeRegion || gameState.activeRegion || 'kanto') || 'Evolucao bloqueada nesta regiao.')
+                      : null;
                     const stoneNames = { thunder_stone: 'Thunder Stone', moon_stone: 'Moon Stone', link_cable: 'Link Cable', fire_stone: 'Fire Stone', water_stone: 'Water Stone', leaf_stone: 'Leaf Stone' };
                     const stoneIcons = {
                       thunder_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
@@ -835,13 +845,13 @@ const PokemonManagement = ({
                                  <p className="text-[11px] font-black text-slate-800 uppercase text-left">Evolução por Pedra</p>
                                  <p className="text-[9px] font-bold text-slate-500 text-left">Requer: {stoneNames[stoneEvol] || stoneEvol}</p>
                                </div>
-                               {hasStone && pokeData?.evolution?.id <= 251 && (
+                               {hasStone && evolutionAllowed && (
                                  <button onClick={() => useStoneEvolution(stoneEvol)} className="bg-amber-500 text-white font-black text-[10px] px-4 py-2 rounded-xl shadow-lg uppercase">Evoluir!</button>
                                )}
                              </div>
                           </div>
                         )}
-                        {pokeData?.evolution && pokeData.evolution.id <= 251 ? (
+                        {pokeData?.evolution ? (
                           <div className="bg-slate-50 p-4 rounded-2xl border-2 border-slate-100">
                              <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
@@ -851,13 +861,16 @@ const PokemonManagement = ({
                                    <p className="text-xs font-black text-slate-800 uppercase italic">{POKEDEX[pokeData.evolution.id]?.name || '???'}</p>
                                    <p className="text-[9px] font-bold text-pokeBlue mt-1 uppercase">{pokeData.evolution.level ? `Nível ${pokeData.evolution.level}` : `Requer Item`}</p>
                                 </div>
-                                {pokeData.evolution.level && poke.level >= pokeData.evolution.level && (
+                                {pokeData.evolution.level && poke.level >= pokeData.evolution.level && evolutionAllowed && (
                                    <button onClick={() => { setActivePokemonDetails(null); setEvolutionPending({ ...poke, teamIndex: activePokemonDetails.location === 'team' ? activePokemonDetails.index : null, pcIndex: activePokemonDetails.location === 'pc' ? activePokemonDetails.index : null }); }} className="bg-pokeBlue text-white font-black text-[9px] px-3 py-2 rounded-lg uppercase animate-pulse">Evoluir</button>
                                 )}
                              </div>
                           </div>
                         ) : (
                           <p className="text-xs font-bold text-slate-400 italic text-left px-2">Este Pokémon atingiu sua forma final.</p>
+                        )}
+                        {evolutionLockText && (
+                          <p className="mt-3 text-[10px] font-black uppercase text-red-500 text-left px-2">{evolutionLockText}</p>
                         )}
                       </div>
                     );
