@@ -1,5 +1,5 @@
-const STARTER_IDS = new Set([1, 4, 7]);
-const LEGENDARY_IDS = new Set([144, 145, 146, 150, 151]);
+const STARTER_IDS = new Set([1, 4, 7, 152, 155, 158, 252, 255, 258]);
+const LEGENDARY_IDS = new Set([144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 251, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386]);
 
 export const RARITY_WEIGHTS = {
   common: 100,

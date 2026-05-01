@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { getGlobalRanking } from '../services/ranking';
+import { getGlobalRanking, getUserProfile } from '../services/ranking';
 import { auth } from '../firebase';
+import { TrainerCardModal } from './CommonUI';
 
 const RankingModal = ({ onClose }) => {
   const [ranking, setRanking] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProfile, setSelectedProfile] = useState(null);
   const currentUser = auth.currentUser;
 
   useEffect(() => {
@@ -16,6 +18,14 @@ const RankingModal = ({ onClose }) => {
     };
     fetchRanking();
   }, []);
+
+  const handlePlayerClick = async (uid) => {
+    // Busca dados completos do perfil para o modal
+    const profile = await getUserProfile(uid);
+    if (profile) {
+      setSelectedProfile(profile);
+    }
+  };
 
   return createPortal(
     <div className="fixed inset-0 z-[20000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fadeIn">
@@ -60,7 +70,8 @@ const RankingModal = ({ onClose }) => {
                 return (
                   <div 
                     key={player.id}
-                    className={`flex items-center justify-between p-4 rounded-3xl border-2 bg-[#1e1e1e] transition-all ${borderColor} ${isMe ? 'ring-2 ring-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.4)] z-10' : ''}`}
+                    onClick={() => handlePlayerClick(player.id)}
+                    className={`flex items-center justify-between p-4 rounded-3xl border-2 bg-[#1e1e1e] transition-all cursor-pointer hover:scale-[1.01] hover:bg-[#252525] ${borderColor} ${isMe ? 'ring-2 ring-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.4)] z-10' : ''}`}
                   >
                     <div className="flex items-center gap-4">
                       {/* Posição */}
@@ -119,9 +130,16 @@ const RankingModal = ({ onClose }) => {
 
         {/* Footer */}
         <div className="p-4 bg-[#1a1a1a] border-t-2 border-slate-800 text-center">
-           <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.3em]">O Ranking é atualizado a cada salvamento na nuvem</p>
+           <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.3em]">Clique em um treinador para inspecionar o card</p>
         </div>
       </div>
+
+      {selectedProfile && (
+        <TrainerCardModal 
+          userData={selectedProfile} 
+          onClose={() => setSelectedProfile(null)} 
+        />
+      )}
     </div>,
     document.body
   );

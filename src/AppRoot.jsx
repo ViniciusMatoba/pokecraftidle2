@@ -33,7 +33,8 @@ import { monitorAuthState } from './auth';
 import { 
   APP_VERSION, APP_VERSION_DATE, DEFAULT_GAME_STATE, GYM_LEVEL_CAPS, 
   NATURE_LIST, NATURES, TYPE_COLORS, trainerAvatars, ITEM_LABELS,
-  STAMINA_RESTORE_TABLE, POKE_MART_DRINKS
+  STAMINA_RESTORE_TABLE, POKE_MART_DRINKS,
+  BADGE_IDS, JOHTO_BADGE_IDS, HOENN_BADGE_IDS
 } from './data/constants';
 import { getMasteryPath, getEffectiveStat } from './utils/gameHelpers';
 import { getTypeEffectiveness } from './data/typeChart';
@@ -130,15 +131,40 @@ const hasForgeRecipe = (gameState = {}, recipeId) => {
   return !!gameState.inventory?.materials?.[`recipe_${recipeId}`];
 };
 
-const JOHTO_BADGE_IDS = [
-  'zephyr_badge', 'hive_badge', 'plain_badge', 'fog_badge',
-  'storm_badge', 'mineral_badge', 'glacier_badge', 'rising_badge',
-];
+
 
 const getJohtoBadgeCount = (gameState = {}) => {
   const badges = new Set(gameState.badges || []);
   return JOHTO_BADGE_IDS.filter(id => badges.has(id)).length;
 };
+
+const REGION_BADGE_IDS = {
+  kanto: BADGE_IDS,
+  johto: JOHTO_BADGE_IDS,
+  hoenn: HOENN_BADGE_IDS,
+};
+
+const getRegionBadgeIds = (region = 'kanto') => REGION_BADGE_IDS[region] || BADGE_IDS;
+
+const getRegionBadgeCount = (badges = [], region = 'kanto') => {
+  const badgeSet = new Set(badges || []);
+  return getRegionBadgeIds(region).filter(id => badgeSet.has(id)).length;
+};
+
+const getRegionExpShareRate = (badges = [], region = 'kanto') => getRegionBadgeCount(badges, region) * 0.10;
+
+const getRegionLevelCap = (badges = [], region = 'kanto') => {
+  const caps = GYM_LEVEL_CAPS[region] || {};
+  return Object.values(caps)[getRegionBadgeCount(badges, region)] || 100;
+};
+
+const getLevelGapXpMultiplier = (pokemonLevel = 1, enemyLevel = 1) => {
+  const levelGap = Math.max(0, (pokemonLevel || 1) - (enemyLevel || 1));
+  const penaltySteps = Math.floor(levelGap / 5);
+  return Math.pow(0.5, penaltySteps);
+};
+
+const WORLD_BOSS_FIGHT_SECONDS = 120;
 
 const isProgressUnlocked = (gameState = {}, requirement = {}) => {
   if (!requirement) return true;
@@ -290,6 +316,7 @@ export default function App() {
               ...(savedData.inventory || {}),
               materials: { ...DEFAULT_GAME_STATE.inventory.materials, ...(savedData.inventory?.materials || {}) }
             },
+            regional_teams: savedData.regional_teams || savedData.regionalTeams || DEFAULT_GAME_STATE.regional_teams,
             worldFlags: savedData.worldFlags || [],
             badges: savedData.badges || [],
             pc: savedData.pc || [],
@@ -439,6 +466,7 @@ export default function App() {
   const lastNonMenuView = useRef('city');
   const lastSyncRef = useRef(0);
   const saveTimeoutRef = useRef(null);
+  const bossSaveTimeoutRef = useRef(null);
   const [showRanking, setShowRanking] = useState(false);
   const [bossDamage, setBossDamage] = useState(0);
   const [bossTimer, setBossTimer] = useState(null);
@@ -448,61 +476,60 @@ export default function App() {
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
 
-  const powerScore = useMemo(() => {
-    const teamLevelsSum = (gameState.team || []).reduce((acc, p) => acc + (p.level || 0), 0);
-    const uniqueCapturesCount = Object.keys(gameState.caughtData || {}).length;
-    const badgeCount = getBadgeCount(gameState);
-    return (teamLevelsSum * uniqueCapturesCount) + (badgeCount * 1000);
-  }, [gameState.team, gameState.caughtData, gameState.badges, gameState.worldFlags]);
-
-  const MATERIAL_RANK_MILESTONES = {
-    'Rank I': 0,
-    'Rank II': 50000,
-    'Rank III': 150000,
-    'Rank IV': 300000,
-    'Rank V': 500000,
-    'Rank VI': 800000,
-    'Rank VII': 1200000,
-    'Rank VIII': 1700000,
-    'Rank IX': 2500000,
-  };
-
-  const currentRank = useMemo(() => {
-    const entries = Object.entries(MATERIAL_RANK_MILESTONES).sort((a, b) => b[1] - a[1]);
-    const found = entries.find(([_, ps]) => powerScore >= ps);
-    return found ? found[0] : 'Rank I';
-  }, [powerScore]);
 
   useEffect(() => {
     setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream);
     setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
 
+    // 1. Verifica se o index.html já capturou o prompt
+    if (window.deferredPrompt) {
+      console.log('PWA: deferredPrompt recuperado do global');
+      setInstallPrompt(window.deferredPrompt);
+    }
+
+    // 2. Ouve o evento customizado caso o prompt chegue depois do carregamento do React
+    const handlePwaReady = (e) => {
+      console.log('PWA: Evento customizado pwa-prompt-ready recebido');
+      setInstallPrompt(e.detail);
+    };
+
+    // 3. Mantém o listener padrão por redundância
     const handler = (e) => {
+      console.log('PWA: beforeinstallprompt capturado no React');
       e.preventDefault();
       setInstallPrompt(e);
     };
+
+    window.addEventListener('pwa-prompt-ready', handlePwaReady);
     window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+    
+    return () => {
+      window.removeEventListener('pwa-prompt-ready', handlePwaReady);
+      window.removeEventListener('beforeinstallprompt', handler);
+    };
   }, []);
 
   const handleInstallPWA = async () => {
     if (installPrompt) {
       installPrompt.prompt();
       const { outcome } = await installPrompt.userChoice;
+      console.log(`PWA: Resposta do usuário: ${outcome}`);
       if (outcome === 'accepted') setInstallPrompt(null);
     } else if (isIOS) {
       showConfirm({
         type: 'alert',
         title: 'Instalar no iOS',
         message: 'Para instalar: 1. Toque no ícone de "Compartilhar" (quadrado com seta) 2. Role para baixo e selecione "Adicionar à Tela de Início".',
-        confirmLabel: 'Entendido'
+        confirmLabel: 'Entendido',
+        onConfirm: closeConfirm
       });
     } else {
       showConfirm({
         type: 'alert',
-        title: 'Instalar PWA',
-        message: 'Use o menu do seu navegador (três pontos ou seta) e selecione "Instalar Aplicativo" ou "Adicionar à Tela de Início".',
-        confirmLabel: 'Entendido'
+        title: 'PWA não pronto',
+        message: 'O navegador ainda não disparou o evento de instalação. Certifique-se de estar usando Chrome/Edge no Android/Desktop e aguarde alguns segundos.',
+        confirmLabel: 'Entendido',
+        onConfirm: closeConfirm
       });
     }
   };
@@ -522,7 +549,7 @@ export default function App() {
           const merged = {
             ...DEFAULT_GAME_STATE,           // novos campos com valores padrão
             ...loaded,                  // progresso real do jogador
-            version: "1.40.0",
+            version: APP_VERSION,
             team: loaded.team || DEFAULT_GAME_STATE.team,
             pc: loaded.pc || DEFAULT_GAME_STATE.pc,
             badges: loaded.badges || DEFAULT_GAME_STATE.badges,
@@ -547,6 +574,135 @@ export default function App() {
     }
     return DEFAULT_GAME_STATE;
   });
+
+  const powerScore = useMemo(() => {
+    // PS = Soma dos Níveis de TODOS os Pokémon + Bônus de Insígnias
+    const teamPokes = gameState.team || [];
+    const pcPokes = gameState.pc || [];
+    const caretakerPokes = gameState.house?.caretakers || [];
+    const expeditionPokes = Object.values(gameState.expeditions || {}).flatMap(e => e.team || []);
+    const regional_teams_pokes = Object.values(gameState.regional_teams || {}).flat();
+
+    const allPokes = [
+      ...teamPokes, 
+      ...pcPokes, 
+      ...caretakerPokes, 
+      ...expeditionPokes,
+      ...regional_teams_pokes
+    ];
+
+    // Remove duplicatas por instanceId
+    const seenIds = new Set();
+    const levelsSum = allPokes.reduce((acc, p) => {
+      if (!p) return acc;
+      if (p.instanceId) {
+        if (!seenIds.has(p.instanceId)) {
+          seenIds.add(p.instanceId);
+          return acc + (p.level || 0);
+        }
+      } else {
+        // Pokémon sem instanceId também contam
+        return acc + (p.level || 0);
+      }
+      return acc;
+    }, 0);
+
+    const badgeCount = getBadgeCount(gameState);
+    return levelsSum + (badgeCount * 1000);
+  }, [gameState.team, gameState.pc, gameState.house, gameState.expeditions, gameState.regional_teams, gameState.badges, gameState.worldFlags]);
+
+  const addLog = useCallback((msg, type = 'default') => {
+    setBattleLog(prev => [{ msg: cleanBattleText(msg), type, id: Date.now() + Math.random() }, ...prev].slice(0, 8));
+  }, []);
+
+  const addFloat = useCallback((text, color = '#ef4444') => {
+    const id = Date.now() + Math.random();
+    setFloatingTexts(prev => [...prev, { id, text: cleanBattleText(text), color }]);
+    setTimeout(() => setFloatingTexts(prev => prev.filter(f => f.id !== id)), 1200);
+  }, []);
+
+  const validateTeamAccess = useCallback((pokemon, targetRegion) => {
+    if (!pokemon) return false;
+    
+    const worldFlags = gameState.worldFlags || [];
+    const isChampion = worldFlags.includes(`region_champion_${targetRegion}`) || 
+                      (targetRegion === 'kanto' && worldFlags.includes('champion')) ||
+                      (targetRegion === 'johto' && worldFlags.includes('johto_champion'));
+    
+    if (isChampion) return true;
+
+    // 1. Isolamento Regional e de Geração
+    const id = Number(pokemon.id);
+    const pokemonGen = id <= 151 ? 1 : id <= 251 ? 2 : 3;
+    const regionGens = { kanto: [1], johto: [1, 2], hoenn: [3] }; // Hoenn isolada até champion
+    
+    // Se não for campeão da região ativa, só pode usar Pokémon daquela região/geração permitida
+    if (targetRegion === 'hoenn') {
+      if (pokemonGen !== 3) return false;
+    } else if (targetRegion === 'johto') {
+      if (pokemonGen > 2) return false;
+    } else if (targetRegion === 'kanto') {
+      if (pokemonGen > 1) return false;
+    }
+
+    // 2. Trava de Nível (Cap)
+    const badges = gameState.badges || [];
+    let regionBadges = [];
+    if (targetRegion === 'kanto') regionBadges = badges.filter(b => BADGE_IDS.includes(b));
+    if (targetRegion === 'johto') regionBadges = badges.filter(b => JOHTO_BADGE_IDS.includes(b));
+    if (targetRegion === 'hoenn') regionBadges = badges.filter(b => HOENN_BADGE_IDS.includes(b));
+    
+    const caps = GYM_LEVEL_CAPS[targetRegion] || {};
+    const capValues = Object.values(caps);
+    const currentCap = capValues[regionBadges.length] || 100;
+
+    if (pokemon.level > currentCap) return false;
+
+    return true;
+  }, [gameState.worldFlags, gameState.badges]);
+
+  const switchRegion = useCallback((newRegion) => {
+    setGameState(prev => {
+      const oldRegion = prev.activeRegion || 'kanto';
+      if (oldRegion === newRegion) return prev;
+
+      // Salva time atual na região antiga
+      const updated_regional_teams = {
+        ...(prev.regional_teams || {}),
+        [oldRegion]: [...prev.team]
+      };
+
+      // Carrega time da nova região
+      const newTeam = updated_regional_teams[newRegion] || [];
+
+      addLog(`🌍 Viajando para ${newRegion.toUpperCase()}... Equipe trocada!`, 'system');
+
+      return {
+        ...prev,
+        activeRegion: newRegion,
+        regional_teams: updated_regional_teams,
+        team: newTeam
+      };
+    });
+  }, [addLog]);
+
+  const MATERIAL_RANK_MILESTONES = {
+    'Rank I': 0,
+    'Rank II': 50000,
+    'Rank III': 150000,
+    'Rank IV': 300000,
+    'Rank V': 500000,
+    'Rank VI': 800000,
+    'Rank VII': 1200000,
+    'Rank VIII': 1700000,
+    'Rank IX': 2500000,
+  };
+
+  const currentRank = useMemo(() => {
+    const entries = Object.entries(MATERIAL_RANK_MILESTONES).sort((a, b) => b[1] - a[1]);
+    const found = entries.find(([_, ps]) => powerScore >= ps);
+    return found ? found[0] : 'Rank I';
+  }, [powerScore]);
 
   const processedRoutes = useMemo(() => {
     if (!gameState.worldFlags?.includes('starters_spotted') && !gameState.worldFlags?.includes('rival_1_defeated')) return ROUTES;
@@ -653,7 +809,7 @@ export default function App() {
       }));
       setCurrentEnemy(null);
       resetSession();
-      setCurrentView('city');
+      setCurrentView('routes'); // Retorna ao menu de escolha de rota
     };
 
     if (isKeyBattle) {
@@ -699,16 +855,6 @@ export default function App() {
   const goToCity = (fromBattle = false) => {
     handleGoToCity();
   };
-
-  const addLog = useCallback((msg, type = 'default') => {
-    setBattleLog(prev => [{ msg: cleanBattleText(msg), type, id: Date.now() + Math.random() }, ...prev].slice(0, 8));
-  }, []);
-
-  const addFloat = useCallback((text, color = '#ef4444') => {
-    const id = Date.now() + Math.random();
-    setFloatingTexts(prev => [...prev, { id, text: cleanBattleText(text), color }]);
-    setTimeout(() => setFloatingTexts(prev => prev.filter(f => f.id !== id)), 1200);
-  }, []);
 
   // UNIFICACAO DE COLECAO
   const unifyDuplicates = useCallback((prev) => {
@@ -867,10 +1013,25 @@ export default function App() {
     if (!user) return;
     
     try {
-      // Cálculo do Power Score para Ranking Global
+      // Cálculo do Power Score Global para Ranking (Soma de todos os Pokémons do jogador)
+      const teamPokes = dataToSave.team || [];
+      const pcPokes = dataToSave.pc || [];
+      const caretakerPokes = dataToSave.house?.caretakers || [];
+      const expeditionPokes = Object.values(dataToSave.expeditions || {}).flatMap(e => e.team || []);
+      const regional_teams_pokes = Object.values(dataToSave.regional_teams || {}).flat();
+
+      const allPokes = [...teamPokes, ...pcPokes, ...caretakerPokes, ...expeditionPokes, ...regional_teams_pokes];
+      const seenIds = new Set();
+      const levelsSum = allPokes.reduce((acc, p) => {
+        if (p && p.instanceId && !seenIds.has(p.instanceId)) {
+          seenIds.add(p.instanceId);
+          return acc + (p.level || 0);
+        }
+        return acc;
+      }, 0);
+
       const badgeCount = getBadgeCount(dataToSave);
-      const levelsSum = (dataToSave.team || []).reduce((acc, p) => acc + (p.level || 0), 0);
-      const powerScore = (badgeCount * 1000) + levelsSum;
+      const powerScore = levelsSum + (badgeCount * 1000);
 
       lastSyncRef.current = Date.now();
       
@@ -884,8 +1045,15 @@ export default function App() {
       await setDoc(doc(db, "users", user.uid), {
         name: dataToSave.trainer?.name || "Treinador",
         avatar: dataToSave.trainer?.avatar || 1,
+        level: dataToSave.trainer?.level || 1,
         badges: badgeCount,
         powerScore: powerScore,
+        caughtCount: Object.keys(dataToSave.caughtData || {}).length,
+        worldFlags: dataToSave.worldFlags || [],
+        badgesList: dataToSave.badges || [],
+        forgedItemsCount: dataToSave.forgedItemsCount || 0,
+        bossTotalDamage: dataToSave.bossTotalDamage || 0,
+        bossLastDamage: dataToSave.bossLastDamage || 0,
         updatedAt: serverTimestamp()
       }, { merge: true });
 
@@ -904,14 +1072,23 @@ export default function App() {
       const userRef = doc(db, "bossRankings", user.uid);
       const userSnap = await getDoc(userRef);
       const currentBest = userSnap.exists() ? (userSnap.data().totalDamage || 0) : 0;
+      const bestDamage = Math.max(currentBest, damage);
       
-      if (damage > currentBest) {
-        await setDoc(userRef, {
-          name: gameState.trainer?.name || "Treinador",
-          totalDamage: damage,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
+      await setDoc(userRef, {
+        name: gameState.trainer?.name || "Treinador",
+        totalDamage: bestDamage,
+        lastDamage: damage,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      // Atualiza localmente para exibição imediata no card do Boss.
+      setGameState(prev => ({
+        ...prev,
+        bossTotalDamage: Math.max(prev.bossTotalDamage || 0, damage),
+        bossLastDamage: damage
+      }));
         
+      if (damage > currentBest) {
         // 2. Registrar histórico na sub-coleção bossEvents
         const historyRef = doc(db, "users", user.uid, "bossEvents", Date.now().toString());
         await setDoc(historyRef, {
@@ -927,8 +1104,8 @@ export default function App() {
   }, [gameState.trainer?.name]);
 
   const debouncedSaveBossDamage = useCallback((damage) => {
-    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    saveTimeoutRef.current = setTimeout(() => {
+    if (bossSaveTimeoutRef.current) clearTimeout(bossSaveTimeoutRef.current);
+    bossSaveTimeoutRef.current = setTimeout(() => {
       saveBossDamage(damage);
     }, 5000);
   }, [saveBossDamage]);
@@ -1743,10 +1920,11 @@ export default function App() {
       };
     });
 
-    debouncedSaveBossDamage(bossDamage);
+    if (bossSaveTimeoutRef.current) clearTimeout(bossSaveTimeoutRef.current);
+    saveBossDamage(bossDamage);
     
     // O modal de loot segurará a saída da batalha
-  }, [bossDamage, debouncedSaveBossDamage, calculateBossLoot]);
+  }, [bossDamage, saveBossDamage, calculateBossLoot]);
 
   // TICK DE BATALHA
   // ⛏️” PROTECTED: handleBattleTick — NíO EDITAR SEM AUTORIZAÇíO EXPLíCITA
@@ -2023,6 +2201,11 @@ export default function App() {
           if (updatedEnemyFinal.isWorldBoss) {
             setBossDamage(prev => {
               const newVal = prev + playerDmg;
+              setGameState(state => ({
+                ...state,
+                bossTotalDamage: Math.max(state.bossTotalDamage || 0, newVal),
+                bossLastDamage: newVal
+              }));
               debouncedSaveBossDamage(newVal);
               return newVal;
             });
@@ -2043,6 +2226,11 @@ export default function App() {
         if (updatedEnemyFinal.isWorldBoss) {
           setBossDamage(prev => {
             const newVal = prev + dot;
+            setGameState(state => ({
+              ...state,
+              bossTotalDamage: Math.max(state.bossTotalDamage || 0, newVal),
+              bossLastDamage: newVal
+            }));
             debouncedSaveBossDamage(newVal);
             return newVal;
           });
@@ -2321,6 +2509,7 @@ export default function App() {
             hp: currentEnemy.maxHp, 
             xp: 0, 
             instanceId: Date.now(),
+            capturedRegion: prev.activeRegion || 'kanto',
             stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
           };
           const newMastery = processCaptureMastery({ ...currentEnemy, id: Number(currentEnemy.id) }, prev);
@@ -2517,8 +2706,8 @@ export default function App() {
       if (!base) return;
 
       const lvl = 100; 
-      const hpMult = 100;
-      const statMult = 1.5;
+      const hpMult = 500; // HP massivo para boss: 500x o HP base
+      const statMult = 2.0; // +100% em ATK/DEF para tornar o boss realmente intimidador
 
       const baseHp = Math.ceil((((2 * (base.maxHp || base.hp || 50) * lvl) / 100) + lvl + 10));
       const maxHp = baseHp * hpMult;
@@ -2564,7 +2753,7 @@ export default function App() {
       });
       setCurrentView('battles');
       addLog(`⚠️ ALERTA: ${battleData.name} emergiu da fenda! HP SEGMENTADO DETECTADO!`, 'system');
-      setBossTimer(120); // 2 minutos
+      setBossTimer(WORLD_BOSS_FIGHT_SECONDS);
       return;
     }
     
@@ -2647,7 +2836,16 @@ export default function App() {
   }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS, gameState]);
 
   const handleCraft = (recipe) => {
-    setGameState(prev => {
+    const currencyCost = recipe.cost?.currency || 0;
+    showConfirm({
+      type: 'confirm',
+      title: 'Confirmar Forja',
+      message: `Deseja forjar 1x ${recipe.name}${currencyCost > 0 ? ` por ${currencyCost.toLocaleString()} Pokedollars` : ''}?`,
+      confirmLabel: 'Forjar',
+      cancelLabel: 'Cancelar',
+      onConfirm: () => {
+        closeConfirm();
+        setGameState(prev => {
       // 1. Verificar se tem todos os materiais e dinheiro
       const hasMaterials = Object.entries(recipe.cost).every(([material, amount]) => {
         if (material === 'currency') return prev.currency >= amount;
@@ -2671,7 +2869,7 @@ export default function App() {
         }
       });
 
-      // 3. Adicionar o item ao inventário
+      // 3. Adicionar o item ao inventário e atualizar contador de forja
       const newItems = { ...prev.inventory.items };
       newItems[recipe.id] = (newItems[recipe.id] || 0) + 1;
 
@@ -2680,12 +2878,16 @@ export default function App() {
       return {
         ...prev,
         currency: newCurrency,
+        forgedItemsCount: (prev.forgedItemsCount || 0) + 1,
         inventory: {
           ...prev.inventory,
           materials: newMaterials,
           items: newItems
         }
       };
+        });
+      },
+      onCancel: closeConfirm
     });
   };
 
@@ -2896,6 +3098,14 @@ export default function App() {
   // Comprar a casa
   // PROTECTED: handleBuyHouse - NAO EDITAR SEM AUTORIZACAO EXPLICITA
   const handleBuyHouse = useCallback(() => {
+    showConfirm({
+      type: 'confirm',
+      title: 'Confirmar Compra',
+      message: `Deseja comprar a casa por ${HOUSE_PURCHASE_COST.toLocaleString()} coins?`,
+      confirmLabel: 'Sim, Comprar',
+      cancelLabel: 'Cancelar',
+      onConfirm: () => {
+        closeConfirm();
     setGameState(prev => {
       if ((prev.currency || 0) < HOUSE_PURCHASE_COST) {
         addLog(`💰 Coins insuficientes! A casa custa ${HOUSE_PURCHASE_COST} coins.`, 'system');
@@ -2911,9 +3121,12 @@ export default function App() {
     });
     setShowOakHouseModal(false);
     setShowHouse(true);
+      },
+      onCancel: closeConfirm
+    });
   }, [addLog]);
 
-  const createRegionStarter = useCallback((pokemonId, level = 5) => {
+  const createRegionStarter = useCallback((pokemonId, level = 5, region = 'kanto') => {
     const base = POKEDEX[Number(pokemonId)];
     if (!base) return null;
     const moves = (base.learnset || [])
@@ -2942,27 +3155,27 @@ export default function App() {
       learnedMoves: finalMoves,
       instanceId: Date.now() + Math.random(),
       status: [],
-      region: 'johto',
+      capturedRegion: region,
       stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
     };
   }, [POKEDEX, MOVES]);
 
   const handleStartJohto = useCallback((starterId) => {
-    const starter = createRegionStarter(starterId, 5);
+    const starter = createRegionStarter(starterId, 5, 'johto');
     if (!starter) return;
     setGameState(prev => {
-      const lockOldPokemon = (poke) => ({
-        ...poke,
-        lockedUntilFlag: 'johto_champion',
-        lockReason: 'O Prof. Elm guardou este Pokemon para manter a jornada de Johto equilibrada. Ele volta ao time depois da primeira Liga de Johto.',
-      });
-      const oldTeam = (prev.team || []).map(lockOldPokemon);
-      const oldPc = (prev.pc || []).map(p => p.lockedUntilFlag ? p : lockOldPokemon(p));
+      const oldRegion = prev.activeRegion || 'kanto';
+      const updated_regional_teams = {
+        ...(prev.regional_teams || {}),
+        [oldRegion]: [...prev.team]
+      };
+      
       const flags = new Set([...(prev.worldFlags || []), 'johto_started']);
       return {
         ...prev,
+        activeRegion: 'johto',
+        regional_teams: updated_regional_teams,
         team: [starter],
-        pc: [...oldPc, ...oldTeam],
         currentRoute: 'new_bark_town',
         caughtData: { ...(prev.caughtData || {}), [starter.id]: true },
         worldFlags: Array.from(flags),
@@ -2971,7 +3184,34 @@ export default function App() {
     setActiveMemberIndex(0);
     setCurrentEnemy(null);
     setCurrentView('city');
-    addLog(`Nova jornada em Johto iniciada com ${starter.name}! Pokemon antigos foram guardados no PC regional.`, 'system');
+    addLog(`🌍 Nova jornada em Johto iniciada com ${starter.name}! Pokémon de Kanto guardados com sucesso.`, 'system');
+  }, [createRegionStarter, addLog]);
+
+  const handleStartHoenn = useCallback((starterId) => {
+    const starter = createRegionStarter(starterId, 5, 'hoenn');
+    if (!starter) return;
+    setGameState(prev => {
+      const oldRegion = prev.activeRegion || 'johto';
+      const updated_regional_teams = {
+        ...(prev.regional_teams || {}),
+        [oldRegion]: [...prev.team]
+      };
+      
+      const flags = new Set([...(prev.worldFlags || []), 'hoenn_started']);
+      return {
+        ...prev,
+        activeRegion: 'hoenn',
+        regional_teams: updated_regional_teams,
+        team: [starter],
+        currentRoute: 'littleroot_town',
+        caughtData: { ...(prev.caughtData || {}), [starter.id]: true },
+        worldFlags: Array.from(flags),
+      };
+    });
+    setActiveMemberIndex(0);
+    setCurrentEnemy(null);
+    setCurrentView('city');
+    addLog(`🌍 Bem-vindo a HOENN! Sua nova jornada com ${starter.name} começa agora!`, 'system');
   }, [createRegionStarter, addLog]);
 
   // Plantar
@@ -3032,6 +3272,14 @@ export default function App() {
 
   // Comprar expansão de slots
   const handleBuySlot = useCallback((expansion) => {
+    showConfirm({
+      type: 'confirm',
+      title: 'Confirmar Compra',
+      message: `Deseja expandir o jardim para ${expansion.totalSlots} canteiros por ${expansion.cost.toLocaleString()} coins?`,
+      confirmLabel: 'Sim, Comprar',
+      cancelLabel: 'Cancelar',
+      onConfirm: () => {
+        closeConfirm();
     setGameState(prev => {
       if ((prev.currency || 0) < expansion.cost) return prev;
       addLog(`🛠️ Jardim expandido para ${expansion.totalSlots} canteiros!`, 'system');
@@ -3040,6 +3288,9 @@ export default function App() {
         currency: prev.currency - expansion.cost,
         house: { ...prev.house, totalSlots: expansion.totalSlots },
       };
+    });
+      },
+      onCancel: closeConfirm
     });
   }, [addLog]);
 
@@ -3235,7 +3486,8 @@ export default function App() {
         addLog(`Recebeu a Insignia: ${currentEnemy.badgeToGive.replace(/_/g, ' ')}!`, 'system');
         sfxGym();
         
-        const newShare = newBadges.length * 10;
+        const activeRegion = prev.activeRegion || 'kanto';
+        const newShare = Math.round(getRegionExpShareRate(newBadges, activeRegion) * 100);
         addLog(`✨ Exp Share aumentado! Sua equipe agora recebe ${newShare}% da experiência compartilhada!`, 'system');
         
         // Show Oak House modal after 1st badge
@@ -3265,7 +3517,8 @@ export default function App() {
         setTimeout(() => setShowKantoChampionModal(true), 1200);
       }
 
-      const badgesCount = prev.badges?.length || 0;
+      const activeRegion = prev.activeRegion || 'kanto';
+      const badgesCount = getRegionBadgeCount(prev.badges || [], activeRegion);
       const finalBadges = newBadges; // Para facilitar uso abaixo
 
       const now = Date.now();
@@ -3278,31 +3531,14 @@ export default function App() {
         const isLead = (i === activeMemberIndex);
         let xpToAdd = 0;
 
-        const levelDiff = (p.level || 1) - (currentEnemy.level || 1);
-        let levelScalingMult = 1.0;
-
-        // Regras de Anti-Overlevel (Mesmo padrão de Kanto aplicado a Johto)
-        const totalBadges = finalBadges.length;
-        const johtoStarted = newFlags.includes('johto_started');
-        // Fase de Ginásios: < 8 em Kanto OU < 16 em Johto
-        const isGymPhase = (!johtoStarted && totalBadges < 8) || (johtoStarted && totalBadges < 16);
-
-        if (!isGymPhase) {
-          // Fase Pós-Liga (Kanto ou Johto): Limite Suave
-          if (levelDiff >= 40) levelScalingMult = 0.15;
-          else if (levelDiff >= 30) levelScalingMult = 0.30;
-          else if (levelDiff >= 20) levelScalingMult = 0.50;
-        } else if (levelDiff >= 20) {
-          // Fase de Ginásios: Limite Estrito
-          levelScalingMult = 0.001;
-        }
+        const levelScalingMult = getLevelGapXpMultiplier(p.level || 1, currentEnemy.level || 1);
 
         if (isLead && p.hp > 0) {
           xpToAdd = Math.floor(baseXpGain * xpMult * levelScalingMult);
         } else if (p.hp > 0 && effects.activeExpShare?.endsAt > now) {
           xpToAdd = Math.floor(baseXpGain * (effects.activeExpShare.xpShare || 0.5) * xpMult * levelScalingMult);
         } else if (p.hp > 0 && badgesCount > 0) {
-          xpToAdd = Math.floor(baseXpGain * (badgesCount * 0.10) * xpMult * levelScalingMult);
+          xpToAdd = Math.floor(baseXpGain * getRegionExpShareRate(finalBadges, activeRegion) * xpMult * levelScalingMult);
         }
 
         // Lucky Egg (Antiga Lógica Hold - Mantida para compatibilidade se necessário)
@@ -3322,7 +3558,7 @@ export default function App() {
 
         const newXp = (p.xp || 0) + xpToAdd;
         const n = p.level || 1; const xpNeeded = Math.pow(n + 1, 3) - Math.pow(n, 3);
-        const maxLevel = GYM_LEVEL_CAPS[badgesCount] || 100;
+        const maxLevel = getRegionLevelCap(finalBadges, activeRegion);
         const isLevelCapped = gameState.settings?.levelCap !== false && (p.level || 5) >= maxLevel;
 
         if (newXp >= xpNeeded) {
@@ -3510,7 +3746,7 @@ export default function App() {
                   };
                 } else {
                   // Primeira Captura
-                  const newPoke = { ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() };
+                  const newPoke = { ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now(), capturedRegion: prev.activeRegion || 'kanto' };
                   const newTeam = [...prev.team];
                   const newPC = [...(prev.pc || [])];
                   if (newTeam.length < 6) newTeam.push(newPoke); else newPC.push(newPoke);
@@ -3672,7 +3908,7 @@ export default function App() {
                        }}
                        className="animate-bounce"
                      >
-                       📥 {isIOS ? 'Como Instalar (iOS)' : 'Instalar Aplicativo (PWA)'}
+                       📥 {isIOS ? 'Como Instalar (iOS)' : (installPrompt ? 'Instalar Aplicativo (PWA)' : 'Preparando instalação...')}
                      </button>
                    )}
 
@@ -4444,6 +4680,7 @@ export default function App() {
           <CityScreen 
             {...props}
             gameState={gameState} 
+            powerScore={powerScore}
             ROUTES={processedRoutes} 
             fixPath={fixPath} 
             setActiveBuildingModal={setActiveBuildingModal} 
@@ -4836,6 +5073,7 @@ export default function App() {
           setVsInitialTab={setVsInitialTab}
           setVsInitialCategory={setVsInitialCategory}
           setVsInitialRegion={setVsInitialRegion}
+          switchRegion={switchRegion}
           fixPath={fixPath}
           POKEDEX={POKEDEX}
         />
@@ -4860,6 +5098,8 @@ export default function App() {
           handleUseCandy={handleUseCandy}
           setCurrentView={setCurrentView}
           setVsInitialTab={setVsInitialTab}
+          validateTeamAccess={validateTeamAccess}
+          activeRegion={gameState.activeRegion}
         />
       );
 
@@ -5636,7 +5876,7 @@ export default function App() {
                             notify(`Sucesso: +${qty} ${item.name}`, 'success');
                           };
 
-                          if (totalCost >= 5000) {
+                          if (true) {
                             showConfirm({
                               type: 'confirm',
                               title: 'Confirmação de Compra',
@@ -5649,8 +5889,6 @@ export default function App() {
                               },
                               onCancel: closeConfirm
                             });
-                          } else {
-                            performPurchase();
                           }
                         };
                         return (
@@ -5760,7 +5998,7 @@ export default function App() {
                                    notify(`Forjado: ${item.name}`, 'success');
                                  };
 
-                                 if (totalCurrency >= 5000) {
+                                 if (true) {
                                    showConfirm({
                                      type: 'confirm',
                                      title: 'Confirmar Forja de Alto Valor',
@@ -5773,8 +6011,6 @@ export default function App() {
                                      },
                                      onCancel: closeConfirm
                                    });
-                                 } else {
-                                   performCraft();
                                  }
                                };
                                const maxCraft = getMaxCraft();

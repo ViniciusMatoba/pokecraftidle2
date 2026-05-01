@@ -2,6 +2,7 @@ import React from 'react';
 
 const BADGE_IDS = ['boulder_badge', 'cascade_badge', 'thunder_badge', 'rainbow_badge', 'soul_badge', 'marsh_badge', 'volcano_badge', 'earth_badge'];
 const JOHTO_BADGE_IDS = ['zephyr_badge', 'hive_badge', 'plain_badge', 'fog_badge', 'storm_badge', 'mineral_badge', 'glacier_badge', 'rising_badge'];
+const HOENN_BADGE_IDS = ['stone_badge', 'knuckle_badge', 'dynamo_badge', 'heat_badge', 'balance_badge', 'feather_badge', 'mind_badge', 'rain_badge'];
 
 export const BadgeSVG = ({ badgeId, earned, size = 20 }) => {
   const commonProps = {
@@ -116,7 +117,15 @@ export const BadgeSVG = ({ badgeId, earned, size = 20 }) => {
       colors: ['#818CF8', '#4338CA'],
       stroke: '#312E81',
       inner: <path d="M12 8V16M8 12H16" stroke="white" strokeWidth="2" />
-    }
+    },
+    stone_badge: { path: "M4 4H20V20H4V4Z", colors: ['#94a3b8', '#475569'], stroke: '#1e293b' },
+    knuckle_badge: { path: "M12 2L22 12L12 22L2 12L12 2Z", colors: ['#fb923c', '#ea580c'], stroke: '#9a3412' },
+    dynamo_badge: { path: "M12 2L15 10H22L16 15L18 22L12 17L6 22L8 15L2 10H9L12 2Z", colors: ['#facc15', '#ca8a04'], stroke: '#854d0e' },
+    heat_badge: { path: "M12 2C12 2 4 10 4 15C4 19.4 7.6 23 12 23C16.4 23 20 19.4 20 15C20 10 12 2 12 2Z", colors: ['#f87171', '#dc2626'], stroke: '#991b1b' },
+    balance_badge: { path: "M4 12H20M12 4V20", colors: ['#e2e8f0', '#94a3b8'], stroke: '#475569' },
+    feather_badge: { path: "M12 2L20 22L12 18L4 22L12 2Z", colors: ['#38bdf8', '#0284c7'], stroke: '#075985' },
+    mind_badge: { path: "M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z", colors: ['#f472b6', '#db2777'], stroke: '#9d174d' },
+    rain_badge: { path: "M12 2L20 12L12 22L4 12L12 2Z", colors: ['#60a5fa', '#2563eb'], stroke: '#1e40af' }
   };
 
   const design = designs[badgeId];
@@ -218,40 +227,166 @@ export const QuickInventory = ({ inventory, onUseItem }) => {
   );
 };
 
-export const TrainerCard = ({ trainer, badges, caughtCount, worldFlags = [] }) => {
+export const TrainerCard = ({ 
+  trainer, 
+  badges = [], 
+  caughtCount = 0, 
+  worldFlags = [], 
+  powerScore = 0,
+  forgedItems = 0,
+  bossDamage = 0
+}) => {
   if (!trainer) return null;
-  const isKantoChampion = worldFlags.includes('champion');
-  return (
-    <div className="relative bg-white p-4 rounded-xl border-4 border-slate-300 shadow-lg flex items-center gap-4 transition-all hover:border-pokeBlue text-left overflow-hidden">
 
-      <div className="bg-slate-100 rounded-lg p-2 border-2 border-slate-200">
-        <img src={trainer.avatarImg} onError={(e) => e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'} alt="Avatar" className="w-16 h-16 object-contain" />
+  const isKantoChampion = worldFlags.includes('champion');
+  const isJohtoChampion = worldFlags.includes('johto_champion');
+
+  const achievements = [
+    { id: 'pokedex', icon: '📖', label: 'Pokédex', active: caughtCount >= 50, title: '50+ Capturas' },
+    { id: 'crafting', icon: '🔨', label: 'Crafting', active: forgedItems >= 1, title: 'Primeira Forja' },
+    { id: 'slayer', icon: '💀', label: 'Boss Slayer', active: bossDamage >= 100000, title: '100k+ Dano Boss' }
+  ];
+
+  return (
+    <div className="relative bg-[#1a1a2e] p-5 rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-col gap-5 text-left overflow-hidden">
+      <style>{`
+        @keyframes glow {
+          0%, 100% { filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.5)); transform: scale(1); }
+          50% { filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.8)); transform: scale(1.1); }
+        }
+        .animate-glow { animation: glow 2s ease-in-out infinite; }
+      `}</style>
+
+      {/* Topo: Sprite + Nome/PS */}
+      <div className="flex items-center gap-4">
+        <div className="bg-slate-800 rounded-3xl p-3 border-2 border-slate-600 shadow-inner shrink-0">
+          <img 
+            src={trainer.avatarImg} 
+            onError={(e) => e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'} 
+            alt="Avatar" 
+            className="w-20 h-20 object-contain drop-shadow-lg" 
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+           <h3 className="font-black text-2xl text-white uppercase italic tracking-tighter leading-none truncate mb-1">
+             {trainer.name || 'Treinador'}
+           </h3>
+           <div className="flex items-center gap-2">
+             <span className="bg-emerald-600/20 text-emerald-400 text-[10px] px-3 py-1 rounded-full font-black border border-emerald-500/30">
+               PS: {powerScore.toLocaleString()}
+             </span>
+             <span className="bg-slate-700 text-slate-300 text-[10px] px-3 py-1 rounded-full font-black border border-slate-600">
+               Nv. {trainer.level || 1}
+             </span>
+           </div>
+        </div>
       </div>
-      <div className="flex-1">
-        <div className="flex justify-between items-start">
-           <h3 className="font-black text-xl text-slate-800 uppercase italic tracking-tighter leading-none">{trainer.name || 'Treinador'}</h3>
-           <span className="bg-slate-800 text-white text-[9px] px-2 py-0.5 rounded-full font-black">Nv. {trainer.level || 1}</span>
+
+      {/* Seção de Regiões */}
+      <div className="space-y-3 bg-black/20 p-4 rounded-2xl border border-white/5 shadow-inner">
+        {/* Kanto */}
+        <div className="flex items-center gap-3">
+          <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest w-12 shrink-0">Kanto</span>
+          <div className="flex-1 flex items-center gap-1.5 overflow-x-auto custom-scrollbar no-scrollbar py-1">
+            {BADGE_IDS.map((id, i) => (
+              <BadgeSVG key={id} badgeId={id} earned={badges.includes(id) || badges.includes(i + 1)} size={18} />
+            ))}
+          </div>
+          <div className="w-8 flex justify-center shrink-0">
+            {isKantoChampion && (
+              <span className="text-xl animate-glow" title="Campeão de Kanto">👑</span>
+            )}
+          </div>
         </div>
-        <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden border border-slate-200">
-           <div className="bg-pokeBlue h-full" style={{ width: `${Math.min(((trainer.xp || 0) / ((trainer.level || 1) * 200)) * 100, 100)}%` }}></div>
+
+        <div className="h-px bg-white/5 w-full"></div>
+
+        {/* Johto */}
+        <div className="flex items-center gap-3">
+          <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest w-12 shrink-0">Johto</span>
+          <div className="flex-1 flex items-center gap-1.5 overflow-x-auto custom-scrollbar no-scrollbar py-1">
+            {JOHTO_BADGE_IDS.map((id, i) => (
+              <BadgeSVG key={id} badgeId={id} earned={badges.includes(id) || badges.includes(i + 9) || worldFlags.includes(id)} size={18} />
+            ))}
+          </div>
+          <div className="w-8 flex justify-center shrink-0">
+            {isJohtoChampion && (
+              <span className="text-xl animate-glow" title="Campeão de Johto">👑</span>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-1.5 mt-2.5">
-          {BADGE_IDS.map((id, i) => (
-            <BadgeSVG key={id} badgeId={id} earned={badges.includes(id) || badges.includes(i + 1)} size={16} />
+
+        {worldFlags.includes('johto_champion') && (
+          <>
+            <div className="h-px bg-white/5 w-full"></div>
+            {/* Hoenn */}
+            <div className="flex items-center gap-3">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest w-12 shrink-0">Hoenn</span>
+              <div className="flex-1 flex items-center gap-1.5 overflow-x-auto custom-scrollbar no-scrollbar py-1">
+                {HOENN_BADGE_IDS.map((id, i) => (
+                  <BadgeSVG key={id} badgeId={id} earned={badges.includes(id) || worldFlags.includes(id)} size={18} />
+                ))}
+              </div>
+              <div className="w-8 flex justify-center shrink-0">
+                {(worldFlags.includes('hoenn_champion')) && (
+                  <span className="text-xl animate-glow" title="Campeão de Hoenn">👑</span>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Sistema de Medalhas (Rodapé) */}
+      <div className="bg-slate-800/40 rounded-2xl p-4 border border-white/5">
+        <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em] mb-3 text-center">Conquistas de Elite</p>
+        <div className="flex justify-around items-center">
+          {achievements.map(ach => (
+            <div 
+              key={ach.id} 
+              className={`flex flex-col items-center gap-1 transition-all duration-500 ${ach.active ? 'scale-110' : 'grayscale opacity-30'}`}
+              title={ach.title}
+            >
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center bg-slate-900 border-2 ${ach.active ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.4)]' : 'border-slate-700'}`}>
+                <span className={`text-2xl ${ach.active ? 'animate-glow' : ''}`}>{ach.icon}</span>
+              </div>
+              <span className="text-[8px] font-black text-white uppercase tracking-tighter">{ach.label}</span>
+            </div>
           ))}
-          {isKantoChampion && (
-            <span className="ml-1 w-6 h-6 rounded-full bg-amber-100 border border-amber-300 text-amber-700 flex items-center justify-center text-sm leading-none shadow-sm" title="Campeao de Kanto">♛</span>
-          )}
         </div>
-        <div className="flex items-center gap-1.5 mt-1.5">
-          <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest w-9">Johto</span>
-          {JOHTO_BADGE_IDS.map((id, i) => (
-            <BadgeSVG key={id} badgeId={id} earned={badges.includes(id) || badges.includes(i + 9) || worldFlags.includes(id)} size={14} />
-          ))}
+      </div>
+    </div>
+  );
+};
+
+export const TrainerCardModal = ({ userData, onClose }) => {
+  if (!userData) return null;
+
+  return (
+    <div className="fixed inset-0 z-[30000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn">
+      <div className="w-full max-w-sm relative animate-bounceIn">
+        <button 
+          onClick={onClose}
+          className="absolute -top-12 right-0 w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-black border-2 border-red-400 shadow-lg active:scale-95 z-10"
+        >X</button>
+        
+        <TrainerCard 
+          trainer={{
+            name: userData.name,
+            avatarImg: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/${userData.avatar || 1}.png`,
+            level: userData.level || 1
+          }}
+          badges={userData.badgesList || []}
+          caughtCount={userData.caughtCount || 0}
+          worldFlags={userData.worldFlags || []}
+          powerScore={userData.powerScore || 0}
+          forgedItems={userData.forgedItemsCount || 0}
+          bossDamage={userData.bossTotalDamage || 0}
+        />
+
+        <div className="mt-6 text-center">
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest animate-pulse">Inspecionando Perfil Global</p>
         </div>
-        <p className="text-[10px] font-black text-slate-400 mt-2 uppercase tracking-widest flex items-center gap-1">
-           <span className="text-pokeBlue">●</span> {caughtCount} Capturados
-        </p>
       </div>
     </div>
   );

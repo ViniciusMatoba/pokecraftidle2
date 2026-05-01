@@ -5,7 +5,8 @@ export default defineConfig({
   plugins: [react()],
   base: './',
   build: {
-    minify: true, // REATIVADO - BUG ENCONTRADO E CORRIGIDO
+    sourcemap: false,
+    minify: true,
     rollupOptions: {
       output: {
         manualChunks(id) {

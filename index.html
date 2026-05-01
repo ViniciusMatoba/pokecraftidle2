@@ -23,6 +23,16 @@
           });
         });
       }
+
+      // Captura do prompt de instalação o mais cedo possível
+      window.deferredPrompt = null;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('PWA: Evento de instalação capturado');
+        e.preventDefault();
+        window.deferredPrompt = e;
+        // Notifica o React se ele já estiver pronto
+        window.dispatchEvent(new CustomEvent('pwa-prompt-ready', { detail: e }));
+      });
     </script>
   </body>
 </html>

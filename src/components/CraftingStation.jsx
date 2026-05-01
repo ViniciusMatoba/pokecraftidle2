@@ -34,6 +34,7 @@ const CraftingStation = ({ recipes, inventory, currency, onCraft }) => {
           <div className="grid grid-cols-1 gap-3">
             {items.filter(item => hasSeenCost(item)).map(item => {
               const canCraft = Object.entries(item.cost).every(([mat, amount]) => {
+                if (mat === 'currency') return currency >= amount;
                 const available = inventory.materials[mat] || inventory.items[mat] || 0;
                 return available >= amount;
               });
@@ -48,8 +49,8 @@ const CraftingStation = ({ recipes, inventory, currency, onCraft }) => {
                       <h4 className="font-black text-slate-800 uppercase italic tracking-tight">{item.name}</h4>
                       <div className="flex gap-2 mt-1">
                         {Object.entries(item.cost).map(([mat, amount]) => (
-                          <span key={mat} className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase ${ (inventory.materials[mat] || inventory.items[mat] || 0) >= amount ? 'bg-slate-100 text-slate-400' : 'bg-red-50 text-red-400'}`}>
-                            {mat.replace('_', ' ')}: {inventory.materials[mat] || inventory.items[mat] || 0}/{amount}
+                          <span key={mat} className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase ${ (mat === 'currency' ? currency : (inventory.materials[mat] || inventory.items[mat] || 0)) >= amount ? 'bg-slate-100 text-slate-400' : 'bg-red-50 text-red-400'}`}>
+                            {mat.replace('_', ' ')}: {mat === 'currency' ? currency : (inventory.materials[mat] || inventory.items[mat] || 0)}/{amount}
                           </span>
                         ))}
                       </div>

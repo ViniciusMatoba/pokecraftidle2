@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { isRouteUnlocked as checkRouteUnlocked } from '../data/routes';
+import { isRouteUnlocked as checkRouteUnlocked, getSortedRoutes, inferRouteRegion } from '../data/routes';
 import { CRAFTING_RECIPES } from '../data/recipes';
 
 const EVOLUTION_FRAGMENT_DROPS = {
@@ -44,15 +44,21 @@ const TravelScreen = ({
   setVsInitialTab,
   setVsInitialCategory,
   setVsInitialRegion,
+  switchRegion,
   fixPath,
   POKEDEX
 }) => {
   const [selectedRoute, setSelectedRoute] = React.useState(null);
   const [selectedPoke, setSelectedPoke] = React.useState(null);
   const [selectedDrop, setSelectedDrop] = React.useState(null);
-  const [routeRegionTab, setRouteRegionTab] = React.useState('kanto');
+  const routeRegionTab = gameState.activeRegion || 'kanto';
+  const isJohtoRoute = (route) => inferRouteRegion(route?.id, route?.group).id === 'johto';
   const [alertMessage, setAlertMessage] = React.useState(null);
   const [activePeriodTab, setActivePeriodTab] = React.useState(null);
+  
+  const setRouteRegionTab = (region) => {
+    if (switchRegion) switchRegion(region);
+  };
 
   // Define o período inicial baseado no tempo atual ao abrir o modal
   React.useEffect(() => {
@@ -66,21 +72,31 @@ const TravelScreen = ({
   const isRouteUnlocked = (route) => checkRouteUnlocked(route, gameState);
   const kantoChampion = (gameState.worldFlags || []).includes('champion');
   const johtoStarted = (gameState.worldFlags || []).includes('johto_started');
-  const isJohtoRoute = (route) => (route.group || '').toLowerCase().includes('johto') || String(route.id || '').includes('johto') || ['new_bark_town', 'cherrygrove_city', 'violet_city', 'azalea_town', 'goldenrod_city', 'ecruteak_city', 'olivine_city', 'cianwood_city', 'blackthorn_city', 'slowpoke_well', 'sprout_tower', 'union_cave', 'ilex_forest', 'national_park', 'burned_tower', 'lake_of_rage', 'ice_path', 'dragons_den'].includes(route.id);
-  const visibleRouteEntries = Object.entries(ROUTES).filter(([id, route]) => {
-    if (!kantoChampion) return !isJohtoRoute({ id, ...route });
-    return routeRegionTab === 'johto' ? isJohtoRoute({ id, ...route }) : !isJohtoRoute({ id, ...route });
-  });
+  const sortedRoutes = React.useMemo(() => getSortedRoutes(ROUTES), [ROUTES]);
+
+  const visibleRouteEntries = React.useMemo(() => {
+    return sortedRoutes.filter(route => {
+      // Filtrar apenas rotas da região ativa (Kanto, Johto, Hoenn)
+      if (routeRegionTab === 'kanto' && route._region.id !== 'kanto') return false;
+      if (routeRegionTab === 'johto' && route._region.id !== 'johto') return false;
+      if (routeRegionTab === 'hoenn' && route._region.id !== 'hoenn') return false;
+      return true;
+    });
+  }, [sortedRoutes, routeRegionTab]);
 
   React.useEffect(() => {
     if (!kantoChampion && routeRegionTab === 'johto') setRouteRegionTab('kanto');
   }, [kantoChampion, routeRegionTab]);
 
   React.useEffect(() => {
-    if (johtoStarted && kantoChampion && gameState.currentRoute && isJohtoRoute({ id: gameState.currentRoute, ...(ROUTES[gameState.currentRoute] || {}) })) {
-      setRouteRegionTab('johto');
+    if (johtoStarted && kantoChampion && gameState.currentRoute) {
+      const current = sortedRoutes.find(r => r.id === gameState.currentRoute);
+      if (current) {
+        if (current._region.id === 'johto') setRouteRegionTab('johto');
+        if (current._region.id === 'hoenn') setRouteRegionTab('hoenn');
+      }
     }
-  }, [kantoChampion, johtoStarted, gameState.currentRoute, ROUTES]);
+  }, [kantoChampion, johtoStarted, gameState.currentRoute, sortedRoutes]);
 
   // ===== PRELOADER DE BACKGROUND DA ROTA =====
   React.useEffect(() => {
@@ -327,51 +343,53 @@ const TravelScreen = ({
       <div className="bg-white rounded-2xl p-4 shadow-md border-2 border-slate-100 flex-shrink-0">
          <h2 className="text-xl font-black text-slate-800 uppercase italic">Mapa da Região</h2>
          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Clique para ver detalhes ou viajar</p>
-         {kantoChampion && (
-           <div className="grid grid-cols-2 gap-2 mt-4">
+         <div className="grid grid-cols-3 gap-2 mt-4">
              {[
-               { id: 'kanto', label: 'Rotas de Kanto' },
-               { id: 'johto', label: 'Rotas de Johto' },
+               { id: 'kanto', label: 'Kanto', available: true },
+               { id: 'johto', label: 'Johto', available: kantoChampion },
+               { id: 'hoenn', label: 'Hoenn', available: (gameState.worldFlags || []).includes('johto_champion') },
              ].map(tab => (
                <button
                  key={tab.id}
                  onClick={() => {
+                   if (!tab.available) return;
                    setRouteRegionTab(tab.id);
                    setSelectedRoute(null);
                  }}
+                 disabled={!tab.available}
                  className={`min-h-[40px] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
                    routeRegionTab === tab.id
                      ? 'bg-pokeBlue text-white shadow-lg'
-                     : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                     : tab.available
+                       ? 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                       : 'bg-slate-50 text-slate-300 cursor-not-allowed opacity-70'
                  }`}
                >
                  {tab.label}
                </button>
              ))}
-           </div>
-         )}
+         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
           <div className="flex flex-col gap-8 pb-8">
             {Object.entries(
               visibleRouteEntries
-              .filter(([, r]) => r.type !== 'city' && r.type !== 'gym')
-              .reduce((acc, [id, r]) => {
-                const group = r.group || "Outros Destinos";
-                if (!acc[group]) acc[group] = [];
-                acc[group].push({ id, ...r });
+              .filter(r => r.type !== 'city' && r.type !== 'gym')
+              .reduce((acc, r) => {
+                const cityGroup = r.group || 'Outras Rotas';
+                if (!acc[cityGroup]) acc[cityGroup] = [];
+                acc[cityGroup].push(r);
                 return acc;
               }, {})
             ).map(([groupName, groupRoutes]) => (
               <div key={groupName} className="flex flex-col gap-4">
                 <div className="flex items-center gap-3 px-2">
                    <div className="h-[2px] flex-1 bg-slate-200"></div>
-                   <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest italic">{groupName}</h4>
+                   <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest bg-slate-100 px-4 py-1.5 rounded-full border-2 border-slate-200">{groupName}</h3>
                    <div className="h-[2px] flex-1 bg-slate-200"></div>
                 </div>
-
-                <div className="grid grid-cols-1 gap-4 pr-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {groupRoutes.map((route) => {
                     const id = route.id;
                     const unlocked = isRouteUnlocked(route);
@@ -398,9 +416,13 @@ const TravelScreen = ({
                                 <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase border ${unlocked ? 'bg-green-100 text-green-600 border-green-200' : 'bg-red-100 text-red-600 border-red-200'}`}>
                                   {unlocked ? 'Disponível' : 'Bloqueado'}
                                 </span>
-                                {route.enemies && route.enemies.length > 0 && (
+                                {route.enemies && route.enemies.length > 0 ? (
                                   <span className="text-[8px] font-black px-2 py-0.5 rounded-full uppercase bg-slate-100 text-slate-500 border border-slate-200">
                                     Nível: {Math.min(...route.enemies.map(e => e.level || 0))} - {Math.max(...route.enemies.map(e => e.level || 0))}
+                                  </span>
+                                ) : (
+                                  <span className="text-[8px] font-black px-2 py-0.5 rounded-full uppercase bg-slate-100 text-slate-400 border border-slate-200">
+                                    Cidade / Ponto de Descanso
                                   </span>
                                 )}
                              </div>

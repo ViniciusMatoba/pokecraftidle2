@@ -27,16 +27,23 @@ export const NATURES = {
   Quiet: { plus: 'spAtk', minus: 'speed' },
 };
 
+export const BADGE_IDS = ['boulder_badge', 'cascade_badge', 'thunder_badge', 'rainbow_badge', 'soul_badge', 'marsh_badge', 'volcano_badge', 'earth_badge'];
+export const JOHTO_BADGE_IDS = ['zephyr_badge', 'hive_badge', 'plain_badge', 'fog_badge', 'storm_badge', 'mineral_badge', 'glacier_badge', 'rising_badge'];
+export const HOENN_BADGE_IDS = ['stone_badge', 'knuckle_badge', 'dynamo_badge', 'heat_badge', 'balance_badge', 'feather_badge', 'mind_badge', 'rain_badge'];
+
 export const GYM_LEVEL_CAPS = {
-  boulder_badge: 14,
-  cascade_badge: 21,
-  thunder_badge: 24,
-  rainbow_badge: 32,
-  soul_badge: 43,
-  marsh_badge: 43,
-  volcano_badge: 50,
-  earth_badge: 55,
-  champion: 65
+  kanto: {
+    boulder_badge: 14, cascade_badge: 21, thunder_badge: 24, rainbow_badge: 32,
+    soul_badge: 43, marsh_badge: 43, volcano_badge: 50, earth_badge: 55, champion: 65
+  },
+  johto: {
+    zephyr_badge: 15, hive_badge: 20, plain_badge: 25, fog_badge: 30,
+    storm_badge: 35, mineral_badge: 40, glacier_badge: 45, rising_badge: 50, johto_champion: 65
+  },
+  hoenn: {
+    stone_badge: 15, knuckle_badge: 19, dynamo_badge: 24, heat_badge: 29,
+    balance_badge: 31, feather_badge: 33, mind_badge: 42, rain_badge: 55, hoenn_champion: 70
+  }
 };
 
 export const trainerAvatars = [
@@ -70,6 +77,12 @@ export const DEFAULT_GAME_STATE = {
   },
   team: [],
   pc: [],
+  regional_teams: {
+    kanto: [],
+    johto: [],
+    hoenn: []
+  },
+  activeRegion: 'kanto',
   currentRoute: 'pallet_town',
   worldFlags: [],
   badges: [],
@@ -102,7 +115,10 @@ export const DEFAULT_GAME_STATE = {
   },
   activeQuest: null,
   lastQuestTime: null,
-  lastLegendarySpawns: {}
+  lastLegendarySpawns: {},
+  forgedItemsCount: 0,
+  bossTotalDamage: 0,
+  bossLastDamage: 0
 };
 
 export const ITEM_LABELS = {

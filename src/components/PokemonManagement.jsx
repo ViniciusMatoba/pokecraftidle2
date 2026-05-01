@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '../data/candies';
 
+import { GYM_LEVEL_CAPS } from '../data/constants';
+
 const PokemonManagement = ({
   gameState,
   setGameState,
@@ -20,7 +22,9 @@ const PokemonManagement = ({
   handleUseCandy,
   showConfirm,
   closeConfirm,
-  setCurrentView
+  setCurrentView,
+  validateTeamAccess,
+  activeRegion
 }) => {
   const [candyExpanded, setCandyExpanded] = useState(false);
   const [dragTeamIndex, setDragTeamIndex] = useState(null);
@@ -105,6 +109,28 @@ const PokemonManagement = ({
       return;
     }
     const poke = gameState.pc[index];
+    
+    // Validação de Acesso Regional
+    if (validateTeamAccess && !validateTeamAccess(poke, activeRegion)) {
+      const isChampion = (gameState.worldFlags || []).includes(`region_champion_${activeRegion}`) || 
+                        (activeRegion === 'kanto' && (gameState.worldFlags || []).includes('champion')) ||
+                        (activeRegion === 'johto' && (gameState.worldFlags || []).includes('johto_champion'));
+
+      let reason = "Este Pokémon não pode ser usado nesta região no momento.";
+      if (poke.level > (GYM_LEVEL_CAPS[activeRegion]?.[Object.values(GYM_LEVEL_CAPS[activeRegion]).length - 1] || 100)) {
+         reason = "Nível muito alto para o seu limite atual de insígnias.";
+      } else if (poke.capturedRegion && poke.capturedRegion !== activeRegion && !isChampion) {
+         reason = `Este Pokémon foi capturado em ${poke.capturedRegion.toUpperCase()} e você ainda não é campeão de ${activeRegion.toUpperCase()}.`;
+      }
+
+      showConfirm({
+        title: 'Acesso Negado',
+        message: `Regra Regional: ${reason}`,
+        onConfirm: closeConfirm
+      });
+      return;
+    }
+
     setGameState(prev => {
       const newPC = prev.pc.filter((_, i) => i !== index);
       const newTeam = [...prev.team, poke];

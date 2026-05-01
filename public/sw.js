@@ -1,69 +1,86 @@
-const CACHE_NAME = 'pokecraft-cache-v2';
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = 'pokecraft-cache-v1.50.2';
+const STATIC_ASSETS = [
   './',
-  './index.html'
+  './index.html',
+  './manifest.json',
+  './favicon.svg'
 ];
 
+// Instalação: Cacheia ativos estáticos iniciais
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      console.log('PWA: Instalando Service Worker e cacheando assets estáticos');
+      return cache.addAll(STATIC_ASSETS);
     })
   );
 });
 
+// Ativação: Limpa caches antigos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    Promise.all([
-      self.clients.claim(),
-      // Limpa caches antigos
-      caches.keys().then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => {
-            if (cacheName !== CACHE_NAME) {
-              return caches.delete(cacheName);
-            }
-          })
-        );
-      })
-    ])
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('PWA: Removendo cache antigo:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
   );
 });
 
+// Estratégia de Fetch
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  
-  // Cache-first strategy for media and static assets
-  const isMedia = 
+
+  // Ignorar requisições do Firebase/Firestore (Network-First implicito ou deixe o SDK lidar)
+  if (url.hostname.includes('firestore.googleapis.com') || url.hostname.includes('firebase')) {
+    return; // Deixa o navegador lidar normalmente
+  }
+
+  // Estratégia Cache-First para Ativos Estáticos (Imagens, JS, CSS do próprio domínio)
+  const isStaticAsset = 
+    url.origin === self.location.origin && (
+    url.pathname.includes('/assets/') || 
     url.pathname.endsWith('.png') || 
     url.pathname.endsWith('.jpg') || 
     url.pathname.endsWith('.webp') || 
-    url.pathname.endsWith('.mp3') || 
-    url.pathname.endsWith('.ogg') ||
-    url.pathname.endsWith('.svg') ||
-    url.pathname.endsWith('.ico') ||
-    url.pathname.includes('/sounds/');
+    url.pathname.endsWith('.svg') || 
+    url.pathname.endsWith('.js') || 
+    url.pathname.endsWith('.css') ||
+    url.pathname.endsWith('.json')
+  );
 
-  if (isMedia || url.pathname === '/' || url.pathname === '/index.html') {
+  if (isStaticAsset) {
     event.respondWith(
-      caches.match(event.request).then((response) => {
-        if (response) {
-          return response;
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
         }
-        return fetch(event.request).then((fetchResponse) => {
-          // Permite cache de assets locais (basic) e externos (cors)
-          if (!fetchResponse || fetchResponse.status !== 200 || (fetchResponse.type !== 'basic' && fetchResponse.type !== 'cors')) {
-            return fetchResponse;
+
+        return fetch(event.request).then((networkResponse) => {
+          if (!networkResponse || networkResponse.status !== 200) {
+            return networkResponse;
           }
 
-          const responseToCache = fetchResponse.clone();
+          const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
           });
 
-          return fetchResponse;
+          return networkResponse;
         });
+      })
+    );
+  } else {
+    // Network-First para o resto (incluindo index.html para garantir atualizações)
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match(event.request);
       })
     );
   }

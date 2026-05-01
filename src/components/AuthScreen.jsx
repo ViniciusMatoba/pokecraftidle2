@@ -303,22 +303,12 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
           {!isStandalone && (
             <button
               onClick={handleInstallPWA}
-              className="w-full mt-2 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg border-b-4 border-amber-700 animate-bounce"
+              className="w-full mt-4 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg border-b-4 border-amber-700 animate-bounce"
               style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'white' }}
             >
-              📥 {isIOS ? 'Como Instalar (iOS)' : 'Instalar Aplicativo (PWA)'}
+              📥 {isIOS ? 'Como Instalar (iOS)' : (installPrompt ? 'Instalar Aplicativo (PWA)' : 'Preparando instalação...')}
             </button>
           )}
-
-          {/* Botão de Ranking Global */}
-          <button 
-            onClick={() => setShowRanking(true)}
-            className="w-full mt-2 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg border-b-4 border-slate-700 bg-slate-800 text-white hover:bg-slate-700 active:scale-95"
-          >
-            🏆 Ranking Global
-          </button>
-
-          {showRanking && <RankingModal onClose={() => setShowRanking(false)} />}
 
           <button
             onClick={() => { setIsLogin(!isLogin); setError(''); }}

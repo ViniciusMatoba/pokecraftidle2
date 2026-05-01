@@ -5,12 +5,34 @@ import { GYMS, ELITE_FOUR } from '../data/gyms';
 
 // Importação dinâmica para evitar circularidade se possível, ou apenas usar os dados locais
 const BOSS_TYPES = ['Gym Leader', 'Elite Four', 'Team Villain', 'Legendary'];
+const BOSS_ROTATION_MS = 24 * 60 * 60 * 1000;
+const BOSS_ROTATION_STORAGE_KEY = 'pokecraftidle_next_world_boss_at_v2';
+const BOSS_DATA_STORAGE_KEY = 'pokecraftidle_current_world_boss_v2';
+const BOSS_FIGHT_LIMIT_SECONDS = 120;
+
+const formatCountdown = (ms) => {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+};
 
 const BossScreen = ({ gameState, onChallengeBoss }) => {
   const [boss, setBoss] = useState(null);
   const [ranking, setRanking] = useState([]);
   const [loading, setLoading] = useState(true);
   const [myBestDamage, setMyBestDamage] = useState(0);
+  const [myLastDamage, setMyLastDamage] = useState(0);
+  const [nextBossAt, setNextBossAt] = useState(() => {
+    const saved = Number(localStorage.getItem(BOSS_ROTATION_STORAGE_KEY));
+    const now = Date.now();
+    if (Number.isFinite(saved) && saved > now) return saved;
+    const initial = now + BOSS_ROTATION_MS;
+    localStorage.setItem(BOSS_ROTATION_STORAGE_KEY, String(initial));
+    return initial;
+  });
+  const [now, setNow] = useState(Date.now());
 
   // Carregar Boss atual ou gerar um se não existir no estado local (ou persistir no firestore)
   // Para simplificar, vamos gerar um boss aleatório que reseta ao recarregar, 
@@ -67,10 +89,28 @@ const BossScreen = ({ gameState, onChallengeBoss }) => {
     };
 
     setBoss(bossData);
+    localStorage.setItem(BOSS_DATA_STORAGE_KEY, JSON.stringify(bossData));
+    return bossData;
+  };
+
+  const rotateBoss = () => {
+    generateDynamicBoss();
+    const nextAt = Date.now() + BOSS_ROTATION_MS;
+    localStorage.setItem(BOSS_ROTATION_STORAGE_KEY, String(nextAt));
+    setNextBossAt(nextAt);
   };
 
   useEffect(() => {
-    generateDynamicBoss();
+    const savedBoss = localStorage.getItem(BOSS_DATA_STORAGE_KEY);
+    if (savedBoss && nextBossAt > Date.now()) {
+      try {
+        setBoss(JSON.parse(savedBoss));
+      } catch {
+        generateDynamicBoss();
+      }
+    } else {
+      rotateBoss();
+    }
     
     // Listen to Global Boss Ranking (Top 5)
     const q = query(collection(db, "bossRankings"), orderBy("totalDamage", "desc"), limit(5));
@@ -87,7 +127,9 @@ const BossScreen = ({ gameState, onChallengeBoss }) => {
         const docRef = doc(db, "bossRankings", auth.currentUser.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setMyBestDamage(docSnap.data().totalDamage || 0);
+          const data = docSnap.data();
+          setMyBestDamage(data.totalDamage || 0);
+          setMyLastDamage(data.lastDamage || 0);
         }
       }
     };
@@ -96,10 +138,26 @@ const BossScreen = ({ gameState, onChallengeBoss }) => {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const current = Date.now();
+      setNow(current);
+      if (current >= nextBossAt) {
+        rotateBoss();
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [nextBossAt]);
+
   const handleChallenge = () => {
     if (!boss) return;
     onChallengeBoss(boss);
   };
+
+  const topDamageRanking = ranking.slice(0, 5);
+  const displayedBestDamage = Math.max(myBestDamage || 0, gameState.bossTotalDamage || 0);
+  const displayedLastDamage = Math.max(myLastDamage || 0, gameState.bossLastDamage || 0);
 
   return (
     <div className="flex flex-col h-full bg-[#0a0a0a] text-white p-4 animate-fadeIn overflow-y-auto custom-scrollbar">
@@ -121,6 +179,13 @@ const BossScreen = ({ gameState, onChallengeBoss }) => {
               <p className="text-xs text-white/60 font-bold italic mt-1">{boss.quote}</p>
             </div>
             <div className="text-right">
+              <div className="mb-3 inline-flex flex-col items-end rounded-2xl border border-amber-500/40 bg-black/50 px-4 py-2 backdrop-blur-md">
+                <span className="text-[8px] font-black uppercase tracking-[0.2em] text-amber-300/70">Proximo Boss em</span>
+                <span className="text-2xl font-black tabular-nums text-amber-400 leading-none">
+                  {formatCountdown(nextBossAt - now)}
+                </span>
+              </div>
+              <br />
               <span className="text-4xl font-black text-amber-500 italic drop-shadow-lg">LV {boss.displayLevel}</span>
             </div>
           </div>
@@ -136,14 +201,18 @@ const BossScreen = ({ gameState, onChallengeBoss }) => {
       {/* Stats & Actions */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-[#1a1a1a] p-4 rounded-3xl border-2 border-white/5 flex flex-col items-center justify-center text-center">
-          <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Seu Melhor Dano</p>
-          <p className="text-xl font-black text-blue-400 leading-none">{myBestDamage.toLocaleString()}</p>
+          <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Seu Maior Dano no Evento</p>
+          <p className="text-xl font-black text-blue-400 leading-none">{displayedBestDamage.toLocaleString()}</p>
+          <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mt-2">Ultimo dano: {displayedLastDamage.toLocaleString()}</p>
         </div>
         <button 
           onClick={handleChallenge}
           className="bg-gradient-to-br from-red-600 to-amber-600 p-4 rounded-3xl border-b-4 border-amber-900 font-black uppercase italic tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-xl shadow-red-900/20"
         >
-          DESAFIAR BOSS
+          <span className="block">DESAFIAR BOSS</span>
+          <span className="block mt-1 text-[9px] not-italic tracking-widest text-white/70">
+            Limite {Math.floor(BOSS_FIGHT_LIMIT_SECONDS / 60)}:00
+          </span>
         </button>
       </div>
 
@@ -175,7 +244,7 @@ const BossScreen = ({ gameState, onChallengeBoss }) => {
           </div>
         ) : (
           <div className="flex flex-col gap-2">
-            {ranking.map((row, index) => (
+            {topDamageRanking.map((row, index) => (
               <div key={row.id} className="flex items-center justify-between p-3 bg-white/5 rounded-2xl border border-white/5">
                 <div className="flex items-center gap-3">
                   <span className={`w-6 h-6 flex items-center justify-center rounded-lg font-black text-xs ${index === 0 ? 'bg-amber-500 text-black' : 'bg-white/10 text-white/40'}`}>
@@ -183,10 +252,10 @@ const BossScreen = ({ gameState, onChallengeBoss }) => {
                   </span>
                   <span className="font-bold text-sm uppercase italic">{row.name || 'Treinador'}</span>
                 </div>
-                <span className="font-black text-emerald-400 text-sm">{row.totalDamage?.toLocaleString()}</span>
+                <span className="font-black text-emerald-400 text-sm">{(row.totalDamage || 0).toLocaleString()}</span>
               </div>
             ))}
-            {ranking.length === 0 && (
+            {topDamageRanking.length === 0 && (
               <p className="text-center text-white/20 text-xs italic py-4">Nenhum registro ainda...</p>
             )}
           </div>
@@ -196,7 +265,7 @@ const BossScreen = ({ gameState, onChallengeBoss }) => {
       {/* Dev Tools */}
       <div className="mt-auto pt-8 flex justify-center opacity-30 hover:opacity-100 transition-opacity">
         <button 
-          onClick={generateDynamicBoss}
+          onClick={rotateBoss}
           className="text-[10px] font-black text-white/40 hover:text-red-500 border border-white/10 px-4 py-2 rounded-full uppercase tracking-widest transition-all"
         >
           [DEV] Reset Boss Randomizer
