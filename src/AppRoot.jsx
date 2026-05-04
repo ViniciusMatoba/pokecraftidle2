@@ -3732,7 +3732,14 @@ export default function App() {
         addLog(`Recebeu a Insignia: ${currentEnemy.badgeToGive.replace(/_/g, ' ')}!`, 'system');
         sfxGym();
         
-        const newShare = newBadges.length * 10;
+        const activeRegion = prev.activeRegion || 'kanto';
+        const regionalBadgesForLog = newBadges.filter(b => 
+          activeRegion === 'kanto' ? BADGE_IDS.includes(b) :
+          activeRegion === 'johto' ? JOHTO_BADGE_IDS.includes(b) :
+          activeRegion === 'hoenn' ? HOENN_BADGE_IDS.includes(b) :
+          false
+        );
+        const newShare = regionalBadgesForLog.length * 10;
         addLog(`✨ Exp Share aumentado! Sua equipe agora recebe ${newShare}% da experiência compartilhada!`, 'system');
         
         // Show Oak House modal after 1st badge
@@ -3768,8 +3775,15 @@ export default function App() {
         setTimeout(() => setShowHoennUnlockModal(true), 1500);
       }
 
-      const badgesCount = prev.badges?.length || 0;
       const finalBadges = newBadges; // Para facilitar uso abaixo
+      const activeRegionForExp = prev.activeRegion || 'kanto';
+      const regionalBadges = finalBadges.filter(b => 
+        activeRegionForExp === 'kanto' ? BADGE_IDS.includes(b) :
+        activeRegionForExp === 'johto' ? JOHTO_BADGE_IDS.includes(b) :
+        activeRegionForExp === 'hoenn' ? HOENN_BADGE_IDS.includes(b) :
+        false
+      );
+      const badgesCount = regionalBadges.length;
 
       const now = Date.now();
       const effects = prev.activeEffects || {};

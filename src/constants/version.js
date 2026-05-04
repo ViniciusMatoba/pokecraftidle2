@@ -1,8 +1,16 @@
-export const APP_VERSION = '1.52.0';
-export const VERSION = '1.52.0';
-export const APP_VERSION_DATE = '04/05/2026 15:35';
+export const APP_VERSION = '1.52.1';
+export const VERSION = '1.52.1';
+export const APP_VERSION_DATE = '04/05/2026 15:53';
 
 export const PATCH_NOTES = [
+  {
+    version: '1.52.1',
+    date: '04/05/2026 15:53',
+    changes: [
+      '[FIX] Exp Share Regional: O Exp Share agora é calculado separadamente por região, iniciando em 0% ao chegar em Hoenn ou Johto.',
+      '[FIX] Consistência de XP: Ganho de XP passivo para a equipe agora escala exclusivamente com as insígnias da região ativa.',
+    ],
+  },
   {
     version: '1.52.0',
     date: '04/05/2026 15:35',
