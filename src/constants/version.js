@@ -1,8 +1,18 @@
-export const APP_VERSION = '1.52.2';
-export const VERSION = '1.52.2';
-export const APP_VERSION_DATE = '04/05/2026 17:19';
+export const APP_VERSION = '1.52.3';
+export const VERSION = '1.52.3';
+export const APP_VERSION_DATE = '04/05/2026 17:28';
 
 export const PATCH_NOTES = [
+  {
+    version: '1.52.3',
+    date: '04/05/2026 17:28',
+    changes: [
+      '[PERF] Telas grandes agora carregam sob demanda: Cidade, Batalha, Rotas, Equipe e Menu foram separadas do bundle inicial.',
+      '[PERF] Bundle inicial reduzido de ~1.063 MB para ~933 KB antes de gzip, melhorando o primeiro carregamento.',
+      '[PERF] Salvamento local agora usa debounce e requestIdleCallback quando disponivel, reduzindo travamentos por JSON.stringify durante batalhas.',
+      '[PERF] Tela de rotas substituiu comparacao pesada por JSON.stringify por uma assinatura leve dos encontros.',
+    ],
+  },
   {
     version: '1.52.2',
     date: '04/05/2026 17:19',

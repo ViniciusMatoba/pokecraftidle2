@@ -9,13 +9,13 @@ import { MOVE_TRANSLATIONS } from './data/translations';
 import { POKEDEX } from './data/pokedex';
 import { VILLAIN_TEAMS } from './data/villains';
 import AuthScreen from './components/AuthScreen';
-import MenuScreen from './components/MenuScreen';
-import TravelScreen from './components/TravelScreen';
-import PokemonManagement from './components/PokemonManagement';
-import BattleScreen from './components/BattleScreen';
-import CityScreen from './components/CityScreen';
 
 // Lazy loaded components for better performance
+const MenuScreen = lazy(() => import('./components/MenuScreen'));
+const TravelScreen = lazy(() => import('./components/TravelScreen'));
+const PokemonManagement = lazy(() => import('./components/PokemonManagement'));
+const BattleScreen = lazy(() => import('./components/BattleScreen'));
+const CityScreen = lazy(() => import('./components/CityScreen'));
 const CraftingStation = lazy(() => import('./components/CraftingStation'));
 const EvolutionScreen = lazy(() => import('./components/EvolutionScreen'));
 const PokedexScreen = lazy(() => import('./components/PokedexScreen'));
@@ -278,6 +278,12 @@ const FORGE_CATEGORY_LABELS = {
 const getForgeCategoryLabel = (category) => FORGE_CATEGORY_LABELS[category] || category.replace(/_/g, ' ');
 
 const TRAINER_REWARD_MULTIPLIER = 0.4;
+
+const ScreenLoader = ({ label = 'Carregando...' }) => (
+  <div className="h-full flex items-center justify-center bg-slate-950 text-white font-black uppercase tracking-[0.25em] animate-pulse">
+    {label}
+  </div>
+);
 
 const MUSIC_LIST = [
   { id: 'all', name: 'Tocar Todas (Shuffle)' },
@@ -1171,9 +1177,25 @@ export default function App() {
     return () => unsubscribe();
   }, [addLog]);
 
-  // 1. Sincronização LocalStorage (Sempre que o estado mudar)
+  // 1. Sincronização LocalStorage (debounced para reduzir JSON.stringify durante batalhas)
   useEffect(() => {
-    localStorage.setItem('poke_idle_save', JSON.stringify({ gameState }));
+    const persist = () => {
+      try {
+        localStorage.setItem('poke_idle_save', JSON.stringify({ gameState }));
+      } catch (err) {
+        console.warn('Falha ao salvar progresso local:', err);
+      }
+    };
+
+    const timeout = setTimeout(() => {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(persist, { timeout: 1200 });
+      } else {
+        persist();
+      }
+    }, 800);
+
+    return () => clearTimeout(timeout);
   }, [gameState]);
 
   // 2. Gatilhos de Salvamento na Nuvem (Debounced 5s)
@@ -5045,32 +5067,34 @@ export default function App() {
       );
       case 'city': return (
         <>
-          <CityScreen 
-            {...props}
-            gameState={gameState} 
-            powerScore={powerScore}
-            ROUTES={processedRoutes} 
-            fixPath={fixPath} 
-            setActiveBuildingModal={setActiveBuildingModal} 
-            setActiveQuestModal={setActiveQuestModal} 
-            activeQuestModal={activeQuestModal}
-            setGameState={setGameState}
-            setCurrentView={setCurrentView}
-            setCurrentEnemy={setCurrentEnemy}
-            onChallengeRival={startBattleAgainstRival}
-            onBackToBattle={() => {
-              if (gameState.lastFarmingRoute) {
-                setGameState(prev => ({ ...prev, currentRoute: prev.lastFarmingRoute }));
-                setCurrentEnemy(null);
-                setCurrentView('battles');
-              } else {
-                setCurrentView('routes');
-              }
-            }}
-            onOpenExpeditions={() => setShowExpeditions(true)}
-            onOpenHouse={() => setShowHouse(true)}
-            onBuyHouse={handleBuyHouse}
-          />
+          <Suspense fallback={<ScreenLoader label="Carregando cidade..." />}>
+            <CityScreen 
+              {...props}
+              gameState={gameState} 
+              powerScore={powerScore}
+              ROUTES={processedRoutes} 
+              fixPath={fixPath} 
+              setActiveBuildingModal={setActiveBuildingModal} 
+              setActiveQuestModal={setActiveQuestModal} 
+              activeQuestModal={activeQuestModal}
+              setGameState={setGameState}
+              setCurrentView={setCurrentView}
+              setCurrentEnemy={setCurrentEnemy}
+              onChallengeRival={startBattleAgainstRival}
+              onBackToBattle={() => {
+                if (gameState.lastFarmingRoute) {
+                  setGameState(prev => ({ ...prev, currentRoute: prev.lastFarmingRoute }));
+                  setCurrentEnemy(null);
+                  setCurrentView('battles');
+                } else {
+                  setCurrentView('routes');
+                }
+              }}
+              onOpenExpeditions={() => setShowExpeditions(true)}
+              onOpenHouse={() => setShowHouse(true)}
+              onBuyHouse={handleBuyHouse}
+            />
+          </Suspense>
 
           {/* Modal do Prof. Carvalho sobre a Casa */}
           {showOakHouseModal && (
@@ -5584,7 +5608,8 @@ export default function App() {
 
       case 'battles': return (
         <div className="pt-14 pb-20 h-full overflow-y-auto">
-          <BattleScreen 
+          <Suspense fallback={<ScreenLoader label="Carregando batalha..." />}>
+            <BattleScreen 
             timeOfDay={timeOfDay}
             currentEnemy={currentEnemy} 
             gameState={gameState} 
@@ -5613,11 +5638,13 @@ export default function App() {
                     startKeyBattle(battle);
                   }
                 }}
-          />
+            />
+          </Suspense>
         </div>
       );
       case 'routes': return (
-        <TravelScreen 
+        <Suspense fallback={<ScreenLoader label="Carregando rotas..." />}>
+          <TravelScreen 
           gameState={gameState} 
           setGameState={setGameState} 
           travelTab={travelTab} 
@@ -5631,11 +5658,13 @@ export default function App() {
           switchRegion={switchRegion}
           fixPath={fixPath}
           POKEDEX={POKEDEX}
-        />
+          />
+        </Suspense>
       );
 
       case 'pokemon_management': return (
-        <PokemonManagement 
+        <Suspense fallback={<ScreenLoader label="Carregando equipe..." />}>
+          <PokemonManagement 
           {...props}
           gameState={gameState} 
           setGameState={setGameState} 
@@ -5655,7 +5684,8 @@ export default function App() {
           setVsInitialTab={setVsInitialTab}
           validateTeamAccess={validateTeamAccess}
           activeRegion={gameState.activeRegion}
-        />
+          />
+        </Suspense>
       );
 
       case 'forge_screen': return (
@@ -5709,7 +5739,8 @@ export default function App() {
         </div>
       );
       case 'menu': return (
-        <MenuScreen 
+        <Suspense fallback={<ScreenLoader label="Carregando menu..." />}>
+          <MenuScreen 
           {...props}
           gameState={gameState} 
           setCurrentView={setCurrentView} 
@@ -5718,7 +5749,8 @@ export default function App() {
           onSave={triggerSave}
           MUSIC_LIST={MUSIC_LIST}
           onBack={() => setCurrentView(lastNonMenuView.current)}
-        />
+          />
+        </Suspense>
       );
 
       case 'defeat_screen': return (

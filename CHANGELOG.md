@@ -1,5 +1,12 @@
 # Changelog - PokeCraft
 
+## [V1.52.3] - 04/05/2026 17:28
+### Performance
+- **Lazy Loading de Telas**: Cidade, Batalha, Rotas, Equipe e Menu agora carregam sob demanda, reduzindo o bundle inicial.
+- **Bundle Inicial Menor**: Arquivo principal caiu de aproximadamente 1.063 MB para 933 KB antes de gzip.
+- **Autosave Local Otimizado**: Salvamento no `localStorage` agora usa debounce e `requestIdleCallback` quando disponível, evitando custo síncrono em toda mudança de batalha.
+- **Rotas Mais Leves**: Comparação de encontros na tela de rotas deixou de usar `JSON.stringify` completo e passou a usar uma assinatura curta.
+
 ## [V1.52.2] - 04/05/2026 17:19
 ### Balanceamento
 - **Economia de captura**: Reduzidas as moedas obtidas em batalhas selvagens e contra treinadores para tornar Poke Bolas mais valiosas.

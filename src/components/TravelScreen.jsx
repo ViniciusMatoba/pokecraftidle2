@@ -33,6 +33,10 @@ import { TYPE_COLOR_HEX } from '../data/gyms';
 import { TIME_CONFIG, getTimeOfDay, getTimeAdjustedEnemyPool } from '../utils/timeSystem';
 import { hasProgressRequirement } from '../utils/progress';
 
+const getEnemySignature = (enemies = []) => (
+  enemies.map(e => `${e.id}:${e.level || ''}:${e.drop || ''}:${e.dropChance || ''}`).join('|')
+);
+
 const TravelScreen = ({ 
   gameState, 
   setGameState, 
@@ -142,7 +146,7 @@ const TravelScreen = ({
     if (selectedRoute && ROUTES[selectedRoute.id]) {
       // Só atualiza se houver mudança real nos inimigos (ex: starters adicionados)
       const latest = ROUTES[selectedRoute.id];
-      if (JSON.stringify(latest.enemies) !== JSON.stringify(selectedRoute.enemies)) {
+      if (getEnemySignature(latest.enemies) !== getEnemySignature(selectedRoute.enemies)) {
         setSelectedRoute({ id: selectedRoute.id, ...latest });
       }
     }
