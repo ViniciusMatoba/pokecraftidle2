@@ -5,6 +5,7 @@ import ActiveEffectsBar from './ActiveEffectsBar';
 import { MOVES } from '../data/moves';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { TIME_CONFIG } from '../utils/timeSystem';
+import { GYM_LEVEL_CAPS, BADGE_IDS, JOHTO_BADGE_IDS, HOENN_BADGE_IDS } from '../data/constants';
 
 const BattleScreen = ({ 
   currentEnemy, gameState, activeMemberIndex, moveIndex, weather,
@@ -123,10 +124,29 @@ const BattleScreen = ({
     <div className="flex flex-col h-full animate-fadeIn pb-4 gap-2 overflow-y-auto custom-scrollbar" style={{paddingTop: '8px'}}>
       {/* Nome da Rota e Botão Sair */}
       <div className="flex items-center justify-between px-2 mb-1 animate-fadeIn">
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Localização:</span>
-          <span className="text-[11px] font-black uppercase tracking-tighter text-slate-800">{currentEnemy.locationName || route.name}</span>
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Localização:</span>
+            <span className="text-[11px] font-black uppercase tracking-tighter text-slate-800">{currentEnemy.locationName || route.name}</span>
+          </div>
+          {(() => {
+            if (gameState.settings?.levelCap === false) return null;
+            const activeRegion = (gameState.activeRegion || 'kanto').toLowerCase();
+            const badges = gameState.badges || [];
+            const regionBadges =
+              activeRegion === 'kanto' ? badges.filter(b => BADGE_IDS.includes(b)) :
+              activeRegion === 'johto' ? badges.filter(b => JOHTO_BADGE_IDS.includes(b)) :
+              badges.filter(b => HOENN_BADGE_IDS.includes(b));
+            const capValues = Object.values(GYM_LEVEL_CAPS[activeRegion] || {});
+            const currentCap = capValues[regionBadges.length] || 100;
+            return (
+              <div className="flex items-center gap-1.5 pl-3.5">
+                <span className="text-[9px] font-black uppercase tracking-widest text-amber-500">⚡ Level Cap:</span>
+                <span className="text-[10px] font-black text-amber-600">Nv. {currentCap}</span>
+              </div>
+            );
+          })()}
         </div>
         <button 
           onClick={() => onGoToCity && onGoToCity()}

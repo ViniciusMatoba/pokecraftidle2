@@ -143,6 +143,18 @@ const CityScreen = ({
     });
   }
 
+  if ((gameState.worldFlags || []).includes('johto_champion') && !(gameState.worldFlags || []).includes('hoenn_started')) {
+    cityBuildings.push({
+      id: 'hoenn_start',
+      name: 'Iniciar Hoenn',
+      icon: 'https://play.pokemonshowdown.com/sprites/trainers/professorbirch.png',
+      emoji: 'H',
+      desc: 'Fale com o Prof. Birch e parta para a região de Hoenn.',
+      action: () => setCurrentView && setCurrentView('hoenn_intro'),
+      color: 'border-cyan-500 bg-cyan-50',
+    });
+  }
+
 
   return (
     <div className="h-full flex flex-col animate-fadeIn pb-24 relative overflow-y-auto custom-scrollbar">

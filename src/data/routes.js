@@ -1634,4 +1634,34 @@ export const ROUTES = {
     background: '/bg_sky_pillar.png',
     description: 'Area pos-game de Hoenn para treinar ate o nivel 100.',
   },
+  
+  // ❄️ SINNOH REGION ❄️
+  twinleaf_town: {
+    id: 'twinleaf_town', name: 'Twinleaf Town', type: 'city', group: 'Sinnoh Inicio',
+    unlockLevel: 1, requirements: ['sinnoh_started'],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: '/bg_twinleaf.png',
+    description: 'Sua jornada em Sinnoh comeca aqui.',
+  },
+  route_201: {
+    id: 'route_201', name: 'Rota 201', type: 'farm', group: 'Sinnoh Inicio',
+    unlockLevel: 1, requirements: ['sinnoh_started'],
+    biome: 'grass',
+    enemies: pkRange([396, 399], 2, 4),
+    trainerChance: 0, trainers: [],
+    background: '/bg_route201.png',
+    description: 'A primeira rota de Sinnoh. Barry te espera no lago.',
+  },
+  route_202: {
+    id: 'route_202', name: 'Rota 202', type: 'farm', group: 'Sinnoh Inicio',
+    unlockLevel: 3, requirements: ['sinnoh_started'],
+    biome: 'grass',
+    enemies: pkRange([396, 399, 401, 403], 4, 7),
+    trainerChance: 0.05,
+    trainers: [
+      { name: 'Youngster Tristan', sprite: S.youngster, team: pk([396, 399], 5), reward: 300 },
+    ],
+    background: '/bg_route201.png',
+    description: 'Caminho para Jubilife City.',
+  }
 };

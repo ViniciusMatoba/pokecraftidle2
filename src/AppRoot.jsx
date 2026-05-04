@@ -279,12 +279,12 @@ const getForgeCategoryLabel = (category) => FORGE_CATEGORY_LABELS[category] || c
 
 const MUSIC_LIST = [
   { id: 'all', name: 'Tocar Todas (Shuffle)' },
-  { id: 'league_night', name: 'League Night', url: '/sounds/51383504-feora-lucas-cooper-pokemon-league-night-pokemon-diamond-410587.mp3' },
-  { id: 'littleroot', name: 'Littleroot Town', url: '/sounds/51383504-feora-vgm-yume-littleroot-town-pokemon-ruby-amp-sapphire-lofi-410588.mp3' },
-  { id: 'new_bark', name: 'New Bark Town', url: '/sounds/51383504-feora-vgm-yume-new-bark-town-pokemon-gold-amp-silver-lofi-410593.mp3' },
-  { id: 'route_101', name: 'Route 101', url: '/sounds/51383504-feora-vgm-yume-route-101-pokeon-ruby-amp-sapphire-lofi-410589.mp3' },
-  { id: 'surf', name: 'Surf Theme', url: '/sounds/51383504-feora-vgm-yume-surf-theme-pokemon-ruby-amp-sapphire-lofi-410586.mp3' },
-  { id: 'pallet', name: 'Pallet Town', url: '/sounds/51383504-pallet-town-pokemon-red-amp-blue-lofi-410591.mp3' }
+  { id: 'league_night', name: 'League Night', url: './sounds/51383504-feora-lucas-cooper-pokemon-league-night-pokemon-diamond-410587.mp3' },
+  { id: 'littleroot', name: 'Littleroot Town', url: './sounds/51383504-feora-vgm-yume-littleroot-town-pokemon-ruby-amp-sapphire-lofi-410588.mp3' },
+  { id: 'new_bark', name: 'New Bark Town', url: './sounds/51383504-feora-vgm-yume-new-bark-town-pokemon-gold-amp-silver-lofi-410593.mp3' },
+  { id: 'route_101', name: 'Route 101', url: './sounds/51383504-feora-vgm-yume-route-101-pokeon-ruby-amp-sapphire-lofi-410589.mp3' },
+  { id: 'surf', name: 'Surf Theme', url: './sounds/51383504-feora-vgm-yume-surf-theme-pokemon-ruby-amp-sapphire-lofi-410586.mp3' },
+  { id: 'pallet', name: 'Pallet Town', url: './sounds/51383504-pallet-town-pokemon-red-amp-blue-lofi-410591.mp3' }
 ];
 
 export default function App() {
@@ -372,10 +372,10 @@ export default function App() {
         'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png'
       ],
       sounds: [
-        '/sounds/DERROTA.mp3',
-        '/sounds/NIVEL.mp3',
-        '/sounds/POKE CENTER.mp3',
-        '/sounds/GYM.mp3'
+        './sounds/derrota.mp3',
+        './sounds/nivel.mp3',
+        './sounds/poke-center.mp3',
+        './sounds/gym.mp3'
       ]
     };
 
@@ -623,9 +623,14 @@ export default function App() {
       return acc;
     }, 0);
 
-    const badgeCount = getBadgeCount(gameState);
-    return levelsSum + (badgeCount * 1000);
-  }, [gameState.team, gameState.pc, gameState.house, gameState.expeditions, gameState.regional_teams, gameState.badges, gameState.worldFlags]);
+    const worldFlags = gameState.worldFlags || [];
+    const badgeBonus = (gameState.badges || []).length * 1000;
+    
+    // Bônus de 5000 PS por cada revanche vencida (Elite Difficulty)
+    const rematchBonus = worldFlags.filter(f => f.includes('rematch_') && f.endsWith('_defeated')).length * 5000;
+
+    return levelsSum + badgeBonus + rematchBonus;
+  }, [gameState.team, gameState.pc, gameState.house, gameState.expeditions, gameState.regional_teams, gameState.worldFlags, gameState.badges]);
 
   const createRegionStarter = useCallback((pokemonId, level = 5, region = 'kanto') => {
     const base = POKEDEX[Number(pokemonId)];
@@ -712,12 +717,12 @@ export default function App() {
     
     if (isChampion) return true;
 
-    const REGION_ORDER = { kanto: 1, johto: 2, hoenn: 3 };
+    const REGION_ORDER = { kanto: 1, johto: 2, hoenn: 3, sinnoh: 4 };
     const id = Number(pokemon.id);
-    const pokemonGen = id <= 151 ? 1 : id <= 251 ? 2 : 3;
+    const pokemonGen = id <= 151 ? 1 : id <= 251 ? 2 : id <= 386 ? 3 : 4;
     
     const pRegion = (pokemon.capturedRegion || '').toLowerCase();
-    const originRegion = pRegion || (pokemonGen === 1 ? 'kanto' : pokemonGen === 2 ? 'johto' : 'hoenn');
+    const originRegion = pRegion || (pokemonGen === 1 ? 'kanto' : pokemonGen === 2 ? 'johto' : pokemonGen === 3 ? 'hoenn' : 'sinnoh');
     
     // Regra: Pokémon da MESMA região ou de regiões MAIS RECENTES podem ser usados.
     // Bloqueia APENAS se o Pokémon for de uma região ANTERIOR à atual.
@@ -727,21 +732,8 @@ export default function App() {
       if (originLevel < targetLevel) return false;
     }
 
-    // 2. Trava de Nível (Cap)
-    const badges = gameState.badges || [];
-    let regionBadges = [];
-    if (targetKey === 'kanto') regionBadges = badges.filter(b => BADGE_IDS.includes(b));
-    if (targetKey === 'johto') regionBadges = badges.filter(b => JOHTO_BADGE_IDS.includes(b));
-    if (targetKey === 'hoenn') regionBadges = badges.filter(b => HOENN_BADGE_IDS.includes(b));
-    
-    const caps = GYM_LEVEL_CAPS[targetKey] || {};
-    const capValues = Object.values(caps);
-    const currentCap = capValues[regionBadges.length] || 100;
-
-    if (pokemon.level > currentCap) return false;
-
     return true;
-  }, [gameState.worldFlags, gameState.badges]);
+  }, [gameState.worldFlags]);
 
   const switchRegion = useCallback((newRegion) => {
     setGameState(prev => {
@@ -821,6 +813,36 @@ export default function App() {
     // Floresta de Viridian: Pikachu e Bulbasaur
     addSafe('viridian_forest', 25, 9, 'thunder_stone_shard', 0.08);
     addSafe('viridian_forest', 1, 8, 'leaf_stone_shard', 0.08);
+    
+    // Johto Starters
+    if (gameState.worldFlags?.includes('johto_rival_1_defeated')) {
+      addSafe('johto_route_29', 152, 4); // Chikorita
+      addSafe('johto_route_29', 155, 4); // Cyndaquil
+      addSafe('johto_route_29', 158, 4); // Totodile
+      addSafe('johto_route_30', 152, 5);
+      addSafe('johto_route_30', 155, 5);
+      addSafe('johto_route_30', 158, 5);
+    }
+
+    // Hoenn Starters
+    if (gameState.worldFlags?.includes('hoenn_rival_1_defeated')) {
+      addSafe('route_101', 252, 4); // Treecko
+      addSafe('route_101', 255, 4); // Torchic
+      addSafe('route_101', 258, 4); // Mudkip
+      addSafe('route_102', 252, 5);
+      addSafe('route_102', 255, 5);
+      addSafe('route_102', 258, 5);
+    }
+
+    // Sinnoh Starters
+    if (gameState.worldFlags?.includes('sinnoh_rival_1_defeated')) {
+      addSafe('route_201', 387, 4); // Turtwig
+      addSafe('route_201', 390, 4); // Chimchar
+      addSafe('route_201', 393, 4); // Piplup
+      addSafe('route_202', 387, 5);
+      addSafe('route_202', 390, 5);
+      addSafe('route_202', 393, 5);
+    }
 
     return newRoutes;
   }, [gameState.worldFlags]);
@@ -3300,7 +3322,7 @@ export default function App() {
     if (flags.includes('kanto_champion_modal_pending')) {
       setShowKantoChampionModal(true);
     } else if (
-      flags.includes('champion') &&
+      (flags.includes('champion') || flags.includes('johto_champion')) &&
       !flags.includes('hoenn_started') &&
       !flags.includes('hoenn_unlock_modal_shown') &&
       currentView !== 'johto_intro' &&
@@ -3529,6 +3551,24 @@ export default function App() {
              enemyTeam.push(rivalStarter);
           }
         }
+      } else if (battleData.id?.startsWith('sinnoh_rival')) {
+        const mySinnohStarter = gameState.selectedStarters?.sinnoh;
+        if (mySinnohStarter) {
+          const sinnohRivalMap = { 387: 390, 390: 393, 393: 387 }; // Turtwig -> Chimchar, etc.
+          const advantagedStarterId = sinnohRivalMap[mySinnohStarter];
+          if (advantagedStarterId) {
+             const startersIds = [387, 388, 389, 390, 391, 392, 393, 394, 395];
+             enemyTeam = enemyTeam.filter(p => !startersIds.includes(Number(p.id)));
+             const baseLevel = battleData.team[0]?.level || 5;
+
+             let finalId = advantagedStarterId;
+             if (baseLevel >= 34) finalId += 2; // Torterra/Infernape/Empoleon
+             else if (baseLevel >= 16) finalId += 1; // Grotle/Monferno/Prinplup
+
+             const rivalStarter = createRivalStarter(finalId, baseLevel);
+             enemyTeam.push(rivalStarter);
+          }
+        }
       }
 
       const bossPoke = enemyTeam[0];
@@ -3722,6 +3762,12 @@ export default function App() {
         setTimeout(() => setShowKantoChampionModal(true), 1200);
       }
 
+      // Gatilho para Hoenn após vencer a Liga de Johto
+      if (currentEnemy.unlockFlag === 'johto_champion' && !prev.worldFlags?.includes('johto_champion')) {
+        newFlags.push('johto_champion');
+        setTimeout(() => setShowHoennUnlockModal(true), 1500);
+      }
+
       const badgesCount = prev.badges?.length || 0;
       const finalBadges = newBadges; // Para facilitar uso abaixo
 
@@ -3779,16 +3825,24 @@ export default function App() {
            return p;
         }
 
-        const newXp = (p.xp || 0) + xpToAdd;
-        const n = p.level || 1; const xpNeeded = Math.pow(n + 1, 3) - Math.pow(n, 3);
-        const maxLevel = GYM_LEVEL_CAPS[badgesCount] || 100;
+        const activeRegionForCap = prev.activeRegion || 'kanto';
+        const regionBadgesForCap = (prev.badges || []).filter(b =>
+          activeRegionForCap === 'kanto' ? BADGE_IDS.includes(b) :
+          activeRegionForCap === 'johto' ? JOHTO_BADGE_IDS.includes(b) :
+          HOENN_BADGE_IDS.includes(b)
+        );
+        const regionCapValues = Object.values(GYM_LEVEL_CAPS[activeRegionForCap] || {});
+        const maxLevel = regionCapValues[regionBadgesForCap.length] || 100;
         const isLevelCapped = gameState.settings?.levelCap !== false && (p.level || 5) >= maxLevel;
 
-        if (newXp >= xpNeeded) {
-          if (isLevelCapped) {
-            return { ...p, level: maxLevel, xp: xpNeeded - 1, stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 } };
-          }
+        if (isLevelCapped) {
+          return { ...p, status: (p.status || []).filter(s => s !== 'confuse'), stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 } };
+        }
 
+        const newXp = (p.xp || 0) + xpToAdd;
+        const n = p.level || 1; const xpNeeded = Math.pow(n + 1, 3) - Math.pow(n, 3);
+
+        if (newXp >= xpNeeded) {
           const newLevel = (p.level || 5) + 1;
           addLog(`🎉 ${p.name} subiu para Nv. ${newLevel}!`, 'system');
           notify({ type: 'level_up', title: `${p.name} subiu para Nv.${newLevel}!`, message: 'Continue treinando!', pokemonId: p.id, isShiny: p.isShiny });
@@ -4003,6 +4057,12 @@ export default function App() {
       isProcessingVictory.current = false;
       if (currentEnemy.unlockFlag === 'rival_1_defeated') {
         setCurrentView('prof_oak_starters_announcement');
+      } else if (currentEnemy.unlockFlag === 'johto_rival_1_defeated') {
+        setCurrentView('prof_elm_starters_announcement');
+      } else if (currentEnemy.unlockFlag === 'hoenn_rival_1_defeated') {
+        setCurrentView('prof_birch_announcement');
+      } else if (currentEnemy.unlockFlag === 'sinnoh_rival_1_defeated') {
+        setCurrentView('prof_rowan_announcement');
       } else if (currentEnemy.isInitialRival) {
         setCurrentView('rival_post_battle');
       } else if (currentEnemy.isGymLeader || currentEnemy.isBoss) {
@@ -5224,7 +5284,11 @@ export default function App() {
               handleChallengeGym(gymData);
             }}
             onChallenge={(challenge) => {
-              startKeyBattle(challenge);
+              if (challenge.category === 'rival') {
+                startBattleAgainstRival(challenge);
+              } else {
+                startKeyBattle(challenge);
+              }
             }}
             onClose={() => setCurrentView('city')}
             setCurrentView={setCurrentView}
@@ -5303,6 +5367,188 @@ export default function App() {
               className="w-full bg-white text-slate-900 py-5 rounded-2xl font-black uppercase text-base tracking-widest hover:bg-slate-100 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.3)] active:scale-95"
             >
               ENTENDIDO!
+            </button>
+          </div>
+        </div>
+      );
+
+      case 'prof_elm_starters_announcement': return (
+        <div className="absolute inset-0 z-[9999] flex flex-col bg-[#0a1e0f] overflow-hidden animate-fadeIn">
+          {/* Header Superior - Padrão Premium */}
+          <div className="bg-emerald-700 px-6 py-5 flex items-center justify-between shadow-xl shrink-0 z-20 border-b border-white/10">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner">
+                <img src="https://play.pokemonshowdown.com/sprites/trainers/professorelm.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-10 h-10 object-contain drop-shadow-md" alt="Elm" />
+              </div>
+              <div className="text-left">
+                <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">Guia de Johto</p>
+                <h3 className="text-white text-xl font-black uppercase italic leading-none tracking-tighter">Mensagem do Prof. Elm</h3>
+              </div>
+            </div>
+          </div>
+
+          {/* Área de Conteúdo */}
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center relative overflow-y-auto">
+            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+            
+            <div className="relative z-10 max-w-sm">
+              <div className="mb-8 transform hover:scale-105 transition-transform duration-500">
+                <div className="w-32 h-32 mx-auto rounded-full bg-white/5 border-2 border-emerald-500/30 flex items-center justify-center p-4 shadow-[0_0_50px_rgba(16,185,129,0.15)]">
+                  <img src="https://play.pokemonshowdown.com/sprites/trainers/professorelm.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-24 h-24 object-contain drop-shadow-2xl" alt="Elm" />
+                </div>
+              </div>
+
+              <h2 className="text-white font-black text-2xl uppercase italic tracking-tighter leading-tight mb-6">
+                "Notícias de New Bark!"
+              </h2>
+
+              <div className="space-y-4 text-white/90 text-sm font-bold leading-relaxed italic">
+                <p>
+                  "Incrível! Meus parabéns por derrotar o rival! A pesquisa em Johto está avançando rápido..."
+                </p>
+                <p className="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-inner">
+                  "Os Pokémon iniciais de Johto: <span className="text-emerald-400">Chikorita</span>, <span className="text-orange-400">Cyndaquil</span> e <span className="text-blue-400">Totodile</span> foram avistados selvagens na Rota 29 e na Rota 30!"
+                </p>
+                <p>
+                  "Parece que eles estão se adaptando bem ao ambiente natural. Agora você pode encontrá-los e capturá-los para sua equipe! Boa sorte!"
+                </p>
+              </div>
+
+              <div className="mt-10 flex flex-wrap justify-center gap-4 opacity-40 grayscale animate-pulse">
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/152.png" className="w-12 h-12 object-contain" alt="152" />
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/155.png" className="w-12 h-12 object-contain" alt="155" />
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/158.png" className="w-12 h-12 object-contain" alt="158" />
+              </div>
+            </div>
+          </div>
+
+          {/* Rodapé Fixo */}
+          <div className="p-8 pt-4 bg-black/20 shrink-0 border-t border-white/5">
+            <button 
+              onClick={() => {
+                setGameState(prev => ({ 
+                  ...prev, 
+                  worldFlags: [...(prev.worldFlags || []), 'johto_rival_1_defeated'].filter((v, i, a) => a.indexOf(v) === i)
+                }));
+                setCurrentView('city');
+              }}
+              className="w-full bg-white text-slate-900 py-5 rounded-2xl font-black uppercase text-base tracking-widest hover:bg-slate-100 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.3)] active:scale-95"
+            >
+              ENTENDIDO!
+            </button>
+          </div>
+        </div>
+      );
+
+      case 'prof_birch_announcement': return (
+        <div className="absolute inset-0 z-[9999] flex flex-col bg-[#0f1a2a] overflow-hidden animate-fadeIn">
+          <div className="bg-cyan-700 px-6 py-5 flex items-center justify-between shadow-xl shrink-0 z-20 border-b border-white/10">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner">
+                <img src="https://play.pokemonshowdown.com/sprites/trainers/professorbirch.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-10 h-10 object-contain drop-shadow-md" alt="Birch" />
+              </div>
+              <div className="text-left">
+                <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">Guia de Hoenn</p>
+                <h3 className="text-white text-xl font-black uppercase italic leading-none tracking-tighter">Mensagem do Prof. Birch</h3>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center relative overflow-y-auto">
+            <div className="relative z-10 max-w-sm">
+              <div className="mb-8 transform hover:scale-105 transition-transform duration-500">
+                <div className="w-32 h-32 mx-auto rounded-full bg-white/5 border-2 border-cyan-500/30 flex items-center justify-center p-4 shadow-[0_0_50px_rgba(6,182,212,0.15)]">
+                  <img src="https://play.pokemonshowdown.com/sprites/trainers/professorbirch.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-24 h-24 object-contain drop-shadow-2xl" alt="Birch" />
+                </div>
+              </div>
+
+              <h2 className="text-white font-black text-2xl uppercase italic tracking-tighter leading-tight mb-6">"Selvagens em Littleroot!"</h2>
+
+              <div className="space-y-4 text-white/90 text-sm font-bold leading-relaxed italic">
+                <p>"Espetacular! Apos sua vitoria contra o rival, percebemos uma mudanca no ecossistema local."</p>
+                <p className="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-inner">
+                  "Os iniciais de Hoenn: <span className="text-emerald-400">Treecko</span>, <span className="text-orange-400">Torchic</span> e <span className="text-blue-400">Mudkip</span> estao agora nas Rotas 101 e 102!"
+                </p>
+                <p>"Parece que o habitat de Hoenn esta reagindo a sua presenca. Va e capture-os!"</p>
+              </div>
+
+              <div className="mt-10 flex flex-wrap justify-center gap-4 opacity-40 grayscale animate-pulse">
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/252.png" className="w-12 h-12 object-contain" alt="252" />
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/255.png" className="w-12 h-12 object-contain" alt="255" />
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/258.png" className="w-12 h-12 object-contain" alt="258" />
+              </div>
+            </div>
+          </div>
+
+          <div className="p-8 pt-4 bg-black/20 shrink-0 border-t border-white/5">
+            <button 
+              onClick={() => {
+                setGameState(prev => ({ 
+                  ...prev, 
+                  worldFlags: [...(prev.worldFlags || []), 'hoenn_rival_1_defeated'].filter((v, i, a) => a.indexOf(v) === i)
+                }));
+                setCurrentView('city');
+              }}
+              className="w-full bg-white text-slate-900 py-5 rounded-2xl font-black uppercase text-base tracking-widest hover:bg-slate-100 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.3)] active:scale-95"
+            >
+              VAMOS NESSA!
+            </button>
+          </div>
+        </div>
+      );
+
+      case 'prof_rowan_announcement': return (
+        <div className="absolute inset-0 z-[9999] flex flex-col bg-[#1a0f0a] overflow-hidden animate-fadeIn">
+          <div className="bg-amber-800 px-6 py-5 flex items-center justify-between shadow-xl shrink-0 z-20 border-b border-white/10">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner">
+                <img src="https://play.pokemonshowdown.com/sprites/trainers/professorrowan.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-10 h-10 object-contain drop-shadow-md" alt="Rowan" />
+              </div>
+              <div className="text-left">
+                <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">Guia de Sinnoh</p>
+                <h3 className="text-white text-xl font-black uppercase italic leading-none tracking-tighter">Mensagem do Prof. Rowan</h3>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center relative overflow-y-auto">
+            <div className="relative z-10 max-w-sm">
+              <div className="mb-8 transform hover:scale-105 transition-transform duration-500">
+                <div className="w-32 h-32 mx-auto rounded-full bg-white/5 border-2 border-amber-500/30 flex items-center justify-center p-4 shadow-[0_0_50px_rgba(180,83,9,0.15)]">
+                  <img src="https://play.pokemonshowdown.com/sprites/trainers/professorrowan.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-24 h-24 object-contain drop-shadow-2xl" alt="Rowan" />
+                </div>
+              </div>
+
+              <h2 className="text-white font-black text-2xl uppercase italic tracking-tighter leading-tight mb-6">"Evolucao na Natureza!"</h2>
+
+              <div className="space-y-4 text-white/90 text-sm font-bold leading-relaxed italic">
+                <p>"Muito bem. Derrotar Barry requer disciplina. Agora, observe os frutos do seu esforco."</p>
+                <p className="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-inner">
+                  "Os iniciais de Sinnoh: <span className="text-emerald-400">Turtwig</span>, <span className="text-orange-400">Chimchar</span> e <span className="text-blue-400">Piplup</span> foram vistos nas Rotas 201 e 202!"
+                </p>
+                <p>"A biodiversidade de Sinnoh e vasta. Nao perca a chance de completa-la."</p>
+              </div>
+
+              <div className="mt-10 flex flex-wrap justify-center gap-4 opacity-40 grayscale animate-pulse">
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/387.png" className="w-12 h-12 object-contain" alt="387" />
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/390.png" className="w-12 h-12 object-contain" alt="390" />
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/393.png" className="w-12 h-12 object-contain" alt="393" />
+              </div>
+            </div>
+          </div>
+
+          <div className="p-8 pt-4 bg-black/20 shrink-0 border-t border-white/5">
+            <button 
+              onClick={() => {
+                setGameState(prev => ({ 
+                  ...prev, 
+                  worldFlags: [...(prev.worldFlags || []), 'sinnoh_rival_1_defeated'].filter((v, i, a) => a.indexOf(v) === i)
+                }));
+                setCurrentView('city');
+              }}
+              className="w-full bg-white text-slate-900 py-5 rounded-2xl font-black uppercase text-base tracking-widest hover:bg-slate-100 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.3)] active:scale-95"
+            >
+              PROSSEGUIR!
             </button>
           </div>
         </div>

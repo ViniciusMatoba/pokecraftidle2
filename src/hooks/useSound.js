@@ -2,11 +2,11 @@ import { useRef, useCallback, useState, useEffect } from 'react';
 
 const SFX_MAP = {
   victory: null,
-  defeat: '/sounds/DERROTA.mp3',
-  levelUp: '/sounds/NIVEL.mp3',
+  defeat: './sounds/derrota.mp3',
+  levelUp: './sounds/nivel.mp3',
   capture: null, // Removido para ser usado apenas na cura
-  heal: '/sounds/POKE CENTER.mp3',
-  gym: '/sounds/GYM.mp3'
+  heal: './sounds/poke-center.mp3',
+  gym: './sounds/gym.mp3'
 };
 
 export function useSound() {

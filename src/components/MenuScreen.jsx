@@ -9,10 +9,20 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
   const [subView, setSubView] = useState('main'); // 'main' ou 'settings'
   const [activeTab, setActiveTab] = useState('balls');
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     setUpdating(true);
     localStorage.setItem('pokecraft_last_reload', String(Date.now()));
-    setTimeout(() => window.location.reload(true), 400);
+    try {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map(r => r.unregister()));
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      }
+    } catch (_) {}
+    window.location.reload(true);
   };
 
   const menuItems = [
