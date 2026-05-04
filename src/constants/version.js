@@ -1,8 +1,18 @@
-export const APP_VERSION = '1.52.3';
-export const VERSION = '1.52.3';
-export const APP_VERSION_DATE = '04/05/2026 17:28';
+export const APP_VERSION = '1.52.4';
+export const VERSION = '1.52.4';
+export const APP_VERSION_DATE = '04/05/2026 20:03';
 
 export const PATCH_NOTES = [
+  {
+    version: '1.52.4',
+    date: '04/05/2026 20:03',
+    changes: [
+      '[FIX] Corrigido bug crítico "Presa Venenosa": A lógica de aprendizado de golpes agora usa o nome original como fallback seguro caso a tradução falhe.',
+      '[FIX] Padronização de Learnsets: Mapeamento de golpes agora remove espaços e ignora maiúsculas, garantindo que ataques como "Mud-Slap" e "Leafage" sejam encontrados.',
+      '[DATA] Traduções Expandidas: Adicionados mais de 40 novos ataques (Hoenn/Sinnoh) ao dicionário, incluindo Leaf Blade, Aura Sphere, Calm Mind e moves iniciais.',
+      '[FIX] Estabilização do PC: Evoluções e capturas no PC agora regeneram ataques corretamente com as novas traduções.',
+    ],
+  },
   {
     version: '1.52.3',
     date: '04/05/2026 17:28',
