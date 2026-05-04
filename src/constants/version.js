@@ -1,8 +1,15 @@
-export const APP_VERSION = '1.51.4';
-export const VERSION = '1.51.4';
-export const APP_VERSION_DATE = '04/05/2026 12:38';
+export const APP_VERSION = '1.51.5';
+export const VERSION = '1.51.5';
+export const APP_VERSION_DATE = '04/05/2026 12:51';
 
 export const PATCH_NOTES = [
+  {
+    version: '1.51.5',
+    date: '04/05/2026 12:51',
+    changes: [
+      '[FIX] Correção crítica de paths de áudio: sons do jogo (derrota, nível, pokécenter, ginásio e músicas) agora carregam corretamente no GitHub Pages.',
+    ],
+  },
   {
     version: '1.51.4',
     date: '04/05/2026 12:38',

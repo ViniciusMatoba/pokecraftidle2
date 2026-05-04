@@ -279,12 +279,12 @@ const getForgeCategoryLabel = (category) => FORGE_CATEGORY_LABELS[category] || c
 
 const MUSIC_LIST = [
   { id: 'all', name: 'Tocar Todas (Shuffle)' },
-  { id: 'league_night', name: 'League Night', url: '/sounds/51383504-feora-lucas-cooper-pokemon-league-night-pokemon-diamond-410587.mp3' },
-  { id: 'littleroot', name: 'Littleroot Town', url: '/sounds/51383504-feora-vgm-yume-littleroot-town-pokemon-ruby-amp-sapphire-lofi-410588.mp3' },
-  { id: 'new_bark', name: 'New Bark Town', url: '/sounds/51383504-feora-vgm-yume-new-bark-town-pokemon-gold-amp-silver-lofi-410593.mp3' },
-  { id: 'route_101', name: 'Route 101', url: '/sounds/51383504-feora-vgm-yume-route-101-pokeon-ruby-amp-sapphire-lofi-410589.mp3' },
-  { id: 'surf', name: 'Surf Theme', url: '/sounds/51383504-feora-vgm-yume-surf-theme-pokemon-ruby-amp-sapphire-lofi-410586.mp3' },
-  { id: 'pallet', name: 'Pallet Town', url: '/sounds/51383504-pallet-town-pokemon-red-amp-blue-lofi-410591.mp3' }
+  { id: 'league_night', name: 'League Night', url: './sounds/51383504-feora-lucas-cooper-pokemon-league-night-pokemon-diamond-410587.mp3' },
+  { id: 'littleroot', name: 'Littleroot Town', url: './sounds/51383504-feora-vgm-yume-littleroot-town-pokemon-ruby-amp-sapphire-lofi-410588.mp3' },
+  { id: 'new_bark', name: 'New Bark Town', url: './sounds/51383504-feora-vgm-yume-new-bark-town-pokemon-gold-amp-silver-lofi-410593.mp3' },
+  { id: 'route_101', name: 'Route 101', url: './sounds/51383504-feora-vgm-yume-route-101-pokeon-ruby-amp-sapphire-lofi-410589.mp3' },
+  { id: 'surf', name: 'Surf Theme', url: './sounds/51383504-feora-vgm-yume-surf-theme-pokemon-ruby-amp-sapphire-lofi-410586.mp3' },
+  { id: 'pallet', name: 'Pallet Town', url: './sounds/51383504-pallet-town-pokemon-red-amp-blue-lofi-410591.mp3' }
 ];
 
 export default function App() {
@@ -372,10 +372,10 @@ export default function App() {
         'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png'
       ],
       sounds: [
-        '/sounds/derrota.mp3',
-        '/sounds/nivel.mp3',
-        '/sounds/poke-center.mp3',
-        '/sounds/gym.mp3'
+        './sounds/derrota.mp3',
+        './sounds/nivel.mp3',
+        './sounds/poke-center.mp3',
+        './sounds/gym.mp3'
       ]
     };
 
