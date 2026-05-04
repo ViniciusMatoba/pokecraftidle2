@@ -148,7 +148,7 @@ const BattleScreen = ({
             );
           })()}
         </div>
-        <button 
+        <button
           onClick={() => onGoToCity && onGoToCity()}
           className="bg-slate-100 hover:bg-slate-200 text-slate-500 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border border-slate-200"
         >
