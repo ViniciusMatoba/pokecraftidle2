@@ -91,7 +91,6 @@ export const MOVE_TRANSLATIONS = {
   'mud-slap': 'Lamaçal',
   'leaf-blade': 'Lâmina de Folha',
   'razor-shell': 'Concha Navalha',
-  'water-pulse': 'Pulso d\'Água',
   'mud-bomb': 'Bomba de Lama',
   'earthquake': 'Terremoto',
   'mega-drain': 'Mega Dreno',

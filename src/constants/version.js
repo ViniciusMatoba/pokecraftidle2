@@ -1,8 +1,17 @@
-export const APP_VERSION = '1.52.4';
-export const VERSION = '1.52.4';
-export const APP_VERSION_DATE = '04/05/2026 20:03';
+export const APP_VERSION = '1.52.5';
+export const VERSION = '1.52.5';
+export const APP_VERSION_DATE = '04/05/2026 20:10';
 
 export const PATCH_NOTES = [
+  {
+    version: '1.52.5',
+    date: '04/05/2026 20:10',
+    changes: [
+      '[CLEANUP] Limpeza técnica do repositório: Removidos scripts temporários e arquivos de merge redundantes em /data e /components.',
+      '[FIX] Corrigida chave duplicada "water-pulse" em translations.js identificada pelo lint.',
+      '[OPTIMIZATION] Consolidação final das rotas de Sinnoh no arquivo principal de rotas, garantindo integridade de dados.',
+    ],
+  },
   {
     version: '1.52.4',
     date: '04/05/2026 20:03',
