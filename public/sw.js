@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pokecraft-cache-v1.51.3';
-const RUNTIME_CACHE = 'pokecraft-runtime-v1.51.3';
+const CACHE_NAME = 'pokecraft-cache-v1.51.4';
+const RUNTIME_CACHE = 'pokecraft-runtime-v1.51.4';
 const STATIC_ASSETS = [
   './',
   './index.html',

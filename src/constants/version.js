@@ -1,8 +1,15 @@
-export const APP_VERSION = '1.51.3';
-export const VERSION = '1.51.3';
-export const APP_VERSION_DATE = '04/05/2026 12:20';
+export const APP_VERSION = '1.51.4';
+export const VERSION = '1.51.4';
+export const APP_VERSION_DATE = '04/05/2026 12:38';
 
 export const PATCH_NOTES = [
+  {
+    version: '1.51.4',
+    date: '04/05/2026 12:38',
+    changes: [
+      '[UI] Tela de batalha agora exibe o Level Cap atual (Nv. X) abaixo da localização, visível apenas quando o Level Cap está ativado nas configurações.',
+    ],
+  },
   {
     version: '1.51.3',
     date: '04/05/2026 12:20',
