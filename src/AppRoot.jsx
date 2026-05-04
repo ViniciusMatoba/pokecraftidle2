@@ -612,6 +612,63 @@ export default function App() {
     return levelsSum + (badgeCount * 1000);
   }, [gameState.team, gameState.pc, gameState.house, gameState.expeditions, gameState.regional_teams, gameState.badges, gameState.worldFlags]);
 
+  const createRegionStarter = useCallback((pokemonId, level = 5, region = 'kanto') => {
+    const base = POKEDEX[Number(pokemonId)];
+    if (!base) return null;
+    const moves = (base.learnset || [])
+      .filter(m => m.level <= level)
+      .map(m => {
+        const moveKey = (m.move || '').toLowerCase();
+        const moveData = MOVES[moveKey] || { name: m.move || 'Investida', power: 40, type: 'Normal', category: 'Physical' };
+        return {
+          ...moveData,
+          name: MOVE_TRANSLATIONS?.[moveKey] || moveData.name || m.move,
+          power: moveData.power || 0,
+          type: moveData.type || 'Normal',
+          category: moveData.category || 'Physical',
+        };
+      });
+    const finalMoves = moves.length > 0 ? moves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
+    const maxHp = Math.ceil(((2 * (base.maxHp || base.hp || 30) * level) / 100) + level + 10);
+    return {
+      ...base,
+      id: Number(base.id),
+      level,
+      maxHp,
+      hp: maxHp,
+      xp: 0,
+      moves: finalMoves,
+      learnedMoves: finalMoves,
+      instanceId: Date.now() + Math.random(),
+      status: [],
+      capturedRegion: region,
+      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
+    };
+  }, [POKEDEX, MOVES]);
+
+  const createRivalStarter = (id, level) => {
+    const base = POKEDEX[id];
+    if (!base) return { id, level, hp: 100, maxHp: 100, attack: 10, defense: 10, spAtk: 10, spDef: 10, speed: 10, moves: [], stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }, status: [] };
+    
+    const calcStat = (b, lv) => Math.max(1, Math.ceil(((2 * b * lv) / 100) + 5));
+    const calcHp   = (b, lv) => Math.max(1, Math.ceil(((2 * b * lv) / 100) + lv + 10));
+
+    return { 
+      ...base, 
+      id, 
+      level,
+      maxHp: calcHp(base.hp || base.maxHp || 45, level),
+      hp: calcHp(base.hp || base.maxHp || 45, level),
+      attack:  calcStat(base.attack  || 45, level),
+      defense: calcStat(base.defense || 45, level),
+      spAtk:   calcStat(base.spAtk   || 45, level),
+      spDef:   calcStat(base.spDef   || 45, level),
+      speed:   calcStat(base.speed   || 45, level),
+      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
+      status: []
+    };
+  };
+
   const addLog = useCallback((msg, type = 'default') => {
     setBattleLog(prev => [{ msg: cleanBattleText(msg), type, id: Date.now() + Math.random() }, ...prev].slice(0, 8));
   }, []);
@@ -3256,39 +3313,7 @@ export default function App() {
     setShowHouse(true);
   }, [addLog]);
 
-  const createRegionStarter = useCallback((pokemonId, level = 5, region = 'kanto') => {
-    const base = POKEDEX[Number(pokemonId)];
-    if (!base) return null;
-    const moves = (base.learnset || [])
-      .filter(m => m.level <= level)
-      .map(m => {
-        const moveKey = (m.move || '').toLowerCase();
-        const moveData = MOVES[moveKey] || { name: m.move || 'Investida', power: 40, type: 'Normal', category: 'Physical' };
-        return {
-          ...moveData,
-          name: MOVE_TRANSLATIONS[moveKey] || moveData.name || m.move,
-          power: moveData.power || 0,
-          type: moveData.type || 'Normal',
-          category: moveData.category || 'Physical',
-        };
-      });
-    const finalMoves = moves.length > 0 ? moves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
-    const maxHp = Math.ceil(((2 * (base.maxHp || base.hp || 30) * level) / 100) + level + 10);
-    return {
-      ...base,
-      id: Number(base.id),
-      level,
-      maxHp,
-      hp: maxHp,
-      xp: 0,
-      moves: finalMoves,
-      learnedMoves: finalMoves,
-      instanceId: Date.now() + Math.random(),
-      status: [],
-      capturedRegion: region,
-      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
-    };
-  }, [POKEDEX, MOVES]);
+
 
   const handleStartJohto = useCallback((starterId) => {
     const starter = createRegionStarter(starterId, 5, 'johto');
@@ -3443,29 +3468,6 @@ export default function App() {
       };
     });
   }, [addLog]);
-
-  const createRivalStarter = (id, level) => {
-    const base = POKEDEX[id];
-    if (!base) return { id, level, hp: 100, maxHp: 100, attack: 10, defense: 10, spAtk: 10, spDef: 10, speed: 10, moves: [], stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }, status: [] };
-    
-    const calcStat = (b, lv) => Math.max(1, Math.ceil(((2 * b * lv) / 100) + 5));
-    const calcHp   = (b, lv) => Math.max(1, Math.ceil(((2 * b * lv) / 100) + lv + 10));
-
-    return { 
-      ...base, 
-      id, 
-      level,
-      maxHp: calcHp(base.hp || base.maxHp || 45, level),
-      hp: calcHp(base.hp || base.maxHp || 45, level),
-      attack:  calcStat(base.attack  || 45, level),
-      defense: calcStat(base.defense || 45, level),
-      spAtk:   calcStat(base.spAtk   || 45, level),
-      spDef:   calcStat(base.spDef   || 45, level),
-      speed:   calcStat(base.speed   || 45, level),
-      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
-      status: []
-    };
-  };
 
   const startBattleAgainstRival = useCallback((battleData) => {
     if (battleData && battleData.team) {
