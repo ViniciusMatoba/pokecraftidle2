@@ -122,26 +122,10 @@ const PokemonManagement = ({
     
     // Validação de Acesso Regional
     if (validateTeamAccess && !validateTeamAccess(poke, activeRegion)) {
-      const badges = gameState.badges || [];
-      const targetRegion = (activeRegion || 'kanto').toLowerCase();
-      let regionBadges = [];
-      if (targetRegion === 'kanto') regionBadges = badges.filter(b => BADGE_IDS.includes(b));
-      if (targetRegion === 'johto') regionBadges = badges.filter(b => JOHTO_BADGE_IDS.includes(b));
-      if (targetRegion === 'hoenn') regionBadges = badges.filter(b => HOENN_BADGE_IDS.includes(b));
-      
-      const caps = GYM_LEVEL_CAPS[targetRegion] || {};
-      const capValues = Object.values(caps);
-      const currentCap = capValues[regionBadges.length] || 100;
-
-      let reason = "Este Pokémon não pode ser usado nesta região no momento.";
-      if (poke.level > currentCap) {
-         reason = `Nível muito alto (${poke.level}). Seu limite atual nesta região é Nv. ${currentCap}.`;
-      } else {
-         const id = Number(poke.id);
-         const gen = id <= 151 ? 1 : id <= 251 ? 2 : 3;
-         const origin = (poke.capturedRegion || (gen === 1 ? 'kanto' : gen === 2 ? 'johto' : 'hoenn')).toUpperCase();
-         reason = `Pokémon de regiões anteriores (${origin}) não podem entrar em ${targetRegion.toUpperCase()} até você vencer a Liga.`;
-      }
+      const id = Number(poke.id);
+      const gen = id <= 151 ? 1 : id <= 251 ? 2 : 3;
+      const origin = (poke.capturedRegion || (gen === 1 ? 'kanto' : gen === 2 ? 'johto' : 'hoenn')).toUpperCase();
+      const reason = `Pokémon de regiões anteriores (${origin}) não podem entrar em ${(activeRegion || 'kanto').toUpperCase()} até você vencer a Liga.`;
 
       showConfirm({
         title: 'Acesso Negado',

@@ -372,10 +372,10 @@ export default function App() {
         'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png'
       ],
       sounds: [
-        '/sounds/DERROTA.mp3',
-        '/sounds/NIVEL.mp3',
-        '/sounds/POKE CENTER.mp3',
-        '/sounds/GYM.mp3'
+        '/sounds/derrota.mp3',
+        '/sounds/nivel.mp3',
+        '/sounds/poke-center.mp3',
+        '/sounds/gym.mp3'
       ]
     };
 
@@ -727,21 +727,8 @@ export default function App() {
       if (originLevel < targetLevel) return false;
     }
 
-    // 2. Trava de Nível (Cap)
-    const badges = gameState.badges || [];
-    let regionBadges = [];
-    if (targetKey === 'kanto') regionBadges = badges.filter(b => BADGE_IDS.includes(b));
-    if (targetKey === 'johto') regionBadges = badges.filter(b => JOHTO_BADGE_IDS.includes(b));
-    if (targetKey === 'hoenn') regionBadges = badges.filter(b => HOENN_BADGE_IDS.includes(b));
-    
-    const caps = GYM_LEVEL_CAPS[targetKey] || {};
-    const capValues = Object.values(caps);
-    const currentCap = capValues[regionBadges.length] || 100;
-
-    if (pokemon.level > currentCap) return false;
-
     return true;
-  }, [gameState.worldFlags, gameState.badges]);
+  }, [gameState.worldFlags]);
 
   const switchRegion = useCallback((newRegion) => {
     setGameState(prev => {
@@ -3779,16 +3766,24 @@ export default function App() {
            return p;
         }
 
-        const newXp = (p.xp || 0) + xpToAdd;
-        const n = p.level || 1; const xpNeeded = Math.pow(n + 1, 3) - Math.pow(n, 3);
-        const maxLevel = GYM_LEVEL_CAPS[badgesCount] || 100;
+        const activeRegionForCap = prev.activeRegion || 'kanto';
+        const regionBadgesForCap = (prev.badges || []).filter(b =>
+          activeRegionForCap === 'kanto' ? BADGE_IDS.includes(b) :
+          activeRegionForCap === 'johto' ? JOHTO_BADGE_IDS.includes(b) :
+          HOENN_BADGE_IDS.includes(b)
+        );
+        const regionCapValues = Object.values(GYM_LEVEL_CAPS[activeRegionForCap] || {});
+        const maxLevel = regionCapValues[regionBadgesForCap.length] || 100;
         const isLevelCapped = gameState.settings?.levelCap !== false && (p.level || 5) >= maxLevel;
 
-        if (newXp >= xpNeeded) {
-          if (isLevelCapped) {
-            return { ...p, level: maxLevel, xp: xpNeeded - 1, stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 } };
-          }
+        if (isLevelCapped) {
+          return { ...p, status: (p.status || []).filter(s => s !== 'confuse'), stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 } };
+        }
 
+        const newXp = (p.xp || 0) + xpToAdd;
+        const n = p.level || 1; const xpNeeded = Math.pow(n + 1, 3) - Math.pow(n, 3);
+
+        if (newXp >= xpNeeded) {
           const newLevel = (p.level || 5) + 1;
           addLog(`🎉 ${p.name} subiu para Nv. ${newLevel}!`, 'system');
           notify({ type: 'level_up', title: `${p.name} subiu para Nv.${newLevel}!`, message: 'Continue treinando!', pokemonId: p.id, isShiny: p.isShiny });
