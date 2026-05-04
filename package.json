@@ -1,5 +1,6 @@
 {
   "name": "poke-craft-idle",
+  "version": "1.51.3",
   "private": true,
   "type": "module",
   "scripts": {

@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '../data/candies';
-
-import { GYM_LEVEL_CAPS } from '../data/constants';
+import { GYM_LEVEL_CAPS, BADGE_IDS, JOHTO_BADGE_IDS, HOENN_BADGE_IDS } from '../data/constants';
 
 const PokemonManagement = ({
   gameState,
@@ -123,15 +122,25 @@ const PokemonManagement = ({
     
     // Validação de Acesso Regional
     if (validateTeamAccess && !validateTeamAccess(poke, activeRegion)) {
-      const isChampion = (gameState.worldFlags || []).includes(`region_champion_${activeRegion}`) || 
-                        (activeRegion === 'kanto' && (gameState.worldFlags || []).includes('champion')) ||
-                        (activeRegion === 'johto' && (gameState.worldFlags || []).includes('johto_champion'));
+      const badges = gameState.badges || [];
+      const targetRegion = (activeRegion || 'kanto').toLowerCase();
+      let regionBadges = [];
+      if (targetRegion === 'kanto') regionBadges = badges.filter(b => BADGE_IDS.includes(b));
+      if (targetRegion === 'johto') regionBadges = badges.filter(b => JOHTO_BADGE_IDS.includes(b));
+      if (targetRegion === 'hoenn') regionBadges = badges.filter(b => HOENN_BADGE_IDS.includes(b));
+      
+      const caps = GYM_LEVEL_CAPS[targetRegion] || {};
+      const capValues = Object.values(caps);
+      const currentCap = capValues[regionBadges.length] || 100;
 
       let reason = "Este Pokémon não pode ser usado nesta região no momento.";
-      if (poke.level > (GYM_LEVEL_CAPS[activeRegion]?.[Object.values(GYM_LEVEL_CAPS[activeRegion]).length - 1] || 100)) {
-         reason = "Nível muito alto para o seu limite atual de insígnias.";
-      } else if (poke.capturedRegion && poke.capturedRegion !== activeRegion && !isChampion) {
-         reason = `Este Pokémon foi capturado em ${poke.capturedRegion.toUpperCase()} e você ainda não é campeão de ${activeRegion.toUpperCase()}.`;
+      if (poke.level > currentCap) {
+         reason = `Nível muito alto (${poke.level}). Seu limite atual nesta região é Nv. ${currentCap}.`;
+      } else {
+         const id = Number(poke.id);
+         const gen = id <= 151 ? 1 : id <= 251 ? 2 : 3;
+         const origin = (poke.capturedRegion || (gen === 1 ? 'kanto' : gen === 2 ? 'johto' : 'hoenn')).toUpperCase();
+         reason = `Pokémon de regiões anteriores (${origin}) não podem entrar em ${targetRegion.toUpperCase()} até você vencer a Liga.`;
       }
 
       showConfirm({
@@ -594,8 +603,8 @@ const PokemonManagement = ({
                     <div className={`p-4 rounded-2xl border-2 transition-all shadow-sm ${masteryCount >= 5 ? 'border-pokeBlue bg-blue-50/70' : 'border-blue-100 bg-blue-50/40 opacity-80'}`}>
                       <div className="flex justify-between items-center mb-2">
                         <div>
-                          <h3 className="text-[11px] font-black uppercase text-slate-800">Natureza</h3>
-                          <p className="text-[8px] font-black uppercase tracking-widest text-pokeBlue">Toque para alterar</p>
+                           <h3 className="text-[11px] font-black uppercase text-slate-800">Natureza</h3>
+                           <p className="text-[8px] font-black uppercase tracking-widest text-pokeBlue">Toque para alterar</p>
                         </div>
                         {masteryCount < 5 && <span className="text-[8px] font-bold text-red-500 uppercase">Faltam {5 - masteryCount} capturas</span>}
                       </div>
@@ -715,133 +724,133 @@ const PokemonManagement = ({
 
                       <div className="min-h-0 overflow-y-auto custom-scrollbar space-y-3" style={{ padding: '12px 12px 12px 20px', backgroundColor: '#0f172a' }}>
                         {(() => {
-                          const learned = activePokemonDetails.pokemon.learnedMoves || activePokemonDetails.pokemon.moves || [];
-                          const available = learned.filter(m => !activePokemonDetails.pokemon.moves.some(active => getMoveKey(active) === getMoveKey(m)));
+                           const learned = activePokemonDetails.pokemon.learnedMoves || activePokemonDetails.pokemon.moves || [];
+                           const available = learned.filter(m => !activePokemonDetails.pokemon.moves.some(active => getMoveKey(active) === getMoveKey(m)));
 
-                          // Adiciona opção de reordenar (golpes já ativos)
-                          const currentActive = activePokemonDetails.pokemon.moves;
-                          const rareMoves = (path?.rareMoves || []).map(rm => ({ ...rm, ...getMoveData(rm), name: rm.name }));
+                           // Adiciona opção de reordenar (golpes já ativos)
+                           const currentActive = activePokemonDetails.pokemon.moves;
+                           const rareMoves = (path?.rareMoves || []).map(rm => ({ ...rm, ...getMoveData(rm), name: rm.name }));
 
-                          return (
-                            <>
-                              <div>
-                                <p className="text-[9px] font-black text-pokeBlue uppercase mb-1.5 tracking-widest opacity-80">Reordenar Atuais</p>
-                                <div className="grid grid-cols-1 gap-1.5">
-                                  {currentActive.map((m, i) => {
-                                    const mData = getMoveData(m);
-                                    return (
-                                      <button
-                                        key={`active-${i}`}
-                                        disabled={i === moveSwapMode.activeIdx}
-                                        onClick={() => swapMove(moveSwapMode.activeIdx, m.name)}
-                                        className={`min-h-11 px-3 py-2 rounded-xl border flex items-center justify-between gap-3 transition-all active:scale-[0.98] ${i === moveSwapMode.activeIdx ? 'border-pokeBlue bg-slate-800 opacity-60 grayscale' : 'border-white/10 bg-slate-800/95 hover:bg-slate-700'}`}
-                                        style={{ padding: '8px 12px' }}
-                                      >
-                                        <div className="flex-1 min-w-0 text-left">
-                                          <p className="text-white font-black uppercase text-[10px] leading-tight truncate">{getMoveLabel(m)}</p>
-                                          <div className="flex gap-2 mt-1 opacity-70">
-                                            {mData?.power > 0 ? (
-                                              <span className="text-[7px] font-bold text-slate-300 uppercase">Pwr: {mData.power}</span>
-                                            ) : (mData?.category === 'Physical' || mData?.category === 'Special' || mData?.category === 'physical' || mData?.category === 'special') ? (
-                                              <span className="text-[7px] font-bold text-red-400 uppercase">Dano</span>
-                                            ) : (
-                                              <span className="text-[7px] font-bold text-purple-400 uppercase">Status</span>
-                                            )}
-                                            <span className="text-[7px] font-bold text-slate-300 uppercase">Acc: {mData?.accuracy || '-'}</span>
-                                          </div>
-                                        </div>
-                                        <div className="flex flex-col items-end gap-1 shrink-0">
-                                          <span className="px-2 py-0.5 rounded bg-white/10 text-[7px] font-black text-white uppercase tracking-widest">{mData?.type || '???'}</span>
-                                          <span className="text-slate-500 font-black text-[8px] uppercase">Slot {i + 1}</span>
-                                        </div>
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                              </div>
+                           return (
+                             <>
+                               <div>
+                                 <p className="text-[9px] font-black text-pokeBlue uppercase mb-1.5 tracking-widest opacity-80">Reordenar Atuais</p>
+                                 <div className="grid grid-cols-1 gap-1.5">
+                                   {currentActive.map((m, i) => {
+                                     const mData = getMoveData(m);
+                                     return (
+                                       <button
+                                         key={`active-${i}`}
+                                         disabled={i === moveSwapMode.activeIdx}
+                                         onClick={() => swapMove(moveSwapMode.activeIdx, m.name)}
+                                         className={`min-h-11 px-3 py-2 rounded-xl border flex items-center justify-between gap-3 transition-all active:scale-[0.98] ${i === moveSwapMode.activeIdx ? 'border-pokeBlue bg-slate-800 opacity-60 grayscale' : 'border-white/10 bg-slate-800/95 hover:bg-slate-700'}`}
+                                         style={{ padding: '8px 12px' }}
+                                       >
+                                         <div className="flex-1 min-w-0 text-left">
+                                           <p className="text-white font-black uppercase text-[10px] leading-tight truncate">{getMoveLabel(m)}</p>
+                                           <div className="flex gap-2 mt-1 opacity-70">
+                                             {mData?.power > 0 ? (
+                                               <span className="text-[7px] font-bold text-slate-300 uppercase">Pwr: {mData.power}</span>
+                                             ) : (mData?.category === 'Physical' || mData?.category === 'Special' || mData?.category === 'physical' || mData?.category === 'special') ? (
+                                               <span className="text-[7px] font-bold text-red-400 uppercase">Dano</span>
+                                             ) : (
+                                               <span className="text-[7px] font-bold text-purple-400 uppercase">Status</span>
+                                             )}
+                                             <span className="text-[7px] font-bold text-slate-300 uppercase">Acc: {mData?.accuracy || '-'}</span>
+                                           </div>
+                                         </div>
+                                         <div className="flex flex-col items-end gap-1 shrink-0">
+                                           <span className="px-2 py-0.5 rounded bg-white/10 text-[7px] font-black text-white uppercase tracking-widest">{mData?.type || '???'}</span>
+                                           <span className="text-slate-500 font-black text-[8px] uppercase">Slot {i + 1}</span>
+                                         </div>
+                                       </button>
+                                     );
+                                   })}
+                                 </div>
+                               </div>
 
-                              <div>
-                                <p className="text-[9px] font-black text-pokeGold uppercase mb-1.5 tracking-widest opacity-80">Golpes Aprendidos</p>
-                                {available.length === 0 ? (
-                                  <p className="text-slate-500 text-[10px] font-bold italic py-2">Nenhum golpe adicional disponível...</p>
-                                ) : (
-                                  <div className="grid grid-cols-1 gap-1.5">
-                                    {available.map((m, i) => {
-                                      const mData = getMoveData(m);
-                                      return (
-                                        <button
-                                          key={`learned-${i}`}
-                                          onClick={() => swapMove(moveSwapMode.activeIdx, m.name)}
-                                          className="min-h-11 px-3 py-2 rounded-xl border border-white/10 bg-slate-800/95 hover:bg-slate-700 hover:border-pokeGold/30 transition-all active:scale-[0.98] flex items-center gap-3 text-left group"
-                                          style={{ padding: '8px 12px' }}
-                                        >
-                                          <div className="w-1.5 h-1.5 rounded-full" style={{ background: typeColorMap[mData?.type] || '#64748b' }}></div>
-                                          <div className="flex-1 min-w-0">
-                                            <p className="text-white font-black uppercase text-[10px] leading-tight">{getMoveLabel(m)}</p>
-                                            <div className="flex gap-3 mt-1 opacity-60">
-                                              {mData?.power > 0 ? (
-                                                <span className="text-[7px] font-bold text-slate-300 uppercase">Pwr: {mData.power}</span>
-                                              ) : (mData?.category === 'Physical' || mData?.category === 'Special' || mData?.category === 'physical' || mData?.category === 'special') ? (
-                                                <span className="text-[7px] font-bold text-red-400 uppercase">Dano</span>
-                                              ) : (
-                                                <span className="text-[7px] font-bold text-purple-400 uppercase">Status</span>
-                                              )}
-                                              <span className="text-[7px] font-bold text-slate-300 uppercase">Acc: {mData?.accuracy || '-'}</span>
-                                            </div>
-                                          </div>
-                                          <div className="px-2 py-0.5 rounded bg-white/10 text-[7px] font-black text-white uppercase tracking-widest shrink-0">{mData?.type || '???'}</div>
-                                        </button>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-                              </div>
+                               <div>
+                                 <p className="text-[9px] font-black text-pokeGold uppercase mb-1.5 tracking-widest opacity-80">Golpes Aprendidos</p>
+                                 {available.length === 0 ? (
+                                   <p className="text-slate-500 text-[10px] font-bold italic py-2">Nenhum golpe adicional disponível...</p>
+                                 ) : (
+                                   <div className="grid grid-cols-1 gap-1.5">
+                                     {available.map((m, i) => {
+                                       const mData = getMoveData(m);
+                                       return (
+                                         <button
+                                           key={`learned-${i}`}
+                                           onClick={() => swapMove(moveSwapMode.activeIdx, m.name)}
+                                           className="min-h-11 px-3 py-2 rounded-xl border border-white/10 bg-slate-800/95 hover:bg-slate-700 hover:border-pokeGold/30 transition-all active:scale-[0.98] flex items-center gap-3 text-left group"
+                                           style={{ padding: '8px 12px' }}
+                                         >
+                                           <div className="w-1.5 h-1.5 rounded-full" style={{ background: typeColorMap[mData?.type] || '#64748b' }}></div>
+                                           <div className="flex-1 min-w-0">
+                                             <p className="text-white font-black uppercase text-[10px] leading-tight">{getMoveLabel(m)}</p>
+                                             <div className="flex gap-3 mt-1 opacity-60">
+                                               {mData?.power > 0 ? (
+                                                 <span className="text-[7px] font-bold text-slate-300 uppercase">Pwr: {mData.power}</span>
+                                               ) : (mData?.category === 'Physical' || mData?.category === 'Special' || mData?.category === 'physical' || mData?.category === 'special') ? (
+                                                 <span className="text-[7px] font-bold text-red-400 uppercase">Dano</span>
+                                               ) : (
+                                                 <span className="text-[7px] font-bold text-purple-400 uppercase">Status</span>
+                                               )}
+                                               <span className="text-[7px] font-bold text-slate-300 uppercase">Acc: {mData?.accuracy || '-'}</span>
+                                             </div>
+                                           </div>
+                                           <div className="px-2 py-0.5 rounded bg-white/10 text-[7px] font-black text-white uppercase tracking-widest shrink-0">{mData?.type || '???'}</div>
+                                         </button>
+                                       );
+                                     })}
+                                   </div>
+                                 )}
+                               </div>
 
-                              <div>
-                                <p className="text-[9px] font-black text-amber-300 uppercase mb-1.5 tracking-widest opacity-90">Ataques Raros</p>
-                                {rareMoves.length === 0 ? (
-                                  <p className="text-slate-500 text-[10px] font-bold italic py-2">Nenhum ataque raro catalogado.</p>
-                                ) : (
-                                  <div className="grid grid-cols-1 gap-1.5">
-                                    {rareMoves.map((rm, i) => {
-                                      const isUnlocked = masteryCount >= rm.level;
-                                      const isEquipped = activePokemonDetails.pokemon.moves.some(active => getMoveKey(active) === getMoveKey(rm));
-                                      return (
-                                        <button
-                                          key={`rare-${i}`}
-                                          disabled={!isUnlocked || isEquipped}
-                                          onClick={() => equipRareMove(rm)}
-                                          className={`min-h-11 rounded-xl border flex items-center gap-3 text-left transition-all active:scale-[0.98] ${isEquipped ? 'border-amber-300/60 bg-amber-400/15' : isUnlocked ? 'border-amber-300/30 bg-slate-800/95 hover:bg-slate-700' : 'border-white/10 bg-slate-800/50 opacity-60 grayscale'}`}
-                                          style={{ padding: '8px 12px' }}
-                                        >
-                                          <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: typeColorMap[rm?.type] || '#facc15' }}></div>
-                                          <div className="flex-1 min-w-0">
-                                            <p className="text-white font-black uppercase text-[10px] leading-tight truncate">{getMoveLabel(rm)}</p>
-                                            <div className="flex gap-3 mt-1 opacity-70">
-                                              {rm?.power > 0 ? (
-                                                <span className="text-[7px] font-bold text-slate-300 uppercase">Pwr: {rm.power}</span>
-                                              ) : (rm?.category === 'Physical' || rm?.category === 'Special' || rm?.category === 'physical' || rm?.category === 'special') ? (
-                                                <span className="text-[7px] font-bold text-red-400 uppercase">Dano</span>
-                                              ) : (
-                                                <span className="text-[7px] font-bold text-purple-400 uppercase">Status</span>
-                                              )}
-                                              <span className="text-[7px] font-bold text-slate-300 uppercase">Acc: {rm?.accuracy || '-'}</span>
-                                            </div>
-                                          </div>
-                                          <div className="flex flex-col items-end gap-1 shrink-0">
-                                            <span className="px-2 py-0.5 rounded bg-white/10 text-[7px] font-black text-white uppercase tracking-widest">{rm?.type || '???'}</span>
-                                            <span className="text-[7px] font-black uppercase text-slate-400">
-                                              {isEquipped ? 'Equipado' : isUnlocked ? 'Equipar' : `Faltam ${rm.level - masteryCount}`}
-                                            </span>
-                                          </div>
-                                        </button>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-                              </div>
-                            </>
-                          );
+                               <div>
+                                 <p className="text-[9px] font-black text-amber-300 uppercase mb-1.5 tracking-widest opacity-90">Ataques Raros</p>
+                                 {rareMoves.length === 0 ? (
+                                   <p className="text-slate-500 text-[10px] font-bold italic py-2">Nenhum ataque raro catalogado.</p>
+                                 ) : (
+                                   <div className="grid grid-cols-1 gap-1.5">
+                                     {rareMoves.map((rm, i) => {
+                                       const isUnlocked = masteryCount >= rm.level;
+                                       const isEquipped = activePokemonDetails.pokemon.moves.some(active => getMoveKey(active) === getMoveKey(rm));
+                                       return (
+                                         <button
+                                           key={`rare-${i}`}
+                                           disabled={!isUnlocked || isEquipped}
+                                           onClick={() => equipRareMove(rm)}
+                                           className={`min-h-11 rounded-xl border flex items-center gap-3 text-left transition-all active:scale-[0.98] ${isEquipped ? 'border-amber-300/60 bg-amber-400/15' : isUnlocked ? 'border-amber-300/30 bg-slate-800/95 hover:bg-slate-700' : 'border-white/10 bg-slate-800/50 opacity-60 grayscale'}`}
+                                           style={{ padding: '8px 12px' }}
+                                         >
+                                           <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: typeColorMap[rm?.type] || '#facc15' }}></div>
+                                           <div className="flex-1 min-w-0">
+                                             <p className="text-white font-black uppercase text-[10px] leading-tight truncate">{getMoveLabel(rm)}</p>
+                                             <div className="flex gap-3 mt-1 opacity-70">
+                                               {rm?.power > 0 ? (
+                                                 <span className="text-[7px] font-bold text-slate-300 uppercase">Pwr: {rm.power}</span>
+                                               ) : (rm?.category === 'Physical' || rm?.category === 'Special' || rm?.category === 'physical' || rm?.category === 'special') ? (
+                                                 <span className="text-[7px] font-bold text-red-400 uppercase">Dano</span>
+                                               ) : (
+                                                 <span className="text-[7px] font-bold text-purple-400 uppercase">Status</span>
+                                               )}
+                                               <span className="text-[7px] font-bold text-slate-300 uppercase">Acc: {rm?.accuracy || '-'}</span>
+                                             </div>
+                                           </div>
+                                           <div className="flex flex-col items-end gap-1 shrink-0">
+                                             <span className="px-2 py-0.5 rounded bg-white/10 text-[7px] font-black text-white uppercase tracking-widest">{rm?.type || '???'}</span>
+                                             <span className="text-[7px] font-black uppercase text-slate-400">
+                                               {isEquipped ? 'Equipado' : isUnlocked ? 'Equipar' : `Faltam ${rm.level - masteryCount}`}
+                                             </span>
+                                           </div>
+                                         </button>
+                                       );
+                                     })}
+                                   </div>
+                                 )}
+                               </div>
+                             </>
+                           );
                         })()}
                       </div>
 
@@ -881,7 +890,7 @@ const PokemonManagement = ({
                                  <p className="text-[11px] font-black text-slate-800 uppercase text-left">Evolução por Pedra</p>
                                  <p className="text-[9px] font-bold text-slate-500 text-left">Requer: {stoneNames[stoneEvol] || stoneEvol}</p>
                                </div>
-                              {hasStone && pokeData?.evolution?.id <= 386 && (
+                               {hasStone && pokeData?.evolution?.id <= 386 && (
                                  <button onClick={() => useStoneEvolution(stoneEvol)} className="bg-amber-500 text-white font-black text-[10px] px-4 py-2 rounded-xl shadow-lg uppercase">Evoluir!</button>
                                )}
                              </div>

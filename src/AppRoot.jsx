@@ -704,9 +704,11 @@ export default function App() {
     if (!pokemon) return false;
     
     const worldFlags = gameState.worldFlags || [];
-    const isChampion = worldFlags.includes(`region_champion_${targetRegion}`) || 
-                      (targetRegion === 'kanto' && worldFlags.includes('champion')) ||
-                      (targetRegion === 'johto' && worldFlags.includes('johto_champion'));
+    const targetKey = (targetRegion || '').toLowerCase();
+    
+    const isChampion = worldFlags.includes(`region_champion_${targetKey}`) || 
+                      (targetKey === 'kanto' && worldFlags.includes('champion')) ||
+                      (targetKey === 'johto' && worldFlags.includes('johto_champion'));
     
     if (isChampion) return true;
 
@@ -714,24 +716,25 @@ export default function App() {
     const id = Number(pokemon.id);
     const pokemonGen = id <= 151 ? 1 : id <= 251 ? 2 : 3;
     
-    // Determina a região de origem: prioriza capturedRegion, cai para geração se ausente
-    const originRegion = pokemon.capturedRegion || (pokemonGen === 1 ? 'kanto' : pokemonGen === 2 ? 'johto' : 'hoenn');
+    const pRegion = (pokemon.capturedRegion || '').toLowerCase();
+    const originRegion = pRegion || (pokemonGen === 1 ? 'kanto' : pokemonGen === 2 ? 'johto' : 'hoenn');
     
-    const originLevel = REGION_ORDER[originRegion] || 1;
-    const targetLevel = REGION_ORDER[targetRegion] || 1;
-
-    // Regra: Pokémon de regiões MAIS RECENTES podem ir para ANTERIORES.
-    // Pokémon de regiões ANTERIORES NÃO podem ir para RECENTES.
-    if (originLevel < targetLevel) return false;
+    // Regra: Pokémon da MESMA região ou de regiões MAIS RECENTES podem ser usados.
+    // Bloqueia APENAS se o Pokémon for de uma região ANTERIOR à atual.
+    if (originRegion !== targetKey) {
+      const originLevel = REGION_ORDER[originRegion] || 1;
+      const targetLevel = REGION_ORDER[targetKey] || 1;
+      if (originLevel < targetLevel) return false;
+    }
 
     // 2. Trava de Nível (Cap)
     const badges = gameState.badges || [];
     let regionBadges = [];
-    if (targetRegion === 'kanto') regionBadges = badges.filter(b => BADGE_IDS.includes(b));
-    if (targetRegion === 'johto') regionBadges = badges.filter(b => JOHTO_BADGE_IDS.includes(b));
-    if (targetRegion === 'hoenn') regionBadges = badges.filter(b => HOENN_BADGE_IDS.includes(b));
+    if (targetKey === 'kanto') regionBadges = badges.filter(b => BADGE_IDS.includes(b));
+    if (targetKey === 'johto') regionBadges = badges.filter(b => JOHTO_BADGE_IDS.includes(b));
+    if (targetKey === 'hoenn') regionBadges = badges.filter(b => HOENN_BADGE_IDS.includes(b));
     
-    const caps = GYM_LEVEL_CAPS[targetRegion] || {};
+    const caps = GYM_LEVEL_CAPS[targetKey] || {};
     const capValues = Object.values(caps);
     const currentCap = capValues[regionBadges.length] || 100;
 
