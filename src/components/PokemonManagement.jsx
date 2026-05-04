@@ -47,7 +47,7 @@ const PokemonManagement = ({
 
   const normalizeMoveText = (value) => String(value || '')
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[u0300-u036f]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
@@ -84,10 +84,9 @@ const PokemonManagement = ({
   const getPokemonRegion = (pokemon) => {
     if (pokemon?.capturedRegion) return pokemon.capturedRegion;
     const id = Number(pokemon?.id || 0);
-    if (id >= 1 && id <= 151) return 'kanto';
-    if (id >= 152 && id <= 251) return 'johto';
-    if (id >= 252 && id <= 386) return 'hoenn';
-    return 'unknown';
+    if (id <= 151) return 'kanto';
+    if (id <= 251) return 'johto';
+    if (id <= 386) return 'hoenn'; if (id <= 493) return 'sinnoh'; return 'unknown';
   };
 
   const moveToPC = (index) => {
@@ -849,8 +848,8 @@ const PokemonManagement = ({
                     const poke = activePokemonDetails.pokemon;
                     const pokeData = POKEDEX[poke.id];
                     const stoneEvol = pokeData?.evolution?.item;
-                    const stoneNames = { thunder_stone: 'Thunder Stone', moon_stone: 'Moon Stone', link_cable: 'Link Cable', fire_stone: 'Fire Stone', water_stone: 'Water Stone', leaf_stone: 'Leaf Stone' };
-                    const stoneIcons = {
+                    const stoneNames = { shiny_stone: 'Shiny Stone', dusk_stone: 'Dusk Stone', dawn_stone: 'Dawn Stone', thunder_stone: 'Thunder Stone', moon_stone: 'Moon Stone', link_cable: 'Link Cable', fire_stone: 'Fire Stone', water_stone: 'Water Stone', leaf_stone: 'Leaf Stone' };
+                    const stoneIcons = { shiny_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/shiny-stone.png', dusk_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dusk-stone.png', dawn_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dawn-stone.png',
                       thunder_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
                       moon_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png',
                       link_cable: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/up-grade.png',
@@ -873,13 +872,13 @@ const PokemonManagement = ({
                                  <p className="text-[11px] font-black text-slate-800 uppercase text-left">Evolução por Pedra</p>
                                  <p className="text-[9px] font-bold text-slate-500 text-left">Requer: {stoneNames[stoneEvol] || stoneEvol}</p>
                                </div>
-                               {hasStone && pokeData?.evolution?.id <= 386 && (
+                               {hasStone && true && (
                                  <button onClick={() => useStoneEvolution(stoneEvol)} className="bg-amber-500 text-white font-black text-[10px] px-4 py-2 rounded-xl shadow-lg uppercase">Evoluir!</button>
                                )}
                              </div>
                           </div>
                         )}
-                        {pokeData?.evolution && pokeData.evolution.id <= 386 ? (
+                        {pokeData?.evolution && true ? (
                           <div className="bg-slate-50 p-4 rounded-2xl border-2 border-slate-100">
                              <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
@@ -946,3 +945,12 @@ const PokemonManagement = ({
 };
 
 export default PokemonManagement;
+
+
+
+
+
+
+
+
+

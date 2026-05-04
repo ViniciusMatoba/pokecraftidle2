@@ -78,6 +78,8 @@ const TravelScreen = ({
   const johtoStarted = worldFlags.includes('johto_started');
   const hoennStarted = worldFlags.includes('hoenn_started');
   const hoennUnlocked = kantoChampion || hoennStarted || worldFlags.includes('johto_champion');
+  const sinnohStarted = worldFlags.includes('sinnoh_started');
+  const sinnohUnlocked = worldFlags.includes('hoenn_champion') || sinnohStarted;
   const getRouteRegionId = (route) => inferRouteRegion(route?.id, route?.group).id;
   const isJohtoRoute = (route) => getRouteRegionId(route) === 'johto';
   const isHoennRoute = (route) => getRouteRegionId(route) === 'hoenn';
@@ -89,6 +91,7 @@ const TravelScreen = ({
       if (routeRegionTab === 'kanto' && route._region.id !== 'kanto') return false;
       if (routeRegionTab === 'johto' && route._region.id !== 'johto') return false;
       if (routeRegionTab === 'hoenn' && route._region.id !== 'hoenn') return false;
+      if (routeRegionTab === 'sinnoh' && route._region.id !== 'sinnoh') return false;
       return true;
     });
   }, [sortedRoutes, routeRegionTab]);
@@ -96,6 +99,7 @@ const TravelScreen = ({
   React.useEffect(() => {
     if (!kantoChampion && routeRegionTab === 'johto') setRouteRegionTab('kanto');
     if (!hoennUnlocked && routeRegionTab === 'hoenn') setRouteRegionTab('kanto');
+    if (!sinnohUnlocked && routeRegionTab === 'sinnoh') setRouteRegionTab('kanto');
   }, [kantoChampion, hoennUnlocked, routeRegionTab]);
 
   React.useEffect(() => {
@@ -383,15 +387,17 @@ const TravelScreen = ({
          <h2 className="text-xl font-black text-slate-800 uppercase italic">Mapa da Região</h2>
          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Clique para ver detalhes ou viajar</p>
          {kantoChampion && (
-           <div className="grid grid-cols-3 gap-2 mt-4">
+           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
              {[
                { id: 'kanto', label: 'Kanto' },
                { id: 'johto', label: 'Johto' },
                { id: 'hoenn', label: 'Hoenn' },
+               { id: 'sinnoh', label: 'Sinnoh' },
              ].filter(tab => {
                if (tab.id === 'kanto') return true;
                if (tab.id === 'johto') return kantoChampion;
                if (tab.id === 'hoenn') return hoennUnlocked;
+               if (tab.id === 'sinnoh') return sinnohUnlocked;
                return false;
              }).map(tab => (
                <button

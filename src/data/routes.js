@@ -29,6 +29,7 @@ export const inferRouteRegion = (routeId, routeGroup) => {
   const str = `${routeId} ${routeGroup || ''}`.toLowerCase();
   if (str.includes('hoenn') || str.includes('littleroot') || str.includes('route_101') || str.includes('route_102') || str.includes('oldale') || str.includes('petalburg') || str.includes('rustboro') || str.includes('dewford') || str.includes('granite_cave') || str.includes('slateport') || str.includes('mauville') || str.includes('route_110') || str.includes('route_111') || str.includes('route_113') || str.includes('fiery_path') || str.includes('fallarbor') || str.includes('meteor_falls') || str.includes('mt_chimney') || str.includes('lavaridge') || str.includes('fortree') || str.includes('lilycove') || str.includes('mt_pyre') || str.includes('ocean_routes') || str.includes('mossdeep') || str.includes('seafloor') || str.includes('sootopolis') || str.includes('cave_of_origin') || str.includes('sky_pillar') || str.includes('pacifidlog') || str.includes('ever_grande') || str.includes('victory_road_hoenn') || str.includes('route_116') || str.includes('rusturf') || str.includes('route_104') || str.includes('route_118') || str.includes('route_120')) return { id: 'hoenn', order: 3 };
   if (str.includes('johto') || str.includes('bark') || str.includes('cherrygrove') || str.includes('violet') || str.includes('azalea') || str.includes('goldenrod') || str.includes('ecruteak') || str.includes('olivine') || str.includes('cianwood') || str.includes('mahogany') || str.includes('blackthorn') || str.includes('mt_silver') || str.includes('silver') || str.includes('sprout') || str.includes('ilex') || str.includes('slowpoke') || str.includes('union_cave') || str.includes('national_park') || str.includes('burned_tower') || str.includes('lake_of_rage') || str.includes('ice_path') || str.includes('dragons_den') || str.includes('johto_victory')) return { id: 'johto', order: 2 };
+  if (str.includes('sinnoh') || str.includes('twinleaf') || str.includes('sandgem') || str.includes('jubilife') || str.includes('oreburgh') || str.includes('floaroma') || str.includes('eterna') || str.includes('hearthome') || str.includes('solaceon') || str.includes('veilstone') || str.includes('pastoria') || str.includes('celestic') || str.includes('canalave') || str.includes('snowpoint') || str.includes('sunyshore') || str.includes('coronet') || str.includes('victory_road_sinnoh') || str.includes('lake_verity') || str.includes('lake_valor') || str.includes('lake_acuity')) return { id: 'sinnoh', order: 4 };
   return { id: 'kanto', order: 1 };
 };
 
@@ -76,6 +77,16 @@ const GROUP_ORDER = {
     'Hoenn Ever Grande',
     'Hoenn Liga',
     'Hoenn Pos-Game',
+  ],
+  sinnoh: [
+    'Sinnoh Inicio',
+    'Sinnoh Oreburgh',
+    'Sinnoh Eterna',
+    'Sinnoh Hearthome',
+    'Sinnoh Veilstone',
+    'Sinnoh Pastoria',
+    'Sinnoh Snowpoint',
+    'Sinnoh Liga',
   ],
 };
 
@@ -1733,5 +1744,171 @@ export const ROUTES = {
     ],
     background: '/bg_route201.png',
     description: 'Caminho para Jubilife City.',
+  },
+  sandgem_town: {
+    id: 'sandgem_town', name: 'Sandgem Town', type: 'city', group: 'Sinnoh Inicio',
+    unlockLevel: 2, requirements: ['sinnoh_started'],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: '/bg_sandgem.png',
+    description: 'Vila costeira onde fica o laboratorio do Prof. Rowan.',
+  },
+  route_203: {
+    id: 'route_203', name: 'Rota 203', type: 'farm', group: 'Sinnoh Oreburgh',
+    unlockLevel: 5, requirements: ['sinnoh_started'],
+    biome: 'grass',
+    enemies: pkRange([396, 399, 403, 401, 63], 6, 10),
+    trainerChance: 0.06,
+    trainers: [
+      { name: 'Youngster Michael', sprite: S.youngster, team: pk([396, 401], 8), reward: 400 },
+    ],
+    background: '/bg_route202.png',
+    description: 'Caminho curto que liga Jubilife a Oreburgh.',
+  },
+  oreburgh_gate: {
+    id: 'oreburgh_gate', name: 'Oreburgh Gate', type: 'farm', group: 'Sinnoh Oreburgh',
+    unlockLevel: 7, requirements: ['sinnoh_started'],
+    biome: 'cave',
+    enemies: pkRange([74, 41, 399], 8, 12),
+    trainerChance: 0.05,
+    trainers: [
+      { name: 'Camper Curtis', sprite: S.youngster, team: pk([74], 10), reward: 500 },
+    ],
+    background: '/bg_oreburgh_gate.png',
+    description: 'Uma caverna que serve de passagem para a cidade mineira.',
+  },
+  oreburgh_city: {
+    id: 'oreburgh_city', name: 'Oreburgh City', type: 'city', group: 'Sinnoh Oreburgh',
+    unlockLevel: 10, requirements: ['sinnoh_started'],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: '/bg_oreburgh.png',
+    description: 'Cidade construida sobre uma mina de carvao.',
+  },
+  route_204: {
+    id: 'route_204', name: 'Rota 204', type: 'farm', group: 'Sinnoh Eterna',
+    unlockLevel: 12, requirements: ['coal_badge'],
+    biome: 'grass',
+    enemies: pkRange([401, 403, 406, 10, 13], 10, 15),
+    trainerChance: 0.05,
+    trainers: [
+      { name: 'Lass Sarah', sprite: S.lass, team: pk([406, 10], 12), reward: 600 },
+    ],
+    background: '/bg_route201.png',
+    description: 'Rota dividida por uma passagem rochosa (Ravaged Path).',
+  },
+  floaroma_town: {
+    id: 'floaroma_town', name: 'Floaroma Town', type: 'city', group: 'Sinnoh Eterna',
+    unlockLevel: 14, requirements: ['coal_badge'],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: '/bg_floaroma.png',
+    description: 'Um campo de flores coloridas com um aroma doce.',
+  },
+  eterna_forest: {
+    id: 'eterna_forest', name: 'Eterna Forest', type: 'farm', group: 'Sinnoh Eterna',
+    unlockLevel: 18, requirements: ['coal_badge'],
+    biome: 'forest',
+    enemies: pkRange([427, 412, 420, 265, 267], 15, 20),
+    trainerChance: 0.07,
+    trainers: [
+      { name: 'Team Galactic Grunt', sprite: S.rocket, team: pk([434, 41], 18), reward: 1000 },
+    ],
+    background: '/bg_eterna_forest.png',
+    description: 'Floresta densa envolta em misterio e lendas.',
+  },
+  eterna_city: {
+    id: 'eterna_city', name: 'Eterna City', type: 'city', group: 'Sinnoh Eterna',
+    unlockLevel: 20, requirements: ['coal_badge'],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: '/bg_eterna.png',
+    description: 'Cidade que valoriza a historia e o tempo.',
+  },
+  route_206: {
+    id: 'route_206', name: 'Rota 206', type: 'farm', group: 'Sinnoh Hearthome',
+    unlockLevel: 24, requirements: ['forest_badge'],
+    biome: 'grass',
+    enemies: pkRange([431, 434, 436, 403], 22, 28),
+    trainerChance: 0.05,
+    trainers: [
+      { name: 'Cyclist John', sprite: S.youngster, team: pk([431], 25), reward: 800 },
+    ],
+    background: '/bg_route202.png',
+    description: 'A Estrada de Ciclismo de Sinnoh.',
+  },
+  hearthome_city: {
+    id: 'hearthome_city', name: 'Hearthome City', type: 'city', group: 'Sinnoh Hearthome',
+    unlockLevel: 28, requirements: ['forest_badge'],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: '/bg_hearthome.png',
+    description: 'A cidade mais bonita de Sinnoh, lar do Amity Square.',
+  },
+  route_210: {
+    id: 'route_210', name: 'Rota 210', type: 'farm', group: 'Sinnoh Veilstone',
+    unlockLevel: 32, requirements: ['relic_badge'],
+    biome: 'grass',
+    enemies: pkRange([440, 441, 415, 412], 28, 35),
+    trainerChance: 0.05,
+    trainers: [],
+    background: '/bg_route201.png',
+    description: 'Uma rota longa dividida em duas secoes.',
+  },
+  veilstone_city: {
+    id: 'veilstone_city', name: 'Veilstone City', type: 'city', group: 'Sinnoh Veilstone',
+    unlockLevel: 35, requirements: ['relic_badge'],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: '/bg_jubilife.png',
+    description: 'Cidade esculpida em pedra, sede da Equipe Galactic.',
+  },
+  pastoria_city: {
+    id: 'pastoria_city', name: 'Pastoria City', type: 'city', group: 'Sinnoh Pastoria',
+    unlockLevel: 40, requirements: ['cobble_badge'],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: '/bg_pastoria.png',
+    description: 'Cidade pantanosa famosa pelo Great Marsh.',
+  },
+  great_marsh: {
+    id: 'great_marsh', name: 'Great Marsh', type: 'farm', group: 'Sinnoh Pastoria',
+    unlockLevel: 42, requirements: ['cobble_badge'],
+    biome: 'water',
+    enemies: pkRange([451, 453, 418, 419, 194, 195], 38, 45),
+    trainerChance: 0,
+    trainers: [],
+    background: '/bg_pastoria.png',
+    description: 'Uma vasta reserva natural de Pokemons aquaticos e venenosos.',
+  },
+  route_216: {
+    id: 'route_216', name: 'Rota 216', type: 'farm', group: 'Sinnoh Snowpoint',
+    unlockLevel: 60, requirements: ['mine_badge'],
+    biome: 'mountain',
+    enemies: pkRange([459, 460, 215, 216, 473], 55, 65),
+    trainerChance: 0.06,
+    trainers: [],
+    background: '/bg_snowpoint.png',
+    description: 'Uma rota gelada onde a neve cai incessantemente.',
+  },
+  snowpoint_city: {
+    id: 'snowpoint_city', name: 'Snowpoint City', type: 'city', group: 'Sinnoh Snowpoint',
+    unlockLevel: 65, requirements: ['mine_badge'],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: '/bg_snowpoint.png',
+    description: 'Uma cidade remota e gelada no extremo norte.',
+  },
+  victory_road_sinnoh: {
+    id: 'victory_road_sinnoh', name: 'Victory Road Sinnoh', type: 'farm', group: 'Sinnoh Liga',
+    unlockLevel: 85, requirements: ['beacon_badge'],
+    biome: 'cave',
+    enemies: pkRange([445, 448, 462, 464, 466, 467], 80, 95),
+    trainerChance: 0.08,
+    trainers: [
+      { name: 'Ace Trainer Olivia', sprite: S.aceF, team: pk([445, 448], 85), reward: 5000 },
+    ],
+    background: '/bg_victory_road_sinnoh.png',
+    description: 'O caminho final para a elite de Sinnoh.',
+  },
+  pokemon_league_sinnoh: {
+    id: 'pokemon_league_sinnoh', name: 'Liga de Sinnoh', type: 'city', group: 'Sinnoh Liga',
+    unlockLevel: 90, requirements: ['beacon_badge'],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: '/bg_sinnoh_league.png',
+    description: 'Onde os melhores treinadores se enfrentam.',
   }
+
 };

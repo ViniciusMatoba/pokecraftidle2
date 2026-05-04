@@ -30,6 +30,7 @@ export const NATURES = {
 export const BADGE_IDS = ['boulder_badge', 'cascade_badge', 'thunder_badge', 'rainbow_badge', 'soul_badge', 'marsh_badge', 'volcano_badge', 'earth_badge'];
 export const JOHTO_BADGE_IDS = ['zephyr_badge', 'hive_badge', 'plain_badge', 'fog_badge', 'storm_badge', 'mineral_badge', 'glacier_badge', 'rising_badge'];
 export const HOENN_BADGE_IDS = ['stone_badge', 'knuckle_badge', 'dynamo_badge', 'heat_badge', 'balance_badge', 'feather_badge', 'mind_badge', 'rain_badge'];
+export const SINNOH_BADGE_IDS = ['coal_badge', 'forest_badge', 'cobble_badge', 'fen_badge', 'relic_badge', 'mine_badge', 'icicle_badge', 'beacon_badge'];
 
 export const GYM_LEVEL_CAPS = {
   kanto: {
@@ -43,6 +44,10 @@ export const GYM_LEVEL_CAPS = {
   hoenn: {
     stone_badge: 18, knuckle_badge: 25, dynamo_badge: 35, heat_badge: 48,
     balance_badge: 60, feather_badge: 72, mind_badge: 84, rain_badge: 94, hoenn_champion: 100
+  },
+  sinnoh: {
+    coal_badge: 14, forest_badge: 22, cobble_badge: 32, fen_badge: 40,
+    relic_badge: 50, mine_badge: 62, icicle_badge: 75, beacon_badge: 88, sinnoh_champion: 100
   }
 };
 
@@ -50,6 +55,7 @@ export const getRegionBadgeIds = (region = 'kanto') => {
   const key = String(region || 'kanto').toLowerCase();
   if (key === 'johto') return JOHTO_BADGE_IDS;
   if (key === 'hoenn') return HOENN_BADGE_IDS;
+  if (key === 'sinnoh') return SINNOH_BADGE_IDS;
   return BADGE_IDS;
 };
 
@@ -102,7 +108,8 @@ export const DEFAULT_GAME_STATE = {
   regional_teams: {
     kanto: [],
     johto: [],
-    hoenn: []
+    hoenn: [],
+    sinnoh: []
   },
   activeRegion: 'kanto',
   currentRoute: 'pallet_town',
@@ -143,7 +150,8 @@ export const DEFAULT_GAME_STATE = {
   selectedStarters: {
     kanto: null,
     johto: null,
-    hoenn: null
+    hoenn: null,
+    sinnoh: null
   }
 };
 
@@ -246,7 +254,6 @@ export const ITEM_LABELS = {
   potion:            { icon: '🧪', name: 'Poção' },
   link_cable:        { icon: '🔌', name: 'Link Cable' }
 };
-
 
 export const STAMINA_RESTORE_TABLE = {
   // Berries (source: materials)
