@@ -78,8 +78,14 @@ const BOSS_ATTEMPT_DURATION_SECONDS = 120;
 const BOSS_DAMAGE_SAVE_DEBOUNCE_MS = 15000;
 
 const normalizeInventory = (inventory = {}) => {
-  const materials = { ...DEFAULT_GAME_STATE.inventory.materials, ...(inventory.materials || {}) };
-  const candies = { ...(inventory.candies || {}) };
+  const inv = inventory || {};
+  const materials = { 
+    ...DEFAULT_GAME_STATE.inventory.materials, 
+    ...(typeof inv.materials === 'object' && inv.materials !== null ? inv.materials : {}) 
+  };
+  const candies = { 
+    ...(typeof inv.candies === 'object' && inv.candies !== null ? inv.candies : {}) 
+  };
 
   Object.keys(materials).forEach((key) => {
     if (!key.includes('_candy')) return;
@@ -89,9 +95,12 @@ const normalizeInventory = (inventory = {}) => {
 
   return {
     ...DEFAULT_GAME_STATE.inventory,
-    ...inventory,
+    ...inv,
     materials,
-    items: { ...DEFAULT_GAME_STATE.inventory.items, ...(inventory.items || {}) },
+    items: { 
+      ...DEFAULT_GAME_STATE.inventory.items, 
+      ...(typeof inv.items === 'object' && inv.items !== null ? inv.items : {}) 
+    },
     candies,
   };
 };
@@ -310,13 +319,19 @@ export default function App() {
         const savedData = await loadGameState(u.uid);
         if (savedData) {
           // Migração de dados para evitar crashes com saves antigos
+          // Sanitização de regional_teams
+          let regional_teams = savedData.regional_teams || savedData.regionalTeams;
+          if (!regional_teams || typeof regional_teams !== 'object' || Array.isArray(regional_teams)) {
+            regional_teams = DEFAULT_GAME_STATE.regional_teams;
+          }
+
           const migratedData = {
             ...DEFAULT_GAME_STATE,
             ...savedData,
             inventory: {
               ...normalizeInventory(savedData.inventory || {})
             },
-            regional_teams: savedData.regional_teams || savedData.regionalTeams || DEFAULT_GAME_STATE.regional_teams,
+            regional_teams,
             worldFlags: savedData.worldFlags || [],
             badges: savedData.badges || [],
             pc: savedData.pc || [],
@@ -695,19 +710,19 @@ export default function App() {
     
     if (isChampion) return true;
 
-    // 1. Isolamento Regional e de Geração
+    const REGION_ORDER = { kanto: 1, johto: 2, hoenn: 3 };
     const id = Number(pokemon.id);
     const pokemonGen = id <= 151 ? 1 : id <= 251 ? 2 : 3;
-    const regionGens = { kanto: [1], johto: [1, 2], hoenn: [3] }; // Hoenn isolada até champion
     
-    // Se não for campeão da região ativa, só pode usar Pokémon daquela região/geração permitida
-    if (targetRegion === 'hoenn') {
-      if (pokemonGen !== 3) return false;
-    } else if (targetRegion === 'johto') {
-      if (pokemonGen > 2) return false;
-    } else if (targetRegion === 'kanto') {
-      if (pokemonGen > 1) return false;
-    }
+    // Determina a região de origem: prioriza capturedRegion, cai para geração se ausente
+    const originRegion = pokemon.capturedRegion || (pokemonGen === 1 ? 'kanto' : pokemonGen === 2 ? 'johto' : 'hoenn');
+    
+    const originLevel = REGION_ORDER[originRegion] || 1;
+    const targetLevel = REGION_ORDER[targetRegion] || 1;
+
+    // Regra: Pokémon de regiões MAIS RECENTES podem ir para ANTERIORES.
+    // Pokémon de regiões ANTERIORES NÃO podem ir para RECENTES.
+    if (originLevel < targetLevel) return false;
 
     // 2. Trava de Nível (Cap)
     const badges = gameState.badges || [];
@@ -4638,7 +4653,7 @@ export default function App() {
       );
     }
       case 'rival_post_battle': {
-        const route = processedRoutes[gameState.currentRoute] || ROUTES[gameState.currentRoute];
+        const route = processedRoutes[gameState.currentRoute] || ROUTES[gameState.currentRoute] || { name: 'Local Desconhecido' };
         return (
           <div
             className="relative h-full flex flex-col items-center justify-center overflow-hidden"
@@ -4673,7 +4688,7 @@ export default function App() {
                <div className="absolute top-2 left-2 z-30 flex items-center gap-2 px-2 py-1 bg-black/40 backdrop-blur-sm rounded-lg border border-white/10 shadow-lg animate-fadeIn pointer-events-none">
         <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
         <span className="text-[9px] font-black uppercase tracking-widest text-white/70">Localização:</span>
-        <span className="text-[10px] font-black uppercase tracking-tighter text-white">{route.name}</span>
+        <span className="text-[10px] font-black uppercase tracking-tighter text-white">{route?.name || 'Local Desconhecido'}</span>
       </div><p style={{
                 fontSize: '11px', fontWeight: 900,
                 color: '#dc2626',
