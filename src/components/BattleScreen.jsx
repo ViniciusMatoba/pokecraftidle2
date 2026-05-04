@@ -5,7 +5,7 @@ import ActiveEffectsBar from './ActiveEffectsBar';
 import { MOVES } from '../data/moves';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { TIME_CONFIG } from '../utils/timeSystem';
-import { GYM_LEVEL_CAPS, BADGE_IDS, JOHTO_BADGE_IDS, HOENN_BADGE_IDS } from '../data/constants';
+import { getCurrentLevelCap } from '../data/constants';
 
 const BattleScreen = ({ 
   currentEnemy, gameState, activeMemberIndex, moveIndex, weather,
@@ -132,14 +132,7 @@ const BattleScreen = ({
           </div>
           {(() => {
             if (gameState.settings?.levelCap === false) return null;
-            const activeRegion = (gameState.activeRegion || 'kanto').toLowerCase();
-            const badges = gameState.badges || [];
-            const regionBadges =
-              activeRegion === 'kanto' ? badges.filter(b => BADGE_IDS.includes(b)) :
-              activeRegion === 'johto' ? badges.filter(b => JOHTO_BADGE_IDS.includes(b)) :
-              badges.filter(b => HOENN_BADGE_IDS.includes(b));
-            const capValues = Object.values(GYM_LEVEL_CAPS[activeRegion] || {});
-            const currentCap = capValues[regionBadges.length] || 100;
+            const currentCap = getCurrentLevelCap(gameState);
             return (
               <div className="flex items-center gap-1.5 pl-3.5">
                 <span className="text-[9px] font-black uppercase tracking-widest text-amber-500">⚡ Level Cap:</span>

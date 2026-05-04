@@ -31,10 +31,10 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { monitorAuthState } from './auth';
 import { 
-  APP_VERSION, APP_VERSION_DATE, DEFAULT_GAME_STATE, GYM_LEVEL_CAPS, 
+  APP_VERSION, APP_VERSION_DATE, DEFAULT_GAME_STATE, 
   NATURE_LIST, NATURES, TYPE_COLORS, trainerAvatars, ITEM_LABELS,
   STAMINA_RESTORE_TABLE, POKE_MART_DRINKS,
-  BADGE_IDS, JOHTO_BADGE_IDS, HOENN_BADGE_IDS
+  BADGE_IDS, JOHTO_BADGE_IDS, HOENN_BADGE_IDS, getCurrentLevelCap, getRegionBadgeCount
 } from './data/constants';
 import { getMasteryPath, getEffectiveStat } from './utils/gameHelpers';
 import { getTypeEffectiveness } from './data/typeChart';
@@ -277,6 +277,8 @@ const FORGE_CATEGORY_LABELS = {
 
 const getForgeCategoryLabel = (category) => FORGE_CATEGORY_LABELS[category] || category.replace(/_/g, ' ');
 
+const TRAINER_REWARD_MULTIPLIER = 0.4;
+
 const MUSIC_LIST = [
   { id: 'all', name: 'Tocar Todas (Shuffle)' },
   { id: 'league_night', name: 'League Night', url: './sounds/51383504-feora-lucas-cooper-pokemon-league-night-pokemon-diamond-410587.mp3' },
@@ -439,6 +441,7 @@ export default function App() {
   const [showHouse, setShowHouse] = useState(false);
   const [showOakHouseModal, setShowOakHouseModal] = useState(false);
   const [showOakStaminaModal, setShowOakStaminaModal] = useState(false);
+  const [showBallForgeTutorial, setShowBallForgeTutorial] = useState(false);
   const [showKantoChampionModal, setShowKantoChampionModal] = useState(false);
   const [showHoennUnlockModal, setShowHoennUnlockModal] = useState(false);
   const [previewStarter, setPreviewStarter] = useState(null);
@@ -1552,7 +1555,7 @@ export default function App() {
     const messages = [];
 
     // Moedas base
-    let coinAmount = Math.max(1, Math.floor(getBattleLevel(enemy, 5) * 1.5 * (enemy.isShiny ? 2 : 1)));
+    let coinAmount = Math.max(1, Math.floor(getBattleLevel(enemy, 5) * 0.5 * (enemy.isShiny ? 1.5 : 1)));
     
     // Efeitos especiais de dano
     const now = Date.now();
@@ -1635,7 +1638,11 @@ export default function App() {
       // Aqui determinamos se o drop antigo é material ou item (maioria é material)
       const materialList = [
         'iron_ore', 'apricorn', 'electric_chip', 'moon_stone_shard', 'pink_dust', 'gold_nugget', 'silk', 'feather',
-        'fire_stone_shard', 'water_stone_shard', 'leaf_stone_shard', 'thunder_stone_shard', 'link_cable_part'
+        'mystic_dust', 'normal_essence', 'fire_essence', 'water_essence', 'grass_essence', 'electric_essence',
+        'ice_essence', 'fighting_essence', 'poison_essence', 'ground_essence', 'flying_essence', 'psychic_essence',
+        'bug_essence', 'rock_essence', 'ghost_essence', 'dragon_essence', 'steel_essence', 'dark_essence',
+        'fairy_essence', 'fire_stone_shard', 'water_stone_shard', 'leaf_stone_shard', 'thunder_stone_shard',
+        'link_cable_part'
       ];
       const dropData = ITEM_LABELS[enemy.drop] || { icon: '📦', name: enemy.drop.toUpperCase() };
       if (materialList.includes(enemy.drop)) {
@@ -1646,14 +1653,8 @@ export default function App() {
       messages.push(`${dropData.icon} 1x ${dropData.name}`);
     }
 
-    // 4. Poké Ball Drop Chance (20% chance)
-    if (Math.random() < 0.07) {
-      drops.items.pokeballs = (drops.items.pokeballs || 0) + 1;
-      messages.push(`+1 Poke Bola`);
-    }
-
     return { drops, messages };
-  }, []);
+  }, [activeMemberIndex, gameState.activeEffects, gameState.speciesMastery, gameState.team]);
 
   // SPAWN
   const handleAcceptQuest = useCallback((quest) => {
@@ -3331,6 +3332,21 @@ export default function App() {
       setShowHoennUnlockModal(true);
     }
   }, [gameState.worldFlags, currentView]);
+
+  useEffect(() => {
+    const flags = gameState.worldFlags || [];
+    if (gameState.currentRoute === 'viridian_forest' && !flags.includes('ball_forge_tutorial_shown')) {
+      setShowBallForgeTutorial(true);
+    }
+  }, [gameState.currentRoute, gameState.worldFlags]);
+
+  const closeBallForgeTutorial = useCallback(() => {
+    setShowBallForgeTutorial(false);
+    setGameState(prev => ({
+      ...prev,
+      worldFlags: [...(prev.worldFlags || []), 'ball_forge_tutorial_shown'].filter((v, i, a) => a.indexOf(v) === i),
+    }));
+  }, []);
   // ————————————————————————————————————————————————————————————
 
   // Comprar a casa
@@ -3424,14 +3440,21 @@ export default function App() {
         addLog(`💰 Coins insuficientes para plantar ${plant.name}!`, 'system');
         return prev;
       }
+      if ((prev.inventory?.items?.[plant.seed] || 0) <= 0) {
+        addLog(`Sem semente de ${plant.name} para plantar!`, 'system');
+        return prev;
+      }
 
       const newSlots = [...(prev.house?.slots || [])];
       newSlots[slotIndex] = { plantId, plantedAt: Date.now(), growthTime };
+      const newItems = { ...(prev.inventory?.items || {}) };
+      newItems[plant.seed] = Math.max(0, (newItems[plant.seed] || 0) - 1);
 
       addLog(`🌱 ${plant.name} plantado! Pronto em ${Math.floor(growthTime / 60000)} min.`, 'system');
       return {
         ...prev,
         currency: prev.currency - plant.cost,
+        inventory: { ...prev.inventory, items: newItems },
         house: { ...prev.house, slots: newSlots },
       };
     });
@@ -3693,6 +3716,10 @@ export default function App() {
     // Vitória! O som de GYM tocará apenas se ganhar insígnia
 
     const { drops, messages } = processDrops(currentEnemy);
+    const trainerReward = currentEnemy.trainerReward || 0;
+    const adjustedTrainerReward = currentEnemy.isTrainer && trainerReward > 0
+      ? Math.max(1, Math.floor(trainerReward * TRAINER_REWARD_MULTIPLIER))
+      : 0;
     // ⛏️” PROTECTED: Fórmula XP — NíO ALTERAR DIVISOR SEM AUTORIZAÇíO
     const enemyBattleLevel = getBattleLevel(currentEnemy, 1);
     const baseXpGain = Math.floor((enemyBattleLevel * 1.5 * (POKEDEX[Number(currentEnemy.id)]?.baseXp || 50)) / 7);
@@ -3777,13 +3804,7 @@ export default function App() {
 
       const finalBadges = newBadges; // Para facilitar uso abaixo
       const activeRegionForExp = prev.activeRegion || 'kanto';
-      const regionalBadges = finalBadges.filter(b => 
-        activeRegionForExp === 'kanto' ? BADGE_IDS.includes(b) :
-        activeRegionForExp === 'johto' ? JOHTO_BADGE_IDS.includes(b) :
-        activeRegionForExp === 'hoenn' ? HOENN_BADGE_IDS.includes(b) :
-        false
-      );
-      const badgesCount = regionalBadges.length;
+      const badgesCount = getRegionBadgeCount({ badges: finalBadges, worldFlags: newFlags }, activeRegionForExp);
 
       const now = Date.now();
       const effects = prev.activeEffects || {};
@@ -3839,14 +3860,7 @@ export default function App() {
            return p;
         }
 
-        const activeRegionForCap = prev.activeRegion || 'kanto';
-        const regionBadgesForCap = (prev.badges || []).filter(b =>
-          activeRegionForCap === 'kanto' ? BADGE_IDS.includes(b) :
-          activeRegionForCap === 'johto' ? JOHTO_BADGE_IDS.includes(b) :
-          HOENN_BADGE_IDS.includes(b)
-        );
-        const regionCapValues = Object.values(GYM_LEVEL_CAPS[activeRegionForCap] || {});
-        const maxLevel = regionCapValues[regionBadgesForCap.length] || 100;
+        const maxLevel = getCurrentLevelCap(prev);
         const isLevelCapped = gameState.settings?.levelCap !== false && (p.level || 5) >= maxLevel;
 
         if (isLevelCapped) {
@@ -3917,7 +3931,7 @@ export default function App() {
 
       return {
         ...prev,
-        currency: (prev.currency || 0) + (drops.currency || 0) + (currentEnemy.trainerReward || 0),
+        currency: (prev.currency || 0) + (drops.currency || 0) + adjustedTrainerReward,
         inventory: newInventory,
         team: newTeam,
         worldFlags: [...newFlags, ...tempWorldFlags].filter((v, i, a) => a.indexOf(v) === i),
@@ -3927,14 +3941,14 @@ export default function App() {
     });
 
     messages.forEach(m => addLog(m, 'drop'));
-    if (currentEnemy.isTrainer && currentEnemy.trainerReward) {
-      addLog(` 🏆 ${currentEnemy.trainerName} derrotado! +${currentEnemy.trainerReward} coins`, 'system');
+    if (currentEnemy.isTrainer && adjustedTrainerReward) {
+      addLog(` 🏆 ${currentEnemy.trainerName} derrotado! +${adjustedTrainerReward} coins`, 'system');
     }
     if (currentEnemy.isRocket) addLog('🚀 Grunt da Equipe Rocket derrotado!', 'system');
     if (currentEnemy.isShiny) addLog('✨ Pokémon shiny derrotado!', 'system');
 
     sessionRef.current.kills += 1;
-    sessionRef.current.coins += (drops.currency || 0) + (currentEnemy.trainerReward || 0);
+    sessionRef.current.coins += (drops.currency || 0) + adjustedTrainerReward;
     if (currentEnemy.isTrainer) sessionRef.current.trainers += 1;
     if (currentEnemy.isShiny) sessionRef.current.shinyKills += 1;
 
@@ -6416,11 +6430,11 @@ export default function App() {
 
                    <div className="flex flex-col gap-3 overflow-y-auto pr-1 custom-scrollbar flex-1 pb-4">
                       {[
-                        { id: 'pokeballs', name: 'Poke Bola', price: 200, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', desc: 'Captura Pokemon selvagens', availableFrom: null },
+                        { id: 'pokeballs', name: 'Poke Bola', price: 600, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', desc: 'Captura Pokemon selvagens', availableFrom: null },
                         { id: 'potions', name: 'Pocao', price: 300, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png', desc: 'Restaura 20 HP', availableFrom: null },
-                        { id: 'great_ball', name: 'Great Ball', price: 600, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png', desc: 'Melhor chance de captura', availableFrom: 'boulder_badge' },
+                        { id: 'great_ball', name: 'Great Ball', price: 2500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png', desc: 'Melhor chance de captura', availableFrom: 'cascade_badge' },
                         { id: 'revive', name: 'Revive', price: 1500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', desc: 'Revive Pokemon desmaiado', availableFrom: 'cascade_badge' },
-                        { id: 'ultra_ball', name: 'Ultra Ball', price: 1200, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png', desc: 'Alta chance de captura', availableFrom: 'thunder_badge' },
+                        { id: 'ultra_ball', name: 'Ultra Ball', price: 6500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png', desc: 'Alta chance de captura', availableFrom: 'soul_badge' },
                         ...POKE_MART_DRINKS.map(d => ({ ...d, desc: d.description }))
                       ].filter(item => isMartItemUnlocked(gameState, item.id)).map(item => {
                         const maxQty = Math.floor(gameState.currency / item.price);
@@ -6673,6 +6687,14 @@ export default function App() {
                     {(() => {
                        switch(activeMaterialModal) {
                           case 'currency': return 'Obtido derrotando Pokemon em qualquer rota ou vendendo itens raros.';
+                          case 'apricorn': return 'Dropado nas primeiras rotas de Kanto, principalmente Rota 1, Rota 22 e Floresta de Viridian.';
+                          case 'blue_apricorn': return 'Colhido ao plantar sementes de Apricorn Azul. As sementes aparecem melhor no meio do jogo.';
+                          case 'black_apricorn': return 'Colhido ao plantar sementes de Apricorn Preto. As sementes aparecem em rotas finais e Victory Road.';
+                          case 'green_apricorn': return 'Colhido ao plantar sementes de Apricorn Verde. Procure sementes na Floresta de Viridian e rotas naturais.';
+                          case 'red_apricorn': return 'Colhido ao plantar sementes de Apricorn Vermelho. Procure sementes em rotas abertas do inicio e meio do jogo.';
+                          case 'white_apricorn': return 'Colhido ao plantar sementes de Apricorn Branco. Procure sementes em rotas rapidas e eletricas no meio do jogo.';
+                          case 'yellow_apricorn': return 'Colhido ao plantar sementes de Apricorn Amarelo. Procure sementes em cavernas e areas especiais mais avancadas.';
+                          case 'pink_apricorn': return 'Colhido ao plantar sementes de Apricorn Rosa. Procure sementes raras em rotas floridas e de fada.';
                           case 'normal_essence': return 'Dropado por Pokemon tipo NORMAL, como Pidgey e Rattata, em rotas iniciais.';
                           case 'fire_essence': return 'Dropado por Pokemon tipo FOGO. Procure em areas vulcanicas ou rotas com Charmander.';
                           case 'water_essence': return 'Dropado por Pokemon tipo AGUA em rios, lagos, mares e rotas aquaticas.';
@@ -6701,6 +6723,68 @@ export default function App() {
                  <button onClick={() => setActiveMaterialModal(null)} className="w-full min-h-[52px] bg-slate-800 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg">Entendido</button>
               </div>
            </div>
+        </div>
+      )}
+      {showBallForgeTutorial && (
+        <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-[520px] max-h-[90dvh] bg-white rounded-3xl shadow-2xl border-b-[8px] border-orange-600 overflow-hidden flex flex-col">
+            <div className="bg-orange-500 px-6 py-5 flex items-center gap-4 shrink-0">
+              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-12 h-12 bg-white/20 rounded-2xl p-2" alt="" />
+              <div className="min-w-0">
+                <p className="text-white/75 text-[10px] font-black uppercase tracking-widest">Floresta de Viridian</p>
+                <h3 className="text-white text-xl font-black uppercase italic leading-tight">Forja de Poke Bolas</h3>
+              </div>
+            </div>
+
+            <div className="p-5 overflow-y-auto custom-scrollbar flex flex-col gap-4">
+              <p className="text-sm font-bold text-slate-600 leading-relaxed">
+                Poke Bolas agora dependem de Apricorns, essencias e materiais de rota. As primeiras rotas sustentam a Poke Ball comum; materiais melhores aparecem conforme a jornada avanca.
+              </p>
+
+              <div className="overflow-hidden rounded-2xl border-2 border-slate-100">
+                <table className="w-full text-left text-[11px]">
+                  <thead className="bg-slate-100 text-slate-500 uppercase font-black">
+                    <tr>
+                      <th className="p-3">Bola</th>
+                      <th className="p-3">Materiais</th>
+                      <th className="p-3">Onde buscar</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-bold text-slate-700">
+                    <tr>
+                      <td className="p-3">Poke Ball</td>
+                      <td className="p-3">Apricorn comum + Essencia Normal</td>
+                      <td className="p-3">Rota 1, Rota 22 e Floresta</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3">Great Ball</td>
+                      <td className="p-3">Apricorn Azul + Ferro + Essencia Normal</td>
+                      <td className="p-3">meio de Kanto, tuneis e rotas abertas</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3">Ultra Ball</td>
+                      <td className="p-3">Apricorn Preto + Ferro + Po Mistico</td>
+                      <td className="p-3">fim de Kanto e Victory Road</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3">Especiais</td>
+                      <td className="p-3">Apricorns coloridos plantados na Casa</td>
+                      <td className="p-3">sementes raras em rotas especificas</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="px-5 pb-6 pt-2 shrink-0">
+              <button
+                onClick={closeBallForgeTutorial}
+                className="w-full min-h-[54px] bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg"
+              >
+                Entendi, vou forjar
+              </button>
+            </div>
+          </div>
         </div>
       )}
       <EvolutionScreen 

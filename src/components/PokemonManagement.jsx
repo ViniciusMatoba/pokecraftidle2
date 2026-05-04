@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '../data/candies';
-import { GYM_LEVEL_CAPS, BADGE_IDS, JOHTO_BADGE_IDS, HOENN_BADGE_IDS } from '../data/constants';
 
 const PokemonManagement = ({
   gameState,

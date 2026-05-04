@@ -1,5 +1,16 @@
 # Changelog - PokeCraft
 
+## [V1.52.2] - 04/05/2026 17:19
+### Balanceamento
+- **Economia de captura**: Reduzidas as moedas obtidas em batalhas selvagens e contra treinadores para tornar Poke Bolas mais valiosas.
+- **Drops de Poke Bola**: Removido o drop direto e global de Poke Bolas nas rotas de farm.
+- **Progressao de materiais**: Apricorn comum e sementes simples agora aparecem nas primeiras rotas; materiais de Great Ball aparecem no meio do jogo; materiais de Ultra Ball aparecem nas rotas finais.
+
+### Crafting e Casa
+- **Receitas de Balls**: Poke Ball, Great Ball, Ultra Ball e Balls especiais agora usam Apricorns, essencias e materiais coerentes com a progressao.
+- **Plantio de Apricorns**: Plantar agora consome a semente usada, evitando multiplicacao infinita de Apricorns raros.
+- **Tutorial da Floresta de Viridian**: Adicionada janela explicando a forja de Poke Bolas com tabela de materiais e locais de obtencao.
+
 ## [V1.45.1] - 30/04/2026 11:54
 ### Adicionado
 - **PWA Android Fix**: Reestruturação completa do Service Worker com Cache-First para ativos estáticos e Network-First para APIs.

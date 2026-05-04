@@ -1,8 +1,20 @@
-export const APP_VERSION = '1.52.1';
-export const VERSION = '1.52.1';
-export const APP_VERSION_DATE = '04/05/2026 15:53';
+export const APP_VERSION = '1.52.2';
+export const VERSION = '1.52.2';
+export const APP_VERSION_DATE = '04/05/2026 17:19';
 
 export const PATCH_NOTES = [
+  {
+    version: '1.52.2',
+    date: '04/05/2026 17:19',
+    changes: [
+      '[BALANCE] Economia de captura: Recompensas de moedas em batalhas selvagens e contra treinadores foram reduzidas para tornar Poke Bolas mais valiosas.',
+      '[BALANCE] Poke Bolas nao dropam mais diretamente em todas as rotas; a progressao agora depende de Apricorns, essencias e materiais de forja.',
+      '[CRAFT] Receitas atualizadas: Poke Ball usa Apricorn comum, Great Ball usa Apricorn Azul + Ferro e Ultra Ball usa Apricorn Preto + Ferro + Po Mistico.',
+      '[PROGRESSION] Drops de Apricorns e sementes distribuidos por fase: primeiras rotas para Poke Ball, meio do jogo para Great Ball e rotas finais para Ultra Ball.',
+      '[HOUSE] Plantio agora consome a semente usada, evitando multiplicacao infinita de Apricorns raros.',
+      '[TUTORIAL] Adicionado tutorial na primeira entrada da Floresta de Viridian com tabela de materiais para forjar Poke Bolas.',
+    ],
+  },
   {
     version: '1.52.1',
     date: '04/05/2026 15:53',

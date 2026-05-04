@@ -1,8 +1,8 @@
 export const CRAFTING_RECIPES = {
   consumables: [
-    { id: 'pokeballs', name: 'Poké Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', cost: { normal_essence: 10, currency: 100 }, type: 'ball' },
-    { id: 'great_ball', name: 'Great Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png', cost: { iron_ore: 5, normal_essence: 20, currency: 400 }, type: 'ball' },
-    { id: 'ultra_ball', name: 'Ultra Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png', cost: { mystic_dust: 5, iron_ore: 10, currency: 1200 }, type: 'ball' },
+    { id: 'pokeballs', name: 'Poke Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', cost: { apricorn: 3, normal_essence: 4, currency: 25 }, type: 'ball' },
+    { id: 'great_ball', name: 'Great Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png', cost: { blue_apricorn: 2, iron_ore: 3, normal_essence: 8, currency: 100 }, type: 'ball' },
+    { id: 'ultra_ball', name: 'Ultra Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png', cost: { black_apricorn: 2, iron_ore: 8, mystic_dust: 3, currency: 250 }, type: 'ball' },
     { id: 'revive', name: 'Revive', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', cost: { grass_essence: 15, ghost_essence: 5, currency: 500 }, type: 'healing' },
     { id: 'max_repel', name: 'Max Repel', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-repel.png', cost: { poison_essence: 20, psychic_essence: 5, currency: 300 }, type: 'utility' },
     { id: 'fire_stone', name: 'Fire Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png', cost: { fire_stone_shard: 5, fire_essence: 20, currency: 2500 }, type: 'evolution' },
@@ -238,7 +238,7 @@ export const CRAFTING_RECIPES = {
       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lure-ball.png',
       description: 'Taxa de captura 3x para Pokémon encontrados pescando com varas.',
       effect: { type: 'ball', catchMult: 3.0, condition: 'fishing' },
-      cost: { apricorn: 3, water_essence: 5, currency: 800 },
+      cost: { blue_apricorn: 3, water_essence: 5, currency: 150 },
       type: 'ball',
     },
     {
@@ -247,7 +247,7 @@ export const CRAFTING_RECIPES = {
       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-ball.png',
       description: 'Taxa de captura 4x para Pokémon que evoluem com Pedra da Lua (Clefairy, Jigglypuff, Nidoran).',
       effect: { type: 'ball', catchMult: 4.0, condition: 'moon_stone_evolver' },
-      cost: { moon_stone_shard: 3, pink_dust: 5, currency: 1200 },
+      cost: { yellow_apricorn: 3, moon_stone_shard: 2, pink_dust: 3, currency: 200 },
       type: 'ball',
     },
     {
@@ -256,7 +256,7 @@ export const CRAFTING_RECIPES = {
       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/friend-ball.png',
       description: 'O Pokémon capturado começa com alta amizade. XP bônus de +20%.',
       effect: { type: 'ball', catchMult: 1.0, xpBonus: 0.20 },
-      cost: { grass_essence: 10, normal_essence: 10, apricorn: 5, currency: 1000 },
+      cost: { green_apricorn: 3, grass_essence: 8, normal_essence: 5, currency: 150 },
       type: 'ball',
     },
     {
@@ -265,7 +265,7 @@ export const CRAFTING_RECIPES = {
       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/heavy-ball.png',
       description: 'Taxa de captura aumenta quanto mais pesado o Pokémon. Ótima para Snorlax, Onix e Golem.',
       effect: { type: 'ball', catchMult: 2.5, condition: 'heavy_pokemon' },
-      cost: { rock_essence: 10, iron_ore: 15, currency: 1500 },
+      cost: { black_apricorn: 3, rock_essence: 8, iron_ore: 6, currency: 200 },
       type: 'ball',
     },
     {
@@ -274,10 +274,10 @@ export const CRAFTING_RECIPES = {
       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fast-ball.png',
       description: 'Taxa de captura 4x para Pokémon rápidos (Speed > 100). Ótima para Pidgeot, Alakazam e Jolteon.',
       effect: { type: 'ball', catchMult: 4.0, condition: 'fast_pokemon' },
-      cost: { electric_essence: 8, flying_essence: 8, apricorn: 5, currency: 1200 },
+      cost: { white_apricorn: 3, electric_essence: 6, flying_essence: 6, currency: 200 },
       type: 'ball',
     },
-    { id: 'level_ball', name: 'Level Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/level-ball.png', description: 'Taxa de captura até 8x quando seu nível é muito maior que o do inimigo.', effect: { type: 'ball', catchMult: 'level_diff' }, cost: { normal_essence: 15, apricorn: 8, currency: 1000 }, type: 'ball' }
+    { id: 'level_ball', name: 'Level Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/level-ball.png', description: 'Taxa de captura até 8x quando seu nível é muito maior que o do inimigo.', effect: { type: 'ball', catchMult: 'level_diff' }, cost: { red_apricorn: 3, normal_essence: 10, currency: 180 }, type: 'ball' }
   ],
 
   food: [

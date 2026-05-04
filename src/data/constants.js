@@ -33,17 +33,37 @@ export const HOENN_BADGE_IDS = ['stone_badge', 'knuckle_badge', 'dynamo_badge', 
 
 export const GYM_LEVEL_CAPS = {
   kanto: {
-    boulder_badge: 14, cascade_badge: 21, thunder_badge: 24, rainbow_badge: 32,
-    soul_badge: 43, marsh_badge: 43, volcano_badge: 50, earth_badge: 55, champion: 65
+    boulder_badge: 14, cascade_badge: 21, thunder_badge: 30, rainbow_badge: 44,
+    soul_badge: 51, marsh_badge: 56, volcano_badge: 58, earth_badge: 60, champion: 68
   },
   johto: {
-    zephyr_badge: 15, hive_badge: 20, plain_badge: 25, fog_badge: 30,
-    storm_badge: 35, mineral_badge: 40, glacier_badge: 45, rising_badge: 50, johto_champion: 65
+    zephyr_badge: 16, hive_badge: 25, plain_badge: 36, fog_badge: 48,
+    storm_badge: 60, mineral_badge: 72, glacier_badge: 80, rising_badge: 86, johto_champion: 100
   },
   hoenn: {
-    stone_badge: 15, knuckle_badge: 19, dynamo_badge: 24, heat_badge: 29,
-    balance_badge: 31, feather_badge: 33, mind_badge: 42, rain_badge: 55, hoenn_champion: 70
+    stone_badge: 18, knuckle_badge: 25, dynamo_badge: 35, heat_badge: 48,
+    balance_badge: 60, feather_badge: 72, mind_badge: 84, rain_badge: 94, hoenn_champion: 100
   }
+};
+
+export const getRegionBadgeIds = (region = 'kanto') => {
+  const key = String(region || 'kanto').toLowerCase();
+  if (key === 'johto') return JOHTO_BADGE_IDS;
+  if (key === 'hoenn') return HOENN_BADGE_IDS;
+  return BADGE_IDS;
+};
+
+export const getRegionBadgeCount = (gameState = {}, region = 'kanto') => {
+  const badgeIds = getRegionBadgeIds(region);
+  const earned = new Set([...(gameState.badges || []), ...(gameState.worldFlags || [])]);
+  return badgeIds.filter(id => earned.has(id)).length;
+};
+
+export const getCurrentLevelCap = (gameState = {}, region = gameState.activeRegion || 'kanto') => {
+  const key = String(region || 'kanto').toLowerCase();
+  const capValues = Object.values(GYM_LEVEL_CAPS[key] || GYM_LEVEL_CAPS.kanto);
+  const badgeCount = getRegionBadgeCount(gameState, key);
+  return capValues[badgeCount] || 100;
 };
 
 export const trainerAvatars = [
@@ -70,6 +90,8 @@ export const DEFAULT_GAME_STATE = {
       ground_essence: 0, flying_essence: 0, psychic_essence: 0, bug_essence: 0,
       rock_essence: 0, ghost_essence: 0, dragon_essence: 0, steel_essence: 0,
       fairy_essence: 0, dark_essence: 0, mystic_dust: 0, iron_ore: 0,
+      apricorn: 0, black_apricorn: 0, blue_apricorn: 0, green_apricorn: 0,
+      pink_apricorn: 0, red_apricorn: 0, white_apricorn: 0, yellow_apricorn: 0,
       armor_fragment: 0, fury_essence: 0, dragon_scale: 0, stardust: 0
     },
     items: { pokeballs: 5, potions: 2 },
@@ -130,6 +152,13 @@ export const ITEM_LABELS = {
   silk: { icon: '🧵', name: 'Seda' },
   feather: { icon: '🪶', name: 'Pena' },
   apricorn: { icon: '🌰', name: 'Apricorn' },
+  black_apricorn: { icon: 'BK', name: 'Apricorn Preto' },
+  blue_apricorn: { icon: 'BL', name: 'Apricorn Azul' },
+  green_apricorn: { icon: 'GR', name: 'Apricorn Verde' },
+  pink_apricorn: { icon: 'PK', name: 'Apricorn Rosa' },
+  red_apricorn: { icon: 'RD', name: 'Apricorn Vermelho' },
+  white_apricorn: { icon: 'WT', name: 'Apricorn Branco' },
+  yellow_apricorn: { icon: 'YL', name: 'Apricorn Amarelo' },
   electric_chip: { icon: '⚡', name: 'Chip Elétrico' },
   moon_stone_shard: { icon: '🌙', name: 'Fragmento de Lua' },
   fire_stone_shard: { icon: '*', name: 'Fragmento de Fogo' },

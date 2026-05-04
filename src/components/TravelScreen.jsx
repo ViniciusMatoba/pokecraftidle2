@@ -153,6 +153,14 @@ const TravelScreen = ({
       'pokeballs': 'poke-ball',
       'great_ball': 'great-ball',
       'ultra_ball': 'ultra-ball',
+      'apricorn': 'red-apricorn',
+      'black_apricorn': 'black-apricorn',
+      'blue_apricorn': 'blue-apricorn',
+      'green_apricorn': 'green-apricorn',
+      'pink_apricorn': 'pink-apricorn',
+      'red_apricorn': 'red-apricorn',
+      'white_apricorn': 'white-apricorn',
+      'yellow_apricorn': 'yellow-apricorn',
       'normal_essence': 'silk-scarf',
       'fire_essence': 'fire-stone',
       'water_essence': 'water-stone',
@@ -193,12 +201,6 @@ const TravelScreen = ({
   const getRouteDrops = (route) => {
     if (!route || !route.enemies) return [];
     const drops = new Set();
-    
-    // Pokéballs drop em todas as rotas de farm agora
-    if (route.type === 'farm') {
-      drops.add('pokeballs');
-    }
-
     route.enemies.forEach(e => {
       if (e.drop) drops.add(e.drop);
       if (EVOLUTION_FRAGMENT_DROPS[Number(e.id)]) drops.add(EVOLUTION_FRAGMENT_DROPS[Number(e.id)]);
