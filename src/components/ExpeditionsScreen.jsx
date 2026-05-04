@@ -3,6 +3,7 @@ import {
   EXPEDITION_BIOMES,
   calcExpeditionEfficiency,
   calcExpeditionDuration,
+  isExpeditionUnlocked,
 } from '../data/expeditions';
 
 const MAX_EXPEDITION_TEAM = 3;
@@ -71,8 +72,7 @@ const ExpeditionsScreen = ({
   const pcBox = gameState.pc || [];
 
   const isUnlocked = (biome) => {
-    if (!biome.requires) return true;
-    return (gameState.badges || []).includes(biome.requires);
+    return isExpeditionUnlocked(biome, gameState);
   };
 
   const isActive   = (id) => !!activeExpeditions[id];

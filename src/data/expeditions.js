@@ -7,6 +7,7 @@
 // Badge 6 (Sabrina)  → Templo Psíquico
 // Badge 7 (Blaine)   → Vulcão de Cinnabar
 // Badge 8 (Giovanni) → Selva do Dragão
+import { getBadgeCount } from '../utils/progress';
 
 export const EXPEDITION_BIOMES = {
 
@@ -200,7 +201,7 @@ export const EXPEDITION_BIOMES = {
 // requires é o número do badge (1-8)
 export const isExpeditionUnlocked = (biome, gameState) => {
   if (!biome.requires) return true;
-  return (gameState.badges || []).includes(biome.requires);
+  return getBadgeCount(gameState) >= biome.requires;
 };
 
 // Calcular eficiência do Pokémon para um bioma

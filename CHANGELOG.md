@@ -1,5 +1,27 @@
 # Changelog - PokeCraft
 
+## [V1.50.5] - 03/05/2026 21:47
+### Corrigido
+- **Expedicoes**: desbloqueio agora usa a contagem normalizada de insignias, aceitando saves com ids (`boulder_badge`) e saves antigos numericos.
+- **Cache PWA**: service worker atualizado para `pokecraft-cache-v1.50.5`, forçando a troca dos assets antigos.
+- **Versao Publica**: `package.json`, `package-lock.json`, `version.json` e constantes internas atualizados para `1.50.5`.
+
+## [V1.45.1] - 30/04/2026 11:54
+### Adicionado
+- **PWA Android Fix**: Reestruturação completa do Service Worker com Cache-First para ativos estáticos e Network-First para APIs.
+- **PWA Manifest Update**: Adicionado campo `id` e correção do `start_url` para melhorar a instalabilidade.
+- **PWA Debugging**: Adicionados logs de depuração para monitoramento do evento `beforeinstallprompt` em dispositivos móveis.
+- **Melhorias na Login Screen**: Remoção do Ranking Global da tela inicial para limpeza visual e reorganização do espaçamento entre botões.
+- **PWA Early Capture**: Implementação de captura antecipada do prompt de instalação no `index.html` para evitar perda do evento `beforeinstallprompt`.
+- **Refatoração do Trainer Card**: Novo visual Dark RPG com exibição de regiões (Kanto/Johto) em linhas separadas.
+- **Sistema de Conquistas**: Introdução de medalhas (Pokédex, Crafting, Boss Slayer) com efeitos de brilho (glow) ao serem desbloqueadas.
+- **Inspecionar Treinadores**: Agora é possível clicar em qualquer jogador no Ranking Global para visualizar seu Trainer Card completo.
+- **Power Score Global**: O Power Score (PS) agora é a soma de todos os atributos (HP, ATK, DEF, etc.) de todos os Pokémons que o jogador possui (Equipe + PC), refletindo o verdadeiro poder da sua coleção.
+- **Coroa de Campeão**: Efeito visual animado para treinadores que derrotaram o campeão regional.
+
+## [V1.40.2] - 30/04/2026 09:20
+- **Bugfix Crítico**: Correção de um erro de Temporal Dead Zone (TDZ) relacionado à ordem de inicialização do estado global (`gameState` e `powerScore`) que impedia a renderização completa da aplicação na branch principal, causando a tela azul/preta vazia.
+
 ## [V1.40.0] - 30/04/2026 08:27
 ### Adicionado
 - **Reclassificação da Forja**: Nova categoria 'Relíquias de Elite' com estilo visual lendário.
