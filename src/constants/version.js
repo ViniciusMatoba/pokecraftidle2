@@ -5,7 +5,7 @@ export const APP_VERSION_DATE = '04/05/2026 12:20';
 export const PATCH_NOTES = [
   {
     version: '1.51.3',
-    date: '04/05/2026 11:43',
+    date: '04/05/2026 12:20',
     changes: [
       '[BALANCE] Level Cap desacoplado do bloqueio de time: Pokémon acima do cap continuam disponíveis para batalha e permanecem no time.',
       '[BALANCE] Level Cap agora afeta APENAS o ganho de XP. Ao atingir o cap da região, o Pokémon recebe 0 de XP até você obter mais insígnias.',
