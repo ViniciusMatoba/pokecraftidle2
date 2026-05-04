@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pokecraft-cache-v1.51.5';
-const RUNTIME_CACHE = 'pokecraft-runtime-v1.51.5';
+const CACHE_NAME = 'pokecraft-cache-v1.52.1';
+const RUNTIME_CACHE = 'pokecraft-runtime-v1.52.1';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -80,8 +80,14 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (event.request.mode === 'navigate' || url.pathname.endsWith('/index.html') || url.pathname.endsWith('/version.json')) {
+  if (event.request.mode === 'navigate' || url.pathname.endsWith('/index.html')) {
     event.respondWith(staleWhileRevalidate(event.request));
+    return;
+  }
+
+  // version.json deve sempre vir da rede para detectar atualizações
+  if (url.pathname.endsWith('/version.json')) {
+    event.respondWith(fetch(event.request));
     return;
   }
 

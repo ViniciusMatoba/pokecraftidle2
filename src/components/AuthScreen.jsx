@@ -38,7 +38,21 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
 
       if (data.version !== APP_VERSION) {
         if (window.confirm(`Nova versão disponível (${data.version})! Deseja atualizar agora?`)) {
-          window.location.reload(true);
+          // Forçar a limpeza de caches e desregistramento do Service Worker
+          if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const registration of registrations) {
+              await registration.unregister();
+            }
+          }
+          if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            for (const cacheName of cacheNames) {
+              await caches.delete(cacheName);
+            }
+          }
+          // Recarregar a página forçando bypass de cache
+          window.location.reload();
         }
       } else {
         setUpdateStatus('updated');
