@@ -1,8 +1,17 @@
-export const APP_VERSION = '1.52.5';
-export const VERSION = '1.52.5';
-export const APP_VERSION_DATE = '04/05/2026 20:10';
+export const APP_VERSION = '1.52.6';
+export const VERSION = '1.52.6';
+export const APP_VERSION_DATE = '05/05/2026 12:32';
 
 export const PATCH_NOTES = [
+  {
+    version: '1.52.6',
+    date: '05/05/2026 12:32',
+    changes: [
+      '[REFAC] Refatoração do sistema de golpes: Migração completa para arquitetura centralizada (moveUtils.js) com eliminação de redundâncias.',
+      '[FIX] Padronização da Pokedex: Sincronização da lógica de exibição de golpes com o motor de batalha, garantindo traduções consistentes.',
+      '[CLEANUP] Remoção de importações legadas: Exclusão final de MOVE_TRANSLATIONS em BattleScreen e PokemonManagement.',
+    ],
+  },
   {
     version: '1.52.5',
     date: '04/05/2026 20:10',
