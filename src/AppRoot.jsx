@@ -165,16 +165,6 @@ const RECIPE_GATED_FORGE_IDS = new Set([
   'cleanse_tag',
 ]);
 
-const checkEvolutionEligibility = (evolutionData, gameState) => {
-  if (!evolutionData || !evolutionData.id) return false;
-  const targetId = Number(evolutionData.id);
-  const worldFlags = gameState.worldFlags || [];
-  if (targetId >= 387 && targetId <= 493) return worldFlags.includes('hoenn_champion');
-  if (targetId >= 252 && targetId <= 386) return worldFlags.includes('johto_champion');
-  if (targetId >= 152 && targetId <= 251) return worldFlags.includes('champion');
-  return true;
-};
-
 const hasForgeRecipe = (gameState = {}, recipeId) => {
   if (!RECIPE_GATED_FORGE_IDS.has(recipeId)) return true;
   return !!gameState.inventory?.materials?.[`recipe_${recipeId}`];
@@ -648,195 +638,6 @@ export default function App() {
     // Bônus de 5000 PS por cada revanche vencida (Elite Difficulty)
     const rematchBonus = worldFlags.filter(f => f.includes('rematch_') && f.endsWith('_defeated')).length * 5000;
 
-  const [showHoennUnlockModal, setShowHoennUnlockModal] = useState(false);
-  const [previewStarter, setPreviewStarter] = useState(null);
-  const [activeQuestModal, setActiveQuestModal] = useState(null);
-  const [pendingQuest, setPendingQuest] = useState(null);
-  const [battleReady, setBattleReady] = useState(false);
-  const [timeOfDay, setTimeOfDay] = useState(getTimeOfDay());
-  const [showTimeInfoModal, setShowTimeInfoModal] = useState(false);
-  const [vsInitialTab, setVsInitialTab] = useState('challenges'); // 'challenges', 'gyms', 'legendary'
-  const [vsInitialCategory, setVsInitialCategory] = useState(null); // 'rival', 'boss', 'rocket', 'legendary'
-  const [vsInitialRegion, setVsInitialRegion] = useState('kanto'); // 'kanto', 'johto', 'hoenn'
-
-  const [sessionStats, setSessionStats] = useState(null);
-  const sessionRef = useRef({ kills: 0, coins: 0, trainers: 0, shinyKills: 0, drops: {}, captures: [] });
-
-
-
-  const handleSelectAvatar = (avatar) => {
-    setSelectedAvatar(avatar);
-    setGameState(prev => ({ 
-      ...prev, 
-      trainer: { ...prev.trainer, level: 1, xp: 0, avatarImg: avatar.img } 
-    })); 
-    setTimeout(() => {
-      setCurrentView('starter_selection');
-      setSelectedAvatar(null);
-    }, 400);
-  };
-
-  // Auto-dismiss de notificação de maestria
-  useEffect(() => {
-    if (masteryNotification) {
-      const timer = setTimeout(() => setMasteryNotification(null), 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [masteryNotification]);
-
-  const isProcessingVictory = useRef(false);
-  const isProcessingTurn = useRef(false);
-  const currentViewRef = useRef('landing');
-  const lastNonMenuView = useRef('city');
-  const lastSyncRef = useRef(0);
-  const cloudSaveTimeoutRef = useRef(null);
-  const bossSaveTimeoutRef = useRef(null);
-  const [showRanking, setShowRanking] = useState(false);
-  const [bossDamage, setBossDamage] = useState(0);
-  const [bossTimer, setBossTimer] = useState(null);
-  const [bossLoot, setBossLoot] = useState(null);
-  const [pendingBossBattle, setPendingBossBattle] = useState(null);
-  const [bossTeamSelection, setBossTeamSelection] = useState([]);
-  const currentBossEventRef = useRef(null);
-
-  const [installPrompt, setInstallPrompt] = useState(null);
-  const [isIOS, setIsIOS] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(false);
-
-
-  useEffect(() => {
-    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream);
-    setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
-
-    // 1. Verifica se o index.html já capturou o prompt
-    if (window.deferredPrompt) {
-      console.log('PWA: deferredPrompt recuperado do global');
-      setInstallPrompt(window.deferredPrompt);
-    }
-
-    // 2. Ouve o evento customizado caso o prompt chegue depois do carregamento do React
-    const handlePwaReady = (e) => {
-      console.log('PWA: Evento customizado pwa-prompt-ready recebido');
-      setInstallPrompt(e.detail);
-    };
-
-    // 3. Mantém o listener padrão por redundância
-    const handler = (e) => {
-      console.log('PWA: beforeinstallprompt capturado no React');
-      e.preventDefault();
-      setInstallPrompt(e);
-    };
-
-    window.addEventListener('pwa-prompt-ready', handlePwaReady);
-    window.addEventListener('beforeinstallprompt', handler);
-    
-    return () => {
-      window.removeEventListener('pwa-prompt-ready', handlePwaReady);
-      window.removeEventListener('beforeinstallprompt', handler);
-    };
-  }, []);
-
-  const handleInstallPWA = async () => {
-    if (installPrompt) {
-      installPrompt.prompt();
-      const { outcome } = await installPrompt.userChoice;
-      console.log(`PWA: Resposta do usuário: ${outcome}`);
-      if (outcome === 'accepted') setInstallPrompt(null);
-    } else if (isIOS) {
-      showConfirm({
-        type: 'alert',
-        title: 'Instalar no iOS',
-        message: 'Para instalar: 1. Toque no ícone de "Compartilhar" (quadrado com seta) 2. Role para baixo e selecione "Adicionar à Tela de Início".',
-        confirmLabel: 'Entendido',
-        onConfirm: closeConfirm
-      });
-    } else {
-      showConfirm({
-        type: 'alert',
-        title: 'PWA não pronto',
-        message: 'O navegador ainda não disparou o evento de instalação. Certifique-se de estar usando Chrome/Edge no Android/Desktop e aguarde alguns segundos.',
-        confirmLabel: 'Entendido',
-        onConfirm: closeConfirm
-      });
-    }
-  };
-
-  const resetSession = () => {
-    sessionRef.current = { kills: 0, coins: 0, trainers: 0, shinyKills: 0, drops: {}, captures: [] };
-  };
-
-
-  const [gameState, setGameState] = useState(() => {
-    try {
-      const saved = localStorage.getItem('poke_idle_save');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.gameState) {
-          const loaded = parsed.gameState;
-          const merged = {
-            ...DEFAULT_GAME_STATE,           // novos campos com valores padrão
-            ...loaded,                  // progresso real do jogador
-            version: APP_VERSION,
-            team: loaded.team || DEFAULT_GAME_STATE.team,
-            pc: loaded.pc || DEFAULT_GAME_STATE.pc,
-            badges: loaded.badges || DEFAULT_GAME_STATE.badges,
-            worldFlags: loaded.worldFlags || DEFAULT_GAME_STATE.worldFlags,
-            inventory: {
-                ...normalizeInventory(loaded.inventory || {})
-            },
-            stages: loaded.stages || DEFAULT_GAME_STATE.stages,
-            caughtData: loaded.caughtData || DEFAULT_GAME_STATE.caughtData,
-            speciesMastery: loaded.speciesMastery || DEFAULT_GAME_STATE.speciesMastery,
-            settings: { ...DEFAULT_GAME_STATE.settings, ...(loaded.settings || {}) },
-            autoConfig: { ...DEFAULT_GAME_STATE.autoConfig, ...(loaded.autoConfig || {}) },
-          };
-          return merged;
-        }
-      }
-    } catch (e) {
-      console.error('Error parsing save', e);
-    }
-    return DEFAULT_GAME_STATE;
-  });
-
-  const powerScore = useMemo(() => {
-    // PS = Soma dos Níveis de TODOS os Pokémon + Bônus de Insígnias
-    const teamPokes = gameState.team || [];
-    const pcPokes = gameState.pc || [];
-    const caretakerPokes = gameState.house?.caretakers || [];
-    const expeditionPokes = Object.values(gameState.expeditions || {}).flatMap(e => e.team || []);
-    const regional_teams_pokes = Object.values(gameState.regional_teams || {}).flat();
-
-    const allPokes = [
-      ...teamPokes, 
-      ...pcPokes, 
-      ...caretakerPokes, 
-      ...expeditionPokes,
-      ...regional_teams_pokes
-    ];
-
-    // Remove duplicatas por instanceId
-    const seenIds = new Set();
-    const levelsSum = allPokes.reduce((acc, p) => {
-      if (!p) return acc;
-      if (p.instanceId) {
-        if (!seenIds.has(p.instanceId)) {
-          seenIds.add(p.instanceId);
-          return acc + (p.level || 0);
-        }
-      } else {
-        // Pokémon sem instanceId também contam
-        return acc + (p.level || 0);
-      }
-      return acc;
-    }, 0);
-
-    const worldFlags = gameState.worldFlags || [];
-    const badgeBonus = (gameState.badges || []).length * 1000;
-    
-    // Bônus de 5000 PS por cada revanche vencida (Elite Difficulty)
-    const rematchBonus = worldFlags.filter(f => f.includes('rematch_') && f.endsWith('_defeated')).length * 5000;
-
     return levelsSum + badgeBonus + rematchBonus;
   }, [gameState.team, gameState.pc, gameState.house, gameState.expeditions, gameState.regional_teams, gameState.worldFlags, gameState.badges]);
 
@@ -846,11 +647,11 @@ export default function App() {
     const moves = (base.learnset || [])
       .filter(m => m.level <= level)
       .map(m => {
-        const moveKey = (m.move || '').toLowerCase().trim();
+        const moveKey = (m.move || '').toLowerCase();
         const moveData = MOVES[moveKey] || { name: m.move || 'Investida', power: 40, type: 'Normal', category: 'Physical' };
         return {
           ...moveData,
-          name: MOVE_TRANSLATIONS?.[moveKey] || moveData.name || m.move || 'Investida',
+          name: MOVE_TRANSLATIONS?.[moveKey] || moveData.name || m.move,
           power: moveData.power || 0,
           type: moveData.type || 'Normal',
           category: moveData.category || 'Physical',
@@ -921,9 +722,7 @@ export default function App() {
     
     const isChampion = worldFlags.includes(`region_champion_${targetKey}`) || 
                       (targetKey === 'kanto' && worldFlags.includes('champion')) ||
-                      (targetKey === 'johto' && worldFlags.includes('johto_champion')) ||
-                      (targetKey === 'hoenn' && worldFlags.includes('hoenn_champion')) ||
-                      (targetKey === 'sinnoh' && worldFlags.includes('sinnoh_champion'));
+                      (targetKey === 'johto' && worldFlags.includes('johto_champion'));
     
     if (isChampion) return true;
 
@@ -1244,10 +1043,10 @@ export default function App() {
         let availableMoves = learnset
           .filter(m => m.level <= (p.level || 5))
           .map(m => {
-            const moveKey = (m.move || '').toLowerCase().trim();
-            const moveData = MOVES[moveKey] || { name: m.move, power: 40, type: 'Normal' };
+            const moveData = MOVES[m.move] || { name: m.move, power: 40, type: 'Normal' };
+            const moveKey = (m.move || '').toLowerCase();
             return {
-              name: MOVE_TRANSLATIONS?.[moveKey] || moveData.name || m.move,
+              name: MOVE_TRANSLATIONS[moveKey] || moveData.name || m.move,
               power: moveData.power || 0,
               type: moveData.type || 'Normal'
             };
@@ -1367,7 +1166,7 @@ export default function App() {
             const data = docSnap.data();
             if (data?.gameState) {
               setGameState(prev => ({ ...prev, ...data.gameState }));
-              addLog("☁️   Progresso sincronizado com a nuvem!", "system");
+              addLog("☁️ Progresso sincronizado com a nuvem!", "system");
             }
           }
         } catch (err) {
@@ -1703,7 +1502,7 @@ export default function App() {
     if (!attacker || !defender || !move) return 0;
     
     const moveName = move?.name || 'Investida';
-    const moveKey = (moveName || '').toLowerCase().trim();
+    const moveKey = (moveName || '').toLowerCase();
     // Resolve full move data from dataset for accuracy/power reliability
     const moveData = MOVES[moveKey.replace(/ /g, '-')] || move || {};
     
@@ -2154,11 +1953,11 @@ export default function App() {
     const availableMoves = learnset
       .filter(m => m.level <= level)
       .map(m => {
-        const moveKey = (m.move || '').toLowerCase().trim();
+        const moveKey = (m.move || '').toLowerCase();
         const moveData = MOVES[moveKey] || { name: m.move || 'Investida', power: 40, type: 'Normal', category: 'Physical' };
         return {
           ...moveData,
-          name: MOVE_TRANSLATIONS?.[moveKey] || moveData.name || m.move,
+          name: MOVE_TRANSLATIONS[moveKey] || moveData.name || m.move,
           power: moveData.power || 0,
           type: moveData.type || 'Normal',
           category: moveData.category || 'Physical'
@@ -2309,7 +2108,7 @@ export default function App() {
         });
       }, 1000);
     }
-    return () => clearTimeout(timer);
+    return () => clearInterval(timer);
   }, [bossTimer, currentView, currentEnemy?.isWorldBoss]);
 
   const calculateBossLoot = useCallback((damage) => {
@@ -2358,7 +2157,7 @@ export default function App() {
   }, [bossDamage, debouncedSaveBossDamage, calculateBossLoot]);
 
   // TICK DE BATALHA
-  // ⛏️” PROTECTED: handleBattleTick — NíO EDITAR SEM AUTORIZAÇíO EXPLí CITA
+  // ⛏️” PROTECTED: handleBattleTick — NíO EDITAR SEM AUTORIZAÇíO EXPLíCITA
   const handleBattleTick = useCallback(() => {
     const speedMultiplier = [1, 0.6, 0.3][(gameState.settings?.battleSpeed || 1) - 1] || 1;
     
@@ -3080,9 +2879,9 @@ export default function App() {
     const availableMoves = learnset
       .filter(m => m.level <= lvl)
       .map(m => {
-        const mk = (m.move || '').toLowerCase().trim();
+        const mk = (m.move || '').toLowerCase();
         const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
-        return { ...md, name: MOVE_TRANSLATIONS?.[mk] || md.name || m.move };
+        return { ...md, name: MOVE_TRANSLATIONS[mk] || md.name || m.move };
       });
     const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
@@ -3162,9 +2961,9 @@ export default function App() {
       };
 
       const finalMoves = (base.learnset || []).slice(-4).map(m => {
-        const mk = (m.move || '').toLowerCase().trim();
+        const mk = (m.move || '').toLowerCase();
         const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
-        return { ...md, name: MOVE_TRANSLATIONS?.[mk] || md.name || m.move };
+        return { ...md, name: MOVE_TRANSLATIONS[mk] || md.name || m.move };
       });
 
       setCurrentEnemy({
@@ -3271,9 +3070,9 @@ export default function App() {
     const availableMoves = learnset
       .filter(m => m.level <= lvl)
       .map(m => {
-        const mk = (m.move || '').toLowerCase().trim();
+        const mk = (m.move || '').toLowerCase();
         const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
-        return { ...md, name: MOVE_TRANSLATIONS?.[mk] || md.name || m.move };
+        return { ...md, name: MOVE_TRANSLATIONS[mk] || md.name || m.move };
       });
     const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
@@ -3392,7 +3191,7 @@ export default function App() {
         addLog(` ${p.name} aumentou o Ataque Especial!`, 'system');
       } else if (use.effect === 'force_evolve') {
         const pokeData = POKEDEX[p.id];
-        if (pokeData?.evolution && checkEvolutionEligibility(pokeData.evolution, prev)) {
+        if (pokeData?.evolution && pokeData.evolution.id <= 386) {
           setEvolutionPending({ ...p, teamIndex: location === 'team' ? pokemonIndex : null, pcIndex: location === 'pc' ? pokemonIndex : null });
           return { ...prev, inventory: newInventory };
         } else {
@@ -3903,9 +3702,9 @@ export default function App() {
         const availableMoves = learnset
           .filter(m => m.level <= lvl)
           .map(m => {
-            const mk = (m.move || '').toLowerCase().trim();
+            const mk = (m.move || '').toLowerCase();
             const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
-            return { ...md, name: MOVE_TRANSLATIONS?.[mk] || md.name || m.move };
+            return { ...md, name: MOVE_TRANSLATIONS[mk] || md.name || m.move };
           });
         const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
@@ -4086,6 +3885,23 @@ export default function App() {
         const maxLevel = getCurrentLevelCap(prev);
         const isLevelCapped = gameState.settings?.levelCap !== false && (p.level || 5) >= maxLevel;
 
+        if (isLevelCapped) {
+          return { ...p, status: (p.status || []).filter(s => s !== 'confuse'), stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 } };
+        }
+
+        const newXp = (p.xp || 0) + xpToAdd;
+        const n = p.level || 1; const xpNeeded = Math.pow(n + 1, 3) - Math.pow(n, 3);
+
+        if (newXp >= xpNeeded) {
+          const newLevel = (p.level || 5) + 1;
+          addLog(`🎉 ${p.name} subiu para Nv. ${newLevel}!`, 'system');
+          notify({ type: 'level_up', title: `${p.name} subiu para Nv.${newLevel}!`, message: 'Continue treinando!', pokemonId: p.id, isShiny: p.isShiny });
+          sfxLevelUp();
+
+          let newMoves = [...(p.moves || [])];
+          let newLearnedMoves = p.learnedMoves ? [...p.learnedMoves] : [...newMoves];
+          const pokeData = POKEDEX[Number(p.id)];
+
           if (pokeData?.learnset) {
             const movesToLearn = pokeData.learnset.filter(l => l.level === newLevel);
             movesToLearn.forEach(learn => {
@@ -4107,7 +3923,7 @@ export default function App() {
             });
           }
 
-           if (pokeData?.evolution?.level && !pokeData.evolution.item && newLevel >= pokeData.evolution.level && (checkEvolutionEligibility(pokeData.evolution, prev))) {
+           if (pokeData?.evolution?.level && !pokeData.evolution.item && newLevel >= pokeData.evolution.level && (pokeData.evolution.id <= 386)) {
              setEvolutionPending({ ...p, level: newLevel, teamIndex: i });
           }
 
@@ -5966,7 +5782,7 @@ export default function App() {
       case 'pokedex': return (
         <Suspense fallback={<div className="h-full bg-slate-900 flex items-center justify-center text-pokeGold font-black uppercase tracking-[0.5em] animate-pulse">Sincronizando Pokédex...</div>}>
           <PokedexScreen 
-            POKEDEX={Object.fromEntries(Object.entries(POKEDEX).filter(([id]) => Number(id) <= 493))}
+            POKEDEX={Object.fromEntries(Object.entries(POKEDEX).filter(([id]) => Number(id) <= 386))}
             caughtData={gameState.caughtData} 
             team={gameState.team}
             box={gameState.pc}
@@ -7278,13 +7094,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
