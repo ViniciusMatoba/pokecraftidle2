@@ -1,8 +1,17 @@
-export const APP_VERSION = '1.52.7';
-export const VERSION = '1.52.7';
-export const APP_VERSION_DATE = '05/05/2026 14:15';
+export const APP_VERSION = '1.52.8';
+export const VERSION = '1.52.8';
+export const APP_VERSION_DATE = '05/05/2026 14:32';
 
 export const PATCH_NOTES = [
+  {
+    version: '1.52.8',
+    date: '05/05/2026 14:32',
+    changes: [
+      '[FIX] Sincronização Global de Golpes: Implementada reparação automática de ataques corrompidos no carregamento do jogo.',
+      '[FIX] Learnsets como Fonte da Verdade: Ataques agora são estritamente derivados do Pokedex, eliminando "ataques fantasmas".',
+      '[FIX] Evolução e Wild Spawns: Padronizada a geração de golpes para usar o motor de dados centralizado (moveUtils).',
+    ],
+  },
   {
     version: '1.52.7',
     date: '05/05/2026 14:15',

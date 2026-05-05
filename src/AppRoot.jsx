@@ -53,6 +53,8 @@ import NotificationSystem, { notify } from './components/NotificationSystem';
 import { getCaptureRate, pickWeightedEncounter } from './utils/pokemonDifficulty';
 import { preloadAssets } from './utils/preloader';
 import { getBadgeCount } from './utils/progress';
+import { getMoveData, getMoveLabel, getMoveKey } from './utils/moveUtils';
+
 
 const fixPath = (path) => {
   if (typeof path !== 'string') return path;
@@ -646,18 +648,8 @@ export default function App() {
     if (!base) return null;
     const moves = (base.learnset || [])
       .filter(m => m.level <= level)
-      .map(m => {
-        const moveKey = (m.move || '').toLowerCase();
-        const moveData = MOVES[moveKey] || { name: m.move || 'Investida', power: 40, type: 'Normal', category: 'Physical' };
-        return {
-          ...moveData,
-          name: MOVE_TRANSLATIONS?.[moveKey] || moveData.name || m.move,
-          power: moveData.power || 0,
-          type: moveData.type || 'Normal',
-          category: moveData.category || 'Physical',
-        };
-      });
-    const finalMoves = moves.length > 0 ? moves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
+      .map(m => getMoveData(m.move));
+    const finalMoves = moves.length > 0 ? moves.slice(-4) : [getMoveData('tackle')];
     const maxHp = Math.ceil(((2 * (base.maxHp || base.hp || 30) * level) / 100) + level + 10);
     return {
       ...base,
@@ -1037,27 +1029,28 @@ export default function App() {
       if (!needsMoves && !needsStats) return p;
 
       const base = POKEDEX[id] || {};
+      
+      // REPARAÇÃO DE GOLPES: Se o Pokémon não tem golpes válidos ou veio de versão antiga
+      const learnset = base.learnset || [];
+      const correctLearnedMoves = learnset
+        .filter(m => m.level <= (p.level || 5))
+        .map(m => getMoveData(m.move));
+      
+      const needsRepair = !p.moves || p.moves.length === 0 || p.moves.some(m => !m.type || m.name.includes(''));
+
       let finalMoves = p.moves;
-      if (needsMoves) {
-        const learnset = base.learnset || [];
-        let availableMoves = learnset
-          .filter(m => m.level <= (p.level || 5))
-          .map(m => {
-            const moveData = MOVES[m.move] || { name: m.move, power: 40, type: 'Normal' };
-            const moveKey = (m.move || '').toLowerCase();
-            return {
-              name: MOVE_TRANSLATIONS[moveKey] || moveData.name || m.move,
-              power: moveData.power || 0,
-              type: moveData.type || 'Normal'
-            };
-          });
-        if (availableMoves.length === 0) availableMoves = [{ name: 'Investida', power: 40, type: 'Normal' }];
-        finalMoves = availableMoves.slice(-4);
+      let finalLearnedMoves = p.learnedMoves || p.moves || [];
+
+      if (needsRepair) {
+        finalLearnedMoves = correctLearnedMoves;
+        finalMoves = correctLearnedMoves.slice(-4);
+        if (finalMoves.length === 0) finalMoves = [getMoveData('tackle')];
       }
 
       return { 
         ...p, 
         moves: finalMoves,
+        learnedMoves: finalLearnedMoves,
         spAtk: Math.ceil(p.spAtk || base.spAtk || 10),
         spDef: Math.ceil(p.spDef || base.spDef || 10),
         attack: Math.ceil(p.attack || base.attack || 10),
@@ -1952,20 +1945,10 @@ export default function App() {
     const learnset = finalBase.learnset || [];
     const availableMoves = learnset
       .filter(m => m.level <= level)
-      .map(m => {
-        const moveKey = (m.move || '').toLowerCase();
-        const moveData = MOVES[moveKey] || { name: m.move || 'Investida', power: 40, type: 'Normal', category: 'Physical' };
-        return {
-          ...moveData,
-          name: MOVE_TRANSLATIONS[moveKey] || moveData.name || m.move,
-          power: moveData.power || 0,
-          type: moveData.type || 'Normal',
-          category: moveData.category || 'Physical'
-        };
-      });
+      .map(m => getMoveData(m.move));
 
     // Se não tiver golpes, dá pelo menos Investida (Tackle)
-    const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
+    const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [getMoveData('tackle')];
 
     // Atk Mult do Repel
     const atkRepelMult = (effects.activeRepel?.endsAt > now) ? (effects.activeRepel.atkMult || 0.8) : 1.0;
@@ -3905,19 +3888,14 @@ export default function App() {
           if (pokeData?.learnset) {
             const movesToLearn = pokeData.learnset.filter(l => l.level === newLevel);
             movesToLearn.forEach(learn => {
-              const moveKey = (learn.move || '').toLowerCase();
-              const moveData = MOVES[moveKey];
-              if (moveData && !newLearnedMoves.some(m => m.name === (MOVE_TRANSLATIONS[moveKey] || moveData.name))) {
-                const moveObj = { 
-                  ...moveData, 
-                  name: MOVE_TRANSLATIONS[moveKey] || moveData.name || learn.move 
-                };
-                newLearnedMoves.push(moveObj);
-                if (newMoves.length < 4 && !newMoves.some(m => m.name === moveObj.name)) {
-                  newMoves.push(moveObj);
-                  addLog(`( ${p.name} aprendeu ${moveObj.name}!`, 'system');
+              const moveData = getMoveData(learn.move);
+              if (moveData.name && !newLearnedMoves.some(m => getMoveKey(m) === getMoveKey(moveData))) {
+                newLearnedMoves.push(moveData);
+                if (newMoves.length < 4 && !newMoves.some(m => getMoveKey(m) === getMoveKey(moveData))) {
+                  newMoves.push(moveData);
+                  addLog(`( ${p.name} aprendeu ${getMoveLabel(moveData)}!`, 'system');
                 } else {
-                  addLog(`✨ ${p.name} aprendeu ${moveObj.name}! (Salvo na Memória)`, 'system');
+                  addLog(`✨ ${p.name} aprendeu ${getMoveLabel(moveData)}! (Salvo na Memória)`, 'system');
                 }
               }
             });

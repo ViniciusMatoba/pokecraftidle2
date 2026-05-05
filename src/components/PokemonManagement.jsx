@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '../data/candies';
+import { getMoveData, getMoveLabel, getMoveKey, translateMove } from '../utils/moveUtils';
 
 const PokemonManagement = ({
   gameState,
@@ -38,48 +39,6 @@ const PokemonManagement = ({
   useEffect(() => {
     setCandyExpanded(false);
   }, [activePokemonKey]);
-
-  const translateMove = (moveName) => {
-    if (!moveName) return '---';
-    const key = String(moveName).toLowerCase();
-    return MOVE_TRANSLATIONS[key] || moveName.replace(/-/g, ' ');
-  };
-
-  const normalizeMoveText = (value) => String(value || '')
-    .normalize('NFD')
-    .replace(/[u0300-u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-
-  const moveTranslationLookup = Object.entries(MOVE_TRANSLATIONS).reduce((acc, [key, label]) => {
-    acc[normalizeMoveText(label)] = key;
-    return acc;
-  }, {});
-
-  const moveNameLookup = Object.entries(MOVES).reduce((acc, [key, move]) => {
-    acc[normalizeMoveText(move.name)] = key;
-    return acc;
-  }, {});
-
-  const getMoveKey = (move) => {
-    const rawName = typeof move === 'string' ? move : move?.name;
-    const directKey = normalizeMoveText(rawName);
-    return MOVES[directKey] ? directKey : moveTranslationLookup[directKey] || moveNameLookup[directKey] || directKey;
-  };
-
-  const getMoveData = (move) => {
-    const key = getMoveKey(move);
-    const base = MOVES[key] || {};
-    const fallback = typeof move === 'object' && move ? move : {};
-    return { ...fallback, ...base, name: fallback.name || base.name || (typeof move === 'string' ? move : '') };
-  };
-
-  const getMoveLabel = (move) => {
-    const key = getMoveKey(move);
-    const data = getMoveData(move);
-    return MOVE_TRANSLATIONS[key] || data.name || translateMove(typeof move === 'string' ? move : move?.name);
-  };
 
   const getPokemonRegion = (pokemon) => {
     if (pokemon?.capturedRegion) return pokemon.capturedRegion;
@@ -236,11 +195,11 @@ const PokemonManagement = ({
       const newMoves = [...poke.moves];
 
       // Se já tiver o golpe em outra posição, apenas troca de lugar (reordenar)
-      const existingIdx = newMoves.findIndex(m => m.name === newMoveName);
+      const existingIdx = newMoves.findIndex(m => getMoveKey(m) === getMoveKey(moveData));
       if (existingIdx !== -1) {
         [newMoves[activeIdx], newMoves[existingIdx]] = [newMoves[existingIdx], newMoves[activeIdx]];
       } else {
-        newMoves[activeIdx] = moveData; // Fix: use full moveData instead of just { name }
+        newMoves[activeIdx] = moveData; 
       }
 
       poke.moves = newMoves;
@@ -251,11 +210,11 @@ const PokemonManagement = ({
     setActivePokemonDetails(prev => {
       const poke = { ...prev.pokemon };
       const newMoves = [...poke.moves];
-      const existingIdx = newMoves.findIndex(m => m.name === newMoveName);
+      const existingIdx = newMoves.findIndex(m => getMoveKey(m) === getMoveKey(moveData));
       if (existingIdx !== -1) {
         [newMoves[activeIdx], newMoves[existingIdx]] = [newMoves[existingIdx], newMoves[activeIdx]];
       } else {
-        newMoves[activeIdx] = moveData; // Fix: use full moveData instead of just { name }
+        newMoves[activeIdx] = moveData;
       }
       return { ...prev, pokemon: { ...poke, moves: newMoves } };
     });
