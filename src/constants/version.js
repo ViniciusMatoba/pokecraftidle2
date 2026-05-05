@@ -1,8 +1,17 @@
-export const APP_VERSION = '1.52.6';
-export const VERSION = '1.52.6';
-export const APP_VERSION_DATE = '05/05/2026 12:32';
+export const APP_VERSION = '1.52.7';
+export const VERSION = '1.52.7';
+export const APP_VERSION_DATE = '05/05/2026 14:15';
 
 export const PATCH_NOTES = [
+  {
+    version: '1.52.7',
+    date: '05/05/2026 14:15',
+    changes: [
+      '[FIX] Gestão de Golpes: Corrigida dessincronização de dados no menu de equipe (PokemonManagement), garantindo exibição correta de traduções e estatísticas.',
+      '[FIX] Estabilidade do Build: Sincronização final do motor de lógica (AppRoot.jsx) com a nova arquitetura centralizada de golpes.',
+      '[CLEANUP] Integridade de Dados: Restauração segura de moveUtils.js para prevenir erros de codificação em caracteres especiais.',
+    ],
+  },
   {
     version: '1.52.6',
     date: '05/05/2026 12:32',
