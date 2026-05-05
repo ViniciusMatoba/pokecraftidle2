@@ -1,4 +1,5 @@
 import React from 'react';
+import { getMoveData } from '../utils/moveUtils';
 
 const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setEvolutionPending }) => {
   if (!evolutionPending) return null;
@@ -65,9 +66,8 @@ const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setE
                                   if (nextPoke.learnset) {
                                      const movesAtLevel = nextPoke.learnset.filter(l => l.level <= p.level);
                                      movesAtLevel.forEach(learn => {
-                                        const moveName = learn.move; 
-                                        if (!newLearnedMoves.some(m => m.name === moveName)) {
-                                           const moveObj = { name: moveName };
+                                        const moveObj = getMoveData(learn.move); 
+                                        if (!newLearnedMoves.some(m => m.name === moveObj.name)) {
                                            newLearnedMoves.push(moveObj);
                                            if (newMoves.length < 4) {
                                               newMoves.push(moveObj);

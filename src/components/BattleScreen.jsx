@@ -3,7 +3,7 @@ import { StatusBadges } from './CommonUI';
 import { BATTLE_BACKGROUNDS } from '../data/battleBackgrounds';
 import ActiveEffectsBar from './ActiveEffectsBar';
 import { MOVES } from '../data/moves';
-import { MOVE_TRANSLATIONS } from '../data/translations';
+import { getMoveData, getMoveLabel, translateMove } from '../utils/moveUtils';
 import { TIME_CONFIG } from '../utils/timeSystem';
 import { getCurrentLevelCap } from '../data/constants';
 
@@ -455,10 +455,8 @@ const BattleScreen = ({
         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Ataques <span className="normal-case font-normal">(toque para detalhes)</span></p>
         <div className="grid grid-cols-2 gap-3">
           {(activePoke?.moves || []).map((moveRef, index) => {
-            const moveName = typeof moveRef === 'string' ? moveRef : moveRef.name;
-            const moveKey = moveName.toLowerCase().replace(/ /g, '-');
-            const moveData = { ...MOVES[moveKey], ...(typeof moveRef === 'object' ? moveRef : {}) };
-            const moveLabel = MOVE_TRANSLATIONS[moveKey] || moveData.name || moveName;
+            const moveData = getMoveData(moveRef);
+            const moveLabel = getMoveLabel(moveRef);
 
             const isActive = index === (moveIndex % (activePoke?.moves?.length || 1));
             const isSelected = selectedMove?.name === moveData.name;

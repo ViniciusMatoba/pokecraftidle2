@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { TYPE_COLOR_HEX } from '../data/gyms';
+import { getMoveLabel } from '../utils/moveUtils';
 
 const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], onBack }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -175,9 +176,9 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], onBack }) => 
                     <div className="bg-slate-50 p-4 rounded-[2rem] border-2 border-slate-100 shadow-inner mb-4">
                       <h4 className="font-black uppercase text-[10px] text-slate-400 text-center tracking-widest mb-3">Ataques</h4>
                       <div className="grid grid-cols-1 gap-2 max-h-52 overflow-y-auto pr-1 custom-scrollbar">
-                        {(displayPoke.moves || poke.learnset?.slice(0, 8)?.map(m => ({ name: m.move.replace(/-/g, ' '), level: m.level })) || []).map((m, i) => (
+                        {(displayPoke.moves || poke.learnset?.slice(0, 8)?.map(l => ({ name: l.move, level: l.level })) || []).map((m, i) => (
                           <div key={i} className="flex items-center justify-between rounded-2xl bg-white border border-slate-100 px-3 py-2">
-                            <span className="text-[10px] font-black uppercase text-slate-700 truncate">{m.name || m.move}</span>
+                            <span className="text-[10px] font-black uppercase text-slate-700 truncate">{getMoveLabel(m)}</span>
                             <span className="text-[8px] font-bold uppercase text-slate-400">{m.level ? `Nv.${m.level}` : (m.type || '')}</span>
                           </div>
                         ))}
