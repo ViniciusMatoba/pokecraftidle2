@@ -5,9 +5,9 @@ import { ROUTES, getRivalSprite } from './data/routes';
 import { INITIAL_POKEMONS } from './data/initialPokemons';
 import { CRAFTING_RECIPES } from './data/recipes';
 import { MOVES } from './data/moves';
+import { MOVE_TRANSLATIONS } from './data/translations';
 import { POKEDEX } from './data/pokedex';
 import { VILLAIN_TEAMS } from './data/villains';
-import { getMoveData, getMoveLabel } from './utils/moveUtils';
 import AuthScreen from './components/AuthScreen';
 
 // Lazy loaded components for better performance
@@ -845,7 +845,17 @@ export default function App() {
     if (!base) return null;
     const moves = (base.learnset || [])
       .filter(m => m.level <= level)
-      .map(m => getMoveData(m.move));
+      .map(m => {
+        const moveKey = (m.move || '').toLowerCase().trim();
+        const moveData = MOVES[moveKey] || { name: m.move || 'Investida', power: 40, type: 'Normal', category: 'Physical' };
+        return {
+          ...moveData,
+          name: MOVE_TRANSLATIONS?.[moveKey] || moveData.name || m.move || 'Investida',
+          power: moveData.power || 0,
+          type: moveData.type || 'Normal',
+          category: moveData.category || 'Physical',
+        };
+      });
     const finalMoves = moves.length > 0 ? moves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
     const maxHp = Math.ceil(((2 * (base.maxHp || base.hp || 30) * level) / 100) + level + 10);
     return {
@@ -1233,7 +1243,15 @@ export default function App() {
         const learnset = base.learnset || [];
         let availableMoves = learnset
           .filter(m => m.level <= (p.level || 5))
-          .map(m => getMoveData(m.move));
+          .map(m => {
+            const moveKey = (m.move || '').toLowerCase().trim();
+            const moveData = MOVES[moveKey] || { name: m.move, power: 40, type: 'Normal' };
+            return {
+              name: MOVE_TRANSLATIONS?.[moveKey] || moveData.name || m.move,
+              power: moveData.power || 0,
+              type: moveData.type || 'Normal'
+            };
+          });
         if (availableMoves.length === 0) availableMoves = [{ name: 'Investida', power: 40, type: 'Normal' }];
         finalMoves = availableMoves.slice(-4);
       }
@@ -2135,7 +2153,17 @@ export default function App() {
     const learnset = finalBase.learnset || [];
     const availableMoves = learnset
       .filter(m => m.level <= level)
-      .map(m => getMoveData(m.move));
+      .map(m => {
+        const moveKey = (m.move || '').toLowerCase().trim();
+        const moveData = MOVES[moveKey] || { name: m.move || 'Investida', power: 40, type: 'Normal', category: 'Physical' };
+        return {
+          ...moveData,
+          name: MOVE_TRANSLATIONS?.[moveKey] || moveData.name || m.move,
+          power: moveData.power || 0,
+          type: moveData.type || 'Normal',
+          category: moveData.category || 'Physical'
+        };
+      });
 
     // Se não tiver golpes, dá pelo menos Investida (Tackle)
     const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
@@ -3051,7 +3079,11 @@ export default function App() {
     const learnset = base.learnset || [];
     const availableMoves = learnset
       .filter(m => m.level <= lvl)
-      .map(m => getMoveData(m.move));
+      .map(m => {
+        const mk = (m.move || '').toLowerCase().trim();
+        const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
+        return { ...md, name: MOVE_TRANSLATIONS?.[mk] || md.name || m.move };
+      });
     const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
     setCurrentEnemy({
@@ -3076,7 +3108,7 @@ export default function App() {
     // BGM agora gerenciado pelas configurações
     addLog(`🚀 DESAFIO: ${battleData.name} iniciou a batalha!`, 'system');
     isProcessingVictory.current = false;
-  }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES]);
+  }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
 
   const handleChallenge = useCallback((battleData, type) => {
     if (type === 'boss' || type === 'boss-direct') {
@@ -3129,7 +3161,11 @@ export default function App() {
         learnset: base.learnset || []
       };
 
-      const finalMoves = (base.learnset || []).slice(-4).map(m => getMoveData(m.move));
+      const finalMoves = (base.learnset || []).slice(-4).map(m => {
+        const mk = (m.move || '').toLowerCase().trim();
+        const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
+        return { ...md, name: MOVE_TRANSLATIONS?.[mk] || md.name || m.move };
+      });
 
       setCurrentEnemy({
         ...boss,
@@ -3165,7 +3201,7 @@ export default function App() {
     
     // Fallback para lutas de rivais de rota
     startKeyBattle(battleData);
-  }, [POKEDEX, MOVES, setCurrentEnemy, setCurrentView, addLog, startKeyBattle, gameState.team]);
+  }, [POKEDEX, MOVES, MOVE_TRANSLATIONS, setCurrentEnemy, setCurrentView, addLog, startKeyBattle, gameState.team]);
 
   const getBossTeamKey = useCallback((pokemon) => pokemon?.instanceId || `${pokemon?.id}-${pokemon?.name}`, []);
 
@@ -3234,7 +3270,11 @@ export default function App() {
     const learnset = base.learnset || [];
     const availableMoves = learnset
       .filter(m => m.level <= lvl)
-      .map(m => getMoveData(m.move));
+      .map(m => {
+        const mk = (m.move || '').toLowerCase().trim();
+        const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
+        return { ...md, name: MOVE_TRANSLATIONS?.[mk] || md.name || m.move };
+      });
     const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
     setCurrentEnemy({
@@ -3258,7 +3298,7 @@ export default function App() {
     // BGM agora gerenciado pelas configurações
     addLog(`⬠ GINÁSIO: Líder ${gymData.name} enviou ${base.name}! Nv.${lvl}`, 'system');
     isProcessingVictory.current = false;
-  }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, gameState]);
+  }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS, gameState]);
 
   const handleCraft = (recipe) => {
     setGameState(prev => {
@@ -3862,7 +3902,11 @@ export default function App() {
         const learnset = base.learnset || [];
         const availableMoves = learnset
           .filter(m => m.level <= lvl)
-          .map(m => getMoveData(m.move));
+          .map(m => {
+            const mk = (m.move || '').toLowerCase().trim();
+            const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
+            return { ...md, name: MOVE_TRANSLATIONS?.[mk] || md.name || m.move };
+          });
         const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
         addLog(`🚀 ${currentEnemy.trainerName} enviou ${base.name}!`, 'enemy');
@@ -4045,16 +4089,19 @@ export default function App() {
           if (pokeData?.learnset) {
             const movesToLearn = pokeData.learnset.filter(l => l.level === newLevel);
             movesToLearn.forEach(learn => {
-              const moveObj = getMoveData(learn.move);
-              const moveLabel = getMoveLabel(learn.move);
-              if (moveObj && !newLearnedMoves.some(m => m.name === moveLabel)) {
-                const finalMoveObj = { ...moveObj, name: moveLabel };
-                newLearnedMoves.push(finalMoveObj);
-                if (newMoves.length < 4 && !newMoves.some(m => m.name === finalMoveObj.name)) {
-                  newMoves.push(finalMoveObj);
-                  addLog(`( ${p.name} aprendeu ${finalMoveObj.name}!`, 'system');
+              const moveKey = (learn.move || '').toLowerCase();
+              const moveData = MOVES[moveKey];
+              if (moveData && !newLearnedMoves.some(m => m.name === (MOVE_TRANSLATIONS[moveKey] || moveData.name))) {
+                const moveObj = { 
+                  ...moveData, 
+                  name: MOVE_TRANSLATIONS[moveKey] || moveData.name || learn.move 
+                };
+                newLearnedMoves.push(moveObj);
+                if (newMoves.length < 4 && !newMoves.some(m => m.name === moveObj.name)) {
+                  newMoves.push(moveObj);
+                  addLog(`( ${p.name} aprendeu ${moveObj.name}!`, 'system');
                 } else {
-                  addLog(`✨ ${p.name} aprendeu ${finalMoveObj.name}! (Salvo na Memória)`, 'system');
+                  addLog(`✨ ${p.name} aprendeu ${moveObj.name}! (Salvo na Memória)`, 'system');
                 }
               }
             });
