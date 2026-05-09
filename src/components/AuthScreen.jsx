@@ -17,11 +17,32 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
   const [updateStatus, setUpdateStatus] = useState('idle'); // 'idle', 'checking', 'updated'
   const [showRanking, setShowRanking] = useState(false);
 
+  const forceAppRefresh = async () => {
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map(registration => {
+        registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
+        registration.active?.postMessage({ type: 'SKIP_WAITING' });
+        return registration.unregister();
+      }));
+    }
+
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
+    }
+
+    window.location.replace(`${window.location.pathname}?v=${Date.now()}`);
+  };
+
   const handleCheckUpdate = async () => {
     setUpdateStatus('checking');
     try {
       // Forçamos o browser a buscar a versão mais recente ignorando cache do manifest/json se possível
-      const response = await fetch('./version.json?t=' + Date.now());
+      const response = await fetch('./version.json?t=' + Date.now(), {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      });
       const data = await response.json();
       
       if ('serviceWorker' in navigator) {
@@ -38,21 +59,7 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
 
       if (data.version !== APP_VERSION) {
         if (window.confirm(`Nova versão disponível (${data.version})! Deseja atualizar agora?`)) {
-          // Forçar a limpeza de caches e desregistramento do Service Worker
-          if ('serviceWorker' in navigator) {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            for (const registration of registrations) {
-              await registration.unregister();
-            }
-          }
-          if ('caches' in window) {
-            const cacheNames = await caches.keys();
-            for (const cacheName of cacheNames) {
-              await caches.delete(cacheName);
-            }
-          }
-          // Recarregar a página forçando bypass de cache
-          window.location.reload();
+          await forceAppRefresh();
         }
       } else {
         setUpdateStatus('updated');

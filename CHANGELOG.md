@@ -1,22 +1,142 @@
 # Changelog - PokeCraft
 
-## [V1.52.3] - 04/05/2026 17:28
-### Performance
-- **Lazy Loading de Telas**: Cidade, Batalha, Rotas, Equipe e Menu agora carregam sob demanda, reduzindo o bundle inicial.
-- **Bundle Inicial Menor**: Arquivo principal caiu de aproximadamente 1.063 MB para 933 KB antes de gzip.
-- **Autosave Local Otimizado**: Salvamento no `localStorage` agora usa debounce e `requestIdleCallback` quando disponível, evitando custo síncrono em toda mudança de batalha.
-- **Rotas Mais Leves**: Comparação de encontros na tela de rotas deixou de usar `JSON.stringify` completo e passou a usar uma assinatura curta.
+## [V1.55.8] - 09/05/2026 10:12
+### Adicionado
+- **Titulos de Shinies**: novos titulos para 1, 5, 25 e 100 Pokemon shiny capturados.
+- **Titulos de Treinadores**: novos titulos para 10, 50, 100 e 250 vitorias contra treinadores.
+- **Titulos de Historia VS**: novos titulos para superar rivais e derrotar equipes vilas.
 
-## [V1.52.2] - 04/05/2026 17:19
-### Balanceamento
-- **Economia de captura**: Reduzidas as moedas obtidas em batalhas selvagens e contra treinadores para tornar Poke Bolas mais valiosas.
-- **Drops de Poke Bola**: Removido o drop direto e global de Poke Bolas nas rotas de farm.
-- **Progressao de materiais**: Apricorn comum e sementes simples agora aparecem nas primeiras rotas; materiais de Great Ball aparecem no meio do jogo; materiais de Ultra Ball aparecem nas rotas finais.
+### Atualizado
+- **Progresso Permanente**: `shinyCapturedCount` e `trainerBattleWins` passam a ser salvos e sincronizados no perfil global.
+- **Trainer Card**: a selecao de titulos agora considera capturas shiny, batalhas VS, historia, regioes, forja, boss e Pokedex.
 
-### Crafting e Casa
-- **Receitas de Balls**: Poke Ball, Great Ball, Ultra Ball e Balls especiais agora usam Apricorns, essencias e materiais coerentes com a progressao.
-- **Plantio de Apricorns**: Plantar agora consome a semente usada, evitando multiplicacao infinita de Apricorns raros.
-- **Tutorial da Floresta de Viridian**: Adicionada janela explicando a forja de Poke Bolas com tabela de materiais e locais de obtencao.
+## [V1.55.7] - 09/05/2026 10:08
+### Adicionado
+- **Titulos Personalizaveis no Trainer Card**: area ao lado do nome do treinador para exibir titulos com cores e icones proprios.
+- **Desbloqueio por Progresso**: novos titulos por capturas totais, mestre de cada regiao, campeao de liga, forja e dano em Boss.
+- **Selecao de Titulo**: o jogador pode abrir o modal de titulos desbloqueados e escolher qual titulo fica ativo no card.
+
+### Atualizado
+- **Perfil Global**: o titulo ativo e a Pokedex capturada passam a ser sincronizados para exibir o Trainer Card com progresso real no ranking.
+
+## [V1.55.6] - 09/05/2026 10:01
+### Atualizado
+- **World Boss de 120s**: o Boss agora possui HP virtualmente inesgotavel e nao cai para zero antes do fim do cronometro.
+- **Ranking Global de Boss**: o painel mostra top global, maior dano, pontuacao, tentativas e destaque da posicao do jogador quando ele aparece no top 25.
+- **Pontuacao de Boss**: cada tentativa salva maior dano, ultimo dano, melhor pontuacao, ultima pontuacao, tentativas e Power Score do treinador.
+
+### Corrigido
+- **Fim da Batalha de Boss**: o resultado passa a depender do timer de 120 segundos, mantendo o objetivo como causar o maximo de dano possivel.
+
+## [V1.55.5] - 09/05/2026 09:56
+### Adicionado
+- **Lista Completa de Materiais da Forja**: todos os materiais usados em receitas agora possuem guia de origem por Pokemon e rota.
+- **Receitas como Drops Raros**: todas as receitas da forja agora geram itens `recipe_*` dropaveis por Pokemon tematicamente relacionados.
+- **Auditoria da Forja**: novo comando `npm run audit-forge` valida receitas, materiais, guias de drop e Pokemon que dropam receitas.
+
+### Atualizado
+- **Fonte Unica da Forja**: guias de materiais, guias de receitas e tabela de drops raros foram centralizados em `src/data/recipes.js`.
+- **Drops de Receita**: cada vitoria pode sortear uma receita rara relacionada ao Pokemon derrotado, com chance maior em shiny.
+- **Click to Go**: a tela de forja usa a lista central para direcionar o jogador ate a rota onde a receita ou material pode ser dropado.
+
+## [V1.55.4] - 09/05/2026 09:49
+### Adicionado
+- **Cobertura Regional Completa**: adicionadas rotas de Habitat Regional para Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, Galar e Paldea.
+- **Todos os 1025 Pokemon Obtiveis**: cada Pokemon da Pokédex local agora aparece como selvagem em rota regional ou pode ser alcancado por evolucao.
+- **Treino Nivel 100 por Regiao**: cada regiao ganhou uma rota final de treino nivel 100 apos a progressao pos-Liga.
+
+### Atualizado
+- **Progressao de Encontros**: habitats foram divididos em fases inicial, intermediaria, avancada e pos-Liga, aumentando nivel e raridade conforme o jogador progride.
+- **Regioes Novas com Legado**: Unova em diante podem misturar alguns encontros de regioes antigas sem quebrar a liberacao principal por regiao.
+- **Auditoria Estrita**: `npm run audit-content:strict` agora passa com cobertura completa de obtencao.
+
+## [V1.55.3] - 09/05/2026 09:43
+### Adicionado
+- **Auditoria Permanente de Conteudo**: novo comando `npm run audit-content` valida Pokédex, referencias de rotas, evolucoes, backgrounds e cobertura de obtencao.
+- **Modo Estrito Futuro**: `npm run audit-content:strict` ja fica preparado para bloquear release quando todos os 1025 Pokemon precisarem estar obtiveis.
+- **Catalogo de Formas Alternativas**: adicionada estrutura inicial para formas regionais, variantes climaticas, lendarias, especiais e cosmeticas.
+
+### Verificado
+- **Pokedex Base**: confirmadas 1025 entradas locais, sem buracos de numeracao.
+- **Backgrounds**: confirmadas 126 referencias de cenario sem arquivos ausentes.
+- **Mapa de Lacunas**: auditoria identifica 577 Pokemon ainda nao obtiveis e 31 rotas com selvagens fora da regiao inferida, guiando a proxima etapa de conteudo.
+
+## [V1.55.2] - 08/05/2026 17:29
+### Atualizado
+- **Lint de Produção**: a configuração agora ignora arquivos temporários e mantém o lint focado em erros práticos, permitindo validação limpa com `npm run lint -- --quiet`.
+- **Qualidade do AppRoot**: removidos ramos constantes e componentes definidos dentro do render da Cidade, reduzindo risco de recriação desnecessária de UI.
+
+### Corrigido
+- **Cura Parcial de Status**: itens com lista de status curáveis agora removem somente os status previstos antes de cair na cura total.
+- **Confirmações de Compra e Forja**: removidas condições constantes nos fluxos de Mart e Forja.
+- **Validação Visual**: backgrounds seguem com todas as referências resolvidas.
+
+## [V1.55.1] - 08/05/2026 17:05
+### Atualizado
+- **Build Otimizado**: separação de chunks para React, Firebase, vendors, dados grandes e telas principais, mantendo o bundle inicial abaixo do limite de alerta.
+- **Auditoria de Saves Legados**: adicionada migração centralizada para normalizar badges, flags regionais, times regionais, inventário, casa, expedições, auto captura e dados de progresso.
+- **Lint Mais Útil**: `scratch` saiu da varredura e regras ruidosas do React Compiler foram ajustadas para destacar problemas mais práticos.
+
+### Corrigido
+- **Inicialização do Save**: `gameState` agora é inicializado antes dos listeners de autenticação/cloud, evitando acesso estruturalmente inseguro ao `setGameState`.
+- **Drops de Evolução**: removidas chaves duplicadas em fragmentos de evolução para preservar comportamento sem ambiguidade.
+- **Dados de Galar**: corrigidos IDs com zero à esquerda nas batalhas de líderes.
+- **Componentes React**: ajustados TrainerCard, brilho shiny da batalha e ação de evolução por item para evitar padrões problemáticos de hooks/componentes.
+
+## [V1.55.0] - 08/05/2026 16:41
+### Adicionado
+- **Poder PS Global Completo**: cálculo centralizado considerando time ativo, PC, times regionais, expedições, casa, Pokédex capturada, shinies e insígnias de todas as regiões.
+- **Modal Explicativo do Poder PS**: o trainer card agora explica a composição do PS e a régua de ranks Poké Ball, Great Ball, Ultra Ball e Master Ball.
+- **Backgrounds Regionais Faltantes**: adicionados cenários para Battle Frontier, Ever Grande City e novas cavernas/elites de Unova, Kalos, Alola, Galar e Paldea.
+
+### Corrigido
+- **Botão Continuar Jornada**: o botão voltou a aparecer na tela inicial mesmo quando o time ativo está vazio, reconhecendo progresso por PC, times regionais, Pokédex, flags e insígnias.
+- **Insígnias por Região no PS**: Johto, Hoenn, Sinnoh e regiões futuras agora entram no cálculo de pontuação e na exibição do modal.
+- **Referências de Background**: verificação completa confirmou que não há mais `bg_*.png` referenciado sem arquivo em `public`.
+- **Aliases de Background Legados**: restaurados arquivos `bg_*.png` usados por rotas, desafios e boss battles para evitar telas sem cenário.
+
+### Atualizado
+- **Régua de Rank PS**: ranks recalibrados para a escala global com todos os Pokémon e regiões.
+- **Cache PWA**: service worker atualizado para `pokecraft-cache-v1.55.0`, forçando a troca dos assets antigos.
+ 
+## [V1.54.0] - 06/05/2026 07:35
+### Adicionado
+- **Cenários Regionais Únicos (Gen 5-9)**: Implementados 10 novos backgrounds exclusivos e artísticos para Unova, Kalos, Alola, Galar e Paldea, eliminando os placeholders de Kanto.
+- **Menu de Viagem Expandido**: Interface agora exibe abas para todas as 9 regiões, permitindo visualizar a progressão global do jogo.
+- **Sistema de Múltiplas Evoluções**: Pokémon como Eevee agora possuem todas as ramificações evolutivas disponíveis (Vaporeon, Jolteon, Flareon, Espeon, Umbreon, Leafeon, Glaceon e Sylveon) com critérios específicos.
+- **Critérios Ambientais**: Implementada evolução baseada no período do dia (Manhã/Dia vs Noite), necessária para Espeon e Umbreon.
+- **Interface de Evolução Dinâmica**: O Guia de Evolução agora exibe múltiplos caminhos, permitindo visualizar requisitos de nível, pedras e horários simultaneamente.
+ 
+### Corrigido
+- **Sequência de Batalha**: Corrigido bug onde a equipe voltava para o primeiro Pokémon após uma derrota ou exaustão; agora o jogo segue a sequência correta (1 -> 2 -> 3...).
+- **Estabilidade do Motor de Combate**: Resolvido problema de estado "stale" no ciclo de batalha, garantindo que as trocas automáticas e detecção de HP funcionem perfeitamente.
+- **Evoluções de Sinnoh**: Corrigidas as rotas de evolução de Kirlia (Gallade) e Snorunt (Froslass) usando a Dawn Stone.
+
+## [V1.53.0] - 05/05/2026 23:43
+### Atualizado
+- **Economia de Pokebolas**: Pokebolas, Great Balls e Ultra Balls ficaram bem mais caras no Mart; drops de Pokebola em batalha agora sao raros para valorizar fabricacao.
+- **Forja sem Moedas**: Craft/Forja agora consome somente materiais, inclusive no modal de fabricacao em lote da cidade.
+- **Expedicoes Regionais**: adicionada progressao por local, mastery por expedicao e locais liberados por regiao de Kanto ate Sinnoh.
+- **Estrutura ate a 9a Geracao**: preparados desbloqueios e biomas futuros para Unova, Kalos, Alola, Galar e Paldea, ativados por flags regionais.
+- **Cache PWA**: service worker atualizado para `pokecraft-cache-v1.53.0`, forçando a troca dos assets antigos.
+
+## [V1.52.9] - 05/05/2026 18:48
+### Corrigido
+- **Rotas de Sinnoh**: cenarios atualizados para usar os assets salvos em `public`, incluindo Twinleaf, Sandgem, Jubilife, Eterna, Mt. Coronet, Snowpoint, Sunyshore e Victory Road.
+- **Exp Share Regional**: Sinnoh agora nao herda insignias de Kanto/Johto/Hoenn; sem insignias proprias, nao ha compartilhamento regional automatico.
+- **Cache PWA**: service worker atualizado para `pokecraft-cache-v1.52.9`, forçando a troca dos assets antigos.
+
+## [V1.52.8] - 05/05/2026 14:32
+### Atualizado
+- **Versao Publica**: `package.json`, `package-lock.json`, `version.json` e constantes internas atualizados para `1.52.8`.
+- **Cache PWA**: service worker atualizado para `pokecraft-cache-v1.52.8`, forçando a troca dos assets antigos.
+- **Verificacao**: copia local conferida; nao foram encontrados arquivos com timestamp de alteracao em 05/05/2026 nesta pasta.
+
+## [V1.50.5] - 03/05/2026 21:47
+### Corrigido
+- **Expedicoes**: desbloqueio agora usa a contagem normalizada de insignias, aceitando saves com ids (`boulder_badge`) e saves antigos numericos.
+- **Cache PWA**: service worker atualizado para `pokecraft-cache-v1.50.5`, forçando a troca dos assets antigos.
+- **Versao Publica**: `package.json`, `package-lock.json`, `version.json` e constantes internas atualizados para `1.50.5`.
 
 ## [V1.45.1] - 30/04/2026 11:54
 ### Adicionado

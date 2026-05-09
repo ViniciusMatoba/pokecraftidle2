@@ -27,80 +27,20 @@ export const getRouteLevel = (route) => {
 
 export const inferRouteRegion = (routeId, routeGroup) => {
   const str = `${routeId} ${routeGroup || ''}`.toLowerCase();
+  if (str.includes('paldea') || str.includes('cabo_poco') || str.includes('mesagoza') || str.includes('area_zero')) return { id: 'paldea', order: 9 };
+  if (str.includes('galar') || str.includes('postwick') || str.includes('motostoke') || str.includes('wild_area')) return { id: 'galar', order: 8 };
+  if (str.includes('alola') || str.includes('hauoli') || str.includes('akala') || str.includes('poni')) return { id: 'alola', order: 7 };
+  if (str.includes('kalos') || str.includes('vaniville') || str.includes('lumiose') || str.includes('victory_road_kalos')) return { id: 'kalos', order: 6 };
+  if (str.includes('unova') || str.includes('nuvema') || str.includes('striaton') || str.includes('victory_road_unova')) return { id: 'unova', order: 5 };
+  if (str.includes('sinnoh') || str.includes('twinleaf') || str.includes('sandgem') || str.includes('jubilife') || str.includes('survival_area') || str.includes('stark_mountain')) return { id: 'sinnoh', order: 4 };
   if (str.includes('hoenn') || str.includes('littleroot') || str.includes('route_101') || str.includes('route_102') || str.includes('oldale') || str.includes('petalburg') || str.includes('rustboro') || str.includes('dewford') || str.includes('granite_cave') || str.includes('slateport') || str.includes('mauville') || str.includes('route_110') || str.includes('route_111') || str.includes('route_113') || str.includes('fiery_path') || str.includes('fallarbor') || str.includes('meteor_falls') || str.includes('mt_chimney') || str.includes('lavaridge') || str.includes('fortree') || str.includes('lilycove') || str.includes('mt_pyre') || str.includes('ocean_routes') || str.includes('mossdeep') || str.includes('seafloor') || str.includes('sootopolis') || str.includes('cave_of_origin') || str.includes('sky_pillar') || str.includes('pacifidlog') || str.includes('ever_grande') || str.includes('victory_road_hoenn') || str.includes('route_116') || str.includes('rusturf') || str.includes('route_104') || str.includes('route_118') || str.includes('route_120')) return { id: 'hoenn', order: 3 };
   if (str.includes('johto') || str.includes('bark') || str.includes('cherrygrove') || str.includes('violet') || str.includes('azalea') || str.includes('goldenrod') || str.includes('ecruteak') || str.includes('olivine') || str.includes('cianwood') || str.includes('mahogany') || str.includes('blackthorn') || str.includes('mt_silver') || str.includes('silver') || str.includes('sprout') || str.includes('ilex') || str.includes('slowpoke') || str.includes('union_cave') || str.includes('national_park') || str.includes('burned_tower') || str.includes('lake_of_rage') || str.includes('ice_path') || str.includes('dragons_den') || str.includes('johto_victory')) return { id: 'johto', order: 2 };
-  if (str.includes('sinnoh') || str.includes('twinleaf') || str.includes('sandgem') || str.includes('jubilife') || str.includes('oreburgh') || str.includes('floaroma') || str.includes('eterna') || str.includes('hearthome') || str.includes('solaceon') || str.includes('veilstone') || str.includes('pastoria') || str.includes('celestic') || str.includes('canalave') || str.includes('snowpoint') || str.includes('sunyshore') || str.includes('coronet') || str.includes('victory_road_sinnoh') || str.includes('lake_verity') || str.includes('lake_valor') || str.includes('lake_acuity')) return { id: 'sinnoh', order: 4 };
   return { id: 'kanto', order: 1 };
 };
 
-const GROUP_ORDER = {
-  kanto: [
-    'Pallet Town',
-    'Viridian City',
-    'Pewter City',
-    'Cerulean City',
-    'Vermilion City',
-    'Lavender Town',
-    'Celadon City',
-    'Fuchsia City',
-    'Saffron City',
-    'Cinnabar Island',
-    'Victory Road',
-    'Elite Four',
-    'Pos-Game',
-  ],
-  johto: [
-    'New Bark Town',
-    'Cherrygrove City',
-    'Violet City',
-    'Azalea Town',
-    'Goldenrod City',
-    'Ecruteak City',
-    'Olivine City',
-    'Cianwood City',
-    'Mahogany Town',
-    'Blackthorn City',
-    'Johto Liga',
-    'Mt. Silver',
-  ],
-  hoenn: [
-    'Hoenn Inicio',
-    'Hoenn Rustboro',
-    'Hoenn Dewford',
-    'Hoenn Slateport',
-    'Hoenn Mauville',
-    'Hoenn Lavaridge',
-    'Hoenn Fortree',
-    'Hoenn Lilycove',
-    'Hoenn Mossdeep',
-    'Hoenn Sootopolis',
-    'Hoenn Ever Grande',
-    'Hoenn Liga',
-    'Hoenn Pos-Game',
-  ],
-  sinnoh: [
-    'Sinnoh Inicio',
-    'Sinnoh Oreburgh',
-    'Sinnoh Eterna',
-    'Sinnoh Hearthome',
-    'Sinnoh Veilstone',
-    'Sinnoh Pastoria',
-    'Sinnoh Snowpoint',
-    'Sinnoh Liga',
-  ],
-};
-
-const getGroupOrder = (route) => {
-  const regionId = route._region?.id || inferRouteRegion(route.id, route.group).id;
-  const order = GROUP_ORDER[regionId] || [];
-  const idx = order.indexOf(route.group);
-  return idx === -1 ? 999 : idx;
-};
-
 export const getSortedRoutes = (routesObj) => {
-  const routesArray = Object.values(routesObj).map((route, index) => ({
+  const routesArray = Object.values(routesObj).map(route => ({
     ...route,
-    _routeOrder: index,
     _minLevel: null,
     _region: inferRouteRegion(route.id, route.group),
   }));
@@ -123,42 +63,13 @@ export const getSortedRoutes = (routesObj) => {
   });
 
   return routesArray.sort((a, b) => {
-    if (a._region.order !== b._region.order) return a._region.order - b._region.order;
-    
-    // Ordena primariamente por nível
-    const aLevel = a._minLevel ?? a.unlockLevel ?? 1;
-    const bLevel = b._minLevel ?? b.unlockLevel ?? 1;
-    if (aLevel !== bLevel) return aLevel - bLevel;
-
-    // Se o nível for igual, ordena por grupo
-    const groupDelta = getGroupOrder(a) - getGroupOrder(b);
-    if (groupDelta !== 0) return groupDelta;
-
-    const aCity = a.type === 'city' || a.type === 'gym';
-    const bCity = b.type === 'city' || b.type === 'gym';
-    if (aCity !== bCity) return aCity ? -1 : 1;
-
-    return a._routeOrder - b._routeOrder;
+    if (a._minLevel !== b._minLevel) return a._minLevel - b._minLevel;
+    return a._region.order - b._region.order;
   });
 };
 
 // POKEDEX resolvido em runtime pelo App   sem import circular
 const pk = (ids, level) => ids.map(id => ({ id: Number(id), level }));
-const pkRange = (ids, minLevel, maxLevel) => {
-  const span = Math.max(0, maxLevel - minLevel);
-  return ids.map((id, index) => ({
-    id: Number(id),
-    level: minLevel + (span ? (index % (span + 1)) : 0),
-  }));
-};
-
-const encounterRange = (encounters, minLevel, maxLevel) => {
-  const span = Math.max(0, maxLevel - minLevel);
-  return encounters.map((encounter, index) => ({
-    ...encounter,
-    level: minLevel + (span ? (index % (span + 1)) : 0),
-  }));
-};
 
 export const getRivalSprite = (playerAvatarImg) => {
   if (playerAvatarImg && playerAvatarImg.includes('blue.png')) {
@@ -197,6 +108,265 @@ const S = {
   bruno:       'https://play.pokemonshowdown.com/sprites/trainers/bruno.png',
   agatha:      'https://play.pokemonshowdown.com/sprites/trainers/agatha-gen3.png',
   lance:       'https://play.pokemonshowdown.com/sprites/trainers/lance.png',
+  plasma:      'https://play.pokemonshowdown.com/sprites/trainers/plasmagrunt.png',
+  flare:       'https://play.pokemonshowdown.com/sprites/trainers/flaregrunt.png',
+  skull:       'https://play.pokemonshowdown.com/sprites/trainers/skullgrunt.png',
+  yell:        'https://play.pokemonshowdown.com/sprites/trainers/yellgrunt.png',
+  star:        'https://play.pokemonshowdown.com/sprites/trainers/giacomo.png',
+};
+
+const buildRegionRoutes = ({ region, label, startFlag, previousChampion, groups, starters, early, mid, late, final, backgrounds }) => ({
+  [`${region}_home_town`]: {
+    id: `${region}_home_town`, name: groups.home, type: 'city', group: `${label} Inicio`,
+    unlockLevel: 1, requirements: [startFlag],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: backgrounds.city,
+    description: `Ponto inicial preparado para a jornada de ${label}.`,
+  },
+  [`${region}_route_1`]: {
+    id: `${region}_route_1`, name: 'Rota Inicial', type: 'farm', group: `${label} Inicio`,
+    unlockLevel: 5, requirements: [startFlag], unlocks: `${region}_route_1_cleared`,
+    biome: 'grass',
+    enemies: pk(early, 8).map((p, i) => ({ ...p, drop: ['normal_essence', 'grass_essence', 'flying_essence'][i % 3] })),
+    trainerChance: 0.06,
+    trainers: [
+      { name: `Treinador ${label} I`, sprite: S.youngster, team: pk([early[0], early[1]], 11), reward: 900 },
+      { name: `Treinadora ${label} I`, sprite: S.lass, team: pk([early[2], starters[0]], 12), reward: 1000 },
+    ],
+    background: backgrounds.route,
+    description: `Treino inicial de ${label}, com drops basicos para craft e capturas regionais.`,
+  },
+  [`${region}_route_2`]: {
+    id: `${region}_route_2`, name: 'Rota Intermediaria', type: 'farm', group: `${label} Meio da Jornada`,
+    unlockLevel: 28, requirements: [`${region}_route_1_cleared`], unlocks: `${region}_route_2_cleared`,
+    biome: 'forest',
+    enemies: pk(mid, 32).map((p, i) => ({ ...p, drop: ['bug_essence', 'poison_essence', 'psychic_essence', 'water_essence'][i % 4] })),
+    trainerChance: 0.08,
+    trainers: [
+      { name: `Ace Trainer ${label}`, sprite: S.aceM, team: pk([mid[0], mid[1], starters[1]], 36), reward: 2600 },
+      { name: `Ranger ${label}`, sprite: S.aceF, team: pk([mid[2], mid[3]], 37), reward: 2800 },
+    ],
+    background: backgrounds.route,
+    description: `Rota com treinadores pelo menos 3 niveis acima dos selvagens e materiais melhores.`,
+  },
+  [`${region}_route_3`]: {
+    id: `${region}_route_3`, name: 'Rota Avancada', type: 'farm', group: `${label} Fim da Jornada`,
+    unlockLevel: 58, requirements: [`${region}_route_2_cleared`], unlocks: `${region}_route_3_cleared`,
+    biome: 'mountain',
+    enemies: pk(late, 62).map((p, i) => ({ ...p, drop: ['steel_essence', 'dark_essence', 'dragon_essence', 'mystic_dust'][i % 4] })),
+    trainerChance: 0.1,
+    trainers: [
+      { name: `Veteran ${label}`, sprite: S.aceM, team: pk([late[0], late[1], starters[2]], 66), reward: 5200 },
+      { name: `Elite Trainer ${label}`, sprite: S.aceF, team: pk([late[2], late[3]], 68), reward: 5600 },
+    ],
+    background: backgrounds.cave,
+    description: `Rota avancada com Pokemon evoluidos, drops raros e treino pre-Liga.`,
+  },
+  [`${region}_victory_training`]: {
+    id: `${region}_victory_training`, name: `Treino de Elite ${label}`, type: 'farm', group: `${label} Pos-Liga`,
+    unlockLevel: 90, requirements: [previousChampion], unlocks: `${region}_victory_training_cleared`,
+    biome: 'cave',
+    enemies: pk(final, 94).map((p, i) => ({ ...p, drop: ['dragon_scale', 'stardust', 'armor_fragment', 'fury_essence'][i % 4] })),
+    trainerChance: 0.12,
+    trainers: [
+      { name: `Campeao de Treino ${label}`, sprite: S.cooltrainer, team: pk([final[0], final[1], final[2]], 100), reward: 10000 },
+    ],
+    background: backgrounds.elite,
+    description: `Estrutura final para treinar Pokemon ate o nivel 100 em ${label}.`,
+  },
+});
+
+const FUTURE_REGION_ROUTES = {
+  ...buildRegionRoutes({
+    region: 'unova', label: 'Unova', startFlag: 'unova_started', previousChampion: 'unova_champion',
+    groups: { home: 'Nuvema Town' }, starters: [497, 500, 503], early: [504, 506, 509, 519], mid: [507, 510, 520, 527], late: [530, 534, 553, 567], final: [612, 635, 637, 643],
+    backgrounds: { city: '/bg_unova_city.png', route: '/bg_unova_route.png', cave: '/bg_unova_cave.png', elite: '/bg_unova_elite.png' },
+  }),
+  ...buildRegionRoutes({
+    region: 'kalos', label: 'Kalos', startFlag: 'kalos_started', previousChampion: 'kalos_champion',
+    groups: { home: 'Vaniville Town' }, starters: [652, 655, 658], early: [659, 661, 664, 669], mid: [660, 662, 666, 672], late: [675, 678, 681, 697], final: [700, 706, 715, 716],
+    backgrounds: { city: '/bg_kalos_city.png', route: '/bg_kalos_route.png', cave: '/bg_kalos_cave.png', elite: '/bg_kalos_elite.png' },
+  }),
+  ...buildRegionRoutes({
+    region: 'alola', label: 'Alola', startFlag: 'alola_started', previousChampion: 'alola_champion',
+    groups: { home: 'Hauoli Outskirts' }, starters: [724, 727, 730], early: [731, 734, 736, 739], mid: [735, 738, 744, 752], late: [758, 760, 768, 776], final: [784, 791, 792, 800],
+    backgrounds: { city: '/bg_alola_city.png', route: '/bg_alola_route.png', cave: '/bg_alola_cave.png', elite: '/bg_alola_elite.png' },
+  }),
+  ...buildRegionRoutes({
+    region: 'galar', label: 'Galar', startFlag: 'galar_started', previousChampion: 'galar_champion',
+    groups: { home: 'Postwick' }, starters: [812, 815, 818], early: [819, 821, 824, 827], mid: [820, 823, 828, 834], late: [839, 844, 849, 861], final: [887, 888, 889, 890],
+    backgrounds: { city: '/bg_galar_city.png', route: '/bg_galar_route.png', cave: '/bg_galar_cave.png', elite: '/bg_galar_elite.png' },
+  }),
+  ...buildRegionRoutes({
+    region: 'paldea', label: 'Paldea', startFlag: 'paldea_started', previousChampion: 'paldea_champion',
+    groups: { home: 'Cabo Poco' }, starters: [908, 911, 914], early: [915, 917, 919, 921], mid: [916, 920, 922, 926], late: [936, 943, 952, 959], final: [967, 973, 998, 1008],
+    backgrounds: { city: '/bg_paldea_city.png', route: '/bg_paldea_route.png', cave: '/bg_paldea_cave.png', elite: '/bg_paldea_elite.png' },
+  }),
+};
+
+const rangeIds = (start, end) => Array.from({ length: end - start + 1 }, (_, index) => start + index);
+
+const splitRegionalDex = (start, end) => {
+  const ids = rangeIds(start, end);
+  const chunkSize = Math.ceil(ids.length / 4);
+  return [
+    ids.slice(0, chunkSize),
+    ids.slice(chunkSize, chunkSize * 2),
+    ids.slice(chunkSize * 2, chunkSize * 3),
+    ids.slice(chunkSize * 3),
+  ];
+};
+
+const uniqueIds = (ids) => [...new Set(ids.map(Number).filter(Boolean))];
+
+const withDrops = (ids, level, drops, spawnWeight = 60) =>
+  pk(uniqueIds(ids), level).map((pokemon, index) => ({
+    ...pokemon,
+    spawnWeight,
+    drop: drops[index % drops.length],
+  }));
+
+const legacyEncounters = (regionIndex, phaseIndex) => {
+  if (regionIndex <= 0) return [];
+  const previousMax = [
+    151, 251, 386, 493, 649, 721, 809, 905, 1025,
+  ][regionIndex - 1] || 151;
+  const previousMin = regionIndex === 1 ? 1 : [
+    1, 152, 252, 387, 494, 650, 722, 810, 906,
+  ][regionIndex - 1];
+  const span = previousMax - previousMin + 1;
+  const step = Math.max(1, Math.floor(span / 8));
+  const start = previousMin + (phaseIndex * step);
+  return rangeIds(start, Math.min(previousMax, start + 5));
+};
+
+const buildRegionalDexCoverageRoutes = ({
+  region,
+  label,
+  regionIndex,
+  startRequirement,
+  championRequirement,
+  range,
+  backgrounds,
+}) => {
+  const [early, middle, advanced, elite] = splitRegionalDex(range[0], range[1]);
+  const field1 = `${region}_dex_field_1_cleared`;
+  const field2 = `${region}_dex_field_2_cleared`;
+  const field3 = `${region}_dex_field_3_cleared`;
+  const field4 = `${region}_dex_field_4_cleared`;
+  const drops = ['normal_essence', 'grass_essence', 'water_essence', 'flying_essence', 'bug_essence'];
+  const rareDrops = ['psychic_essence', 'ghost_essence', 'dark_essence', 'steel_essence', 'dragon_essence'];
+
+  return {
+    [`${region}_dex_field_1`]: {
+      id: `${region}_dex_field_1`, name: `Habitat Regional ${label} I`, type: 'farm', group: `${label} Pokedex`,
+      unlockLevel: 12, requirements: [startRequirement], unlocks: field1,
+      biome: 'grass',
+      enemies: withDrops([...early, ...legacyEncounters(regionIndex, 0)], 12, drops, 90),
+      trainerChance: 0.07,
+      trainers: [
+        { name: `Pesquisador ${label} I`, sprite: S.youngster, team: pk(early.slice(0, 3), 15), reward: 1100 },
+      ],
+      background: backgrounds.route,
+      description: `Cobertura inicial da Pokedex de ${label}, focada em capturas basicas e primeiras evolucoes.`,
+    },
+    [`${region}_dex_field_2`]: {
+      id: `${region}_dex_field_2`, name: `Habitat Regional ${label} II`, type: 'farm', group: `${label} Pokedex`,
+      unlockLevel: 34, requirements: [field1], unlocks: field2,
+      biome: 'forest',
+      enemies: withDrops([...middle, ...legacyEncounters(regionIndex, 1)], 36, drops, 70),
+      trainerChance: 0.08,
+      trainers: [
+        { name: `Pesquisadora ${label} II`, sprite: S.lass, team: pk(middle.slice(0, 3), 40), reward: 2600 },
+      ],
+      background: backgrounds.forest || backgrounds.route,
+      description: `Encontros intermediarios com maior presenca de Pokemon evoluidos e materiais melhores.`,
+    },
+    [`${region}_dex_field_3`]: {
+      id: `${region}_dex_field_3`, name: `Habitat Regional ${label} III`, type: 'farm', group: `${label} Pokedex`,
+      unlockLevel: 62, requirements: [field2], unlocks: field3,
+      biome: 'mountain',
+      enemies: withDrops([...advanced, ...legacyEncounters(regionIndex, 2)], 66, rareDrops, 48),
+      trainerChance: 0.1,
+      trainers: [
+        { name: `Veteran ${label} III`, sprite: S.aceM, team: pk(advanced.slice(0, 3), 70), reward: 5200 },
+      ],
+      background: backgrounds.cave || backgrounds.route,
+      description: `Faixa avancada para encontrar evolucoes fortes, raros regionais e drops de forja superior.`,
+    },
+    [`${region}_dex_field_4`]: {
+      id: `${region}_dex_field_4`, name: `Reserva Pos-Liga ${label}`, type: 'farm', group: `${label} Pos-Liga`,
+      unlockLevel: 86, requirements: [field3, championRequirement], unlocks: field4,
+      biome: 'cave',
+      enemies: withDrops([...elite, ...legacyEncounters(regionIndex, 3)], 90, rareDrops, 30),
+      trainerChance: 0.12,
+      trainers: [
+        { name: `Elite Collector ${label}`, sprite: S.aceF, team: pk(elite.slice(0, 4), 94), reward: 8200 },
+      ],
+      background: backgrounds.elite || backgrounds.cave || backgrounds.route,
+      description: `Reserva pos-Liga com os encontros mais raros da regiao e maior chance de Pokemon totalmente evoluidos.`,
+    },
+    [`${region}_dex_level_100`]: {
+      id: `${region}_dex_level_100`, name: `Treino Nivel 100 ${label}`, type: 'farm', group: `${label} Pos-Liga`,
+      unlockLevel: 100, requirements: [field4, championRequirement],
+      biome: 'mountain',
+      enemies: withDrops([...elite.slice(-Math.ceil(elite.length / 2)), ...advanced.slice(-12)], 100, rareDrops, 24),
+      trainerChance: 0.14,
+      trainers: [
+        { name: `Campeao de Treino ${label}`, sprite: S.cooltrainer, team: pk(elite.slice(-4), 100), reward: 12000 },
+      ],
+      background: backgrounds.elite || backgrounds.cave || backgrounds.route,
+      description: `Rota final para treinar qualquer Pokemon de ${label} ate o nivel 100.`,
+    },
+  };
+};
+
+const REGIONAL_DEX_COVERAGE_ROUTES = {
+  ...buildRegionalDexCoverageRoutes({
+    region: 'kanto', label: 'Kanto', regionIndex: 0, startRequirement: 'has_starter', championRequirement: 'champion',
+    range: [1, 151],
+    backgrounds: { route: '/battle_bg_route24_25_1776993592209.png', forest: '/battle_bg_forest_1776863795763.png', cave: '/battle_bg_cave_1776863810604.png', elite: '/battle_bg_elite_four.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'johto', label: 'Johto', regionIndex: 1, startRequirement: 'johto_started', championRequirement: 'johto_champion',
+    range: [152, 251],
+    backgrounds: { route: '/bg_route30_johto.png', forest: '/bg_ilex_forest.png', cave: '/bg_mt_silver.png', elite: '/bg_johto_league.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'hoenn', label: 'Hoenn', regionIndex: 2, startRequirement: 'hoenn_started', championRequirement: 'hoenn_champion',
+    range: [252, 386],
+    backgrounds: { route: '/bg_route119.png', forest: '/bg_petalburg_woods.png', cave: '/bg_meteor_falls.png', elite: '/bg_elite_four_hoenn.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'sinnoh', label: 'Sinnoh', regionIndex: 3, startRequirement: 'sinnoh_started', championRequirement: 'sinnoh_champion',
+    range: [387, 493],
+    backgrounds: { route: '/bg_route202.png', forest: '/bg_eterna_forest.png', cave: '/bg_mt_coronet.png', elite: '/bg_sinnoh_league.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'unova', label: 'Unova', regionIndex: 4, startRequirement: 'unova_started', championRequirement: 'unova_champion',
+    range: [494, 649],
+    backgrounds: { route: '/bg_unova_route.png', forest: '/bg_unova_route.png', cave: '/bg_unova_cave.png', elite: '/bg_unova_elite.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'kalos', label: 'Kalos', regionIndex: 5, startRequirement: 'kalos_started', championRequirement: 'kalos_champion',
+    range: [650, 721],
+    backgrounds: { route: '/bg_kalos_route.png', forest: '/bg_kalos_route.png', cave: '/bg_kalos_cave.png', elite: '/bg_kalos_elite.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'alola', label: 'Alola', regionIndex: 6, startRequirement: 'alola_started', championRequirement: 'alola_champion',
+    range: [722, 809],
+    backgrounds: { route: '/bg_alola_route.png', forest: '/bg_alola_route.png', cave: '/bg_alola_cave.png', elite: '/bg_alola_elite.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'galar', label: 'Galar', regionIndex: 7, startRequirement: 'galar_started', championRequirement: 'galar_champion',
+    range: [810, 905],
+    backgrounds: { route: '/bg_galar_route.png', forest: '/bg_galar_route.png', cave: '/bg_galar_cave.png', elite: '/bg_galar_elite.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'paldea', label: 'Paldea', regionIndex: 8, startRequirement: 'paldea_started', championRequirement: 'paldea_champion',
+    range: [906, 1025],
+    backgrounds: { route: '/bg_paldea_route.png', forest: '/bg_paldea_route.png', cave: '/bg_paldea_cave.png', elite: '/bg_paldea_elite.png' },
+  }),
 };
 
 export const GYM_LEADERS = {
@@ -225,8 +395,8 @@ export const ROUTES = {
     unlockLevel: 1, requirements: ['has_starter'],
     biome: 'grass',
     enemies: [
-      { id: 16, level: 3, drop: 'apricorn', dropChance: 0.35 },
-      { id: 19, level: 3, drop: 'apricorn', dropChance: 0.35 },
+      { id: 16, level: 3, drop: 'normal_essence' },
+      { id: 19, level: 3, drop: 'normal_essence' },
     ],
     trainerChance: 0.05,
     trainers: [
@@ -251,10 +421,10 @@ export const ROUTES = {
     unlockLevel: 3, requirements: ['has_starter'],
     biome: 'grass',
     enemies: [
-      { id: 56, level: 4, drop: 'apricorn', dropChance: 0.28 },
-      { id: 21, level: 4, drop: 'red_apricorn', dropChance: 0.08 },
-      { id: 29, level: 4, drop: 'green_apricorn', dropChance: 0.06 },
-      { id: 32, level: 4, drop: 'green_apricorn', dropChance: 0.06 },
+      { id: 56, level: 4, drop: 'fighting_essence' },
+      { id: 21, level: 4, drop: 'flying_essence' },
+      { id: 29, level: 4, drop: 'poison_essence' },
+      { id: 32, level: 4, drop: 'poison_essence' },
     ],
     trainerChance: 0.05,
     trainers: [
@@ -270,12 +440,7 @@ export const ROUTES = {
     id: 'viridian_forest', name: 'Floresta de Viridian', type: 'farm', group: 'Viridian City',
     unlockLevel: 5, requirements: ['has_starter', 'rival_1_defeated'],
     biome: 'forest',
-    enemies: [
-      { id: 10, level: 5, drop: 'green_apricorn', dropChance: 0.10 },
-      { id: 13, level: 6, drop: 'apricorn', dropChance: 0.25 },
-      { id: 11, level: 7, drop: 'green_apricorn', dropChance: 0.08 },
-      { id: 14, level: 8, drop: 'blue_apricorn', dropChance: 0.05 },
-    ],
+    enemies: pk([10, 13, 11, 14], 6),
     trainerChance: 0.05,
     trainers: [
       { name: 'Bug Catcher Rick',    sprite: S.bugcatcher, team: pk([10, 13], 6),      reward: 90  },
@@ -301,7 +466,7 @@ export const ROUTES = {
     id: 'route_3', name: 'Rota 3', type: 'farm', group: 'Pewter City',
     unlockLevel: 12, requirements: ['boulder_badge'],
     biome: 'grass',
-    enemies: pkRange([21, 39, 11, 14, 29, 32], 9, 13),
+    enemies: pk([21, 39, 11, 14, 29, 32], 10),
     trainerChance: 0.05,
     trainers: [
       { name: 'Lass Janice',         sprite: S.lass,       team: pk([39, 16], 10),   reward: 180 },
@@ -350,7 +515,7 @@ export const ROUTES = {
     id: 'route_24_25', name: 'Rotas 24 e 25', type: 'farm', group: 'Cerulean City',
     unlockLevel: 17, requirements: ['cascade_badge'],
     biome: 'grass',
-    enemies: pkRange([43, 60, 29, 32, 63], 16, 20),
+    enemies: pk([43, 60, 29, 32, 63], 15),
     trainerChance: 0.05,
     trainers: [
       { name: 'Bug Catcher Cale', sprite: S.bugcatcher, team: pk([48, 43], 15), reward: 260 },
@@ -366,7 +531,7 @@ export const ROUTES = {
     id: 'route_5_6', name: 'Rotas 5 e 6', type: 'farm', group: 'Vermilion City',
     unlockLevel: 18, requirements: ['cascade_badge'],
     biome: 'grass',
-    enemies: pkRange([16, 19, 52, 39, 96], 20, 24),
+    enemies: pk([16, 19, 52, 39, 96], 18),
     trainerChance: 0.05,
     trainers: [
       { name: 'Picnicker Irene',  sprite: S.picnicker, team: pk([19, 52], 19),     reward: 280 },
@@ -382,7 +547,7 @@ export const ROUTES = {
     id: 'ss_anne', name: 'S.S. Anne', type: 'farm', group: 'Vermilion City',
     unlockLevel: 20, requirements: ['cascade_badge'],
     biome: 'water',
-    enemies: pkRange([16, 19, 52, 96], 22, 26),
+    enemies: pk([16, 19, 52, 96], 20),
     trainerChance: 0.05,
     trainers: [
       { name: 'Gentleman Thomas', sprite: S.gentleman, team: pk([52, 52], 22),       reward: 600 },
@@ -407,7 +572,7 @@ export const ROUTES = {
     id: 'route_9_10', name: 'Rotas 9 e 10', type: 'farm', group: 'Lavender Town',
     unlockLevel: 26, requirements: ['thunder_badge'],
     biome: 'grass',
-    enemies: pkRange([21, 23, 56, 81, 100], 25, 30),
+    enemies: pk([21, 23, 56, 81, 100], 22),
     trainerChance: 0.05,
     trainers: [
       { name: 'Youngster Gomez', sprite: S.youngster, team: pk([21, 56], 22),   reward: 380 },
@@ -424,12 +589,7 @@ export const ROUTES = {
     unlockLevel: 28, requirements: ['thunder_badge'],
     unlocks: 'rock_tunnel_cleared',
     biome: 'mountain',
-    enemies: [
-      { id: 74, level: 28, drop: 'iron_ore', dropChance: 0.18 },
-      { id: 41, level: 29, drop: 'blue_apricorn', dropChance: 0.06 },
-      { id: 95, level: 31, drop: 'iron_ore', dropChance: 0.22 },
-      { id: 66, level: 34, drop: 'white_apricorn', dropChance: 0.06 },
-    ],
+    enemies: pk([74, 41, 95, 66], 24),
     trainerChance: 0.05,
     trainers: [
       { name: 'Hiker Allen',       sprite: S.hiker,     team: pk([74, 95], 25),      reward: 500 },
@@ -446,7 +606,7 @@ export const ROUTES = {
     unlockLevel: 30, requirements: ['rival_pokemon_tower_defeated'],
     unlocks: 'pokemon_tower_cleared',
     biome: 'mountain',
-    enemies: pkRange([92, 93, 104], 32, 38),
+    enemies: pk([92, 93, 104], 28),
     trainerChance: 0.05,
     trainers: [
       { name: 'Team Rocket Grunt M', sprite: S.rocket,  team: pk([41, 92], 28),   reward: 560, isRocket: true },
@@ -461,15 +621,7 @@ export const ROUTES = {
     id: 'route_7_8', name: 'Rotas 7 e 8', type: 'farm', group: 'Celadon City',
     unlockLevel: 32, requirements: ['thunder_badge', 'rival_pokemon_tower_defeated'],
     biome: 'grass',
-    enemies: [
-      { id: 58, level: 34, drop: 'red_apricorn', dropChance: 0.08 },
-      { id: 37, level: 35, drop: 'white_apricorn', dropChance: 0.06 },
-      { id: 43, level: 36, drop: 'green_apricorn', dropChance: 0.08 },
-      { id: 69, level: 37, drop: 'blue_apricorn', dropChance: 0.08 },
-      { id: 96, level: 38, drop: 'pink_apricorn', dropChance: 0.04 },
-      { id: 102, level: 39, drop: 'green_apricorn', dropChance: 0.08 },
-      { id: 52, level: 40, drop: 'red_apricorn', dropChance: 0.06 },
-    ],
+    enemies: pk([58, 37, 43, 69, 96, 102, 52], 28),
     trainerChance: 0.05,
     trainers: [
       { name: 'Gambler Dru',        sprite: S.gambler, team: pk([52, 96], 28),   reward: 700 },
@@ -485,7 +637,7 @@ export const ROUTES = {
     id: 'rocket_hideout', name: 'QG da Equipe Rocket', type: 'farm', group: 'Celadon City',
     unlockLevel: 33, requirements: ['thunder_badge', 'rival_pokemon_tower_defeated'],
     biome: 'mountain',
-    enemies: pkRange([41, 23, 52, 88], 36, 42),
+    enemies: pk([41, 23, 52, 88], 30),
     trainerChance: 0.05,
     trainers: [
       { name: 'Team Rocket Grunt M', sprite: S.rocket,  team: pk([41, 23], 30),     reward: 700, isRocket: true },
@@ -510,7 +662,7 @@ export const ROUTES = {
     id: 'route_12_15', name: 'Rotas 12 a 15', type: 'farm', group: 'Fuchsia City',
     unlockLevel: 36, requirements: ['rainbow_badge'],
     biome: 'grass',
-    enemies: pkRange([84, 48, 22, 108, 114, 128, 111], 40, 48),
+    enemies: pk([84, 48, 22, 108, 114, 128, 111], 33),
     trainerChance: 0.05,
     trainers: [
       { name: 'Bird Keeper Edwin',  sprite: S.aceM,      team: pk([84, 22], 34),     reward: 820 },
@@ -526,7 +678,7 @@ export const ROUTES = {
     id: 'safari_zone', name: 'Zona Safari', type: 'farm', group: 'Fuchsia City',
     unlockLevel: 38, requirements: ['rainbow_badge'],
     biome: 'grass',
-    enemies: pkRange([102, 108, 113, 114, 115, 123, 127, 128], 44, 52),
+    enemies: pk([102, 108, 113, 114, 115, 123, 127, 128], 35),
     trainerChance: 0, trainers: [],
     background: '/battle_bg_grass_1776863779024.png',
     description: 'Reserva com Pokemon raros.',
@@ -545,7 +697,7 @@ export const ROUTES = {
     id: 'silph_co', name: 'Silph Co.', type: 'farm', group: 'Saffron City',
     unlockLevel: 40, requirements: ['soul_badge', 'rocket_hideout_cleared'],
     biome: 'mountain',
-    enemies: pkRange([100, 81, 137, 63, 96], 46, 54),
+    enemies: pk([100, 81, 137, 63, 96], 35),
     trainerChance: 0.05,
     trainers: [
       { name: 'Team Rocket Grunt M', sprite: S.rocket,  team: pk([41, 23, 88], 35),  reward: 900,  isRocket: true },
@@ -570,7 +722,7 @@ export const ROUTES = {
     id: 'route_16_18', name: 'Cycling Road', type: 'farm', group: 'Fuchsia City',
     unlockLevel: 40, requirements: ['soul_badge'],
     biome: 'grass',
-    enemies: pkRange([84, 22, 128], 48, 56),
+    enemies: pk([84, 22, 128], 35),
     trainerChance: 0.05,
     trainers: [
       { name: 'Biker Ruben',       sprite: S.cooltrainer, team: pk([22, 84], 36),     reward: 900  },
@@ -586,13 +738,7 @@ export const ROUTES = {
     unlockLevel: 44, requirements: ['marsh_badge'],
     unlocks: 'mansion_cleared',
     biome: 'mountain',
-    enemies: [
-      { id: 88, level: 48, drop: 'black_apricorn', dropChance: 0.08 },
-      { id: 109, level: 50, drop: 'mystic_dust', dropChance: 0.10 },
-      { id: 126, level: 52, drop: 'pink_apricorn', dropChance: 0.06 },
-      { id: 132, level: 54, drop: 'mystic_dust', dropChance: 0.08 },
-      { id: 89, level: 56, drop: 'black_apricorn', dropChance: 0.10 },
-    ],
+    enemies: pk([88, 109, 126, 132, 89], 38),
     trainerChance: 0.05,
     trainers: [
       { name: 'Scientist Rodney', sprite: S.aceM,    team: pk([88, 109], 38),      reward: 1100 },
@@ -616,13 +762,7 @@ export const ROUTES = {
     id: 'route_22_23', name: 'Rota 23', type: 'farm', group: 'Victory Road',
     unlockLevel: 50, requirements: ['volcano_badge'],
     biome: 'grass',
-    enemies: [
-      { id: 22, level: 50, drop: 'red_apricorn', dropChance: 0.08 },
-      { id: 23, level: 52, drop: 'black_apricorn', dropChance: 0.08 },
-      { id: 67, level: 54, drop: 'iron_ore', dropChance: 0.15 },
-      { id: 105, level: 56, drop: 'black_apricorn', dropChance: 0.08 },
-      { id: 148, level: 58, drop: 'mystic_dust', dropChance: 0.12 },
-    ],
+    enemies: pk([22, 23, 67, 105, 148], 45),
     trainerChance: 0.05,
     trainers: [
       { name: 'Cooltrainer Kate',   sprite: S.cooltrainer, team: pk([22, 105], 46),  reward: 2000 },
@@ -646,19 +786,12 @@ export const ROUTES = {
     id: 'victory_road', name: 'Victory Road', type: 'farm', group: 'Victory Road',
     unlockLevel: 55, requirements: ['earth_badge'],
     biome: 'mountain',
-    enemies: [
-      { id: 95, level: 58, drop: 'iron_ore', dropChance: 0.25 },
-      { id: 67, level: 60, drop: 'black_apricorn', dropChance: 0.10 },
-      { id: 105, level: 62, drop: 'iron_ore', dropChance: 0.18 },
-      { id: 112, level: 64, drop: 'black_apricorn', dropChance: 0.12 },
-      { id: 148, level: 65, drop: 'mystic_dust', dropChance: 0.14 },
-      { id: 146, level: 66, drop: 'mystic_dust', dropChance: 0.16 },
-    ],
+    enemies: pk([95, 67, 105, 112, 148, 146], 52),
     trainerChance: 0.05,
     trainers: [
-      { name: 'Cooltrainer Naomi',  sprite: S.cooltrainer, team: pk([105, 67], 58),  reward: 3000 },
-      { name: 'Ace Trainer Samuel', sprite: S.aceM,        team: pk([112, 95], 60),  reward: 3200 },
-      { name: 'Cooltrainer George', sprite: S.cooltrainer, team: pk([148, 105], 62), reward: 3400 },
+      { name: 'Cooltrainer Naomi',  sprite: S.cooltrainer, team: pk([105, 67], 52),  reward: 2400 },
+      { name: 'Ace Trainer Samuel', sprite: S.aceM,        team: pk([112, 95], 53),  reward: 2600 },
+      { name: 'Cooltrainer George', sprite: S.cooltrainer, team: pk([148, 105], 54), reward: 2800 },
     ],
     background: '/battle_bg_cave_1776863810604.png',
     description: 'Caverna do desafio final. Seu rival te aguarda!',
@@ -675,31 +808,12 @@ export const ROUTES = {
 
   cerulean_cave: {
     id: 'cerulean_cave', name: 'Caverna Cerulean', type: 'farm', group: 'Pos-Game',
-    unlockLevel: 68, requirements: ['champion'],
+    unlockLevel: 60, requirements: ['champion'],
     biome: 'mountain',
-    enemies: pkRange([42, 47, 67, 75, 95, 106, 107, 108, 113, 131, 132, 136, 138, 140, 142, 143, 150], 70, 84),
-    trainerChance: 0.03,
-    trainers: [
-      { name: 'Veteran Maya', sprite: S.cooltrainer, team: pk([143, 131], 74), reward: 4200 },
-      { name: 'Ace Trainer Nolan', sprite: S.aceM, team: pk([142, 149], 76), reward: 4500 },
-    ],
+    enemies: pk([42, 47, 67, 75, 95, 106, 107, 108, 113, 131, 132, 136, 138, 140, 142, 143, 150], 60),
+    trainerChance: 0, trainers: [],
     background: '/battle_bg_cave_1776863810604.png',
     description: 'Caverna proibida   lar de uma lenda..',
-  },
-
-  cerulean_depths: {
-    id: 'cerulean_depths', name: 'Profundezas Cerulean', type: 'farm', group: 'Pos-Game',
-    unlockLevel: 82, requirements: ['champion'],
-    biome: 'mountain',
-    enemies: pkRange([42, 47, 67, 75, 95, 113, 130, 131, 132, 143, 149, 150], 86, 100),
-    trainerChance: 0.06,
-    trainers: [
-      { name: 'Elite Rematch Vera', sprite: S.aceF, team: pk([149, 131], 90), reward: 6200 },
-      { name: 'Elite Rematch Dario', sprite: S.aceM, team: pk([143, 130], 92), reward: 6500 },
-      { name: 'Champion Mentor', sprite: S.cooltrainer, team: pk([150, 149], 95), reward: 8000 },
-    ],
-    background: '/battle_bg_cave_1776863810604.png',
-    description: 'Rota pos-game para treinar ate o nivel 100 depois da Liga de Kanto.',
   },
 
   // ── GRUPO: NEW BARK TOWN ─────────────────────────────────────────
@@ -715,7 +829,7 @@ export const ROUTES = {
     id: 'johto_route_29', name: 'Rota 29', type: 'farm', group: 'New Bark Town',
     unlockLevel: 60, requirements: ['johto_started'], unlocks: 'johto_route_29_cleared',
     biome: 'grass',
-    enemies: pkRange([161, 162, 163, 164, 165, 167, 179, 187, 172], 3, 6),
+    enemies: pk([161, 162, 163, 164, 165, 167, 179, 187, 172], 3),
     trainerChance: 0.06,
     trainers: [
       { name: 'Youngster Mikey', sprite: S.youngster, team: pk([161, 165], 3), reward: 120 },
@@ -738,7 +852,7 @@ export const ROUTES = {
     id: 'johto_route_30', name: 'Rota 30', type: 'farm', group: 'Cherrygrove City',
     unlockLevel: 62, requirements: ['johto_rival_1_defeated'],
     biome: 'forest',
-    enemies: pkRange([10, 11, 13, 14, 16, 163, 165, 167, 187, 175], 5, 10),
+    enemies: pk([10, 11, 13, 14, 16, 163, 165, 167, 187, 175], 4),
     trainerChance: 0.07,
     trainers: [
       { name: 'Bug Catcher Don', sprite: S.bugcatcher, team: pk([10, 13, 165], 4), reward: 160 },
@@ -761,14 +875,14 @@ export const ROUTES = {
     id: 'sprout_tower', name: 'Sprout Tower', type: 'farm', group: 'Violet City',
     unlockLevel: 63, requirements: ['johto_rival_1_defeated'],
     biome: 'forest',
-    enemies: encounterRange([
+    enemies: [
       { id: 69, level: 5, drop: 'leaf_stone_shard', dropChance: 0.08 },
       { id: 92, level: 6, drop: 'link_cable_part', dropChance: 0.08 },
       { id: 163, level: 5, drop: 'feather', dropChance: 0.12 },
       { id: 179, level: 6, drop: 'electric_essence', dropChance: 0.18 },
       { id: 187, level: 5, drop: 'apricorn', dropChance: 0.12 },
       { id: 177, level: 5, drop: 'psychic_essence', dropChance: 0.18 }
-    ], 8, 12),
+    ],
     trainerChance: 0.07,
     trainers: [
       { name: 'Sage Nico', sprite: S.juggler, team: pk([69, 163], 6), reward: 200 },
@@ -782,7 +896,7 @@ export const ROUTES = {
     id: 'johto_route_32', name: 'Rota 32', type: 'farm', group: 'Violet City',
     unlockLevel: 64, requirements: ['zephyr_badge'],
     biome: 'grass',
-    enemies: encounterRange([
+    enemies: [
       { id: 19, level: 6, drop: 'normal_essence', dropChance: 0.18 },
       { id: 23, level: 7, drop: 'poison_essence', dropChance: 0.18 },
       { id: 41, level: 7, drop: 'link_cable_part', dropChance: 0.06 },
@@ -790,7 +904,7 @@ export const ROUTES = {
       { id: 194, level: 7, drop: 'water_stone_shard', dropChance: 0.08 },
       { id: 173, level: 7, drop: 'normal_essence', dropChance: 0.18 },
       { id: 174, level: 7, drop: 'normal_essence', dropChance: 0.18 }
-    ], 11, 16),
+    ],
     trainerChance: 0.07,
     trainers: [
       { name: 'Picnicker Liz', sprite: S.picnicker, team: pk([179, 19], 7), reward: 240 },
@@ -805,7 +919,7 @@ export const ROUTES = {
     id: 'union_cave', name: 'Union Cave', type: 'farm', group: 'Azalea Town',
     unlockLevel: 65, requirements: ['zephyr_badge'],
     biome: 'cave',
-    enemies: encounterRange([
+    enemies: [
       { id: 41, level: 8, drop: 'link_cable_part', dropChance: 0.08 },
       { id: 74, level: 8, drop: 'link_cable_part', dropChance: 0.08 },
       { id: 95, level: 9, drop: 'iron_ore', dropChance: 0.12 },
@@ -813,7 +927,7 @@ export const ROUTES = {
       { id: 220, level: 9, drop: 'ice_essence', dropChance: 0.18 },
       { id: 201, level: 8, drop: 'normal_essence', dropChance: 0.18 },
       { id: 206, level: 8, drop: 'normal_essence', dropChance: 0.18 }
-    ], 16, 22),
+    ],
     trainerChance: 0.06,
     trainers: [
       { name: 'Hiker Daniel', sprite: S.hiker, team: pk([74, 95], 9), reward: 300 },
@@ -835,7 +949,7 @@ export const ROUTES = {
     id: 'slowpoke_well', name: 'Poco Slowpoke', type: 'farm', group: 'Azalea Town',
     unlockLevel: 64, requirements: ['johto_slowpoke_well_cleared'],
     biome: 'cave',
-    enemies: pkRange([41, 42, 79, 199, 194, 195], 14, 20),
+    enemies: pk([41, 42, 79, 199, 194, 195], 10),
     trainerChance: 0.05,
     trainers: [
       { name: 'Rocket Lookout', sprite: S.rocket, team: pk([41, 109], 10), reward: 420 },
@@ -849,7 +963,7 @@ export const ROUTES = {
     id: 'ilex_forest', name: 'Ilex Forest', type: 'farm', group: 'Azalea Town',
     unlockLevel: 67, requirements: ['hive_badge'],
     biome: 'forest',
-    enemies: encounterRange([
+    enemies: [
       { id: 10, level: 12, drop: 'bug_essence', dropChance: 0.18 },
       { id: 13, level: 12, drop: 'poison_essence', dropChance: 0.18 },
       { id: 43, level: 13, drop: 'leaf_stone_shard', dropChance: 0.08 },
@@ -857,7 +971,7 @@ export const ROUTES = {
       { id: 163, level: 13, drop: 'feather', dropChance: 0.12 },
       { id: 204, level: 12, drop: 'bug_essence', dropChance: 0.18 },
       { id: 214, level: 12, drop: 'bug_essence', dropChance: 0.18 }
-    ], 22, 30),
+    ],
     trainerChance: 0.06,
     trainers: [
       { name: 'Bug Catcher Doug', sprite: S.bugcatcher, team: pk([10, 13, 46], 13), reward: 360 },
@@ -880,7 +994,7 @@ export const ROUTES = {
     id: 'national_park', name: 'National Park', type: 'farm', group: 'Goldenrod City',
     unlockLevel: 69, requirements: ['plain_badge'],
     biome: 'grass',
-    enemies: encounterRange([
+    enemies: [
       { id: 46, level: 14, drop: 'mushroom', dropChance: 0.12 },
       { id: 48, level: 14, drop: 'bug_essence', dropChance: 0.18 },
       { id: 123, level: 15, drop: 'recipe_quick_claw', dropChance: 0.06 },
@@ -888,7 +1002,7 @@ export const ROUTES = {
       { id: 203, level: 15, drop: 'psychic_essence', dropChance: 0.18 },
       { id: 193, level: 14, drop: 'bug_essence', dropChance: 0.18 },
       { id: 235, level: 14, drop: 'bug_essence', dropChance: 0.18 }
-    ], 30, 38),
+    ],
     trainerChance: 0.07,
     trainers: [
       { name: 'School Kid Jack', sprite: S.youngster, team: pk([48, 203], 15), reward: 400 },
@@ -911,7 +1025,7 @@ export const ROUTES = {
     id: 'burned_tower', name: 'Burned Tower', type: 'farm', group: 'Ecruteak City',
     unlockLevel: 70, requirements: ['plain_badge'],
     biome: 'cave',
-    enemies: encounterRange([
+    enemies: [
       { id: 19, level: 16, drop: 'normal_essence', dropChance: 0.18 },
       { id: 20, level: 17, drop: 'normal_essence', dropChance: 0.18 },
       { id: 41, level: 16, drop: 'link_cable_part', dropChance: 0.08 },
@@ -921,7 +1035,7 @@ export const ROUTES = {
       { id: 200, level: 17, drop: 'fire_essence', dropChance: 0.18 },
       { id: 228, level: 17, drop: 'fire_essence', dropChance: 0.18 },
       { id: 240, level: 17, drop: 'fire_essence', dropChance: 0.18 }
-    ], 38, 46),
+    ],
     trainerChance: 0.06,
     trainers: [
       { name: 'Mystic Eusine', sprite: S.gentleman, team: pk([96, 101], 18), reward: 520 },
@@ -936,7 +1050,7 @@ export const ROUTES = {
     id: 'route_38_39', name: 'Rotas 38 e 39', type: 'farm', group: 'Olivine City',
     unlockLevel: 72, requirements: ['fog_badge'],
     biome: 'grass',
-    enemies: encounterRange([
+    enemies: [
       { id: 52, level: 18, drop: 'recipe_amulet_coin', dropChance: 0.06 },
       { id: 77, level: 18, drop: 'fire_stone_shard', dropChance: 0.08 },
       { id: 81, level: 19, drop: 'recipe_magnet', dropChance: 0.06 },
@@ -949,7 +1063,7 @@ export const ROUTES = {
       { id: 231, level: 19, drop: 'normal_essence', dropChance: 0.18 },
       { id: 234, level: 19, drop: 'normal_essence', dropChance: 0.18 },
       { id: 239, level: 19, drop: 'normal_essence', dropChance: 0.18 }
-    ], 46, 54),
+    ],
     trainerChance: 0.07,
     trainers: [
       { name: 'Sailor Harry', sprite: S.sailor, team: pk([77, 81], 19), reward: 540 },
@@ -972,7 +1086,7 @@ export const ROUTES = {
     id: 'route_40_41', name: 'Rotas 40 e 41', type: 'farm', group: 'Cianwood City',
     unlockLevel: 74, requirements: ['fog_badge'],
     biome: 'water',
-    enemies: encounterRange([
+    enemies: [
       { id: 72, level: 20, drop: 'water_essence', dropChance: 0.18 },
       { id: 73, level: 22, drop: 'water_essence', dropChance: 0.18 },
       { id: 90, level: 21, drop: 'water_stone_shard', dropChance: 0.08 },
@@ -982,7 +1096,7 @@ export const ROUTES = {
       { id: 211, level: 21, drop: 'water_essence', dropChance: 0.18 },
       { id: 213, level: 21, drop: 'water_essence', dropChance: 0.18 },
       { id: 222, level: 21, drop: 'water_essence', dropChance: 0.18 }
-    ], 52, 60),
+    ],
     trainerChance: 0.07,
     trainers: [
       { name: 'Swimmer Simon', sprite: S.cooltrainer, team: pk([72, 170], 22), reward: 600 },
@@ -1005,7 +1119,7 @@ export const ROUTES = {
     id: 'route_42_mortar', name: 'Rota 42 / Mt. Mortar', type: 'farm', group: 'Mahogany Town',
     unlockLevel: 76, requirements: ['mineral_badge'],
     biome: 'mountain',
-    enemies: encounterRange([
+    enemies: [
       { id: 41, level: 23, drop: 'link_cable_part', dropChance: 0.08 },
       { id: 66, level: 24, drop: 'recipe_black_belt', dropChance: 0.06 },
       { id: 74, level: 23, drop: 'link_cable_part', dropChance: 0.08 },
@@ -1016,7 +1130,7 @@ export const ROUTES = {
       { id: 207, level: 23, drop: 'ground_essence', dropChance: 0.18 },
       { id: 218, level: 23, drop: 'ground_essence', dropChance: 0.18 },
       { id: 236, level: 23, drop: 'ground_essence', dropChance: 0.18 }
-    ], 60, 68),
+    ],
     trainerChance: 0.07,
     trainers: [
       { name: 'Hiker Benjamin', sprite: S.hiker, team: pk([95, 66], 24), reward: 700 },
@@ -1030,13 +1144,13 @@ export const ROUTES = {
     id: 'lake_of_rage', name: 'Lake of Rage', type: 'farm', group: 'Mahogany Town',
     unlockLevel: 77, requirements: ['johto_rocket_radio_cleared'],
     biome: 'water',
-    enemies: encounterRange([
+    enemies: [
       { id: 129, level: 24, drop: 'water_essence', dropChance: 0.18 },
       { id: 130, level: 26, drop: 'water_stone_shard', dropChance: 0.10 },
       { id: 161, level: 24, drop: 'normal_essence', dropChance: 0.18 },
       { id: 162, level: 25, drop: 'normal_essence', dropChance: 0.18 },
       { id: 170, level: 25, drop: 'thunder_stone_shard', dropChance: 0.08 },
-    ], 66, 74),
+    ],
     trainerChance: 0.06,
     trainers: [
       { name: 'Fisher Marvin', sprite: S.cooltrainer, team: pk([129, 130], 26), reward: 800 },
@@ -1051,7 +1165,7 @@ export const ROUTES = {
     id: 'ice_path', name: 'Ice Path', type: 'farm', group: 'Blackthorn City',
     unlockLevel: 79, requirements: ['glacier_badge'],
     biome: 'cave',
-    enemies: encounterRange([
+    enemies: [
       { id: 41, level: 26, drop: 'link_cable_part', dropChance: 0.08 },
       { id: 124, level: 27, drop: 'ice_essence', dropChance: 0.18 },
       { id: 220, level: 27, drop: 'ice_essence', dropChance: 0.18 },
@@ -1059,7 +1173,7 @@ export const ROUTES = {
       { id: 225, level: 28, drop: 'ice_essence', dropChance: 0.18 },
       { id: 215, level: 27, drop: 'ice_essence', dropChance: 0.18 },
       { id: 238, level: 27, drop: 'ice_essence', dropChance: 0.18 }
-    ], 72, 82),
+    ],
     trainerChance: 0.05,
     trainers: [
       { name: 'Skier Roxanne', sprite: S.aceF, team: pk([124, 220], 28), reward: 850 },
@@ -1081,13 +1195,13 @@ export const ROUTES = {
     id: 'dragons_den', name: 'Dragon Den', type: 'farm', group: 'Blackthorn City',
     unlockLevel: 81, requirements: ['rising_badge'],
     biome: 'cave',
-    enemies: encounterRange([
+    enemies: [
       { id: 41, level: 28, drop: 'link_cable_part', dropChance: 0.08 },
       { id: 54, level: 28, drop: 'water_essence', dropChance: 0.18 },
       { id: 129, level: 28, drop: 'water_essence', dropChance: 0.18 },
       { id: 147, level: 29, drop: 'dragon_essence', dropChance: 0.20 },
       { id: 148, level: 31, drop: 'dragon_essence', dropChance: 0.22 },
-    ], 78, 88),
+    ],
     trainerChance: 0.06,
     trainers: [
       { name: 'Dragon Tamer Paul', sprite: S.aceM, team: pk([147, 148], 31), reward: 1200 },
@@ -1102,7 +1216,7 @@ export const ROUTES = {
     id: 'johto_victory_road', name: 'Victory Road Johto', type: 'farm', group: 'Johto Liga',
     unlockLevel: 84, requirements: ['johto_rival_victory_defeated'],
     biome: 'mountain',
-    enemies: encounterRange([
+    enemies: [
       { id: 42, level: 30, drop: 'link_cable_part', dropChance: 0.08 },
       { id: 67, level: 31, drop: 'recipe_black_belt', dropChance: 0.06 },
       { id: 75, level: 31, drop: 'link_cable_part', dropChance: 0.08 },
@@ -1110,7 +1224,7 @@ export const ROUTES = {
       { id: 112, level: 32, drop: 'ground_essence', dropChance: 0.18 },
       { id: 217, level: 32, drop: 'normal_essence', dropChance: 0.18 },
       { id: 246, level: 31, drop: 'rock_essence', dropChance: 0.18 }
-    ], 82, 92),
+    ],
     trainerChance: 0.08,
     trainers: [
       { name: 'Ace Trainer Irene', sprite: S.aceF, team: pk([67, 217], 32), reward: 1500 },
@@ -1120,25 +1234,11 @@ export const ROUTES = {
     description: 'Ultimo teste antes da Liga de Johto.',
   },
 
-  mt_silver_summit: {
-    id: 'mt_silver_summit', name: 'Mt. Silver Summit', type: 'farm', group: 'Mt. Silver',
-    unlockLevel: 90, requirements: ['johto_champion'],
-    biome: 'mountain',
-    enemies: pkRange([42, 67, 75, 95, 112, 143, 149, 197, 208, 217, 229, 248], 86, 100),
-    trainerChance: 0.08,
-    trainers: [
-      { name: 'Ace Trainer Summit', sprite: S.aceM, team: pk([248, 149], 94), reward: 8000 },
-      { name: 'Silent Champion', sprite: S.cooltrainer, team: pk([143, 149], 100), reward: 12000 },
-    ],
-    background: '/bg_mt_silver.png',
-    description: 'Area pos-game de Johto para treinar ate o nivel 100.',
-  },
-
   route_4: {
     id: 'route_4', name: 'Rota 4', type: 'farm', group: 'Cerulean City',
     unlockLevel: 15, requirements: ['boulder_badge'],
     biome: 'grass',
-    enemies: pkRange([16, 21, 27, 39, 50, 74, 56], 13, 18),
+    enemies: pk([16, 21, 27, 39, 50, 74, 56], 12),
     trainerChance: 0.05,
     trainers: [
       { name: 'Youngster Chad',   sprite: S.youngster, team: pk([21, 16], 12),  reward: 220 },
@@ -1162,7 +1262,7 @@ export const ROUTES = {
     id: 'route_8', name: 'Rota 8', type: 'farm', group: 'Lavender Town',
     unlockLevel: 28, requirements: ['thunder_badge'],
     biome: 'grass',
-    enemies: pkRange([19, 41, 96, 63, 52], 30, 38),
+    enemies: pk([19, 41, 96, 63, 52], 26),
     trainerChance: 0.05,
     trainers: [
       { name: 'Gambler Rich',       sprite: S.gambler,   team: pk([52, 96], 22),   reward: 500 },
@@ -1178,15 +1278,7 @@ export const ROUTES = {
     id: 'route_11', name: 'Rota 11', type: 'farm', group: 'Lavender Town',
     unlockLevel: 22, requirements: ['cascade_badge'],
     biome: 'grass',
-    enemies: [
-      { id: 21, level: 24, drop: 'red_apricorn', dropChance: 0.07 },
-      { id: 23, level: 25, drop: 'blue_apricorn', dropChance: 0.06 },
-      { id: 19, level: 26, drop: 'apricorn', dropChance: 0.18 },
-      { id: 50, level: 27, drop: 'iron_ore', dropChance: 0.10 },
-      { id: 60, level: 28, drop: 'blue_apricorn', dropChance: 0.07 },
-      { id: 83, level: 30, drop: 'white_apricorn', dropChance: 0.05 },
-      { id: 84, level: 32, drop: 'white_apricorn', dropChance: 0.05 },
-    ],
+    enemies: pk([21, 23, 19, 50, 60, 83, 84], 22),
     trainerChance: 0.05,
     trainers: [
       { name: 'Youngster Albert',  sprite: S.youngster, team: pk([21, 21], 22),   reward: 340 },
@@ -1203,7 +1295,7 @@ export const ROUTES = {
     id: 'route_16_17_18', name: 'Rotas 16, 17 e 18', type: 'farm', group: 'Fuchsia City',
     unlockLevel: 36, requirements: ['rainbow_badge'],
     biome: 'grass',
-    enemies: pkRange([84, 22, 128, 39, 101], 40, 48),
+    enemies: pk([84, 22, 128, 39, 101], 33),
     trainerChance: 0.05,
     trainers: [
       { name: 'Biker Jaren',        sprite: S.cooltrainer, team: pk([22, 84], 33),    reward: 800 },
@@ -1219,7 +1311,7 @@ export const ROUTES = {
     id: 'route_19_20', name: 'Rotas 19 e 20', type: 'farm', group: 'Fuchsia City',
     unlockLevel: 38, requirements: ['soul_badge'],
     biome: 'water',
-    enemies: pkRange([54, 60, 61, 72, 73, 86, 90, 98, 116, 118], 46, 54),
+    enemies: pk([54, 60, 61, 72, 73, 86, 90, 98, 116, 118], 40),
     trainerChance: 0.05,
     trainers: [
       { name: 'Swimmer David',   sprite: S.cooltrainer, team: pk([72, 60], 40),  reward: 720 },
@@ -1235,17 +1327,7 @@ export const ROUTES = {
     id: 'seafoam_islands', name: 'Ilhas Seafoam', type: 'farm', group: 'Fuchsia City',
     unlockLevel: 40, requirements: ['soul_badge'],
     biome: 'water',
-    enemies: [
-      { id: 79, level: 48, drop: 'blue_apricorn', dropChance: 0.08 },
-      { id: 86, level: 49, drop: 'white_apricorn', dropChance: 0.08 },
-      { id: 87, level: 50, drop: 'mystic_dust', dropChance: 0.08 },
-      { id: 90, level: 51, drop: 'blue_apricorn', dropChance: 0.08 },
-      { id: 91, level: 52, drop: 'black_apricorn', dropChance: 0.07 },
-      { id: 98, level: 53, drop: 'iron_ore', dropChance: 0.12 },
-      { id: 124, level: 54, drop: 'pink_apricorn', dropChance: 0.06 },
-      { id: 131, level: 56, drop: 'mystic_dust', dropChance: 0.10 },
-      { id: 144, level: 58, drop: 'mystic_dust', dropChance: 0.16 },
-    ],
+    enemies: pk([79, 86, 87, 90, 91, 98, 124, 131, 144], 38),
     trainerChance: 0,
     trainers: [],
     background: '/battle_bg_seafoam.png',
@@ -1257,7 +1339,7 @@ export const ROUTES = {
     id: 'route_21', name: 'Rota 21', type: 'farm', group: 'Cinnabar Island',
     unlockLevel: 44, requirements: ['marsh_badge'],
     biome: 'water',
-    enemies: pkRange([72, 73, 90, 91, 98, 116, 118, 129, 132], 50, 58),
+    enemies: pk([72, 73, 90, 91, 98, 116, 118, 129, 132], 42),
     trainerChance: 0.05,
     trainers: [
       { name: 'Swimmer Nash',   sprite: S.cooltrainer, team: pk([90, 72], 42),   reward: 940 },
@@ -1272,15 +1354,7 @@ export const ROUTES = {
     id: 'power_plant', name: 'Usina Elétrica', type: 'farm', group: 'Cerulean City',
     unlockLevel: 25, requirements: ['thunder_badge'],
     biome: 'mountain',
-    enemies: [
-      { id: 81, level: 38, drop: 'iron_ore', dropChance: 0.16 },
-      { id: 82, level: 40, drop: 'iron_ore', dropChance: 0.18 },
-      { id: 100, level: 42, drop: 'white_apricorn', dropChance: 0.07 },
-      { id: 101, level: 44, drop: 'white_apricorn', dropChance: 0.08 },
-      { id: 125, level: 46, drop: 'yellow_apricorn', dropChance: 0.06 },
-      { id: 135, level: 48, drop: 'yellow_apricorn', dropChance: 0.06 },
-      { id: 145, level: 50, drop: 'mystic_dust', dropChance: 0.10 },
-    ],
+    enemies: pk([81, 82, 100, 101, 125, 135, 145], 35),
     trainerChance: 0,
     trainers: [],
     background: '/battle_bg_power_plant.png',
@@ -1289,26 +1363,19 @@ export const ROUTES = {
 
   // ── GRUPO: VICTORY ROAD ─────────────────────────────────────────
   route_23: {
-    id: 'route_23', name: 'Rota 23 - Interior', type: 'farm', group: 'Victory Road',
-    unlockLevel: 56, requirements: ['earth_badge'],
+    id: 'route_23', name: 'Rota 23', type: 'farm', group: 'Victory Road',
+    unlockLevel: 50, requirements: ['earth_badge'],
     biome: 'grass',
-    enemies: [
-      { id: 22, level: 60, drop: 'red_apricorn', dropChance: 0.08 },
-      { id: 23, level: 61, drop: 'black_apricorn', dropChance: 0.10 },
-      { id: 67, level: 62, drop: 'iron_ore', dropChance: 0.18 },
-      { id: 105, level: 64, drop: 'black_apricorn', dropChance: 0.12 },
-      { id: 148, level: 66, drop: 'mystic_dust', dropChance: 0.14 },
-      { id: 147, level: 68, drop: 'yellow_apricorn', dropChance: 0.10 },
-    ],
+    enemies: pk([22, 23, 67, 105, 148, 147], 44),
     trainerChance: 0.05,
     trainers: [
-      { name: 'Cooltrainer Kate',   sprite: S.cooltrainer, team: pk([22, 105], 58),  reward: 3000 },
-      { name: 'Cooltrainer Warren', sprite: S.cooltrainer, team: pk([67, 23], 59),   reward: 3200 },
-      { name: 'Ace Trainer Parker', sprite: S.aceM,        team: pk([148, 22], 60),  reward: 3500 },
-      { name: 'Ace Trainer Cybil',  sprite: S.aceF,        team: pk([147, 67], 61),  reward: 3500 },
+      { name: 'Cooltrainer Kate',   sprite: S.cooltrainer, team: pk([22, 105], 45),  reward: 2000 },
+      { name: 'Cooltrainer Warren', sprite: S.cooltrainer, team: pk([67, 23], 46),   reward: 2000 },
+      { name: 'Ace Trainer Parker', sprite: S.aceM,        team: pk([148, 22], 47),  reward: 2500 },
+      { name: 'Ace Trainer Cybil',  sprite: S.aceF,        team: pk([147, 67], 47),  reward: 2500 },
     ],
     background: '/battle_bg_route23.png',
-    description: 'Treino final antes do Plateau Indigo.',
+    description: 'O caminho final para o Plateau Indigo.',
   },
 
   // ── HOENN REGION ────────────────────────────────────────────────
@@ -1324,7 +1391,7 @@ export const ROUTES = {
     id: 'route_101', name: 'Rota 101', type: 'farm', group: 'Hoenn Inicio',
     unlockLevel: 1, requirements: ['hoenn_started'],
     biome: 'grass',
-    enemies: pkRange([261, 263, 265, 16, 161], 3, 6),
+    enemies: pk([261, 263, 265, 16, 161], 3),
     trainerChance: 0,
     trainers: [],
     background: '/bg_route101.png',
@@ -1343,7 +1410,7 @@ export const ROUTES = {
     id: 'route_102', name: 'Rota 102', type: 'farm', group: 'Hoenn Inicio',
     unlockLevel: 3, requirements: ['hoenn_started'],
     biome: 'grass',
-    enemies: pkRange([261, 265, 270, 273, 280], 5, 9),
+    enemies: pk([261, 265, 270, 273, 280], 4),
     trainerChance: 0.05,
     trainers: [
       { name: 'Youngster Calvin', sprite: S.youngster, team: pk([261, 263], 5), reward: 80 },
@@ -1355,7 +1422,7 @@ export const ROUTES = {
 
   petalburg_city: {
     id: 'petalburg_city', name: 'Petalburg City', type: 'city', group: 'Hoenn Inicio',
-    unlockLevel: 4, requirements: ['hoenn_rival_1_defeated'],
+    unlockLevel: 4, requirements: ['hoenn_started'],
     enemies: [], trainers: [], trainerChance: 0,
     background: '/bg_petalburg_city.png',
     description: 'A cidade onde a natureza e as pessoas compartilham espaco.',
@@ -1363,9 +1430,9 @@ export const ROUTES = {
 
   route_104: {
     id: 'route_104', name: 'Rota 104', type: 'farm', group: 'Hoenn Rustboro',
-    unlockLevel: 5, requirements: ['hoenn_rival_1_defeated'],
+    unlockLevel: 5, requirements: ['hoenn_started'],
     biome: 'grass',
-    enemies: pkRange([276, 278, 183, 263], 8, 12),
+    enemies: pk([276, 278, 183, 263], 5),
     trainerChance: 0.05,
     trainers: [
       { name: 'Rich Boy Winston', sprite: S.aceM, team: pk([263], 7), reward: 200 },
@@ -1377,9 +1444,9 @@ export const ROUTES = {
 
   petalburg_woods: {
     id: 'petalburg_woods', name: 'Petalburg Woods', type: 'farm', group: 'Hoenn Rustboro',
-    unlockLevel: 6, requirements: ['hoenn_rival_1_defeated'],
+    unlockLevel: 6, requirements: ['hoenn_started'],
     biome: 'grass',
-    enemies: pkRange([265, 266, 267, 268, 285, 287], 10, 14),
+    enemies: pk([265, 266, 267, 268, 285, 287], 6),
     trainerChance: 0.05,
     trainers: [
       { name: 'Bug Catcher Lyle', sprite: S.bugcatcher, team: pk([265, 266], 6), reward: 100 },
@@ -1390,7 +1457,7 @@ export const ROUTES = {
 
   rustboro_city: {
     id: 'rustboro_city', name: 'Rustboro City', type: 'city', group: 'Hoenn Rustboro',
-    unlockLevel: 8, requirements: ['hoenn_rival_1_defeated'],
+    unlockLevel: 8, requirements: ['hoenn_started'],
     enemies: [], trainers: [], trainerChance: 0,
     background: '/bg_rustboro_city.png',
     description: 'Grande metropole industrial, lar da Devon Corp.',
@@ -1400,7 +1467,7 @@ export const ROUTES = {
     id: 'route_116', name: 'Rota 116', type: 'farm', group: 'Hoenn Rustboro',
     unlockLevel: 9, requirements: ['stone_badge'],
     biome: 'grass',
-    enemies: pkRange([290, 293, 300, 263], 14, 18),
+    enemies: pk([290, 293, 300, 263], 7),
     trainerChance: 0.05,
     trainers: [
       { name: 'Hiker Clark', sprite: S.hiker, team: pk([74, 293], 8), reward: 150 },
@@ -1412,9 +1479,8 @@ export const ROUTES = {
   rusturf_tunnel: {
     id: 'rusturf_tunnel', name: 'Rusturf Tunnel', type: 'farm', group: 'Hoenn Rustboro',
     unlockLevel: 10, requirements: ['stone_badge'],
-    unlocks: 'hoenn_devon_goods_recovered',
     biome: 'cave',
-    enemies: pkRange([293, 294], 16, 20),
+    enemies: pk([293, 294], 8),
     trainerChance: 0,
     trainers: [],
     background: '/bg_rusturf_tunnel.png',
@@ -1423,7 +1489,7 @@ export const ROUTES = {
 
   dewford_town: {
     id: 'dewford_town', name: 'Dewford Town', type: 'city', group: 'Hoenn Dewford',
-    unlockLevel: 11, requirements: ['stone_badge', 'hoenn_devon_goods_recovered'],
+    unlockLevel: 11, requirements: ['stone_badge'],
     enemies: [], trainers: [], trainerChance: 0,
     background: '/bg_dewford_town.png',
     description: 'Ilha ensolarada famosa pelo surf.',
@@ -1432,9 +1498,8 @@ export const ROUTES = {
   granite_cave: {
     id: 'granite_cave', name: 'Granite Cave', type: 'farm', group: 'Hoenn Dewford',
     unlockLevel: 12, requirements: ['stone_badge'],
-    unlocks: 'hoenn_granite_cave_cleared',
     biome: 'cave',
-    enemies: pkRange([41, 293, 304, 299, 361], 18, 24),
+    enemies: pk([41, 293, 304, 299, 361], 10),
     trainerChance: 0,
     trainers: [],
     background: '/bg_granite_cave.png',
@@ -1443,7 +1508,7 @@ export const ROUTES = {
 
   slateport_city: {
     id: 'slateport_city', name: 'Slateport City', type: 'city', group: 'Hoenn Slateport',
-    unlockLevel: 15, requirements: ['knuckle_badge', 'hoenn_granite_rival_defeated'],
+    unlockLevel: 15, requirements: ['knuckle_badge'],
     enemies: [], trainers: [], trainerChance: 0,
     background: '/bg_slateport_city.png',
     description: 'Cidade portuaria movimentada com museu oceanico.',
@@ -1453,7 +1518,7 @@ export const ROUTES = {
     id: 'route_110', name: 'Rota 110', type: 'farm', group: 'Hoenn Mauville',
     unlockLevel: 16, requirements: ['knuckle_badge'],
     biome: 'grass',
-    enemies: pkRange([309, 311, 312, 183, 278], 22, 28),
+    enemies: pk([309, 311, 312, 183, 278], 14),
     trainerChance: 0.05,
     trainers: [
       { name: 'Cyclist Lein',   sprite: S.aceM, team: pk([309], 15), reward: 320 },
@@ -1475,7 +1540,7 @@ export const ROUTES = {
     id: 'route_111_desert', name: 'Rota 111 (Deserto)', type: 'farm', group: 'Hoenn Lavaridge',
     unlockLevel: 20, requirements: ['dynamo_badge'],
     biome: 'grass',
-    enemies: pkRange([27, 28, 328, 329, 322, 290], 28, 34),
+    enemies: pk([27, 28, 328, 329, 322, 290], 18),
     trainerChance: 0.05,
     trainers: [
       { name: 'Ruin Maniac Dusty', sprite: S.hiker, team: pk([27, 328], 20), reward: 500 },
@@ -1488,7 +1553,7 @@ export const ROUTES = {
     id: 'fiery_path', name: 'Fiery Path', type: 'farm', group: 'Hoenn Lavaridge',
     unlockLevel: 21, requirements: ['dynamo_badge'],
     biome: 'cave',
-    enemies: pkRange([322, 218, 219, 109, 77], 30, 36),
+    enemies: pk([322, 218, 219, 109, 77], 20),
     trainerChance: 0,
     trainers: [],
     background: '/bg_fiery_path.png',
@@ -1507,7 +1572,7 @@ export const ROUTES = {
     id: 'route_113', name: 'Rota 113', type: 'farm', group: 'Hoenn Lavaridge',
     unlockLevel: 22, requirements: ['dynamo_badge'],
     biome: 'grass',
-    enemies: pkRange([333, 335, 227, 291], 32, 38),
+    enemies: pk([333, 335, 227, 291], 20),
     trainerChance: 0.05,
     trainers: [
       { name: 'Ninja Boy Lao', sprite: S.youngster, team: pk([291], 20), reward: 400 },
@@ -1518,9 +1583,9 @@ export const ROUTES = {
 
   meteor_falls: {
     id: 'meteor_falls', name: 'Meteor Falls', type: 'farm', group: 'Hoenn Lavaridge',
-    unlockLevel: 23, requirements: ['dynamo_badge', 'hoenn_rival_mauville_defeated'],
+    unlockLevel: 23, requirements: ['dynamo_badge'],
     biome: 'cave',
-    enemies: pkRange([333, 41, 304, 347, 348], 34, 40),
+    enemies: pk([333, 41, 304, 347, 348], 21),
     trainerChance: 0.05,
     trainers: [
       { name: 'Team Magma Grunt', sprite: S.rocket, team: pk([322, 304], 22), reward: 600 },
@@ -1531,9 +1596,9 @@ export const ROUTES = {
 
   mt_chimney: {
     id: 'mt_chimney', name: 'Mt. Chimney', type: 'farm', group: 'Hoenn Lavaridge',
-    unlockLevel: 24, requirements: ['dynamo_badge', 'hoenn_magma_meteor_cleared'],
+    unlockLevel: 24, requirements: ['dynamo_badge'],
     biome: 'cave',
-    enemies: pkRange([322, 323, 218, 219, 77, 78], 38, 44),
+    enemies: pk([322, 323, 218, 219, 77, 78], 23),
     trainerChance: 0.07,
     trainers: [
       { name: 'Team Magma Admin Tabitha', sprite: S.rocket, team: pk([322, 322, 323], 25), reward: 1500 },
@@ -1544,7 +1609,7 @@ export const ROUTES = {
 
   lavaridge_town: {
     id: 'lavaridge_town', name: 'Lavaridge Town', type: 'city', group: 'Hoenn Lavaridge',
-    unlockLevel: 25, requirements: ['hoenn_magma_chimney_cleared'],
+    unlockLevel: 25, requirements: ['dynamo_badge'],
     enemies: [], trainers: [], trainerChance: 0,
     background: '/bg_lavaridge_town.png',
     description: 'Cidade termal com fontes quentes e spa.',
@@ -1552,9 +1617,9 @@ export const ROUTES = {
 
   route_118_119: {
     id: 'route_118_119', name: 'Rotas 118 e 119', type: 'farm', group: 'Hoenn Fortree',
-    unlockLevel: 32, requirements: ['balance_badge'],
+    unlockLevel: 32, requirements: ['heat_badge'],
     biome: 'grass',
-    enemies: pkRange([333, 335, 283, 284, 278, 341, 342], 44, 52),
+    enemies: pk([333, 335, 283, 284, 278, 341, 342], 28),
     trainerChance: 0.05,
     trainers: [
       { name: 'Bird Keeper Phil',  sprite: S.aceM, team: pk([333, 278], 29), reward: 700 },
@@ -1566,7 +1631,7 @@ export const ROUTES = {
 
   fortree_city: {
     id: 'fortree_city', name: 'Fortree City', type: 'city', group: 'Hoenn Fortree',
-    unlockLevel: 33, requirements: ['balance_badge'],
+    unlockLevel: 33, requirements: ['heat_badge'],
     enemies: [], trainers: [], trainerChance: 0,
     background: '/bg_fortree_city.png',
     description: 'Cidade nas copas das arvores, ligadas por pontes suspensas.',
@@ -1576,7 +1641,7 @@ export const ROUTES = {
     id: 'route_120_121', name: 'Rotas 120 e 121', type: 'farm', group: 'Hoenn Lilycove',
     unlockLevel: 36, requirements: ['feather_badge'],
     biome: 'grass',
-    enemies: pkRange([352, 353, 354, 302, 303, 358], 52, 60),
+    enemies: pk([352, 353, 354, 302, 303, 358], 34),
     trainerChance: 0.05,
     trainers: [
       { name: 'Ace Trainer Cybil',  sprite: S.aceF, team: pk([352, 358], 35), reward: 900 },
@@ -1588,9 +1653,9 @@ export const ROUTES = {
 
   mt_pyre: {
     id: 'mt_pyre', name: 'Mt. Pyre', type: 'farm', group: 'Hoenn Lilycove',
-    unlockLevel: 37, requirements: ['feather_badge', 'hoenn_rival_lilycove_defeated'],
+    unlockLevel: 37, requirements: ['feather_badge'],
     biome: 'cave',
-    enemies: pkRange([355, 356, 353, 354, 302, 202], 58, 66),
+    enemies: pk([355, 356, 353, 354, 302, 202], 36),
     trainerChance: 0.05,
     trainers: [
       { name: 'Team Aqua Grunt', sprite: S.rocket, team: pk([316, 315], 36), reward: 800 },
@@ -1601,7 +1666,7 @@ export const ROUTES = {
 
   lilycove_city: {
     id: 'lilycove_city', name: 'Lilycove City', type: 'city', group: 'Hoenn Lilycove',
-    unlockLevel: 38, requirements: ['hoenn_aqua_pyre_cleared'],
+    unlockLevel: 38, requirements: ['feather_badge'],
     enemies: [], trainers: [], trainerChance: 0,
     background: '/bg_lilycove_city.png',
     description: 'Cidade costeira majestosa com uma loja departamentos gigante.',
@@ -1609,9 +1674,9 @@ export const ROUTES = {
 
   ocean_routes: {
     id: 'ocean_routes', name: 'Rotas Oceanicas', type: 'farm', group: 'Hoenn Mossdeep',
-    unlockLevel: 42, requirements: ['mind_badge', 'hoenn_aqua_hideout_cleared'],
+    unlockLevel: 42, requirements: ['mind_badge'],
     biome: 'water',
-    enemies: pkRange([72, 73, 278, 279, 341, 342, 370, 369, 226], 66, 74),
+    enemies: pk([72, 73, 278, 279, 341, 342, 370, 369, 226], 40),
     trainerChance: 0.05,
     trainers: [
       { name: 'Swimmer Cody',   sprite: S.cooltrainer, team: pk([72, 278], 41), reward: 900 },
@@ -1631,9 +1696,9 @@ export const ROUTES = {
 
   seafloor_cavern: {
     id: 'seafloor_cavern', name: 'Seafloor Cavern', type: 'farm', group: 'Hoenn Sootopolis',
-    unlockLevel: 46, requirements: ['mind_badge', 'hoenn_rival_mossdeep_defeated'],
+    unlockLevel: 46, requirements: ['mind_badge'],
     biome: 'cave',
-    enemies: pkRange([72, 73, 95, 75, 369, 370], 72, 80),
+    enemies: pk([72, 73, 95, 75, 369, 370], 44),
     trainerChance: 0.05,
     trainers: [
       { name: 'Team Aqua Admin Matt', sprite: S.rocket, team: pk([315, 316, 370], 46), reward: 2000 },
@@ -1644,7 +1709,7 @@ export const ROUTES = {
 
   sootopolis_city: {
     id: 'sootopolis_city', name: 'Sootopolis City', type: 'city', group: 'Hoenn Sootopolis',
-    unlockLevel: 47, requirements: ['hoenn_aqua_seafloor_cleared'],
+    unlockLevel: 47, requirements: ['mind_badge'],
     enemies: [], trainers: [], trainerChance: 0,
     background: '/bg_sootopolis_city.png',
     description: 'Cidade dentro de uma cratera vulcanica cheia de agua.',
@@ -1652,9 +1717,9 @@ export const ROUTES = {
 
   cave_of_origin: {
     id: 'cave_of_origin', name: 'Cave of Origin', type: 'farm', group: 'Hoenn Sootopolis',
-    unlockLevel: 48, requirements: ['hoenn_aqua_seafloor_cleared'],
+    unlockLevel: 48, requirements: ['mind_badge'],
     biome: 'cave',
-    enemies: pkRange([41, 42, 302, 303, 361, 362], 78, 86),
+    enemies: pk([41, 42, 302, 303, 361, 362], 46),
     trainerChance: 0,
     trainers: [],
     background: '/bg_cave_of_origin.png',
@@ -1665,7 +1730,7 @@ export const ROUTES = {
     id: 'sky_pillar', name: 'Sky Pillar', type: 'farm', group: 'Hoenn Ever Grande',
     unlockLevel: 55, requirements: ['rain_badge'],
     biome: 'cave',
-    enemies: pkRange([329, 330, 333, 335, 291, 302], 84, 92),
+    enemies: pk([329, 330, 333, 335, 291, 302], 50),
     trainerChance: 0,
     trainers: [],
     background: '/bg_sky_pillar.png',
@@ -1692,7 +1757,7 @@ export const ROUTES = {
     id: 'victory_road_hoenn', name: 'Victory Road Hoenn', type: 'farm', group: 'Hoenn Liga',
     unlockLevel: 57, requirements: ['rain_badge'],
     biome: 'cave',
-    enemies: pkRange([304, 305, 306, 357, 330, 362, 374], 88, 96),
+    enemies: pk([304, 305, 306, 357, 330, 362, 374], 54),
     trainerChance: 0.07,
     trainers: [
       { name: 'Ace Trainer Hope',  sprite: S.aceF, team: pk([330, 357], 55), reward: 3000 },
@@ -1702,213 +1767,235 @@ export const ROUTES = {
     description: 'O derradeiro desafio antes da Liga de Hoenn.',
   },
 
-  hoenn_champion_road: {
-    id: 'hoenn_champion_road', name: 'Estrada Campea de Hoenn', type: 'farm', group: 'Hoenn Pos-Game',
-    unlockLevel: 80, requirements: ['hoenn_champion'],
-    biome: 'mountain',
-    enemies: pkRange([282, 289, 306, 330, 350, 373, 376, 384], 92, 100),
+  hoenn_battle_frontier: {
+    id: 'hoenn_battle_frontier', name: 'Battle Frontier', type: 'farm', group: 'Hoenn Pos-Liga',
+    unlockLevel: 68, requirements: ['hoenn_champion'],
+    biome: 'grass',
+    enemies: pk([359, 330, 334, 350, 306, 376, 373], 68),
     trainerChance: 0.08,
     trainers: [
-      { name: 'Elite Rematch Sidney', sprite: S.aceM, team: pk([359, 342], 94), reward: 7000 },
-      { name: 'Elite Rematch Drake', sprite: S.aceM, team: pk([330, 373], 98), reward: 9000 },
+      { name: 'Frontier Ace Mara', sprite: S.aceF, team: pk([350, 373, 376], 72), reward: 4200 },
+      { name: 'Frontier Ace Caio', sprite: S.aceM, team: pk([306, 330, 359], 74), reward: 4500 },
+    ],
+    background: '/bg_battle_frontier.png',
+    description: 'Treino pos-Liga de Hoenn para preparar o time para desafios acima do nivel 70.',
+  },
+
+  sky_pillar_summit: {
+    id: 'sky_pillar_summit', name: 'Topo do Sky Pillar', type: 'farm', group: 'Hoenn Pos-Liga',
+    unlockLevel: 78, requirements: ['hoenn_champion'],
+    biome: 'cave',
+    enemies: pk([291, 302, 306, 330, 334, 373], 78),
+    trainerChance: 0.04,
+    trainers: [
+      { name: 'Dragon Tamer Ivo', sprite: S.aceM, team: pk([330, 373], 82), reward: 5200 },
     ],
     background: '/bg_sky_pillar.png',
-    description: 'Area pos-game de Hoenn para treinar ate o nivel 100.',
+    description: 'Uma rota de elite para lapidar o time de Hoenn antes de partir para Sinnoh.',
   },
-  
-  // ❄️ SINNOH REGION ❄️
+
   twinleaf_town: {
     id: 'twinleaf_town', name: 'Twinleaf Town', type: 'city', group: 'Sinnoh Inicio',
     unlockLevel: 1, requirements: ['sinnoh_started'],
-    enemies: [], trainers: [], trainerChance: 0,
     background: '/bg_twinleaf.png',
-    description: 'Sua jornada em Sinnoh comeca aqui.',
+    description: 'O primeiro lar da jornada de Sinnoh.',
   },
-  route_201: {
-    id: 'route_201', name: 'Rota 201', type: 'farm', group: 'Sinnoh Inicio',
-    unlockLevel: 1, requirements: ['sinnoh_started'],
+
+  sinnoh_route_201: {
+    id: 'sinnoh_route_201', name: 'Rota 201', type: 'farm', group: 'Sinnoh Inicio',
+    unlockLevel: 5, requirements: ['sinnoh_started'],
+    unlocks: 'sinnoh_route_201_cleared',
     biome: 'grass',
-    enemies: pkRange([396, 399], 2, 4),
-    trainerChance: 0, trainers: [],
-    background: '/bg_route201.png',
-    description: 'A primeira rota de Sinnoh. Barry te espera no lago.',
-  },
-  route_202: {
-    id: 'route_202', name: 'Rota 202', type: 'farm', group: 'Sinnoh Inicio',
-    unlockLevel: 3, requirements: ['sinnoh_started'],
-    biome: 'grass',
-    enemies: pkRange([396, 399, 401, 403], 4, 7),
-    trainerChance: 0.05,
+    enemies: pk([396, 399, 401, 403, 406], 5),
+    trainerChance: 0.04,
     trainers: [
-      { name: 'Youngster Tristan', sprite: S.youngster, team: pk([396, 399], 5), reward: 300 },
+      { name: 'Youngster Nolan', sprite: S.youngster, team: pk([396, 399], 7), reward: 400 },
     ],
     background: '/bg_route201.png',
-    description: 'Caminho para Jubilife City.',
+    description: 'Primeira rota de Sinnoh, ideal para treinar o inicial ate os primeiros niveis.',
   },
+
   sandgem_town: {
-    id: 'sandgem_town', name: 'Sandgem Town', type: 'city', group: 'Sinnoh Inicio',
-    unlockLevel: 2, requirements: ['sinnoh_started'],
-    enemies: [], trainers: [], trainerChance: 0,
+    id: 'sandgem_town', name: 'Sandgem Town', type: 'city', group: 'Sinnoh Sandgem',
+    unlockLevel: 6, requirements: ['sinnoh_route_201_cleared'],
     background: '/bg_sandgem.png',
-    description: 'Vila costeira onde fica o laboratorio do Prof. Rowan.',
+    description: 'A cidade do laboratorio do Prof. Rowan.',
   },
-  route_203: {
-    id: 'route_203', name: 'Rota 203', type: 'farm', group: 'Sinnoh Oreburgh',
-    unlockLevel: 5, requirements: ['sinnoh_started'],
+
+  sinnoh_route_202: {
+    id: 'sinnoh_route_202', name: 'Rota 202', type: 'farm', group: 'Sinnoh Sandgem',
+    unlockLevel: 8, requirements: ['sinnoh_route_201_cleared'],
+    unlocks: 'sinnoh_route_202_cleared',
     biome: 'grass',
-    enemies: pkRange([396, 399, 403, 401, 63], 6, 10),
+    enemies: pk([396, 399, 401, 403, 406, 412], 8),
     trainerChance: 0.06,
     trainers: [
-      { name: 'Youngster Michael', sprite: S.youngster, team: pk([396, 401], 8), reward: 400 },
+      { name: 'Lass Natalie', sprite: S.lass, team: pk([401, 406], 10), reward: 520 },
+      { name: 'Youngster Logan', sprite: S.youngster, team: pk([399, 403], 11), reward: 560 },
     ],
     background: '/bg_route202.png',
-    description: 'Caminho curto que liga Jubilife a Oreburgh.',
+    description: 'Capturas basicas para formar o primeiro time de Sinnoh.',
   },
-  oreburgh_gate: {
-    id: 'oreburgh_gate', name: 'Oreburgh Gate', type: 'farm', group: 'Sinnoh Oreburgh',
-    unlockLevel: 7, requirements: ['sinnoh_started'],
-    biome: 'cave',
-    enemies: pkRange([74, 41, 399], 8, 12),
-    trainerChance: 0.05,
-    trainers: [
-      { name: 'Camper Curtis', sprite: S.youngster, team: pk([74], 10), reward: 500 },
-    ],
-    background: '/bg_oreburgh_gate.png',
-    description: 'Uma caverna que serve de passagem para a cidade mineira.',
+
+  jubilife_city: {
+    id: 'jubilife_city', name: 'Jubilife City', type: 'city', group: 'Sinnoh Jubilife',
+    unlockLevel: 10, requirements: ['sinnoh_route_202_cleared'],
+    background: '/bg_jubilife.png',
+    description: 'Centro urbano de Sinnoh e ponto seguro para reorganizar o time.',
   },
-  oreburgh_city: {
-    id: 'oreburgh_city', name: 'Oreburgh City', type: 'city', group: 'Sinnoh Oreburgh',
-    unlockLevel: 10, requirements: ['sinnoh_started'],
-    enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_oreburgh.png',
-    description: 'Cidade construida sobre uma mina de carvao.',
-  },
-  route_204: {
-    id: 'route_204', name: 'Rota 204', type: 'farm', group: 'Sinnoh Eterna',
-    unlockLevel: 12, requirements: ['coal_badge'],
+
+  sinnoh_route_203: {
+    id: 'sinnoh_route_203', name: 'Rota 203', type: 'farm', group: 'Sinnoh Jubilife',
+    unlockLevel: 12, requirements: ['sinnoh_route_202_cleared'],
+    unlocks: 'sinnoh_route_203_cleared',
     biome: 'grass',
-    enemies: pkRange([401, 403, 406, 10, 13], 10, 15),
-    trainerChance: 0.05,
-    trainers: [
-      { name: 'Lass Sarah', sprite: S.lass, team: pk([406, 10], 12), reward: 600 },
-    ],
-    background: '/bg_route201.png',
-    description: 'Rota dividida por uma passagem rochosa (Ravaged Path).',
-  },
-  floaroma_town: {
-    id: 'floaroma_town', name: 'Floaroma Town', type: 'city', group: 'Sinnoh Eterna',
-    unlockLevel: 14, requirements: ['coal_badge'],
-    enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_floaroma.png',
-    description: 'Um campo de flores coloridas com um aroma doce.',
-  },
-  eterna_forest: {
-    id: 'eterna_forest', name: 'Eterna Forest', type: 'farm', group: 'Sinnoh Eterna',
-    unlockLevel: 18, requirements: ['coal_badge'],
-    biome: 'forest',
-    enemies: pkRange([427, 412, 420, 265, 267], 15, 20),
+    enemies: pk([396, 399, 401, 403, 406, 63], 12),
     trainerChance: 0.07,
     trainers: [
-      { name: 'Team Galactic Grunt', sprite: S.rocket, team: pk([434, 41], 18), reward: 1000 },
-    ],
-    background: '/bg_eterna_forest.png',
-    description: 'Floresta densa envolta em misterio e lendas.',
-  },
-  eterna_city: {
-    id: 'eterna_city', name: 'Eterna City', type: 'city', group: 'Sinnoh Eterna',
-    unlockLevel: 20, requirements: ['coal_badge'],
-    enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_eterna.png',
-    description: 'Cidade que valoriza a historia e o tempo.',
-  },
-  route_206: {
-    id: 'route_206', name: 'Rota 206', type: 'farm', group: 'Sinnoh Hearthome',
-    unlockLevel: 24, requirements: ['forest_badge'],
-    biome: 'grass',
-    enemies: pkRange([431, 434, 436, 403], 22, 28),
-    trainerChance: 0.05,
-    trainers: [
-      { name: 'Cyclist John', sprite: S.youngster, team: pk([431], 25), reward: 800 },
+      { name: 'Youngster Dallas', sprite: S.youngster, team: pk([397, 64], 15), reward: 760 },
     ],
     background: '/bg_route202.png',
-    description: 'A Estrada de Ciclismo de Sinnoh.',
+    description: 'Rota de transicao para evoluir capturas iniciais e preparar desafios maiores.',
   },
-  hearthome_city: {
-    id: 'hearthome_city', name: 'Hearthome City', type: 'city', group: 'Sinnoh Hearthome',
-    unlockLevel: 28, requirements: ['forest_badge'],
-    enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_hearthome.png',
-    description: 'A cidade mais bonita de Sinnoh, lar do Amity Square.',
-  },
-  route_210: {
-    id: 'route_210', name: 'Rota 210', type: 'farm', group: 'Sinnoh Veilstone',
-    unlockLevel: 32, requirements: ['relic_badge'],
+
+  sinnoh_route_204: {
+    id: 'sinnoh_route_204', name: 'Rota 204', type: 'farm', group: 'Sinnoh Floaroma',
+    unlockLevel: 18, requirements: ['sinnoh_route_203_cleared'],
+    unlocks: 'sinnoh_route_204_cleared',
     biome: 'grass',
-    enemies: pkRange([440, 441, 415, 412], 28, 35),
-    trainerChance: 0.05,
-    trainers: [],
-    background: '/bg_route201.png',
-    description: 'Uma rota longa dividida em duas secoes.',
+    enemies: pk([397, 400, 402, 406, 315, 418], 18),
+    trainerChance: 0.07,
+    trainers: [
+      { name: 'Aroma Lady Sofia', sprite: S.lass, team: pk([406, 315], 20), reward: 950 },
+    ],
+    background: '/bg_eterna.png',
+    description: 'Primeira subida de dificuldade, com evolucoes iniciais e capturas mais resistentes.',
   },
-  veilstone_city: {
-    id: 'veilstone_city', name: 'Veilstone City', type: 'city', group: 'Sinnoh Veilstone',
-    unlockLevel: 35, requirements: ['relic_badge'],
-    enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_jubilife.png',
-    description: 'Cidade esculpida em pedra, sede da Equipe Galactic.',
-  },
-  pastoria_city: {
-    id: 'pastoria_city', name: 'Pastoria City', type: 'city', group: 'Sinnoh Pastoria',
-    unlockLevel: 40, requirements: ['cobble_badge'],
-    enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_pastoria.png',
-    description: 'Cidade pantanosa famosa pelo Great Marsh.',
-  },
-  great_marsh: {
-    id: 'great_marsh', name: 'Great Marsh', type: 'farm', group: 'Sinnoh Pastoria',
-    unlockLevel: 42, requirements: ['cobble_badge'],
-    biome: 'water',
-    enemies: pkRange([451, 453, 418, 419, 194, 195], 38, 45),
-    trainerChance: 0,
-    trainers: [],
-    background: '/bg_pastoria.png',
-    description: 'Uma vasta reserva natural de Pokemons aquaticos e venenosos.',
-  },
-  route_216: {
-    id: 'route_216', name: 'Rota 216', type: 'farm', group: 'Sinnoh Snowpoint',
-    unlockLevel: 60, requirements: ['mine_badge'],
-    biome: 'mountain',
-    enemies: pkRange([459, 460, 215, 216, 473], 55, 65),
-    trainerChance: 0.06,
-    trainers: [],
-    background: '/bg_snowpoint.png',
-    description: 'Uma rota gelada onde a neve cai incessantemente.',
-  },
-  snowpoint_city: {
-    id: 'snowpoint_city', name: 'Snowpoint City', type: 'city', group: 'Sinnoh Snowpoint',
-    unlockLevel: 65, requirements: ['mine_badge'],
-    enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_snowpoint.png',
-    description: 'Uma cidade remota e gelada no extremo norte.',
-  },
-  victory_road_sinnoh: {
-    id: 'victory_road_sinnoh', name: 'Victory Road Sinnoh', type: 'farm', group: 'Sinnoh Liga',
-    unlockLevel: 85, requirements: ['beacon_badge'],
-    biome: 'cave',
-    enemies: pkRange([445, 448, 462, 464, 466, 467], 80, 95),
+
+  eterna_forest_sinnoh: {
+    id: 'eterna_forest_sinnoh', name: 'Eterna Forest', type: 'farm', group: 'Sinnoh Eterna',
+    unlockLevel: 24, requirements: ['sinnoh_route_204_cleared'],
+    unlocks: 'sinnoh_eterna_forest_cleared',
+    biome: 'forest',
+    enemies: pk([401, 402, 406, 315, 427, 433], 24),
     trainerChance: 0.08,
     trainers: [
-      { name: 'Ace Trainer Olivia', sprite: S.aceF, team: pk([445, 448], 85), reward: 5000 },
+      { name: 'Bug Catcher Anton', sprite: S.bugcatcher, team: pk([402, 412], 26), reward: 1200 },
+    ],
+    background: '/bg_eterna_forest.png',
+    description: 'Floresta para consolidar o time antes dos desafios intermediarios.',
+  },
+
+  sinnoh_route_209: {
+    id: 'sinnoh_route_209', name: 'Rota 209', type: 'farm', group: 'Sinnoh Hearthome',
+    unlockLevel: 32, requirements: ['sinnoh_eterna_forest_cleared'],
+    unlocks: 'sinnoh_route_209_cleared',
+    biome: 'grass',
+    enemies: pk([397, 400, 402, 427, 433, 434], 32),
+    trainerChance: 0.08,
+    trainers: [
+      { name: 'Pokemon Breeder Abril', sprite: S.lass, team: pk([427, 433, 434], 34), reward: 1600 },
+    ],
+    background: '/bg_eterna.png',
+    description: 'Rota de treino de nivel medio, boa para preparar evolucoes finais.',
+  },
+
+  valor_lakefront: {
+    id: 'valor_lakefront', name: 'Valor Lakefront', type: 'farm', group: 'Sinnoh Veilstone',
+    unlockLevel: 42, requirements: ['sinnoh_route_209_cleared'],
+    unlocks: 'sinnoh_valor_lakefront_cleared',
+    biome: 'water',
+    enemies: pk([398, 400, 405, 419, 423, 435], 42),
+    trainerChance: 0.08,
+    trainers: [
+      { name: 'Ace Trainer Breno', sprite: S.aceM, team: pk([405, 419], 44), reward: 2400 },
+    ],
+    background: '/bg_sinnoh_league.png',
+    description: 'Margem do lago com combates em ritmo de pos-ginasios intermediarios.',
+  },
+
+  mt_coronet_sinnoh: {
+    id: 'mt_coronet_sinnoh', name: 'Mt. Coronet', type: 'farm', group: 'Sinnoh Coronet',
+    unlockLevel: 54, requirements: ['sinnoh_valor_lakefront_cleared'],
+    unlocks: 'sinnoh_mt_coronet_cleared',
+    biome: 'mountain',
+    enemies: pk([398, 400, 405, 437, 444, 459], 54),
+    trainerChance: 0.08,
+    trainers: [
+      { name: 'Hiker Davi', sprite: S.hiker, team: pk([437, 444], 56), reward: 3200 },
+    ],
+    background: '/bg_mt_coronet.png',
+    description: 'Montanha central de Sinnoh, com encontros fortes para chegar ao fim da campanha.',
+  },
+
+  snowpoint_routes: {
+    id: 'snowpoint_routes', name: 'Rotas de Snowpoint', type: 'farm', group: 'Sinnoh Snowpoint',
+    unlockLevel: 66, requirements: ['sinnoh_mt_coronet_cleared'],
+    unlocks: 'sinnoh_snowpoint_cleared',
+    biome: 'ice',
+    enemies: pk([459, 460, 461, 473, 478, 405], 66),
+    trainerChance: 0.08,
+    trainers: [
+      { name: 'Skier Bianca', sprite: S.aceF, team: pk([460, 478], 68), reward: 4200 },
+    ],
+    background: '/bg_snowpoint.png',
+    description: 'Rotas geladas para preparar o time para o fechamento da Liga.',
+  },
+
+  sunyshore_routes: {
+    id: 'sunyshore_routes', name: 'Rotas de Sunyshore', type: 'farm', group: 'Sinnoh Sunyshore',
+    unlockLevel: 76, requirements: ['sinnoh_snowpoint_cleared'],
+    unlocks: 'sinnoh_sunyshore_cleared',
+    biome: 'grass',
+    enemies: pk([398, 405, 407, 419, 448, 445], 76),
+    trainerChance: 0.09,
+    trainers: [
+      { name: 'Ace Trainer Lia', sprite: S.aceF, team: pk([407, 448, 445], 78), reward: 5200 },
+    ],
+    background: '/bg_sunyshore.png',
+    description: 'Treino pre-Liga de Sinnoh, equilibrado para times na faixa dos 70.',
+  },
+
+  sinnoh_victory_training: {
+    id: 'sinnoh_victory_training', name: 'Treino da Victory Road', type: 'farm', group: 'Sinnoh Treino Avancado',
+    unlockLevel: 84, requirements: ['sinnoh_sunyshore_cleared'],
+    unlocks: 'sinnoh_victory_training_cleared',
+    biome: 'cave',
+    enemies: pk([398, 400, 405, 407, 445, 448], 84),
+    trainerChance: 0.08,
+    trainers: [
+      { name: 'Ace Trainer Mira', sprite: S.aceF, team: pk([407, 448, 445], 88), reward: 6200 },
     ],
     background: '/bg_victory_road_sinnoh.png',
-    description: 'O caminho final para a elite de Sinnoh.',
+    description: 'Treino intenso para times que ja passaram da fase inicial de Sinnoh.',
   },
-  pokemon_league_sinnoh: {
-    id: 'pokemon_league_sinnoh', name: 'Liga de Sinnoh', type: 'city', group: 'Sinnoh Liga',
-    unlockLevel: 90, requirements: ['beacon_badge'],
-    enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_sinnoh_league.png',
-    description: 'Onde os melhores treinadores se enfrentam.',
-  }
 
+  survival_area: {
+    id: 'survival_area', name: 'Survival Area', type: 'farm', group: 'Sinnoh Treino Avancado',
+    unlockLevel: 92, requirements: ['sinnoh_victory_training_cleared'],
+    unlocks: 'sinnoh_survival_area_cleared',
+    biome: 'mountain',
+    enemies: pk([464, 466, 467, 475, 445, 448], 92),
+    trainerChance: 0.1,
+    trainers: [
+      { name: 'Veteran Alma', sprite: S.aceF, team: pk([475, 464, 467], 95), reward: 7600 },
+    ],
+    background: '/bg_mt_coronet.png',
+    description: 'Area dura para manter a progressao ate os niveis finais.',
+  },
+
+  stark_mountain: {
+    id: 'stark_mountain', name: 'Stark Mountain', type: 'farm', group: 'Sinnoh Treino Avancado',
+    unlockLevel: 100, requirements: ['sinnoh_survival_area_cleared'],
+    biome: 'mountain',
+    enemies: pk([445, 448, 464, 466, 467, 485], 100),
+    trainerChance: 0.12,
+    trainers: [
+      { name: 'Veteran Buck', sprite: S.aceM, team: pk([448, 467, 485], 100), reward: 10000 },
+    ],
+    background: '/bg_mt_coronet.png',
+    description: 'Rota final de treino: inimigos no nivel 100 para fechar o endgame.',
+  },
+  ...REGIONAL_DEX_COVERAGE_ROUTES,
+  ...FUTURE_REGION_ROUTES,
 };

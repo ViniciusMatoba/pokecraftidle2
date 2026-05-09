@@ -75,22 +75,6 @@ for (const [candyId, data] of Object.entries(CANDY_FAMILIES)) {
   }
 }
 
-// Fallback regional: garante candy funcional para todos os Pokemon de Kanto,
-// Johto e Hoenn, mesmo quando a familia evolutiva ainda nao foi cadastrada.
-for (let id = 1; id <= 386; id += 1) {
-  if (!POKEMON_TO_CANDY[id]) {
-    const candyId = `pokemon_${id}_candy`;
-    CANDY_FAMILIES[candyId] = {
-      ids: [id],
-      name: `Candy #${id}`,
-      spriteId: id,
-      color: id <= 151 ? '#93c5fd' : id <= 251 ? '#86efac' : '#67e8f9',
-      rareCandySprite: RARE_CANDY,
-    };
-    POKEMON_TO_CANDY[id] = candyId;
-  }
-}
-
 // Componente visual do candy — usar onde quiser renderizar o ícone
 // Usa o sprite do Pokémon base com fundo colorido, igual ao estilo Pokémon GO
 // Exemplo de uso no JSX:

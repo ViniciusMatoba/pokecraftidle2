@@ -4,6 +4,7 @@ import { GYMS, ELITE_FOUR, TYPE_COLOR_HEX } from '../data/gyms';
 import { BadgeSVG } from './CommonUI';
 import { getBadgeCount, hasBadge as hasProgressBadge, hasProgressRequirement } from '../utils/progress';
 import ChallengesScreen from './ChallengesScreen';
+import { getUnlockedRegions, REGION_LABELS, REGION_BADGE_IDS } from '../data/regionStandards';
 
 const JOHTO_BADGES = [
   { id: 'zephyr_badge', badge: 'zephyr_badge', badgeOrder: 1 },
@@ -26,6 +27,28 @@ const HOENN_BADGES = [
   { id: 'mind_badge', badge: 'mind_badge', badgeOrder: 7 },
   { id: 'rain_badge', badge: 'rain_badge', badgeOrder: 8 },
 ];
+
+const SINNOH_BADGES = [
+  { id: 'coal_badge', badge: 'coal_badge', badgeOrder: 1 },
+  { id: 'forest_badge', badge: 'forest_badge', badgeOrder: 2 },
+  { id: 'cobble_badge', badge: 'cobble_badge', badgeOrder: 3 },
+  { id: 'fen_badge', badge: 'fen_badge', badgeOrder: 4 },
+  { id: 'relic_badge', badge: 'relic_badge', badgeOrder: 5 },
+  { id: 'mine_badge', badge: 'mine_badge', badgeOrder: 6 },
+  { id: 'icicle_badge', badge: 'icicle_badge', badgeOrder: 7 },
+  { id: 'beacon_badge', badge: 'beacon_badge', badgeOrder: 8 },
+];
+
+const badgeRowsByRegion = {
+  johto: JOHTO_BADGES,
+  hoenn: HOENN_BADGES,
+  sinnoh: SINNOH_BADGES,
+  unova: (REGION_BADGE_IDS.unova || []).map((badge, i) => ({ id: badge, badge, badgeOrder: i + 1 })),
+  kalos: (REGION_BADGE_IDS.kalos || []).map((badge, i) => ({ id: badge, badge, badgeOrder: i + 1 })),
+  alola: (REGION_BADGE_IDS.alola || []).map((badge, i) => ({ id: badge, badge, badgeOrder: i + 1 })),
+  galar: (REGION_BADGE_IDS.galar || []).map((badge, i) => ({ id: badge, badge, badgeOrder: i + 1 })),
+  paldea: (REGION_BADGE_IDS.paldea || []).map((badge, i) => ({ id: badge, badge, badgeOrder: i + 1 })),
+};
 
 const typeIconUrl = (t) =>
   t ? `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg` : null;
@@ -378,26 +401,21 @@ const GymScreen = ({ gameState, onChallengeGym, onChallenge, onClose, initialSec
   const badgeCount = getBadgeCount(gameState);
   const worldFlags = gameState.worldFlags || [];
   const kantoChampion = worldFlags.includes('champion');
-  const hoennAvailable = kantoChampion || worldFlags.includes('hoenn_started') || worldFlags.includes('johto_champion');
+  const unlockedRegionIds = getUnlockedRegions(gameState);
+  const availableRegions = unlockedRegionIds.map(id => ({ id, label: REGION_LABELS[id] || id }));
 
   React.useEffect(() => {
     if (initialSection === 'johto' && kantoChampion) {
       setLeagueRegion('johto');
-    } else if (initialSection === 'hoenn' && hoennAvailable) {
-      setLeagueRegion('hoenn');
     }
-  }, [initialSection, kantoChampion, hoennAvailable]);
+  }, [initialSection, kantoChampion]);
 
   React.useEffect(() => {
     if (!kantoChampion && leagueRegion === 'johto') setLeagueRegion('kanto');
-    if (!hoennAvailable && leagueRegion === 'hoenn') setLeagueRegion('kanto');
-  }, [kantoChampion, hoennAvailable, leagueRegion]);
+    if (!unlockedRegionIds.includes(leagueRegion)) setLeagueRegion('kanto');
+  }, [kantoChampion, unlockedRegionIds.join('|'), leagueRegion]);
 
-  const hasBadge = (badgeId, order) => {
-    if (badges.includes(badgeId) || worldFlags.includes(badgeId)) return true;
-    if (leagueRegion === 'kanto') return hasProgressBadge(gameState, badgeId, order);
-    return false;
-  };
+  const hasBadge = (badgeId, order) => hasProgressBadge(gameState, badgeId, order) || worldFlags.includes(badgeId);
 
   const gymLocked = (gym) => {
     if (gym.id === 'brock' && !worldFlags.includes('viridian_forest_cleared')) return true;
@@ -434,12 +452,8 @@ const GymScreen = ({ gameState, onChallengeGym, onChallenge, onClose, initialSec
         {/* Badge Strip */}
         <div className="flex-shrink-0 px-3 py-3 border-b border-white/10">
           {kantoChampion && !forcedRegion && (
-            <div className="grid grid-cols-3 gap-2 mb-3">
-              {[
-                { id: 'kanto', label: 'Kanto' },
-                { id: 'johto', label: 'Johto' },
-                { id: 'hoenn', label: 'Hoenn' },
-              ].filter(region => region.id !== 'hoenn' || hoennAvailable).map(region => (
+            <div className={`grid ${availableRegions.length >= 5 ? 'grid-cols-5' : availableRegions.length >= 4 ? 'grid-cols-4' : availableRegions.length >= 3 ? 'grid-cols-3' : 'grid-cols-2'} gap-2 mb-3`}>
+              {availableRegions.map(region => (
                 <button
                   key={region.id}
                   onClick={() => setLeagueRegion(region.id)}
@@ -455,7 +469,7 @@ const GymScreen = ({ gameState, onChallengeGym, onChallenge, onClose, initialSec
             </div>
           )}
           <div className="grid grid-cols-8 gap-1.5 w-full">
-            {(leagueRegion === 'johto' ? JOHTO_BADGES : leagueRegion === 'hoenn' ? HOENN_BADGES : GYMS).map(g => (
+            {(badgeRowsByRegion[leagueRegion] || GYMS).map(g => (
               <div key={g.id} className="flex justify-center">
                 <BadgeIcon
                   badgeId={g.badge}
@@ -470,30 +484,17 @@ const GymScreen = ({ gameState, onChallengeGym, onChallenge, onClose, initialSec
 
         {/* Scroll content */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar px-5 py-6 flex flex-col gap-7">
-          {leagueRegion === 'johto' ? (
+          {leagueRegion !== 'kanto' ? (
             <ChallengesScreen
               gameState={gameState}
               onChallenge={onChallenge}
               onClose={onClose}
               isEmbedded={true}
-              filterCategories={['johto']}
-              forcedRegion="johto"
+              filterCategories={[leagueRegion]}
+              forcedRegion={leagueRegion}
               setCurrentView={setCurrentView}
               setVsInitialTab={setVsInitialTab}
-              initialCategory="johto"
-              setVsInitialCategory={setVsInitialCategory}
-            />
-          ) : leagueRegion === 'hoenn' ? (
-            <ChallengesScreen
-              gameState={gameState}
-              onChallenge={onChallenge}
-              onClose={onClose}
-              isEmbedded={true}
-              filterCategories={['hoenn']}
-              forcedRegion="hoenn"
-              setCurrentView={setCurrentView}
-              setVsInitialTab={setVsInitialTab}
-              initialCategory="hoenn"
+              initialCategory={leagueRegion}
               setVsInitialCategory={setVsInitialCategory}
             />
           ) : (

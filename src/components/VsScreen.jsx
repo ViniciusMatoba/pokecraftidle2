@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import GymScreen from './GymScreen';
 import ChallengesScreen from './ChallengesScreen';
 import BossScreen from './BossScreen';
+import { getUnlockedRegions, REGION_LABELS } from '../data/regionStandards';
 
-const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentView, initialTab, setVsInitialTab, initialCategory, setVsInitialCategory, initialRegion, setVsInitialRegion }) => {
+const VsScreen = ({ gameState, powerScore = 0, onChallengeGym, onChallenge, onClose, setCurrentView, initialTab, setVsInitialTab, initialCategory, setVsInitialCategory, initialRegion, setVsInitialRegion }) => {
   const normalizeTab = (tab) => tab === 'johto' ? 'gyms' : (tab || 'challenges');
   const [activeTab, setActiveTab] = useState(normalizeTab(initialTab)); // 'challenges', 'gyms', 'legendary'
-  const [region, setRegion] = useState(initialRegion || (['johto', 'hoenn'].includes(initialCategory) ? initialCategory : 'kanto'));
+  const [region, setRegion] = useState(initialRegion || (initialCategory === 'johto' ? 'johto' : 'kanto'));
 
   const worldFlags = gameState.worldFlags || [];
   const kantoChampion = worldFlags.includes('champion');
-  const hoennAvailable = kantoChampion || worldFlags.includes('hoenn_started') || worldFlags.includes('johto_champion');
+  const availableRegions = getUnlockedRegions(gameState).map(id => ({ id, label: REGION_LABELS[id] || id }));
 
   React.useEffect(() => {
     if (initialTab) {
@@ -21,7 +22,13 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
   React.useEffect(() => {
     if (initialRegion) {
       setRegion(initialRegion);
-    } else if (['johto', 'hoenn'].includes(initialCategory)) {
+    } else if (initialCategory === 'johto') {
+      setRegion('johto');
+    } else if (initialCategory === 'hoenn') {
+      setRegion('hoenn');
+    } else if (initialCategory === 'sinnoh') {
+      setRegion('sinnoh');
+    } else if (REGION_LABELS[initialCategory]) {
       setRegion(initialCategory);
     }
   }, [initialCategory, initialRegion]);
@@ -29,6 +36,7 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
   const tabs = [
     { id: 'challenges', name: 'Desafios', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png', desc: 'Rivais & Rocket' },
     { id: 'gyms', name: 'Ginasios & Liga', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png', desc: 'Caminho do Mestre' },
+    { id: 'rematch', name: 'Revanches', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-revive.png', desc: 'Elite Rematch' },
     { id: 'legendary', name: 'Lendarios', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png', desc: 'Encontros Raros' },
     { id: 'boss', name: 'BOSS', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png', desc: 'Desafio Global' },
   ];
@@ -51,27 +59,16 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
 
           {/* Region Selector */}
           {kantoChampion && (
-            <div className="grid grid-cols-3 gap-2 mb-4 px-2">
-              <button
-                onClick={() => setRegion('kanto')}
-                className={`py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${region === 'kanto' ? 'bg-pokeGold text-slate-950 shadow-lg' : 'bg-white/5 text-white/40'}`}
-              >
-                Kanto
-              </button>
-              <button
-                onClick={() => setRegion('johto')}
-                className={`py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${region === 'johto' ? 'bg-pokeGold text-slate-950 shadow-lg' : 'bg-white/5 text-white/40'}`}
-              >
-                Johto
-              </button>
-              {hoennAvailable && (
+            <div className={`grid ${availableRegions.length >= 5 ? 'grid-cols-5' : availableRegions.length >= 4 ? 'grid-cols-4' : availableRegions.length >= 3 ? 'grid-cols-3' : 'grid-cols-2'} gap-2 mb-4 px-2`}>
+              {availableRegions.map((entry) => (
                 <button
-                  onClick={() => setRegion('hoenn')}
-                  className={`py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${region === 'hoenn' ? 'bg-pokeGold text-slate-950 shadow-lg' : 'bg-white/5 text-white/40'}`}
+                  key={entry.id}
+                  onClick={() => setRegion(entry.id)}
+                  className={`py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${region === entry.id ? 'bg-pokeGold text-slate-950 shadow-lg' : 'bg-white/5 text-white/40'}`}
                 >
-                  Hoenn
+                  {entry.label}
                 </button>
-              )}
+              ))}
             </div>
           )}
 
@@ -110,6 +107,7 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
               setVsInitialTab={setVsInitialTab}
               initialCategory={initialCategory}
               setVsInitialCategory={setVsInitialCategory}
+              setVsInitialRegion={setVsInitialRegion}
             />
           )}
           {activeTab === 'gyms' && (
@@ -136,11 +134,26 @@ const VsScreen = ({ gameState, onChallengeGym, onChallenge, onClose, setCurrentV
               forcedRegion={region}
               setCurrentView={setCurrentView}
               setVsInitialTab={setVsInitialTab}
+              setVsInitialRegion={setVsInitialRegion}
+            />
+          )}
+          {activeTab === 'rematch' && (
+            <ChallengesScreen
+              gameState={gameState}
+              onChallenge={onChallenge}
+              onClose={onClose}
+              isEmbedded={true}
+              filterCategories={['rematch']}
+              forcedRegion={region}
+              setCurrentView={setCurrentView}
+              setVsInitialTab={setVsInitialTab}
+              setVsInitialRegion={setVsInitialRegion}
             />
           )}
           {activeTab === 'boss' && (
             <BossScreen
               gameState={gameState}
+              powerScore={powerScore}
               onChallengeBoss={(bossData) => onChallenge(bossData, 'boss')}
             />
           )}

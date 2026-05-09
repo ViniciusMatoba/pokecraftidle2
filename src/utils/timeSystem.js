@@ -58,6 +58,16 @@ const TIME_EXTRA_POKEMON = {
 const NOCTURNAL_IDS = new Set([41, 42, 52, 88, 92, 93, 94, 163, 164, 167, 168, 198, 200, 228, 229]);
 const EARLY_IDS = new Set([16, 17, 18, 19, 20, 21, 22, 161, 162, 165, 166, 172, 179, 187, 188, 191, 192]);
 const EARLY_WILD_ROUTE_IDS = new Set(['route_1', 'route_22', 'viridian_forest', 'route_3', 'mt_moon']);
+const JOHTO_ROUTE_HINTS = ['johto', 'bark', 'cherrygrove', 'violet', 'azalea', 'goldenrod', 'ecruteak', 'olivine', 'cianwood', 'mahogany', 'blackthorn', 'mt_silver', 'silver', 'sprout', 'ilex', 'slowpoke', 'union_cave', 'national_park', 'burned_tower', 'lake_of_rage', 'ice_path', 'dragons_den', 'johto_victory'];
+const HOENN_ROUTE_HINTS = ['hoenn', 'littleroot', 'route_101', 'route_102', 'oldale', 'petalburg', 'rustboro', 'dewford', 'granite_cave', 'slateport', 'mauville', 'route_110', 'route_111', 'route_113', 'fiery_path', 'fallarbor', 'meteor_falls', 'mt_chimney', 'lavaridge', 'fortree', 'lilycove', 'mt_pyre', 'ocean_routes', 'mossdeep', 'seafloor', 'sootopolis', 'cave_of_origin', 'sky_pillar', 'pacifidlog', 'ever_grande', 'victory_road_hoenn', 'route_116', 'rusturf', 'route_104', 'route_118', 'route_120'];
+
+const isKantoRoute = (route = {}) => {
+  const routeText = `${route.id || ''} ${route.group || ''}`.toLowerCase();
+  return !JOHTO_ROUTE_HINTS.some(hint => routeText.includes(hint)) &&
+    !HOENN_ROUTE_HINTS.some(hint => routeText.includes(hint));
+};
+
+const isJohtoPokemon = (id) => Number(id) >= 152 && Number(id) <= 251;
 
 const getTypes = (entry, pokedex = {}) => {
   const data = pokedex?.[Number(entry?.id)] || entry || {};
@@ -146,6 +156,7 @@ export const getTimeAdjustedEnemyPool = (route, period = getTimeOfDay(), pokedex
   const extras = (TIME_EXTRA_POKEMON[period] || [])
     .filter(id => pokedex?.[id])
     .filter(id => !unique.has(Number(id)))
+    .filter(id => !(isKantoRoute(route) && isJohtoPokemon(id)))
     .filter(id => canAppearAsWildTimeBonus(id, route, pokedex))
     .filter(id => {
       const types = getTypes({ id }, pokedex);

@@ -147,14 +147,36 @@ const CityScreen = ({
     cityBuildings.push({
       id: 'hoenn_start',
       name: 'Iniciar Hoenn',
-      icon: 'https://play.pokemonshowdown.com/sprites/trainers/professorbirch.png',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/eon-ticket.png',
       emoji: 'H',
-      desc: 'Fale com o Prof. Birch e parta para a região de Hoenn.',
+      desc: 'Fale com o Prof. Birch e comece uma nova jornada regional.',
       action: () => setCurrentView && setCurrentView('hoenn_intro'),
-      color: 'border-cyan-500 bg-cyan-50',
+      color: 'border-orange-500 bg-orange-50',
     });
   }
 
+  if ((gameState.worldFlags || []).includes('hoenn_champion') && !(gameState.worldFlags || []).includes('sinnoh_started')) {
+    cityBuildings.push({
+      id: 'sinnoh_start',
+      name: 'Iniciar Sinnoh',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/explorer-kit.png',
+      emoji: 'S',
+      desc: 'Fale com o Prof. Rowan e escolha seu inicial de Sinnoh.',
+      action: () => setCurrentView && setCurrentView('sinnoh_intro'),
+      color: 'border-sky-500 bg-sky-50',
+    });
+  }
+
+  const ownedPokemonForTitles = [
+    ...(gameState.team || []),
+    ...(gameState.pc || []),
+    ...Object.values(gameState.regional_teams || {}).flat(),
+    ...Object.values(gameState.regional_pc || {}).flat(),
+  ];
+  const shinyCountForTitles = Math.max(
+    gameState.shinyCapturedCount || 0,
+    ownedPokemonForTitles.filter(p => p?.isShiny).length
+  );
 
   return (
     <div className="h-full flex flex-col animate-fadeIn pb-24 relative overflow-y-auto custom-scrollbar">
@@ -163,10 +185,22 @@ const CityScreen = ({
           trainer={gameState.trainer} 
           badges={gameState.badges || []} 
           caughtCount={Object.keys(gameState.caughtData || {}).length} 
+          caughtData={gameState.caughtData || {}}
           worldFlags={gameState.worldFlags || []} 
           powerScore={powerScore}
           forgedItems={gameState.forgedItemsCount || 0}
           bossDamage={gameState.bossTotalDamage || 0}
+          shinyCount={shinyCountForTitles}
+          trainerBattleWins={gameState.trainerBattleWins || 0}
+          inventoryItems={gameState.inventory?.items || {}}
+          compactExpandable={true}
+          onSelectTitle={(titleId) => setGameState(prev => ({
+            ...prev,
+            trainer: {
+              ...(prev.trainer || {}),
+              titleId,
+            },
+          }))}
         />
         
         {(gameState.worldFlags || []).includes('quest_capture_active') && (

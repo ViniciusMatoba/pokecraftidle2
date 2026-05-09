@@ -1,5 +1,4 @@
-const CACHE_NAME = 'pokecraft-cache-v1.52.1';
-const RUNTIME_CACHE = 'pokecraft-runtime-v1.52.1';
+const CACHE_NAME = 'pokecraft-cache-v1.55.8';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -7,91 +6,88 @@ const STATIC_ASSETS = [
   './favicon.svg'
 ];
 
-const SPRITE_HOSTS = new Set([
-  'raw.githubusercontent.com',
-  'play.pokemonshowdown.com'
-]);
-
-const putInRuntimeCache = async (request, response) => {
-  if (!response || (response.status !== 200 && response.type !== 'opaque')) return;
-  const cache = await caches.open(RUNTIME_CACHE);
-  await cache.put(request, response.clone());
-};
-
-const cacheFirst = async (request) => {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-  const response = await fetch(request);
-  putInRuntimeCache(request, response);
-  return response;
-};
-
-const staleWhileRevalidate = async (request) => {
-  const cached = await caches.match(request);
-  const network = fetch(request)
-    .then((response) => {
-      putInRuntimeCache(request, response);
-      return response;
-    })
-    .catch(() => null);
-  return cached || network || fetch(request);
-};
-
+// InstalaÃ§Ã£o: Cacheia ativos estÃ¡ticos iniciais
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('PWA: Instalando Service Worker e cacheando assets estÃ¡ticos');
+      return cache.addAll(STATIC_ASSETS);
+    })
   );
 });
 
+// AtivaÃ§Ã£o: Limpa caches antigos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => Promise.all(
-      cacheNames.map((cacheName) => {
-        if (cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE) {
-          return caches.delete(cacheName);
-        }
-        return null;
-      })
-    )).then(() => self.clients.claim())
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('PWA: Removendo cache antigo:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
   );
 });
 
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+// EstratÃ©gia de Fetch
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
+  // Ignorar requisiÃ§Ãµes do Firebase/Firestore (Network-First implicito ou deixe o SDK lidar)
   if (url.hostname.includes('firestore.googleapis.com') || url.hostname.includes('firebase')) {
-    return;
+    return; // Deixa o navegador lidar normalmente
   }
 
-  if (SPRITE_HOSTS.has(url.hostname) && /\.(png|gif|webp|svg)$/i.test(url.pathname)) {
-    event.respondWith(cacheFirst(event.request));
-    return;
-  }
-
-  const isOwnStaticAsset =
+  // EstratÃ©gia Cache-First para Ativos EstÃ¡ticos (Imagens, JS, CSS do prÃ³prio domÃ­nio)
+  const isStaticAsset = 
     url.origin === self.location.origin && (
-      url.pathname.includes('/assets/') ||
-      /\.(png|jpg|jpeg|webp|svg|js|css|mp3|woff2?)$/i.test(url.pathname)
-    );
-
-  if (isOwnStaticAsset) {
-    event.respondWith(cacheFirst(event.request));
-    return;
-  }
-
-  if (event.request.mode === 'navigate' || url.pathname.endsWith('/index.html')) {
-    event.respondWith(staleWhileRevalidate(event.request));
-    return;
-  }
-
-  // version.json deve sempre vir da rede para detectar atualizações
-  if (url.pathname.endsWith('/version.json')) {
-    event.respondWith(fetch(event.request));
-    return;
-  }
-
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    url.pathname.includes('/assets/') || 
+    url.pathname.endsWith('.png') || 
+    url.pathname.endsWith('.jpg') || 
+    url.pathname.endsWith('.webp') || 
+    url.pathname.endsWith('.svg') || 
+    url.pathname.endsWith('.js') || 
+    url.pathname.endsWith('.css') ||
+    (url.pathname.endsWith('.json') && !url.pathname.endsWith('/version.json'))
   );
+
+  if (isStaticAsset) {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        return fetch(event.request).then((networkResponse) => {
+          if (!networkResponse || networkResponse.status !== 200) {
+            return networkResponse;
+          }
+
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+
+          return networkResponse;
+        });
+      })
+    );
+  } else {
+    // Network-First para o resto (incluindo index.html para garantir atualizaÃ§Ãµes)
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match(event.request);
+      })
+    );
+  }
 });

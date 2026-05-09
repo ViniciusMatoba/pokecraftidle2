@@ -2,6 +2,108 @@ import React, { useState } from 'react';
 import { hasProgressRequirement } from '../utils/progress';
 import { TYPE_COLOR_HEX } from '../data/gyms';
 import { BadgeSVG } from './CommonUI';
+import { getUnlockedRegions, REGION_LABELS } from '../data/regionStandards';
+
+const psTrainer = (name) => `https://play.pokemonshowdown.com/sprites/trainers/${name}.png`;
+const trainerSlug = (name) => ({
+  'Olivia Elite': 'olivia',
+  'Larry Elite': 'larry',
+}[name] || String(name).toLowerCase().replace(/[^a-z0-9]+/g, ''));
+const trainerSprite = (name) => psTrainer(trainerSlug(name));
+const typeIconUrl = (t) => `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${String(t).toLowerCase()}.svg`;
+const team = (ids, level) => ids.map(id => ({ id, level }));
+
+const FUTURE_REGION_CHALLENGE_DATA = {
+  unova: {
+    label: 'Unova', start: 'unova_started', champion: 'unova_champion', villain: 'Team Plasma', villainSprite: psTrainer('plasmagrunt'), rivalSprite: psTrainer('cheren'), bg: "url('/battle_bg_forest_1776863795763.png') center/cover no-repeat",
+    badges: ['trio_badge', 'basic_badge', 'insect_badge', 'bolt_badge', 'quake_badge', 'jet_badge', 'freeze_badge', 'legend_badge'],
+    leaders: [['Cilan', 'Grass', 14, [511, 512]], ['Lenora', 'Normal', 20, [507, 505]], ['Burgh', 'Bug', 26, [541, 542, 544]], ['Elesa', 'Electric', 32, [587, 522, 523]], ['Clay', 'Ground', 39, [529, 536, 530]], ['Skyla', 'Flying', 45, [528, 521, 581]], ['Brycen', 'Ice', 52, [614, 615, 583]], ['Drayden', 'Dragon', 60, [611, 621, 612]]],
+    league: [['Shauntal', 'Ghost', 72, [609, 623, 593]], ['Grimsley', 'Dark', 74, [560, 625, 635]], ['Caitlin', 'Psychic', 76, [518, 579, 576]], ['Marshal', 'Fighting', 78, [534, 538, 539]], ['Alder', 'Bug', 82, [617, 589, 637]]],
+  },
+  kalos: {
+    label: 'Kalos', start: 'kalos_started', champion: 'kalos_champion', villain: 'Team Flare', villainSprite: psTrainer('flaregrunt'), rivalSprite: psTrainer('shauna'), bg: "url('/battle_bg_route24_25_1776993592209.png') center/cover no-repeat",
+    badges: ['bug_badge', 'cliff_badge', 'rumble_badge', 'plant_badge', 'voltage_badge', 'fairy_badge', 'psychic_badge', 'iceberg_badge'],
+    leaders: [['Viola', 'Bug', 12, [283, 666]], ['Grant', 'Rock', 25, [696, 698]], ['Korrina', 'Fighting', 32, [619, 701]], ['Ramos', 'Grass', 34, [189, 71, 673]], ['Clemont', 'Electric', 40, [587, 82, 695]], ['Valerie', 'Fairy', 48, [303, 439, 700]], ['Olympia', 'Psychic', 59, [678, 199, 561]], ['Wulfric', 'Ice', 65, [460, 713, 712]]],
+    league: [['Malva', 'Fire', 74, [668, 663, 609]], ['Siebold', 'Water', 76, [689, 693, 130]], ['Wikstrom', 'Steel', 78, [681, 476, 212]], ['Drasna', 'Dragon', 80, [691, 621, 706]], ['Diantha', 'Fairy', 86, [701, 697, 700, 282]]],
+  },
+  alola: {
+    label: 'Alola', start: 'alola_started', champion: 'alola_champion', villain: 'Team Skull', villainSprite: psTrainer('skullgrunt'), rivalSprite: psTrainer('hau'), bg: "url('/battle_bg_route19_20.png') center/cover no-repeat",
+    badges: ['melemele_stamp', 'akala_stamp', 'ulaula_stamp', 'poni_stamp', 'alola_elite_stamp', 'alola_champion_stamp', 'ultra_stamp', 'battle_tree_stamp'],
+    leaders: [['Ilima', 'Normal', 16, [735, 20]], ['Olivia', 'Rock', 28, [299, 525, 745]], ['Nanu', 'Dark', 44, [302, 53, 430]], ['Hapu', 'Ground', 55, [51, 423, 750]], ['Molayne', 'Steel', 65, [227, 462, 801]], ['Olivia Elite', 'Rock', 75, [476, 703, 745]], ['Acerola', 'Ghost', 85, [478, 426, 778]], ['Kahili', 'Flying', 100, [628, 741, 733]]],
+    league: [['Hala', 'Fighting', 82, [297, 538, 739]], ['Olivia', 'Rock', 84, [476, 703, 745]], ['Acerola', 'Ghost', 86, [478, 426, 778]], ['Kahili', 'Flying', 88, [628, 741, 733]], ['Kukui', 'Rock', 92, [745, 727, 724, 730]]],
+  },
+  galar: {
+    label: 'Galar', start: 'galar_started', champion: 'galar_champion', villain: 'Team Yell', villainSprite: psTrainer('yellgrunt'), rivalSprite: psTrainer('hop'), bg: "url('/battle_bg_route16_17_18.png') center/cover no-repeat",
+    badges: ['grass_badge_galar', 'water_badge_galar', 'fire_badge_galar', 'fighting_badge_galar', 'fairy_badge_galar', 'rock_badge_galar', 'dark_badge_galar', 'dragon_badge_galar'],
+    leaders: [['Milo', 'Grass', 20, [829, 830]], ['Nessa', 'Water', 24, [833, 834]], ['Kabu', 'Fire', 27, [851, 59]], ['Bea', 'Fighting', 36, [865, 68]], ['Opal', 'Fairy', 38, [110, 868, 869]], ['Gordie', 'Rock', 42, [839, 874]], ['Piers', 'Dark', 46, [560, 862, 861]], ['Raihan', 'Dragon', 55, [844, 884, 330]]],
+    league: [['Marnie', 'Dark', 74, [861, 452, 877]], ['Bede', 'Fairy', 78, [858, 869, 282]], ['Raihan', 'Dragon', 82, [884, 330, 706]], ['Leon', 'Fire', 90, [6, 887, 812, 815, 818]]],
+  },
+  paldea: {
+    label: 'Paldea', start: 'paldea_started', champion: 'paldea_champion', villain: 'Team Star', villainSprite: psTrainer('giacomo'), rivalSprite: psTrainer('schoolkidf'), bg: "url('/battle_bg_route3_1776993578907.png') center/cover no-repeat",
+    badges: ['bug_badge_paldea', 'grass_badge_paldea', 'electric_badge_paldea', 'water_badge_paldea', 'normal_badge_paldea', 'ghost_badge_paldea', 'psychic_badge_paldea', 'ice_badge_paldea'],
+    leaders: [['Katy', 'Bug', 15, [917, 919]], ['Brassius', 'Grass', 20, [949, 753]], ['Iono', 'Electric', 28, [940, 941]], ['Kofu', 'Water', 35, [961, 950]], ['Larry', 'Normal', 42, [931, 924, 925]], ['Ryme', 'Ghost', 48, [972, 937]], ['Tulip', 'Psychic', 55, [956, 981]], ['Grusha', 'Ice', 60, [974, 975]]],
+    league: [['Rika', 'Ground', 72, [980, 982, 968]], ['Poppy', 'Steel', 75, [879, 959, 1000]], ['Larry Elite', 'Flying', 78, [931, 973, 701]], ['Hassel', 'Dragon', 82, [998, 887, 1008]], ['Geeta', 'Rock', 88, [970, 983, 1008]]],
+  },
+};
+
+const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE_DATA).flatMap(([region, cfg]) => {
+  const rivalBattles = [
+    { suffix: 'rival_start', name: `Rival - ${cfg.label} I`, level: 12, req: cfg.start, unlock: `${region}_rival_1_defeated`, ids: [cfg.leaders[0][3][0], cfg.leaders[1][3][0]] },
+    { suffix: 'rival_mid', name: `Rival - ${cfg.label} II`, level: 38, req: cfg.badges[2], unlock: `${region}_rival_2_defeated`, ids: [cfg.leaders[2][3][0], cfg.leaders[3][3][0], cfg.leaders[4][3][0]] },
+    { suffix: 'rival_victory', name: `Rival - Victory Road ${cfg.label}`, level: 70, req: cfg.badges[7], unlock: `${region}_rival_victory_defeated`, ids: [cfg.leaders[5][3][0], cfg.leaders[6][3][0], cfg.leaders[7][3][0]] },
+  ].map(entry => ({
+    region, id: `${region}_${entry.suffix}`, category: 'rival', name: entry.name, subtitle: 'Rivalidade Regional',
+    sprite: cfg.rivalSprite, quote: '"Vamos testar se voce esta pronto para o proximo passo."',
+    reward: entry.level * 900, unlockFlag: entry.unlock, requiresFlag: entry.req, team: team(entry.ids, entry.level),
+    background: cfg.bg, location: `${cfg.label} - Jornada`,
+  }));
+
+  const villainBattles = [
+    { suffix: 'villain_1', level: 24, req: `${region}_rival_1_defeated`, unlock: `${region}_villain_1_cleared` },
+    { suffix: 'villain_2', level: 50, req: cfg.badges[4], unlock: `${region}_villain_2_cleared` },
+    { suffix: 'villain_final', level: 66, req: cfg.badges[6], unlock: `${region}_villain_final_cleared` },
+  ].map((entry, i) => ({
+    region, id: `${region}_${entry.suffix}`, category: 'rocket', name: `${cfg.villain} ${i === 2 ? 'Boss' : 'Grunt'}`, subtitle: 'Equipe Vila Regional',
+    sprite: cfg.villainSprite, quote: '"Nosso plano nao sera interrompido por voce."',
+    reward: entry.level * 1000, unlockFlag: entry.unlock, requiresFlag: entry.req,
+    team: team([cfg.leaders[i + 1][3][0], cfg.leaders[i + 3][3][0], cfg.leaders[i + 5]?.[3]?.[0] || cfg.leaders[7][3][0]], entry.level),
+    background: cfg.bg, location: `${cfg.label} - Operacao da Equipe Vila`,
+  }));
+
+  const gymBattles = cfg.leaders.map(([name, type, level, ids], index) => ({
+    region, id: `${region}_gym_${index + 1}`, category: region, name, subtitle: `Ginasio #${index + 1}`,
+    sprite: trainerSprite(name),
+    quote: `"Meu tipo ${type} vai definir esta batalha."`,
+    reward: level * 1200, unlockFlag: cfg.badges[index], badgeToGive: cfg.badges[index],
+    requiresFlag: index === 0 ? `${region}_villain_1_cleared` : cfg.badges[index - 1],
+    badge: cfg.badges[index], badgeOrder: index + 1, type, typeIcon: typeIconUrl(type),
+    team: team(ids, level), background: cfg.bg, location: `${cfg.label} - Ginasio #${index + 1}`,
+  }));
+
+  const leagueBattles = cfg.league.map(([name, type, level, ids], index) => ({
+    region, id: index === cfg.league.length - 1 ? `${region}_champion` : `${region}_elite_${index + 1}`,
+    category: region, name, subtitle: index === cfg.league.length - 1 ? `Campeao de ${cfg.label}` : `Elite Four #${index + 1}`,
+    sprite: trainerSprite(name),
+    quote: '"A Liga reconhece apenas quem vence no limite."',
+    reward: level * 1600, unlockFlag: index === cfg.league.length - 1 ? cfg.champion : `${region}_elite_${index + 1}_defeated`,
+    requiresFlag: index === 0 ? `${region}_rival_victory_defeated` : (index === cfg.league.length - 1 ? `${region}_elite_${index}_defeated` : `${region}_elite_${index}_defeated`),
+    type, typeIcon: typeIconUrl(type), team: team(ids, level), background: "url('/battle_bg_elite_four.png') center/cover no-repeat",
+    location: `${cfg.label} Pokemon League`,
+  }));
+
+  const rematches = cfg.leaders.map(([name, type, , ids], index) => ({
+    region, id: `${region}_rematch_${index + 1}`, category: 'rematch', name: `Revanche ${name}`, subtitle: `${cfg.label} Rematch`,
+    sprite: trainerSprite(name),
+    quote: '"Agora sem limite de campanha. Mostre seu time de elite."',
+    reward: 90000 + index * 5000, unlockFlag: `${region}_rematch_${index + 1}_defeated`, requiresFlag: cfg.champion,
+    type, typeIcon: typeIconUrl(type), team: team([...ids, cfg.league.at(-1)[3][0]].slice(0, 4), 100), background: cfg.bg,
+    location: `${cfg.label} - Revanche`,
+  }));
+
+  return [...rivalBattles, ...villainBattles, ...gymBattles, ...leagueBattles, ...rematches];
+});
+
+const FUTURE_REGION_CHALLENGES = buildFutureRegionChallenges();
 
 const CHALLENGES = [
   // RIVAIS
@@ -191,9 +293,9 @@ const CHALLENGES = [
     unlockFlag: 'johto_rival_1_defeated',
     requiresFlag: 'johto_started',
     team: [
-      { id: 152, level: 6 },
-      { id: 155, level: 6 },
-      { id: 158, level: 6 },
+      { id: 153, level: 6 },
+      { id: 156, level: 6 },
+      { id: 159, level: 6 },
     ],
     background: "url('/bg_new_bark_town.png') center/cover no-repeat",
     location: 'New Bark Town',
@@ -308,8 +410,8 @@ const CHALLENGES = [
     quote: '"Os Pokemon voadores de Johto nao caem facilmente!"',
     reward: 6000,
     unlockFlag: 'zephyr_badge',
-    requiresFlag: 'johto_started',
-    team: [{ id: 16, level: 14 }, { id: 164, level: 14 }, { id: 17, level: 16 }],
+    requiresFlag: 'johto_route_29_cleared',
+    team: [{ id: 16, level: 12 }, { id: 17, level: 14 }, { id: 163, level: 13 }],
     background: "url('/bg_violet_city.png') center/cover no-repeat",
     location: 'Violet Gym',
   },
@@ -321,12 +423,12 @@ const CHALLENGES = [
     name: 'Bugsy',
     subtitle: 'Insignia Hive',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/bugsy.png',
-    quote: '"O conhecimento dos insetos e profundo!"',
+    quote: '"Insetos evoluem rapido. Vamos ver se voce acompanha!"',
     reward: 7000,
     unlockFlag: 'hive_badge',
-    requiresFlag: 'zephyr_badge',
-    team: [{ id: 123, level: 22 }, { id: 11, level: 23 }, { id: 15, level: 25 }],
-    background: "url('/bg_azalea_town.png') center/cover no-repeat",
+    requiresFlag: 'johto_slowpoke_well_cleared',
+    team: [{ id: 123, level: 20 }, { id: 11, level: 18 }, { id: 14, level: 18 }],
+    background: "url('/bg_ilex_forest.png') center/cover no-repeat",
     location: 'Azalea Gym',
   },
   {
@@ -341,7 +443,7 @@ const CHALLENGES = [
     reward: 8500,
     unlockFlag: 'plain_badge',
     requiresFlag: 'hive_badge',
-    team: [{ id: 35, level: 32 }, { id: 39, level: 32 }, { id: 128, level: 34 }, { id: 241, level: 36 }],
+    team: [{ id: 35, level: 25 }, { id: 241, level: 27 }, { id: 39, level: 26 }],
     background: "url('/bg_goldenrod_city.png') center/cover no-repeat",
     location: 'Goldenrod Gym',
   },
@@ -353,12 +455,12 @@ const CHALLENGES = [
     name: 'Morty',
     subtitle: 'Insignia Fog',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/morty.png',
-    quote: '"Eu vejo o que outros nao podem ver..."',
-    reward: 10000,
+    quote: '"Ecruteak guarda historias que atravessam o tempo."',
+    reward: 9500,
     unlockFlag: 'fog_badge',
     requiresFlag: 'plain_badge',
-    team: [{ id: 92, level: 44 }, { id: 93, level: 44 }, { id: 93, level: 45 }, { id: 42, level: 46 }, { id: 94, level: 48 }],
-    background: "url('/bg_burned_tower.png') center/cover no-repeat",
+    team: [{ id: 92, level: 30 }, { id: 93, level: 31 }, { id: 94, level: 33 }],
+    background: "url('/bg_ecruteak_city.png') center/cover no-repeat",
     location: 'Ecruteak Gym',
   },
   {
@@ -373,7 +475,7 @@ const CHALLENGES = [
     reward: 11000,
     unlockFlag: 'storm_badge',
     requiresFlag: 'fog_badge',
-    team: [{ id: 57, level: 56 }, { id: 62, level: 58 }, { id: 107, level: 57 }, { id: 106, level: 57 }, { id: 214, level: 59 }],
+    team: [{ id: 57, level: 36 }, { id: 62, level: 38 }, { id: 107, level: 37 }],
     background: "url('/bg_cianwood_city.png') center/cover no-repeat",
     location: 'Cianwood Gym',
   },
@@ -389,7 +491,7 @@ const CHALLENGES = [
     reward: 12000,
     unlockFlag: 'mineral_badge',
     requiresFlag: 'storm_badge',
-    team: [{ id: 81, level: 68 }, { id: 82, level: 69 }, { id: 208, level: 71 }, { id: 227, level: 70 }, { id: 208, level: 72 }],
+    team: [{ id: 81, level: 38 }, { id: 82, level: 39 }, { id: 208, level: 41 }],
     background: "url('/bg_olivine_city.png') center/cover no-repeat",
     location: 'Olivine Gym',
   },
@@ -420,7 +522,7 @@ const CHALLENGES = [
     reward: 13500,
     unlockFlag: 'glacier_badge',
     requiresFlag: 'johto_rocket_radio_cleared',
-    team: [{ id: 87, level: 76 }, { id: 221, level: 76 }, { id: 124, level: 78 }, { id: 131, level: 78 }, { id: 221, level: 80 }],
+    team: [{ id: 87, level: 46 }, { id: 221, level: 46 }, { id: 124, level: 48 }],
     background: "url('/bg_ice_path.png') center/cover no-repeat",
     location: 'Mahogany Gym',
   },
@@ -436,7 +538,7 @@ const CHALLENGES = [
     reward: 16000,
     unlockFlag: 'rising_badge',
     requiresFlag: 'glacier_badge',
-    team: [{ id: 148, level: 80 }, { id: 130, level: 82 }, { id: 230, level: 84 }, { id: 142, level: 82 }, { id: 148, level: 82 }, { id: 149, level: 86 }],
+    team: [{ id: 148, level: 50 }, { id: 130, level: 52 }, { id: 230, level: 54 }],
     background: "url('/bg_blackthorn_city.png') center/cover no-repeat",
     location: 'Blackthorn Gym',
   },
@@ -543,9 +645,9 @@ const CHALLENGES = [
     quote: '"Eu sou graduada na Academia de Treinadores! Vamos batalhar!"',
     reward: 12000,
     unlockFlag: 'stone_badge',
-    requiresFlag: 'hoenn_rival_1_defeated',
-    team: [{ id: 74, level: 15 }, { id: 299, level: 16 }, { id: 299, level: 18 }],
-    background: "url('/bg_gym_stone.png') center/cover no-repeat",
+    requiresFlag: 'hoenn_started',
+    team: [{ id: 304, level: 12 }, { id: 304, level: 14 }, { id: 299, level: 15 }],
+    background: "url('/bg_rustboro_city.png') center/cover no-repeat",
     location: 'Rustboro Gym',
   },
   {
@@ -557,10 +659,10 @@ const CHALLENGES = [
     subtitle: 'Insignia Knuckle',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/brawly.png',
     quote: '"Eu surfo nas grandes ondas e luto contra grandes oponentes!"',
-    reward: 15000,
+    reward: 14000,
     unlockFlag: 'knuckle_badge',
     requiresFlag: 'stone_badge',
-    team: [{ id: 296, level: 22 }, { id: 307, level: 23 }, { id: 297, level: 25 }],
+    team: [{ id: 296, level: 17 }, { id: 296, level: 18 }, { id: 307, level: 19 }],
     background: "url('/bg_dewford_town.png') center/cover no-repeat",
     location: 'Dewford Gym',
   },
@@ -573,10 +675,10 @@ const CHALLENGES = [
     subtitle: 'Insignia Dynamo',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/wattson.png',
     quote: '"Wahahaha! A eletricidade e a alma do meu ginasio!"',
-    reward: 18000,
+    reward: 16000,
     unlockFlag: 'dynamo_badge',
     requiresFlag: 'knuckle_badge',
-    team: [{ id: 100, level: 32 }, { id: 82, level: 32 }, { id: 309, level: 33 }, { id: 310, level: 35 }],
+    team: [{ id: 100, level: 20 }, { id: 310, level: 22 }, { id: 82, level: 24 }],
     background: "url('/bg_mauville_city.png') center/cover no-repeat",
     location: 'Mauville Gym',
   },
@@ -589,10 +691,10 @@ const CHALLENGES = [
     subtitle: 'Insignia Heat',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/flannery.png',
     quote: '"Eu sou a nova lider daqui, mas o meu fogo queima como ninguem!"',
-    reward: 20000,
+    reward: 18000,
     unlockFlag: 'heat_badge',
-    requiresFlag: 'hoenn_magma_chimney_cleared',
-    team: [{ id: 218, level: 44 }, { id: 322, level: 44 }, { id: 323, level: 45 }, { id: 126, level: 46 }, { id: 324, level: 48 }],
+    requiresFlag: 'dynamo_badge',
+    team: [{ id: 218, level: 24 }, { id: 218, level: 26 }, { id: 323, level: 29 }],
     background: "url('/bg_lavaridge_town.png') center/cover no-repeat",
     location: 'Lavaridge Gym',
   },
@@ -605,10 +707,10 @@ const CHALLENGES = [
     subtitle: 'Insignia Balance',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/norman.png',
     quote: '"Sera uma honra batalhar contra meu proprio filho(a)!"',
-    reward: 23000,
+    reward: 20000,
     unlockFlag: 'balance_badge',
     requiresFlag: 'heat_badge',
-    team: [{ id: 287, level: 56 }, { id: 288, level: 56 }, { id: 264, level: 57 }, { id: 289, level: 58 }, { id: 289, level: 60 }],
+    team: [{ id: 288, level: 27 }, { id: 288, level: 29 }, { id: 289, level: 31 }],
     background: "url('/bg_petalburg_city.png') center/cover no-repeat",
     location: 'Petalburg Gym',
   },
@@ -624,7 +726,7 @@ const CHALLENGES = [
     reward: 22000,
     unlockFlag: 'feather_badge',
     requiresFlag: 'balance_badge',
-    team: [{ id: 277, level: 68 }, { id: 279, level: 69 }, { id: 227, level: 70 }, { id: 334, level: 71 }, { id: 334, level: 72 }],
+    team: [{ id: 277, level: 29 }, { id: 279, level: 30 }, { id: 227, level: 31 }, { id: 334, level: 33 }],
     background: "url('/bg_fortree_city.png') center/cover no-repeat",
     location: 'Fortree Gym',
   },
@@ -635,12 +737,12 @@ const CHALLENGES = [
     type: 'Psychic',
     name: 'Tate & Liza',
     subtitle: 'Insignia Mind',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/tateandliza.png',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/twins.png',
     quote: '"Duas mentes, um so objetivo: derrotar voce!"',
     reward: 25000,
     unlockFlag: 'mind_badge',
     requiresFlag: 'feather_badge',
-    team: [{ id: 337, level: 80 }, { id: 338, level: 80 }, { id: 178, level: 82 }, { id: 344, level: 82 }, { id: 376, level: 84 }],
+    team: [{ id: 337, level: 42 }, { id: 338, level: 42 }],
     background: "url('/bg_mossdeep_city.png') center/cover no-repeat",
     location: 'Mossdeep Gym',
   },
@@ -656,10 +758,11 @@ const CHALLENGES = [
     reward: 30000,
     unlockFlag: 'rain_badge',
     requiresFlag: 'mind_badge',
-    team: [{ id: 370, level: 90 }, { id: 340, level: 90 }, { id: 339, level: 92 }, { id: 119, level: 92 }, { id: 350, level: 94 }, { id: 350, level: 94 }],
+    team: [{ id: 370, level: 41 }, { id: 340, level: 43 }, { id: 339, level: 43 }, { id: 119, level: 46 }, { id: 350, level: 55 }],
     background: "url('/bg_sootopolis_city.png') center/cover no-repeat",
     location: 'Sootopolis Gym',
   },
+  // --- HOENN LEAGUE ---
   {
     region: 'hoenn',
     id: 'hoenn_sidney',
@@ -668,13 +771,13 @@ const CHALLENGES = [
     name: 'Sidney - Elite Four',
     subtitle: 'Mestre Sombrio',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/sidney.png',
-    quote: '"Batalhas devem ser estilosas. Vamos nessa!"',
-    reward: 38000,
+    quote: '"Minha equipe sombria vai abrir seu caminho ate a derrota!"',
+    reward: 35000,
     unlockFlag: 'hoenn_sidney_defeated',
     requiresFlag: 'rain_badge',
-    team: [{ id: 262, level: 88 }, { id: 332, level: 90 }, { id: 359, level: 92 }],
+    team: [{ id: 262, level: 46 }, { id: 275, level: 48 }, { id: 342, level: 48 }, { id: 359, level: 49 }, { id: 332, level: 50 }],
     background: "url('/bg_elite_four_hoenn.png') center/cover no-repeat",
-    location: 'Liga de Hoenn',
+    location: 'Liga Pokemon de Hoenn',
   },
   {
     region: 'hoenn',
@@ -683,14 +786,14 @@ const CHALLENGES = [
     type: 'Ghost',
     name: 'Phoebe - Elite Four',
     subtitle: 'Mestra Fantasma',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/phoebe.png',
-    quote: '"Meus Pokemon espirituais dancam com a montanha."',
-    reward: 40000,
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/hexmaniac-gen6.png',
+    quote: '"Meus Pokemon espirituais treinam comigo no Mt. Pyre!"',
+    reward: 38000,
     unlockFlag: 'hoenn_phoebe_defeated',
     requiresFlag: 'hoenn_sidney_defeated',
-    team: [{ id: 356, level: 90 }, { id: 354, level: 92 }, { id: 302, level: 94 }],
+    team: [{ id: 356, level: 48 }, { id: 354, level: 49 }, { id: 302, level: 50 }, { id: 354, level: 51 }, { id: 356, level: 51 }],
     background: "url('/bg_elite_four_hoenn.png') center/cover no-repeat",
-    location: 'Liga de Hoenn',
+    location: 'Liga Pokemon de Hoenn',
   },
   {
     region: 'hoenn',
@@ -698,15 +801,15 @@ const CHALLENGES = [
     category: 'hoenn',
     type: 'Ice',
     name: 'Glacia - Elite Four',
-    subtitle: 'Mestra do Gelo',
+    subtitle: 'Mestra Gelida',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/glacia.png',
-    quote: '"O frio revela a disciplina do treinador."',
-    reward: 42000,
+    quote: '"A disciplina do gelo congela qualquer impulso descuidado."',
+    reward: 41000,
     unlockFlag: 'hoenn_glacia_defeated',
     requiresFlag: 'hoenn_phoebe_defeated',
-    team: [{ id: 364, level: 92 }, { id: 362, level: 94 }, { id: 365, level: 96 }],
+    team: [{ id: 364, level: 50 }, { id: 362, level: 50 }, { id: 365, level: 52 }, { id: 362, level: 52 }, { id: 365, level: 53 }],
     background: "url('/bg_elite_four_hoenn.png') center/cover no-repeat",
-    location: 'Liga de Hoenn',
+    location: 'Liga Pokemon de Hoenn',
   },
   {
     region: 'hoenn',
@@ -715,32 +818,240 @@ const CHALLENGES = [
     type: 'Dragon',
     name: 'Drake - Elite Four',
     subtitle: 'Mestre Dragao',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/drake.png',
-    quote: '"Dragoes reconhecem apenas uma vontade firme."',
-    reward: 45000,
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/drasna.png',
+    quote: '"Dragoes respeitam apenas quem enfrenta a tempestade."',
+    reward: 44000,
     unlockFlag: 'hoenn_drake_defeated',
     requiresFlag: 'hoenn_glacia_defeated',
-    team: [{ id: 330, level: 94 }, { id: 230, level: 96 }, { id: 373, level: 98 }],
+    team: [{ id: 372, level: 52 }, { id: 330, level: 53 }, { id: 230, level: 53 }, { id: 334, level: 54 }, { id: 373, level: 55 }],
     background: "url('/bg_elite_four_hoenn.png') center/cover no-repeat",
-    location: 'Liga de Hoenn',
+    location: 'Liga Pokemon de Hoenn',
   },
   {
     region: 'hoenn',
-    id: 'hoenn_champion_steven',
+    id: 'hoenn_steven',
     category: 'hoenn',
     type: 'Steel',
     name: 'Campeao Steven',
     subtitle: 'Campeao de Hoenn',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/steven.png',
-    quote: '"Pedras raras, aco e amizade. Mostre o brilho do seu time."',
-    reward: 80000,
+    quote: '"Mostre o brilho da sua jornada. Minha equipe de aco nao vai ceder."',
+    reward: 65000,
     unlockFlag: 'hoenn_champion',
     requiresFlag: 'hoenn_drake_defeated',
-    team: [{ id: 227, level: 96 }, { id: 306, level: 97 }, { id: 344, level: 98 }, { id: 376, level: 100 }],
+    team: [{ id: 227, level: 57 }, { id: 344, level: 55 }, { id: 306, level: 56 }, { id: 348, level: 56 }, { id: 346, level: 56 }, { id: 376, level: 58 }],
     background: "url('/bg_elite_four_hoenn.png') center/cover no-repeat",
-    location: 'Liga Pokemon de Hoenn',
+    location: 'Sala do Campeao - Hoenn',
   },
   // REVANCHE - KANTO (Desbloqueado após ser Campeão de Kanto)
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_roark',
+    category: 'sinnoh',
+    type: 'Rock',
+    name: 'Roark',
+    subtitle: 'Insignia Coal',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/roark.png',
+    quote: '"As minas de Oreburgh fortalecem meus Pokemon de pedra!"',
+    reward: 16000,
+    unlockFlag: 'coal_badge',
+    requiresFlag: 'sinnoh_rival_jubilife_defeated',
+    team: [{ id: 74, level: 14 }, { id: 95, level: 15 }, { id: 408, level: 16 }],
+    background: "url('/battle_bg_sinnoh_gym.png') center/cover no-repeat",
+    location: 'Oreburgh Gym',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_gardenia',
+    category: 'sinnoh',
+    type: 'Grass',
+    name: 'Gardenia',
+    subtitle: 'Insignia Forest',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/gardenia.png',
+    quote: '"A forca da floresta de Eterna esta do meu lado!"',
+    reward: 19000,
+    unlockFlag: 'forest_badge',
+    requiresFlag: 'sinnoh_galactic_eterna_cleared',
+    team: [{ id: 420, level: 22 }, { id: 387, level: 23 }, { id: 315, level: 25 }],
+    background: "url('/bg_eterna_forest.png') center/cover no-repeat",
+    location: 'Eterna Gym',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_maylene',
+    category: 'sinnoh',
+    type: 'Fighting',
+    name: 'Maylene',
+    subtitle: 'Insignia Cobble',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/maylene.png',
+    quote: '"Eu ainda estou aprendendo, mas meus punhos nao hesitam!"',
+    reward: 23000,
+    unlockFlag: 'cobble_badge',
+    requiresFlag: 'forest_badge',
+    team: [{ id: 307, level: 30 }, { id: 67, level: 31 }, { id: 448, level: 33 }],
+    background: "url('/battle_bg_sinnoh_gym.png') center/cover no-repeat",
+    location: 'Veilstone Gym',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_crasher_wake',
+    category: 'sinnoh',
+    type: 'Water',
+    name: 'Crasher Wake',
+    subtitle: 'Insignia Fen',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/crasherwake.png',
+    quote: '"A arena vai virar uma onda gigante!"',
+    reward: 27000,
+    unlockFlag: 'fen_badge',
+    requiresFlag: 'sinnoh_galactic_valor_cleared',
+    team: [{ id: 130, level: 36 }, { id: 195, level: 37 }, { id: 419, level: 39 }],
+    background: "url('/bg_sinnoh_league.png') center/cover no-repeat",
+    location: 'Pastoria Gym',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_fantina',
+    category: 'sinnoh',
+    type: 'Ghost',
+    name: 'Fantina',
+    subtitle: 'Insignia Relic',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/fantina.png',
+    quote: '"Minha performance fantasmagorica vai encantar sua derrota!"',
+    reward: 31000,
+    unlockFlag: 'relic_badge',
+    requiresFlag: 'fen_badge',
+    team: [{ id: 426, level: 42 }, { id: 94, level: 43 }, { id: 429, level: 45 }],
+    background: "url('/battle_bg_sinnoh_gym.png') center/cover no-repeat",
+    location: 'Hearthome Gym',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_byron',
+    category: 'sinnoh',
+    type: 'Steel',
+    name: 'Byron',
+    subtitle: 'Insignia Mine',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/byron.png',
+    quote: '"Aco verdadeiro se forja sob pressao!"',
+    reward: 35000,
+    unlockFlag: 'mine_badge',
+    requiresFlag: 'relic_badge',
+    team: [{ id: 437, level: 50 }, { id: 208, level: 51 }, { id: 411, level: 53 }],
+    background: "url('/battle_bg_sinnoh_gym.png') center/cover no-repeat",
+    location: 'Canalave Gym',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_candice',
+    category: 'sinnoh',
+    type: 'Ice',
+    name: 'Candice',
+    subtitle: 'Insignia Icicle',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/candice.png',
+    quote: '"Foco frio, coracao quente. Vamos batalhar!"',
+    reward: 40000,
+    unlockFlag: 'icicle_badge',
+    requiresFlag: 'sinnoh_galactic_spear_pillar_cleared',
+    team: [{ id: 459, level: 62 }, { id: 215, level: 63 }, { id: 308, level: 64 }, { id: 478, level: 66 }],
+    background: "url('/bg_snowpoint.png') center/cover no-repeat",
+    location: 'Snowpoint Gym',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_volkner',
+    category: 'sinnoh',
+    type: 'Electric',
+    name: 'Volkner',
+    subtitle: 'Insignia Beacon',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/volkner.png',
+    quote: '"Finalmente um desafiante que pode reacender minha energia."',
+    reward: 46000,
+    unlockFlag: 'beacon_badge',
+    requiresFlag: 'icicle_badge',
+    team: [{ id: 26, level: 72 }, { id: 424, level: 73 }, { id: 224, level: 74 }, { id: 405, level: 76 }],
+    background: "url('/bg_sunyshore.png') center/cover no-repeat",
+    location: 'Sunyshore Gym',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_aaron',
+    category: 'sinnoh',
+    type: 'Bug',
+    name: 'Aaron - Elite Four',
+    subtitle: 'Mestre Inseto',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/aaron.png',
+    quote: '"Insetos sobrevivem, evoluem e vencem."',
+    reward: 52000,
+    unlockFlag: 'sinnoh_aaron_defeated',
+    requiresFlag: 'beacon_badge',
+    team: [{ id: 269, level: 82 }, { id: 214, level: 83 }, { id: 416, level: 84 }, { id: 267, level: 84 }, { id: 452, level: 85 }],
+    background: "url('/bg_sinnoh_league.png') center/cover no-repeat",
+    location: 'Liga Pokemon de Sinnoh',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_bertha',
+    category: 'sinnoh',
+    type: 'Ground',
+    name: 'Bertha - Elite Four',
+    subtitle: 'Mestra Terrestre',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/bertha.png',
+    quote: '"A experiencia pesa mais do que qualquer montanha."',
+    reward: 56000,
+    unlockFlag: 'sinnoh_bertha_defeated',
+    requiresFlag: 'sinnoh_aaron_defeated',
+    team: [{ id: 195, level: 84 }, { id: 450, level: 85 }, { id: 464, level: 86 }, { id: 340, level: 86 }, { id: 473, level: 87 }],
+    background: "url('/bg_sinnoh_league.png') center/cover no-repeat",
+    location: 'Liga Pokemon de Sinnoh',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_flint',
+    category: 'sinnoh',
+    type: 'Fire',
+    name: 'Flint - Elite Four',
+    subtitle: 'Mestre Flamejante',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/flint.png',
+    quote: '"Minha chama vai empurrar seu time ao limite!"',
+    reward: 60000,
+    unlockFlag: 'sinnoh_flint_defeated',
+    requiresFlag: 'sinnoh_bertha_defeated',
+    team: [{ id: 229, level: 86 }, { id: 467, level: 87 }, { id: 136, level: 87 }, { id: 78, level: 88 }, { id: 392, level: 89 }],
+    background: "url('/bg_sinnoh_league.png') center/cover no-repeat",
+    location: 'Liga Pokemon de Sinnoh',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_lucian',
+    category: 'sinnoh',
+    type: 'Psychic',
+    name: 'Lucian - Elite Four',
+    subtitle: 'Mestre Psiquico',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/lucian.png',
+    quote: '"Uma batalha tambem e leitura, calma e precisao."',
+    reward: 64000,
+    unlockFlag: 'sinnoh_lucian_defeated',
+    requiresFlag: 'sinnoh_flint_defeated',
+    team: [{ id: 122, level: 88 }, { id: 203, level: 89 }, { id: 475, level: 90 }, { id: 437, level: 90 }, { id: 65, level: 91 }],
+    background: "url('/bg_sinnoh_league.png') center/cover no-repeat",
+    location: 'Liga Pokemon de Sinnoh',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_cynthia',
+    category: 'sinnoh',
+    type: 'Mixed',
+    name: 'Campea Cynthia',
+    subtitle: 'Campea de Sinnoh',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/cynthia.png',
+    quote: '"A historia de Sinnoh culmina nesta batalha. Mostre sua verdade."',
+    reward: 90000,
+    unlockFlag: 'sinnoh_champion',
+    requiresFlag: 'sinnoh_lucian_defeated',
+    team: [{ id: 442, level: 92 }, { id: 407, level: 93 }, { id: 468, level: 93 }, { id: 448, level: 94 }, { id: 350, level: 94 }, { id: 445, level: 96 }],
+    background: "url('/bg_sinnoh_league.png') center/cover no-repeat",
+    location: 'Sala da Campea - Sinnoh',
+  },
   {
     region: 'kanto',
     id: 'rematch_brock',
@@ -842,7 +1153,7 @@ const CHALLENGES = [
     reward: 35000,
     unlockFlag: 'rematch_giovanni_defeated',
     requiresFlag: 'champion',
-    team: [{id: 112, level: 88}, {id: 34, level: 88}, {id: 31, level: 88}, {id: 51, level: 88}, {id: 76, level: 90}, {id: 115, level: 92}],
+    team: [{id: 112, level: 78}, {id: 34, level: 78}, {id: 31, level: 78}, {id: 51, level: 78}, {id: 76, level: 80}],
     background: "url('/battle_bg_gym_1776863824590.png') center/cover no-repeat",
     location: 'Viridian Gym',
   },
@@ -948,7 +1259,7 @@ const CHALLENGES = [
     reward: 30000,
     unlockFlag: 'rematch_pryce_defeated',
     requiresFlag: 'johto_champion',
-    team: [{id: 87, level: 90}, {id: 221, level: 90}, {id: 91, level: 90}, {id: 131, level: 92}, {id: 124, level: 92}, {id: 221, level: 95}],
+    team: [{id: 87, level: 91}, {id: 221, level: 91}, {id: 91, level: 92}, {id: 131, level: 93}, {id: 221, level: 95}],
     background: "url('/bg_ice_path.png') center/cover no-repeat",
     location: 'Mahogany Gym',
   },
@@ -963,7 +1274,7 @@ const CHALLENGES = [
     reward: 40000,
     unlockFlag: 'rematch_clair_defeated',
     requiresFlag: 'johto_champion',
-    team: [{id: 230, level: 92}, {id: 148, level: 92}, {id: 149, level: 92}, {id: 130, level: 94}, {id: 142, level: 94}, {id: 230, level: 96}],
+    team: [{id: 230, level: 92}, {id: 148, level: 92}, {id: 149, level: 94}, {id: 130, level: 94}, {id: 6, level: 96}],
     background: "url('/bg_blackthorn_city.png') center/cover no-repeat",
     location: 'Blackthorn Gym',
   },
@@ -1153,136 +1464,76 @@ const CHALLENGES = [
   },
   {
     region: 'hoenn',
-    id: 'hoenn_rival_granite',
+    id: 'hoenn_rival_route110',
     category: 'rival',
-    name: 'Brendan - Granite Cave',
-    subtitle: 'Teste em Dewford',
+    name: 'Brendan - Rota 110',
+    subtitle: 'Teste em Mauville',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/brendan.png',
-    quote: '"Voce ja tem uma insignia. Agora mostre que sabe explorar Hoenn!"',
-    reward: 16000,
-    unlockFlag: 'hoenn_granite_rival_defeated',
-    requiresFlag: 'hoenn_granite_cave_cleared',
-    team: [{ id: 276, level: 20 }, { id: 304, level: 21 }, { id: 252, level: 22 }],
-    background: "url('/bg_granite_cave.png') center/cover no-repeat",
-    location: 'Granite Cave',
-  },
-  {
-    region: 'hoenn',
-    id: 'hoenn_rival_mauville',
-    category: 'rival',
-    name: 'Brendan - Mauville',
-    subtitle: 'Batalha na Cycling Road',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/brendan.png',
-    quote: '"A jornada acelera daqui para frente!"',
+    quote: '"Voce chegou longe, mas sera que aguenta uma batalha de verdade?"',
     reward: 18000,
-    unlockFlag: 'hoenn_rival_mauville_defeated',
-    requiresFlag: 'dynamo_badge',
-    team: [{ id: 277, level: 30 }, { id: 271, level: 31 }, { id: 256, level: 33 }],
+    unlockFlag: 'hoenn_rival_route110_defeated',
+    requiresFlag: 'knuckle_badge',
+    team: [{ id: 277, level: 20 }, { id: 271, level: 20 }, { id: 256, level: 22 }],
     background: "url('/bg_route110.png') center/cover no-repeat",
-    location: 'Mauville City',
-  },
-  {
-    region: 'hoenn',
-    id: 'hoenn_magma_meteor',
-    category: 'rocket',
-    name: 'Team Magma - Meteor Falls',
-    subtitle: 'Roubo do Meteorito',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/teamrocket.png',
-    quote: '"Este meteorito vai despertar o poder da terra!"',
-    reward: 19000,
-    unlockFlag: 'hoenn_magma_meteor_cleared',
-    requiresFlag: 'dynamo_badge',
-    team: [{ id: 322, level: 34 }, { id: 304, level: 35 }, { id: 262, level: 36 }],
-    background: "url('/bg_meteor_falls.png') center/cover no-repeat",
-    location: 'Meteor Falls',
-  },
-  {
-    region: 'hoenn',
-    id: 'hoenn_magma_chimney',
-    category: 'rocket',
-    name: 'Team Magma - Mt. Chimney',
-    subtitle: 'Plano no Vulcao',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/teamrocket.png',
-    quote: '"O vulcao vai responder ao Team Magma!"',
-    reward: 22000,
-    unlockFlag: 'hoenn_magma_chimney_cleared',
-    requiresFlag: 'hoenn_magma_meteor_cleared',
-    team: [{ id: 323, level: 40 }, { id: 262, level: 40 }, { id: 229, level: 42 }],
-    background: "url('/bg_mt_chimney.png') center/cover no-repeat",
-    location: 'Mt. Chimney',
+    location: 'Rota 110',
   },
   {
     region: 'hoenn',
     id: 'hoenn_rival_lilycove',
     category: 'rival',
     name: 'Brendan - Lilycove',
-    subtitle: 'Rivalidade Madura',
+    subtitle: 'Rivalidade Final',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/brendan.png',
-    quote: '"Esta e a hora de ver quem realmente cresceu em Hoenn."',
+    quote: '"Uma ultima batalha antes da Liga. Vamos ver quem amadureceu mais!"',
     reward: 26000,
     unlockFlag: 'hoenn_rival_lilycove_defeated',
     requiresFlag: 'feather_badge',
-    team: [{ id: 277, level: 54 }, { id: 272, level: 55 }, { id: 310, level: 56 }, { id: 257, level: 58 }],
+    team: [{ id: 277, level: 38 }, { id: 272, level: 39 }, { id: 323, level: 39 }, { id: 257, level: 41 }],
     background: "url('/bg_lilycove_city.png') center/cover no-repeat",
     location: 'Lilycove City',
   },
   {
     region: 'hoenn',
-    id: 'hoenn_aqua_pyre',
+    id: 'hoenn_aqua_slateport',
     category: 'rocket',
-    name: 'Team Aqua - Mt. Pyre',
-    subtitle: 'Orbe Azul',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/teamrocket.png',
-    quote: '"O mar vai cobrir tudo. Saia do caminho!"',
-    reward: 27000,
-    unlockFlag: 'hoenn_aqua_pyre_cleared',
-    requiresFlag: 'hoenn_rival_lilycove_defeated',
-    team: [{ id: 319, level: 60 }, { id: 342, level: 61 }, { id: 262, level: 62 }],
-    background: "url('/bg_mt_pyre.png') center/cover no-repeat",
-    location: 'Mt. Pyre',
+    name: 'Equipe Aqua - Slateport',
+    subtitle: 'Roubo no Museu',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/aquagrunt.png',
+    quote: '"O mar pertence a Equipe Aqua! Saia do nosso caminho!"',
+    reward: 17000,
+    unlockFlag: 'hoenn_aqua_slateport_cleared',
+    requiresFlag: 'hoenn_rival_1_defeated',
+    team: [{ id: 261, level: 18 }, { id: 318, level: 19 }, { id: 320, level: 20 }],
+    background: "url('/bg_slateport_city.png') center/cover no-repeat",
+    location: 'Museu Oceanico - Slateport',
   },
   {
     region: 'hoenn',
-    id: 'hoenn_aqua_hideout',
+    id: 'hoenn_magma_chimney',
     category: 'rocket',
-    name: 'Team Aqua - Esconderijo',
-    subtitle: 'Submarino Roubado',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/teamrocket.png',
-    quote: '"Voce chegou tarde demais!"',
-    reward: 29000,
-    unlockFlag: 'hoenn_aqua_hideout_cleared',
-    requiresFlag: 'hoenn_aqua_pyre_cleared',
-    team: [{ id: 319, level: 66 }, { id: 260, level: 68 }, { id: 310, level: 68 }],
-    background: "url('/bg_lilycove_city.png') center/cover no-repeat",
-    location: 'Lilycove Hideout',
-  },
-  {
-    region: 'hoenn',
-    id: 'hoenn_rival_mossdeep',
-    category: 'rival',
-    name: 'Brendan - Mossdeep',
-    subtitle: 'Antes do Abismo',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/brendan.png',
-    quote: '"O Team Aqua esta indo fundo demais. Precisamos estar prontos."',
-    reward: 32000,
-    unlockFlag: 'hoenn_rival_mossdeep_defeated',
-    requiresFlag: 'mind_badge',
-    team: [{ id: 279, level: 72 }, { id: 344, level: 74 }, { id: 310, level: 74 }, { id: 260, level: 76 }],
-    background: "url('/bg_mossdeep_city.png') center/cover no-repeat",
-    location: 'Mossdeep City',
+    name: 'Equipe Magma - Mt. Chimney',
+    subtitle: 'Plano no Vulcao',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/magmagrunt.png',
+    quote: '"A terra vai se expandir, e voce nao vai impedir!"',
+    reward: 22000,
+    unlockFlag: 'hoenn_magma_chimney_cleared',
+    requiresFlag: 'dynamo_badge',
+    team: [{ id: 322, level: 24 }, { id: 262, level: 25 }, { id: 323, level: 27 }],
+    background: "url('/bg_mt_chimney.png') center/cover no-repeat",
+    location: 'Mt. Chimney',
   },
   {
     region: 'hoenn',
     id: 'hoenn_aqua_seafloor',
     category: 'rocket',
-    name: 'Team Aqua - Seafloor Cavern',
-    subtitle: 'Kyogre Desperta',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/teamrocket.png',
-    quote: '"Este e o nascimento de um novo oceano!"',
-    reward: 36000,
+    name: 'Equipe Aqua - Caverna Submarina',
+    subtitle: 'Crise do Oceano',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/archie-gen3.png',
+    quote: '"Kyogre vai despertar, mesmo que tenhamos que te afundar!"',
+    reward: 30000,
     unlockFlag: 'hoenn_aqua_seafloor_cleared',
-    requiresFlag: 'hoenn_rival_mossdeep_defeated',
-    team: [{ id: 319, level: 78 }, { id: 260, level: 80 }, { id: 382, level: 82 }],
+    requiresFlag: 'mind_badge',
+    team: [{ id: 262, level: 42 }, { id: 319, level: 43 }, { id: 332, level: 44 }, { id: 342, level: 45 }],
     background: "url('/bg_seafloor_cavern.png') center/cover no-repeat",
     location: 'Seafloor Cavern',
   },
@@ -1297,23 +1548,22 @@ const CHALLENGES = [
     reward: 25000,
     unlockFlag: 'hoenn_rematch_roxanne_defeated',
     requiresFlag: 'hoenn_champion',
-    team: [{id: 76, level: 90}, {id: 299, level: 90}, {id: 306, level: 92}, {id: 348, level: 92}, {id: 346, level: 94}, {id: 299, level: 95}],
-    background: "url('/bg_gym_stone.png') center/cover no-repeat",
+    team: [{ id: 299, level: 78 }, { id: 348, level: 80 }, { id: 476, level: 82 }],
+    background: "url('/bg_rustboro_city.png') center/cover no-repeat",
     location: 'Rustboro Gym',
   },
   {
     region: 'hoenn',
     id: 'hoenn_rematch_brawly',
     category: 'rematch',
-    type: 'Fighting',
     name: 'Brawly (Revanche)',
-    subtitle: 'Mestre Marcial',
+    subtitle: 'Onda de Luta',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/brawly.png',
-    quote: '"A onda esta maior agora. Aguente firme!"',
-    reward: 30000,
+    quote: '"A maré subiu. Vamos ver se voce acompanha o ritmo!"',
+    reward: 27000,
     unlockFlag: 'hoenn_rematch_brawly_defeated',
     requiresFlag: 'hoenn_champion',
-    team: [{id: 297, level: 90}, {id: 308, level: 90}, {id: 286, level: 90}, {id: 68, level: 92}, {id: 107, level: 92}, {id: 297, level: 95}],
+    team: [{ id: 297, level: 80 }, { id: 308, level: 82 }, { id: 286, level: 84 }],
     background: "url('/bg_dewford_town.png') center/cover no-repeat",
     location: 'Dewford Gym',
   },
@@ -1321,15 +1571,14 @@ const CHALLENGES = [
     region: 'hoenn',
     id: 'hoenn_rematch_wattson',
     category: 'rematch',
-    type: 'Electric',
     name: 'Wattson (Revanche)',
-    subtitle: 'Circuito Maximo',
+    subtitle: 'Alta Voltagem',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/wattson.png',
-    quote: '"Wahahaha! Esta carga vai iluminar Mauville inteira!"',
-    reward: 32000,
+    quote: '"Wahahaha! Agora a cidade inteira vai sentir essa descarga!"',
+    reward: 30000,
     unlockFlag: 'hoenn_rematch_wattson_defeated',
     requiresFlag: 'hoenn_champion',
-    team: [{id: 310, level: 90}, {id: 82, level: 90}, {id: 101, level: 90}, {id: 181, level: 92}, {id: 26, level: 92}, {id: 310, level: 95}],
+    team: [{ id: 310, level: 83 }, { id: 462, level: 85 }, { id: 466, level: 86 }],
     background: "url('/bg_mauville_city.png') center/cover no-repeat",
     location: 'Mauville Gym',
   },
@@ -1337,15 +1586,14 @@ const CHALLENGES = [
     region: 'hoenn',
     id: 'hoenn_rematch_flannery',
     category: 'rematch',
-    type: 'Fire',
     name: 'Flannery (Revanche)',
-    subtitle: 'Forno do Vulcao',
+    subtitle: 'Calor Vulcanico',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/flannery.png',
-    quote: '"Meu fogo amadureceu. Vamos ver o seu time resistir!"',
-    reward: 34000,
+    quote: '"Respira fundo... e aguenta a pressão do vulcão!"',
+    reward: 33000,
     unlockFlag: 'hoenn_rematch_flannery_defeated',
     requiresFlag: 'hoenn_champion',
-    team: [{id: 323, level: 90}, {id: 324, level: 90}, {id: 229, level: 90}, {id: 257, level: 92}, {id: 38, level: 92}, {id: 323, level: 95}],
+    team: [{ id: 324, level: 86 }, { id: 323, level: 88 }, { id: 467, level: 89 }],
     background: "url('/bg_lavaridge_town.png') center/cover no-repeat",
     location: 'Lavaridge Gym',
   },
@@ -1353,15 +1601,14 @@ const CHALLENGES = [
     region: 'hoenn',
     id: 'hoenn_rematch_norman',
     category: 'rematch',
-    type: 'Normal',
     name: 'Norman (Revanche)',
-    subtitle: 'Teste do Campeao',
+    subtitle: 'Forca de Familia',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/norman.png',
-    quote: '"Agora eu batalho contra um campeao. De pai para treinador."',
+    quote: '"Desta vez vou batalhar como pai e como lider."',
     reward: 36000,
     unlockFlag: 'hoenn_rematch_norman_defeated',
     requiresFlag: 'hoenn_champion',
-    team: [{id: 289, level: 90}, {id: 295, level: 90}, {id: 335, level: 90}, {id: 143, level: 92}, {id: 289, level: 92}, {id: 289, level: 95}],
+    team: [{ id: 289, level: 88 }, { id: 295, level: 90 }, { id: 217, level: 91 }],
     background: "url('/bg_petalburg_city.png') center/cover no-repeat",
     location: 'Petalburg Gym',
   },
@@ -1369,15 +1616,14 @@ const CHALLENGES = [
     region: 'hoenn',
     id: 'hoenn_rematch_winona',
     category: 'rematch',
-    type: 'Flying',
     name: 'Winona (Revanche)',
-    subtitle: 'Ceu Superior',
+    subtitle: 'Ceu Livre',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/winona.png',
-    quote: '"Os ventos de Fortree agora sopram no nivel da Liga!"',
-    reward: 38000,
+    quote: '"Suba mais alto. A batalha real começa acima das nuvens."',
+    reward: 39000,
     unlockFlag: 'hoenn_rematch_winona_defeated',
     requiresFlag: 'hoenn_champion',
-    team: [{id: 334, level: 90}, {id: 227, level: 90}, {id: 279, level: 90}, {id: 373, level: 92}, {id: 142, level: 92}, {id: 334, level: 95}],
+    team: [{ id: 277, level: 90 }, { id: 334, level: 92 }, { id: 430, level: 93 }],
     background: "url('/bg_fortree_city.png') center/cover no-repeat",
     location: 'Fortree Gym',
   },
@@ -1385,15 +1631,14 @@ const CHALLENGES = [
     region: 'hoenn',
     id: 'hoenn_rematch_tate_liza',
     category: 'rematch',
-    type: 'Psychic',
     name: 'Tate & Liza (Revanche)',
-    subtitle: 'Dupla Astral',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/tateandliza.png',
-    quote: '"Duas estrelas, uma estrategia perfeita!"',
-    reward: 42000,
+    subtitle: 'Dupla Cosmica',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/twins.png',
+    quote: '"Duas mentes, uma estrategia. Prepare-se!"',
+    reward: 43000,
     unlockFlag: 'hoenn_rematch_tate_liza_defeated',
     requiresFlag: 'hoenn_champion',
-    team: [{id: 337, level: 92}, {id: 338, level: 92}, {id: 344, level: 92}, {id: 376, level: 94}, {id: 282, level: 94}, {id: 338, level: 95}],
+    team: [{ id: 337, level: 92 }, { id: 338, level: 92 }, { id: 475, level: 95 }],
     background: "url('/bg_mossdeep_city.png') center/cover no-repeat",
     location: 'Mossdeep Gym',
   },
@@ -1401,15 +1646,14 @@ const CHALLENGES = [
     region: 'hoenn',
     id: 'hoenn_rematch_wallace',
     category: 'rematch',
-    type: 'Water',
     name: 'Wallace (Revanche)',
-    subtitle: 'Ato Final',
+    subtitle: 'Arte Aquatica',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/wallace.png',
-    quote: '"A beleza da agua atinge seu auge contra um campeao."',
-    reward: 46000,
+    quote: '"A beleza de uma batalha perfeita nao tem igual."',
+    reward: 47000,
     unlockFlag: 'hoenn_rematch_wallace_defeated',
     requiresFlag: 'hoenn_champion',
-    team: [{id: 350, level: 94}, {id: 272, level: 94}, {id: 340, level: 94}, {id: 130, level: 96}, {id: 365, level: 96}, {id: 350, level: 98}],
+    team: [{ id: 321, level: 94 }, { id: 272, level: 95 }, { id: 350, level: 96 }],
     background: "url('/bg_sootopolis_city.png') center/cover no-repeat",
     location: 'Sootopolis Gym',
   },
@@ -1417,17 +1661,121 @@ const CHALLENGES = [
     region: 'hoenn',
     id: 'hoenn_rematch_steven',
     category: 'rematch',
-    type: 'Steel',
     name: 'Steven (Revanche)',
-    subtitle: 'Campeao Supremo',
+    subtitle: 'Campeao de Aco',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/steven.png',
-    quote: '"Vamos polir essa batalha ate ela brilhar."',
-    reward: 80000,
+    quote: '"Mostre se seu time lapidou todo o seu potencial."',
+    reward: 65000,
     unlockFlag: 'hoenn_rematch_steven_defeated',
     requiresFlag: 'hoenn_champion',
-    team: [{ id: 227, level: 96 }, { id: 306, level: 97 }, { id: 344, level: 98 }, { id: 346, level: 98 }, { id: 376, level: 99 }, { id: 385, level: 100 }],
-    background: "url('/bg_elite_four_hoenn.png') center/cover no-repeat",
-    location: 'Liga Pokemon de Hoenn',
+    team: [{ id: 227, level: 96 }, { id: 344, level: 97 }, { id: 306, level: 98 }, { id: 376, level: 100 }],
+    background: "url('/bg_ever_grande_city.png') center/cover no-repeat",
+    location: 'Ever Grande',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_rival_jubilife',
+    category: 'rival',
+    name: 'Barry - Jubilife',
+    subtitle: 'Rivalidade Acelerada',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/barry.png',
+    quote: '"Voce atrasou dez mil coins! Agora batalha comigo!"',
+    reward: 17000,
+    unlockFlag: 'sinnoh_rival_jubilife_defeated',
+    requiresFlag: 'sinnoh_started',
+    team: [{ id: 396, level: 11 }, { id: 390, level: 13 }, { id: 393, level: 13 }],
+    background: "url('/bg_jubilife.png') center/cover no-repeat",
+    location: 'Jubilife City',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_rival_hearthome',
+    category: 'rival',
+    name: 'Barry - Hearthome',
+    subtitle: 'Pressa no Caminho',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/barry.png',
+    quote: '"Estou ficando mais forte rapido demais para voce acompanhar!"',
+    reward: 28000,
+    unlockFlag: 'sinnoh_rival_hearthome_defeated',
+    requiresFlag: 'cobble_badge',
+    team: [{ id: 398, level: 34 }, { id: 418, level: 34 }, { id: 315, level: 35 }, { id: 391, level: 37 }],
+    background: "url('/bg_eterna.png') center/cover no-repeat",
+    location: 'Hearthome City',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_rival_victory',
+    category: 'rival',
+    name: 'Barry - Victory Road',
+    subtitle: 'Ultima Corrida',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/barry.png',
+    quote: '"A Liga esta logo ali. Nao vou deixar voce passar de graca!"',
+    reward: 52000,
+    unlockFlag: 'sinnoh_rival_victory_defeated',
+    requiresFlag: 'beacon_badge',
+    team: [{ id: 398, level: 78 }, { id: 419, level: 79 }, { id: 407, level: 80 }, { id: 214, level: 80 }, { id: 392, level: 82 }],
+    background: "url('/bg_victory_road_sinnoh.png') center/cover no-repeat",
+    location: 'Victory Road Sinnoh',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_galactic_valley',
+    category: 'rocket',
+    name: 'Equipe Galactica - Valley Windworks',
+    subtitle: 'Energia Roubada',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/galacticgrunt.png',
+    quote: '"A energia daqui pertence a Equipe Galactica!"',
+    reward: 18000,
+    unlockFlag: 'sinnoh_galactic_valley_cleared',
+    requiresFlag: 'coal_badge',
+    team: [{ id: 41, level: 18 }, { id: 431, level: 19 }, { id: 434, level: 20 }],
+    background: "url('/bg_eterna.png') center/cover no-repeat",
+    location: 'Valley Windworks',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_galactic_eterna',
+    category: 'rocket',
+    name: 'Comandante Jupiter',
+    subtitle: 'Predio Galactico',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/jupiter.png',
+    quote: '"O novo mundo da Equipe Galactica nao tem espaco para voce."',
+    reward: 22000,
+    unlockFlag: 'sinnoh_galactic_eterna_cleared',
+    requiresFlag: 'sinnoh_galactic_valley_cleared',
+    team: [{ id: 41, level: 23 }, { id: 435, level: 25 }],
+    background: "url('/bg_eterna.png') center/cover no-repeat",
+    location: 'Eterna Galactic Building',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_galactic_valor',
+    category: 'rocket',
+    name: 'Comandante Saturn',
+    subtitle: 'Crise no Lago Valor',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/saturn.png',
+    quote: '"O lago foi drenado por um proposito maior."',
+    reward: 32000,
+    unlockFlag: 'sinnoh_galactic_valor_cleared',
+    requiresFlag: 'cobble_badge',
+    team: [{ id: 436, level: 36 }, { id: 64, level: 37 }, { id: 454, level: 39 }],
+    background: "url('/bg_sinnoh_league.png') center/cover no-repeat",
+    location: 'Lake Valor',
+  },
+  {
+    region: 'sinnoh',
+    id: 'sinnoh_galactic_spear_pillar',
+    category: 'rocket',
+    name: 'Cyrus - Spear Pillar',
+    subtitle: 'Novo Mundo',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/cyrus.png',
+    quote: '"Emocoes sao imperfeitas. Eu criarei um mundo sem elas."',
+    reward: 52000,
+    unlockFlag: 'sinnoh_galactic_spear_pillar_cleared',
+    requiresFlag: 'mine_badge',
+    team: [{ id: 430, level: 58 }, { id: 169, level: 59 }, { id: 461, level: 60 }, { id: 130, level: 61 }, { id: 229, level: 62 }],
+    background: "url('/bg_mt_coronet.png') center/cover no-repeat",
+    location: 'Spear Pillar',
   },
   {
     region: 'hoenn',
@@ -1444,334 +1792,22 @@ const CHALLENGES = [
     background: "url('/bg_sky_pillar.png') center/cover no-repeat",
     location: 'Sky Pillar',
   },
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_rival_1',
-    category: 'rival',
-    name: 'Barry - Twinleaf',
-    subtitle: 'Rival Impaciente',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/barry.png',
-    quote: '"Vou te multar em 1 milhão se você não batalhar comigo agora!"',
-    reward: 18000,
-    unlockFlag: 'sinnoh_rival_1_defeated',
-    requiresFlag: 'sinnoh_started',
-    team: [
-      { id: 387, level: 6 },
-      { id: 390, level: 6 },
-      { id: 393, level: 6 },
-    ],
-    background: "url('/bg_twinleaf.png') center/cover no-repeat",
-    location: 'Twinleaf Town',
-  }
-,
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_roark',
-    category: 'sinnoh',
-    name: 'Roark',
-    subtitle: 'Lider de Oreburgh',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/roark.png',
-    quote: '"Minha paixao por fosseis e escavacao nao tem limites!"',
-    reward: 20000,
-    unlockFlag: 'coal_badge',
-    requiresFlag: 'sinnoh_started',
-    team: [
-      { id: 74, level: 12 },
-      { id: 95, level: 12 },
-      { id: 408, level: 14 },
-    ],
-    background: "url('/bg_oreburgh.png') center/cover no-repeat",
-    location: 'Ginasio de Oreburgh',
-  },
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_gardenia',
-    category: 'sinnoh',
-    name: 'Gardenia',
-    subtitle: 'Lider de Eterna',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/gardenia.png',
-    quote: '"As plantas sao lindas, mas tambem podem ser perigosas!"',
-    reward: 25000,
-    unlockFlag: 'forest_badge',
-    requiresFlag: 'coal_badge',
-    team: [
-      { id: 420, level: 20 },
-      { id: 387, level: 20 },
-      { id: 407, level: 22 },
-    ],
-    background: "url('/bg_eterna.png') center/cover no-repeat",
-    location: 'Ginasio de Eterna',
-  },
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_maylene',
-    category: 'sinnoh',
-    name: 'Maylene',
-    subtitle: 'Lider de Veilstone',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/maylene.png',
-    quote: '"Eu luto ao lado dos meus Pokemons com todo o meu coracao!"',
-    reward: 30000,
-    unlockFlag: 'cobble_badge',
-    requiresFlag: 'forest_badge',
-    team: [
-      { id: 307, level: 28 },
-      { id: 67, level: 28 },
-      { id: 448, level: 32 },
-    ],
-    background: "url('/bg_jubilife.png') center/cover no-repeat",
-    location: 'Ginasio de Veilstone',
-  },
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_wake',
-    category: 'sinnoh',
-    name: 'Crasher Wake',
-    subtitle: 'Lider de Pastoria',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/crasherwake.png',
-    quote: '"Prepare-se para ser varrido pela mare!"',
-    reward: 35000,
-    unlockFlag: 'fen_badge',
-    requiresFlag: 'cobble_badge',
-    team: [
-      { id: 130, level: 34 },
-      { id: 419, level: 34 },
-      { id: 195, level: 37 },
-    ],
-    background: "url('/bg_pastoria.png') center/cover no-repeat",
-    location: 'Ginasio de Pastoria',
-  },
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_fantina',
-    category: 'sinnoh',
-    name: 'Fantina',
-    subtitle: 'Lider de Hearthome',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/fantina.png',
-    quote: '"A danca e a batalha sao uma so arte!"',
-    reward: 40000,
-    unlockFlag: 'relic_badge',
-    requiresFlag: 'fen_badge',
-    team: [
-      { id: 426, level: 32 },
-      { id: 93, level: 34 },
-      { id: 429, level: 36 },
-    ],
-    background: "url('/bg_hearthome.png') center/cover no-repeat",
-    location: 'Ginasio de Hearthome',
-  },
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_byron',
-    category: 'sinnoh',
-    name: 'Byron',
-    subtitle: 'Lider de Canalave',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/byron.png',
-    quote: '"Minha defesa e tao dura quanto o aco!"',
-    reward: 45000,
-    unlockFlag: 'mine_badge',
-    requiresFlag: 'relic_badge',
-    team: [
-      { id: 437, level: 37 },
-      { id: 95, level: 38 },
-      { id: 411, level: 41 },
-    ],
-    background: "url('/bg_canalave.png') center/cover no-repeat",
-    location: 'Ginasio de Canalave',
-  },
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_candice',
-    category: 'sinnoh',
-    name: 'Candice',
-    subtitle: 'Lider de Snowpoint',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/candice.png',
-    quote: '"O gelo e frio, mas minha paixao queima!"',
-    reward: 50000,
-    unlockFlag: 'icicle_badge',
-    requiresFlag: 'mine_badge',
-    team: [
-      { id: 215, level: 40 },
-      { id: 460, level: 42 },
-      { id: 124, level: 44 },
-      { id: 478, level: 44 },
-    ],
-    background: "url('/bg_snowpoint.png') center/cover no-repeat",
-    location: 'Ginasio de Snowpoint',
-  },
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_volkner',
-    category: 'sinnoh',
-    name: 'Volkner',
-    subtitle: 'Lider de Sunyshore',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/volkner.png',
-    quote: '"Espero que voce possa iluminar minha vida de novo!"',
-    reward: 60000,
-    unlockFlag: 'beacon_badge',
-    requiresFlag: 'icicle_badge',
-    team: [
-      { id: 405, level: 46 },
-      { id: 125, level: 46 },
-      { id: 135, level: 48 },
-      { id: 466, level: 50 },
-    ],
-    background: "url('/bg_sunyshore.png') center/cover no-repeat",
-    location: 'Ginasio de Sunyshore',
-  },
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_aaron',
-    category: 'sinnoh',
-    name: 'Aaron',
-    subtitle: 'Elite Four - Inseto',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/aaron.png',
-    quote: '"Meus insetos vao te picar com força!"',
-    reward: 80000,
-    unlockFlag: 'sinnoh_aaron_defeated',
-    requiresFlag: 'beacon_badge',
-    team: [
-      { id: 469, level: 53 },
-      { id: 212, level: 54 },
-      { id: 214, level: 54 },
-      { id: 416, level: 54 },
-      { id: 452, level: 57 },
-    ],
-    background: "url('/bg_sinnoh_league.png') center/cover no-repeat",
-    location: 'Liga Pokémon de Sinnoh',
-  },
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_bertha',
-    category: 'sinnoh',
-    name: 'Bertha',
-    subtitle: 'Elite Four - Terra',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/bertha.png',
-    quote: '"A terra e sabia e implacavel."',
-    reward: 85000,
-    unlockFlag: 'sinnoh_bertha_defeated',
-    requiresFlag: 'sinnoh_aaron_defeated',
-    team: [
-      { id: 464, level: 55 },
-      { id: 340, level: 56 },
-      { id: 450, level: 56 },
-      { id: 472, level: 58 },
-      { id: 452, level: 59 },
-    ],
-    background: "url('/bg_sinnoh_league.png') center/cover no-repeat",
-    location: 'Liga Pokémon de Sinnoh',
-  },
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_flint',
-    category: 'sinnoh',
-    name: 'Flint',
-    subtitle: 'Elite Four - Fogo',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/flint.png',
-    quote: '"Sinta o calor da batalha!"',
-    reward: 90000,
-    unlockFlag: 'sinnoh_flint_defeated',
-    requiresFlag: 'sinnoh_bertha_defeated',
-    team: [
-      { id: 78, level: 58 },
-      { id: 428, level: 57 },
-      { id: 126, level: 58 },
-      { id: 392, level: 61 },
-      { id: 467, level: 59 },
-    ],
-    background: "url('/bg_sinnoh_league.png') center/cover no-repeat",
-    location: 'Liga Pokémon de Sinnoh',
-  },
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_lucian',
-    category: 'sinnoh',
-    name: 'Lucian',
-    subtitle: 'Elite Four - Psiquico',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/lucian.png',
-    quote: '"Sua mente e um livro aberto para mim."',
-    reward: 95000,
-    unlockFlag: 'sinnoh_lucian_defeated',
-    requiresFlag: 'sinnoh_flint_defeated',
-    team: [
-      { id: 122, level: 59 },
-      { id: 196, level: 59 },
-      { id: 65, level: 60 },
-      { id: 437, level: 63 },
-      { id: 475, level: 63 },
-    ],
-    background: "url('/bg_sinnoh_league.png') center/cover no-repeat",
-    location: 'Liga Pokémon de Sinnoh',
-  },
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_champion_cynthia',
-    category: 'sinnoh',
-    name: 'Cynthia',
-    subtitle: 'Campeã de Sinnoh',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/cynthia.png',
-    quote: '"Eu quero saber o quao forte voce e. Mostre-me!"',
-    reward: 200000,
-    unlockFlag: 'sinnoh_champion',
-    requiresFlag: 'sinnoh_lucian_defeated',
-    team: [
-      { id: 442, level: 61 },
-      { id: 407, level: 60 },
-      { id: 445, level: 66 },
-      { id: 448, level: 63 },
-      { id: 350, level: 63 },
-      { id: 423, level: 60 },
-    ],
-    background: "url('/bg_sinnoh_league.png') center/cover no-repeat",
-    location: 'Santuário da Liga Pokémon',
-  },
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_mars',
-    category: 'rocket',
-    name: 'Mars',
-    subtitle: 'Comandante Galactic',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/mars.png',
-    quote: '"Voce esta no caminho do novo mundo!"',
-    reward: 15000,
-    unlockFlag: 'sinnoh_mars_defeated',
-    requiresFlag: 'sinnoh_started',
-    team: [
-      { id: 41, level: 14 },
-      { id: 432, level: 16 },
-    ],
-    background: "url('/bg_pastoria.png') center/cover no-repeat",
-    location: 'Valley Windworks',
-  },
-  {
-    region: 'sinnoh',
-    id: 'sinnoh_cyrus',
-    category: 'rocket',
-    name: 'Cyrus',
-    subtitle: 'Lider da Equipe Galactic',
-    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/cyrus.png',
-    quote: '"As emocoes sao inuteis. Criarei um mundo perfeito!"',
-    reward: 100000,
-    unlockFlag: 'sinnoh_cyrus_defeated',
-    requiresFlag: 'mine_badge',
-    team: [
-      { id: 198, level: 45 },
-      { id: 215, level: 46 },
-      { id: 169, level: 46 },
-      { id: 430, level: 48 },
-    ],
-    background: "url('/bg_spear_pillar.png') center/cover no-repeat",
-    location: 'Spear Pillar',
-  },
+  ...FUTURE_REGION_CHALLENGES
 ];
 
 const CATEGORY_CONFIG = {
   rival:     { label: 'Rival',         color: '#2563eb', emoji: 'VS'  },
-  rocket:    { label: 'Equipe Rocket', color: '#dc2626', emoji: 'R'   },
+  rocket:    { label: 'Viloes',        color: '#dc2626', emoji: 'R'   },
   johto:     { label: 'Lideres',       color: '#059669', emoji: 'GYM' },
   hoenn:     { label: 'Hoenn GYM',     color: '#10b981', emoji: 'H'   },
+  sinnoh:    { label: 'Sinnoh GYM',    color: '#38bdf8', emoji: 'S'   },
+  unova:     { label: 'Unova GYM',     color: '#22c55e', emoji: 'U'   },
+  kalos:     { label: 'Kalos GYM',     color: '#0ea5e9', emoji: 'K'   },
+  alola:     { label: 'Alola GYM',     color: '#f97316', emoji: 'A'   },
+  galar:     { label: 'Galar GYM',     color: '#a855f7', emoji: 'G'   },
+  paldea:    { label: 'Paldea GYM',    color: '#ef4444', emoji: 'P'   },
   rematch:   { label: 'Revanche',      color: '#f59e0b', emoji: 'EX'  },
   legendary: { label: 'Lendarios',     color: '#7c3aed', emoji: 'L'   },
-  sinnoh:    { label: 'Sinnoh GYM',    color: '#0ea5e9', emoji: 'S'   },
 };
 
 const JOHTO_GYM_ORDER = {
@@ -1785,77 +1821,15 @@ const JOHTO_GYM_ORDER = {
   johto_clair: 8,
 };
 
-
 const SINNOH_GYM_ORDER = {
   sinnoh_roark: 1,
   sinnoh_gardenia: 2,
   sinnoh_maylene: 3,
-  sinnoh_wake: 4,
+  sinnoh_crasher_wake: 4,
   sinnoh_fantina: 5,
   sinnoh_byron: 6,
   sinnoh_candice: 7,
-  sinnoh_volkner: 8
-};
-
-const HOENN_GYM_ORDER = {
-  hoenn_roxanne: 1,
-  hoenn_brawly: 2,
-  hoenn_wattson: 3,
-  hoenn_flannery: 4,
-  hoenn_norman: 5,
-  hoenn_winona: 6,
-  hoenn_tate_liza: 7,
-  hoenn_wallace: 8,
-};
-
-const REMATCH_BADGES = {
-  rematch_falkner: { badgeId: 'zephyr_badge', order: 1 },
-  rematch_bugsy: { badgeId: 'hive_badge', order: 2 },
-  rematch_whitney: { badgeId: 'plain_badge', order: 3 },
-  rematch_morty: { badgeId: 'fog_badge', order: 4 },
-  rematch_chuck: { badgeId: 'storm_badge', order: 5 },
-  rematch_jasmine: { badgeId: 'mineral_badge', order: 6 },
-  rematch_pryce: { badgeId: 'glacier_badge', order: 7 },
-  rematch_clair: { badgeId: 'rising_badge', order: 8 },
-  hoenn_rematch_roxanne: { badgeId: 'stone_badge', order: 1 },
-  hoenn_rematch_brawly: { badgeId: 'knuckle_badge', order: 2 },
-  hoenn_rematch_wattson: { badgeId: 'dynamo_badge', order: 3 },
-  hoenn_rematch_flannery: { badgeId: 'heat_badge', order: 4 },
-  hoenn_rematch_norman: { badgeId: 'balance_badge', order: 5 },
-  hoenn_rematch_winona: { badgeId: 'feather_badge', order: 6 },
-  hoenn_rematch_tate_liza: { badgeId: 'mind_badge', order: 7 },
-  hoenn_rematch_wallace: { badgeId: 'rain_badge', order: 8 },
-};
-
-const REGIONAL_REMATCH_BY_GYM = {
-  johto_falkner: 'rematch_falkner',
-  johto_bugsy: 'rematch_bugsy',
-  johto_whitney: 'rematch_whitney',
-  johto_morty: 'rematch_morty',
-  johto_chuck: 'rematch_chuck',
-  johto_jasmine: 'rematch_jasmine',
-  johto_pryce: 'rematch_pryce',
-  johto_clair: 'rematch_clair',
-  hoenn_roxanne: 'hoenn_rematch_roxanne',
-  hoenn_brawly: 'hoenn_rematch_brawly',
-  hoenn_wattson: 'hoenn_rematch_wattson',
-  hoenn_flannery: 'hoenn_rematch_flannery',
-  hoenn_norman: 'hoenn_rematch_norman',
-  hoenn_winona: 'hoenn_rematch_winona',
-  hoenn_tate_liza: 'hoenn_rematch_tate_liza',
-  hoenn_wallace: 'hoenn_rematch_wallace',
-};
-
-const getBadgeMeta = (challenge) => {
-  if (challenge.category === 'rematch') return REMATCH_BADGES[challenge.id] || { badgeId: challenge.unlockFlag, order: '' };
-  if (challenge.region === 'johto') return { badgeId: challenge.unlockFlag, order: JOHTO_GYM_ORDER[challenge.id] || '' };
-  if (challenge.region === 'hoenn') return { badgeId: challenge.unlockFlag, order: HOENN_GYM_ORDER[challenge.id] || '' };
-  return { badgeId: challenge.unlockFlag, order: '' };
-};
-
-const getRegionalRematch = (challenge) => {
-  const rematchId = REGIONAL_REMATCH_BY_GYM[challenge.id];
-  return rematchId ? CHALLENGES.find(c => c.id === rematchId) : null;
+  sinnoh_volkner: 8,
 };
 
 const getTypeIconUrl = (type) =>
@@ -1871,19 +1845,16 @@ const getChallengeCardBackground = (challenge) => {
   return challenge.background || `linear-gradient(135deg, ${color} 0%, #0f172a 100%)`;
 };
 
-const JohtoLeaderCard = ({ challenge, unlocked, defeated, rematchAvailable = false, onSelect, onRequirementClick, requirementLabel }) => {
+const JohtoLeaderCard = ({ challenge, unlocked, defeated, onSelect, onRequirementClick, requirementLabel }) => {
   const accentColor = getChallengeColor(challenge);
   const typeIcon = getTypeIconUrl(challenge.type);
-  const badgeMeta = getBadgeMeta(challenge);
-  const badgeOrder = badgeMeta.order;
-  const cardTitle = challenge.category === 'rematch' ? 'REVANCHE' : challenge.category === 'hoenn' ? 'GINASIO' : 'GINASIO';
-  const selectable = unlocked && (!defeated || rematchAvailable);
+  const badgeOrder = JOHTO_GYM_ORDER[challenge.id] || SINNOH_GYM_ORDER[challenge.id] || '';
 
   return (
     <div
-      onClick={() => selectable && onSelect(challenge)}
+      onClick={() => unlocked && !defeated && onSelect(challenge)}
       className={`relative rounded-[2rem] overflow-hidden shadow-xl transition-all border-2 ${
-        selectable
+        unlocked && !defeated
           ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98] group border-white/15 hover:border-pokeGold/60'
           : 'grayscale cursor-not-allowed opacity-60 border-white/10'
       }`}
@@ -1898,7 +1869,7 @@ const JohtoLeaderCard = ({ challenge, unlocked, defeated, rematchAvailable = fal
       </div>
 
       <div className="absolute top-6 left-8 z-20 text-left max-w-[62%]">
-        <h4 className="text-white/60 font-black text-[10px] uppercase tracking-widest leading-none">{cardTitle}{badgeOrder ? ` #${badgeOrder}` : ''}</h4>
+        <h4 className="text-white/60 font-black text-[10px] uppercase tracking-widest leading-none">GINASIO #{badgeOrder}</h4>
         <p className="text-white font-black text-2xl uppercase italic leading-none tracking-tighter mt-1.5 drop-shadow-sm truncate">{challenge.name}</p>
         <div className="mt-4 flex items-center gap-2.5 bg-white/15 backdrop-blur-sm w-fit px-3 py-2 rounded-xl border border-white/20 shadow-sm">
           <div className="w-5 h-5 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: accentColor }}>
@@ -1908,7 +1879,6 @@ const JohtoLeaderCard = ({ challenge, unlocked, defeated, rematchAvailable = fal
         </div>
         <div className="flex items-center gap-2 mt-4">
           {defeated && <span className="bg-emerald-500 text-white text-[9px] font-black px-3 py-1 rounded-full shadow-lg shadow-emerald-950/30">VENCIDO</span>}
-          {rematchAvailable && <span className="bg-amber-400 text-amber-950 text-[9px] font-black px-3 py-1 rounded-full shadow-lg shadow-amber-950/20">REVANCHE - DIFICULDADE: ELITE</span>}
           {!unlocked && <span className="bg-white/10 text-white/60 text-[9px] font-black px-3 py-1 rounded-full border border-white/15">BLOQUEADO</span>}
         </div>
       </div>
@@ -1927,7 +1897,7 @@ const JohtoLeaderCard = ({ challenge, unlocked, defeated, rematchAvailable = fal
           <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all ${
             defeated ? 'border-yellow-400 bg-white shadow-xl shadow-yellow-200/50' : 'border-slate-300/30 bg-slate-100/10 opacity-70'
           }`}>
-            <BadgeSVG badgeId={badgeMeta.badgeId} earned={defeated} size={24} />
+            <BadgeSVG badgeId={challenge.unlockFlag} earned={defeated} size={24} />
             {!defeated && <span className="absolute text-[10px] font-black text-white/70">{badgeOrder}</span>}
           </div>
           <div className="flex-1 min-w-0 text-left">
@@ -1942,7 +1912,7 @@ const JohtoLeaderCard = ({ challenge, unlocked, defeated, rematchAvailable = fal
               REQ: {requirementLabel}
             </button>
           )}
-          {selectable && (
+          {unlocked && !defeated && (
             <div className="w-10 h-10 rounded-full bg-white/12 flex items-center justify-center border border-white/20 text-white group-hover:bg-pokeGold group-hover:text-slate-950 transition-colors shadow-sm">
               <span className="text-lg">VS</span>
             </div>
@@ -1958,7 +1928,10 @@ const ChallengesScreen = ({
   filterCategories = null, forcedRegion = null, setCurrentView, setVsInitialTab,
   initialCategory, setVsInitialCategory, setVsInitialRegion
 }) => {
-  const kantoChampion = (gameState.worldFlags || []).includes('champion');
+  const worldFlags = gameState.worldFlags || [];
+  const kantoChampion = worldFlags.includes('champion');
+  const unlockedRegionIds = getUnlockedRegions(gameState);
+  const availableRegions = unlockedRegionIds.map(id => ({ id, label: REGION_LABELS[id] || id }));
   const [challengeRegion, setChallengeRegion] = React.useState(forcedRegion || 'kanto');
   const [selectedCategory, setSelectedCategory] = React.useState(initialCategory || (filterCategories ? filterCategories[0] : 'rival'));
   const [alertMessage, setAlertMessage] = React.useState(null);
@@ -1970,8 +1943,8 @@ const ChallengesScreen = ({
   }, [forcedRegion]);
 
   React.useEffect(() => {
-    if (!kantoChampion && challengeRegion === 'johto') setChallengeRegion('kanto');
-  }, [kantoChampion, challengeRegion]);
+    if (!unlockedRegionIds.includes(challengeRegion)) setChallengeRegion('kanto');
+  }, [kantoChampion, unlockedRegionIds.join('|'), challengeRegion]);
 
   React.useEffect(() => {
     if (initialCategory) {
@@ -2007,7 +1980,48 @@ const ChallengesScreen = ({
     'johto_rival_ecruteak_defeated': 'Vencer o Rival na Torre Queimada',
     'johto_rocket_mahogany_cleared': 'Limpar a Base Rocket em Mahogany',
     'johto_rival_tunnel_defeated': 'Vencer o Rival no Tunel de Goldenrod',
-    'johto_rival_victory_defeated': 'Derrotar o Rival na Victory Road'
+    'johto_rival_victory_defeated': 'Derrotar o Rival na Victory Road',
+    'hoenn_started': 'Iniciar a jornada em Hoenn',
+    'hoenn_rival_1_defeated': 'Vencer Brendan em Littleroot',
+    'hoenn_rival_route110_defeated': 'Vencer Brendan na Rota 110',
+    'hoenn_rival_lilycove_defeated': 'Vencer Brendan em Lilycove',
+    'hoenn_aqua_slateport_cleared': 'Derrotar a Equipe Aqua em Slateport',
+    'hoenn_magma_chimney_cleared': 'Derrotar a Equipe Magma no Mt. Chimney',
+    'hoenn_aqua_seafloor_cleared': 'Derrotar a Equipe Aqua na Caverna Submarina',
+    'stone_badge': 'Insignia Stone (Roxanne)',
+    'knuckle_badge': 'Insignia Knuckle (Brawly)',
+    'dynamo_badge': 'Insignia Dynamo (Wattson)',
+    'heat_badge': 'Insignia Heat (Flannery)',
+    'balance_badge': 'Insignia Balance (Norman)',
+    'feather_badge': 'Insignia Feather (Winona)',
+    'mind_badge': 'Insignia Mind (Tate & Liza)',
+    'rain_badge': 'Insignia Rain (Wallace)',
+    'hoenn_sidney_defeated': 'Vencer Sidney na Liga de Hoenn',
+    'hoenn_phoebe_defeated': 'Vencer Phoebe na Liga de Hoenn',
+    'hoenn_glacia_defeated': 'Vencer Glacia na Liga de Hoenn',
+    'hoenn_drake_defeated': 'Vencer Drake na Liga de Hoenn',
+    'hoenn_champion': 'Tornar-se Campeao de Hoenn',
+    'sinnoh_started': 'Iniciar a jornada em Sinnoh',
+    'sinnoh_rival_jubilife_defeated': 'Vencer Barry em Jubilife',
+    'sinnoh_rival_hearthome_defeated': 'Vencer Barry em Hearthome',
+    'sinnoh_rival_victory_defeated': 'Vencer Barry na Victory Road',
+    'sinnoh_galactic_valley_cleared': 'Derrotar a Equipe Galactica em Valley Windworks',
+    'sinnoh_galactic_eterna_cleared': 'Derrotar Jupiter em Eterna',
+    'sinnoh_galactic_valor_cleared': 'Derrotar Saturn no Lake Valor',
+    'sinnoh_galactic_spear_pillar_cleared': 'Derrotar Cyrus no Spear Pillar',
+    'coal_badge': 'Insignia Coal (Roark)',
+    'forest_badge': 'Insignia Forest (Gardenia)',
+    'cobble_badge': 'Insignia Cobble (Maylene)',
+    'fen_badge': 'Insignia Fen (Crasher Wake)',
+    'relic_badge': 'Insignia Relic (Fantina)',
+    'mine_badge': 'Insignia Mine (Byron)',
+    'icicle_badge': 'Insignia Icicle (Candice)',
+    'beacon_badge': 'Insignia Beacon (Volkner)',
+    'sinnoh_aaron_defeated': 'Vencer Aaron na Liga de Sinnoh',
+    'sinnoh_bertha_defeated': 'Vencer Bertha na Liga de Sinnoh',
+    'sinnoh_flint_defeated': 'Vencer Flint na Liga de Sinnoh',
+    'sinnoh_lucian_defeated': 'Vencer Lucian na Liga de Sinnoh',
+    'sinnoh_champion': 'Tornar-se Campeao de Sinnoh'
   };
 
   const handleRequirementClick = (flag) => {
@@ -2026,6 +2040,36 @@ const ChallengesScreen = ({
         if (setVsInitialRegion) setVsInitialRegion('johto');
       }
       setCurrentView(flag === 'johto_started' ? 'city' : 'vs');
+    } else if (flag.startsWith('hoenn_') || ['stone_badge', 'knuckle_badge', 'dynamo_badge', 'heat_badge', 'balance_badge', 'feather_badge', 'mind_badge', 'rain_badge'].includes(flag)) {
+      if (setVsInitialRegion) setVsInitialRegion('hoenn');
+      if (flag === 'hoenn_started') {
+        if (setVsInitialTab) setVsInitialTab('challenges');
+        if (setVsInitialCategory) setVsInitialCategory('rival');
+        setCurrentView('city');
+      } else if (flag.includes('rival_') || flag.includes('aqua_') || flag.includes('magma_') || flag.includes('_cleared')) {
+        if (setVsInitialTab) setVsInitialTab('challenges');
+        if (setVsInitialCategory) setVsInitialCategory(flag.includes('aqua_') || flag.includes('magma_') ? 'rocket' : 'rival');
+        setCurrentView('vs');
+      } else {
+        if (setVsInitialTab) setVsInitialTab('gyms');
+        if (setVsInitialCategory) setVsInitialCategory('hoenn');
+        setCurrentView('vs');
+      }
+    } else if (flag.startsWith('sinnoh_') || ['coal_badge', 'forest_badge', 'cobble_badge', 'fen_badge', 'relic_badge', 'mine_badge', 'icicle_badge', 'beacon_badge'].includes(flag)) {
+      if (setVsInitialRegion) setVsInitialRegion('sinnoh');
+      if (flag === 'sinnoh_started') {
+        if (setVsInitialTab) setVsInitialTab('challenges');
+        if (setVsInitialCategory) setVsInitialCategory('rival');
+        setCurrentView('city');
+      } else if (flag.includes('rival_') || flag.includes('galactic_') || flag.includes('_cleared')) {
+        if (setVsInitialTab) setVsInitialTab('challenges');
+        if (setVsInitialCategory) setVsInitialCategory(flag.includes('galactic_') ? 'rocket' : 'rival');
+        setCurrentView('vs');
+      } else {
+        if (setVsInitialTab) setVsInitialTab('gyms');
+        if (setVsInitialCategory) setVsInitialCategory('sinnoh');
+        setCurrentView('vs');
+      }
     } else if (flag.includes('_badge')) {
       if (setVsInitialTab) setVsInitialTab('gyms');
       setCurrentView('vs');
@@ -2074,17 +2118,14 @@ const ChallengesScreen = ({
         {(!isEmbedded || (filterCategories && filterCategories.length >= 1)) && (
           <div className="flex flex-col p-4 pb-2 gap-3 bg-slate-900 border-b border-white/5 justify-center">
             {kantoChampion && !forcedRegion && (
-              <div className="grid grid-cols-2 gap-2 mb-2 w-full max-w-sm mx-auto">
-                {[
-                  { id: 'kanto', label: 'Kanto' },
-                  { id: 'johto', label: 'Johto' },
-                ].map(region => (
+              <div className={`grid ${availableRegions.length >= 5 ? 'grid-cols-5' : availableRegions.length >= 4 ? 'grid-cols-4' : availableRegions.length >= 3 ? 'grid-cols-3' : 'grid-cols-2'} gap-2 mb-2 w-full max-w-sm mx-auto`}>
+                {availableRegions.map(region => (
                   <button
                     key={region.id}
                     onClick={() => {
                       setChallengeRegion(region.id);
-                      if (region.id === 'kanto' && selectedCategory === 'johto') setSelectedCategory('rival');
-                      if (region.id === 'johto' && selectedCategory !== 'legendary' && selectedCategory !== 'rocket' && selectedCategory !== 'rival') setSelectedCategory('johto');
+                      if (region.id === 'kanto' && selectedCategory !== 'legendary' && selectedCategory !== 'rocket' && selectedCategory !== 'rival' && selectedCategory !== 'rematch') setSelectedCategory('rival');
+                      if (region.id !== 'kanto' && selectedCategory !== 'legendary' && selectedCategory !== 'rocket' && selectedCategory !== 'rival' && selectedCategory !== 'rematch') setSelectedCategory(region.id);
                     }}
                     className={`min-h-[38px] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
                       challengeRegion === region.id
@@ -2101,8 +2142,8 @@ const ChallengesScreen = ({
               {Object.entries(CATEGORY_CONFIG)
                 .filter(([id]) => {
                   if (filterCategories) return filterCategories.includes(id);
-                  if (challengeRegion === 'kanto') return id !== 'johto';
-                  if (challengeRegion === 'johto') return id === 'johto' || id === 'legendary' || id === 'rocket' || id === 'rival';
+                  if (challengeRegion === 'kanto') return !REGION_LABELS[id] || id === 'kanto';
+                  if (REGION_LABELS[challengeRegion]) return id === challengeRegion || id === 'legendary' || id === 'rocket' || id === 'rival' || id === 'rematch';
                   return true;
                 })
                 .map(([id, cfg]) => (
@@ -2128,19 +2169,16 @@ const ChallengesScreen = ({
             const unlocked = isUnlocked(challenge);
             const defeated = isDefeated(challenge);
             const accentColor = getChallengeColor(challenge);
-            if (challenge.category === 'johto' || challenge.category === 'hoenn' || (challenge.category === 'rematch' && challengeRegion !== 'kanto')) {
-              const rematch = getRegionalRematch(challenge);
-              const rematchAvailable = defeated && rematch && isUnlocked(rematch);
+            if (challenge.category === 'johto' || challenge.category === 'sinnoh') {
               return (
                 <JohtoLeaderCard
                   key={challenge.id}
                   challenge={challenge}
                   unlocked={unlocked}
                   defeated={defeated}
-                  rematchAvailable={Boolean(rematchAvailable)}
-                  onSelect={() => setSelectedChallenge(rematchAvailable ? rematch : challenge)}
+                  onSelect={setSelectedChallenge}
                   onRequirementClick={handleRequirementClick}
-                  requirementLabel={flagNames[(rematchAvailable ? rematch.requiresFlag : challenge.requiresFlag)] || (rematchAvailable ? rematch.requiresFlag : challenge.requiresFlag)}
+                  requirementLabel={flagNames[challenge.requiresFlag] || challenge.requiresFlag}
                 />
               );
             }

@@ -324,6 +324,96 @@ export const BATTLE_BACKGROUNDS = {
     timeOfDay: 'legendary',
     elements: ['purple_crystal', 'purple_crystal', 'mewtwo_glow', 'dark_mist', 'ancient_rune'],
   },
+
+  // UNOVA
+  unova_route_1: {
+    sky: "url('/bg_unova_route.png')",
+    label: 'Unova — Rota 1',
+    ground: '#789048',
+    groundAccent: '#5a6e36',
+    timeOfDay: 'day',
+    elements: ['building_distant', 'street_lamp', 'park_bench', 'cloud'],
+  },
+  unova_home_town: {
+    sky: "url('/bg_unova_city.png')",
+    label: 'Cidade de Unova',
+    ground: '#808080',
+    groundAccent: '#606060',
+    timeOfDay: 'day',
+    elements: ['skyscraper', 'skyscraper', 'billboard', 'city_light'],
+  },
+
+  // KALOS
+  kalos_route_1: {
+    sky: "url('/bg_kalos_route.png')",
+    label: 'Kalos — Rota 1',
+    ground: '#98c060',
+    groundAccent: '#709040',
+    timeOfDay: 'day',
+    elements: ['flower_lavender', 'flower_lavender', 'chateau_distant', 'cloud'],
+  },
+  kalos_home_town: {
+    sky: "url('/bg_kalos_city.png')",
+    label: 'Cidade de Kalos',
+    ground: '#a8a8a8',
+    groundAccent: '#808080',
+    timeOfDay: 'day',
+    elements: ['eiffel_tower', 'cafe_table', 'street_lamp_old', 'flower_pot'],
+  },
+
+  // ALOLA
+  alola_route_1: {
+    sky: "url('/bg_alola_route.png')",
+    label: 'Alola — Rota 1',
+    ground: '#e0d0a0',
+    groundAccent: '#c0b080',
+    timeOfDay: 'day',
+    elements: ['palm_tree', 'palm_tree', 'ocean_view', 'surfboard', 'cloud_white'],
+  },
+  alola_home_town: {
+    sky: "url('/bg_alola_city.png')",
+    label: 'Cidade de Alola',
+    ground: '#f0e0b0',
+    groundAccent: '#d0c090',
+    timeOfDay: 'day',
+    elements: ['beach_umbrella', 'palm_tree', 'ocean_small', 'shop_stall'],
+  },
+
+  // GALAR
+  galar_route_1: {
+    sky: "url('/bg_galar_route.png')",
+    label: 'Galar — Rota 1',
+    ground: '#70a050',
+    groundAccent: '#508040',
+    timeOfDay: 'overcast',
+    elements: ['windmill', 'castle_tower', 'stone_wall', 'cloud_grey'],
+  },
+  galar_home_town: {
+    sky: "url('/bg_galar_city.png')",
+    label: 'Cidade de Galar',
+    ground: '#909090',
+    groundAccent: '#707070',
+    timeOfDay: 'day',
+    elements: ['big_ben', 'red_phone_box', 'steam_pipe', 'brick_wall'],
+  },
+
+  // PALDEA
+  paldea_route_1: {
+    sky: "url('/bg_paldea_route.png')",
+    label: 'Paldea — Rota 1',
+    ground: '#c0b870',
+    groundAccent: '#908850',
+    timeOfDay: 'day',
+    elements: ['olive_tree', 'crater_distant', 'mountain_range', 'cloud'],
+  },
+  paldea_home_town: {
+    sky: "url('/bg_paldea_city.png')",
+    label: 'Cidade de Paldea',
+    ground: '#d0c0a0',
+    groundAccent: '#b0a080',
+    timeOfDay: 'day',
+    elements: ['academy_tower', 'plaza_fountain', 'tiled_roof', 'flower_orange'],
+  },
 };
 
 /**

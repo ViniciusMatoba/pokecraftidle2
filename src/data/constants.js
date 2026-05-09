@@ -31,45 +31,49 @@ export const BADGE_IDS = ['boulder_badge', 'cascade_badge', 'thunder_badge', 'ra
 export const JOHTO_BADGE_IDS = ['zephyr_badge', 'hive_badge', 'plain_badge', 'fog_badge', 'storm_badge', 'mineral_badge', 'glacier_badge', 'rising_badge'];
 export const HOENN_BADGE_IDS = ['stone_badge', 'knuckle_badge', 'dynamo_badge', 'heat_badge', 'balance_badge', 'feather_badge', 'mind_badge', 'rain_badge'];
 export const SINNOH_BADGE_IDS = ['coal_badge', 'forest_badge', 'cobble_badge', 'fen_badge', 'relic_badge', 'mine_badge', 'icicle_badge', 'beacon_badge'];
+export const UNOVA_BADGE_IDS = ['trio_badge', 'basic_badge', 'insect_badge', 'bolt_badge', 'quake_badge', 'jet_badge', 'freeze_badge', 'legend_badge'];
+export const KALOS_BADGE_IDS = ['bug_badge', 'cliff_badge', 'rumble_badge', 'plant_badge', 'voltage_badge', 'fairy_badge', 'psychic_badge', 'iceberg_badge'];
+export const ALOLA_BADGE_IDS = ['melemele_stamp', 'akala_stamp', 'ulaula_stamp', 'poni_stamp', 'alola_elite_stamp', 'alola_champion_stamp', 'ultra_stamp', 'battle_tree_stamp'];
+export const GALAR_BADGE_IDS = ['grass_badge_galar', 'water_badge_galar', 'fire_badge_galar', 'fighting_badge_galar', 'fairy_badge_galar', 'rock_badge_galar', 'dark_badge_galar', 'dragon_badge_galar'];
+export const PALDEA_BADGE_IDS = ['bug_badge_paldea', 'grass_badge_paldea', 'electric_badge_paldea', 'water_badge_paldea', 'normal_badge_paldea', 'ghost_badge_paldea', 'psychic_badge_paldea', 'ice_badge_paldea'];
 
 export const GYM_LEVEL_CAPS = {
   kanto: {
-    boulder_badge: 14, cascade_badge: 21, thunder_badge: 30, rainbow_badge: 44,
-    soul_badge: 51, marsh_badge: 56, volcano_badge: 58, earth_badge: 60, champion: 68
+    boulder_badge: 14, cascade_badge: 21, thunder_badge: 24, rainbow_badge: 32,
+    soul_badge: 43, marsh_badge: 43, volcano_badge: 50, earth_badge: 55, champion: 65
   },
   johto: {
-    zephyr_badge: 16, hive_badge: 25, plain_badge: 36, fog_badge: 48,
-    storm_badge: 60, mineral_badge: 72, glacier_badge: 80, rising_badge: 86, johto_champion: 100
+    zephyr_badge: 15, hive_badge: 20, plain_badge: 25, fog_badge: 30,
+    storm_badge: 35, mineral_badge: 40, glacier_badge: 45, rising_badge: 50, johto_champion: 65
   },
   hoenn: {
-    stone_badge: 18, knuckle_badge: 25, dynamo_badge: 35, heat_badge: 48,
-    balance_badge: 60, feather_badge: 72, mind_badge: 84, rain_badge: 94, hoenn_champion: 100
+    stone_badge: 15, knuckle_badge: 19, dynamo_badge: 24, heat_badge: 29,
+    balance_badge: 31, feather_badge: 33, mind_badge: 42, rain_badge: 55, hoenn_champion: 70
   },
   sinnoh: {
-    coal_badge: 14, forest_badge: 22, cobble_badge: 32, fen_badge: 40,
-    relic_badge: 50, mine_badge: 62, icicle_badge: 75, beacon_badge: 88, sinnoh_champion: 100
+    coal_badge: 16, forest_badge: 25, cobble_badge: 33, fen_badge: 39,
+    relic_badge: 45, mine_badge: 53, icicle_badge: 66, beacon_badge: 76, sinnoh_champion: 100
+  },
+  unova: {
+    trio_badge: 14, basic_badge: 20, insect_badge: 26, bolt_badge: 32,
+    quake_badge: 39, jet_badge: 45, freeze_badge: 52, legend_badge: 60, unova_champion: 100
+  },
+  kalos: {
+    bug_badge: 12, cliff_badge: 25, rumble_badge: 32, plant_badge: 34,
+    voltage_badge: 40, fairy_badge: 48, psychic_badge: 59, iceberg_badge: 65, kalos_champion: 100
+  },
+  alola: {
+    melemele_stamp: 16, akala_stamp: 28, ulaula_stamp: 44, poni_stamp: 55,
+    alola_elite_stamp: 65, alola_champion_stamp: 75, ultra_stamp: 85, battle_tree_stamp: 100, alola_champion: 100
+  },
+  galar: {
+    grass_badge_galar: 20, water_badge_galar: 24, fire_badge_galar: 27, fighting_badge_galar: 36,
+    fairy_badge_galar: 38, rock_badge_galar: 42, dark_badge_galar: 46, dragon_badge_galar: 55, galar_champion: 100
+  },
+  paldea: {
+    bug_badge_paldea: 15, grass_badge_paldea: 20, electric_badge_paldea: 28, water_badge_paldea: 35,
+    normal_badge_paldea: 42, ghost_badge_paldea: 48, psychic_badge_paldea: 55, ice_badge_paldea: 60, paldea_champion: 100
   }
-};
-
-export const getRegionBadgeIds = (region = 'kanto') => {
-  const key = String(region || 'kanto').toLowerCase();
-  if (key === 'johto') return JOHTO_BADGE_IDS;
-  if (key === 'hoenn') return HOENN_BADGE_IDS;
-  if (key === 'sinnoh') return SINNOH_BADGE_IDS;
-  return BADGE_IDS;
-};
-
-export const getRegionBadgeCount = (gameState = {}, region = 'kanto') => {
-  const badgeIds = getRegionBadgeIds(region);
-  const earned = new Set([...(gameState.badges || []), ...(gameState.worldFlags || [])]);
-  return badgeIds.filter(id => earned.has(id)).length;
-};
-
-export const getCurrentLevelCap = (gameState = {}, region = gameState.activeRegion || 'kanto') => {
-  const key = String(region || 'kanto').toLowerCase();
-  const capValues = Object.values(GYM_LEVEL_CAPS[key] || GYM_LEVEL_CAPS.kanto);
-  const badgeCount = getRegionBadgeCount(gameState, key);
-  return capValues[badgeCount] || 100;
 };
 
 export const trainerAvatars = [
@@ -96,8 +100,6 @@ export const DEFAULT_GAME_STATE = {
       ground_essence: 0, flying_essence: 0, psychic_essence: 0, bug_essence: 0,
       rock_essence: 0, ghost_essence: 0, dragon_essence: 0, steel_essence: 0,
       fairy_essence: 0, dark_essence: 0, mystic_dust: 0, iron_ore: 0,
-      apricorn: 0, black_apricorn: 0, blue_apricorn: 0, green_apricorn: 0,
-      pink_apricorn: 0, red_apricorn: 0, white_apricorn: 0, yellow_apricorn: 0,
       armor_fragment: 0, fury_essence: 0, dragon_scale: 0, stardust: 0
     },
     items: { pokeballs: 5, potions: 2 },
@@ -109,7 +111,12 @@ export const DEFAULT_GAME_STATE = {
     kanto: [],
     johto: [],
     hoenn: [],
-    sinnoh: []
+    sinnoh: [],
+    unova: [],
+    kalos: [],
+    alola: [],
+    galar: [],
+    paldea: []
   },
   activeRegion: 'kanto',
   currentRoute: 'pallet_town',
@@ -119,6 +126,7 @@ export const DEFAULT_GAME_STATE = {
   caughtData: {},
   speciesMastery: {},
   expeditions: {},
+  expeditionProgress: {},
   activeEffects: {},
   house: {
     owned: false,
@@ -147,12 +155,9 @@ export const DEFAULT_GAME_STATE = {
   lastLegendarySpawns: {},
   forgedItemsCount: 0,
   bossTotalDamage: 0,
-  selectedStarters: {
-    kanto: null,
-    johto: null,
-    hoenn: null,
-    sinnoh: null
-  }
+  shinyCapturedCount: 0,
+  trainerBattleWins: 0,
+  bossLastDamage: 0
 };
 
 export const ITEM_LABELS = {
@@ -160,13 +165,6 @@ export const ITEM_LABELS = {
   silk: { icon: '🧵', name: 'Seda' },
   feather: { icon: '🪶', name: 'Pena' },
   apricorn: { icon: '🌰', name: 'Apricorn' },
-  black_apricorn: { icon: 'BK', name: 'Apricorn Preto' },
-  blue_apricorn: { icon: 'BL', name: 'Apricorn Azul' },
-  green_apricorn: { icon: 'GR', name: 'Apricorn Verde' },
-  pink_apricorn: { icon: 'PK', name: 'Apricorn Rosa' },
-  red_apricorn: { icon: 'RD', name: 'Apricorn Vermelho' },
-  white_apricorn: { icon: 'WT', name: 'Apricorn Branco' },
-  yellow_apricorn: { icon: 'YL', name: 'Apricorn Amarelo' },
   electric_chip: { icon: '⚡', name: 'Chip Elétrico' },
   moon_stone_shard: { icon: '🌙', name: 'Fragmento de Lua' },
   fire_stone_shard: { icon: '*', name: 'Fragmento de Fogo' },
@@ -254,6 +252,7 @@ export const ITEM_LABELS = {
   potion:            { icon: '🧪', name: 'Poção' },
   link_cable:        { icon: '🔌', name: 'Link Cable' }
 };
+
 
 export const STAMINA_RESTORE_TABLE = {
   // Berries (source: materials)

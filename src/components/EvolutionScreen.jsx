@@ -1,7 +1,6 @@
 import React from 'react';
-import { getMoveData, getMoveKey } from '../utils/moveUtils';
 
-const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setEvolutionPending }) => {
+const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setEvolutionPending, activeRegion = 'kanto', isEvolutionAllowedForRegion, getEvolutionRegionLockMessage }) => {
   if (!evolutionPending) return null;
 
   return (
@@ -29,7 +28,7 @@ const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setE
                     {/* Brilho de fundo para a silhueta */}
                     <div className="absolute inset-0 bg-white/20 blur-2xl rounded-full animate-pulse group-hover:bg-white/40 transition-all"></div>
                     <img 
-                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${POKEDEX[evolutionPending.id].evolution.id}.png`} 
+                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evolutionPending.targetEvolution?.id || POKEDEX[evolutionPending.id].evolution?.id}.png`} 
                       className="w-32 h-32 md:w-56 md:h-56 brightness-0 invert opacity-40 animate-evolution-glow drop-shadow-[0_0_50px_rgba(255,255,255,0.6)] relative z-10" 
                       alt="Silhueta da Evolução" 
                     />
@@ -51,8 +50,13 @@ const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setE
                  }}>
                     <button 
                      onClick={() => {
-                         const evoData = POKEDEX[evolutionPending.id].evolution;
+                         const evoData = evolutionPending.targetEvolution || POKEDEX[evolutionPending.id].evolution;
                          const nextPoke = POKEDEX[evoData.id];
+                         if (isEvolutionAllowedForRegion && !isEvolutionAllowedForRegion(evolutionPending, evoData.id, activeRegion)) {
+                            addLog(getEvolutionRegionLockMessage?.(evolutionPending.name, nextPoke?.name, activeRegion) || `${evolutionPending.name} nao pode evoluir nesta regiao.`, 'system');
+                            setEvolutionPending(null);
+                            return;
+                         }
                          setGameState(prev => {
                             const newTeam = prev.team.map((p, i) => {
                                if (i === evolutionPending.teamIndex) {
@@ -66,11 +70,12 @@ const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setE
                                   if (nextPoke.learnset) {
                                      const movesAtLevel = nextPoke.learnset.filter(l => l.level <= p.level);
                                      movesAtLevel.forEach(learn => {
-                                        const moveData = getMoveData(learn.move);
-                                        if (moveData.name && !newLearnedMoves.some(m => getMoveKey(m) === getMoveKey(moveData))) {
-                                           newLearnedMoves.push(moveData);
-                                           if (newMoves.length < 4 && !newMoves.some(m => getMoveKey(m) === getMoveKey(moveData))) {
-                                              newMoves.push(moveData);
+                                        const moveName = learn.move; 
+                                        if (!newLearnedMoves.some(m => m.name === moveName)) {
+                                           const moveObj = { name: moveName };
+                                           newLearnedMoves.push(moveObj);
+                                           if (newMoves.length < 4) {
+                                              newMoves.push(moveObj);
                                            }
                                         }
                                      });

@@ -17,7 +17,7 @@ const extractBlock = (start, length = 200, file = null) => {
 const blocks = [
   { name: 'handleBattleTick',         marker: 'const handleBattleTick = useCallback' },
   { name: 'spawnEnemy',               marker: 'const spawnEnemy = useCallback' },
-  { name: 'Shiny 1/4096',             marker: 'Math.floor(Math.random() * 4096) === 0' },
+  { name: 'Shiny mastery divisor',    marker: 'const shinyRateDivisor = masteryCount >= 200 ? 410 : masteryCount >= 100 ? 1024 : 2048' },
   { name: 'XP divisor',               marker: 'const baseXpGain = Math.floor' }, // Adjusted to Math.floor based on file content
   { name: 'FEED_THRESHOLD',           marker: 'const FEED_THRESHOLD' },
   { name: 'handleGoToCity',           marker: 'const handleGoToCity = useCallback' },
@@ -35,7 +35,7 @@ const blocks = [
   { name: 'rival_dialog_balloon', marker: "'16px 20px 80px 20px'" },
   { name: 'rival_batalhar_btn',   marker: "BATALHAR!" },
   { name: 'battle_my_pokemon_card', file: './src/components/BattleScreen.jsx', marker: "minWidth: '130px'" },
-  { name: 'battle_enemy_card',      file: './src/components/BattleScreen.jsx', marker: "top: '12px'" },
+  { name: 'battle_enemy_card',      file: './src/components/BattleScreen.jsx', marker: "top: currentEnemy.isWorldBoss ? '80px' : '12px'" },
 ];
 
 const HASH_FILE = './scripts/.integrity-hashes.json';

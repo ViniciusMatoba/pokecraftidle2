@@ -6,10 +6,15 @@ import { CRAFTING_RECIPES } from '../data/recipes';
 const EVOLUTION_FRAGMENT_DROPS = {
   4: 'fire_stone_shard', 5: 'fire_stone_shard', 6: 'fire_stone_shard', 37: 'fire_stone_shard', 58: 'fire_stone_shard', 77: 'fire_stone_shard', 126: 'fire_stone_shard',
   7: 'water_stone_shard', 8: 'water_stone_shard', 9: 'water_stone_shard', 60: 'water_stone_shard', 61: 'water_stone_shard', 90: 'water_stone_shard', 120: 'water_stone_shard',
-  1: 'leaf_stone_shard', 2: 'leaf_stone_shard', 3: 'leaf_stone_shard', 43: 'leaf_stone_shard', 44: 'leaf_stone_shard', 69: 'leaf_stone_shard', 70: 'leaf_stone_shard', 102: 'leaf_stone_shard',
+  1: 'leaf_stone_shard', 2: 'leaf_stone_shard', 3: 'leaf_stone_shard', 43: 'leaf_stone_shard', 69: 'leaf_stone_shard', 70: 'leaf_stone_shard', 102: 'leaf_stone_shard',
   25: 'thunder_stone_shard', 26: 'thunder_stone_shard', 81: 'thunder_stone_shard', 82: 'thunder_stone_shard', 100: 'thunder_stone_shard', 101: 'thunder_stone_shard', 125: 'thunder_stone_shard',
   29: 'moon_stone_shard', 30: 'moon_stone_shard', 32: 'moon_stone_shard', 33: 'moon_stone_shard', 35: 'moon_stone_shard', 36: 'moon_stone_shard', 39: 'moon_stone_shard', 40: 'moon_stone_shard',
   63: 'link_cable_part', 64: 'link_cable_part', 66: 'link_cable_part', 67: 'link_cable_part', 74: 'link_cable_part', 75: 'link_cable_part', 92: 'link_cable_part', 93: 'link_cable_part',
+  191: 'sun_stone_shard', 192: 'sun_stone_shard', 44: 'sun_stone_shard',
+  176: 'shiny_stone_shard', 315: 'shiny_stone_shard', 406: 'shiny_stone_shard',
+  198: 'dusk_stone_shard', 200: 'dusk_stone_shard', 429: 'dusk_stone_shard', 430: 'dusk_stone_shard',
+  281: 'dawn_stone_shard', 475: 'dawn_stone_shard', 478: 'dawn_stone_shard',
+  361: 'ice_stone_shard', 459: 'ice_stone_shard', 460: 'ice_stone_shard',
 };
 
 const RECIPE_FRAGMENT_DROPS = {
@@ -33,10 +38,6 @@ import { TYPE_COLOR_HEX } from '../data/gyms';
 import { TIME_CONFIG, getTimeOfDay, getTimeAdjustedEnemyPool } from '../utils/timeSystem';
 import { hasProgressRequirement } from '../utils/progress';
 
-const getEnemySignature = (enemies = []) => (
-  enemies.map(e => `${e.id}:${e.level || ''}:${e.drop || ''}:${e.dropChance || ''}`).join('|')
-);
-
 const TravelScreen = ({ 
   gameState, 
   setGameState, 
@@ -56,6 +57,7 @@ const TravelScreen = ({
   const [selectedPoke, setSelectedPoke] = React.useState(null);
   const [selectedDrop, setSelectedDrop] = React.useState(null);
   const routeRegionTab = gameState.activeRegion || 'kanto';
+  const isJohtoRoute = (route) => inferRouteRegion(route?.id, route?.group).id === 'johto';
   const [alertMessage, setAlertMessage] = React.useState(null);
   const [activePeriodTab, setActivePeriodTab] = React.useState(null);
   
@@ -73,16 +75,11 @@ const TravelScreen = ({
   }, [selectedRoute]);
 
   const isRouteUnlocked = (route) => checkRouteUnlocked(route, gameState);
-  const worldFlags = gameState.worldFlags || [];
-  const kantoChampion = worldFlags.includes('champion');
-  const johtoStarted = worldFlags.includes('johto_started');
-  const hoennStarted = worldFlags.includes('hoenn_started');
-  const hoennUnlocked = kantoChampion || hoennStarted || worldFlags.includes('johto_champion');
-  const sinnohStarted = worldFlags.includes('sinnoh_started');
-  const sinnohUnlocked = worldFlags.includes('hoenn_champion') || sinnohStarted;
-  const getRouteRegionId = (route) => inferRouteRegion(route?.id, route?.group).id;
-  const isJohtoRoute = (route) => getRouteRegionId(route) === 'johto';
-  const isHoennRoute = (route) => getRouteRegionId(route) === 'hoenn';
+  const kantoChampion = (gameState.worldFlags || []).includes('champion');
+  const johtoStarted = (gameState.worldFlags || []).includes('johto_started');
+  const johtoChampion = (gameState.worldFlags || []).includes('johto_champion');
+  const hoennChampion = (gameState.worldFlags || []).includes('hoenn_champion');
+  const sinnohStarted = (gameState.worldFlags || []).includes('sinnoh_started');
   const sortedRoutes = React.useMemo(() => getSortedRoutes(ROUTES), [ROUTES]);
 
   const visibleRouteEntries = React.useMemo(() => {
@@ -98,19 +95,20 @@ const TravelScreen = ({
 
   React.useEffect(() => {
     if (!kantoChampion && routeRegionTab === 'johto') setRouteRegionTab('kanto');
-    if (!hoennUnlocked && routeRegionTab === 'hoenn') setRouteRegionTab('kanto');
-    if (!sinnohUnlocked && routeRegionTab === 'sinnoh') setRouteRegionTab('kanto');
-  }, [kantoChampion, hoennUnlocked, routeRegionTab]);
+    if (!johtoChampion && routeRegionTab === 'hoenn') setRouteRegionTab(kantoChampion ? 'johto' : 'kanto');
+    if (!hoennChampion && routeRegionTab === 'sinnoh') setRouteRegionTab(johtoChampion ? 'hoenn' : kantoChampion ? 'johto' : 'kanto');
+  }, [kantoChampion, johtoChampion, hoennChampion, routeRegionTab]);
 
   React.useEffect(() => {
-    if ((johtoStarted || hoennStarted) && kantoChampion && gameState.currentRoute) {
+    if (johtoStarted && kantoChampion && gameState.currentRoute) {
       const current = sortedRoutes.find(r => r.id === gameState.currentRoute);
       if (current) {
         if (current._region.id === 'johto') setRouteRegionTab('johto');
         if (current._region.id === 'hoenn') setRouteRegionTab('hoenn');
+        if (current._region.id === 'sinnoh') setRouteRegionTab('sinnoh');
       }
     }
-  }, [kantoChampion, johtoStarted, hoennStarted, gameState.currentRoute, sortedRoutes]);
+  }, [kantoChampion, johtoStarted, gameState.currentRoute, sortedRoutes]);
 
   // ===== PRELOADER DE BACKGROUND DA ROTA =====
   React.useEffect(() => {
@@ -150,7 +148,7 @@ const TravelScreen = ({
     if (selectedRoute && ROUTES[selectedRoute.id]) {
       // Só atualiza se houver mudança real nos inimigos (ex: starters adicionados)
       const latest = ROUTES[selectedRoute.id];
-      if (getEnemySignature(latest.enemies) !== getEnemySignature(selectedRoute.enemies)) {
+      if (JSON.stringify(latest.enemies) !== JSON.stringify(selectedRoute.enemies)) {
         setSelectedRoute({ id: selectedRoute.id, ...latest });
       }
     }
@@ -161,14 +159,6 @@ const TravelScreen = ({
       'pokeballs': 'poke-ball',
       'great_ball': 'great-ball',
       'ultra_ball': 'ultra-ball',
-      'apricorn': 'red-apricorn',
-      'black_apricorn': 'black-apricorn',
-      'blue_apricorn': 'blue-apricorn',
-      'green_apricorn': 'green-apricorn',
-      'pink_apricorn': 'pink-apricorn',
-      'red_apricorn': 'red-apricorn',
-      'white_apricorn': 'white-apricorn',
-      'yellow_apricorn': 'yellow-apricorn',
       'normal_essence': 'silk-scarf',
       'fire_essence': 'fire-stone',
       'water_essence': 'water-stone',
@@ -209,6 +199,12 @@ const TravelScreen = ({
   const getRouteDrops = (route) => {
     if (!route || !route.enemies) return [];
     const drops = new Set();
+    
+    // Pokéballs drop em todas as rotas de farm agora
+    if (route.type === 'farm') {
+      drops.add('pokeballs');
+    }
+
     route.enemies.forEach(e => {
       if (e.drop) drops.add(e.drop);
       if (EVOLUTION_FRAGMENT_DROPS[Number(e.id)]) drops.add(EVOLUTION_FRAGMENT_DROPS[Number(e.id)]);
@@ -239,19 +235,6 @@ const TravelScreen = ({
     });
     return results;
   };
-
-  const groupedRouteEntries = React.useMemo(() => {
-    return Object.entries(
-      visibleRouteEntries
-        .filter(route => route.type !== 'city' && route.type !== 'gym')
-        .reduce((acc, route) => {
-          const groupName = route.group || 'Rotas';
-          if (!acc[groupName]) acc[groupName] = [];
-          acc[groupName].push(route);
-          return acc;
-        }, {})
-    );
-  }, [visibleRouteEntries]);
 
   const formatRequirement = (req) => {
     const map = {
@@ -295,20 +278,20 @@ const TravelScreen = ({
       'johto_rocket_mahogany_cleared': 'Limpar a Base Rocket em Mahogany',
       'johto_rival_tunnel_defeated': 'Vencer o Rival no Tunel de Goldenrod',
       'johto_champion': 'Vencer a Liga de Johto',
-      'hoenn_started': 'Iniciar a jornada em Hoenn',
-      'hoenn_rival_1_defeated': 'Vencer Brendan em Littleroot',
-      'hoenn_devon_goods_recovered': 'Recuperar os itens da Devon em Rusturf',
-      'hoenn_granite_cave_cleared': 'Explorar Granite Cave',
-      'hoenn_granite_rival_defeated': 'Vencer Brendan em Granite Cave',
-      'hoenn_rival_mauville_defeated': 'Vencer Brendan em Mauville',
-      'hoenn_magma_meteor_cleared': 'Derrotar o Team Magma em Meteor Falls',
-      'hoenn_magma_chimney_cleared': 'Derrotar o Team Magma no Mt. Chimney',
-      'hoenn_rival_lilycove_defeated': 'Vencer Brendan em Lilycove',
-      'hoenn_aqua_pyre_cleared': 'Derrotar o Team Aqua no Mt. Pyre',
-      'hoenn_aqua_hideout_cleared': 'Derrotar o Team Aqua no Esconderijo',
-      'hoenn_rival_mossdeep_defeated': 'Vencer Brendan em Mossdeep',
-      'hoenn_aqua_seafloor_cleared': 'Derrotar o Team Aqua em Seafloor Cavern',
-      'hoenn_champion': 'Vencer a Liga de Hoenn'
+      'hoenn_champion': 'Vencer a Liga de Hoenn',
+      'sinnoh_started': 'Iniciar a jornada em Sinnoh',
+      'sinnoh_route_201_cleared': 'Treinar na Rota 201',
+      'sinnoh_route_202_cleared': 'Treinar na Rota 202',
+      'sinnoh_route_203_cleared': 'Treinar na Rota 203',
+      'sinnoh_route_204_cleared': 'Treinar na Rota 204',
+      'sinnoh_eterna_forest_cleared': 'Explorar Eterna Forest',
+      'sinnoh_route_209_cleared': 'Treinar na Rota 209',
+      'sinnoh_valor_lakefront_cleared': 'Treinar em Valor Lakefront',
+      'sinnoh_mt_coronet_cleared': 'Explorar Mt. Coronet',
+      'sinnoh_snowpoint_cleared': 'Treinar em Snowpoint',
+      'sinnoh_sunyshore_cleared': 'Treinar em Sunyshore',
+      'sinnoh_victory_training_cleared': 'Treinar na Victory Road',
+      'sinnoh_survival_area_cleared': 'Treinar na Survival Area'
     };
     return map[req] || req;
   };
@@ -330,6 +313,15 @@ const TravelScreen = ({
       setSelectedRoute(null);
     } else if (req.includes('_badge')) {
       if (setVsInitialTab) setVsInitialTab('gyms');
+      setCurrentView('vs');
+      setSelectedRoute(null);
+    } else if (req === 'sinnoh_started') {
+      setCurrentView('city');
+      setSelectedRoute(null);
+    } else if (req === 'hoenn_champion') {
+      if (setVsInitialTab) setVsInitialTab('gyms');
+      if (setVsInitialCategory) setVsInitialCategory('hoenn');
+      if (setVsInitialRegion) setVsInitialRegion('hoenn');
       setCurrentView('vs');
       setSelectedRoute(null);
     } else if (req.includes('johto_')) {
@@ -386,118 +378,52 @@ const TravelScreen = ({
       <div className="bg-white rounded-2xl p-4 shadow-md border-2 border-slate-100 flex-shrink-0">
          <h2 className="text-xl font-black text-slate-800 uppercase italic">Mapa da Região</h2>
          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Clique para ver detalhes ou viajar</p>
-         {kantoChampion && (
-           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
+         <div className="grid grid-cols-4 gap-2 mt-4">
              {[
-               { id: 'kanto', label: 'Kanto' },
-               { id: 'johto', label: 'Johto' },
-               { id: 'hoenn', label: 'Hoenn' },
-               { id: 'sinnoh', label: 'Sinnoh' },
-             ].filter(tab => {
-               if (tab.id === 'kanto') return true;
-               if (tab.id === 'johto') return kantoChampion;
-               if (tab.id === 'hoenn') return hoennUnlocked;
-               if (tab.id === 'sinnoh') return sinnohUnlocked;
-               return false;
-             }).map(tab => (
+               { id: 'kanto', label: 'Kanto', available: true },
+               { id: 'johto', label: 'Johto', available: kantoChampion },
+               { id: 'hoenn', label: 'Hoenn', available: johtoChampion },
+               { id: 'sinnoh', label: 'Sinnoh', available: hoennChampion && sinnohStarted },
+               { id: 'unova', label: 'Unova', available: (gameState.worldFlags || []).includes('unova_started') || (gameState.worldFlags || []).includes('sinnoh_champion') },
+               { id: 'kalos', label: 'Kalos', available: (gameState.worldFlags || []).includes('kalos_started') || (gameState.worldFlags || []).includes('unova_champion') },
+               { id: 'alola', label: 'Alola', available: (gameState.worldFlags || []).includes('alola_started') || (gameState.worldFlags || []).includes('kalos_champion') },
+               { id: 'galar', label: 'Galar', available: (gameState.worldFlags || []).includes('galar_started') || (gameState.worldFlags || []).includes('alola_champion') },
+               { id: 'paldea', label: 'Paldea', available: (gameState.worldFlags || []).includes('paldea_started') || (gameState.worldFlags || []).includes('galar_champion') },
+             ].map(tab => (
                <button
                  key={tab.id}
                  onClick={() => {
+                   if (!tab.available) return;
                    setRouteRegionTab(tab.id);
                    setSelectedRoute(null);
                  }}
+                 disabled={!tab.available}
                  className={`min-h-[40px] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
                    routeRegionTab === tab.id
                      ? 'bg-pokeBlue text-white shadow-lg'
-                     : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                     : tab.available
+                       ? 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                       : 'bg-slate-50 text-slate-300 cursor-not-allowed opacity-70'
                  }`}
                >
                  {tab.label}
                </button>
              ))}
-           </div>
-         )}
+         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
           <div className="flex flex-col gap-8 pb-8">
-            {groupedRouteEntries.map(([groupName, groupRoutes]) => (
-              <div key={groupName} className="flex flex-col gap-4">
-                <div className="flex items-center gap-3 px-2">
-                   <div className="h-[2px] flex-1 bg-slate-200"></div>
-                   <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest bg-slate-100 px-4 py-1.5 rounded-full border-2 border-slate-200">{groupName}</h3>
-                   <div className="h-[2px] flex-1 bg-slate-200"></div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {groupRoutes.map((route) => {
-                    const id = route.id;
-                    const unlocked = isRouteUnlocked(route);
-                    const isCurrent = gameState.currentRoute === id;
-                    
-                    return (
-                      <button 
-                        key={id} 
-                        onClick={() => setSelectedRoute({ id, ...route })} 
-                        className={`bg-white p-4 rounded-[2.5rem] border-4 transition-all flex items-center justify-between group overflow-hidden relative ${unlocked ? 'border-slate-50 hover:border-pokeBlue shadow-sm hover:shadow-md' : 'border-slate-50 opacity-60 grayscale'}`}
-                      >
-                         <div className="flex items-center gap-4">
-                           <div className="w-16 h-16 rounded-3xl overflow-hidden shadow-inner relative flex-shrink-0 bg-slate-200">
-                             <img src={fixPath(route.background)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={route.name} />
-                             {!unlocked && (
-                               <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex items-center justify-center">
-                                  <span className="text-lg">🔒</span>
-                               </div>
-                             )}
-                           </div>
-                           <div className="text-left">
-                             <h3 className="text-lg font-black text-slate-800 uppercase italic leading-none">{route.name}</h3>
-                             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                                <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase border ${unlocked ? 'bg-green-100 text-green-600 border-green-200' : 'bg-red-100 text-red-600 border-red-200'}`}>
-                                  {unlocked ? 'Disponível' : 'Bloqueado'}
-                                </span>
-                                {route.enemies && route.enemies.length > 0 ? (
-                                  <span className="text-[8px] font-black px-2 py-0.5 rounded-full uppercase bg-slate-100 text-slate-500 border border-slate-200">
-                                    Nível: {Math.min(...route.enemies.map(e => e.level || 0))} - {Math.max(...route.enemies.map(e => e.level || 0))}
-                                  </span>
-                                ) : (
-                                  <span className="text-[8px] font-black px-2 py-0.5 rounded-full uppercase bg-slate-100 text-slate-400 border border-slate-200">
-                                    Cidade / Ponto de Descanso
-                                  </span>
-                                )}
-                             </div>
-                           </div>
-                         </div>
-
-                         {isCurrent && (
-                            <div className="absolute right-0 top-0 bottom-0 w-2 bg-pokeBlue flex items-center justify-center">
-                              <span className="text-white text-[7px] font-black uppercase [writing-mode:vertical-lr] tracking-widest">Treinando Aqui</span>
-                            </div>
-                         )}
-                         <div className="text-xl opacity-20 group-hover:opacity-100 group-hover:translate-x-1 transition-all">›</div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-            {false && Object.entries(
+            {Object.entries(
               visibleRouteEntries
               .filter(r => r.type !== 'city' && r.type !== 'gym')
               .reduce((acc, r) => {
-                const lvl = (r._minLevel != null && r._minLevel > 0) ? r._minLevel : (r.unlockLevel || 1);
-                const tier = Math.max(1, Math.ceil(lvl / 10));
-                const minLvl = ((tier - 1) * 10) + 1;
-                const maxLvl = tier * 10;
-                const tierName = `Tier ${tier} — Lv ${minLvl} a ${maxLvl}`;
-                if (!acc[tierName]) acc[tierName] = [];
-                acc[tierName].push(r);
+                const cityGroup = r.group || 'Outras Rotas';
+                if (!acc[cityGroup]) acc[cityGroup] = [];
+                acc[cityGroup].push(r);
                 return acc;
               }, {})
-            ).sort((a, b) => {
-              const mA = a[0].match(/Tier (\d+)/);
-              const mB = b[0].match(/Tier (\d+)/);
-              return (mA ? parseInt(mA[1]) : 99) - (mB ? parseInt(mB[1]) : 99);
-            }).map(([groupName, groupRoutes]) => (
+            ).map(([groupName, groupRoutes]) => (
               <div key={groupName} className="flex flex-col gap-4">
                 <div className="flex items-center gap-3 px-2">
                    <div className="h-[2px] flex-1 bg-slate-200"></div>
@@ -751,12 +677,7 @@ const TravelScreen = ({
                       return;
                     }
                   }
-                  if (isHoennRoute(selectedRoute) && !hoennStarted) {
-                    setAlertMessage("Inicie Hoenn com um inicial do Prof. Birch antes de treinar nessas rotas.");
-                    return;
-                  }
-                  const routeRegion = getRouteRegionId(selectedRoute);
-                  setGameState(prev => ({ ...prev, activeRegion: routeRegion, currentRoute: selectedRoute.id }));
+                  setGameState(prev => ({ ...prev, currentRoute: selectedRoute.id }));
                   setCurrentEnemy(null);
                   setCurrentView('battles');
                   setSelectedRoute(null);

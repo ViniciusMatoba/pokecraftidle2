@@ -1,8 +1,8 @@
 export const CRAFTING_RECIPES = {
   consumables: [
-    { id: 'pokeballs', name: 'Poke Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', cost: { apricorn: 3, normal_essence: 4, currency: 25 }, type: 'ball' },
-    { id: 'great_ball', name: 'Great Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png', cost: { blue_apricorn: 2, iron_ore: 3, normal_essence: 8, currency: 100 }, type: 'ball' },
-    { id: 'ultra_ball', name: 'Ultra Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png', cost: { black_apricorn: 2, iron_ore: 8, mystic_dust: 3, currency: 250 }, type: 'ball' },
+    { id: 'pokeballs', name: 'Poké Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', cost: { normal_essence: 10, currency: 100 }, type: 'ball' },
+    { id: 'great_ball', name: 'Great Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png', cost: { iron_ore: 5, normal_essence: 20, currency: 400 }, type: 'ball' },
+    { id: 'ultra_ball', name: 'Ultra Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png', cost: { mystic_dust: 5, iron_ore: 10, currency: 1200 }, type: 'ball' },
     { id: 'revive', name: 'Revive', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', cost: { grass_essence: 15, ghost_essence: 5, currency: 500 }, type: 'healing' },
     { id: 'max_repel', name: 'Max Repel', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-repel.png', cost: { poison_essence: 20, psychic_essence: 5, currency: 300 }, type: 'utility' },
     { id: 'fire_stone', name: 'Fire Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png', cost: { fire_stone_shard: 5, fire_essence: 20, currency: 2500 }, type: 'evolution' },
@@ -10,6 +10,11 @@ export const CRAFTING_RECIPES = {
     { id: 'leaf_stone', name: 'Leaf Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png', cost: { leaf_stone_shard: 5, grass_essence: 20, currency: 2500 }, type: 'evolution' },
     { id: 'thunder_stone', name: 'Thunder Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png', cost: { thunder_stone_shard: 5, electric_essence: 20, currency: 2500 }, type: 'evolution' },
     { id: 'moon_stone', name: 'Moon Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png', cost: { moon_stone_shard: 5, normal_essence: 20, currency: 2500 }, type: 'evolution' },
+    { id: 'sun_stone', name: 'Sun Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sun-stone.png', cost: { sun_stone_shard: 5, grass_essence: 10, fire_essence: 10, currency: 2500 }, type: 'evolution' },
+    { id: 'shiny_stone', name: 'Shiny Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/shiny-stone.png', cost: { shiny_stone_shard: 5, psychic_essence: 10, fairy_essence: 10, currency: 3000 }, type: 'evolution' },
+    { id: 'dusk_stone', name: 'Dusk Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dusk-stone.png', cost: { dusk_stone_shard: 5, ghost_essence: 10, dark_essence: 10, currency: 3000 }, type: 'evolution' },
+    { id: 'dawn_stone', name: 'Dawn Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dawn-stone.png', cost: { dawn_stone_shard: 5, psychic_essence: 10, fighting_essence: 10, currency: 3000 }, type: 'evolution' },
+    { id: 'ice_stone', name: 'Ice Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ice-stone.png', cost: { ice_stone_shard: 5, ice_essence: 20, currency: 2500 }, type: 'evolution' },
     { id: 'link_cable', name: 'Link Cable', img: '/assets/items/link-cable-custom.png', cost: { link_cable_part: 5, electric_essence: 10, normal_essence: 10, currency: 5000 }, type: 'evolution' }
   ],
   hold_items: [
@@ -238,7 +243,7 @@ export const CRAFTING_RECIPES = {
       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lure-ball.png',
       description: 'Taxa de captura 3x para Pokémon encontrados pescando com varas.',
       effect: { type: 'ball', catchMult: 3.0, condition: 'fishing' },
-      cost: { blue_apricorn: 3, water_essence: 5, currency: 150 },
+      cost: { apricorn: 3, water_essence: 5, currency: 800 },
       type: 'ball',
     },
     {
@@ -247,7 +252,7 @@ export const CRAFTING_RECIPES = {
       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-ball.png',
       description: 'Taxa de captura 4x para Pokémon que evoluem com Pedra da Lua (Clefairy, Jigglypuff, Nidoran).',
       effect: { type: 'ball', catchMult: 4.0, condition: 'moon_stone_evolver' },
-      cost: { yellow_apricorn: 3, moon_stone_shard: 2, pink_dust: 3, currency: 200 },
+      cost: { moon_stone_shard: 3, pink_dust: 5, currency: 1200 },
       type: 'ball',
     },
     {
@@ -256,7 +261,7 @@ export const CRAFTING_RECIPES = {
       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/friend-ball.png',
       description: 'O Pokémon capturado começa com alta amizade. XP bônus de +20%.',
       effect: { type: 'ball', catchMult: 1.0, xpBonus: 0.20 },
-      cost: { green_apricorn: 3, grass_essence: 8, normal_essence: 5, currency: 150 },
+      cost: { grass_essence: 10, normal_essence: 10, apricorn: 5, currency: 1000 },
       type: 'ball',
     },
     {
@@ -265,7 +270,7 @@ export const CRAFTING_RECIPES = {
       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/heavy-ball.png',
       description: 'Taxa de captura aumenta quanto mais pesado o Pokémon. Ótima para Snorlax, Onix e Golem.',
       effect: { type: 'ball', catchMult: 2.5, condition: 'heavy_pokemon' },
-      cost: { black_apricorn: 3, rock_essence: 8, iron_ore: 6, currency: 200 },
+      cost: { rock_essence: 10, iron_ore: 15, currency: 1500 },
       type: 'ball',
     },
     {
@@ -274,10 +279,10 @@ export const CRAFTING_RECIPES = {
       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fast-ball.png',
       description: 'Taxa de captura 4x para Pokémon rápidos (Speed > 100). Ótima para Pidgeot, Alakazam e Jolteon.',
       effect: { type: 'ball', catchMult: 4.0, condition: 'fast_pokemon' },
-      cost: { white_apricorn: 3, electric_essence: 6, flying_essence: 6, currency: 200 },
+      cost: { electric_essence: 8, flying_essence: 8, apricorn: 5, currency: 1200 },
       type: 'ball',
     },
-    { id: 'level_ball', name: 'Level Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/level-ball.png', description: 'Taxa de captura até 8x quando seu nível é muito maior que o do inimigo.', effect: { type: 'ball', catchMult: 'level_diff' }, cost: { red_apricorn: 3, normal_essence: 10, currency: 180 }, type: 'ball' }
+    { id: 'level_ball', name: 'Level Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/level-ball.png', description: 'Taxa de captura até 8x quando seu nível é muito maior que o do inimigo.', effect: { type: 'ball', catchMult: 'level_diff' }, cost: { normal_essence: 15, apricorn: 8, currency: 1000 }, type: 'ball' }
   ],
 
   food: [
@@ -300,4 +305,142 @@ export const CRAFTING_RECIPES = {
       type: 'consumable',
     },
   ],
+  trainer_card: [
+    {
+      id: 'trainer_card_pikachu_badge',
+      name: 'Botao Pikachu',
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png',
+      description: 'Personalizacao do Trainer Card com energia eletrica.',
+      cost: { electric_essence: 25, trainer_card_thread: 6, yellow_shard: 3 },
+      type: 'trainer_card_custom',
+    },
+    {
+      id: 'trainer_card_eevee_badge',
+      name: 'Botao Eevee',
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/133.png',
+      description: 'Personalizacao do Trainer Card com tema de evolucao.',
+      cost: { normal_essence: 25, trainer_card_thread: 6, silk: 5 },
+      type: 'trainer_card_custom',
+    },
+    {
+      id: 'trainer_card_gengar_badge',
+      name: 'Botao Gengar',
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png',
+      description: 'Personalizacao sombria para treinadores de rotas fantasma.',
+      cost: { ghost_essence: 30, trainer_card_thread: 8, mystic_dust: 3 },
+      type: 'trainer_card_custom',
+    },
+    {
+      id: 'trainer_card_lucario_badge',
+      name: 'Botao Lucario',
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/448.png',
+      description: 'Personalizacao de aura para cards de alto poder.',
+      cost: { fighting_essence: 35, steel_essence: 20, trainer_card_thread: 10 },
+      type: 'trainer_card_custom',
+    },
+  ],
 };
+
+export const FORGE_MATERIAL_DROP_GUIDE = {
+  normal_essence: { pokemonIds: [16, 19, 20, 52, 53, 133, 143], routeId: 'route_1', label: 'Rotas iniciais - Pidgey, Rattata, Meowth, Eevee e Snorlax.' },
+  fire_essence: { pokemonIds: [4, 5, 6, 37, 38, 58, 59, 126], routeId: 'pokemon_mansion', label: 'Rotas quentes e mansoes - Charmander, Vulpix, Growlithe e Magmar.' },
+  water_essence: { pokemonIds: [7, 8, 9, 60, 61, 72, 73, 120, 129], routeId: 'route_19_20', label: 'Rotas aquaticas - Squirtle, Poliwag, Tentacool, Staryu e Magikarp.' },
+  grass_essence: { pokemonIds: [1, 2, 3, 43, 44, 69, 70, 102], routeId: 'viridian_forest', label: 'Florestas e rotas verdes - Bulbasaur, Oddish, Bellsprout e Exeggcute.' },
+  electric_essence: { pokemonIds: [25, 26, 81, 82, 100, 101, 125], routeId: 'power_plant', label: 'Usina de Energia - Pikachu, Magnemite, Voltorb e Electabuzz.' },
+  ice_essence: { pokemonIds: [87, 124, 131, 144, 220, 221, 225, 238], routeId: 'ice_path', label: 'Cavernas geladas - Dewgong, Jynx, Lapras, Smoochum e Delibird.' },
+  fighting_essence: { pokemonIds: [56, 57, 66, 67, 68, 106, 107], routeId: 'route_22', label: 'Rotas de combate - Mankey, Primeape, Machop, Hitmonlee e Hitmonchan.' },
+  poison_essence: { pokemonIds: [23, 24, 29, 32, 41, 42, 88, 109], routeId: 'pokemon_tower', label: 'Florestas, cavernas e torres - Ekans, Nidoran, Zubat, Grimer e Koffing.' },
+  ground_essence: { pokemonIds: [27, 28, 50, 51, 74, 75, 95, 111], routeId: 'rock_tunnel', label: 'Tuneis e desertos - Sandshrew, Diglett, Geodude, Onix e Rhyhorn.' },
+  flying_essence: { pokemonIds: [16, 17, 18, 21, 22, 41, 42, 123], routeId: 'route_16_17_18', label: 'Rotas abertas - Pidgey, Spearow, Zubat e Scyther.' },
+  psychic_essence: { pokemonIds: [63, 64, 65, 96, 97, 122, 150, 196], routeId: 'saffron_city', label: 'Locais psiquicos - Abra, Drowzee, Mr. Mime, Mewtwo e Espeon.' },
+  bug_essence: { pokemonIds: [10, 11, 12, 13, 14, 15, 46, 123], routeId: 'viridian_forest', label: 'Florestas - Caterpie, Weedle, Paras e Scyther.' },
+  rock_essence: { pokemonIds: [74, 75, 76, 95, 138, 140, 142, 246], routeId: 'mt_moon', label: 'Montanhas e fosseis - Geodude, Onix, Omanyte, Kabuto e Larvitar.' },
+  ghost_essence: { pokemonIds: [92, 93, 94, 200, 353, 354, 355, 356], routeId: 'pokemon_tower', label: 'Torre Pokemon e locais sombrios - Gastly, Haunter, Gengar e fantasmas.' },
+  dragon_essence: { pokemonIds: [147, 148, 149, 230, 330, 373, 445, 635], routeId: 'dragons_den', label: 'Locais sagrados e Victory Road - Dratini, Dragonair, Kingdra e dragoes.' },
+  steel_essence: { pokemonIds: [81, 82, 208, 227, 303, 306, 376, 448], routeId: 'power_plant', label: 'Usinas e montanhas - Magnemite, Steelix, Skarmory, Aggron e Lucario.' },
+  fairy_essence: { pokemonIds: [35, 36, 39, 40, 173, 174, 175, 176, 700], routeId: 'mt_moon', label: 'Monte Lua e rotas raras - Clefairy, Jigglypuff, Togepi e Sylveon.' },
+  dark_essence: { pokemonIds: [197, 198, 215, 228, 229, 302, 359, 461], routeId: 'burned_tower', label: 'Torres e rotas noturnas - Umbreon, Murkrow, Sneasel, Houndour e Absol.' },
+  iron_ore: { pokemonIds: [74, 75, 76, 81, 82, 95, 208, 304], routeId: 'rock_tunnel', label: 'Cavernas e Pokemon minerais - Geodude, Onix, Steelix, Aron e Magnemite.' },
+  apricorn: { pokemonIds: [187, 188, 190, 191, 192, 204], routeId: 'ilex_forest', label: 'Johto e florestas - Hoppip, Aipom, Sunkern e Pineco carregam Apricorns.' },
+  mystic_dust: { pokemonIds: [92, 93, 94, 150, 151, 201, 385, 480], routeId: 'pokemon_tower', label: 'Fantasma, lendarios, Unown e shinies dropam po mistico.' },
+  fire_stone_shard: { pokemonIds: [37, 38, 58, 59, 77, 126, 136], routeId: 'pokemon_mansion', label: 'Pokemon de fogo e evolucoes por pedra dropam fragmentos de Fire Stone.' },
+  water_stone_shard: { pokemonIds: [60, 61, 90, 91, 120, 121, 134], routeId: 'route_19_20', label: 'Pokemon aquaticos e evolucoes por pedra dropam fragmentos de Water Stone.' },
+  leaf_stone_shard: { pokemonIds: [43, 44, 69, 70, 102, 103, 470], routeId: 'ilex_forest', label: 'Pokemon planta e florestas dropam fragmentos de Leaf Stone.' },
+  thunder_stone_shard: { pokemonIds: [25, 26, 81, 82, 100, 101, 135, 170], routeId: 'power_plant', label: 'Pokemon eletricos dropam fragmentos de Thunder Stone.' },
+  moon_stone_shard: { pokemonIds: [35, 36, 39, 40, 173, 174, 300], routeId: 'mt_moon', label: 'Monte Lua e Pokemon lunares dropam fragmentos de Moon Stone.' },
+  sun_stone_shard: { pokemonIds: [43, 44, 191, 192, 546, 548], routeId: 'national_park', label: 'Pokemon solares e flores dropam fragmentos de Sun Stone.' },
+  shiny_stone_shard: { pokemonIds: [35, 176, 315, 407, 468, 670, 671], routeId: 'sinnoh_route_204', label: 'Pokemon belos, fadas e flores raras dropam fragmentos de Shiny Stone.' },
+  dusk_stone_shard: { pokemonIds: [92, 93, 94, 198, 200, 353, 355, 607], routeId: 'pokemon_tower', label: 'Fantasmas e Pokemon noturnos dropam fragmentos de Dusk Stone.' },
+  dawn_stone_shard: { pokemonIds: [280, 281, 361, 475, 478, 856], routeId: 'snowpoint_routes', label: 'Pokemon psiquicos, gelo e evolucoes especiais dropam fragmentos de Dawn Stone.' },
+  ice_stone_shard: { pokemonIds: [37, 38, 133, 471, 582, 613, 712], routeId: 'ice_path', label: 'Rotas geladas e Pokemon de gelo dropam fragmentos de Ice Stone.' },
+  link_cable_part: { pokemonIds: [41, 42, 64, 67, 74, 75, 92, 93, 137], routeId: 'rock_tunnel', label: 'Pokemon de evolucao por troca dropam pecas de Link Cable.' },
+  pink_dust: { pokemonIds: [35, 39, 113, 173, 174, 175, 242, 531], routeId: 'safari_zone', label: 'Pokemon rosados e curadores dropam po rosa.' },
+  gold_nugget: { pokemonIds: [52, 53, 113, 242, 302, 530], routeId: 'route_24_25', label: 'Pokemon coletores e raros dropam pepitas de ouro.' },
+  silk: { pokemonIds: [10, 11, 12, 13, 14, 15, 167, 168, 204], routeId: 'viridian_forest', label: 'Insetos e casulos dropam seda.' },
+  feather: { pokemonIds: [16, 17, 18, 21, 22, 163, 164, 227], routeId: 'route_16_17_18', label: 'Pokemon voadores dropam penas.' },
+  armor_fragment: { pokemonIds: [95, 208, 227, 306, 411, 476, 884], routeId: 'stark_mountain', label: 'Pokemon blindados, rochosos e metalicos dropam fragmentos de armadura.' },
+  fury_essence: { pokemonIds: [57, 68, 128, 217, 289, 445, 534, 612], routeId: 'victory_road', label: 'Pokemon agressivos e pseudo-lendarios dropam essencia de furia.' },
+  stardust: { pokemonIds: [120, 121, 173, 375, 376, 385, 605, 774], routeId: 'meteor_falls', label: 'Pokemon cosmicos, meteoricos e raros dropam poeira estelar.' },
+  dragon_scale: { pokemonIds: [116, 117, 147, 148, 149, 230, 330, 373], routeId: 'dragons_den', label: 'Pokemon dragoes e marinhos raros dropam escamas de dragao.' },
+  trainer_card_thread: { pokemonIds: [10, 11, 12, 13, 14, 15, 133, 447, 448], routeId: 'viridian_forest', label: 'Insetos, Eevee e Lucario dropam fio para personalizacao do Trainer Card.' },
+  yellow_shard: { pokemonIds: [25, 26, 81, 82, 100, 101, 125], routeId: 'power_plant', label: 'Pokemon eletricos dropam fragmentos amarelos.' },
+  mystic_water: { pokemonIds: [60, 61, 62, 72, 73, 120, 121, 134], routeId: 'route_19_20', label: 'Pokemon aquaticos raros dropam Mystic Water como material avancado.' },
+};
+
+const ALL_FORGE_RECIPES = Object.values(CRAFTING_RECIPES).flat();
+export const FORGE_RECIPE_IDS = [...new Set(ALL_FORGE_RECIPES.map(recipe => recipe.id))];
+export const RECIPE_GATED_FORGE_IDS = new Set(FORGE_RECIPE_IDS);
+
+const RECIPE_SOURCE_OVERRIDES = {
+  pokeballs: 'apricorn',
+  great_ball: 'iron_ore',
+  ultra_ball: 'mystic_dust',
+  revive: 'ghost_essence',
+  max_repel: 'poison_essence',
+  fire_stone: 'fire_stone_shard',
+  water_stone: 'water_stone_shard',
+  leaf_stone: 'leaf_stone_shard',
+  thunder_stone: 'thunder_stone_shard',
+  moon_stone: 'moon_stone_shard',
+  sun_stone: 'sun_stone_shard',
+  shiny_stone: 'shiny_stone_shard',
+  dusk_stone: 'dusk_stone_shard',
+  dawn_stone: 'dawn_stone_shard',
+  ice_stone: 'ice_stone_shard',
+  link_cable: 'link_cable_part',
+  charcoal: 'fire_essence',
+  mystic_water: 'water_essence',
+  black_belt: 'fighting_essence',
+  magnet: 'electric_essence',
+  quick_claw: 'flying_essence',
+  lucky_egg: 'pink_dust',
+  amulet_coin: 'gold_nugget',
+  titan_shield: 'armor_fragment',
+  adrenaline_potion: 'fury_essence',
+  penetration_pendant: 'dragon_scale',
+};
+
+const getRecipeSourceMaterial = (recipe) => {
+  if (RECIPE_SOURCE_OVERRIDES[recipe.id]) return RECIPE_SOURCE_OVERRIDES[recipe.id];
+  return Object.keys(recipe.cost || {}).find(material => material !== 'currency' && FORGE_MATERIAL_DROP_GUIDE[material]) || 'normal_essence';
+};
+
+export const FORGE_RECIPE_DROP_GUIDE = Object.fromEntries(ALL_FORGE_RECIPES.map(recipe => {
+  const sourceMaterial = getRecipeSourceMaterial(recipe);
+  const guide = FORGE_MATERIAL_DROP_GUIDE[sourceMaterial] || FORGE_MATERIAL_DROP_GUIDE.normal_essence;
+  return [recipe.id, {
+    recipeItemId: `recipe_${recipe.id}`,
+    sourceMaterial,
+    pokemonIds: guide.pokemonIds,
+    routeId: guide.routeId,
+    label: `Receita ${recipe.name}: ${guide.label}`,
+  }];
+}));
+
+export const FORGE_RECIPE_DROP_BY_POKEMON = Object.entries(FORGE_RECIPE_DROP_GUIDE).reduce((acc, [recipeId, guide]) => {
+  (guide.pokemonIds || []).forEach(id => {
+    if (!acc[id]) acc[id] = [];
+    acc[id].push(`recipe_${recipeId}`);
+  });
+  return acc;
+}, {});

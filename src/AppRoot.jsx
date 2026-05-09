@@ -3,19 +3,25 @@ import { useAutoFarm } from './hooks/useAutoFarm';
 import { useSound } from './hooks/useSound';
 import { ROUTES, getRivalSprite } from './data/routes';
 import { INITIAL_POKEMONS } from './data/initialPokemons';
-import { CRAFTING_RECIPES } from './data/recipes';
+import {
+  CRAFTING_RECIPES,
+  FORGE_MATERIAL_DROP_GUIDE,
+  FORGE_RECIPE_DROP_BY_POKEMON,
+  FORGE_RECIPE_DROP_GUIDE,
+  RECIPE_GATED_FORGE_IDS,
+} from './data/recipes';
 import { MOVES } from './data/moves';
 import { MOVE_TRANSLATIONS } from './data/translations';
 import { POKEDEX } from './data/pokedex';
 import { VILLAIN_TEAMS } from './data/villains';
 import AuthScreen from './components/AuthScreen';
+import MenuScreen from './components/MenuScreen';
+import TravelScreen from './components/TravelScreen';
+import PokemonManagement from './components/PokemonManagement';
+import BattleScreen from './components/BattleScreen';
+import CityScreen from './components/CityScreen';
 
 // Lazy loaded components for better performance
-const MenuScreen = lazy(() => import('./components/MenuScreen'));
-const TravelScreen = lazy(() => import('./components/TravelScreen'));
-const PokemonManagement = lazy(() => import('./components/PokemonManagement'));
-const BattleScreen = lazy(() => import('./components/BattleScreen'));
-const CityScreen = lazy(() => import('./components/CityScreen'));
 const CraftingStation = lazy(() => import('./components/CraftingStation'));
 const EvolutionScreen = lazy(() => import('./components/EvolutionScreen'));
 const PokedexScreen = lazy(() => import('./components/PokedexScreen'));
@@ -31,11 +37,13 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { monitorAuthState } from './auth';
 import { 
-  APP_VERSION, APP_VERSION_DATE, DEFAULT_GAME_STATE, 
+  APP_VERSION, APP_VERSION_DATE, DEFAULT_GAME_STATE, GYM_LEVEL_CAPS, 
   NATURE_LIST, NATURES, TYPE_COLORS, trainerAvatars, ITEM_LABELS,
   STAMINA_RESTORE_TABLE, POKE_MART_DRINKS,
-  BADGE_IDS, JOHTO_BADGE_IDS, HOENN_BADGE_IDS, getCurrentLevelCap, getRegionBadgeCount
+  BADGE_IDS, JOHTO_BADGE_IDS, HOENN_BADGE_IDS, SINNOH_BADGE_IDS,
+  UNOVA_BADGE_IDS, KALOS_BADGE_IDS, ALOLA_BADGE_IDS, GALAR_BADGE_IDS, PALDEA_BADGE_IDS
 } from './data/constants';
+import { REGION_ORDER, REGION_CHAMPION_FLAGS, REGION_BADGE_IDS, getPokemonRegion, getUnlockedDexLimit as getRegionalDexLimit, isPokemonAllowedInRegion } from './data/regionStandards';
 import { getMasteryPath, getEffectiveStat } from './utils/gameHelpers';
 import { getTypeEffectiveness } from './data/typeChart';
 import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
@@ -48,13 +56,12 @@ import AutoCaptureModal from './components/AutoCaptureModal';
 import ConfirmModal from './components/ConfirmModal';
 import RankingModal from './components/RankingModal';
 
-import { QUESTS, getActiveQuest, updateQuestProgress, getAvailableQuest } from './data/quests';
+import { QUESTS, updateQuestProgress, getAvailableQuest } from './data/quests';
 import NotificationSystem, { notify } from './components/NotificationSystem';
 import { getCaptureRate, pickWeightedEncounter } from './utils/pokemonDifficulty';
 import { preloadAssets } from './utils/preloader';
-import { getBadgeCount } from './utils/progress';
-import { getMoveData, getMoveLabel, getMoveKey } from './utils/moveUtils';
-
+import { calculatePowerScore, getBadgeCount } from './utils/progress';
+import { migrateGameState } from './utils/saveMigration';
 
 const fixPath = (path) => {
   if (typeof path !== 'string') return path;
@@ -68,50 +75,12 @@ const cleanBattleText = (value) => {
   if (typeof value !== 'string') return value;
   return value
     .replace(/\uFFFD/g, '')
+    // eslint-disable-next-line no-control-regex
     .replace(/[\u0000-\u001f]/g, '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/\s{2,}/g, ' ')
     .trim();
-};
-
-const BOSS_EVENT_DURATION_MS = 24 * 60 * 60 * 1000;
-const BOSS_ATTEMPT_DURATION_SECONDS = 120;
-const BOSS_DAMAGE_SAVE_DEBOUNCE_MS = 15000;
-
-const normalizeInventory = (inventory = {}) => {
-  const inv = inventory || {};
-  const materials = { 
-    ...DEFAULT_GAME_STATE.inventory.materials, 
-    ...(typeof inv.materials === 'object' && inv.materials !== null ? inv.materials : {}) 
-  };
-  const candies = { 
-    ...(typeof inv.candies === 'object' && inv.candies !== null ? inv.candies : {}) 
-  };
-
-  Object.keys(materials).forEach((key) => {
-    if (!key.includes('_candy')) return;
-    candies[key] = (candies[key] || 0) + (materials[key] || 0);
-    delete materials[key];
-  });
-
-  return {
-    ...DEFAULT_GAME_STATE.inventory,
-    ...inv,
-    materials,
-    items: { 
-      ...DEFAULT_GAME_STATE.inventory.items, 
-      ...(typeof inv.items === 'object' && inv.items !== null ? inv.items : {}) 
-    },
-    candies,
-  };
-};
-
-const getBattleLevel = (entity, fallback = 5) => {
-  const direct = Number(entity?.level);
-  if (Number.isFinite(direct)) return direct;
-  const battleLevel = Number(entity?.battleLevel);
-  return Number.isFinite(battleLevel) ? battleLevel : fallback;
 };
 
 const removeUndefinedFields = (value) => {
@@ -156,17 +125,6 @@ const canCaptureGhostPokemon = (gameState = {}) => {
     || flags.includes('pokemon_tower_cleared');
 };
 
-const RECIPE_GATED_FORGE_IDS = new Set([
-  'amulet_coin',
-  'magnet',
-  'charcoal',
-  'mystic_water',
-  'black_belt',
-  'quick_claw',
-  'lucky_egg',
-  'cleanse_tag',
-]);
-
 const hasForgeRecipe = (gameState = {}, recipeId) => {
   if (!RECIPE_GATED_FORGE_IDS.has(recipeId)) return true;
   return !!gameState.inventory?.materials?.[`recipe_${recipeId}`];
@@ -178,6 +136,54 @@ const getJohtoBadgeCount = (gameState = {}) => {
   const badges = new Set(gameState.badges || []);
   return JOHTO_BADGE_IDS.filter(id => badges.has(id)).length;
 };
+
+const APP_REGION_BADGE_IDS = {
+  kanto: BADGE_IDS,
+  johto: JOHTO_BADGE_IDS,
+  hoenn: HOENN_BADGE_IDS,
+  sinnoh: SINNOH_BADGE_IDS,
+  unova: UNOVA_BADGE_IDS,
+  kalos: KALOS_BADGE_IDS,
+  alola: ALOLA_BADGE_IDS,
+  galar: GALAR_BADGE_IDS,
+  paldea: PALDEA_BADGE_IDS,
+  ...REGION_BADGE_IDS,
+};
+
+const getRegionBadgeIds = (region = 'kanto') => APP_REGION_BADGE_IDS[region] || BADGE_IDS;
+
+const getRegionBadgeCount = (badges = [], region = 'kanto') => {
+  const badgeSet = new Set(badges || []);
+  return getRegionBadgeIds(region).filter(id => badgeSet.has(id)).length;
+};
+
+const getRegionExpShareRate = (badges = [], region = 'kanto') => getRegionBadgeCount(badges, region) * 0.10;
+
+const getRegionLevelCap = (badges = [], region = 'kanto') => {
+  const caps = GYM_LEVEL_CAPS[region] || {};
+  return Object.values(caps)[getRegionBadgeCount(badges, region)] || 100;
+};
+
+const getLevelGapXpMultiplier = (pokemonLevel = 1, enemyLevel = 1) => {
+  const levelGap = Math.max(0, (pokemonLevel || 1) - (enemyLevel || 1));
+  const penaltySteps = Math.floor(levelGap / 5);
+  return Math.pow(0.5, penaltySteps);
+};
+
+const getUnlockedDexLimit = (gameState = {}) => {
+  return getRegionalDexLimit(gameState);
+};
+
+const isEvolutionAllowedForRegion = (pokemon, evolutionId, activeRegion = 'kanto') => {
+  return isPokemonAllowedInRegion(evolutionId, activeRegion);
+};
+
+const getEvolutionRegionLockMessage = (pokemonName, evolutionName, activeRegion = 'kanto') => {
+  const regionName = String(activeRegion || 'kanto').toUpperCase();
+  return `${pokemonName || 'Este Pokemon'} nao pode evoluir para ${evolutionName || 'esta forma'} na regiao de ${regionName}.`;
+};
+
+const WORLD_BOSS_FIGHT_SECONDS = 120;
 
 const isProgressUnlocked = (gameState = {}, requirement = {}) => {
   if (!requirement) return true;
@@ -275,27 +281,27 @@ const FORGE_CATEGORY_LABELS = {
   apricorn_balls: 'Balls',
   food: 'Racao',
   elite_relics: 'Reliquias de Elite',
+  trainer_card: 'Card',
 };
 
 const getForgeCategoryLabel = (category) => FORGE_CATEGORY_LABELS[category] || category.replace(/_/g, ' ');
 
-const TRAINER_REWARD_MULTIPLIER = 0.4;
-
-const ScreenLoader = ({ label = 'Carregando...' }) => (
-  <div className="h-full flex items-center justify-center bg-slate-950 text-white font-black uppercase tracking-[0.25em] animate-pulse">
-    {label}
-  </div>
-);
-
 const MUSIC_LIST = [
   { id: 'all', name: 'Tocar Todas (Shuffle)' },
-  { id: 'league_night', name: 'League Night', url: './sounds/51383504-feora-lucas-cooper-pokemon-league-night-pokemon-diamond-410587.mp3' },
-  { id: 'littleroot', name: 'Littleroot Town', url: './sounds/51383504-feora-vgm-yume-littleroot-town-pokemon-ruby-amp-sapphire-lofi-410588.mp3' },
-  { id: 'new_bark', name: 'New Bark Town', url: './sounds/51383504-feora-vgm-yume-new-bark-town-pokemon-gold-amp-silver-lofi-410593.mp3' },
-  { id: 'route_101', name: 'Route 101', url: './sounds/51383504-feora-vgm-yume-route-101-pokeon-ruby-amp-sapphire-lofi-410589.mp3' },
-  { id: 'surf', name: 'Surf Theme', url: './sounds/51383504-feora-vgm-yume-surf-theme-pokemon-ruby-amp-sapphire-lofi-410586.mp3' },
-  { id: 'pallet', name: 'Pallet Town', url: './sounds/51383504-pallet-town-pokemon-red-amp-blue-lofi-410591.mp3' }
+  { id: 'league_night', name: 'League Night', url: '/sounds/51383504-feora-lucas-cooper-pokemon-league-night-pokemon-diamond-410587.mp3' },
+  { id: 'littleroot', name: 'Littleroot Town', url: '/sounds/51383504-feora-vgm-yume-littleroot-town-pokemon-ruby-amp-sapphire-lofi-410588.mp3' },
+  { id: 'new_bark', name: 'New Bark Town', url: '/sounds/51383504-feora-vgm-yume-new-bark-town-pokemon-gold-amp-silver-lofi-410593.mp3' },
+  { id: 'route_101', name: 'Route 101', url: '/sounds/51383504-feora-vgm-yume-route-101-pokeon-ruby-amp-sapphire-lofi-410589.mp3' },
+  { id: 'surf', name: 'Surf Theme', url: '/sounds/51383504-feora-vgm-yume-surf-theme-pokemon-ruby-amp-sapphire-lofi-410586.mp3' },
+  { id: 'pallet', name: 'Pallet Town', url: '/sounds/51383504-pallet-town-pokemon-red-amp-blue-lofi-410591.mp3' }
 ];
+
+const GearIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-8 h-8 text-white" fill="none" aria-hidden="true">
+    <path d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5Z" stroke="currentColor" strokeWidth="2" />
+    <path d="M19.4 13.5a7.8 7.8 0 0 0 0-3l2-1.35-2-3.46-2.36.98a8.04 8.04 0 0 0-2.6-1.5L14.1 2.6h-4l-.35 2.57a8.04 8.04 0 0 0-2.6 1.5l-2.36-.98-2 3.46 2 1.35a7.8 7.8 0 0 0 0 3l-2 1.35 2 3.46 2.36-.98a8.04 8.04 0 0 0 2.6 1.5l.35 2.57h4l.35-2.57a8.04 8.04 0 0 0 2.6-1.5l2.36.98 2-3.46-2-1.35Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+  </svg>
+);
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -308,6 +314,26 @@ export default function App() {
     playBGM, stopBGM, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxGym, stopSFX,
     toggleMute, isMuted, muted 
   } = useSound();
+
+  const [gameState, setGameState] = useState(() => {
+    try {
+      const saved = localStorage.getItem('poke_idle_save');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.gameState) {
+          const loaded = parsed.gameState;
+          const merged = migrateGameState(loaded, { version: APP_VERSION });
+          if (!merged.migrationAudit?.ok) {
+            console.info('Local save migration audit:', merged.migrationAudit);
+          }
+          return merged;
+        }
+      }
+    } catch (e) {
+      console.error('Error parsing save', e);
+    }
+    return DEFAULT_GAME_STATE;
+  });
 
   const loadGameState = async (uid) => {
     try {
@@ -328,25 +354,10 @@ export default function App() {
         setUser(u);
         const savedData = await loadGameState(u.uid);
         if (savedData) {
-          // Migração de dados para evitar crashes com saves antigos
-          // Sanitização de regional_teams
-          let regional_teams = savedData.regional_teams || savedData.regionalTeams;
-          if (!regional_teams || typeof regional_teams !== 'object' || Array.isArray(regional_teams)) {
-            regional_teams = DEFAULT_GAME_STATE.regional_teams;
+          const migratedData = migrateGameState(savedData, { version: APP_VERSION });
+          if (!migratedData.migrationAudit?.ok) {
+            console.info('Save migration audit:', migratedData.migrationAudit);
           }
-
-          const migratedData = {
-            ...DEFAULT_GAME_STATE,
-            ...savedData,
-            inventory: {
-              ...normalizeInventory(savedData.inventory || {})
-            },
-            regional_teams,
-            worldFlags: savedData.worldFlags || [],
-            badges: savedData.badges || [],
-            pc: savedData.pc || [],
-            speciesMastery: savedData.speciesMastery || {}
-          };
           setGameState(migratedData);
         } else {
           setGameState(DEFAULT_GAME_STATE);
@@ -382,10 +393,10 @@ export default function App() {
         'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png'
       ],
       sounds: [
-        './sounds/derrota.mp3',
-        './sounds/nivel.mp3',
-        './sounds/poke-center.mp3',
-        './sounds/gym.mp3'
+        '/sounds/DERROTA.mp3',
+        '/sounds/NIVEL.mp3',
+        '/sounds/POKE CENTER.mp3',
+        '/sounds/GYM.mp3'
       ]
     };
 
@@ -449,9 +460,8 @@ export default function App() {
   const [showHouse, setShowHouse] = useState(false);
   const [showOakHouseModal, setShowOakHouseModal] = useState(false);
   const [showOakStaminaModal, setShowOakStaminaModal] = useState(false);
-  const [showBallForgeTutorial, setShowBallForgeTutorial] = useState(false);
   const [showKantoChampionModal, setShowKantoChampionModal] = useState(false);
-  const [showHoennUnlockModal, setShowHoennUnlockModal] = useState(false);
+  const [showSinnohIntroModal, setShowSinnohIntroModal] = useState(false);
   const [previewStarter, setPreviewStarter] = useState(null);
   const [activeQuestModal, setActiveQuestModal] = useState(null);
   const [pendingQuest, setPendingQuest] = useState(null);
@@ -460,7 +470,7 @@ export default function App() {
   const [showTimeInfoModal, setShowTimeInfoModal] = useState(false);
   const [vsInitialTab, setVsInitialTab] = useState('challenges'); // 'challenges', 'gyms', 'legendary'
   const [vsInitialCategory, setVsInitialCategory] = useState(null); // 'rival', 'boss', 'rocket', 'legendary'
-  const [vsInitialRegion, setVsInitialRegion] = useState('kanto'); // 'kanto', 'johto', 'hoenn'
+  const [vsInitialRegion, setVsInitialRegion] = useState('kanto'); // 'kanto', 'johto'
 
   const [sessionStats, setSessionStats] = useState(null);
   const sessionRef = useRef({ kills: 0, coins: 0, trainers: 0, shinyKills: 0, drops: {}, captures: [] });
@@ -492,15 +502,13 @@ export default function App() {
   const currentViewRef = useRef('landing');
   const lastNonMenuView = useRef('city');
   const lastSyncRef = useRef(0);
-  const cloudSaveTimeoutRef = useRef(null);
+  const saveTimeoutRef = useRef(null);
   const bossSaveTimeoutRef = useRef(null);
   const [showRanking, setShowRanking] = useState(false);
   const [bossDamage, setBossDamage] = useState(0);
   const [bossTimer, setBossTimer] = useState(null);
   const [bossLoot, setBossLoot] = useState(null);
-  const [pendingBossBattle, setPendingBossBattle] = useState(null);
-  const [bossTeamSelection, setBossTeamSelection] = useState([]);
-  const currentBossEventRef = useRef(null);
+  const [battleResult, setBattleResult] = useState(null);
 
   const [installPrompt, setInstallPrompt] = useState(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -569,126 +577,7 @@ export default function App() {
   };
 
 
-  const [gameState, setGameState] = useState(() => {
-    try {
-      const saved = localStorage.getItem('poke_idle_save');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.gameState) {
-          const loaded = parsed.gameState;
-          const merged = {
-            ...DEFAULT_GAME_STATE,           // novos campos com valores padrão
-            ...loaded,                  // progresso real do jogador
-            version: APP_VERSION,
-            team: loaded.team || DEFAULT_GAME_STATE.team,
-            pc: loaded.pc || DEFAULT_GAME_STATE.pc,
-            badges: loaded.badges || DEFAULT_GAME_STATE.badges,
-            worldFlags: loaded.worldFlags || DEFAULT_GAME_STATE.worldFlags,
-            inventory: {
-                ...normalizeInventory(loaded.inventory || {})
-            },
-            stages: loaded.stages || DEFAULT_GAME_STATE.stages,
-            caughtData: loaded.caughtData || DEFAULT_GAME_STATE.caughtData,
-            speciesMastery: loaded.speciesMastery || DEFAULT_GAME_STATE.speciesMastery,
-            settings: { ...DEFAULT_GAME_STATE.settings, ...(loaded.settings || {}) },
-            autoConfig: { ...DEFAULT_GAME_STATE.autoConfig, ...(loaded.autoConfig || {}) },
-          };
-          return merged;
-        }
-      }
-    } catch (e) {
-      console.error('Error parsing save', e);
-    }
-    return DEFAULT_GAME_STATE;
-  });
-
-  const powerScore = useMemo(() => {
-    // PS = Soma dos Níveis de TODOS os Pokémon + Bônus de Insígnias
-    const teamPokes = gameState.team || [];
-    const pcPokes = gameState.pc || [];
-    const caretakerPokes = gameState.house?.caretakers || [];
-    const expeditionPokes = Object.values(gameState.expeditions || {}).flatMap(e => e.team || []);
-    const regional_teams_pokes = Object.values(gameState.regional_teams || {}).flat();
-
-    const allPokes = [
-      ...teamPokes, 
-      ...pcPokes, 
-      ...caretakerPokes, 
-      ...expeditionPokes,
-      ...regional_teams_pokes
-    ];
-
-    // Remove duplicatas por instanceId
-    const seenIds = new Set();
-    const levelsSum = allPokes.reduce((acc, p) => {
-      if (!p) return acc;
-      if (p.instanceId) {
-        if (!seenIds.has(p.instanceId)) {
-          seenIds.add(p.instanceId);
-          return acc + (p.level || 0);
-        }
-      } else {
-        // Pokémon sem instanceId também contam
-        return acc + (p.level || 0);
-      }
-      return acc;
-    }, 0);
-
-    const worldFlags = gameState.worldFlags || [];
-    const badgeBonus = (gameState.badges || []).length * 1000;
-    
-    // Bônus de 5000 PS por cada revanche vencida (Elite Difficulty)
-    const rematchBonus = worldFlags.filter(f => f.includes('rematch_') && f.endsWith('_defeated')).length * 5000;
-
-    return levelsSum + badgeBonus + rematchBonus;
-  }, [gameState.team, gameState.pc, gameState.house, gameState.expeditions, gameState.regional_teams, gameState.worldFlags, gameState.badges]);
-
-  const createRegionStarter = useCallback((pokemonId, level = 5, region = 'kanto') => {
-    const base = POKEDEX[Number(pokemonId)];
-    if (!base) return null;
-    const moves = (base.learnset || [])
-      .filter(m => m.level <= level)
-      .map(m => getMoveData(m.move));
-    const finalMoves = moves.length > 0 ? moves.slice(-4) : [getMoveData('tackle')];
-    const maxHp = Math.ceil(((2 * (base.maxHp || base.hp || 30) * level) / 100) + level + 10);
-    return {
-      ...base,
-      id: Number(base.id),
-      level,
-      maxHp,
-      hp: maxHp,
-      xp: 0,
-      moves: finalMoves,
-      learnedMoves: finalMoves,
-      instanceId: Date.now() + Math.random(),
-      status: [],
-      capturedRegion: region,
-      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
-    };
-  }, [POKEDEX, MOVES]);
-
-  const createRivalStarter = (id, level) => {
-    const base = POKEDEX[id];
-    if (!base) return { id, level, hp: 100, maxHp: 100, attack: 10, defense: 10, spAtk: 10, spDef: 10, speed: 10, moves: [], stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }, status: [] };
-    
-    const calcStat = (b, lv) => Math.max(1, Math.ceil(((2 * b * lv) / 100) + 5));
-    const calcHp   = (b, lv) => Math.max(1, Math.ceil(((2 * b * lv) / 100) + lv + 10));
-
-    return { 
-      ...base, 
-      id, 
-      level,
-      maxHp: calcHp(base.hp || base.maxHp || 45, level),
-      hp: calcHp(base.hp || base.maxHp || 45, level),
-      attack:  calcStat(base.attack  || 45, level),
-      defense: calcStat(base.defense || 45, level),
-      spAtk:   calcStat(base.spAtk   || 45, level),
-      spDef:   calcStat(base.spDef   || 45, level),
-      speed:   calcStat(base.speed   || 45, level),
-      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
-      status: []
-    };
-  };
+  const powerScore = useMemo(() => calculatePowerScore(gameState, POKEDEX), [gameState]);
 
   const addLog = useCallback((msg, type = 'default') => {
     setBattleLog(prev => [{ msg: cleanBattleText(msg), type, id: Date.now() + Math.random() }, ...prev].slice(0, 8));
@@ -700,41 +589,68 @@ export default function App() {
     setTimeout(() => setFloatingTexts(prev => prev.filter(f => f.id !== id)), 1200);
   }, []);
 
-  const teamSpriteSignature = useMemo(() => (
-    (gameState.team || [])
-      .map(p => `${p.id}:${p.isShiny ? 's' : 'n'}`)
-      .join('|')
-  ), [gameState.team]);
+  const isStoryVsEnemy = useCallback((enemy) => {
+    return enemy?.isTrainer && ['rival', 'rocket'].includes(enemy.challengeCategory);
+  }, []);
+
+  const openStoryBattleResult = useCallback((enemy, outcome) => {
+    const isVictory = outcome === 'victory';
+    const routeId = gameState.lastFarmingRoute || gameState.currentRoute || 'route_1';
+    setBattleResult({
+      outcome,
+      title: isVictory ? 'Vitoria confirmada!' : 'Derrota na batalha!',
+      enemyName: enemy?.trainerName || enemy?.name || 'Desafio',
+      category: enemy?.challengeCategory || 'rival',
+      message: isVictory
+        ? 'O caminho esta livre. Volte para a rota, capture novos Pokemon e fortaleca o time para o proximo desafio.'
+        : 'Seu time foi derrotado. Passe pelo Centro Pokemon antes de tentar novamente.',
+      nextRoute: routeId,
+      nextLabel: isVictory ? 'Ir para a rota' : 'Ir ao Centro Pokemon',
+    });
+    setCurrentEnemy(null);
+    setCurrentView('battle_result');
+  }, [gameState.currentRoute, gameState.lastFarmingRoute]);
 
   const validateTeamAccess = useCallback((pokemon, targetRegion) => {
     if (!pokemon) return false;
     
     const worldFlags = gameState.worldFlags || [];
-    const targetKey = (targetRegion || '').toLowerCase();
-    
-    const isChampion = worldFlags.includes(`region_champion_${targetKey}`) || 
-                      (targetKey === 'kanto' && worldFlags.includes('champion')) ||
-                      (targetKey === 'johto' && worldFlags.includes('johto_champion'));
+    const isChampion = worldFlags.includes(`region_champion_${targetRegion}`) ||
+                      worldFlags.includes(REGION_CHAMPION_FLAGS[targetRegion]);
     
     if (isChampion) return true;
 
-    const REGION_ORDER = { kanto: 1, johto: 2, hoenn: 3, sinnoh: 4 };
+    // 1. Isolamento Regional e de Geração
     const id = Number(pokemon.id);
-    const pokemonGen = id <= 151 ? 1 : id <= 251 ? 2 : id <= 386 ? 3 : 4;
+    const pokemonGen = id <= 151 ? 1 : id <= 251 ? 2 : id <= 386 ? 3 : id <= 493 ? 4 : 5;
     
-    const pRegion = (pokemon.capturedRegion || '').toLowerCase();
-    const originRegion = pRegion || (pokemonGen === 1 ? 'kanto' : pokemonGen === 2 ? 'johto' : pokemonGen === 3 ? 'hoenn' : 'sinnoh');
-    
-    // Regra: Pokémon da MESMA região ou de regiões MAIS RECENTES podem ser usados.
-    // Bloqueia APENAS se o Pokémon for de uma região ANTERIOR à atual.
-    if (originRegion !== targetKey) {
-      const originLevel = REGION_ORDER[originRegion] || 1;
-      const targetLevel = REGION_ORDER[targetKey] || 1;
-      if (originLevel < targetLevel) return false;
+    // Se não for campeão da região ativa, só pode usar Pokémon daquela região/geração permitida
+    if (targetRegion === 'hoenn') {
+      if (pokemonGen !== 3) return false;
+    } else if (targetRegion === 'sinnoh') {
+      if (pokemonGen !== 4) return false;
+    } else if (targetRegion === 'johto') {
+      if (pokemonGen > 2) return false;
+    } else if (targetRegion === 'kanto') {
+      if (pokemonGen > 1) return false;
     }
 
+    // 2. Trava de Nível (Cap)
+    const badges = gameState.badges || [];
+    let regionBadges = [];
+    if (targetRegion === 'kanto') regionBadges = badges.filter(b => BADGE_IDS.includes(b));
+    if (targetRegion === 'johto') regionBadges = badges.filter(b => JOHTO_BADGE_IDS.includes(b));
+    if (targetRegion === 'hoenn') regionBadges = badges.filter(b => HOENN_BADGE_IDS.includes(b));
+    if (targetRegion === 'sinnoh') regionBadges = badges.filter(b => SINNOH_BADGE_IDS.includes(b));
+    
+    const caps = GYM_LEVEL_CAPS[targetRegion] || {};
+    const capValues = Object.values(caps);
+    const currentCap = capValues[regionBadges.length] || 100;
+
+    if (pokemon.level > currentCap) return false;
+
     return true;
-  }, [gameState.worldFlags]);
+  }, [gameState.worldFlags, gameState.badges]);
 
   const switchRegion = useCallback((newRegion) => {
     setGameState(prev => {
@@ -748,16 +664,7 @@ export default function App() {
       };
 
       // Carrega time da nova região
-      let newTeam = updated_regional_teams[newRegion] || [];
-      
-      // Se o time estiver vazio, tenta inicializar com o starter salvo
-      if (newTeam.length === 0) {
-        const savedStarterId = (prev.selectedStarters || {})[newRegion];
-        if (savedStarterId) {
-          const starter = createRegionStarter(savedStarterId, 5, newRegion);
-          if (starter) newTeam = [starter];
-        }
-      }
+      const newTeam = updated_regional_teams[newRegion] || [];
 
       addLog(`🌍 Viajando para ${newRegion.toUpperCase()}... Equipe trocada!`, 'system');
 
@@ -768,7 +675,7 @@ export default function App() {
         team: newTeam
       };
     });
-  }, [addLog, createRegionStarter]);
+  }, [addLog]);
 
   const MATERIAL_RANK_MILESTONES = {
     'Rank I': 0,
@@ -789,8 +696,6 @@ export default function App() {
   }, [powerScore]);
 
   const processedRoutes = useMemo(() => {
-    if (!gameState.worldFlags?.includes('starters_spotted') && !gameState.worldFlags?.includes('rival_1_defeated')) return ROUTES;
-    
     const newRoutes = JSON.parse(JSON.stringify(ROUTES)); 
     const addSafe = (routeId, id, lvl, drop, dropChance) => {
       const route = newRoutes[routeId];
@@ -804,46 +709,64 @@ export default function App() {
       }
     };
 
-    // Rota 1: Squirtle e Charmander
-    addSafe('route_1', 7, 4, 'water_stone_shard', 0.08);
-    addSafe('route_1', 4, 4, 'fire_stone_shard', 0.08);
+    if (gameState.worldFlags?.includes('starters_spotted') || gameState.worldFlags?.includes('rival_1_defeated')) {
+      // Rota 1: Squirtle e Charmander
+      addSafe('route_1', 7, 4, 'water_stone_shard', 0.08);
+      addSafe('route_1', 4, 4, 'fire_stone_shard', 0.08);
 
-    // Rota 22: Eevee
-    addSafe('route_22', 133, 6);
+      // Rota 22: Eevee
+      addSafe('route_22', 133, 6);
 
-    // Floresta de Viridian: Pikachu e Bulbasaur
-    addSafe('viridian_forest', 25, 9, 'thunder_stone_shard', 0.08);
-    addSafe('viridian_forest', 1, 8, 'leaf_stone_shard', 0.08);
-    
-    // Johto Starters
-    if (gameState.worldFlags?.includes('johto_rival_1_defeated')) {
-      addSafe('johto_route_29', 152, 4); // Chikorita
-      addSafe('johto_route_29', 155, 4); // Cyndaquil
-      addSafe('johto_route_29', 158, 4); // Totodile
-      addSafe('johto_route_30', 152, 5);
-      addSafe('johto_route_30', 155, 5);
-      addSafe('johto_route_30', 158, 5);
+      // Floresta de Viridian: Pikachu e Bulbasaur
+      addSafe('viridian_forest', 25, 9, 'thunder_stone_shard', 0.08);
+      addSafe('viridian_forest', 1, 8, 'leaf_stone_shard', 0.08);
     }
 
-    // Hoenn Starters
-    if (gameState.worldFlags?.includes('hoenn_rival_1_defeated')) {
-      addSafe('route_101', 252, 4); // Treecko
-      addSafe('route_101', 255, 4); // Torchic
-      addSafe('route_101', 258, 4); // Mudkip
-      addSafe('route_102', 252, 5);
-      addSafe('route_102', 255, 5);
-      addSafe('route_102', 258, 5);
-    }
+    const getLeveledSpeciesId = (pokemonId, level) => {
+      let currentId = Number(pokemonId);
+      let guard = 0;
+      while (guard < 3) {
+        const base = POKEDEX[currentId] || POKEDEX[String(currentId)];
+        const evo = base?.evolution;
+        const nextId = Number(evo?.id);
+        if (!evo || !nextId || !evo.level || level < evo.level) break;
+        currentId = nextId;
+        guard += 1;
+      }
+      return currentId;
+    };
 
-    // Sinnoh Starters
-    if (gameState.worldFlags?.includes('sinnoh_rival_1_defeated')) {
-      addSafe('route_201', 387, 4); // Turtwig
-      addSafe('route_201', 390, 4); // Chimchar
-      addSafe('route_201', 393, 4); // Piplup
-      addSafe('route_202', 387, 5);
-      addSafe('route_202', 390, 5);
-      addSafe('route_202', 393, 5);
-    }
+    Object.values(newRoutes).forEach(route => {
+      if (route.type !== 'farm') return;
+
+      const enemyLevels = (route.enemies || [])
+        .map(enemy => Number(enemy.level || 1))
+        .filter(level => Number.isFinite(level));
+      const maxWildLevel = enemyLevels.length ? Math.max(...enemyLevels) : Number(route.unlockLevel || 1);
+      const minTrainerLevel = maxWildLevel + 3;
+      const shouldEvolveWild = maxWildLevel >= 18;
+
+      if (shouldEvolveWild && Array.isArray(route.enemies)) {
+        route.enemies = route.enemies.map(enemy => ({
+          ...enemy,
+          id: getLeveledSpeciesId(enemy.id, Number(enemy.level || maxWildLevel)),
+        }));
+      }
+
+      if (Array.isArray(route.trainers)) {
+        route.trainers = route.trainers.map(trainer => ({
+          ...trainer,
+          team: (trainer.team || []).map(member => {
+            const level = Math.max(Number(member.level || minTrainerLevel), minTrainerLevel);
+            return {
+              ...member,
+              id: getLeveledSpeciesId(member.id, level),
+              level,
+            };
+          }),
+        }));
+      }
+    });
 
     return newRoutes;
   }, [gameState.worldFlags]);
@@ -851,17 +774,11 @@ export default function App() {
   // IMAGE PRELOADER PARA OTIMIZACAO
   useEffect(() => {
     if (!gameState || !processedRoutes) return;
-    const teamSprites = teamSpriteSignature
-      ? teamSpriteSignature.split('|').map(entry => {
-        const [id, shiny] = entry.split(':');
-        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${shiny === 's' ? 'shiny/' : ''}${id}.png`;
-      })
-      : [];
     const criticalImages = [
       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
       'https://play.pokemonshowdown.com/sprites/trainers/oak.png',
       'https://play.pokemonshowdown.com/sprites/trainers/nurse.png',
-      ...teamSprites,
+      ...(gameState.team || []).map(p => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`),
       fixPath(processedRoutes[gameState.currentRoute]?.background || '')
     ].flat().filter(src => src && src.length > 5);
 
@@ -869,7 +786,7 @@ export default function App() {
       const img = new Image();
       img.src = src;
     });
-  }, [gameState.currentRoute, teamSpriteSignature, processedRoutes]);
+  }, [gameState.currentRoute, gameState.team, processedRoutes]);
 
 
   // 🛡️ PROTECTED: handleSafeNavigation — Gerenciamento centralizado de transições de tela
@@ -878,35 +795,23 @@ export default function App() {
     const isKeyBattle = currentEnemy && !isTraining;
 
     if (isKeyBattle) {
-      showConfirm({
-        type: 'confirm',
-        title: 'Abandonar Batalha?',
-        message: 'Se você sair agora, perderá o progresso desta batalha importante. Deseja continuar?',
-        confirmLabel: 'Sair e ver resumo',
-        cancelLabel: 'Continuar lutando',
-        onConfirm: () => {
-          closeConfirm();
-          // Registra o progresso atual e encerra a sessão
-          setSessionStats({ ...sessionRef.current, targetRoute: gameState.currentRoute });
-          setCurrentEnemy(null);
-          if (extraAction) extraAction();
-          setCurrentView(targetView);
-        },
-        onCancel: closeConfirm
-      });
+      setCurrentEnemy(null);
+      if (extraAction) extraAction();
+      setCurrentView(targetView);
       return;
     }
 
-    // Navegação direta para rotas de treino ou menus
+    // Navegacao direta para rotas de treino ou menus
     if (extraAction) extraAction();
     setCurrentView(targetView);
-  }, [currentEnemy, gameState.currentRoute, showConfirm, closeConfirm, setCurrentView]);
+  }, [currentEnemy, setCurrentView]);
 
   // PROTECTED: handleGoToCity - NAO EDITAR SEM AUTORIZACAO EXPLICITA
   const handleGoToCity = useCallback(() => {
     const currentR = ROUTES[gameState.currentRoute];
     const isTraining = !currentEnemy?.isTrainer && !currentEnemy?.isWildBoss && !currentEnemy?.isLegendary;
     const isKeyBattle = currentEnemy && !isTraining;
+    const isRouteTrainingBattle = currentView === 'battles' && currentEnemy && isTraining && currentR?.type === 'farm';
     let targetCityId = null;
 
     if (currentR && currentR.group) {
@@ -917,7 +822,7 @@ export default function App() {
     }
 
     const performExit = () => {
-      if (currentView === 'battles' && (sessionRef.current.kills > 0 || sessionRef.current.captures.length > 0)) {
+      if (isRouteTrainingBattle && (sessionRef.current.kills > 0 || sessionRef.current.captures.length > 0)) {
         setSessionStats({ ...sessionRef.current, targetRoute: targetCityId || gameState.currentRoute });
         return;
       }
@@ -929,27 +834,16 @@ export default function App() {
       }));
       setCurrentEnemy(null);
       resetSession();
-      setCurrentView('travel'); // Retorna ao menu de escolha de rota
+      setCurrentView('routes'); // Retorna ao menu de escolha de rota
     };
 
     if (isKeyBattle) {
-      showConfirm({
-        type: 'confirm',
-        title: 'Abandonar Batalha?',
-        message: 'Se você sair agora, perderá o progresso desta batalha importante. Deseja ver o resumo do que obteve até aqui?',
-        confirmLabel: 'Sim, sair',
-        cancelLabel: 'Continuar lutando',
-        onConfirm: () => {
-          closeConfirm();
-          performExit();
-        },
-        onCancel: closeConfirm
-      });
+      performExit();
       return;
     }
 
     performExit();
-  }, [currentEnemy, gameState.currentRoute, currentView, ROUTES, showConfirm, closeConfirm, setGameState, setCurrentView, resetSession]);
+  }, [currentEnemy, gameState.currentRoute, currentView, ROUTES, setGameState, setCurrentView, resetSession]);
 
 
 
@@ -972,115 +866,66 @@ export default function App() {
     }
   }, [gameState.settings?.selectedMusic, playBGM]);
 
-  const getNearestCityRouteId = useCallback((routeId) => {
-    const currentR = ROUTES[routeId];
-    if (!currentR?.group) return routeId || 'pallet_town';
-    return Object.keys(ROUTES).find(key =>
-      ROUTES[key].group === currentR.group &&
-      (ROUTES[key].type === 'city' || ROUTES[key].type === 'gym')
-    ) || routeId || 'pallet_town';
-  }, [ROUTES]);
+  const goToCity = (fromBattle = false) => {
+    handleGoToCity();
+  };
 
-  const healTeamAtPokemonCenter = useCallback((afterHeal) => {
-    if (isHealing) return;
-    stopSFX();
-    sfxHeal();
-    setIsHealing(true);
-    setCurrentEnemy(null);
-    setBattleReady(false);
-    setActiveMemberIndex(0);
-    setMoveIndex(0);
-
-    setGameState(prev => {
-      const healedTeam = (prev.team || []).map(p => ({
-        ...p,
-        hp: p.maxHp,
-        status: [],
-        stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
-      }));
-      const newStamina = { ...(prev.stamina || {}) };
-      healedTeam.forEach(p => {
-        if (p?.instanceId) {
-          newStamina[p.instanceId] = { value: 100, lastFed: Date.now() };
-        }
-      });
-      return {
-        ...prev,
-        team: healedTeam,
-        stamina: newStamina,
-      };
-    });
-
-    setTimeout(() => {
-      setIsHealing(false);
-      resetSession();
-      if (afterHeal) afterHeal();
-    }, 1200);
-  }, [isHealing, stopSFX, sfxHeal, resetSession]);
-
-  // UNIFICACAO DE COLECAO (Protegida)
+  // UNIFICACAO DE COLECAO
   const unifyDuplicates = useCallback((prev) => {
-    const fixPoke = (p) => {
-      if (!p) return p;
+    const all = [...(prev.team || []), ...(prev.pc || [])];
+    const uniqueMap = {};
+    all.forEach(p => {
       const id = Number(p.id);
-      const needsMoves = !p.moves || p.moves.length === 0;
-      const needsStats = !p.spAtk || !p.spDef;
       
-      if (!needsMoves && !needsStats) return p;
-
-      const base = POKEDEX[id] || {};
+      // Garante que o pokémon processado tenha ataques e todos os 6 status
+      let processed = p;
+      const needsMoves = !processed.moves || processed.moves.length === 0;
+      const needsStats = !processed.spAtk || !processed.spDef;
       
-      // REPARAÇÃO DE GOLPES: Se o Pokémon não tem golpes válidos ou veio de versão antiga
-      const learnset = base.learnset || [];
-      const correctLearnedMoves = learnset
-        .filter(m => m.level <= (p.level || 5))
-        .map(m => getMoveData(m.move));
-      
-      const needsRepair = !p.moves || p.moves.length === 0 || p.moves.some(m => !m.type || m.name.includes(''));
+      if (needsMoves || needsStats) {
+        const base = POKEDEX[id] || {};
+        
+        let finalMoves = processed.moves;
+        if (needsMoves) {
+          const learnset = base.learnset || [];
+          let availableMoves = learnset
+            .filter(m => m.level <= (p.level || 5))
+            .map(m => {
+              const moveData = MOVES[m.move] || { name: m.move, power: 40, type: 'Normal' };
+              const moveKey = (m.move || '').toLowerCase();
+              return {
+                name: MOVE_TRANSLATIONS[moveKey] || moveData.name || m.move,
+                power: moveData.power || 0,
+                type: moveData.type || 'Normal'
+              };
+            });
+          if (availableMoves.length === 0) availableMoves = [{ name: 'Investida', power: 40, type: 'Normal' }];
+          finalMoves = availableMoves.slice(-4);
+        }
 
-      let finalMoves = p.moves;
-      let finalLearnedMoves = p.learnedMoves || p.moves || [];
-
-      if (needsRepair) {
-        finalLearnedMoves = correctLearnedMoves;
-        finalMoves = correctLearnedMoves.slice(-4);
-        if (finalMoves.length === 0) finalMoves = [getMoveData('tackle')];
+        processed = { 
+          ...p, 
+          moves: finalMoves,
+          spAtk: Math.ceil(p.spAtk || base.spAtk || 10),
+          spDef: Math.ceil(p.spDef || base.spDef || 10),
+          attack: Math.ceil(p.attack || base.attack || 10),
+          defense: Math.ceil(p.defense || base.defense || 10),
+          speed: Math.ceil(p.speed || base.speed || 10),
+          maxHp: Math.ceil(p.maxHp || base.maxHp || base.hp || 30),
+          hp: Math.ceil(p.hp || p.maxHp || base.maxHp || base.hp || 30)
+        };
       }
 
-      return { 
-        ...p, 
-        moves: finalMoves,
-        learnedMoves: finalLearnedMoves,
-        spAtk: Math.ceil(p.spAtk || base.spAtk || 10),
-        spDef: Math.ceil(p.spDef || base.spDef || 10),
-        attack: Math.ceil(p.attack || base.attack || 10),
-        defense: Math.ceil(p.defense || base.defense || 10),
-        speed: Math.ceil(p.speed || base.speed || 10),
-        maxHp: Math.ceil(p.maxHp || base.maxHp || base.hp || 30),
-        hp: Math.ceil(p.hp || p.maxHp || base.maxHp || base.hp || 30)
-      };
-    };
-
-    const nextTeam = (prev.team || []).map(fixPoke);
-    const nextPC = (prev.pc || []).map(fixPoke);
-
-    // Mantem a unificacao apenas no PC para evitar inflacao de dados, 
-    // mas nunca retira ou insere nada no TIME sagrado do jogador.
-    const uniquePC = {};
-    nextPC.forEach(p => {
-      const id = p.id;
-      if (!uniquePC[id] || p.level > uniquePC[id].level) {
-        uniquePC[id] = p;
-      } else if (p.isShiny && !uniquePC[id].isShiny) {
-        uniquePC[id] = { ...uniquePC[id], isShiny: true, hp: uniquePC[id].maxHp };
+      if (!uniqueMap[id] || (processed.level > uniqueMap[id].level)) {
+        uniqueMap[id] = processed;
+      } else if (processed.isShiny && !uniqueMap[id].isShiny) {
+        uniqueMap[id] = { ...uniqueMap[id], isShiny: true, hp: uniqueMap[id].maxHp };
       }
     });
-
-    return { 
-      ...prev, 
-      team: nextTeam, 
-      pc: Object.values(uniquePC).sort((a, b) => b.level - a.level) 
-    };
+    const unified = Object.values(uniqueMap).sort((a, b) => b.level - a.level);
+    const newTeam = unified.slice(0, 6);
+    const newPC = unified.slice(6);
+    return { ...prev, team: newTeam, pc: newPC };
   }, []);
 
   useEffect(() => {
@@ -1170,25 +1015,9 @@ export default function App() {
     return () => unsubscribe();
   }, [addLog]);
 
-  // 1. Sincronização LocalStorage (debounced para reduzir JSON.stringify durante batalhas)
+  // 1. Sincronização LocalStorage (Sempre que o estado mudar)
   useEffect(() => {
-    const persist = () => {
-      try {
-        localStorage.setItem('poke_idle_save', JSON.stringify({ gameState }));
-      } catch (err) {
-        console.warn('Falha ao salvar progresso local:', err);
-      }
-    };
-
-    const timeout = setTimeout(() => {
-      if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(persist, { timeout: 1200 });
-      } else {
-        persist();
-      }
-    }, 800);
-
-    return () => clearTimeout(timeout);
+    localStorage.setItem('poke_idle_save', JSON.stringify({ gameState }));
   }, [gameState]);
 
   // 2. Gatilhos de Salvamento na Nuvem (Debounced 5s)
@@ -1198,25 +1027,8 @@ export default function App() {
     if (!user) return;
     
     try {
-      // Cálculo do Power Score Global para Ranking (Soma de todos os Pokémons do jogador)
-      const teamPokes = dataToSave.team || [];
-      const pcPokes = dataToSave.pc || [];
-      const caretakerPokes = dataToSave.house?.caretakers || [];
-      const expeditionPokes = Object.values(dataToSave.expeditions || {}).flatMap(e => e.team || []);
-      const regional_teams_pokes = Object.values(dataToSave.regional_teams || {}).flat();
-
-      const allPokes = [...teamPokes, ...pcPokes, ...caretakerPokes, ...expeditionPokes, ...regional_teams_pokes];
-      const seenIds = new Set();
-      const levelsSum = allPokes.reduce((acc, p) => {
-        if (p && p.instanceId && !seenIds.has(p.instanceId)) {
-          seenIds.add(p.instanceId);
-          return acc + (p.level || 0);
-        }
-        return acc;
-      }, 0);
-
       const badgeCount = getBadgeCount(dataToSave);
-      const powerScore = levelsSum + (badgeCount * 1000);
+      const powerScore = calculatePowerScore(dataToSave, POKEDEX);
 
       lastSyncRef.current = Date.now();
       
@@ -1231,13 +1043,18 @@ export default function App() {
         name: dataToSave.trainer?.name || "Treinador",
         avatar: dataToSave.trainer?.avatar || 1,
         level: dataToSave.trainer?.level || 1,
+        titleId: dataToSave.trainer?.titleId || null,
         badges: badgeCount,
         powerScore: powerScore,
         caughtCount: Object.keys(dataToSave.caughtData || {}).length,
+        caughtData: dataToSave.caughtData || {},
         worldFlags: dataToSave.worldFlags || [],
         badgesList: dataToSave.badges || [],
         forgedItemsCount: dataToSave.forgedItemsCount || 0,
         bossTotalDamage: dataToSave.bossTotalDamage || 0,
+        bossLastDamage: dataToSave.bossLastDamage || 0,
+        shinyCapturedCount: dataToSave.shinyCapturedCount || 0,
+        trainerBattleWins: dataToSave.trainerBattleWins || 0,
         updatedAt: serverTimestamp()
       }, { merge: true });
 
@@ -1252,78 +1069,63 @@ export default function App() {
     if (!user || damage <= 0) return;
     
     try {
-      const eventMeta = currentBossEventRef.current;
-
-      // 1. Atualizar recorde global do jogador
+      // 1. Atualizar Mini-Ranking Global do Boss
       const userRef = doc(db, "bossRankings", user.uid);
       const userSnap = await getDoc(userRef);
-      const currentBest = userSnap.exists() ? (userSnap.data().totalDamage || 0) : 0;
+      const currentData = userSnap.exists() ? userSnap.data() : {};
+      const currentBest = currentData.totalDamage || currentData.bestDamage || 0;
+      const bestDamage = Math.max(currentBest, damage);
+      const currentAttempts = currentData.attempts || 0;
+      const score = Math.floor(damage + Math.max(0, powerScore || 0) * 0.18);
+      const bestScore = Math.max(currentData.bestScore || 0, score);
       
-      if (damage > currentBest) {
-        await setDoc(userRef, {
-          name: gameState.trainer?.name || "Treinador",
-          totalDamage: damage,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
+      await setDoc(userRef, {
+        name: gameState.trainer?.name || "Treinador",
+        avatar: gameState.trainer?.avatar || gameState.trainer?.sprite || null,
+        totalDamage: bestDamage,
+        bestDamage,
+        lastDamage: damage,
+        bestScore,
+        lastScore: score,
+        attempts: currentAttempts + 1,
+        powerScore: powerScore || 0,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
 
-        // Atualiza Localmente no gameState para exibição no Card
-        setGameState(prev => ({
-          ...prev,
-          bossTotalDamage: Math.max(prev.bossTotalDamage || 0, damage)
-        }));
+      // Atualiza localmente para exibição imediata no card do Boss.
+      setGameState(prev => ({
+        ...prev,
+        bossTotalDamage: Math.max(prev.bossTotalDamage || 0, damage),
+        bossLastDamage: damage
+      }));
         
+      if (damage > currentBest) {
         // 2. Registrar histórico na sub-coleção bossEvents
         const historyRef = doc(db, "users", user.uid, "bossEvents", Date.now().toString());
         await setDoc(historyRef, {
-          damage: damage,
+          damage,
+          score,
+          powerScore: powerScore || 0,
           timestamp: serverTimestamp()
         });
         
         console.log("🔥 Recorde de Dano no Boss sincronizado!");
       }
-
-      // 2. Registrar maior dano do jogador neste evento de 24h
-      if (eventMeta?.eventId) {
-        const eventRankRef = doc(db, "worldBossEvents", eventMeta.eventId, "rankings", user.uid);
-        const eventRankSnap = await getDoc(eventRankRef);
-        const currentEventBest = eventRankSnap.exists() ? (eventRankSnap.data().maxDamage || 0) : 0;
-
-        if (damage > currentEventBest) {
-          await setDoc(eventRankRef, {
-            uid: user.uid,
-            name: gameState.trainer?.name || "Treinador",
-            maxDamage: damage,
-            bossName: eventMeta.bossName || null,
-            bossType: eventMeta.bossType || null,
-            eventId: eventMeta.eventId,
-            updatedAt: serverTimestamp()
-          }, { merge: true });
-        }
-
-        await setDoc(doc(db, "worldBossEvents", eventMeta.eventId), {
-          eventId: eventMeta.eventId,
-          bossName: eventMeta.bossName || null,
-          bossType: eventMeta.bossType || null,
-          startedAt: eventMeta.startedAt || null,
-          activeUntil: eventMeta.activeUntil || null,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
-      }
     } catch (e) {
       console.error("Boss damage save fail:", e);
     }
-  }, [gameState.trainer?.name]);
+  }, [gameState.trainer?.name, gameState.trainer?.avatar, gameState.trainer?.sprite, powerScore]);
 
   const debouncedSaveBossDamage = useCallback((damage) => {
     if (bossSaveTimeoutRef.current) clearTimeout(bossSaveTimeoutRef.current);
     bossSaveTimeoutRef.current = setTimeout(() => {
       saveBossDamage(damage);
-    }, BOSS_DAMAGE_SAVE_DEBOUNCE_MS);
+    }, 5000);
   }, [saveBossDamage]);
 
   const debouncedSave = useCallback((data) => {
-    if (cloudSaveTimeoutRef.current) clearTimeout(cloudSaveTimeoutRef.current);
-    cloudSaveTimeoutRef.current = setTimeout(() => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
       saveToCloud(data);
     }, 5000);
   }, [saveToCloud]);
@@ -1502,7 +1304,7 @@ export default function App() {
     const power = move.power || moveData.power || 0;
     if (!power) return 0;
 
-    const level = getBattleLevel(attacker, 100);
+    const level = attacker.level || 5;
     const getStatMult = (stage = 0) => (2 + Math.max(0, stage)) / (2 - Math.min(0, stage));
 
     const isPhysical = (moveData.category || 'Physical') === 'Physical';
@@ -1545,6 +1347,11 @@ export default function App() {
           if (holdItem === 'titan_shield') base *= 0.80;
         }
       }
+
+      if (playerIsAttacker) {
+        const psBossBonus = Math.min(2.5, Math.max(0, powerScore || 0) / 200000);
+        base *= (1 + psBossBonus);
+      }
     }
     
     // Accuracy System
@@ -1562,7 +1369,7 @@ export default function App() {
     if (Math.random() * 100 > hitChance) return 0; // Miss
 
     return Math.max(1, Math.ceil(base * roll));
-  }, []);
+  }, [powerScore]);
 
   // PROCESSAMENTO DE DROPS
   const processDrops = useCallback((enemy) => {
@@ -1570,7 +1377,7 @@ export default function App() {
     const messages = [];
 
     // Moedas base
-    let coinAmount = Math.max(1, Math.floor(getBattleLevel(enemy, 5) * 0.5 * (enemy.isShiny ? 1.5 : 1)));
+    let coinAmount = Math.max(1, Math.floor((enemy.level || 5) * 1.5 * (enemy.isShiny ? 2 : 1)));
     
     // Efeitos especiais de dano
     const now = Date.now();
@@ -1626,38 +1433,38 @@ export default function App() {
       messages.push(`${fragmentData.icon} ${qty}x ${fragmentData.name}`);
     }
 
-    const recipeFragmentByPokemon = {
-      52: 'recipe_amulet_coin',
-      53: 'recipe_amulet_coin',
-      81: 'recipe_magnet',
-      82: 'recipe_magnet',
-      58: 'recipe_charcoal',
-      59: 'recipe_charcoal',
-      60: 'recipe_mystic_water',
-      61: 'recipe_mystic_water',
-      62: 'recipe_mystic_water',
-      66: 'recipe_black_belt',
-      67: 'recipe_black_belt',
-      123: 'recipe_quick_claw',
-      113: 'recipe_lucky_egg',
-      92: 'recipe_cleanse_tag',
-      93: 'recipe_cleanse_tag',
-    };
-    const recipeDrop = recipeFragmentByPokemon[Number(enemy.id)];
-    if (recipeDrop && Math.random() < (enemy.isShiny ? 0.20 : 0.08)) {
+    const recipeDrops = FORGE_RECIPE_DROP_BY_POKEMON[Number(enemy.id)];
+    const recipeDropList = Array.isArray(recipeDrops) ? recipeDrops : (recipeDrops ? [recipeDrops] : []);
+    if (recipeDropList.length && Math.random() < (enemy.isShiny ? 0.18 : 0.045)) {
+      const recipeDrop = recipeDropList[Math.floor(Math.random() * recipeDropList.length)];
       drops.materials[recipeDrop] = (drops.materials[recipeDrop] || 0) + 1;
-      messages.push(`* 1x Fragmento de Receita`);
+      const cleanName = recipeDrop.replace('recipe_', '').replace(/_/g, ' ');
+      messages.push(`Receita rara: ${cleanName}`);
+    }
+
+    const trainerCardMaterialByPokemon = {
+      10: 'trainer_card_thread', 11: 'trainer_card_thread', 12: 'trainer_card_thread',
+      13: 'trainer_card_thread', 14: 'trainer_card_thread', 15: 'trainer_card_thread',
+      25: 'yellow_shard', 26: 'yellow_shard', 81: 'yellow_shard', 82: 'yellow_shard',
+      92: 'mystic_dust', 93: 'mystic_dust', 94: 'mystic_dust',
+      133: 'trainer_card_thread', 196: 'trainer_card_thread', 197: 'trainer_card_thread',
+      447: 'trainer_card_thread', 448: 'trainer_card_thread',
+    };
+    const cardMaterialDrop = trainerCardMaterialByPokemon[Number(enemy.id)];
+    if (cardMaterialDrop && Math.random() < (enemy.isShiny ? 0.35 : 0.12)) {
+      const qty = enemy.isShiny ? 2 : 1;
+      drops.materials[cardMaterialDrop] = (drops.materials[cardMaterialDrop] || 0) + qty;
+      messages.push(`Card: ${qty}x ${cardMaterialDrop.replace(/_/g, ' ')}`);
     }
 
     if (enemy.drop && enemy.dropChance && Math.random() < (enemy.isShiny ? enemy.dropChance * 3 : enemy.dropChance)) {
       // Aqui determinamos se o drop antigo é material ou item (maioria é material)
       const materialList = [
         'iron_ore', 'apricorn', 'electric_chip', 'moon_stone_shard', 'pink_dust', 'gold_nugget', 'silk', 'feather',
-        'mystic_dust', 'normal_essence', 'fire_essence', 'water_essence', 'grass_essence', 'electric_essence',
-        'ice_essence', 'fighting_essence', 'poison_essence', 'ground_essence', 'flying_essence', 'psychic_essence',
-        'bug_essence', 'rock_essence', 'ghost_essence', 'dragon_essence', 'steel_essence', 'dark_essence',
-        'fairy_essence', 'fire_stone_shard', 'water_stone_shard', 'leaf_stone_shard', 'thunder_stone_shard',
-        'link_cable_part'
+        'fire_stone_shard', 'water_stone_shard', 'leaf_stone_shard', 'thunder_stone_shard', 'link_cable_part',
+        'sun_stone_shard', 'shiny_stone_shard', 'dusk_stone_shard', 'dawn_stone_shard', 'ice_stone_shard',
+        'trainer_card_thread', 'yellow_shard', 'mystic_dust', 'armor_fragment', 'fury_essence', 'stardust',
+        'dragon_scale', 'rock_essence', 'ground_essence', 'dark_essence', 'steel_essence', 'fairy_essence'
       ];
       const dropData = ITEM_LABELS[enemy.drop] || { icon: '📦', name: enemy.drop.toUpperCase() };
       if (materialList.includes(enemy.drop)) {
@@ -1668,8 +1475,14 @@ export default function App() {
       messages.push(`${dropData.icon} 1x ${dropData.name}`);
     }
 
+    // 4. Rare Poké Ball Drop Chance. Mart prices push players toward the Forge.
+    if (Math.random() < 0.025) {
+      drops.items.pokeballs = (drops.items.pokeballs || 0) + 1;
+      messages.push(`+1 Poke Bola`);
+    }
+
     return { drops, messages };
-  }, [activeMemberIndex, gameState.activeEffects, gameState.speciesMastery, gameState.team]);
+  }, []);
 
   // SPAWN
   const handleAcceptQuest = useCallback((quest) => {
@@ -1785,6 +1598,8 @@ export default function App() {
         trainerReward: trainer.reward || 100,
         isRocket: trainer.isRocket || false,
         spawnTime: Date.now(),
+        opponentTeam: trainer.team || [trainerPokeRef],
+        opponentTeamIndex: 0,
         instanceId: Date.now()
       });
       setBattleLog([]);
@@ -1832,21 +1647,6 @@ export default function App() {
     if (avgLevel <= 15 && enemyPool.length > 1) {
       const filteredPool = enemyPool.filter(e => !evolvedIds.has(Number(e.id)));
       if (filteredPool.length > 0) enemyPool = filteredPool;
-    }
-
-    // ── 2.6 BIAS REGIONAL (Johto 70% Gen 2) ──
-    const routeRegion = (route.group || '').toLowerCase();
-    if (routeRegion.includes('johto') && enemyPool.length > 1) {
-      const gen2Pool = enemyPool.filter(e => Number(e.id) >= 152 && Number(e.id) <= 251);
-      const otherPool = enemyPool.filter(e => Number(e.id) < 152 || Number(e.id) > 251);
-      
-      if (gen2Pool.length > 0 && otherPool.length > 0) {
-        if (Math.random() < 0.70) {
-          enemyPool = gen2Pool;
-        } else {
-          enemyPool = otherPool;
-        }
-      }
     }
     
     // Bônus de Horário
@@ -1945,10 +1745,20 @@ export default function App() {
     const learnset = finalBase.learnset || [];
     const availableMoves = learnset
       .filter(m => m.level <= level)
-      .map(m => getMoveData(m.move));
+      .map(m => {
+        const moveKey = (m.move || '').toLowerCase();
+        const moveData = MOVES[moveKey] || { name: m.move || 'Investida', power: 40, type: 'Normal', category: 'Physical' };
+        return {
+          ...moveData,
+          name: MOVE_TRANSLATIONS[moveKey] || moveData.name || m.move,
+          power: moveData.power || 0,
+          type: moveData.type || 'Normal',
+          category: moveData.category || 'Physical'
+        };
+      });
 
     // Se não tiver golpes, dá pelo menos Investida (Tackle)
-    const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [getMoveData('tackle')];
+    const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
     // Atk Mult do Repel
     const atkRepelMult = (effects.activeRepel?.endsAt > now) ? (effects.activeRepel.atkMult || 0.8) : 1.0;
@@ -2134,10 +1944,11 @@ export default function App() {
       };
     });
 
-    debouncedSaveBossDamage(bossDamage);
+    if (bossSaveTimeoutRef.current) clearTimeout(bossSaveTimeoutRef.current);
+    saveBossDamage(bossDamage);
     
     // O modal de loot segurará a saída da batalha
-  }, [bossDamage, debouncedSaveBossDamage, calculateBossLoot]);
+  }, [bossDamage, saveBossDamage, calculateBossLoot]);
 
   // TICK DE BATALHA
   // ⛏️” PROTECTED: handleBattleTick — NíO EDITAR SEM AUTORIZAÇíO EXPLíCITA
@@ -2149,12 +1960,18 @@ export default function App() {
     const myPokeStamina = gameState.stamina?.[myPoke?.instanceId]?.value ?? 100;
 
     if (myPokeStamina <= 0 && myPoke?.hp > 0) {
-      // Buscar próximo Pokémon com HP > 0 E stamina > 0
-      const nextViable = gameState.team.findIndex((p, idx) =>
-        idx !== activeMemberIndex &&
-        (p?.hp ?? 0) > 0 &&
-        (gameState.stamina?.[p?.instanceId]?.value ?? 100) > 0
-      );
+      // Buscar próximo Pokémon com HP > 0 E stamina > 0 (Sequencial)
+      const nextViable = (() => {
+        for (let i = activeMemberIndex + 1; i < (gameState.team?.length || 0); i++) {
+          const p = gameState.team[i];
+          if ((p?.hp ?? 0) > 0 && (gameState.stamina?.[p?.instanceId]?.value ?? 100) > 0) return i;
+        }
+        for (let i = 0; i < activeMemberIndex; i++) {
+          const p = gameState.team[i];
+          if ((p?.hp ?? 0) > 0 && (gameState.stamina?.[p?.instanceId]?.value ?? 100) > 0) return i;
+        }
+        return -1;
+      })();
 
       if (nextViable !== -1) {
         // Trocar automaticamente para o próximo viável
@@ -2231,7 +2048,11 @@ export default function App() {
           );
           return { ...prev, team: newTeam };
         } else {
-          if (currentEnemy.isInitialRival || currentEnemy.unlocks === 'rival_1_defeated' || currentEnemy.unlockFlag === 'rival_1_defeated' || currentEnemy.unlockFlag === 'rival_lab_defeated') {
+          if (isStoryVsEnemy(currentEnemy)) {
+            stopBGM(300);
+            sfxDefeat();
+            openStoryBattleResult(currentEnemy, 'defeat');
+          } else if (currentEnemy.isInitialRival || currentEnemy.unlocks === 'rival_1_defeated' || currentEnemy.unlockFlag === 'rival_1_defeated' || currentEnemy.unlockFlag === 'rival_lab_defeated') {
             setCurrentView('rival_post_battle');
           } else {
             stopBGM(300);
@@ -2409,11 +2230,18 @@ export default function App() {
           addLog(`${myPoke.name} usou ${move.name}... mas errou!`, 'system');
           addFloat('Errou!', '#94a3b8');
         } else {
-          updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - playerDmg);
+          updatedEnemyFinal.hp = updatedEnemyFinal.isWorldBoss
+            ? Math.max(1, updatedEnemyFinal.hp - playerDmg)
+            : Math.max(0, updatedEnemyFinal.hp - playerDmg);
           
           if (updatedEnemyFinal.isWorldBoss) {
             setBossDamage(prev => {
               const newVal = prev + playerDmg;
+              setGameState(state => ({
+                ...state,
+                bossTotalDamage: Math.max(state.bossTotalDamage || 0, newVal),
+                bossLastDamage: newVal
+              }));
               debouncedSaveBossDamage(newVal);
               return newVal;
             });
@@ -2429,11 +2257,18 @@ export default function App() {
       // Dano de Status (Inimigo)
       if (enemyStatus.includes('poison') || enemyStatus.includes('burn')) {
         const dot = Math.max(1, Math.floor(updatedEnemyFinal.maxHp / 16));
-        updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - dot);
+        updatedEnemyFinal.hp = updatedEnemyFinal.isWorldBoss
+          ? Math.max(1, updatedEnemyFinal.hp - dot)
+          : Math.max(0, updatedEnemyFinal.hp - dot);
         
         if (updatedEnemyFinal.isWorldBoss) {
           setBossDamage(prev => {
             const newVal = prev + dot;
+            setGameState(state => ({
+              ...state,
+              bossTotalDamage: Math.max(state.bossTotalDamage || 0, newVal),
+              bossLastDamage: newVal
+            }));
             debouncedSaveBossDamage(newVal);
             return newVal;
           });
@@ -2487,8 +2322,8 @@ export default function App() {
                 addLog(`💥 ${updatedEnemyFinal.name} usou ${enemyMove.name}! Golpe decisivo!`, 'enemy');
               } else if (fxE.fixedDamage !== null) {
                 let dmgE = 0;
-                if (fxE.fixedDamage === 'level') dmgE = getBattleLevel(updatedEnemyFinal, 5);
-                else if (fxE.fixedDamage === 'psywave') dmgE = Math.floor(getBattleLevel(updatedEnemyFinal, 5) * (0.5 + Math.random()));
+                if (fxE.fixedDamage === 'level') dmgE = (updatedEnemyFinal.level || 5);
+                else if (fxE.fixedDamage === 'psywave') dmgE = Math.floor((updatedEnemyFinal.level || 5) * (0.5 + Math.random()));
                 else if (fxE.fixedDamage === 'half_hp') dmgE = Math.max(1, Math.floor(updatedTeamFinal[activeMemberIndex].hp / 2));
                 else dmgE = fxE.fixedDamage;
 
@@ -2622,15 +2457,15 @@ export default function App() {
           addLog(`${myPoke.name} comeu ${itemName} e recuperou energia!`, 'system');
 
           // Se curar status
-          if (restoreData?.cureStatus) {
-            updatedTeamFinal[activeMemberIndex].status = [];
-            addLog(`${myPoke.name} foi curado de problemas de status!`, 'system');
-          } else if (restoreData?.cureStatus && Array.isArray(restoreData.cureStatus)) {
+          if (Array.isArray(restoreData?.cureStatus)) {
              const newStatus = updatedTeamFinal[activeMemberIndex].status.filter(s => !restoreData.cureStatus.includes(s));
              if (newStatus.length < updatedTeamFinal[activeMemberIndex].status.length) {
                updatedTeamFinal[activeMemberIndex].status = newStatus;
                 addLog(`${myPoke.name} recuperou-se!`, 'system');
              }
+          } else if (restoreData?.cureStatus) {
+            updatedTeamFinal[activeMemberIndex].status = [];
+            addLog(`${myPoke.name} foi curado de problemas de status!`, 'system');
           }
         } else {
           if (newStamina <= 0) {
@@ -2665,7 +2500,7 @@ export default function App() {
 
     setMoveIndex(m => m + 1);
     return nextDelay;
-  }, [currentEnemy, activeMemberIndex, moveIndex, calcDamage, addFloat, setCurrentEnemy]);
+  }, [currentEnemy, activeMemberIndex, moveIndex, calcDamage, addFloat, setCurrentEnemy, gameState.team, gameState.stamina, gameState.settings, isStoryVsEnemy, openStoryBattleResult]);
 
   useAutoFarm(gameState.team[activeMemberIndex], gameState.currentRoute, handleBattleTick, battleReady);
 
@@ -2743,15 +2578,40 @@ export default function App() {
             let { newList: teamUpdate } = findAndReplace(prev.team);
             let { newList: pcUpdate } = findAndReplace(prev.pc || []);
             setTimeout(() => spawnEnemy(), 1000);
-            return { ...prev, inventory: newInventory, speciesMastery: newMastery, caughtData: newCaughtData, team: teamUpdate, pc: pcUpdate, ...questUpdate };
+            return {
+              ...prev,
+              inventory: newInventory,
+              speciesMastery: newMastery,
+              caughtData: newCaughtData,
+              team: teamUpdate,
+              pc: pcUpdate,
+              shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
+              ...questUpdate
+            };
           }
 
-          // Primeira Captura: SEMPRE envia para o PC (Blindagem da Equipe)
-          const newPC = [...(prev.pc || []), newPoke];
-          addLog(`${newPoke.name} foi enviado para o PC! Retire-o manualmente no menu de equipe se desejar.`, 'system');
+          // Primeira Captura
+          const newTeam = [...prev.team];
+          const newPC = [...(prev.pc || [])];
+          
+          if (newTeam.length < 6) {
+            newTeam.push(newPoke);
+          } else {
+            newPC.push(newPoke);
+            addLog(`${newPoke.name} foi enviado para o PC!`, 'system');
+          }
 
           setTimeout(() => spawnEnemy(), 1000);
-          return { ...prev, inventory: newInventory, pc: newPC, caughtData: newCaughtData, speciesMastery: newMastery, ...questUpdate };
+          return {
+            ...prev,
+            inventory: newInventory,
+            team: newTeam,
+            pc: newPC,
+            caughtData: newCaughtData,
+            speciesMastery: newMastery,
+            shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
+            ...questUpdate
+          };
         } else {
           const enemyName = currentEnemy.name || 'Desconhecido';
           addLog(`💨 O ${enemyName} escapou da Pokébola!`, 'enemy');
@@ -2771,10 +2631,10 @@ export default function App() {
           const newStamVal = Math.min(100, currentStam + restoreData.restore);
           
           let updatedPoke = { ...activePoke };
-          if (restoreData.cureStatus) {
-            updatedPoke.status = [];
-          } else if (restoreData.cureStatus && Array.isArray(restoreData.cureStatus)) {
+          if (Array.isArray(restoreData.cureStatus)) {
             updatedPoke.status = activePoke.status.filter(s => !restoreData.cureStatus.includes(s));
+          } else if (restoreData.cureStatus) {
+            updatedPoke.status = [];
           }
 
           const newTeam = prev.team.map((p, i) => i === activeMemberIndex ? updatedPoke : p);
@@ -2879,7 +2739,9 @@ export default function App() {
       isBoss: true,
       isRocket: battleData.category === 'rocket',
       isLegendary: battleData.category === 'legendary',
+      challengeCategory: battleData.category,
       unlockFlag: battleData.unlockFlag,
+      badgeToGive: battleData.badgeToGive || (battleData.unlockFlag?.endsWith('_badge') ? battleData.unlockFlag : null),
       spawnTime: Date.now(),
       opponentTeam: battleData.team,
       opponentTeamIndex: 0,
@@ -2893,23 +2755,7 @@ export default function App() {
   }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
 
   const handleChallenge = useCallback((battleData, type) => {
-    if (type === 'boss' || type === 'boss-direct') {
-      const now = Date.now();
-      const activeUntil = Number(battleData.activeUntil || 0);
-      if (activeUntil && activeUntil <= now) {
-        addLog('O ciclo de 24h deste World Boss terminou. Abra a aba Boss novamente para receber o novo desafio.', 'system');
-        setVsInitialTab('boss');
-        setCurrentView('vs');
-        return;
-      }
-
-      if (type === 'boss') {
-        const currentTeamIds = (gameState.team || []).slice(0, 6).map(p => p.instanceId || `${p.id}-${p.name}`);
-        setBossTeamSelection(currentTeamIds);
-        setPendingBossBattle(battleData);
-        return;
-      }
-
+    if (type === 'boss') {
       setBossDamage(0);
       const teamMember = battleData.mainPokemon || (battleData.team && battleData.team.length > 0 ? battleData.team[0] : null);
       if (!teamMember) return;
@@ -2918,19 +2764,17 @@ export default function App() {
       if (!base) return;
 
       const lvl = 100; 
-      const hpMult = 500; // HP massivo para boss: 500x o HP base
+      const hpMult = 250000; // HP virtualmente inesgotavel: o desafio termina pelo timer de 120s
       const statMult = 2.0; // +100% em ATK/DEF para tornar o boss realmente intimidador
 
       const baseHp = Math.ceil((((2 * (base.maxHp || base.hp || 50) * lvl) / 100) + lvl + 10));
-      const maxHp = baseHp * hpMult;
+      const maxHp = Math.max(99999999, baseHp * hpMult);
       const getStat = (b) => Math.ceil((((2 * (b || 10) * lvl) / 100) + 5) * statMult);
 
       const boss = {
         ...base,
         instanceId: `worldboss-${Date.now()}`,
         level: '???',
-        displayLevel: '???',
-        battleLevel: lvl,
         hp: maxHp,
         maxHp: maxHp,
         attack: getStat(base.attack),
@@ -2959,54 +2803,21 @@ export default function App() {
         isBoss: true,
         isWorldBoss: true,
         bossType: battleData.bossType,
-        bossEventId: battleData.eventId,
-        bossStartedAt: battleData.startedAt,
-        bossActiveUntil: battleData.activeUntil,
         background: battleData.background,
         locationName: "Fenda Dimensional",
         spawnTime: Date.now(),
         opponentTeam: [boss],
         opponentTeamIndex: 0
       });
-      currentBossEventRef.current = {
-        eventId: battleData.eventId || `local-${Date.now()}`,
-        bossName: battleData.name || base.name,
-        bossType: battleData.bossType,
-        startedAt: battleData.startedAt || now,
-        activeUntil: battleData.activeUntil || (now + BOSS_EVENT_DURATION_MS),
-      };
       setCurrentView('battles');
-      addLog(`⚠️ ALERTA: ${battleData.name} emergiu da fenda! Evento ativo por 24h.`, 'system');
-      setBossTimer(Math.min(BOSS_ATTEMPT_DURATION_SECONDS, Math.max(1, Math.floor(((battleData.activeUntil || (now + BOSS_EVENT_DURATION_MS)) - now) / 1000))));
+      addLog(`⚠️ ALERTA: ${battleData.name} emergiu da fenda! HP SEGMENTADO DETECTADO!`, 'system');
+      setBossTimer(WORLD_BOSS_FIGHT_SECONDS);
       return;
     }
     
     // Fallback para lutas de rivais de rota
     startKeyBattle(battleData);
-  }, [POKEDEX, MOVES, MOVE_TRANSLATIONS, setCurrentEnemy, setCurrentView, addLog, startKeyBattle, gameState.team]);
-
-  const getBossTeamKey = useCallback((pokemon) => pokemon?.instanceId || `${pokemon?.id}-${pokemon?.name}`, []);
-
-  const confirmBossTeamSelection = useCallback(() => {
-    if (!pendingBossBattle || bossTeamSelection.length !== 6) return;
-    setGameState(prev => {
-      const allPokemon = [...(prev.team || []), ...(prev.pc || [])];
-      const selectedKeys = new Set(bossTeamSelection);
-      const selectedTeam = bossTeamSelection
-        .map(key => allPokemon.find(p => getBossTeamKey(p) === key))
-        .filter(Boolean);
-      const rest = allPokemon.filter(p => !selectedKeys.has(getBossTeamKey(p)));
-      return {
-        ...prev,
-        team: selectedTeam,
-        pc: rest,
-      };
-    });
-    const battle = pendingBossBattle;
-    setPendingBossBattle(null);
-    setBossTeamSelection([]);
-    handleChallenge(battle, 'boss-direct');
-  }, [pendingBossBattle, bossTeamSelection, getBossTeamKey, handleChallenge]);
+  }, [POKEDEX, MOVES, MOVE_TRANSLATIONS, setCurrentEnemy, setCurrentView, addLog, startKeyBattle]);
 
   const handleChallengeGym = useCallback((gymData) => {
     const defeatCount = gameState.gymDefeatCounts?.[gymData.id] || 0;
@@ -3083,28 +2894,31 @@ export default function App() {
   }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS, gameState]);
 
   const handleCraft = (recipe) => {
-    setGameState(prev => {
-      // 1. Verificar se tem todos os materiais e dinheiro
-      const hasMaterials = Object.entries(recipe.cost).every(([material, amount]) => {
-        if (material === 'currency') return prev.currency >= amount;
+    const materialCost = Object.fromEntries(Object.entries(recipe.cost || {}).filter(([material]) => material !== 'currency'));
+    showConfirm({
+      type: 'confirm',
+      title: 'Confirmar Forja',
+      message: `Deseja forjar 1x ${recipe.name} usando apenas materiais?`,
+      confirmLabel: 'Forjar',
+      cancelLabel: 'Cancelar',
+      onConfirm: () => {
+        closeConfirm();
+        setGameState(prev => {
+      // 1. Verificar se tem todos os materiais
+      const hasMaterials = Object.entries(materialCost).every(([material, amount]) => {
         return (prev.inventory.materials[material] || 0) >= amount;
       });
 
       if (!hasMaterials) {
-        addLog("💰 Materiais ou Moedas insuficientes!", 'system');
+        addLog("Materiais insuficientes para a forja!", 'system');
         return prev;
       }
 
       // 2. Deduzir os custos
       const newMaterials = { ...prev.inventory.materials };
-      let newCurrency = prev.currency;
 
-      Object.entries(recipe.cost).forEach(([material, amount]) => {
-        if (material === 'currency') {
-          newCurrency -= amount;
-        } else {
-          newMaterials[material] -= amount;
-        }
+      Object.entries(materialCost).forEach(([material, amount]) => {
+        newMaterials[material] -= amount;
       });
 
       // 3. Adicionar o item ao inventário e atualizar contador de forja
@@ -3115,7 +2929,6 @@ export default function App() {
 
       return {
         ...prev,
-        currency: newCurrency,
         forgedItemsCount: (prev.forgedItemsCount || 0) + 1,
         inventory: {
           ...prev.inventory,
@@ -3123,8 +2936,39 @@ export default function App() {
           items: newItems
         }
       };
+        });
+      },
+      onCancel: closeConfirm
     });
   };
+
+  const handleGoToRecipeSource = useCallback((recipeId) => {
+    const guide = FORGE_RECIPE_DROP_GUIDE[recipeId];
+    if (!guide?.routeId) return;
+    setActiveBuildingModal(null);
+    setActiveMaterialModal(null);
+    setGameState(prev => ({
+      ...prev,
+      currentRoute: processedRoutes[guide.routeId] ? guide.routeId : (prev.currentRoute || 'route_1'),
+    }));
+    setCurrentEnemy(null);
+    setCurrentView('battles');
+    addLog(`Rastreando receita: ${guide.label}`, 'system');
+  }, [processedRoutes, addLog]);
+
+  const handleGoToMaterialSource = useCallback((materialId) => {
+    const guide = FORGE_MATERIAL_DROP_GUIDE[materialId];
+    if (!guide?.routeId) return;
+    setActiveBuildingModal(null);
+    setActiveMaterialModal(null);
+    setGameState(prev => ({
+      ...prev,
+      currentRoute: processedRoutes[guide.routeId] ? guide.routeId : (prev.currentRoute || 'route_1'),
+    }));
+    setCurrentEnemy(null);
+    setCurrentView('battles');
+    addLog(`Rastreando material: ${guide.label}`, 'system');
+  }, [processedRoutes, addLog]);
 
     // CANDY DROP
   const handleUseCandy = useCallback((pokemonInstanceId, candyId, useId) => {
@@ -3174,8 +3018,10 @@ export default function App() {
         addLog(` ${p.name} aumentou o Ataque Especial!`, 'system');
       } else if (use.effect === 'force_evolve') {
         const pokeData = POKEDEX[p.id];
-        if (pokeData?.evolution && pokeData.evolution.id <= 386) {
-          setEvolutionPending({ ...p, teamIndex: location === 'team' ? pokemonIndex : null, pcIndex: location === 'pc' ? pokemonIndex : null });
+        const evolutions = Array.isArray(pokeData?.evolution) ? pokeData.evolution : (pokeData?.evolution ? [pokeData.evolution] : []);
+        const evoData = evolutions[0];
+        if (evoData && isEvolutionAllowedForRegion(p, evoData.id, prev.activeRegion || 'kanto')) {
+          setEvolutionPending({ ...p, targetEvolution: evoData, teamIndex: location === 'team' ? pokemonIndex : null, pcIndex: location === 'pc' ? pokemonIndex : null });
           return { ...prev, inventory: newInventory };
         } else {
            addLog(`✨ ${p.name} não pode evoluir mais.`, 'system');
@@ -3194,7 +3040,9 @@ export default function App() {
   const handleStartExpedition = useCallback((biomeId, team) => {
     const biome = EXPEDITION_BIOMES[biomeId];
     if (!biome || !team.length) return;
-    const duration = calcExpeditionDuration(team, biome);
+    const masteryLevel = Math.floor(((gameState.expeditionProgress || {})[biomeId]?.completed || 0) / 3);
+    const tunedBiome = { ...biome, masteryLevel };
+    const duration = calcExpeditionDuration(team, tunedBiome);
     const now = Date.now();
     setGameState(prev => {
       const teamIds = new Set(team.map(p => p.instanceId));
@@ -3204,9 +3052,10 @@ export default function App() {
         pc: newPC,
         expeditions: {
           ...(prev.expeditions || {}),
-          [biomeId]: {
-            biomeId,
-            team,
+        [biomeId]: {
+          biomeId,
+          masteryLevel,
+          team,
             startedAt: now,
             endsAt: now + duration,
             duration,
@@ -3215,13 +3064,13 @@ export default function App() {
       };
     });
     addLog(`🚢 Expedição para ${biome.name} iniciada! Duração: ~${Math.floor(duration / 60000)}min`, 'system');
-  }, [addLog]);
+  }, [addLog, gameState.expeditionProgress]);
 
   const handleClaimExpedition = useCallback((biomeId) => {
     setGameState(prev => {
       const exp = prev.expeditions?.[biomeId];
       if (!exp || Date.now() < exp.endsAt) return prev;
-      const biome = EXPEDITION_BIOMES[biomeId];
+      const biome = { ...EXPEDITION_BIOMES[biomeId], masteryLevel: exp.masteryLevel || 0 };
       notify({ type: 'expedition', title: 'Expedição concluída!', message: `${biome.name} retornou com itens!` });
       const duration = Date.now() - exp.startedAt;
       const rawDrops = calcExpeditionDrops(exp.team, biome, duration);
@@ -3240,6 +3089,15 @@ export default function App() {
       }
       const newExpeditions = { ...(prev.expeditions || {}) };
       delete newExpeditions[biomeId];
+      const progress = { ...(prev.expeditionProgress || {}) };
+      const currentProgress = progress[biomeId] || { completed: 0, bestTeamPower: 0 };
+      const teamPower = (exp.team || []).reduce((sum, p) => sum + (p.level || 1), 0);
+      progress[biomeId] = {
+        ...currentProgress,
+        completed: (currentProgress.completed || 0) + 1,
+        bestTeamPower: Math.max(currentProgress.bestTeamPower || 0, teamPower),
+        lastCompletedAt: Date.now(),
+      };
       const dropSummary = Object.entries(drops)
         .map(([k, v]) => `${v}x ${k}`)
         .join(', ');
@@ -3256,6 +3114,7 @@ export default function App() {
         pc: [...(prev.pc || []), ...returnedTeam],
         inventory: { ...prev.inventory, materials: newMaterials },
         expeditions: newExpeditions,
+        expeditionProgress: progress,
       };
     });
   }, [addLog]);
@@ -3306,13 +3165,29 @@ export default function App() {
     addLog('🚀 Auto-captura desativada nesta rota.', 'system');
   }, [gameState.currentRoute, addLog]);
 
-  // Disparar modal ao entrar em nova rota
+  const handleCloseAutoCaptureModal = useCallback(() => {
+    setGameState(prev => ({
+      ...prev,
+      autoCaptureConfig: {
+        ...prev.autoCaptureConfig,
+        shownRoutes: Array.from(new Set([
+          ...(prev.autoCaptureConfig?.shownRoutes || []),
+          gameState.currentRoute,
+        ])),
+      },
+    }));
+    setShowAutoCaptureModal(false);
+  }, [gameState.currentRoute]);
+
+  // Disparar modal ao entrar em uma rota de treino.
   useEffect(() => {
     const routeId = gameState.currentRoute;
     const route = processedRoutes[routeId];
     const config = gameState.autoCaptureConfig;
+    const isTrainingBattle = currentView === 'battles' && currentEnemy && !currentEnemy.isTrainer && !currentEnemy.isWildBoss && !currentEnemy.isLegendary;
 
     if (
+      isTrainingBattle &&
       config?.enabled &&
       route?.type === 'farm' &&
       route?.enemies?.length > 0 &&
@@ -3321,42 +3196,40 @@ export default function App() {
       const timer = setTimeout(() => setShowAutoCaptureModal(true), 800);
       return () => clearTimeout(timer);
     }
-  }, [gameState.currentRoute, gameState.autoCaptureConfig, processedRoutes]);
+  }, [currentView, currentEnemy?.instanceId, gameState.currentRoute, gameState.autoCaptureConfig, processedRoutes]);
 
   useEffect(() => {
-    const flags = gameState.worldFlags || [];
-    if (flags.includes('kanto_champion_modal_pending')) {
+    const isTrainingBattle = currentView === 'battles' && currentEnemy && !currentEnemy.isTrainer && !currentEnemy.isWildBoss && !currentEnemy.isLegendary;
+    if (showAutoCaptureModal && !isTrainingBattle) {
+      setShowAutoCaptureModal(false);
+    }
+  }, [currentView, currentEnemy?.instanceId, showAutoCaptureModal]);
+
+  useEffect(() => {
+    if ((gameState.worldFlags || []).includes('kanto_champion_modal_pending')) {
       setShowKantoChampionModal(true);
-    } else if (
-      (flags.includes('champion') || flags.includes('johto_champion')) &&
-      !flags.includes('hoenn_started') &&
-      !flags.includes('hoenn_unlock_modal_shown') &&
-      currentView !== 'johto_intro' &&
-      currentView !== 'hoenn_intro'
-    ) {
-      setShowHoennUnlockModal(true);
     }
-  }, [gameState.worldFlags, currentView]);
-
-  useEffect(() => {
     const flags = gameState.worldFlags || [];
-    if (gameState.currentRoute === 'viridian_forest' && !flags.includes('ball_forge_tutorial_shown')) {
-      setShowBallForgeTutorial(true);
+    if (
+      flags.includes('hoenn_champion_modal_pending') ||
+      (flags.includes('hoenn_champion') && !flags.includes('sinnoh_started') && !flags.includes('hoenn_champion_modal_shown'))
+    ) {
+      setShowSinnohIntroModal(true);
     }
-  }, [gameState.currentRoute, gameState.worldFlags]);
-
-  const closeBallForgeTutorial = useCallback(() => {
-    setShowBallForgeTutorial(false);
-    setGameState(prev => ({
-      ...prev,
-      worldFlags: [...(prev.worldFlags || []), 'ball_forge_tutorial_shown'].filter((v, i, a) => a.indexOf(v) === i),
-    }));
-  }, []);
+  }, [gameState.worldFlags]);
   // ————————————————————————————————————————————————————————————
 
   // Comprar a casa
   // PROTECTED: handleBuyHouse - NAO EDITAR SEM AUTORIZACAO EXPLICITA
   const handleBuyHouse = useCallback(() => {
+    showConfirm({
+      type: 'confirm',
+      title: 'Confirmar Compra',
+      message: `Deseja comprar a casa por ${HOUSE_PURCHASE_COST.toLocaleString()} coins?`,
+      confirmLabel: 'Sim, Comprar',
+      cancelLabel: 'Cancelar',
+      onConfirm: () => {
+        closeConfirm();
     setGameState(prev => {
       if ((prev.currency || 0) < HOUSE_PURCHASE_COST) {
         addLog(`💰 Coins insuficientes! A casa custa ${HOUSE_PURCHASE_COST} coins.`, 'system');
@@ -3372,9 +3245,44 @@ export default function App() {
     });
     setShowOakHouseModal(false);
     setShowHouse(true);
+      },
+      onCancel: closeConfirm
+    });
   }, [addLog]);
 
-
+  const createRegionStarter = useCallback((pokemonId, level = 5, region = 'kanto') => {
+    const base = POKEDEX[Number(pokemonId)];
+    if (!base) return null;
+    const moves = (base.learnset || [])
+      .filter(m => m.level <= level)
+      .map(m => {
+        const moveKey = (m.move || '').toLowerCase();
+        const moveData = MOVES[moveKey] || { name: m.move || 'Investida', power: 40, type: 'Normal', category: 'Physical' };
+        return {
+          ...moveData,
+          name: MOVE_TRANSLATIONS[moveKey] || moveData.name || m.move,
+          power: moveData.power || 0,
+          type: moveData.type || 'Normal',
+          category: moveData.category || 'Physical',
+        };
+      });
+    const finalMoves = moves.length > 0 ? moves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
+    const maxHp = Math.ceil(((2 * (base.maxHp || base.hp || 30) * level) / 100) + level + 10);
+    return {
+      ...base,
+      id: Number(base.id),
+      level,
+      maxHp,
+      hp: maxHp,
+      xp: 0,
+      moves: finalMoves,
+      learnedMoves: finalMoves,
+      instanceId: Date.now() + Math.random(),
+      status: [],
+      capturedRegion: region,
+      stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
+    };
+  }, [POKEDEX, MOVES]);
 
   const handleStartJohto = useCallback((starterId) => {
     const starter = createRegionStarter(starterId, 5, 'johto');
@@ -3391,7 +3299,6 @@ export default function App() {
         ...prev,
         activeRegion: 'johto',
         regional_teams: updated_regional_teams,
-        selectedStarters: { ...(prev.selectedStarters || {}), johto: starterId },
         team: [starter],
         currentRoute: 'new_bark_town',
         caughtData: { ...(prev.caughtData || {}), [starter.id]: true },
@@ -3408,7 +3315,7 @@ export default function App() {
     const starter = createRegionStarter(starterId, 5, 'hoenn');
     if (!starter) return;
     setGameState(prev => {
-      const oldRegion = prev.activeRegion || 'kanto';
+      const oldRegion = prev.activeRegion || 'johto';
       const updated_regional_teams = {
         ...(prev.regional_teams || {}),
         [oldRegion]: [...prev.team]
@@ -3419,7 +3326,6 @@ export default function App() {
         ...prev,
         activeRegion: 'hoenn',
         regional_teams: updated_regional_teams,
-        selectedStarters: { ...(prev.selectedStarters || {}), hoenn: starterId },
         team: [starter],
         currentRoute: 'littleroot_town',
         caughtData: { ...(prev.caughtData || {}), [starter.id]: true },
@@ -3430,6 +3336,35 @@ export default function App() {
     setCurrentEnemy(null);
     setCurrentView('city');
     addLog(`🌍 Bem-vindo a HOENN! Sua nova jornada com ${starter.name} começa agora!`, 'system');
+  }, [createRegionStarter, addLog]);
+
+  const handleStartSinnoh = useCallback((starterId) => {
+    const starter = createRegionStarter(starterId, 5, 'sinnoh');
+    if (!starter) return;
+    setGameState(prev => {
+      const oldRegion = prev.activeRegion || 'hoenn';
+      const updated_regional_teams = {
+        ...(prev.regional_teams || {}),
+        [oldRegion]: [...prev.team]
+      };
+
+      const flags = new Set([...(prev.worldFlags || []), 'sinnoh_started']);
+      flags.delete('hoenn_champion_modal_pending');
+      return {
+        ...prev,
+        activeRegion: 'sinnoh',
+        regional_teams: updated_regional_teams,
+        team: [starter],
+        currentRoute: 'twinleaf_town',
+        caughtData: { ...(prev.caughtData || {}), [starter.id]: true },
+        worldFlags: Array.from(flags),
+      };
+    });
+    setActiveMemberIndex(0);
+    setCurrentEnemy(null);
+    setShowSinnohIntroModal(false);
+    setCurrentView('city');
+    addLog(`🌍 Bem-vindo a SINNOH! Sua nova jornada com ${starter.name} começa agora!`, 'system');
   }, [createRegionStarter, addLog]);
 
   // Plantar
@@ -3445,21 +3380,14 @@ export default function App() {
         addLog(`💰 Coins insuficientes para plantar ${plant.name}!`, 'system');
         return prev;
       }
-      if ((prev.inventory?.items?.[plant.seed] || 0) <= 0) {
-        addLog(`Sem semente de ${plant.name} para plantar!`, 'system');
-        return prev;
-      }
 
       const newSlots = [...(prev.house?.slots || [])];
       newSlots[slotIndex] = { plantId, plantedAt: Date.now(), growthTime };
-      const newItems = { ...(prev.inventory?.items || {}) };
-      newItems[plant.seed] = Math.max(0, (newItems[plant.seed] || 0) - 1);
 
       addLog(`🌱 ${plant.name} plantado! Pronto em ${Math.floor(growthTime / 60000)} min.`, 'system');
       return {
         ...prev,
         currency: prev.currency - plant.cost,
-        inventory: { ...prev.inventory, items: newItems },
         house: { ...prev.house, slots: newSlots },
       };
     });
@@ -3497,6 +3425,14 @@ export default function App() {
 
   // Comprar expansão de slots
   const handleBuySlot = useCallback((expansion) => {
+    showConfirm({
+      type: 'confirm',
+      title: 'Confirmar Compra',
+      message: `Deseja expandir o jardim para ${expansion.totalSlots} canteiros por ${expansion.cost.toLocaleString()} coins?`,
+      confirmLabel: 'Sim, Comprar',
+      cancelLabel: 'Cancelar',
+      onConfirm: () => {
+        closeConfirm();
     setGameState(prev => {
       if ((prev.currency || 0) < expansion.cost) return prev;
       addLog(`🛠️ Jardim expandido para ${expansion.totalSlots} canteiros!`, 'system');
@@ -3505,6 +3441,9 @@ export default function App() {
         currency: prev.currency - expansion.cost,
         house: { ...prev.house, totalSlots: expansion.totalSlots },
       };
+    });
+      },
+      onCancel: closeConfirm
     });
   }, [addLog]);
 
@@ -3538,68 +3477,9 @@ export default function App() {
   }, [addLog]);
 
   const startBattleAgainstRival = useCallback((battleData) => {
+    // Se for um objeto de evento (clique direto sem argumentos do intro), battleData.team será undefined
     if (battleData && battleData.team) {
-      // Logica de Rival Regional (Johto/Hoenn)
-      let enemyTeam = [...battleData.team];
-      if (battleData.id?.startsWith('johto_rival')) {
-        const myJohtoStarter = gameState.selectedStarters?.johto;
-        if (myJohtoStarter) {
-          const johtoRivalMap = { 152: 155, 155: 158, 158: 152 }; // Chikorita -> Cyndaquil, etc.
-          const advantagedStarterId = johtoRivalMap[myJohtoStarter];
-          if (advantagedStarterId) {
-             const startersIds = [152, 153, 154, 155, 156, 157, 158, 159, 160];
-             enemyTeam = enemyTeam.filter(p => !startersIds.includes(Number(p.id)));
-             const baseLevel = battleData.team[0]?.level || 5;
-             
-             // Determina a evolução correta baseada no nível
-             let finalId = advantagedStarterId;
-             if (baseLevel >= 32) finalId += 2; // Meganium/Typhlosion/Feraligatr
-             else if (baseLevel >= 16) finalId += 1; // Bayleef/Quilava/Croconaw
-
-             const rivalStarter = createRivalStarter(finalId, baseLevel);
-             enemyTeam.push(rivalStarter);
-          }
-        }
-      } else if (battleData.id?.startsWith('hoenn_rival')) {
-        const myHoennStarter = gameState.selectedStarters?.hoenn;
-        if (myHoennStarter) {
-          const hoennRivalMap = { 252: 255, 255: 258, 258: 252 }; // Treecko -> Torchic, etc.
-          const advantagedStarterId = hoennRivalMap[myHoennStarter];
-          if (advantagedStarterId) {
-             const startersIds = [252, 253, 254, 255, 256, 257, 258, 259, 260];
-             enemyTeam = enemyTeam.filter(p => !startersIds.includes(Number(p.id)));
-             const baseLevel = battleData.team[0]?.level || 5;
-
-             // Determina a evolução correta baseada no nível
-             let finalId = advantagedStarterId;
-             if (baseLevel >= 36) finalId += 2; // Sceptile/Blaziken/Swampert
-             else if (baseLevel >= 16) finalId += 1; // Grovyle/Combusken/Marshtomp
-
-             const rivalStarter = createRivalStarter(finalId, baseLevel);
-             enemyTeam.push(rivalStarter);
-          }
-        }
-      } else if (battleData.id?.startsWith('sinnoh_rival')) {
-        const mySinnohStarter = gameState.selectedStarters?.sinnoh;
-        if (mySinnohStarter) {
-          const sinnohRivalMap = { 387: 390, 390: 393, 393: 387 }; // Turtwig -> Chimchar, etc.
-          const advantagedStarterId = sinnohRivalMap[mySinnohStarter];
-          if (advantagedStarterId) {
-             const startersIds = [387, 388, 389, 390, 391, 392, 393, 394, 395];
-             enemyTeam = enemyTeam.filter(p => !startersIds.includes(Number(p.id)));
-             const baseLevel = battleData.team[0]?.level || 5;
-
-             let finalId = advantagedStarterId;
-             if (baseLevel >= 34) finalId += 2; // Torterra/Infernape/Empoleon
-             else if (baseLevel >= 16) finalId += 1; // Grotle/Monferno/Prinplup
-
-             const rivalStarter = createRivalStarter(finalId, baseLevel);
-             enemyTeam.push(rivalStarter);
-          }
-        }
-      }
-
-      const bossPoke = enemyTeam[0];
+      const bossPoke = battleData.team[0];
       const maxHp = (bossPoke.maxHp || 50) * 1.5;
       
       setCurrentEnemy({
@@ -3617,7 +3497,7 @@ export default function App() {
         gymId: battleData.id,
         instanceId: Date.now(),
         spawnTime: Date.now(),
-        opponentTeam: enemyTeam,
+        opponentTeam: battleData.team,
         opponentTeamIndex: 0
       });
       setCurrentView('battles');
@@ -3721,13 +3601,8 @@ export default function App() {
     // Vitória! O som de GYM tocará apenas se ganhar insígnia
 
     const { drops, messages } = processDrops(currentEnemy);
-    const trainerReward = currentEnemy.trainerReward || 0;
-    const adjustedTrainerReward = currentEnemy.isTrainer && trainerReward > 0
-      ? Math.max(1, Math.floor(trainerReward * TRAINER_REWARD_MULTIPLIER))
-      : 0;
     // ⛏️” PROTECTED: Fórmula XP — NíO ALTERAR DIVISOR SEM AUTORIZAÇíO
-    const enemyBattleLevel = getBattleLevel(currentEnemy, 1);
-    const baseXpGain = Math.floor((enemyBattleLevel * 1.5 * (POKEDEX[Number(currentEnemy.id)]?.baseXp || 50)) / 7);
+    const baseXpGain = Math.floor(((currentEnemy.level || 1) * 1.5 * (POKEDEX[Number(currentEnemy.id)]?.baseXp || 50)) / 7);
 
     setGameState(prev => {
       const newInventory = { ...prev.inventory };
@@ -3765,13 +3640,7 @@ export default function App() {
         sfxGym();
         
         const activeRegion = prev.activeRegion || 'kanto';
-        const regionalBadgesForLog = newBadges.filter(b => 
-          activeRegion === 'kanto' ? BADGE_IDS.includes(b) :
-          activeRegion === 'johto' ? JOHTO_BADGE_IDS.includes(b) :
-          activeRegion === 'hoenn' ? HOENN_BADGE_IDS.includes(b) :
-          false
-        );
-        const newShare = regionalBadgesForLog.length * 10;
+        const newShare = Math.round(getRegionExpShareRate(newBadges, activeRegion) * 100);
         addLog(`✨ Exp Share aumentado! Sua equipe agora recebe ${newShare}% da experiência compartilhada!`, 'system');
         
         // Show Oak House modal after 1st badge
@@ -3797,19 +3666,34 @@ export default function App() {
       }
       if (currentEnemy.gymId === 'blue' && !newFlags.includes('champion')) {
         newFlags.push('champion');
+        if (!newFlags.includes('region_champion_kanto')) newFlags.push('region_champion_kanto');
         newFlags.push('kanto_champion_modal_pending');
         setTimeout(() => setShowKantoChampionModal(true), 1200);
       }
-
-      // Gatilho para Hoenn após vencer a Liga de Johto
-      if (currentEnemy.unlockFlag === 'johto_champion' && !prev.worldFlags?.includes('johto_champion')) {
-        newFlags.push('johto_champion');
-        setTimeout(() => setShowHoennUnlockModal(true), 1500);
+      if (currentEnemy.unlockFlag === 'johto_champion' && !newFlags.includes('region_champion_johto')) {
+        newFlags.push('region_champion_johto');
       }
+      if (currentEnemy.unlockFlag === 'hoenn_champion') {
+        if (!newFlags.includes('region_champion_hoenn')) newFlags.push('region_champion_hoenn');
+        if (!newFlags.includes('hoenn_champion_modal_shown') && !newFlags.includes('hoenn_champion_modal_pending')) {
+          newFlags.push('hoenn_champion_modal_pending');
+          setTimeout(() => setShowSinnohIntroModal(true), 1200);
+        }
+      }
+      if (currentEnemy.unlockFlag === 'sinnoh_champion' && !newFlags.includes('region_champion_sinnoh')) {
+        newFlags.push('region_champion_sinnoh');
+      }
+      REGION_ORDER.forEach(region => {
+        const championFlag = REGION_CHAMPION_FLAGS[region];
+        const normalizedFlag = `region_champion_${region}`;
+        if (currentEnemy.unlockFlag === championFlag && !newFlags.includes(normalizedFlag)) {
+          newFlags.push(normalizedFlag);
+        }
+      });
 
+      const activeRegion = prev.activeRegion || 'kanto';
+      const badgesCount = getRegionBadgeCount(prev.badges || [], activeRegion);
       const finalBadges = newBadges; // Para facilitar uso abaixo
-      const activeRegionForExp = prev.activeRegion || 'kanto';
-      const badgesCount = getRegionBadgeCount({ badges: finalBadges, worldFlags: newFlags }, activeRegionForExp);
 
       const now = Date.now();
       const effects = prev.activeEffects || {};
@@ -3821,33 +3705,14 @@ export default function App() {
         const isLead = (i === activeMemberIndex);
         let xpToAdd = 0;
 
-        const levelDiff = (p.level || 1) - enemyBattleLevel;
-        let levelScalingMult = 1.0;
-
-        // Regras de Anti-Overlevel (Mesmo padrão de Kanto aplicado a Johto)
-        const totalBadges = finalBadges.length;
-        const johtoStarted = newFlags.includes('johto_started');
-        // Fase de Ginásios: < 8 em Kanto OU < 16 em Johto
-        const isGymPhase = (!johtoStarted && totalBadges < 8) || (johtoStarted && totalBadges < 16);
-
-        if (!isGymPhase) {
-          // Fase Pós-Liga (Kanto ou Johto): Limite Suave
-          if (levelDiff >= 40) levelScalingMult = 0.15;
-          else if (levelDiff >= 30) levelScalingMult = 0.30;
-          else if (levelDiff >= 20) levelScalingMult = 0.50;
-        } else if (levelDiff >= 20) {
-          // Fase de Ginásios: Limite Estrito
-          levelScalingMult = 0.001;
-        }
+        const levelScalingMult = getLevelGapXpMultiplier(p.level || 1, currentEnemy.level || 1);
 
         if (isLead && p.hp > 0) {
           xpToAdd = Math.floor(baseXpGain * xpMult * levelScalingMult);
         } else if (p.hp > 0 && effects.activeExpShare?.endsAt > now) {
           xpToAdd = Math.floor(baseXpGain * (effects.activeExpShare.xpShare || 0.5) * xpMult * levelScalingMult);
         } else if (p.hp > 0 && badgesCount > 0) {
-          // Exp Share Passivo: 0% a 50% (6.25% por insignias de 1 a 8)
-          const shareMult = Math.min(0.5, badgesCount * 0.0625);
-          xpToAdd = Math.floor(baseXpGain * shareMult * xpMult * levelScalingMult);
+          xpToAdd = Math.floor(baseXpGain * getRegionExpShareRate(finalBadges, activeRegion) * xpMult * levelScalingMult);
         }
 
         // Lucky Egg (Antiga Lógica Hold - Mantida para compatibilidade se necessário)
@@ -3865,17 +3730,16 @@ export default function App() {
            return p;
         }
 
-        const maxLevel = getCurrentLevelCap(prev);
-        const isLevelCapped = gameState.settings?.levelCap !== false && (p.level || 5) >= maxLevel;
-
-        if (isLevelCapped) {
-          return { ...p, status: (p.status || []).filter(s => s !== 'confuse'), stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 } };
-        }
-
         const newXp = (p.xp || 0) + xpToAdd;
         const n = p.level || 1; const xpNeeded = Math.pow(n + 1, 3) - Math.pow(n, 3);
+        const maxLevel = getRegionLevelCap(finalBadges, activeRegion);
+        const isLevelCapped = gameState.settings?.levelCap !== false && (p.level || 5) >= maxLevel;
 
         if (newXp >= xpNeeded) {
+          if (isLevelCapped) {
+            return { ...p, level: maxLevel, xp: xpNeeded - 1, stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 } };
+          }
+
           const newLevel = (p.level || 5) + 1;
           addLog(`🎉 ${p.name} subiu para Nv. ${newLevel}!`, 'system');
           notify({ type: 'level_up', title: `${p.name} subiu para Nv.${newLevel}!`, message: 'Continue treinando!', pokemonId: p.id, isShiny: p.isShiny });
@@ -3888,21 +3752,28 @@ export default function App() {
           if (pokeData?.learnset) {
             const movesToLearn = pokeData.learnset.filter(l => l.level === newLevel);
             movesToLearn.forEach(learn => {
-              const moveData = getMoveData(learn.move);
-              if (moveData.name && !newLearnedMoves.some(m => getMoveKey(m) === getMoveKey(moveData))) {
-                newLearnedMoves.push(moveData);
-                if (newMoves.length < 4 && !newMoves.some(m => getMoveKey(m) === getMoveKey(moveData))) {
-                  newMoves.push(moveData);
-                  addLog(`( ${p.name} aprendeu ${getMoveLabel(moveData)}!`, 'system');
+              const moveKey = (learn.move || '').toLowerCase();
+              const moveData = MOVES[moveKey];
+              if (moveData && !newLearnedMoves.some(m => m.name === (MOVE_TRANSLATIONS[moveKey] || moveData.name))) {
+                const moveObj = { 
+                  ...moveData, 
+                  name: MOVE_TRANSLATIONS[moveKey] || moveData.name || learn.move 
+                };
+                newLearnedMoves.push(moveObj);
+                if (newMoves.length < 4 && !newMoves.some(m => m.name === moveObj.name)) {
+                  newMoves.push(moveObj);
+                  addLog(`( ${p.name} aprendeu ${moveObj.name}!`, 'system');
                 } else {
-                  addLog(`✨ ${p.name} aprendeu ${getMoveLabel(moveData)}! (Salvo na Memória)`, 'system');
+                  addLog(`✨ ${p.name} aprendeu ${moveObj.name}! (Salvo na Memória)`, 'system');
                 }
               }
             });
           }
 
-           if (pokeData?.evolution?.level && !pokeData.evolution.item && newLevel >= pokeData.evolution.level && (pokeData.evolution.id <= 386)) {
-             setEvolutionPending({ ...p, level: newLevel, teamIndex: i });
+          const evos = Array.isArray(pokeData?.evolution) ? pokeData.evolution : (pokeData?.evolution ? [pokeData.evolution] : []);
+          const autoEvo = evos.find(e => e.level && !e.item && newLevel >= e.level && (!e.time || e.time.includes(getTimeOfDay())) && isEvolutionAllowedForRegion(p, e.id, prev.activeRegion || 'kanto'));
+          if (autoEvo) {
+            setEvolutionPending({ ...p, level: newLevel, targetEvolution: autoEvo, teamIndex: i });
           }
 
           const shinyMult = p.isShiny ? 1.2 : 1.0;
@@ -3931,24 +3802,25 @@ export default function App() {
 
       return {
         ...prev,
-        currency: (prev.currency || 0) + (drops.currency || 0) + adjustedTrainerReward,
+        currency: (prev.currency || 0) + (drops.currency || 0) + (currentEnemy.trainerReward || 0),
         inventory: newInventory,
         team: newTeam,
         worldFlags: [...newFlags, ...tempWorldFlags].filter((v, i, a) => a.indexOf(v) === i),
         badges: newBadges,
-        gymDefeatCounts: newGymCounts
+        gymDefeatCounts: newGymCounts,
+        trainerBattleWins: (prev.trainerBattleWins || 0) + (currentEnemy.isTrainer ? 1 : 0)
       };
     });
 
     messages.forEach(m => addLog(m, 'drop'));
-    if (currentEnemy.isTrainer && adjustedTrainerReward) {
-      addLog(` 🏆 ${currentEnemy.trainerName} derrotado! +${adjustedTrainerReward} coins`, 'system');
+    if (currentEnemy.isTrainer && currentEnemy.trainerReward) {
+      addLog(` 🏆 ${currentEnemy.trainerName} derrotado! +${currentEnemy.trainerReward} coins`, 'system');
     }
     if (currentEnemy.isRocket) addLog('🚀 Grunt da Equipe Rocket derrotado!', 'system');
     if (currentEnemy.isShiny) addLog('✨ Pokémon shiny derrotado!', 'system');
 
     sessionRef.current.kills += 1;
-    sessionRef.current.coins += (drops.currency || 0) + adjustedTrainerReward;
+    sessionRef.current.coins += (drops.currency || 0) + (currentEnemy.trainerReward || 0);
     if (currentEnemy.isTrainer) sessionRef.current.trainers += 1;
     if (currentEnemy.isShiny) sessionRef.current.shinyKills += 1;
 
@@ -4047,6 +3919,7 @@ export default function App() {
                     inventory: { ...prev.inventory, items: newInventoryItems }, 
                     speciesMastery: newMastery, 
                     caughtData: newCaughtData, 
+                    shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
                     ...questUpdate 
                   };
                 } else {
@@ -4063,6 +3936,7 @@ export default function App() {
                     inventory: { ...prev.inventory, items: newInventoryItems }, 
                     speciesMastery: newMastery, 
                     caughtData: newCaughtData, 
+                    shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
                     ...questUpdate 
                   };
                 }
@@ -4085,21 +3959,17 @@ export default function App() {
       isProcessingVictory.current = false;
       if (currentEnemy.unlockFlag === 'rival_1_defeated') {
         setCurrentView('prof_oak_starters_announcement');
-      } else if (currentEnemy.unlockFlag === 'johto_rival_1_defeated') {
-        setCurrentView('prof_elm_starters_announcement');
-      } else if (currentEnemy.unlockFlag === 'hoenn_rival_1_defeated') {
-        setCurrentView('prof_birch_announcement');
-      } else if (currentEnemy.unlockFlag === 'sinnoh_rival_1_defeated') {
-        setCurrentView('prof_rowan_announcement');
       } else if (currentEnemy.isInitialRival) {
         setCurrentView('rival_post_battle');
+      } else if (isStoryVsEnemy(currentEnemy)) {
+        openStoryBattleResult(currentEnemy, 'victory');
       } else if (currentEnemy.isGymLeader || currentEnemy.isBoss) {
         handleGoToCity();
       } else {
         spawnEnemy();
       }
     }, 600);
-  }, [currentEnemy?.hp]);
+  }, [currentEnemy?.hp, isStoryVsEnemy, openStoryBattleResult]);
 
   const renderView = (props = {}) => {
     if (loading) return (
@@ -4112,7 +3982,14 @@ export default function App() {
 
     switch(currentView) {
       case 'landing': {
-        const hasSave = (gameState.team && gameState.team.length > 0);
+        const hasSave = Boolean(
+          (gameState.team && gameState.team.length > 0) ||
+          (gameState.pc && gameState.pc.length > 0) ||
+          Object.values(gameState.regional_teams || gameState.regionalTeams || {}).some(team => (team || []).length > 0) ||
+          Object.keys(gameState.caughtData || {}).length > 0 ||
+          (gameState.worldFlags || []).length > 0 ||
+          (gameState.badges || []).length > 0
+        );
         const startNewJourney = async () => {
           const freshState = removeUndefinedFields({ ...DEFAULT_GAME_STATE, version: APP_VERSION, lastUpdate: APP_VERSION_DATE });
           setGameState(freshState);
@@ -4185,17 +4062,13 @@ export default function App() {
                 
                 {/* ⛔ PROTECTED: Botões Landing — NíO ALTERAR TAMANHO, PADDING OU ESTILO SEM AUTORIZAÇíO */}
                 <div style={{width:'100%', display:'flex', flexDirection:'column', gap:'16px', padding:'0'}}>
-                  {hasSave && (
-                    <>
-                      {/* ⛔ PROTECTED: Botão CONTINUAR JORNADA */}
-                      <button 
-                        onClick={() => setCurrentView('city')}
-                        style={{width:'100%', padding:'20px', borderRadius:'24px', fontWeight:'900', fontSize:'18px', textTransform:'uppercase', letterSpacing:'2px', background:'white', color:'#1d4ed8', border:'none', boxShadow:'0 4px 12px rgba(0,0,0,0.3)', cursor:'pointer'}}
-                      >
-                        CONTINUAR JORNADA
-                      </button>
-                    </>
-                  )}
+                  {/* ⛔ PROTECTED: Botão CONTINUAR JORNADA */}
+                  <button 
+                    onClick={() => setCurrentView(hasSave ? 'city' : 'intro')}
+                    style={{width:'100%', padding:'20px', borderRadius:'24px', fontWeight:'900', fontSize:'18px', textTransform:'uppercase', letterSpacing:'2px', background:'white', color:'#1d4ed8', border:'none', boxShadow:'0 4px 12px rgba(0,0,0,0.3)', cursor:'pointer'}}
+                  >
+                    CONTINUAR JORNADA
+                  </button>
                    {/* ⛔ END PROTECTED: Botões Landing */}
 
                    {/* Botão de Instalação PWA na Landing (Sempre visível se não for standalone) */}
@@ -4632,7 +4505,6 @@ export default function App() {
                                 ...prev, 
                                 team: [myPoke],
                                 caughtData: { ...prev.caughtData, [p.id]: true },
-                                selectedStarters: { ...(prev.selectedStarters || {}), kanto: p.id },
                                 worldFlags: [...(prev.worldFlags || []), 'has_starter'],
                                  inventory: {
                                    ...prev.inventory,
@@ -4744,7 +4616,7 @@ export default function App() {
       );
     }
       case 'rival_post_battle': {
-        const route = processedRoutes[gameState.currentRoute] || ROUTES[gameState.currentRoute] || { name: 'Local Desconhecido' };
+        const route = processedRoutes[gameState.currentRoute] || ROUTES[gameState.currentRoute];
         return (
           <div
             className="relative h-full flex flex-col items-center justify-center overflow-hidden"
@@ -4779,7 +4651,7 @@ export default function App() {
                <div className="absolute top-2 left-2 z-30 flex items-center gap-2 px-2 py-1 bg-black/40 backdrop-blur-sm rounded-lg border border-white/10 shadow-lg animate-fadeIn pointer-events-none">
         <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
         <span className="text-[9px] font-black uppercase tracking-widest text-white/70">Localização:</span>
-        <span className="text-[10px] font-black uppercase tracking-tighter text-white">{route?.name || 'Local Desconhecido'}</span>
+        <span className="text-[10px] font-black uppercase tracking-tighter text-white">{route.name}</span>
       </div><p style={{
                 fontSize: '11px', fontWeight: 900,
                 color: '#dc2626',
@@ -4944,39 +4816,44 @@ export default function App() {
         const birchSprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorbirch.png';
         const hoennStarters = [252, 255, 258].map(id => POKEDEX[id]).filter(Boolean);
         return (
-          <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden bg-cyan-950">
-            <div className="absolute inset-0 bg-[url('/bg_littleroot.png')] bg-cover bg-center opacity-70" />
-            <div className="absolute inset-0 bg-gradient-to-b from-cyan-950/40 via-teal-900/30 to-slate-950/80" />
+          <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden bg-orange-950">
+            <div className="absolute inset-0 bg-[url('/bg_route119.png')] bg-cover bg-center opacity-70" />
+            <div className="absolute inset-0 bg-gradient-to-b from-orange-950/35 via-emerald-900/20 to-slate-950/80" />
 
             <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
               <img src={birchSprite} onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="h-64 object-contain drop-shadow-2xl animate-float" alt="Prof. Birch" />
             </div>
 
             <div className="relative z-10 w-full p-4 pb-6">
-              <div className="bg-white rounded-[2rem] border-b-[10px] border-cyan-700 shadow-2xl p-5 max-w-2xl mx-auto">
+              <div className="bg-white rounded-[2rem] border-b-[10px] border-orange-600 shadow-2xl p-5 max-w-2xl mx-auto">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-11 h-11 rounded-2xl bg-cyan-100 flex items-center justify-center overflow-hidden border-2 border-cyan-200">
+                  <div className="w-11 h-11 rounded-2xl bg-orange-100 flex items-center justify-center overflow-hidden border-2 border-orange-200">
                     <img src={birchSprite} onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-9 h-9 object-contain" alt="" />
                   </div>
                   <div className="text-left">
-                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-cyan-600">Prof. Birch</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-orange-600">Prof. Birch</p>
                     <h2 className="text-xl font-black uppercase italic tracking-tighter text-slate-800 leading-none">Bem-vindo a Hoenn</h2>
                   </div>
                 </div>
 
                 <p className="text-sm font-bold text-slate-600 leading-relaxed mb-3 italic">
-                  "Campeao, Hoenn tem uma pesquisa de campo perfeita para voce. Comece em Littleroot e avance pelos ginasios da regiao."
+                  "Campeao de Johto, Hoenn tem biomas selvagens, equipes vilas e uma Liga preparada para voce."
                 </p>
                 <p className="text-sm font-black text-slate-800 leading-relaxed mb-4 uppercase">
-                  "Ao iniciar Hoenn, seu time atual fica guardado no PC regional e a nova jornada comeca com um inicial de nivel 5."
+                  "Ao iniciar esta regiao, seu time atual ficara guardado no PC regional. Escolha Treecko, Torchic ou Mudkip para comecar do zero."
                 </p>
+
+                <div className="bg-orange-50 border-2 border-orange-200 rounded-2xl p-3 mb-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-orange-700">Regra regional</p>
+                  <p className="text-xs font-bold text-orange-900 mt-1">A jornada de Hoenn usa Pokemon da terceira geracao ate voce vencer a Liga local.</p>
+                </div>
 
                 <div className="grid grid-cols-3 gap-3 mb-4">
                   {hoennStarters.map(starter => (
                     <button
                       key={starter.id}
                       onClick={() => handleStartHoenn(starter.id)}
-                      className="bg-slate-50 border-2 border-slate-100 rounded-2xl p-3 flex flex-col items-center gap-2 hover:border-cyan-400 hover:bg-cyan-50 active:scale-95 transition-all"
+                      className="bg-slate-50 border-2 border-slate-100 rounded-2xl p-3 flex flex-col items-center gap-2 hover:border-orange-400 hover:bg-orange-50 active:scale-95 transition-all"
                     >
                       <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${starter.id}.png`} className="w-16 h-16 object-contain" alt={starter.name} />
                       <span className="text-[10px] font-black uppercase text-slate-800 leading-none">{starter.name}</span>
@@ -4989,7 +4866,68 @@ export default function App() {
                   onClick={() => setCurrentView('city')}
                   className="w-full min-h-[48px] rounded-2xl bg-slate-100 text-slate-500 font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-all"
                 >
-                  Voltar
+                  Voltar para Johto
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+      case 'sinnoh_intro': {
+        const rowanSprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorrowan.png';
+        const sinnohStarters = [387, 390, 393].map(id => POKEDEX[id]).filter(Boolean);
+        return (
+          <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden bg-sky-950">
+            <div className="absolute inset-0 bg-[url('/bg_twinleaf.png')] bg-cover bg-center opacity-70" />
+            <div className="absolute inset-0 bg-gradient-to-b from-sky-950/35 via-cyan-900/25 to-slate-950/80" />
+
+            <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
+              <img src={rowanSprite} onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="h-64 object-contain drop-shadow-2xl animate-float" alt="Prof. Rowan" />
+            </div>
+
+            <div className="relative z-10 w-full p-4 pb-6">
+              <div className="bg-white rounded-[2rem] border-b-[10px] border-sky-700 shadow-2xl p-5 max-w-2xl mx-auto">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-11 h-11 rounded-2xl bg-sky-100 flex items-center justify-center overflow-hidden border-2 border-sky-200">
+                    <img src={rowanSprite} onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-9 h-9 object-contain" alt="" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-sky-600">Prof. Rowan</p>
+                    <h2 className="text-xl font-black uppercase italic tracking-tighter text-slate-800 leading-none">Bem-vindo a Sinnoh</h2>
+                  </div>
+                </div>
+
+                <p className="text-sm font-bold text-slate-600 leading-relaxed mb-3 italic">
+                  "Campeao de Hoenn, sua jornada chamou minha atencao. Sinnoh tem especies e desafios que exigem um novo começo."
+                </p>
+                <p className="text-sm font-black text-slate-800 leading-relaxed mb-4 uppercase">
+                  "Seu time de Hoenn ficara guardado no PC regional. Escolha um novo parceiro e avance por rotas pensadas para subir do nivel 5 ate o treino de elite no nivel 100."
+                </p>
+
+                <div className="bg-cyan-50 border-2 border-cyan-200 rounded-2xl p-3 mb-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-cyan-700">Regra regional</p>
+                  <p className="text-xs font-bold text-cyan-900 mt-1">A jornada de Sinnoh comeca isolada, com progressao propria de capturas e treino.</p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  {sinnohStarters.map(starter => (
+                    <button
+                      key={starter.id}
+                      onClick={() => handleStartSinnoh(starter.id)}
+                      className="bg-slate-50 border-2 border-slate-100 rounded-2xl p-3 flex flex-col items-center gap-2 hover:border-sky-400 hover:bg-sky-50 active:scale-95 transition-all"
+                    >
+                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${starter.id}.png`} className="w-16 h-16 object-contain" alt={starter.name} />
+                      <span className="text-[10px] font-black uppercase text-slate-800 leading-none">{starter.name}</span>
+                      <span className="text-[8px] font-black uppercase text-slate-400">{starter.type}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setCurrentView('city')}
+                  className="w-full min-h-[48px] rounded-2xl bg-slate-100 text-slate-500 font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-all"
+                >
+                  Voltar para Hoenn
                 </button>
               </div>
             </div>
@@ -5045,34 +4983,32 @@ export default function App() {
       );
       case 'city': return (
         <>
-          <Suspense fallback={<ScreenLoader label="Carregando cidade..." />}>
-            <CityScreen 
-              {...props}
-              gameState={gameState} 
-              powerScore={powerScore}
-              ROUTES={processedRoutes} 
-              fixPath={fixPath} 
-              setActiveBuildingModal={setActiveBuildingModal} 
-              setActiveQuestModal={setActiveQuestModal} 
-              activeQuestModal={activeQuestModal}
-              setGameState={setGameState}
-              setCurrentView={setCurrentView}
-              setCurrentEnemy={setCurrentEnemy}
-              onChallengeRival={startBattleAgainstRival}
-              onBackToBattle={() => {
-                if (gameState.lastFarmingRoute) {
-                  setGameState(prev => ({ ...prev, currentRoute: prev.lastFarmingRoute }));
-                  setCurrentEnemy(null);
-                  setCurrentView('battles');
-                } else {
-                  setCurrentView('routes');
-                }
-              }}
-              onOpenExpeditions={() => setShowExpeditions(true)}
-              onOpenHouse={() => setShowHouse(true)}
-              onBuyHouse={handleBuyHouse}
-            />
-          </Suspense>
+          <CityScreen 
+            {...props}
+            gameState={gameState} 
+            powerScore={powerScore}
+            ROUTES={processedRoutes} 
+            fixPath={fixPath} 
+            setActiveBuildingModal={setActiveBuildingModal} 
+            setActiveQuestModal={setActiveQuestModal} 
+            activeQuestModal={activeQuestModal}
+            setGameState={setGameState}
+            setCurrentView={setCurrentView}
+            setCurrentEnemy={setCurrentEnemy}
+            onChallengeRival={startBattleAgainstRival}
+            onBackToBattle={() => {
+              if (gameState.lastFarmingRoute) {
+                setGameState(prev => ({ ...prev, currentRoute: prev.lastFarmingRoute }));
+                setCurrentEnemy(null);
+                setCurrentView('battles');
+              } else {
+                setCurrentView('routes');
+              }
+            }}
+            onOpenExpeditions={() => setShowExpeditions(true)}
+            onOpenHouse={() => setShowHouse(true)}
+            onBuyHouse={handleBuyHouse}
+          />
 
           {/* Modal do Prof. Carvalho sobre a Casa */}
           {showOakHouseModal && (
@@ -5310,15 +5246,12 @@ export default function App() {
         <Suspense fallback={<div className="h-full flex items-center justify-center bg-slate-900 text-white font-black uppercase tracking-[0.3em] animate-pulse">Carregando Desafios...</div>}>
           <VsScreen
             gameState={gameState}
+            powerScore={powerScore}
             onChallengeGym={(gymData) => {
               handleChallengeGym(gymData);
             }}
             onChallenge={(challenge) => {
-              if (challenge.category === 'rival') {
-                startBattleAgainstRival(challenge);
-              } else {
-                startKeyBattle(challenge);
-              }
+              startKeyBattle(challenge);
             }}
             onClose={() => setCurrentView('city')}
             setCurrentView={setCurrentView}
@@ -5402,192 +5335,9 @@ export default function App() {
         </div>
       );
 
-      case 'prof_elm_starters_announcement': return (
-        <div className="absolute inset-0 z-[9999] flex flex-col bg-[#0a1e0f] overflow-hidden animate-fadeIn">
-          {/* Header Superior - Padrão Premium */}
-          <div className="bg-emerald-700 px-6 py-5 flex items-center justify-between shadow-xl shrink-0 z-20 border-b border-white/10">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner">
-                <img src="https://play.pokemonshowdown.com/sprites/trainers/professorelm.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-10 h-10 object-contain drop-shadow-md" alt="Elm" />
-              </div>
-              <div className="text-left">
-                <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">Guia de Johto</p>
-                <h3 className="text-white text-xl font-black uppercase italic leading-none tracking-tighter">Mensagem do Prof. Elm</h3>
-              </div>
-            </div>
-          </div>
-
-          {/* Área de Conteúdo */}
-          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center relative overflow-y-auto">
-            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-            
-            <div className="relative z-10 max-w-sm">
-              <div className="mb-8 transform hover:scale-105 transition-transform duration-500">
-                <div className="w-32 h-32 mx-auto rounded-full bg-white/5 border-2 border-emerald-500/30 flex items-center justify-center p-4 shadow-[0_0_50px_rgba(16,185,129,0.15)]">
-                  <img src="https://play.pokemonshowdown.com/sprites/trainers/professorelm.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-24 h-24 object-contain drop-shadow-2xl" alt="Elm" />
-                </div>
-              </div>
-
-              <h2 className="text-white font-black text-2xl uppercase italic tracking-tighter leading-tight mb-6">
-                "Notícias de New Bark!"
-              </h2>
-
-              <div className="space-y-4 text-white/90 text-sm font-bold leading-relaxed italic">
-                <p>
-                  "Incrível! Meus parabéns por derrotar o rival! A pesquisa em Johto está avançando rápido..."
-                </p>
-                <p className="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-inner">
-                  "Os Pokémon iniciais de Johto: <span className="text-emerald-400">Chikorita</span>, <span className="text-orange-400">Cyndaquil</span> e <span className="text-blue-400">Totodile</span> foram avistados selvagens na Rota 29 e na Rota 30!"
-                </p>
-                <p>
-                  "Parece que eles estão se adaptando bem ao ambiente natural. Agora você pode encontrá-los e capturá-los para sua equipe! Boa sorte!"
-                </p>
-              </div>
-
-              <div className="mt-10 flex flex-wrap justify-center gap-4 opacity-40 grayscale animate-pulse">
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/152.png" className="w-12 h-12 object-contain" alt="152" />
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/155.png" className="w-12 h-12 object-contain" alt="155" />
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/158.png" className="w-12 h-12 object-contain" alt="158" />
-              </div>
-            </div>
-          </div>
-
-          {/* Rodapé Fixo */}
-          <div className="p-8 pt-4 bg-black/20 shrink-0 border-t border-white/5">
-            <button 
-              onClick={() => {
-                setGameState(prev => ({ 
-                  ...prev, 
-                  worldFlags: [...(prev.worldFlags || []), 'johto_rival_1_defeated'].filter((v, i, a) => a.indexOf(v) === i)
-                }));
-                setCurrentView('city');
-              }}
-              className="w-full bg-white text-slate-900 py-5 rounded-2xl font-black uppercase text-base tracking-widest hover:bg-slate-100 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.3)] active:scale-95"
-            >
-              ENTENDIDO!
-            </button>
-          </div>
-        </div>
-      );
-
-      case 'prof_birch_announcement': return (
-        <div className="absolute inset-0 z-[9999] flex flex-col bg-[#0f1a2a] overflow-hidden animate-fadeIn">
-          <div className="bg-cyan-700 px-6 py-5 flex items-center justify-between shadow-xl shrink-0 z-20 border-b border-white/10">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner">
-                <img src="https://play.pokemonshowdown.com/sprites/trainers/professorbirch.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-10 h-10 object-contain drop-shadow-md" alt="Birch" />
-              </div>
-              <div className="text-left">
-                <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">Guia de Hoenn</p>
-                <h3 className="text-white text-xl font-black uppercase italic leading-none tracking-tighter">Mensagem do Prof. Birch</h3>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center relative overflow-y-auto">
-            <div className="relative z-10 max-w-sm">
-              <div className="mb-8 transform hover:scale-105 transition-transform duration-500">
-                <div className="w-32 h-32 mx-auto rounded-full bg-white/5 border-2 border-cyan-500/30 flex items-center justify-center p-4 shadow-[0_0_50px_rgba(6,182,212,0.15)]">
-                  <img src="https://play.pokemonshowdown.com/sprites/trainers/professorbirch.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-24 h-24 object-contain drop-shadow-2xl" alt="Birch" />
-                </div>
-              </div>
-
-              <h2 className="text-white font-black text-2xl uppercase italic tracking-tighter leading-tight mb-6">"Selvagens em Littleroot!"</h2>
-
-              <div className="space-y-4 text-white/90 text-sm font-bold leading-relaxed italic">
-                <p>"Espetacular! Apos sua vitoria contra o rival, percebemos uma mudanca no ecossistema local."</p>
-                <p className="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-inner">
-                  "Os iniciais de Hoenn: <span className="text-emerald-400">Treecko</span>, <span className="text-orange-400">Torchic</span> e <span className="text-blue-400">Mudkip</span> estao agora nas Rotas 101 e 102!"
-                </p>
-                <p>"Parece que o habitat de Hoenn esta reagindo a sua presenca. Va e capture-os!"</p>
-              </div>
-
-              <div className="mt-10 flex flex-wrap justify-center gap-4 opacity-40 grayscale animate-pulse">
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/252.png" className="w-12 h-12 object-contain" alt="252" />
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/255.png" className="w-12 h-12 object-contain" alt="255" />
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/258.png" className="w-12 h-12 object-contain" alt="258" />
-              </div>
-            </div>
-          </div>
-
-          <div className="p-8 pt-4 bg-black/20 shrink-0 border-t border-white/5">
-            <button 
-              onClick={() => {
-                setGameState(prev => ({ 
-                  ...prev, 
-                  worldFlags: [...(prev.worldFlags || []), 'hoenn_rival_1_defeated'].filter((v, i, a) => a.indexOf(v) === i)
-                }));
-                setCurrentView('city');
-              }}
-              className="w-full bg-white text-slate-900 py-5 rounded-2xl font-black uppercase text-base tracking-widest hover:bg-slate-100 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.3)] active:scale-95"
-            >
-              VAMOS NESSA!
-            </button>
-          </div>
-        </div>
-      );
-
-      case 'prof_rowan_announcement': return (
-        <div className="absolute inset-0 z-[9999] flex flex-col bg-[#1a0f0a] overflow-hidden animate-fadeIn">
-          <div className="bg-amber-800 px-6 py-5 flex items-center justify-between shadow-xl shrink-0 z-20 border-b border-white/10">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner">
-                <img src="https://play.pokemonshowdown.com/sprites/trainers/professorrowan.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-10 h-10 object-contain drop-shadow-md" alt="Rowan" />
-              </div>
-              <div className="text-left">
-                <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">Guia de Sinnoh</p>
-                <h3 className="text-white text-xl font-black uppercase italic leading-none tracking-tighter">Mensagem do Prof. Rowan</h3>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center relative overflow-y-auto">
-            <div className="relative z-10 max-w-sm">
-              <div className="mb-8 transform hover:scale-105 transition-transform duration-500">
-                <div className="w-32 h-32 mx-auto rounded-full bg-white/5 border-2 border-amber-500/30 flex items-center justify-center p-4 shadow-[0_0_50px_rgba(180,83,9,0.15)]">
-                  <img src="https://play.pokemonshowdown.com/sprites/trainers/professorrowan.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-24 h-24 object-contain drop-shadow-2xl" alt="Rowan" />
-                </div>
-              </div>
-
-              <h2 className="text-white font-black text-2xl uppercase italic tracking-tighter leading-tight mb-6">"Evolucao na Natureza!"</h2>
-
-              <div className="space-y-4 text-white/90 text-sm font-bold leading-relaxed italic">
-                <p>"Muito bem. Derrotar Barry requer disciplina. Agora, observe os frutos do seu esforco."</p>
-                <p className="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-inner">
-                  "Os iniciais de Sinnoh: <span className="text-emerald-400">Turtwig</span>, <span className="text-orange-400">Chimchar</span> e <span className="text-blue-400">Piplup</span> foram vistos nas Rotas 201 e 202!"
-                </p>
-                <p>"A biodiversidade de Sinnoh e vasta. Nao perca a chance de completa-la."</p>
-              </div>
-
-              <div className="mt-10 flex flex-wrap justify-center gap-4 opacity-40 grayscale animate-pulse">
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/387.png" className="w-12 h-12 object-contain" alt="387" />
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/390.png" className="w-12 h-12 object-contain" alt="390" />
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/393.png" className="w-12 h-12 object-contain" alt="393" />
-              </div>
-            </div>
-          </div>
-
-          <div className="p-8 pt-4 bg-black/20 shrink-0 border-t border-white/5">
-            <button 
-              onClick={() => {
-                setGameState(prev => ({ 
-                  ...prev, 
-                  worldFlags: [...(prev.worldFlags || []), 'sinnoh_rival_1_defeated'].filter((v, i, a) => a.indexOf(v) === i)
-                }));
-                setCurrentView('city');
-              }}
-              className="w-full bg-white text-slate-900 py-5 rounded-2xl font-black uppercase text-base tracking-widest hover:bg-slate-100 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.3)] active:scale-95"
-            >
-              PROSSEGUIR!
-            </button>
-          </div>
-        </div>
-      );
-
       case 'battles': return (
         <div className="pt-14 pb-20 h-full overflow-y-auto">
-          <Suspense fallback={<ScreenLoader label="Carregando batalha..." />}>
-            <BattleScreen 
+          <BattleScreen 
             timeOfDay={timeOfDay}
             currentEnemy={currentEnemy} 
             gameState={gameState} 
@@ -5608,7 +5358,7 @@ export default function App() {
             TYPE_COLORS={TYPE_COLORS}
             onGoToCity={handleGoToCity}
                 bossTimer={bossTimer}
-                bossDamage={bossDamage}
+                currentLevelCap={getRegionLevelCap(gameState.badges, gameState.activeRegion || 'kanto')}
                 onChallengeBoss={(battle) => {
                   if (battle.type === 'rival') {
                     startBattleAgainstRival(battle);
@@ -5616,13 +5366,11 @@ export default function App() {
                     startKeyBattle(battle);
                   }
                 }}
-            />
-          </Suspense>
+          />
         </div>
       );
       case 'routes': return (
-        <Suspense fallback={<ScreenLoader label="Carregando rotas..." />}>
-          <TravelScreen 
+        <TravelScreen 
           gameState={gameState} 
           setGameState={setGameState} 
           travelTab={travelTab} 
@@ -5636,13 +5384,11 @@ export default function App() {
           switchRegion={switchRegion}
           fixPath={fixPath}
           POKEDEX={POKEDEX}
-          />
-        </Suspense>
+        />
       );
 
       case 'pokemon_management': return (
-        <Suspense fallback={<ScreenLoader label="Carregando equipe..." />}>
-          <PokemonManagement 
+        <PokemonManagement 
           {...props}
           gameState={gameState} 
           setGameState={setGameState} 
@@ -5662,8 +5408,9 @@ export default function App() {
           setVsInitialTab={setVsInitialTab}
           validateTeamAccess={validateTeamAccess}
           activeRegion={gameState.activeRegion}
-          />
-        </Suspense>
+          isEvolutionAllowedForRegion={isEvolutionAllowedForRegion}
+          getEvolutionRegionLockMessage={getEvolutionRegionLockMessage}
+        />
       );
 
       case 'forge_screen': return (
@@ -5717,8 +5464,7 @@ export default function App() {
         </div>
       );
       case 'menu': return (
-        <Suspense fallback={<ScreenLoader label="Carregando menu..." />}>
-          <MenuScreen 
+        <MenuScreen 
           {...props}
           gameState={gameState} 
           setCurrentView={setCurrentView} 
@@ -5727,10 +5473,63 @@ export default function App() {
           onSave={triggerSave}
           MUSIC_LIST={MUSIC_LIST}
           onBack={() => setCurrentView(lastNonMenuView.current)}
-          />
-        </Suspense>
+        />
       );
 
+      case 'battle_result': {
+        const isVictory = battleResult?.outcome === 'victory';
+        return (
+          <div className={`absolute inset-0 z-[9999] flex items-center justify-center p-5 text-center animate-fadeIn ${isVictory ? 'bg-emerald-950/95' : 'bg-red-950/95'}`}>
+            <div className="w-full max-w-md overflow-hidden rounded-[2rem] bg-white shadow-2xl border-b-[10px] border-slate-900 animate-bounceIn">
+              <div className={`${isVictory ? 'bg-emerald-600' : 'bg-red-600'} px-6 py-5 text-left text-white`}>
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/70">
+                  {battleResult?.category === 'rocket' ? 'Equipe Vila' : 'Rival'}
+                </p>
+                <h2 className="text-2xl font-black uppercase italic leading-tight">{battleResult?.title}</h2>
+              </div>
+              <div className="p-6">
+                <div className={`mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl ${isVictory ? 'bg-emerald-50' : 'bg-red-50'}`}>
+                  <img
+                    src={isVictory ? 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png' : 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/full-restore.png'}
+                    className="h-14 w-14 object-contain"
+                    alt=""
+                  />
+                </div>
+                <h3 className="mb-2 text-xl font-black uppercase italic text-slate-800">{battleResult?.enemyName}</h3>
+                <p className="mb-6 text-sm font-bold leading-relaxed text-slate-500">{battleResult?.message}</p>
+                <button
+                  onClick={() => {
+                    if (isVictory) {
+                      setGameState(prev => ({ ...prev, currentRoute: battleResult?.nextRoute || prev.currentRoute || 'route_1' }));
+                      setBattleResult(null);
+                      setCurrentEnemy(null);
+                      setCurrentView('battles');
+                    } else {
+                      setBattleResult(null);
+                      setCurrentView('heal_after_defeat');
+                    }
+                  }}
+                  className={`min-h-[56px] w-full rounded-2xl ${isVictory ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-red-600 hover:bg-red-500'} px-4 py-4 text-sm font-black uppercase tracking-widest text-white shadow-lg transition-all active:scale-95`}
+                >
+                  {battleResult?.nextLabel}
+                </button>
+                {isVictory && (
+                  <button
+                    onClick={() => {
+                      setBattleResult(null);
+                      setCurrentEnemy(null);
+                      setCurrentView('city');
+                    }}
+                    className="mt-3 min-h-[48px] w-full rounded-2xl bg-slate-100 px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-slate-200"
+                  >
+                    Ficar na cidade
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      }
       case 'defeat_screen': return (
         <div className="h-full flex flex-col items-center justify-center bg-slate-900 p-8 relative overflow-hidden animate-fadeIn">
            {/* Efeito de Nevoeiro Fantasmagórico */}
@@ -5760,10 +5559,11 @@ export default function App() {
       case 'pokedex': return (
         <Suspense fallback={<div className="h-full bg-slate-900 flex items-center justify-center text-pokeGold font-black uppercase tracking-[0.5em] animate-pulse">Sincronizando Pokédex...</div>}>
           <PokedexScreen 
-            POKEDEX={Object.fromEntries(Object.entries(POKEDEX).filter(([id]) => Number(id) <= 386))}
+            POKEDEX={Object.fromEntries(Object.entries(POKEDEX).filter(([id]) => Number(id) <= getUnlockedDexLimit(gameState)))}
             caughtData={gameState.caughtData} 
             team={gameState.team}
             box={gameState.pc}
+            dexLimit={getUnlockedDexLimit(gameState)}
             onBack={() => setCurrentView(lastNonMenuView.current)} 
           />
         </Suspense>
@@ -5787,16 +5587,25 @@ export default function App() {
                </p>
                
                <button 
-                 onClick={() => {
-                   const targetCity = getNearestCityRouteId(gameState.currentRoute);
-                   healTeamAtPokemonCenter(() => {
-                     setGameState(prev => ({
-                       ...prev,
-                       lastFarmingRoute: (ROUTES[prev.currentRoute]?.type === 'farm') ? prev.currentRoute : prev.lastFarmingRoute,
-                       currentRoute: targetCity,
-                     }));
-                     setCurrentView('city');
-                   });
+                 onClick={() => { 
+                   if (isHealing) return;
+                   stopSFX();
+                   sfxHeal();
+                   setIsHealing(true);
+                   setGameState(prev => ({ 
+                     ...prev, 
+                     team: prev.team.map(p => ({ 
+                       ...p, 
+                       hp: p.maxHp, 
+                       status: [],
+                       stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 } 
+                     })) 
+                   })); 
+                   
+                   setTimeout(() => {
+                     setIsHealing(false);
+                     goToCity(true); 
+                   }, 2000);
                  }}
                  className={`w-full ${isHealing ? 'bg-slate-400 animate-pulse' : 'bg-red-500 hover:bg-red-600 active:scale-95'} text-white py-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-[0_10px_25px_rgba(239,68,68,0.3)] flex items-center justify-center gap-4 border-b-8 border-red-700`}
                >
@@ -5830,6 +5639,16 @@ export default function App() {
     night: 'NIGHT',
   }[timeOfDay] || 'DAY';
   const autoEnabled = !!(gameState.autoFarm || gameState.autoCapture || gameState.autoConfig?.autoPotion || gameState.autoConfig?.autoStamina);
+  const autoCaptureRoute = processedRoutes[gameState.currentRoute];
+  const canShowAutoCaptureModal =
+    showAutoCaptureModal &&
+    currentView === 'battles' &&
+    currentEnemy &&
+    !currentEnemy.isTrainer &&
+    !currentEnemy.isWildBoss &&
+    !currentEnemy.isLegendary &&
+    autoCaptureRoute?.type === 'farm' &&
+    autoCaptureRoute?.enemies?.length > 0;
   
   const updateAutoConfig = (patch) => {
     setGameState(prev => ({
@@ -5837,13 +5656,6 @@ export default function App() {
       autoConfig: { ...(prev.autoConfig || {}), ...patch },
     }));
   };
-
-  const GearIcon = () => (
-    <svg viewBox="0 0 24 24" className="w-8 h-8 text-white" fill="none" aria-hidden="true">
-      <path d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5Z" stroke="currentColor" strokeWidth="2" />
-      <path d="M19.4 13.5a7.8 7.8 0 0 0 0-3l2-1.35-2-3.46-2.36.98a8.04 8.04 0 0 0-2.6-1.5L14.1 2.6h-4l-.35 2.57a8.04 8.04 0 0 0-2.6 1.5l-2.36-.98-2 3.46 2 1.35a7.8 7.8 0 0 0 0 3l-2 1.35 2 3.46 2.36-.98a8.04 8.04 0 0 0 2.6 1.5l.35 2.57h4l.35-2.57a8.04 8.04 0 0 0 2.6-1.5l2.36.98 2-3.46-2-1.35Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-    </svg>
-  );
 
   if (!isPreloaded) {
     return (
@@ -6066,7 +5878,7 @@ export default function App() {
               <div className="bg-emerald-50 border-2 border-emerald-100 rounded-3xl p-4 mb-5">
                 <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Nova regiao</p>
                 <p className="text-xs font-bold text-emerald-900">
-                  "Tambem recebi chamadas do Prof. Elm, em Johto, e do Prof. Birch, em Hoenn. Quando estiver pronto, escolha uma nova regiao com regras proprias."
+                  "Tambem recebi uma chamada do Prof. Elm, em Johto. Quando estiver pronto, fale com ele para iniciar uma nova regiao com regras proprias."
                 </p>
               </div>
               <div className="grid grid-cols-1 gap-3">
@@ -6090,19 +5902,6 @@ export default function App() {
                       ...prev,
                       worldFlags: (prev.worldFlags || []).filter(f => f !== 'kanto_champion_modal_pending').concat(['kanto_champion_modal_shown']).filter((v, i, a) => a.indexOf(v) === i),
                     }));
-                    setCurrentView('hoenn_intro');
-                  }}
-                  className="w-full min-h-[54px] rounded-2xl bg-cyan-600 text-white font-black uppercase tracking-widest text-xs hover:bg-cyan-700 transition-all shadow-lg"
-                >
-                  Falar com o Prof. Birch
-                </button>
-                <button
-                  onClick={() => {
-                    setShowKantoChampionModal(false);
-                    setGameState(prev => ({
-                      ...prev,
-                      worldFlags: (prev.worldFlags || []).filter(f => f !== 'kanto_champion_modal_pending').concat(['kanto_champion_modal_shown']).filter((v, i, a) => a.indexOf(v) === i),
-                    }));
                   }}
                   className="w-full min-h-[48px] rounded-2xl bg-slate-100 text-slate-500 font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-all"
                 >
@@ -6114,47 +5913,53 @@ export default function App() {
         </div>
       )}
 
-      {showHoennUnlockModal && (
-        <div className="absolute inset-0 z-[9998] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-          <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-cyan-500 animate-bounceIn">
-            <div className="bg-cyan-600 px-6 py-5 flex items-center gap-4">
+      {showSinnohIntroModal && (
+        <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-sky-500 animate-bounceIn">
+            <div className="bg-sky-600 px-6 py-5 flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
-                <img src="https://play.pokemonshowdown.com/sprites/trainers/professorbirch.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-12 h-12 object-contain" alt="Prof. Birch" />
+                <img src="https://play.pokemonshowdown.com/sprites/trainers/professorrowan.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-12 h-12 object-contain" alt="Prof. Rowan" />
               </div>
               <div>
-                <p className="text-cyan-100 text-[10px] font-black uppercase tracking-[0.25em]">Prof. Birch</p>
-                <h2 className="text-white text-xl font-black uppercase italic tracking-tighter leading-none">Convite de Hoenn</h2>
+                <p className="text-sky-100 text-[10px] font-black uppercase tracking-[0.25em]">Prof. Rowan</p>
+                <h2 className="text-white text-xl font-black uppercase italic tracking-tighter leading-none">Campeao de Hoenn</h2>
               </div>
             </div>
             <div className="p-6">
               <p className="text-sm font-bold text-slate-600 leading-relaxed italic mb-3">
-                "Campeao, Hoenn esta pronta para receber voce. Comece uma jornada nova em Littleroot com Treecko, Torchic ou Mudkip."
+                "Excelente. Steven confirmou sua vitoria na Liga de Hoenn. Sinnoh esta pronta para receber voce."
               </p>
+              <div className="bg-sky-50 border-2 border-sky-100 rounded-3xl p-4 mb-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-sky-600 mb-1">Nova regiao</p>
+                <p className="text-xs font-bold text-sky-900">
+                  "Fale comigo quando quiser escolher Turtwig, Chimchar ou Piplup e iniciar uma progressao nova ate as rotas de treino de nivel 100."
+                </p>
+              </div>
               <div className="grid grid-cols-1 gap-3">
                 <button
                   onClick={() => {
-                    setShowHoennUnlockModal(false);
+                    setShowSinnohIntroModal(false);
                     setGameState(prev => ({
                       ...prev,
-                      worldFlags: (prev.worldFlags || []).concat(['hoenn_unlock_modal_shown']).filter((v, i, a) => a.indexOf(v) === i),
+                      worldFlags: (prev.worldFlags || []).filter(f => f !== 'hoenn_champion_modal_pending').concat(['hoenn_champion_modal_shown']).filter((v, i, a) => a.indexOf(v) === i),
                     }));
-                    setCurrentView('hoenn_intro');
+                    setCurrentView('sinnoh_intro');
                   }}
-                  className="w-full min-h-[54px] rounded-2xl bg-cyan-600 text-white font-black uppercase tracking-widest text-xs hover:bg-cyan-700 transition-all shadow-lg"
+                  className="w-full min-h-[54px] rounded-2xl bg-sky-600 text-white font-black uppercase tracking-widest text-xs hover:bg-sky-700 transition-all shadow-lg"
                 >
-                  Ir para Hoenn
+                  Falar com o Prof. Rowan
                 </button>
                 <button
                   onClick={() => {
-                    setShowHoennUnlockModal(false);
+                    setShowSinnohIntroModal(false);
                     setGameState(prev => ({
                       ...prev,
-                      worldFlags: (prev.worldFlags || []).concat(['hoenn_unlock_modal_shown']).filter((v, i, a) => a.indexOf(v) === i),
+                      worldFlags: (prev.worldFlags || []).filter(f => f !== 'hoenn_champion_modal_pending').concat(['hoenn_champion_modal_shown']).filter((v, i, a) => a.indexOf(v) === i),
                     }));
                   }}
                   className="w-full min-h-[48px] rounded-2xl bg-slate-100 text-slate-500 font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-all"
                 >
-                  Mais tarde
+                  Continuar em Hoenn
                 </button>
               </div>
             </div>
@@ -6374,10 +6179,34 @@ export default function App() {
                  </p>
                  
                  <button 
-                 onClick={() => {
-                     healTeamAtPokemonCenter(() => {
-                       setActiveBuildingModal(null);
+                   onClick={() => {
+                     if (isHealing) return;
+                     stopSFX();
+                     sfxHeal();
+                     setIsHealing(true);
+                     setGameState(prev => {
+                       const newStamina = { ...prev.stamina };
+                       prev.team.forEach(p => {
+                         if (p?.instanceId) {
+                           newStamina[p.instanceId] = { value: 100, lastFed: Date.now() };
+                         }
+                       });
+                       return {
+                         ...prev,
+                         team: prev.team.map(p => ({
+                           ...p,
+                           hp: p.maxHp,
+                           status: [],
+                           stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
+                         })),
+                         stamina: newStamina,
+                       };
                      });
+                     
+                     setTimeout(() => {
+                       setActiveBuildingModal(null);
+                       setIsHealing(false);
+                     }, 2000);
                    }}
                    className={`w-full ${isHealing ? 'bg-slate-400 animate-pulse' : 'bg-red-500 hover:bg-red-600 active:scale-95'} text-white py-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-[0_10px_25px_rgba(239,68,68,0.3)] flex items-center justify-center gap-4 border-b-8 border-red-700`}
                  >
@@ -6440,14 +6269,15 @@ export default function App() {
 
                    <div className="flex flex-col gap-3 overflow-y-auto pr-1 custom-scrollbar flex-1 pb-4">
                       {[
-                        { id: 'pokeballs', name: 'Poke Bola', price: 600, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', desc: 'Captura Pokemon selvagens', availableFrom: null },
+                        { id: 'pokeballs', name: 'Poke Bola', price: 1200, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', desc: 'Captura Pokemon selvagens. Mais rara no Mart: prefira fabricar na Forja.', availableFrom: null },
                         { id: 'potions', name: 'Pocao', price: 300, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png', desc: 'Restaura 20 HP', availableFrom: null },
-                        { id: 'great_ball', name: 'Great Ball', price: 2500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png', desc: 'Melhor chance de captura', availableFrom: 'cascade_badge' },
+                        { id: 'great_ball', name: 'Great Ball', price: 4200, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png', desc: 'Melhor chance de captura. Produzir na Forja e mais eficiente.', availableFrom: 'boulder_badge' },
                         { id: 'revive', name: 'Revive', price: 1500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', desc: 'Revive Pokemon desmaiado', availableFrom: 'cascade_badge' },
-                        { id: 'ultra_ball', name: 'Ultra Ball', price: 6500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png', desc: 'Alta chance de captura', availableFrom: 'soul_badge' },
+                        { id: 'ultra_ball', name: 'Ultra Ball', price: 9500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png', desc: 'Alta chance de captura. Item caro para incentivar a Forja.', availableFrom: 'thunder_badge' },
                         ...POKE_MART_DRINKS.map(d => ({ ...d, desc: d.description }))
                       ].filter(item => isMartItemUnlocked(gameState, item.id)).map(item => {
                         const maxQty = Math.floor(gameState.currency / item.price);
+                        const ownedQty = gameState.inventory?.items?.[item.id] || 0;
                         const buyFn = (qty) => {
                           if (qty < 1) return;
                           const totalCost = item.price * qty;
@@ -6469,8 +6299,7 @@ export default function App() {
                             notify(`Sucesso: +${qty} ${item.name}`, 'success');
                           };
 
-                          if (totalCost >= 5000) {
-                            showConfirm({
+                          showConfirm({
                               type: 'confirm',
                               title: 'Confirmação de Compra',
                               message: `Deseja gastar ${totalCost.toLocaleString()} Pokédollars em ${qty}x ${item.name}?`,
@@ -6482,9 +6311,6 @@ export default function App() {
                               },
                               onCancel: closeConfirm
                             });
-                          } else {
-                            performPurchase();
-                          }
                         };
                         return (
                           <div key={item.id} className="bg-white p-4 rounded-2xl border-2 border-slate-100 shadow-sm">
@@ -6495,6 +6321,9 @@ export default function App() {
                                 <div className="flex-1 min-w-0">
                                    <h4 className="font-black text-slate-800 uppercase italic text-sm leading-tight">{item.name}</h4>
                                    <p className="text-[10px] text-slate-400 font-bold">{item.desc}</p>
+                                   <p className="mt-1 inline-flex items-center rounded-lg bg-slate-100 px-2 py-0.5 text-[9px] font-black uppercase text-slate-600">
+                                      Na mochila: {ownedQty.toLocaleString()}
+                                   </p>
                                 </div>
                                 <div className="text-right">
                                    <p className="text-[10px] font-black text-slate-400 uppercase">Preco</p>
@@ -6558,34 +6387,34 @@ export default function App() {
                            </div>
                            <div className="flex flex-col gap-3">
                               {items
-                                .filter(item => isForgeItemUnlocked(gameState, item.id, powerScore))
-                                .filter(item => Object.keys(item.cost || {}).some(mat => mat === 'currency' || (gameState.inventory.materials?.[mat] || 0) > 0))
+                                .filter(item => {
+                                  const hasAnyMaterial = Object.keys(item.cost || {}).some(mat => mat !== 'currency' && (gameState.inventory.materials?.[mat] || 0) > 0);
+                                  return isForgeItemUnlocked(gameState, item.id, powerScore) || (RECIPE_GATED_FORGE_IDS.has(item.id) && (FORGE_RECIPE_DROP_GUIDE[item.id] || hasAnyMaterial));
+                                })
                                 .map(item => {
-                                const canCraftOne = Object.entries(item.cost).every(([mat, amount]) => {
-                                 if (mat === 'currency') return gameState.currency >= amount;
-                                 return (gameState.inventory.materials?.[mat] || 0) >= amount;
-                               });
-                               const getMaxCraft = () => {
+                                 const ownedQty = gameState.inventory?.items?.[item.id] || 0;
+                                 const materialCost = Object.fromEntries(Object.entries(item.cost || {}).filter(([mat]) => mat !== 'currency'));
+                                 const recipeUnlocked = hasForgeRecipe(gameState, item.id);
+                                 const itemUnlocked = isForgeItemUnlocked(gameState, item.id, powerScore);
+                                 const recipeGuide = FORGE_RECIPE_DROP_GUIDE[item.id];
+                                 const getMaxCraft = () => {
                                  let maxN = Infinity;
-                                 Object.entries(item.cost).forEach(([mat, amount]) => {
-                                   const have = mat === 'currency' ? gameState.currency : (gameState.inventory.materials?.[mat] || 0);
+                                 Object.entries(materialCost).forEach(([mat, amount]) => {
+                                   const have = gameState.inventory.materials?.[mat] || 0;
                                    maxN = Math.min(maxN, Math.floor(have / amount));
                                  });
                                  return maxN === Infinity ? 0 : maxN;
                                };
                                const craftFn = (qty) => {
                                  if (qty < 1) return;
-                                 const totalCurrency = (item.cost.currency || 0) * qty;
-                                 
                                  const performCraft = () => {
                                    setGameState(prev => {
                                      const newInv = { ...prev.inventory, materials: { ...prev.inventory.materials } };
-                                     Object.entries(item.cost).forEach(([mat, amount]) => {
-                                       if (mat !== 'currency') newInv.materials[mat] = (newInv.materials[mat] || 0) - amount * qty;
+                                     Object.entries(materialCost).forEach(([mat, amount]) => {
+                                       newInv.materials[mat] = (newInv.materials[mat] || 0) - amount * qty;
                                      });
                                      return {
                                        ...prev,
-                                       currency: prev.currency - totalCurrency,
                                        inventory: { ...newInv, items: { ...newInv.items, [item.id]: (newInv.items[item.id] || 0) + qty } }
                                      };
                                    });
@@ -6593,11 +6422,10 @@ export default function App() {
                                    notify(`Forjado: ${item.name}`, 'success');
                                  };
 
-                                 if (totalCurrency >= 5000) {
-                                   showConfirm({
+                                  showConfirm({
                                      type: 'confirm',
-                                     title: 'Confirmar Forja de Alto Valor',
-                                     message: `Esta operação custará ${totalCurrency.toLocaleString()} Pokédollars. Prosseguir?`,
+                                     title: 'Confirmar Forja',
+                                     message: `Forjar ${qty}x ${item.name} usando apenas materiais?`,
                                      confirmLabel: 'Forjar',
                                      cancelLabel: 'Cancelar',
                                      onConfirm: () => {
@@ -6605,14 +6433,11 @@ export default function App() {
                                        performCraft();
                                      },
                                      onCancel: closeConfirm
-                                   });
-                                 } else {
-                                   performCraft();
-                                 }
+                                    });
                                };
                                const maxCraft = getMaxCraft();
                                return (
-                                 <div key={item.id} className={`rounded-2xl border-2 shadow-sm overflow-hidden transition-all ${category === 'elite_relics' ? 'bg-slate-900 border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'bg-white border-slate-100'}`}>
+                                  <div key={item.id} className={`rounded-2xl border-2 shadow-sm overflow-hidden transition-all ${!itemUnlocked ? 'opacity-90' : ''} ${category === 'elite_relics' ? 'bg-slate-900 border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'bg-white border-slate-100'}`}>
                                     <div className="flex items-start gap-3 p-3 pb-2">
                                        <div className={`${category === 'elite_relics' ? 'bg-amber-500/20 border-amber-500/40' : 'bg-orange-50 border-orange-100'} w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border`}>
                                           <img src={item.img} className="w-9 h-9 object-contain" alt={item.name} />
@@ -6622,11 +6447,14 @@ export default function App() {
                                           <p className={`text-[11px] font-bold leading-snug mt-1 ${category === 'elite_relics' ? 'text-white/40' : 'text-slate-500'}`} style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                                             {typeof item.effect === 'string' ? item.effect : (item.description || 'Item de Crafting')}
                                           </p>
+                                          <p className={`mt-2 inline-flex items-center rounded-lg px-2 py-0.5 text-[9px] font-black uppercase ${category === 'elite_relics' ? 'bg-white/10 text-white/70' : 'bg-slate-100 text-slate-600'}`}>
+                                            Na mochila: {ownedQty.toLocaleString()}
+                                          </p>
                                        </div>
                                     </div>
-                                    <div className="flex flex-wrap gap-1.5 px-3 pb-3">
-                                       {Object.entries(item.cost).map(([mat, amount]) => {
-                                         const have = mat === 'currency' ? gameState.currency : (gameState.inventory.materials?.[mat] || 0);
+                                     <div className="flex flex-wrap gap-1.5 px-3 pb-3">
+                                       {Object.entries(materialCost).map(([mat, amount]) => {
+                                         const have = gameState.inventory.materials?.[mat] || 0;
                                          const ok = have >= amount;
                                          return (
                                            <button key={mat} onClick={() => setActiveMaterialModal(mat)}
@@ -6636,13 +6464,25 @@ export default function App() {
                                            </button>
                                          );
                                        })}
-                                    </div>
-                                    <div className="grid grid-cols-3 gap-2 bg-orange-50/70 p-2">
+                                     </div>
+                                     {!recipeUnlocked && recipeGuide && (
+                                       <div className="mx-3 mb-3 rounded-xl border-2 border-blue-200 bg-blue-50 p-3 text-left">
+                                         <p className="text-[9px] font-black uppercase tracking-widest text-blue-500">Receita bloqueada</p>
+                                         <p className="mt-1 text-[11px] font-bold leading-snug text-blue-900">{recipeGuide.label}</p>
+                                         <button
+                                           onClick={() => handleGoToRecipeSource(item.id)}
+                                           className="mt-3 min-h-[40px] w-full rounded-xl bg-blue-600 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-md transition-all hover:bg-blue-500 active:scale-95"
+                                         >
+                                           Ir dropar receita
+                                         </button>
+                                       </div>
+                                     )}
+                                     <div className="grid grid-cols-3 gap-2 bg-orange-50/70 p-2">
                                        {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'Max',qty:maxCraft}].map(opt => {
-                                         const canAffordQty = Object.entries(item.cost).every(([mat, amount]) => {
-                                           const have = mat === 'currency' ? gameState.currency : (gameState.inventory.materials?.[mat] || 0);
-                                           return have >= amount * opt.qty;
-                                         });
+                                          const canAffordQty = itemUnlocked && Object.entries(materialCost).every(([mat, amount]) => {
+                                            const have = gameState.inventory.materials?.[mat] || 0;
+                                            return have >= amount * opt.qty;
+                                          });
                                          return (
                                            <button key={opt.label}
                                              disabled={!canAffordQty || opt.qty < 1}
@@ -6667,8 +6507,8 @@ export default function App() {
        </div>
       )}
       {activeMaterialModal && (
-        <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
-           <div className="modal-panel-mobile bg-white shadow-2xl border-b-[8px] border-slate-800 animate-bounceIn overflow-hidden flex flex-col">
+        <div className="fixed inset-0 z-[60000] flex items-center justify-center p-4 bg-slate-900/85 backdrop-blur-md animate-fadeIn">
+           <div className="modal-panel-mobile bg-white shadow-2xl border-b-[8px] border-slate-800 animate-bounceIn overflow-hidden flex flex-col relative z-[60001]">
               <div className="bg-slate-700 px-5 py-4 flex items-center justify-between gap-3 shrink-0">
                  <div className="flex items-center gap-3 min-w-0">
                     <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
@@ -6693,18 +6533,12 @@ export default function App() {
                     </div>
                  </div>
 
-                 <p className="text-sm font-bold text-slate-600 leading-relaxed bg-white rounded-2xl border border-slate-100 p-4">
-                    {(() => {
-                       switch(activeMaterialModal) {
+                  <p className="text-sm font-bold text-slate-600 leading-relaxed bg-white rounded-2xl border border-slate-100 p-4">
+                     {(() => {
+                       const guide = FORGE_MATERIAL_DROP_GUIDE[activeMaterialModal];
+                       if (guide) return guide.label;
+                        switch(activeMaterialModal) {
                           case 'currency': return 'Obtido derrotando Pokemon em qualquer rota ou vendendo itens raros.';
-                          case 'apricorn': return 'Dropado nas primeiras rotas de Kanto, principalmente Rota 1, Rota 22 e Floresta de Viridian.';
-                          case 'blue_apricorn': return 'Colhido ao plantar sementes de Apricorn Azul. As sementes aparecem melhor no meio do jogo.';
-                          case 'black_apricorn': return 'Colhido ao plantar sementes de Apricorn Preto. As sementes aparecem em rotas finais e Victory Road.';
-                          case 'green_apricorn': return 'Colhido ao plantar sementes de Apricorn Verde. Procure sementes na Floresta de Viridian e rotas naturais.';
-                          case 'red_apricorn': return 'Colhido ao plantar sementes de Apricorn Vermelho. Procure sementes em rotas abertas do inicio e meio do jogo.';
-                          case 'white_apricorn': return 'Colhido ao plantar sementes de Apricorn Branco. Procure sementes em rotas rapidas e eletricas no meio do jogo.';
-                          case 'yellow_apricorn': return 'Colhido ao plantar sementes de Apricorn Amarelo. Procure sementes em cavernas e areas especiais mais avancadas.';
-                          case 'pink_apricorn': return 'Colhido ao plantar sementes de Apricorn Rosa. Procure sementes raras em rotas floridas e de fada.';
                           case 'normal_essence': return 'Dropado por Pokemon tipo NORMAL, como Pidgey e Rattata, em rotas iniciais.';
                           case 'fire_essence': return 'Dropado por Pokemon tipo FOGO. Procure em areas vulcanicas ou rotas com Charmander.';
                           case 'water_essence': return 'Dropado por Pokemon tipo AGUA em rios, lagos, mares e rotas aquaticas.';
@@ -6726,75 +6560,21 @@ export default function App() {
                           default: return 'Explore diferentes rotas e derrote Pokemon de tipos variados para coletar este material.';
                        }
                     })()}
-                 </p>
-              </div>
+                  </p>
+                  {FORGE_MATERIAL_DROP_GUIDE[activeMaterialModal] && (
+                    <button
+                      onClick={() => handleGoToMaterialSource(activeMaterialModal)}
+                      className="w-full min-h-[54px] rounded-2xl bg-blue-600 px-4 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition-all hover:bg-blue-500 active:scale-95"
+                    >
+                      Ir para o drop
+                    </button>
+                  )}
+               </div>
 
               <div className="px-5 pt-3 pb-6 border-t border-slate-100 shrink-0">
                  <button onClick={() => setActiveMaterialModal(null)} className="w-full min-h-[52px] bg-slate-800 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg">Entendido</button>
               </div>
            </div>
-        </div>
-      )}
-      {showBallForgeTutorial && (
-        <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-          <div className="w-full max-w-[520px] max-h-[90dvh] bg-white rounded-3xl shadow-2xl border-b-[8px] border-orange-600 overflow-hidden flex flex-col">
-            <div className="bg-orange-500 px-6 py-5 flex items-center gap-4 shrink-0">
-              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-12 h-12 bg-white/20 rounded-2xl p-2" alt="" />
-              <div className="min-w-0">
-                <p className="text-white/75 text-[10px] font-black uppercase tracking-widest">Floresta de Viridian</p>
-                <h3 className="text-white text-xl font-black uppercase italic leading-tight">Forja de Poke Bolas</h3>
-              </div>
-            </div>
-
-            <div className="p-5 overflow-y-auto custom-scrollbar flex flex-col gap-4">
-              <p className="text-sm font-bold text-slate-600 leading-relaxed">
-                Poke Bolas agora dependem de Apricorns, essencias e materiais de rota. As primeiras rotas sustentam a Poke Ball comum; materiais melhores aparecem conforme a jornada avanca.
-              </p>
-
-              <div className="overflow-hidden rounded-2xl border-2 border-slate-100">
-                <table className="w-full text-left text-[11px]">
-                  <thead className="bg-slate-100 text-slate-500 uppercase font-black">
-                    <tr>
-                      <th className="p-3">Bola</th>
-                      <th className="p-3">Materiais</th>
-                      <th className="p-3">Onde buscar</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 font-bold text-slate-700">
-                    <tr>
-                      <td className="p-3">Poke Ball</td>
-                      <td className="p-3">Apricorn comum + Essencia Normal</td>
-                      <td className="p-3">Rota 1, Rota 22 e Floresta</td>
-                    </tr>
-                    <tr>
-                      <td className="p-3">Great Ball</td>
-                      <td className="p-3">Apricorn Azul + Ferro + Essencia Normal</td>
-                      <td className="p-3">meio de Kanto, tuneis e rotas abertas</td>
-                    </tr>
-                    <tr>
-                      <td className="p-3">Ultra Ball</td>
-                      <td className="p-3">Apricorn Preto + Ferro + Po Mistico</td>
-                      <td className="p-3">fim de Kanto e Victory Road</td>
-                    </tr>
-                    <tr>
-                      <td className="p-3">Especiais</td>
-                      <td className="p-3">Apricorns coloridos plantados na Casa</td>
-                      <td className="p-3">sementes raras em rotas especificas</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div className="px-5 pb-6 pt-2 shrink-0">
-              <button
-                onClick={closeBallForgeTutorial}
-                className="w-full min-h-[54px] bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg"
-              >
-                Entendi, vou forjar
-              </button>
-            </div>
-          </div>
         </div>
       )}
       <EvolutionScreen 
@@ -6803,6 +6583,9 @@ export default function App() {
         setGameState={setGameState} 
         addLog={addLog} 
         setEvolutionPending={setEvolutionPending} 
+        activeRegion={gameState.activeRegion}
+        isEvolutionAllowedForRegion={isEvolutionAllowedForRegion}
+        getEvolutionRegionLockMessage={getEvolutionRegionLockMessage}
       />
 
       {/* NOTIFICAÇíO DE MESTRIA */}
@@ -6828,95 +6611,17 @@ export default function App() {
            </div>
         </div>
       )}
-      {showAutoCaptureModal && (
+      {canShowAutoCaptureModal && (
         <AutoCaptureModal
-          route={processedRoutes[gameState.currentRoute]}
+          route={autoCaptureRoute}
           gameState={gameState}
           onSave={handleSaveAutoCaptureConfig}
-          onClose={() => setShowAutoCaptureModal(false)}
+          onClose={handleCloseAutoCaptureModal}
           onDisable={handleDisableAutoCapture}
         />
       )}
 
       {/* 🛡️ Boss Loot Modal */}
-      {pendingBossBattle && (
-        <div className="absolute inset-0 z-[155] flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-fadeIn">
-          <div className="w-full max-w-[430px] max-h-[88dvh] bg-slate-950 border-2 border-amber-500/30 rounded-[2rem] shadow-[0_0_50px_rgba(245,158,11,0.2)] overflow-hidden flex flex-col">
-            <div className="p-5 border-b border-white/10 bg-gradient-to-r from-amber-500/20 to-red-500/10">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-amber-400/70 text-[10px] font-black uppercase tracking-[0.2em]">World Boss</p>
-                  <h2 className="text-white text-xl font-black uppercase italic leading-tight">Escolha sua equipe</h2>
-                  <p className="text-white/45 text-[11px] font-bold mt-1">Selecione exatamente 6 Pokemon para esta tentativa de 120 segundos.</p>
-                </div>
-                <button
-                  onClick={() => { setPendingBossBattle(null); setBossTeamSelection([]); }}
-                  className="w-9 h-9 rounded-full bg-white/10 text-white/60 hover:text-white hover:bg-white/20 font-black"
-                >
-                  x
-                </button>
-              </div>
-              <div className="mt-4 flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase text-amber-300">{bossTeamSelection.length}/6 selecionados</span>
-                <span className="text-[10px] font-black uppercase text-white/35">Recorde do evento sera mantido</span>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 grid grid-cols-2 gap-3">
-              {[...(gameState.team || []), ...(gameState.pc || [])].map((pokemon, index) => {
-                const key = getBossTeamKey(pokemon);
-                const selected = bossTeamSelection.includes(key);
-                const region = Number(pokemon.id) <= 151 ? 'Kanto' : Number(pokemon.id) <= 251 ? 'Johto' : 'Hoenn';
-                return (
-                  <button
-                    key={`${key}-${index}`}
-                    onClick={() => {
-                      setBossTeamSelection(prev => {
-                        if (prev.includes(key)) return prev.filter(id => id !== key);
-                        if (prev.length >= 6) return prev;
-                        return [...prev, key];
-                      });
-                    }}
-                    className={`relative min-h-[104px] rounded-2xl border-2 p-3 flex flex-col items-center justify-center gap-1 transition-all ${
-                      selected ? 'bg-amber-400 text-slate-950 border-amber-200 shadow-lg' : 'bg-white/5 text-white border-white/10 hover:border-amber-400/40'
-                    }`}
-                  >
-                    <span className="absolute top-2 left-2 text-[8px] font-black uppercase opacity-70">{region}</span>
-                    {pokemon.isShiny && <span className="absolute top-2 right-2 text-[10px]">STAR</span>}
-                    <img
-                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.isShiny ? 'shiny/' : ''}${pokemon.id}.png`}
-                      className="w-12 h-12 object-contain"
-                      alt={pokemon.name}
-                      loading="lazy"
-                    />
-                    <span className="text-[10px] font-black uppercase italic leading-tight text-center">{pokemon.name}</span>
-                    <span className="text-[8px] font-black uppercase opacity-70">Nv. {pokemon.level}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="p-5 bg-slate-900 border-t border-white/10 flex gap-3">
-              <button
-                onClick={() => { setPendingBossBattle(null); setBossTeamSelection([]); }}
-                className="flex-1 bg-white/5 text-white/50 py-4 rounded-2xl font-black uppercase text-xs hover:bg-white/10"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={confirmBossTeamSelection}
-                disabled={bossTeamSelection.length !== 6}
-                className={`flex-[2] py-4 rounded-2xl font-black uppercase text-xs transition-all ${
-                  bossTeamSelection.length === 6 ? 'bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-lg' : 'bg-slate-800 text-white/25 cursor-not-allowed'
-                }`}
-              >
-                Iniciar Luta
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {bossLoot && (
         <div className="absolute inset-0 z-[150] flex items-center justify-center p-6 bg-black/80 backdrop-blur-xl animate-fadeIn">
           <div className="w-full max-w-[400px] bg-slate-900 border-2 border-amber-500/30 rounded-[2.5rem] shadow-[0_0_50px_rgba(245,158,11,0.2)] overflow-hidden animate-bounceIn">
