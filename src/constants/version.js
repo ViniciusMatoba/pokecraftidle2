@@ -1,8 +1,8 @@
-export const APP_VERSION = '1.55.27';
-export const VERSION = '1.55.27';
-export const APP_VERSION_DATE = '10/05/2026 19:57';
+export const APP_VERSION = '1.55.28';
+export const VERSION = '1.55.28';
+export const APP_VERSION_DATE = '10/05/2026 20:04';
 export const CHANGELOG = [
-  'Menu inferior voltou a usar Pokebola em Equipe e VS Seeker no Modo VS',
-  'Icones locais seguem corrigidos para mobile e GitHub Pages',
+  'Botao Atualizar do menu agora limpa cache e service worker antes de recarregar',
+  'Verificacao de versao usa a mesma rotina segura na tela de login e no jogo',
   'Conflitos de save permitem sobrescrever ou criar outro save nomeado'
 ];

@@ -3,6 +3,7 @@ import { loginUser, registerUser } from '../auth';
 import { setPersistence, browserLocalPersistence, browserSessionPersistence, getAuth } from 'firebase/auth';
 import { APP_VERSION, APP_VERSION_DATE } from '../data/constants';
 import RankingModal from './RankingModal';
+import { checkRemoteVersion, forceAppRefresh } from '../utils/appUpdate';
 
 const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isStandalone }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -17,33 +18,10 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
   const [updateStatus, setUpdateStatus] = useState('idle'); // 'idle', 'checking', 'updated'
   const [showRanking, setShowRanking] = useState(false);
 
-  const forceAppRefresh = async () => {
-    if ('serviceWorker' in navigator) {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(registrations.map(registration => {
-        registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
-        registration.active?.postMessage({ type: 'SKIP_WAITING' });
-        return registration.unregister();
-      }));
-    }
-
-    if ('caches' in window) {
-      const cacheNames = await caches.keys();
-      await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
-    }
-
-    window.location.replace(`${window.location.pathname}?v=${Date.now()}`);
-  };
-
   const handleCheckUpdate = async () => {
     setUpdateStatus('checking');
     try {
-      // Forcamos o browser a buscar a versao mais recente ignorando cache do manifest/json se possivel
-      const response = await fetch('./version.json?t=' + Date.now(), {
-        cache: 'no-store',
-        headers: { 'Cache-Control': 'no-cache' }
-      });
-      const data = await response.json();
+      const data = await checkRemoteVersion();
       
       if ('serviceWorker' in navigator) {
         // Timeout de 3s para o SW ready, para nao travar o botao se o SW falhar
@@ -59,7 +37,7 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
 
       if (data.version !== APP_VERSION) {
         if (window.confirm(`Nova versao disponivel (${data.version})! Deseja atualizar agora?`)) {
-          await forceAppRefresh();
+          await forceAppRefresh({ reason: 'login-version-check' });
         }
       } else {
         setUpdateStatus('updated');

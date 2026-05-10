@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { APP_VERSION, APP_VERSION_DATE, ITEM_LABELS } from '../data/constants';
 import { CANDY_FAMILIES, getCandyIconUrl } from '../data/candies';
+import { checkRemoteVersion, forceAppRefresh } from '../utils/appUpdate';
 
 const CURRENT_VERSION = APP_VERSION || '1.4';
 const VERSION_DATE = APP_VERSION_DATE || '2026-04-23';
@@ -11,10 +12,15 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
   const [subView, setSubView] = useState('main'); // 'main' ou 'settings'
   const [activeTab, setActiveTab] = useState('balls');
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     setUpdating(true);
-    localStorage.setItem('pokecraft_last_reload', String(Date.now()));
-    setTimeout(() => window.location.reload(true), 400);
+    try {
+      await checkRemoteVersion();
+      await forceAppRefresh({ reason: 'menu-update' });
+    } catch (err) {
+      console.warn('Menu update refresh fallback:', err);
+      await forceAppRefresh({ reason: 'menu-update-fallback' });
+    }
   };
 
   const menuItems = [

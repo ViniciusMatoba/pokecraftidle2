@@ -1,5 +1,10 @@
 # Changelog - PokeCraft
 
+## [V1.55.28] - 10/05/2026 20:04
+### Corrigido
+- **Atualizacao no Menu**: botao Atualizar agora limpa cache, service worker e recarrega com parametro novo.
+- **Verificacao de Versao**: tela de login e menu interno usam a mesma rotina segura de refresh.
+
 ## [V1.55.27] - 10/05/2026 19:57
 ### Ajustado
 - **Barra Inferior**: Equipe voltou a usar Pokebola e Modo VS voltou a usar VS Seeker.
