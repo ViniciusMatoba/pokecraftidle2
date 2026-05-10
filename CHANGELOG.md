@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [V1.55.20] - 10/05/2026 18:50
+### Corrigido
+- **Salvar Jogo**: o botao do menu agora confirma imediatamente o save local.
+- **Sincronizacao em Nuvem**: envio para Firebase acontece em segundo plano, sem travar o feedback do jogador.
+- **Protecao de Progresso**: falha da nuvem nao impede mais que o jogador veja que o progresso ficou salvo no dispositivo.
+
 ## [V1.55.19] - 10/05/2026 18:40
 ### Corrigido
 - **Salvamento de Progresso**: save local agora e persistido em toda mudanca real depois da hidratacao.

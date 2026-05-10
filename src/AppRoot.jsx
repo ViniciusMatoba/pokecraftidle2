@@ -1229,21 +1229,37 @@ export default function App() {
       });
       return;
     }
+
+    if (!localSaved) {
+      showConfirm({
+        type: 'error',
+        title: 'Erro ao salvar',
+        message: 'Nao foi possivel salvar seu progresso neste dispositivo.',
+        onConfirm: closeConfirm
+      });
+      return;
+    }
+
+    showConfirm({
+      type: 'success',
+      title: 'Salvo Localmente!',
+      message: 'Seu progresso foi salvo neste dispositivo. Sincronizando com a nuvem em segundo plano.',
+      onConfirm: closeConfirm
+    });
+
     try {
       lastSyncRef.current = Date.now();
-      await setDoc(doc(db, "saves", user.uid), { 
-        gameState: removeUndefinedFields({ ...gameState, version: gameState.version || APP_VERSION }), 
-        updatedAt: serverTimestamp() 
+      await setDoc(doc(db, "saves", user.uid), {
+        gameState: removeUndefinedFields({ ...gameState, version: gameState.version || APP_VERSION }),
+        updatedAt: serverTimestamp()
       }, { merge: true });
-      showConfirm({ type: 'success', title: 'Salvo!', message: 'Jogo salvo neste dispositivo e sincronizado na nuvem!', onConfirm: closeConfirm });
+      addLog('Progresso sincronizado com a nuvem.', 'system');
     } catch (e) {
       console.error("Manual Save Fail:", e);
-      showConfirm({ type: 'error', title: 'Erro ao salvar', message: 'Não foi possível salvar na nuvem: ' + e.message, onConfirm: closeConfirm });
+      addLog('Nuvem indisponivel: progresso preservado no dispositivo.', 'system');
     }
-  }, [gameState]);
+  }, [gameState, addLog]);
 
-  // ──────────────────────────────────────────────────────────────────────────────
-  // Lê o campo "effect" do moves.js e retorna o que o golpe deve fazer
   const interpretMoveEffect = (move) => {
     const e = (move.effect || '').toLowerCase();
     const name = (move.name || '').toLowerCase();
