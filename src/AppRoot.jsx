@@ -145,6 +145,25 @@ const chooseBestGameState = (primaryState, fallbackState) => {
   return primaryScore >= fallbackScore ? primary : fallback;
 };
 
+const isDangerousSaveDowngrade = (nextState, existingState) => {
+  const nextScore = getGameStateSaveScore(nextState);
+  const existingScore = getGameStateSaveScore(existingState);
+  if (existingScore <= 0 || nextScore <= 0) return false;
+  return nextScore < Math.max(300, Math.floor(existingScore * 0.4));
+};
+
+const getBestCloudGameState = (cloudDoc = {}) => {
+  const namedSaves = Object.values(cloudDoc.saveSlots || {})
+    .map(slot => slot?.gameState)
+    .filter(Boolean);
+  return [
+    cloudDoc.gameState,
+    cloudDoc.backupGameState,
+    cloudDoc.lastGoodGameState,
+    ...namedSaves,
+  ].reduce((best, candidate) => chooseBestGameState(candidate, best), null);
+};
+
 const loadLocalGameState = () => {
   const storageKeys = ['poke_idle_save', 'poke_idle_save_backup'];
   let bestState = null;
@@ -524,13 +543,13 @@ export default function App() {
     return loadLocalGameState() || DEFAULT_GAME_STATE;
   });
 
-  const loadGameState = async (uid, timeoutMs = 6000) => {
+  const loadCloudSaveDocument = async (uid, timeoutMs = 6000) => {
     const loadPromise = (async () => {
       try {
         const docRef = doc(db, "saves", uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          return docSnap.data().gameState;
+          return docSnap.data();
         }
       } catch (e) {
         console.error("Error loading cloud save:", e);
@@ -547,6 +566,15 @@ export default function App() {
       console.error("Cloud save timeout/fail:", error);
       return null;
     }
+  };
+
+  const loadGameState = async (uid, timeoutMs = 6000) => {
+    const cloudDoc = await loadCloudSaveDocument(uid, timeoutMs);
+    if (!cloudDoc) return null;
+    if (cloudDoc.allowEmptyReset && !isMeaningfulGameState(cloudDoc.gameState)) {
+      return cloudDoc.gameState || null;
+    }
+    return getBestCloudGameState(cloudDoc);
   };
 
   useEffect(() => {
@@ -652,6 +680,11 @@ export default function App() {
   const [confirmModal, setConfirmModal] = useState(null);
   const showConfirm = (config) => setConfirmModal(config);
   const closeConfirm = () => setConfirmModal(null);
+  const requestSaveSlotName = (fallback = '') => {
+    const rawName = window.prompt('Digite um nome para este save:', fallback || `Save ${new Date().toLocaleString('pt-BR')}`);
+    const cleanName = String(rawName || '').trim().slice(0, 32);
+    return cleanName || null;
+  };
   const [introStep, setIntroStep] = useState(0);
   const [activeMemberIndex, setActiveMemberIndex] = useState(0);
   const [moveIndex, setMoveIndex] = useState(0);
@@ -803,7 +836,7 @@ export default function App() {
     const id = Date.now() + Math.random();
     setFloatingTexts(prev => [...prev, { id, text: cleanBattleText(text), color }]);
     setTimeout(() => setFloatingTexts(prev => prev.filter(f => f.id !== id)), 1200);
-  }, []);
+  }, [addLog]);
 
   const isStoryVsEnemy = useCallback((enemy) => {
     return enemy?.isTrainer && ['rival', 'rocket'].includes(enemy.challengeCategory);
@@ -1235,11 +1268,72 @@ export default function App() {
       const badgeCount = getBadgeCount(dataToSave);
       const powerScore = calculatePowerScore(dataToSave, POKEDEX);
 
+      const cloudDoc = await loadCloudSaveDocument(user.uid, 2500);
+      const existingBest = getBestCloudGameState(cloudDoc || {});
+      if (isDangerousSaveDowngrade(dataToSave, existingBest)) {
+        if (currentViewRef.current === 'menu') {
+          showConfirm({
+            type: 'danger',
+            title: 'Conflito de Save',
+            message: 'Existe um save mais avancado na nuvem. Deseja sobrescrever esse save com o progresso atual deste dispositivo?',
+            confirmLabel: 'Sobrescrever',
+            cancelLabel: 'Criar outro save',
+            onConfirm: async () => {
+              closeConfirm();
+              const cleanGameState = removeUndefinedFields({ ...dataToSave, version: dataToSave.version || APP_VERSION });
+              const cleanBackupState = isMeaningfulGameState(existingBest)
+                ? removeUndefinedFields({ ...existingBest, version: existingBest.version || APP_VERSION })
+                : cleanGameState;
+              await setDoc(doc(db, "saves", user.uid), {
+                gameState: cleanGameState,
+                backupGameState: cleanBackupState,
+                saveScore: getGameStateSaveScore(dataToSave),
+                version: APP_VERSION,
+                allowEmptyReset: false,
+                updatedAt: serverTimestamp(),
+              }, { merge: true });
+              addLog('Save atual sobrescreveu o save principal da nuvem.', 'system');
+            },
+            onCancel: async () => {
+              const slotName = requestSaveSlotName(dataToSave.trainer?.name || 'Save alternativo');
+              closeConfirm();
+              if (!slotName) return;
+              const slotId = slotName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || String(Date.now());
+              await setDoc(doc(db, "saves", user.uid), {
+                [`saveSlots.${slotId}`]: {
+                  name: slotName,
+                  gameState: removeUndefinedFields({ ...dataToSave, version: dataToSave.version || APP_VERSION }),
+                  saveScore: getGameStateSaveScore(dataToSave),
+                  version: APP_VERSION,
+                  updatedAt: Date.now(),
+                },
+                updatedAt: serverTimestamp(),
+              }, { merge: true });
+              addLog(`Save alternativo criado: ${slotName}.`, 'system');
+            },
+          });
+        } else {
+          console.warn('Cloud auto-save skipped: possible progress downgrade.', {
+            nextScore: getGameStateSaveScore(dataToSave),
+            existingScore: getGameStateSaveScore(existingBest),
+          });
+        }
+        return;
+      }
+
       lastSyncRef.current = Date.now();
+      const cleanGameState = removeUndefinedFields({ ...dataToSave, version: dataToSave.version || APP_VERSION });
+      const cleanBackupState = isMeaningfulGameState(existingBest)
+        ? removeUndefinedFields({ ...existingBest, version: existingBest.version || APP_VERSION })
+        : cleanGameState;
       
       // 1. Salva o estado completo do jogo
       await setDoc(doc(db, "saves", user.uid), { 
-        gameState: removeUndefinedFields({ ...dataToSave, version: dataToSave.version || APP_VERSION }), 
+        gameState: cleanGameState,
+        backupGameState: cleanBackupState,
+        saveScore: getGameStateSaveScore(dataToSave),
+        version: APP_VERSION,
+        allowEmptyReset: false,
         updatedAt: serverTimestamp() 
       }, { merge: true });
 
@@ -1379,16 +1473,88 @@ export default function App() {
     showConfirm({
       type: 'success',
       title: 'Salvo Localmente!',
-      message: 'Seu progresso foi salvo neste dispositivo. Sincronizando com a nuvem em segundo plano.',
+      message: 'Seu progresso foi salvo neste dispositivo. Sincronizando com a nuvem agora...',
       onConfirm: closeConfirm
     });
 
     try {
+      const cloudDoc = await loadCloudSaveDocument(user.uid, 3500);
+      const existingBest = getBestCloudGameState(cloudDoc || {});
+      if (isDangerousSaveDowngrade(gameState, existingBest)) {
+        showConfirm({
+          type: 'danger',
+          title: 'Conflito de Save',
+          message: 'Existe um save mais avancado na nuvem. Deseja sobrescrever esse save com o progresso atual deste dispositivo?',
+          confirmLabel: 'Sobrescrever',
+          cancelLabel: 'Criar outro save',
+          onConfirm: async () => {
+            closeConfirm();
+            const cleanGameState = removeUndefinedFields({ ...gameState, version: gameState.version || APP_VERSION });
+            const cleanBackupState = isMeaningfulGameState(existingBest)
+              ? removeUndefinedFields({ ...existingBest, version: existingBest.version || APP_VERSION })
+              : cleanGameState;
+            await setDoc(doc(db, "saves", user.uid), {
+              gameState: cleanGameState,
+              backupGameState: cleanBackupState,
+              saveScore: getGameStateSaveScore(gameState),
+              version: APP_VERSION,
+              allowEmptyReset: false,
+              updatedAt: serverTimestamp()
+            }, { merge: true });
+            showConfirm({
+              type: 'success',
+              title: 'Save Sobrescrito',
+              message: 'O save principal da nuvem foi substituido pelo progresso atual.',
+              onConfirm: closeConfirm
+            });
+            addLog('Save atual sobrescreveu o save principal da nuvem.', 'system');
+          },
+          onCancel: async () => {
+            const slotName = requestSaveSlotName(gameState.trainer?.name || 'Save alternativo');
+            closeConfirm();
+            if (!slotName) return;
+            const slotId = slotName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || String(Date.now());
+            await setDoc(doc(db, "saves", user.uid), {
+              [`saveSlots.${slotId}`]: {
+                name: slotName,
+                gameState: removeUndefinedFields({ ...gameState, version: gameState.version || APP_VERSION }),
+                saveScore: getGameStateSaveScore(gameState),
+                version: APP_VERSION,
+                updatedAt: Date.now(),
+              },
+              updatedAt: serverTimestamp(),
+            }, { merge: true });
+            showConfirm({
+              type: 'success',
+              title: 'Novo Save Criado',
+              message: `Criamos o save "${slotName}" nesta conta sem sobrescrever o save principal.`,
+              onConfirm: closeConfirm
+            });
+            addLog(`Save alternativo criado: ${slotName}.`, 'system');
+          },
+        });
+        return;
+      }
+
       lastSyncRef.current = Date.now();
+      const cleanGameState = removeUndefinedFields({ ...gameState, version: gameState.version || APP_VERSION });
+      const cleanBackupState = isMeaningfulGameState(existingBest)
+        ? removeUndefinedFields({ ...existingBest, version: existingBest.version || APP_VERSION })
+        : cleanGameState;
       await setDoc(doc(db, "saves", user.uid), {
-        gameState: removeUndefinedFields({ ...gameState, version: gameState.version || APP_VERSION }),
+        gameState: cleanGameState,
+        backupGameState: cleanBackupState,
+        saveScore: getGameStateSaveScore(gameState),
+        version: APP_VERSION,
+        allowEmptyReset: false,
         updatedAt: serverTimestamp()
       }, { merge: true });
+      showConfirm({
+        type: 'success',
+        title: 'Salvo na Nuvem!',
+        message: 'Seu progresso foi salvo neste dispositivo e sincronizado com a nuvem.',
+        onConfirm: closeConfirm
+      });
       addLog('Progresso sincronizado com a nuvem.', 'system');
     } catch (e) {
       console.error("Manual Save Fail:", e);
@@ -4331,6 +4497,10 @@ export default function App() {
               lastSyncRef.current = Date.now();
               await setDoc(doc(db, "saves", u.uid), { 
                 gameState: freshState, 
+                backupGameState: null,
+                saveScore: 0,
+                version: APP_VERSION,
+                allowEmptyReset: true,
                 updatedAt: serverTimestamp(),
                 resetAt: serverTimestamp()
               }, { merge: false }); // merge: false ensures we overwrite EVERYTHING
@@ -6428,34 +6598,26 @@ export default function App() {
         const isRivalBattle = currentEnemy?.isInitialRival === true;
         const menuUnlocked = (gameState.oakTutorialShown || (gameState.worldFlags && gameState.worldFlags.includes('has_starter'))) && !isRivalBattle;
         return (
-          <nav className="absolute bottom-0 left-0 right-0 w-full bg-white border-t border-slate-200 flex items-center justify-around px-2 py-2 z-50 shadow-xl">
+          <nav className="absolute bottom-0 left-0 right-0 w-full bg-white border-t border-slate-200 flex items-center justify-around px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] z-50 shadow-xl">
 
             <button onClick={() => menuUnlocked && handleSafeNavigation('routes')}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${['routes','battles'].includes(currentView) ? 'text-blue-600' : 'text-slate-400'}`}>
-              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png"
-                className="w-7 h-7 object-contain" alt=""
-                onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML += '<span style="font-size:24px">🗺️</span>'; }} />
+              <span className="w-7 h-7 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-base">🗺️</span>
               <span className="text-[9px] font-black uppercase mt-0.5">Rotas</span>
             </button>
 
             <button onClick={() => menuUnlocked && handleSafeNavigation('pokemon_management')}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${currentView === 'pokemon_management' ? 'text-red-600' : 'text-slate-400'}`}>
-              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
-                className="w-7 h-7 object-contain" alt=""
-                onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML += '<span style="font-size:24px">🎒</span>'; }} />
+              <span className="w-7 h-7 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-base">⚪</span>
               <span className="text-[9px] font-black uppercase mt-0.5">Equipe</span>
             </button>
 
             <button onClick={() => menuUnlocked && handleSafeNavigation('vs')}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${['vs','gyms','challenges'].includes(currentView) ? 'text-yellow-600' : 'text-slate-400'}`}>
-              <img
-                src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png"
-                className="w-7 h-7 object-contain" alt=""
-                onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML += '<span style="font-size:24px">⚔️ </span>'; }}
-              />
+              <span className="w-7 h-7 rounded-xl bg-yellow-50 border border-yellow-100 flex items-center justify-center text-[10px] font-black">VS</span>
               <span className="text-[9px] font-black uppercase mt-0.5">Modo VS</span>
             </button>
 
@@ -6481,9 +6643,7 @@ export default function App() {
             <button onClick={() => menuUnlocked && handleSafeNavigation('menu')}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${currentView === 'menu' ? 'text-slate-800' : 'text-slate-400'}`}>
-              <img src="/assets/menu/pokedex.png"
-                className="w-7 h-7 object-contain" alt=""
-                onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML += '<span style="font-size:22px">📱</span>'; }} />
+              <img src={fixPath('/assets/menu/pokedex.png')} className="w-7 h-7 object-contain" alt="" />
               <span className="text-[9px] font-black uppercase mt-0.5">Menu</span>
             </button>
 
@@ -7115,6 +7275,7 @@ export default function App() {
           cancelLabel={confirmModal.cancelLabel}
           onConfirm={confirmModal.onConfirm}
           onCancel={confirmModal.onCancel || closeConfirm}
+          onClose={confirmModal.onClose || closeConfirm}
         />
       )}
       <NotificationSystem />

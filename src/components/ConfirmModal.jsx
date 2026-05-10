@@ -41,11 +41,12 @@ const ConfirmModal = ({
   cancelLabel,
   onConfirm,
   onCancel,
+  onClose,
 }) => {
   const isDanger = type === 'danger';
   const isAlert = type === 'alert';
   const meta = META[type] || META.confirm;
-  const closeAction = onCancel || onConfirm;
+  const closeAction = onClose || onCancel || onConfirm;
 
   return (
     <div className="fixed inset-0 z-[20000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">

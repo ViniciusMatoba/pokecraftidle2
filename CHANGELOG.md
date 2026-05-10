@@ -1,5 +1,23 @@
 # Changelog - PokeCraft
 
+## [V1.55.26] - 10/05/2026 19:48
+### Corrigido
+- **Icones no Celular**: caminhos locais de icones e itens agora funcionam corretamente no GitHub Pages/PWA.
+- **Barra Inferior**: o botao Menu voltou a usar o icone da Pokedex, com caminho seguro para mobile.
+- **Menu Mobile**: barra inferior recebeu ajuste de area segura para evitar diferenca visual em celulares.
+
+## [V1.55.25] - 10/05/2026 19:40
+### Ajustado
+- **Conflito de Save**: quando o progresso atual for menor que o save da nuvem, o jogador escolhe entre sobrescrever ou criar outro save nomeado.
+- **Multiplos Saves**: saves alternativos sao gravados em `saveSlots` dentro da conta, com nome personalizado.
+- **Mobile/GitHub Pages**: icones locais usam caminho compativel com deploy e o botao Menu da barra inferior usa icone proprio.
+
+## [V1.55.24] - 10/05/2026 19:34
+### Corrigido
+- **Protecao de Save em Nuvem**: o jogo bloqueia uploads que tentem sobrescrever um save completo com estado vazio ou muito menor.
+- **Backup Cross-Device**: cada save em nuvem passa a manter `backupGameState`, usado pelo celular ao continuar jornada.
+- **Salvar Jogo**: a mensagem agora confirma quando a sincronizacao com a nuvem termina, deixando claro se ficou apenas local.
+
 ## [V1.55.23] - 10/05/2026 19:26
 ### Corrigido
 - **Continuar Jornada**: o botao agora carrega o save mais completo entre dispositivo e nuvem, sem depender de estado temporario da tela.

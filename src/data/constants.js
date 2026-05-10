@@ -357,7 +357,7 @@ export const POKE_MART_DRINKS = [
   {
     id: 'link_cable',
     name: 'Link Cable',
-    img: '/assets/items/link-cable-custom.png',
+    img: './assets/items/link-cable-custom.png',
     description: 'Item misterioso que permite certas evoluções sem troca.',
     price: 5000,
     availableFrom: 'thunder_badge',

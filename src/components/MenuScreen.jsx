@@ -4,6 +4,7 @@ import { CANDY_FAMILIES, getCandyIconUrl } from '../data/candies';
 
 const CURRENT_VERSION = APP_VERSION || '1.4';
 const VERSION_DATE = APP_VERSION_DATE || '2026-04-23';
+const assetPath = (path) => `${import.meta.env.BASE_URL || '/'}${String(path).replace(/^\/+/, '')}`;
 
 const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUSIC_LIST, onBack, showConfirm, closeConfirm }) => {
   const [updating, setUpdating] = useState(false);
@@ -17,10 +18,10 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
   };
 
   const menuItems = [
-    { id: 'pokedex',  name: 'Pokedex',       icon: '/assets/menu/pokedex.png',         desc: 'Registro de especies',    color: 'bg-red-50 border-red-200 text-red-600' },
-    { id: 'backpack', name: 'Mochila',       icon: '/assets/menu/backpack.png',        desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
+    { id: 'pokedex',  name: 'Pokedex',       icon: assetPath('/assets/menu/pokedex.png'),         desc: 'Registro de especies',    color: 'bg-red-50 border-red-200 text-red-600' },
+    { id: 'backpack', name: 'Mochila',       icon: assetPath('/assets/menu/backpack.png'),        desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
     { id: 'settings', name: 'Configuracoes', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png', desc: 'Ajustes do sistema', color: 'bg-indigo-50 border-indigo-200 text-indigo-600' },
-    { id: 'save',     name: 'Salvar Jogo',   icon: '/assets/menu/save.png',            desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
+    { id: 'save',     name: 'Salvar Jogo',   icon: assetPath('/assets/menu/save.png'),            desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
     { id: 'exit',     name: 'Sair do Jogo',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/escape-rope.png', desc: 'Voltar ao inicio', color: 'bg-slate-50 border-slate-200 text-slate-600' },
   ];
 
