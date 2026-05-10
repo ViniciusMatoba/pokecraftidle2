@@ -28,7 +28,7 @@ const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setE
                     {/* Brilho de fundo para a silhueta */}
                     <div className="absolute inset-0 bg-white/20 blur-2xl rounded-full animate-pulse group-hover:bg-white/40 transition-all"></div>
                     <img 
-                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${POKEDEX[evolutionPending.id].evolution.id}.png`} 
+                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evolutionPending.targetEvolution?.id || POKEDEX[evolutionPending.id].evolution?.id}.png`} 
                       className="w-32 h-32 md:w-56 md:h-56 brightness-0 invert opacity-40 animate-evolution-glow drop-shadow-[0_0_50px_rgba(255,255,255,0.6)] relative z-10" 
                       alt="Silhueta da Evolução" 
                     />
@@ -50,7 +50,7 @@ const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setE
                  }}>
                     <button 
                      onClick={() => {
-                         const evoData = POKEDEX[evolutionPending.id].evolution;
+                         const evoData = evolutionPending.targetEvolution || POKEDEX[evolutionPending.id].evolution;
                          const nextPoke = POKEDEX[evoData.id];
                          if (isEvolutionAllowedForRegion && !isEvolutionAllowedForRegion(evolutionPending, evoData.id, activeRegion)) {
                             addLog(getEvolutionRegionLockMessage?.(evolutionPending.name, nextPoke?.name, activeRegion) || `${evolutionPending.name} nao pode evoluir nesta regiao.`, 'system');

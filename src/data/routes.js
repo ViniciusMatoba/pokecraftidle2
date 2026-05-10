@@ -2,8 +2,17 @@ import { hasProgressRequirement } from '../utils/progress';
 
 // ── UTILITIES ──────────────────────────────────────────────────
 export const isRouteUnlocked = (route, gameState) => {
-  if (!route.requirements || route.requirements.length === 0) return true;
-  return route.requirements.every(req => hasProgressRequirement(gameState, req));
+  const requirementsMet = !route.requirements
+    || route.requirements.length === 0
+    || route.requirements.every(req => hasProgressRequirement(gameState, req));
+  if (!requirementsMet) return false;
+  if (route.type !== 'farm' || !route.unlockLevel || route.unlockLevel <= 1) return true;
+
+  const teamMaxLevel = Math.max(
+    1,
+    ...(gameState.team || []).map(pokemon => Number(pokemon?.level || 1))
+  );
+  return teamMaxLevel + 2 >= route.unlockLevel;
 };
 
 export const getRouteLevel = (route) => {
@@ -27,6 +36,12 @@ export const getRouteLevel = (route) => {
 
 export const inferRouteRegion = (routeId, routeGroup) => {
   const str = `${routeId} ${routeGroup || ''}`.toLowerCase();
+  if (str.includes('paldea') || str.includes('cabo_poco') || str.includes('mesagoza') || str.includes('area_zero')) return { id: 'paldea', order: 9 };
+  if (str.includes('galar') || str.includes('postwick') || str.includes('motostoke') || str.includes('wild_area')) return { id: 'galar', order: 8 };
+  if (str.includes('alola') || str.includes('hauoli') || str.includes('akala') || str.includes('poni')) return { id: 'alola', order: 7 };
+  if (str.includes('kalos') || str.includes('vaniville') || str.includes('lumiose') || str.includes('victory_road_kalos')) return { id: 'kalos', order: 6 };
+  if (str.includes('unova') || str.includes('nuvema') || str.includes('striaton') || str.includes('victory_road_unova')) return { id: 'unova', order: 5 };
+  if (str.includes('sinnoh') || str.includes('twinleaf') || str.includes('sandgem') || str.includes('jubilife') || str.includes('survival_area') || str.includes('stark_mountain')) return { id: 'sinnoh', order: 4 };
   if (str.includes('hoenn') || str.includes('littleroot') || str.includes('route_101') || str.includes('route_102') || str.includes('oldale') || str.includes('petalburg') || str.includes('rustboro') || str.includes('dewford') || str.includes('granite_cave') || str.includes('slateport') || str.includes('mauville') || str.includes('route_110') || str.includes('route_111') || str.includes('route_113') || str.includes('fiery_path') || str.includes('fallarbor') || str.includes('meteor_falls') || str.includes('mt_chimney') || str.includes('lavaridge') || str.includes('fortree') || str.includes('lilycove') || str.includes('mt_pyre') || str.includes('ocean_routes') || str.includes('mossdeep') || str.includes('seafloor') || str.includes('sootopolis') || str.includes('cave_of_origin') || str.includes('sky_pillar') || str.includes('pacifidlog') || str.includes('ever_grande') || str.includes('victory_road_hoenn') || str.includes('route_116') || str.includes('rusturf') || str.includes('route_104') || str.includes('route_118') || str.includes('route_120')) return { id: 'hoenn', order: 3 };
   if (str.includes('johto') || str.includes('bark') || str.includes('cherrygrove') || str.includes('violet') || str.includes('azalea') || str.includes('goldenrod') || str.includes('ecruteak') || str.includes('olivine') || str.includes('cianwood') || str.includes('mahogany') || str.includes('blackthorn') || str.includes('mt_silver') || str.includes('silver') || str.includes('sprout') || str.includes('ilex') || str.includes('slowpoke') || str.includes('union_cave') || str.includes('national_park') || str.includes('burned_tower') || str.includes('lake_of_rage') || str.includes('ice_path') || str.includes('dragons_den') || str.includes('johto_victory')) return { id: 'johto', order: 2 };
   return { id: 'kanto', order: 1 };
@@ -102,6 +117,265 @@ const S = {
   bruno:       'https://play.pokemonshowdown.com/sprites/trainers/bruno.png',
   agatha:      'https://play.pokemonshowdown.com/sprites/trainers/agatha-gen3.png',
   lance:       'https://play.pokemonshowdown.com/sprites/trainers/lance.png',
+  plasma:      'https://play.pokemonshowdown.com/sprites/trainers/plasmagrunt.png',
+  flare:       'https://play.pokemonshowdown.com/sprites/trainers/flaregrunt.png',
+  skull:       'https://play.pokemonshowdown.com/sprites/trainers/skullgrunt.png',
+  yell:        'https://play.pokemonshowdown.com/sprites/trainers/yellgrunt.png',
+  star:        'https://play.pokemonshowdown.com/sprites/trainers/giacomo.png',
+};
+
+const buildRegionRoutes = ({ region, label, startFlag, previousChampion, groups, starters, early, mid, late, final, backgrounds }) => ({
+  [`${region}_home_town`]: {
+    id: `${region}_home_town`, name: groups.home, type: 'city', group: `${label} Inicio`,
+    unlockLevel: 1, requirements: [startFlag],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: backgrounds.city,
+    description: `Ponto inicial preparado para a jornada de ${label}.`,
+  },
+  [`${region}_route_1`]: {
+    id: `${region}_route_1`, name: 'Rota Inicial', type: 'farm', group: `${label} Inicio`,
+    unlockLevel: 5, requirements: [startFlag], unlocks: `${region}_route_1_cleared`,
+    biome: 'grass',
+    enemies: pk(early, 8).map((p, i) => ({ ...p, drop: ['normal_essence', 'grass_essence', 'flying_essence'][i % 3] })),
+    trainerChance: 0.06,
+    trainers: [
+      { name: `Treinador ${label} I`, sprite: S.youngster, team: pk([early[0], early[1]], 11), reward: 900 },
+      { name: `Treinadora ${label} I`, sprite: S.lass, team: pk([early[2], starters[0]], 12), reward: 1000 },
+    ],
+    background: backgrounds.route,
+    description: `Treino inicial de ${label}, com drops basicos para craft e capturas regionais.`,
+  },
+  [`${region}_route_2`]: {
+    id: `${region}_route_2`, name: 'Rota Intermediaria', type: 'farm', group: `${label} Meio da Jornada`,
+    unlockLevel: 28, requirements: [`${region}_route_1_cleared`], unlocks: `${region}_route_2_cleared`,
+    biome: 'forest',
+    enemies: pk(mid, 32).map((p, i) => ({ ...p, drop: ['bug_essence', 'poison_essence', 'psychic_essence', 'water_essence'][i % 4] })),
+    trainerChance: 0.08,
+    trainers: [
+      { name: `Ace Trainer ${label}`, sprite: S.aceM, team: pk([mid[0], mid[1], starters[1]], 36), reward: 2600 },
+      { name: `Ranger ${label}`, sprite: S.aceF, team: pk([mid[2], mid[3]], 37), reward: 2800 },
+    ],
+    background: backgrounds.route,
+    description: `Rota com treinadores pelo menos 3 niveis acima dos selvagens e materiais melhores.`,
+  },
+  [`${region}_route_3`]: {
+    id: `${region}_route_3`, name: 'Rota Avancada', type: 'farm', group: `${label} Fim da Jornada`,
+    unlockLevel: 58, requirements: [`${region}_route_2_cleared`], unlocks: `${region}_route_3_cleared`,
+    biome: 'mountain',
+    enemies: pk(late, 62).map((p, i) => ({ ...p, drop: ['steel_essence', 'dark_essence', 'dragon_essence', 'mystic_dust'][i % 4] })),
+    trainerChance: 0.1,
+    trainers: [
+      { name: `Veteran ${label}`, sprite: S.aceM, team: pk([late[0], late[1], starters[2]], 66), reward: 5200 },
+      { name: `Elite Trainer ${label}`, sprite: S.aceF, team: pk([late[2], late[3]], 68), reward: 5600 },
+    ],
+    background: backgrounds.cave,
+    description: `Rota avancada com Pokemon evoluidos, drops raros e treino pre-Liga.`,
+  },
+  [`${region}_victory_training`]: {
+    id: `${region}_victory_training`, name: `Treino de Elite ${label}`, type: 'farm', group: `${label} Pos-Liga`,
+    unlockLevel: 90, requirements: [previousChampion], unlocks: `${region}_victory_training_cleared`,
+    biome: 'cave',
+    enemies: pk(final, 94).map((p, i) => ({ ...p, drop: ['dragon_scale', 'stardust', 'armor_fragment', 'fury_essence'][i % 4] })),
+    trainerChance: 0.12,
+    trainers: [
+      { name: `Campeao de Treino ${label}`, sprite: S.cooltrainer, team: pk([final[0], final[1], final[2]], 100), reward: 10000 },
+    ],
+    background: backgrounds.elite,
+    description: `Estrutura final para treinar Pokemon ate o nivel 100 em ${label}.`,
+  },
+});
+
+const FUTURE_REGION_ROUTES = {
+  ...buildRegionRoutes({
+    region: 'unova', label: 'Unova', startFlag: 'unova_started', previousChampion: 'unova_champion',
+    groups: { home: 'Nuvema Town' }, starters: [497, 500, 503], early: [504, 506, 509, 519], mid: [507, 510, 520, 527], late: [530, 534, 553, 567], final: [612, 635, 637, 643],
+    backgrounds: { city: '/bg_unova_city.png', route: '/bg_unova_route.png', cave: '/bg_unova_cave.png', elite: '/bg_unova_elite.png' },
+  }),
+  ...buildRegionRoutes({
+    region: 'kalos', label: 'Kalos', startFlag: 'kalos_started', previousChampion: 'kalos_champion',
+    groups: { home: 'Vaniville Town' }, starters: [652, 655, 658], early: [659, 661, 664, 669], mid: [660, 662, 666, 672], late: [675, 678, 681, 697], final: [700, 706, 715, 716],
+    backgrounds: { city: '/bg_kalos_city.png', route: '/bg_kalos_route.png', cave: '/bg_kalos_cave.png', elite: '/bg_kalos_elite.png' },
+  }),
+  ...buildRegionRoutes({
+    region: 'alola', label: 'Alola', startFlag: 'alola_started', previousChampion: 'alola_champion',
+    groups: { home: 'Hauoli Outskirts' }, starters: [724, 727, 730], early: [731, 734, 736, 739], mid: [735, 738, 744, 752], late: [758, 760, 768, 776], final: [784, 791, 792, 800],
+    backgrounds: { city: '/bg_alola_city.png', route: '/bg_alola_route.png', cave: '/bg_alola_cave.png', elite: '/bg_alola_elite.png' },
+  }),
+  ...buildRegionRoutes({
+    region: 'galar', label: 'Galar', startFlag: 'galar_started', previousChampion: 'galar_champion',
+    groups: { home: 'Postwick' }, starters: [812, 815, 818], early: [819, 821, 824, 827], mid: [820, 823, 828, 834], late: [839, 844, 849, 861], final: [887, 888, 889, 890],
+    backgrounds: { city: '/bg_galar_city.png', route: '/bg_galar_route.png', cave: '/bg_galar_cave.png', elite: '/bg_galar_elite.png' },
+  }),
+  ...buildRegionRoutes({
+    region: 'paldea', label: 'Paldea', startFlag: 'paldea_started', previousChampion: 'paldea_champion',
+    groups: { home: 'Cabo Poco' }, starters: [908, 911, 914], early: [915, 917, 919, 921], mid: [916, 920, 922, 926], late: [936, 943, 952, 959], final: [967, 973, 998, 1008],
+    backgrounds: { city: '/bg_paldea_city.png', route: '/bg_paldea_route.png', cave: '/bg_paldea_cave.png', elite: '/bg_paldea_elite.png' },
+  }),
+};
+
+const rangeIds = (start, end) => Array.from({ length: end - start + 1 }, (_, index) => start + index);
+
+const splitRegionalDex = (start, end) => {
+  const ids = rangeIds(start, end);
+  const chunkSize = Math.ceil(ids.length / 4);
+  return [
+    ids.slice(0, chunkSize),
+    ids.slice(chunkSize, chunkSize * 2),
+    ids.slice(chunkSize * 2, chunkSize * 3),
+    ids.slice(chunkSize * 3),
+  ];
+};
+
+const uniqueIds = (ids) => [...new Set(ids.map(Number).filter(Boolean))];
+
+const withDrops = (ids, level, drops, spawnWeight = 60) =>
+  pk(uniqueIds(ids), level).map((pokemon, index) => ({
+    ...pokemon,
+    spawnWeight,
+    drop: drops[index % drops.length],
+  }));
+
+const legacyEncounters = (regionIndex, phaseIndex) => {
+  if (regionIndex <= 0) return [];
+  const previousMax = [
+    151, 251, 386, 493, 649, 721, 809, 905, 1025,
+  ][regionIndex - 1] || 151;
+  const previousMin = regionIndex === 1 ? 1 : [
+    1, 152, 252, 387, 494, 650, 722, 810, 906,
+  ][regionIndex - 1];
+  const span = previousMax - previousMin + 1;
+  const step = Math.max(1, Math.floor(span / 8));
+  const start = previousMin + (phaseIndex * step);
+  return rangeIds(start, Math.min(previousMax, start + 5));
+};
+
+const buildRegionalDexCoverageRoutes = ({
+  region,
+  label,
+  regionIndex,
+  startRequirement,
+  championRequirement,
+  range,
+  backgrounds,
+}) => {
+  const [early, middle, advanced, elite] = splitRegionalDex(range[0], range[1]);
+  const field1 = `${region}_dex_field_1_cleared`;
+  const field2 = `${region}_dex_field_2_cleared`;
+  const field3 = `${region}_dex_field_3_cleared`;
+  const field4 = `${region}_dex_field_4_cleared`;
+  const drops = ['normal_essence', 'grass_essence', 'water_essence', 'flying_essence', 'bug_essence'];
+  const rareDrops = ['psychic_essence', 'ghost_essence', 'dark_essence', 'steel_essence', 'dragon_essence'];
+
+  return {
+    [`${region}_dex_field_1`]: {
+      id: `${region}_dex_field_1`, name: `Habitat Regional ${label} I`, type: 'farm', group: `${label} Pokedex`,
+      unlockLevel: 12, requirements: [startRequirement], unlocks: field1,
+      biome: 'grass',
+      enemies: withDrops([...early, ...legacyEncounters(regionIndex, 0)], 12, drops, 90),
+      trainerChance: 0.07,
+      trainers: [
+        { name: `Pesquisador ${label} I`, sprite: S.youngster, team: pk(early.slice(0, 3), 15), reward: 1100 },
+      ],
+      background: backgrounds.route,
+      description: `Cobertura inicial da Pokedex de ${label}, focada em capturas basicas e primeiras evolucoes.`,
+    },
+    [`${region}_dex_field_2`]: {
+      id: `${region}_dex_field_2`, name: `Habitat Regional ${label} II`, type: 'farm', group: `${label} Pokedex`,
+      unlockLevel: 34, requirements: [field1], unlocks: field2,
+      biome: 'forest',
+      enemies: withDrops([...middle, ...legacyEncounters(regionIndex, 1)], 36, drops, 70),
+      trainerChance: 0.08,
+      trainers: [
+        { name: `Pesquisadora ${label} II`, sprite: S.lass, team: pk(middle.slice(0, 3), 40), reward: 2600 },
+      ],
+      background: backgrounds.forest || backgrounds.route,
+      description: `Encontros intermediarios com maior presenca de Pokemon evoluidos e materiais melhores.`,
+    },
+    [`${region}_dex_field_3`]: {
+      id: `${region}_dex_field_3`, name: `Habitat Regional ${label} III`, type: 'farm', group: `${label} Pokedex`,
+      unlockLevel: 62, requirements: [field2], unlocks: field3,
+      biome: 'mountain',
+      enemies: withDrops([...advanced, ...legacyEncounters(regionIndex, 2)], 66, rareDrops, 48),
+      trainerChance: 0.1,
+      trainers: [
+        { name: `Veteran ${label} III`, sprite: S.aceM, team: pk(advanced.slice(0, 3), 70), reward: 5200 },
+      ],
+      background: backgrounds.cave || backgrounds.route,
+      description: `Faixa avancada para encontrar evolucoes fortes, raros regionais e drops de forja superior.`,
+    },
+    [`${region}_dex_field_4`]: {
+      id: `${region}_dex_field_4`, name: `Reserva Pos-Liga ${label}`, type: 'farm', group: `${label} Pos-Liga`,
+      unlockLevel: 86, requirements: [field3, championRequirement], unlocks: field4,
+      biome: 'cave',
+      enemies: withDrops([...elite, ...legacyEncounters(regionIndex, 3)], 90, rareDrops, 30),
+      trainerChance: 0.12,
+      trainers: [
+        { name: `Elite Collector ${label}`, sprite: S.aceF, team: pk(elite.slice(0, 4), 94), reward: 8200 },
+      ],
+      background: backgrounds.elite || backgrounds.cave || backgrounds.route,
+      description: `Reserva pos-Liga com os encontros mais raros da regiao e maior chance de Pokemon totalmente evoluidos.`,
+    },
+    [`${region}_dex_level_100`]: {
+      id: `${region}_dex_level_100`, name: `Treino Nivel 100 ${label}`, type: 'farm', group: `${label} Pos-Liga`,
+      unlockLevel: 100, requirements: [field4, championRequirement],
+      biome: 'mountain',
+      enemies: withDrops([...elite.slice(-Math.ceil(elite.length / 2)), ...advanced.slice(-12)], 100, rareDrops, 24),
+      trainerChance: 0.14,
+      trainers: [
+        { name: `Campeao de Treino ${label}`, sprite: S.cooltrainer, team: pk(elite.slice(-4), 100), reward: 12000 },
+      ],
+      background: backgrounds.elite || backgrounds.cave || backgrounds.route,
+      description: `Rota final para treinar qualquer Pokemon de ${label} ate o nivel 100.`,
+    },
+  };
+};
+
+const REGIONAL_DEX_COVERAGE_ROUTES = {
+  ...buildRegionalDexCoverageRoutes({
+    region: 'kanto', label: 'Kanto', regionIndex: 0, startRequirement: 'has_starter', championRequirement: 'champion',
+    range: [1, 151],
+    backgrounds: { route: '/battle_bg_route24_25_1776993592209.png', forest: '/battle_bg_forest_1776863795763.png', cave: '/battle_bg_cave_1776863810604.png', elite: '/battle_bg_elite_four.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'johto', label: 'Johto', regionIndex: 1, startRequirement: 'johto_started', championRequirement: 'johto_champion',
+    range: [152, 251],
+    backgrounds: { route: '/bg_route30_johto.png', forest: '/bg_ilex_forest.png', cave: '/bg_mt_silver.png', elite: '/bg_johto_league.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'hoenn', label: 'Hoenn', regionIndex: 2, startRequirement: 'hoenn_started', championRequirement: 'hoenn_champion',
+    range: [252, 386],
+    backgrounds: { route: '/bg_route119.png', forest: '/bg_petalburg_woods.png', cave: '/bg_meteor_falls.png', elite: '/bg_elite_four_hoenn.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'sinnoh', label: 'Sinnoh', regionIndex: 3, startRequirement: 'sinnoh_started', championRequirement: 'sinnoh_champion',
+    range: [387, 493],
+    backgrounds: { route: '/bg_route202.png', forest: '/bg_eterna_forest.png', cave: '/bg_mt_coronet.png', elite: '/bg_sinnoh_league.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'unova', label: 'Unova', regionIndex: 4, startRequirement: 'unova_started', championRequirement: 'unova_champion',
+    range: [494, 649],
+    backgrounds: { route: '/bg_unova_route.png', forest: '/bg_unova_route.png', cave: '/bg_unova_cave.png', elite: '/bg_unova_elite.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'kalos', label: 'Kalos', regionIndex: 5, startRequirement: 'kalos_started', championRequirement: 'kalos_champion',
+    range: [650, 721],
+    backgrounds: { route: '/bg_kalos_route.png', forest: '/bg_kalos_route.png', cave: '/bg_kalos_cave.png', elite: '/bg_kalos_elite.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'alola', label: 'Alola', regionIndex: 6, startRequirement: 'alola_started', championRequirement: 'alola_champion',
+    range: [722, 809],
+    backgrounds: { route: '/bg_alola_route.png', forest: '/bg_alola_route.png', cave: '/bg_alola_cave.png', elite: '/bg_alola_elite.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'galar', label: 'Galar', regionIndex: 7, startRequirement: 'galar_started', championRequirement: 'galar_champion',
+    range: [810, 905],
+    backgrounds: { route: '/bg_galar_route.png', forest: '/bg_galar_route.png', cave: '/bg_galar_cave.png', elite: '/bg_galar_elite.png' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'paldea', label: 'Paldea', regionIndex: 8, startRequirement: 'paldea_started', championRequirement: 'paldea_champion',
+    range: [906, 1025],
+    backgrounds: { route: '/bg_paldea_route.png', forest: '/bg_paldea_route.png', cave: '/bg_paldea_cave.png', elite: '/bg_paldea_elite.png' },
+  }),
 };
 
 export const GYM_LEADERS = {
@@ -794,7 +1068,7 @@ export const ROUTES = {
       { id: 185, level: 19, drop: 'normal_essence', dropChance: 0.18 },
       { id: 190, level: 19, drop: 'normal_essence', dropChance: 0.18 },
       { id: 209, level: 19, drop: 'normal_essence', dropChance: 0.18 },
-      { id: 227, level: 19, drop: 'normal_essence', dropChance: 0.18 },
+      { id: 227, level: 19, drop: 'recipe_metal_coat', dropChance: 0.06 },
       { id: 231, level: 19, drop: 'normal_essence', dropChance: 0.18 },
       { id: 234, level: 19, drop: 'normal_essence', dropChance: 0.18 },
       { id: 239, level: 19, drop: 'normal_essence', dropChance: 0.18 }
@@ -1501,4 +1775,236 @@ export const ROUTES = {
     background: '/bg_victory_road_hoenn.png',
     description: 'O derradeiro desafio antes da Liga de Hoenn.',
   },
+
+  hoenn_battle_frontier: {
+    id: 'hoenn_battle_frontier', name: 'Battle Frontier', type: 'farm', group: 'Hoenn Pos-Liga',
+    unlockLevel: 68, requirements: ['hoenn_champion'],
+    biome: 'grass',
+    enemies: pk([359, 330, 334, 350, 306, 376, 373], 68),
+    trainerChance: 0.08,
+    trainers: [
+      { name: 'Frontier Ace Mara', sprite: S.aceF, team: pk([350, 373, 376], 72), reward: 4200 },
+      { name: 'Frontier Ace Caio', sprite: S.aceM, team: pk([306, 330, 359], 74), reward: 4500 },
+    ],
+    background: '/bg_battle_frontier.png',
+    description: 'Treino pos-Liga de Hoenn para preparar o time para desafios acima do nivel 70.',
+  },
+
+  sky_pillar_summit: {
+    id: 'sky_pillar_summit', name: 'Topo do Sky Pillar', type: 'farm', group: 'Hoenn Pos-Liga',
+    unlockLevel: 78, requirements: ['hoenn_champion'],
+    biome: 'cave',
+    enemies: pk([291, 302, 306, 330, 334, 373], 78),
+    trainerChance: 0.04,
+    trainers: [
+      { name: 'Dragon Tamer Ivo', sprite: S.aceM, team: pk([330, 373], 82), reward: 5200 },
+    ],
+    background: '/bg_sky_pillar.png',
+    description: 'Uma rota de elite para lapidar o time de Hoenn antes de partir para Sinnoh.',
+  },
+
+  twinleaf_town: {
+    id: 'twinleaf_town', name: 'Twinleaf Town', type: 'city', group: 'Sinnoh Inicio',
+    unlockLevel: 1, requirements: ['sinnoh_started'],
+    background: '/bg_twinleaf.png',
+    description: 'O primeiro lar da jornada de Sinnoh.',
+  },
+
+  sinnoh_route_201: {
+    id: 'sinnoh_route_201', name: 'Rota 201', type: 'farm', group: 'Sinnoh Inicio',
+    unlockLevel: 5, requirements: ['sinnoh_started'],
+    unlocks: 'sinnoh_route_201_cleared',
+    biome: 'grass',
+    enemies: pk([396, 399, 401, 403, 406], 5),
+    trainerChance: 0.04,
+    trainers: [
+      { name: 'Youngster Nolan', sprite: S.youngster, team: pk([396, 399], 7), reward: 400 },
+    ],
+    background: '/bg_route201.png',
+    description: 'Primeira rota de Sinnoh, ideal para treinar o inicial ate os primeiros niveis.',
+  },
+
+  sandgem_town: {
+    id: 'sandgem_town', name: 'Sandgem Town', type: 'city', group: 'Sinnoh Sandgem',
+    unlockLevel: 6, requirements: ['sinnoh_route_201_cleared'],
+    background: '/bg_sandgem.png',
+    description: 'A cidade do laboratorio do Prof. Rowan.',
+  },
+
+  sinnoh_route_202: {
+    id: 'sinnoh_route_202', name: 'Rota 202', type: 'farm', group: 'Sinnoh Sandgem',
+    unlockLevel: 8, requirements: ['sinnoh_route_201_cleared'],
+    unlocks: 'sinnoh_route_202_cleared',
+    biome: 'grass',
+    enemies: pk([396, 399, 401, 403, 406, 412], 8),
+    trainerChance: 0.06,
+    trainers: [
+      { name: 'Lass Natalie', sprite: S.lass, team: pk([401, 406], 10), reward: 520 },
+      { name: 'Youngster Logan', sprite: S.youngster, team: pk([399, 403], 11), reward: 560 },
+    ],
+    background: '/bg_route202.png',
+    description: 'Capturas basicas para formar o primeiro time de Sinnoh.',
+  },
+
+  jubilife_city: {
+    id: 'jubilife_city', name: 'Jubilife City', type: 'city', group: 'Sinnoh Jubilife',
+    unlockLevel: 10, requirements: ['sinnoh_route_202_cleared'],
+    background: '/bg_jubilife.png',
+    description: 'Centro urbano de Sinnoh e ponto seguro para reorganizar o time.',
+  },
+
+  sinnoh_route_203: {
+    id: 'sinnoh_route_203', name: 'Rota 203', type: 'farm', group: 'Sinnoh Jubilife',
+    unlockLevel: 12, requirements: ['sinnoh_route_202_cleared'],
+    unlocks: 'sinnoh_route_203_cleared',
+    biome: 'grass',
+    enemies: pk([396, 399, 401, 403, 406, 63], 12),
+    trainerChance: 0.07,
+    trainers: [
+      { name: 'Youngster Dallas', sprite: S.youngster, team: pk([397, 64], 15), reward: 760 },
+    ],
+    background: '/bg_route202.png',
+    description: 'Rota de transicao para evoluir capturas iniciais e preparar desafios maiores.',
+  },
+
+  sinnoh_route_204: {
+    id: 'sinnoh_route_204', name: 'Rota 204', type: 'farm', group: 'Sinnoh Floaroma',
+    unlockLevel: 18, requirements: ['sinnoh_route_203_cleared'],
+    unlocks: 'sinnoh_route_204_cleared',
+    biome: 'grass',
+    enemies: pk([397, 400, 402, 406, 315, 418], 18),
+    trainerChance: 0.07,
+    trainers: [
+      { name: 'Aroma Lady Sofia', sprite: S.lass, team: pk([406, 315], 20), reward: 950 },
+    ],
+    background: '/bg_eterna.png',
+    description: 'Primeira subida de dificuldade, com evolucoes iniciais e capturas mais resistentes.',
+  },
+
+  eterna_forest_sinnoh: {
+    id: 'eterna_forest_sinnoh', name: 'Eterna Forest', type: 'farm', group: 'Sinnoh Eterna',
+    unlockLevel: 24, requirements: ['sinnoh_route_204_cleared'],
+    unlocks: 'sinnoh_eterna_forest_cleared',
+    biome: 'forest',
+    enemies: pk([401, 402, 406, 315, 427, 433], 24),
+    trainerChance: 0.08,
+    trainers: [
+      { name: 'Bug Catcher Anton', sprite: S.bugcatcher, team: pk([402, 412], 26), reward: 1200 },
+    ],
+    background: '/bg_eterna_forest.png',
+    description: 'Floresta para consolidar o time antes dos desafios intermediarios.',
+  },
+
+  sinnoh_route_209: {
+    id: 'sinnoh_route_209', name: 'Rota 209', type: 'farm', group: 'Sinnoh Hearthome',
+    unlockLevel: 32, requirements: ['sinnoh_eterna_forest_cleared'],
+    unlocks: 'sinnoh_route_209_cleared',
+    biome: 'grass',
+    enemies: pk([397, 400, 402, 427, 433, 434], 32),
+    trainerChance: 0.08,
+    trainers: [
+      { name: 'Pokemon Breeder Abril', sprite: S.lass, team: pk([427, 433, 434], 34), reward: 1600 },
+    ],
+    background: '/bg_eterna.png',
+    description: 'Rota de treino de nivel medio, boa para preparar evolucoes finais.',
+  },
+
+  valor_lakefront: {
+    id: 'valor_lakefront', name: 'Valor Lakefront', type: 'farm', group: 'Sinnoh Veilstone',
+    unlockLevel: 42, requirements: ['sinnoh_route_209_cleared'],
+    unlocks: 'sinnoh_valor_lakefront_cleared',
+    biome: 'water',
+    enemies: pk([398, 400, 405, 419, 423, 435], 42),
+    trainerChance: 0.08,
+    trainers: [
+      { name: 'Ace Trainer Breno', sprite: S.aceM, team: pk([405, 419], 44), reward: 2400 },
+    ],
+    background: '/bg_sinnoh_league.png',
+    description: 'Margem do lago com combates em ritmo de pos-ginasios intermediarios.',
+  },
+
+  mt_coronet_sinnoh: {
+    id: 'mt_coronet_sinnoh', name: 'Mt. Coronet', type: 'farm', group: 'Sinnoh Coronet',
+    unlockLevel: 54, requirements: ['sinnoh_valor_lakefront_cleared'],
+    unlocks: 'sinnoh_mt_coronet_cleared',
+    biome: 'mountain',
+    enemies: pk([398, 400, 405, 437, 444, 459], 54),
+    trainerChance: 0.08,
+    trainers: [
+      { name: 'Hiker Davi', sprite: S.hiker, team: pk([437, 444], 56), reward: 3200 },
+    ],
+    background: '/bg_mt_coronet.png',
+    description: 'Montanha central de Sinnoh, com encontros fortes para chegar ao fim da campanha.',
+  },
+
+  snowpoint_routes: {
+    id: 'snowpoint_routes', name: 'Rotas de Snowpoint', type: 'farm', group: 'Sinnoh Snowpoint',
+    unlockLevel: 66, requirements: ['sinnoh_mt_coronet_cleared'],
+    unlocks: 'sinnoh_snowpoint_cleared',
+    biome: 'ice',
+    enemies: pk([459, 460, 461, 473, 478, 405], 66),
+    trainerChance: 0.08,
+    trainers: [
+      { name: 'Skier Bianca', sprite: S.aceF, team: pk([460, 478], 68), reward: 4200 },
+    ],
+    background: '/bg_snowpoint.png',
+    description: 'Rotas geladas para preparar o time para o fechamento da Liga.',
+  },
+
+  sunyshore_routes: {
+    id: 'sunyshore_routes', name: 'Rotas de Sunyshore', type: 'farm', group: 'Sinnoh Sunyshore',
+    unlockLevel: 76, requirements: ['sinnoh_snowpoint_cleared'],
+    unlocks: 'sinnoh_sunyshore_cleared',
+    biome: 'grass',
+    enemies: pk([398, 405, 407, 419, 448, 445], 76),
+    trainerChance: 0.09,
+    trainers: [
+      { name: 'Ace Trainer Lia', sprite: S.aceF, team: pk([407, 448, 445], 78), reward: 5200 },
+    ],
+    background: '/bg_sunyshore.png',
+    description: 'Treino pre-Liga de Sinnoh, equilibrado para times na faixa dos 70.',
+  },
+
+  sinnoh_victory_training: {
+    id: 'sinnoh_victory_training', name: 'Treino da Victory Road', type: 'farm', group: 'Sinnoh Treino Avancado',
+    unlockLevel: 84, requirements: ['sinnoh_sunyshore_cleared'],
+    unlocks: 'sinnoh_victory_training_cleared',
+    biome: 'cave',
+    enemies: pk([398, 400, 405, 407, 445, 448], 84),
+    trainerChance: 0.08,
+    trainers: [
+      { name: 'Ace Trainer Mira', sprite: S.aceF, team: pk([407, 448, 445], 88), reward: 6200 },
+    ],
+    background: '/bg_victory_road_sinnoh.png',
+    description: 'Treino intenso para times que ja passaram da fase inicial de Sinnoh.',
+  },
+
+  survival_area: {
+    id: 'survival_area', name: 'Survival Area', type: 'farm', group: 'Sinnoh Treino Avancado',
+    unlockLevel: 92, requirements: ['sinnoh_victory_training_cleared'],
+    unlocks: 'sinnoh_survival_area_cleared',
+    biome: 'mountain',
+    enemies: pk([464, 466, 467, 475, 445, 448], 92),
+    trainerChance: 0.1,
+    trainers: [
+      { name: 'Veteran Alma', sprite: S.aceF, team: pk([475, 464, 467], 95), reward: 7600 },
+    ],
+    background: '/bg_mt_coronet.png',
+    description: 'Area dura para manter a progressao ate os niveis finais.',
+  },
+
+  stark_mountain: {
+    id: 'stark_mountain', name: 'Stark Mountain', type: 'farm', group: 'Sinnoh Treino Avancado',
+    unlockLevel: 100, requirements: ['sinnoh_survival_area_cleared'],
+    biome: 'mountain',
+    enemies: pk([445, 448, 464, 466, 467, 485], 100),
+    trainerChance: 0.12,
+    trainers: [
+      { name: 'Veteran Buck', sprite: S.aceM, team: pk([448, 467, 485], 100), reward: 10000 },
+    ],
+    background: '/bg_mt_coronet.png',
+    description: 'Rota final de treino: inimigos no nivel 100 para fechar o endgame.',
+  },
+  ...REGIONAL_DEX_COVERAGE_ROUTES,
+  ...FUTURE_REGION_ROUTES,
 };

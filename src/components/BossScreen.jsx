@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../firebase';
-import { collection, query, orderBy, limit, onSnapshot, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, orderBy, limit, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import { GYMS, ELITE_FOUR } from '../data/gyms';
 
 // Importação dinâmica para evitar circularidade se possível, ou apenas usar os dados locais
@@ -18,12 +18,15 @@ const formatCountdown = (ms) => {
   return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
-const BossScreen = ({ gameState, onChallengeBoss }) => {
+const BossScreen = ({ gameState, powerScore = 0, onChallengeBoss }) => {
   const [boss, setBoss] = useState(null);
   const [ranking, setRanking] = useState([]);
   const [loading, setLoading] = useState(true);
   const [myBestDamage, setMyBestDamage] = useState(0);
   const [myLastDamage, setMyLastDamage] = useState(0);
+  const [myBestScore, setMyBestScore] = useState(0);
+  const [myLastScore, setMyLastScore] = useState(0);
+  const [myRank, setMyRank] = useState(null);
   const [nextBossAt, setNextBossAt] = useState(() => {
     const saved = Number(localStorage.getItem(BOSS_ROTATION_STORAGE_KEY));
     const now = Date.now();
@@ -112,12 +115,15 @@ const BossScreen = ({ gameState, onChallengeBoss }) => {
       rotateBoss();
     }
     
-    // Listen to Global Boss Ranking (Top 5)
-    const q = query(collection(db, "bossRankings"), orderBy("totalDamage", "desc"), limit(5));
+    // Listen to Global Boss Ranking
+    const q = query(collection(db, "bossRankings"), orderBy("totalDamage", "desc"), limit(25));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = [];
       snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
       setRanking(data);
+      const currentUid = auth.currentUser?.uid;
+      const currentIndex = currentUid ? data.findIndex(row => row.id === currentUid) : -1;
+      setMyRank(currentIndex >= 0 ? currentIndex + 1 : null);
       setLoading(false);
     });
 
@@ -128,8 +134,10 @@ const BossScreen = ({ gameState, onChallengeBoss }) => {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const data = docSnap.data();
-          setMyBestDamage(data.totalDamage || 0);
+          setMyBestDamage(data.totalDamage || data.bestDamage || 0);
           setMyLastDamage(data.lastDamage || 0);
+          setMyBestScore(data.bestScore || 0);
+          setMyLastScore(data.lastScore || 0);
         }
       }
     };
@@ -155,9 +163,12 @@ const BossScreen = ({ gameState, onChallengeBoss }) => {
     onChallengeBoss(boss);
   };
 
-  const topDamageRanking = ranking.slice(0, 5);
+  const topDamageRanking = ranking.slice(0, 10);
   const displayedBestDamage = Math.max(myBestDamage || 0, gameState.bossTotalDamage || 0);
   const displayedLastDamage = Math.max(myLastDamage || 0, gameState.bossLastDamage || 0);
+  const displayedBestScore = Math.max(myBestScore || 0, Math.floor(displayedBestDamage + Math.max(0, powerScore || 0) * 0.18));
+  const displayedLastScore = Math.max(myLastScore || 0, Math.floor(displayedLastDamage + Math.max(0, powerScore || 0) * 0.18));
+  const bossPowerBonus = Math.round(Math.min(250, Math.max(0, powerScore || 0) / 2000));
 
   return (
     <div className="flex flex-col h-full bg-[#0a0a0a] text-white p-4 animate-fadeIn overflow-y-auto custom-scrollbar">
@@ -205,9 +216,24 @@ const BossScreen = ({ gameState, onChallengeBoss }) => {
           <p className="text-xl font-black text-blue-400 leading-none">{displayedBestDamage.toLocaleString()}</p>
           <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mt-2">Ultimo dano: {displayedLastDamage.toLocaleString()}</p>
         </div>
+        <div className="bg-[#1a1a1a] p-4 rounded-3xl border-2 border-emerald-500/20 flex flex-col items-center justify-center text-center">
+          <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Bonus de Poder</p>
+          <p className="text-xl font-black text-emerald-400 leading-none">+{bossPowerBonus}%</p>
+          <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mt-2">Insignias, atributos e shinies</p>
+        </div>
+        <div className="bg-[#1a1a1a] p-4 rounded-3xl border-2 border-blue-500/20 flex flex-col items-center justify-center text-center">
+          <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Sua Posicao</p>
+          <p className="text-xl font-black text-amber-400 leading-none">{myRank ? `#${myRank}` : 'Top 25+'}</p>
+          <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mt-2">Ranking global ao vivo</p>
+        </div>
+        <div className="bg-[#1a1a1a] p-4 rounded-3xl border-2 border-purple-500/20 flex flex-col items-center justify-center text-center">
+          <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Pontuacao</p>
+          <p className="text-xl font-black text-purple-300 leading-none">{displayedBestScore.toLocaleString()}</p>
+          <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mt-2">Ultima: {displayedLastScore.toLocaleString()}</p>
+        </div>
         <button 
           onClick={handleChallenge}
-          className="bg-gradient-to-br from-red-600 to-amber-600 p-4 rounded-3xl border-b-4 border-amber-900 font-black uppercase italic tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-xl shadow-red-900/20"
+          className="col-span-2 bg-gradient-to-br from-red-600 to-amber-600 p-4 rounded-3xl border-b-4 border-amber-900 font-black uppercase italic tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-xl shadow-red-900/20"
         >
           <span className="block">DESAFIAR BOSS</span>
           <span className="block mt-1 text-[9px] not-italic tracking-widest text-white/70">
@@ -234,7 +260,7 @@ const BossScreen = ({ gameState, onChallengeBoss }) => {
       {/* Mini Ranking */}
       <div className="bg-[#141414] rounded-[2rem] border-2 border-white/5 p-6 flex flex-col gap-4 shadow-inner">
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
-          <h4 className="font-black uppercase italic text-amber-500 tracking-tighter">Maiores Danos do Evento</h4>
+          <h4 className="font-black uppercase italic text-amber-500 tracking-tighter">Ranking Global do Boss</h4>
           <span className="text-[8px] bg-amber-500/10 text-amber-500 px-2 py-1 rounded-full font-bold uppercase">Ao Vivo</span>
         </div>
 
@@ -245,14 +271,28 @@ const BossScreen = ({ gameState, onChallengeBoss }) => {
         ) : (
           <div className="flex flex-col gap-2">
             {topDamageRanking.map((row, index) => (
-              <div key={row.id} className="flex items-center justify-between p-3 bg-white/5 rounded-2xl border border-white/5">
+              <div key={row.id} className={`flex items-center justify-between gap-3 p-3 rounded-2xl border ${auth.currentUser?.uid === row.id ? 'bg-blue-500/10 border-blue-400/40' : 'bg-white/5 border-white/5'}`}>
                 <div className="flex items-center gap-3">
                   <span className={`w-6 h-6 flex items-center justify-center rounded-lg font-black text-xs ${index === 0 ? 'bg-amber-500 text-black' : 'bg-white/10 text-white/40'}`}>
                     {index + 1}
                   </span>
-                  <span className="font-bold text-sm uppercase italic">{row.name || 'Treinador'}</span>
+                  <div>
+                    <span className="block font-bold text-sm uppercase italic">{row.name || 'Treinador'}</span>
+                    <span className="block text-[8px] font-black uppercase tracking-widest text-white/25">
+                      Tentativas: {row.attempts || 1}
+                    </span>
+                  </div>
                 </div>
-                <span className="font-black text-emerald-400 text-sm">{(row.totalDamage || 0).toLocaleString()}</span>
+                <div className="grid grid-cols-2 gap-2 text-right">
+                  <div>
+                    <p className="text-[8px] font-black uppercase text-white/30">Dano</p>
+                    <p className="font-black text-emerald-400 text-sm">{(row.totalDamage || row.bestDamage || 0).toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-[8px] font-black uppercase text-white/30">Score</p>
+                    <p className="font-black text-purple-300 text-sm">{(row.bestScore || row.totalDamage || 0).toLocaleString()}</p>
+                  </div>
+                </div>
               </div>
             ))}
             {topDamageRanking.length === 0 && (

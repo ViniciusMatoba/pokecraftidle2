@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { loginUser, registerUser } from '../auth';
 import { setPersistence, browserLocalPersistence, browserSessionPersistence, getAuth } from 'firebase/auth';
 import { APP_VERSION, APP_VERSION_DATE } from '../data/constants';
@@ -38,7 +38,7 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
   const handleCheckUpdate = async () => {
     setUpdateStatus('checking');
     try {
-      // Forçamos o browser a buscar a versão mais recente ignorando cache do manifest/json se possível
+      // Forcamos o browser a buscar a versao mais recente ignorando cache do manifest/json se possivel
       const response = await fetch('./version.json?t=' + Date.now(), {
         cache: 'no-store',
         headers: { 'Cache-Control': 'no-cache' }
@@ -46,7 +46,7 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
       const data = await response.json();
       
       if ('serviceWorker' in navigator) {
-        // Timeout de 3s para o SW ready, para não travar o botão se o SW falhar
+        // Timeout de 3s para o SW ready, para nao travar o botao se o SW falhar
         const registration = await Promise.race([
           navigator.serviceWorker.ready,
           new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout SW')), 3000))
@@ -58,7 +58,7 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
       }
 
       if (data.version !== APP_VERSION) {
-        if (window.confirm(`Nova versão disponível (${data.version})! Deseja atualizar agora?`)) {
+        if (window.confirm(`Nova versao disponivel (${data.version})! Deseja atualizar agora?`)) {
           await forceAppRefresh();
         }
       } else {
@@ -71,7 +71,7 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
     }
   };
 
-  // Pré-preenche e-mail salvo se lembrar login ativo
+  // Pre-preenche e-mail salvo se lembrar login ativo
   useEffect(() => {
     if (rememberMe) {
       const savedEmail = localStorage.getItem('poke_saved_email') || '';
@@ -100,12 +100,12 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
       if (onAuthSuccess) onAuthSuccess();
     } catch (err) {
       const msgs = {
-        'auth/invalid-email': 'E-mail inválido.',
-        'auth/user-not-found': 'Usuário não encontrado.',
+        'auth/invalid-email': 'E-mail invalido.',
+        'auth/user-not-found': 'Usuario nao encontrado.',
         'auth/wrong-password': 'Senha incorreta.',
-        'auth/email-already-in-use': 'E-mail já cadastrado.',
-        'auth/weak-password': 'Senha fraca (mín. 6 caracteres).',
-        'auth/invalid-credential': 'Credenciais inválidas.',
+        'auth/email-already-in-use': 'E-mail ja cadastrado.',
+        'auth/weak-password': 'Senha fraca (min. 6 caracteres).',
+        'auth/invalid-credential': 'Credenciais invalidas.',
       };
       setError(msgs[err.code] || 'Erro ao conectar. Tente novamente.');
     } finally {
@@ -118,7 +118,7 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
       className="w-full h-full flex items-center justify-center p-6 font-sans relative overflow-hidden"
       style={{ background: 'linear-gradient(135deg, #1a237e 0%, #0F2D3A 60%, #1a3a2a 100%)' }}
     >
-      {/* Pokébolas decorativas de fundo */}
+      {/* Pokebolas decorativas de fundo */}
       <div className="pointer-events-none select-none">
         {/* grande - topo direito */}
         <img
@@ -151,12 +151,12 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
       {/* Card central - branco limpo, sem borda colorida */}
       <div className="w-full max-w-md bg-white rounded-[2rem] shadow-2xl relative z-10 overflow-hidden">
 
-        {/* Banner topo - vermelho como a Pokédex */}
+        {/* Banner topo - vermelho como a Pokedex */}
         <div
           className="px-8 pt-8 pb-6 flex flex-col items-center text-center"
           style={{ background: 'linear-gradient(180deg, #CC0000 0%, #ff1a1a 100%)' }}
         >
-          {/* Título POKÉCRAFT IDLE — amarelo com contorno vermelho-escuro */}
+          {/* Titulo POKECRAFT IDLE */}
           <h1
             className="text-4xl font-black italic uppercase tracking-tighter drop-shadow-lg"
             style={{
@@ -183,7 +183,7 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
               {isLogin ? 'Bem-vindo' : 'Novo Treinador'}
             </h2>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">
-              {isLogin ? 'Acesse sua conta mestra' : 'Comece sua jornada pokémon'}
+              {isLogin ? 'Acesse sua conta mestra' : 'Comece sua jornada Pokemon'}
             </p>
           </div>
         </div>
@@ -191,7 +191,7 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
         {/* Divider decorativo */}
         <div className="h-2" style={{ background: 'linear-gradient(90deg, #FFCB05, #ffdf5e, #FFCB05)' }} />
 
-        {/* Formulário */}
+        {/* Formulario */}
         <div className="px-8 py-6 space-y-4 bg-white">
           <form onSubmit={handleSubmit} className="flex flex-col gap-6 flex-1">
             {/* Campo E-mail */}
@@ -233,7 +233,21 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
                   tabIndex={-1}
                   aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                 >
-                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    {showPassword ? (
+                      <>
+                        <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </>
+                    ) : (
+                      <>
+                        <path d="M3 3l18 18" />
+                        <path d="M10.6 10.6a3 3 0 004.2 4.2" />
+                        <path d="M9.9 5.3A10.5 10.5 0 0112 5c6.5 0 10 7 10 7a16.1 16.1 0 01-3.1 4.3" />
+                        <path d="M6.1 6.7A16.2 16.2 0 002 12s3.5 7 10 7c1 0 1.9-.1 2.8-.4" />
+                      </>
+                    )}
+                  </svg>
                 </button>
               </div>
             </div>
@@ -265,11 +279,11 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
             {/* Mensagem de erro */}
             {error && (
               <div className="bg-red-50 border-2 border-red-200 rounded-2xl px-4 py-3 text-center">
-                <p className="text-red-600 text-[11px] font-black uppercase tracking-wide">⚠️ {error}</p>
+                <p className="text-red-600 text-[11px] font-black uppercase tracking-wide">! {error}</p>
               </div>
             )}
 
-            {/* Botão de login */}
+            {/* Botao de login */}
             <button
               type="submit"
               disabled={loading}
@@ -287,12 +301,24 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
                   Conectando...
                 </>
               ) : (
-                isLogin ? '⚡ Entrar no Jogo' : '🌟 Criar Conta Mestra'
+                isLogin ? (
+                  <>
+                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor" aria-hidden="true">
+                      <path d="M13 2L4 14h7l-1 8 10-13h-7l1-7Z" />
+                    </svg>
+                    Entrar no Jogo
+                  </>
+                ) : (
+                  <>
+                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-4 h-4" alt="" />
+                    Criar Conta Mestra
+                  </>
+                )
               )}
             </button>
           </form>
 
-          {/* Botão de Verificação de Versão */}
+          {/* Botao de Verificacao de Versao */}
           <button
             onClick={handleCheckUpdate}
             disabled={updateStatus === 'checking'}
@@ -314,20 +340,36 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
                 Verificando...
               </>
             ) : updateStatus === 'updated' ? (
-              <>✅ Versão Atualizada!</>
+              <>
+                <span className="w-4 h-4 rounded-full bg-emerald-300 text-emerald-950 flex items-center justify-center text-[9px] font-black">OK</span>
+                Versao Atualizada!
+              </>
             ) : (
-              <>🔄 Verificar Atualizações</>
+              <>
+                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M21 12a9 9 0 01-15.4 6.4L3 16" />
+                  <path d="M3 16h6v6" />
+                  <path d="M3 12a9 9 0 0115.4-6.4L21 8" />
+                  <path d="M21 8h-6V2" />
+                </svg>
+                Verificar Atualizacoes
+              </>
             )}
           </button>
 
-          {/* Botão de Instalação PWA */}
+          {/* Botao de Instalacao PWA */}
           {!isStandalone && (
             <button
               onClick={handleInstallPWA}
-              className="w-full mt-4 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg border-b-4 border-amber-700 animate-bounce"
+              className={`w-full mt-4 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg border-b-4 border-amber-700 ${installPrompt || isIOS ? 'animate-bounce' : ''}`}
               style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'white' }}
             >
-              📥 {isIOS ? 'Como Instalar (iOS)' : (installPrompt ? 'Instalar Aplicativo (PWA)' : 'Preparando instalação...')}
+              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 3v12" />
+                <path d="M7 10l5 5 5-5" />
+                <path d="M5 21h14" />
+              </svg>
+              {isIOS ? 'Como Instalar (iOS)' : (installPrompt ? 'Instalar Aplicativo (PWA)' : 'Como instalar o app')}
             </button>
           )}
 
@@ -337,11 +379,11 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
             onMouseEnter={e => e.target.style.color = '#CC0000'}
             onMouseLeave={e => e.target.style.color = '#94a3b8'}
           >
-            {isLogin ? 'Não tem conta? Cadastre-se grátis →' : '← Já possui conta? Faça Login'}
+            {isLogin ? 'Nao tem conta? Cadastre-se gratis ->' : '<- Ja possui conta? Faca Login'}
           </button>
 
           <p className="mt-4 text-[9px] font-bold text-slate-300 uppercase tracking-[0.2em] text-center">
-            PokéCraft Idle v{APP_VERSION} • {APP_VERSION_DATE}
+            PokéCraft Idle v{APP_VERSION} - {APP_VERSION_DATE}
           </p>
         </div>
       </div>

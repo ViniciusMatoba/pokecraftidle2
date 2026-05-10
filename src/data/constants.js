@@ -30,6 +30,12 @@ export const NATURES = {
 export const BADGE_IDS = ['boulder_badge', 'cascade_badge', 'thunder_badge', 'rainbow_badge', 'soul_badge', 'marsh_badge', 'volcano_badge', 'earth_badge'];
 export const JOHTO_BADGE_IDS = ['zephyr_badge', 'hive_badge', 'plain_badge', 'fog_badge', 'storm_badge', 'mineral_badge', 'glacier_badge', 'rising_badge'];
 export const HOENN_BADGE_IDS = ['stone_badge', 'knuckle_badge', 'dynamo_badge', 'heat_badge', 'balance_badge', 'feather_badge', 'mind_badge', 'rain_badge'];
+export const SINNOH_BADGE_IDS = ['coal_badge', 'forest_badge', 'cobble_badge', 'fen_badge', 'relic_badge', 'mine_badge', 'icicle_badge', 'beacon_badge'];
+export const UNOVA_BADGE_IDS = ['trio_badge', 'basic_badge', 'insect_badge', 'bolt_badge', 'quake_badge', 'jet_badge', 'freeze_badge', 'legend_badge'];
+export const KALOS_BADGE_IDS = ['bug_badge', 'cliff_badge', 'rumble_badge', 'plant_badge', 'voltage_badge', 'fairy_badge', 'psychic_badge', 'iceberg_badge'];
+export const ALOLA_BADGE_IDS = ['melemele_stamp', 'akala_stamp', 'ulaula_stamp', 'poni_stamp', 'alola_elite_stamp', 'alola_champion_stamp', 'ultra_stamp', 'battle_tree_stamp'];
+export const GALAR_BADGE_IDS = ['grass_badge_galar', 'water_badge_galar', 'fire_badge_galar', 'fighting_badge_galar', 'fairy_badge_galar', 'rock_badge_galar', 'dark_badge_galar', 'dragon_badge_galar'];
+export const PALDEA_BADGE_IDS = ['bug_badge_paldea', 'grass_badge_paldea', 'electric_badge_paldea', 'water_badge_paldea', 'normal_badge_paldea', 'ghost_badge_paldea', 'psychic_badge_paldea', 'ice_badge_paldea'];
 
 export const GYM_LEVEL_CAPS = {
   kanto: {
@@ -43,6 +49,30 @@ export const GYM_LEVEL_CAPS = {
   hoenn: {
     stone_badge: 15, knuckle_badge: 19, dynamo_badge: 24, heat_badge: 29,
     balance_badge: 31, feather_badge: 33, mind_badge: 42, rain_badge: 55, hoenn_champion: 70
+  },
+  sinnoh: {
+    coal_badge: 16, forest_badge: 25, cobble_badge: 33, fen_badge: 39,
+    relic_badge: 45, mine_badge: 53, icicle_badge: 66, beacon_badge: 76, sinnoh_champion: 100
+  },
+  unova: {
+    trio_badge: 14, basic_badge: 20, insect_badge: 26, bolt_badge: 32,
+    quake_badge: 39, jet_badge: 45, freeze_badge: 52, legend_badge: 60, unova_champion: 100
+  },
+  kalos: {
+    bug_badge: 12, cliff_badge: 25, rumble_badge: 32, plant_badge: 34,
+    voltage_badge: 40, fairy_badge: 48, psychic_badge: 59, iceberg_badge: 65, kalos_champion: 100
+  },
+  alola: {
+    melemele_stamp: 16, akala_stamp: 28, ulaula_stamp: 44, poni_stamp: 55,
+    alola_elite_stamp: 65, alola_champion_stamp: 75, ultra_stamp: 85, battle_tree_stamp: 100, alola_champion: 100
+  },
+  galar: {
+    grass_badge_galar: 20, water_badge_galar: 24, fire_badge_galar: 27, fighting_badge_galar: 36,
+    fairy_badge_galar: 38, rock_badge_galar: 42, dark_badge_galar: 46, dragon_badge_galar: 55, galar_champion: 100
+  },
+  paldea: {
+    bug_badge_paldea: 15, grass_badge_paldea: 20, electric_badge_paldea: 28, water_badge_paldea: 35,
+    normal_badge_paldea: 42, ghost_badge_paldea: 48, psychic_badge_paldea: 55, ice_badge_paldea: 60, paldea_champion: 100
   }
 };
 
@@ -80,7 +110,13 @@ export const DEFAULT_GAME_STATE = {
   regional_teams: {
     kanto: [],
     johto: [],
-    hoenn: []
+    hoenn: [],
+    sinnoh: [],
+    unova: [],
+    kalos: [],
+    alola: [],
+    galar: [],
+    paldea: []
   },
   activeRegion: 'kanto',
   currentRoute: 'pallet_town',
@@ -90,6 +126,7 @@ export const DEFAULT_GAME_STATE = {
   caughtData: {},
   speciesMastery: {},
   expeditions: {},
+  expeditionProgress: {},
   activeEffects: {},
   house: {
     owned: false,
@@ -118,6 +155,8 @@ export const DEFAULT_GAME_STATE = {
   lastLegendarySpawns: {},
   forgedItemsCount: 0,
   bossTotalDamage: 0,
+  shinyCapturedCount: 0,
+  trainerBattleWins: 0,
   bossLastDamage: 0
 };
 
@@ -138,7 +177,14 @@ export const ITEM_LABELS = {
   recipe_charcoal: { icon: 'RC', name: 'Receita: Charcoal' },
   recipe_mystic_water: { icon: 'RC', name: 'Receita: Mystic Water' },
   recipe_black_belt: { icon: 'RC', name: 'Receita: Black Belt' },
+  recipe_metal_coat: { icon: 'RC', name: 'Receita: Metal Coat' },
   recipe_quick_claw: { icon: 'RC', name: 'Receita: Quick Claw' },
+  recipe_venusaurite: { icon: 'RC', name: 'Receita: Venusaurite' },
+  recipe_charizardite_x: { icon: 'RC', name: 'Receita: Charizardite X' },
+  recipe_blastoisinite: { icon: 'RC', name: 'Receita: Blastoisinite' },
+  recipe_lucarionite: { icon: 'RC', name: 'Receita: Lucarionite' },
+  recipe_gardevoirite: { icon: 'RC', name: 'Receita: Gardevoirite' },
+  recipe_metagrossite: { icon: 'RC', name: 'Receita: Metagrossite' },
   recipe_lucky_egg: { icon: 'RC', name: 'Receita: Lucky Egg' },
   recipe_cleanse_tag: { icon: 'RC', name: 'Receita: Cleanse Tag' },
   pink_dust: { icon: '🌸', name: 'Pó Rosa' },
@@ -151,6 +197,8 @@ export const ITEM_LABELS = {
   fury_essence: { icon: '💢', name: 'Essência de Fúria' },
   dragon_scale: { icon: '🦎', name: 'Escama de Dragão' },
   stardust: { icon: '✨', name: 'Poeira Estelar' },
+
+  mega_shard: { icon: 'MS', name: 'Fragmento Mega' },
 
   // Itens de Forja de Boss
   titan_shield: { icon: '🏰', name: 'Escudo de Titã' },

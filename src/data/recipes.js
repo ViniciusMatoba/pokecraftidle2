@@ -1,3 +1,64 @@
+const megaStone = (id, name, pokemonIds, cost, boost = {}) => ({
+  id,
+  name,
+  img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${id.replace(/_/g, '-')}.png`,
+  cost: { mega_shard: 20, mystic_dust: 15, ...cost },
+  effect: `Mega Stone: ${name.replace(/ite$|ite X$|ite Y$/i, '')}`,
+  type: 'mega_stone',
+  megaFor: pokemonIds,
+  megaBoost: { hp: 1.10, attack: 1.20, defense: 1.15, spAtk: 1.20, spDef: 1.15, speed: 1.10, ...boost },
+});
+
+const MEGA_STONE_RECIPES = [
+  megaStone('venusaurite', 'Venusaurite', [3], { grass_essence: 80, poison_essence: 40 }, { defense: 1.22, spAtk: 1.22, spDef: 1.22 }),
+  megaStone('charizardite_x', 'Charizardite X', [6], { fire_essence: 90, dragon_essence: 50 }, { attack: 1.28, defense: 1.15, spAtk: 1.16 }),
+  megaStone('charizardite_y', 'Charizardite Y', [6], { fire_essence: 100, flying_essence: 40 }, { attack: 1.12, spAtk: 1.34, spDef: 1.18 }),
+  megaStone('blastoisinite', 'Blastoisinite', [9], { water_essence: 90, steel_essence: 30 }, { defense: 1.20, spAtk: 1.28, spDef: 1.18 }),
+  megaStone('beedrillite', 'Beedrillite', [15], { bug_essence: 75, poison_essence: 75 }, { attack: 1.35, speed: 1.25 }),
+  megaStone('pidgeotite', 'Pidgeotite', [18], { flying_essence: 95, normal_essence: 55 }, { spAtk: 1.28, speed: 1.22 }),
+  megaStone('alakazite', 'Alakazite', [65], { psychic_essence: 120, mystic_dust: 25 }, { spAtk: 1.34, spDef: 1.20, speed: 1.22 }),
+  megaStone('slowbronite', 'Slowbronite', [80], { water_essence: 80, psychic_essence: 70 }, { defense: 1.34, spAtk: 1.18 }),
+  megaStone('gengarite', 'Gengarite', [94], { ghost_essence: 120, poison_essence: 50 }, { spAtk: 1.32, speed: 1.20 }),
+  megaStone('kangaskhanite', 'Kangaskhanite', [115], { normal_essence: 130, gold_nugget: 4 }, { attack: 1.25, defense: 1.16 }),
+  megaStone('pinsirite', 'Pinsirite', [127], { bug_essence: 90, flying_essence: 50 }, { attack: 1.30, defense: 1.18, speed: 1.16 }),
+  megaStone('gyaradosite', 'Gyaradosite', [130], { water_essence: 110, dark_essence: 60 }, { attack: 1.30, defense: 1.16, spDef: 1.18 }),
+  megaStone('aerodactylite', 'Aerodactylite', [142], { rock_essence: 110, flying_essence: 60 }, { attack: 1.25, speed: 1.25 }),
+  megaStone('mewtwonite_x', 'Mewtwonite X', [150], { psychic_essence: 150, fighting_essence: 80, stardust: 10 }, { attack: 1.36, defense: 1.20, spAtk: 1.18 }),
+  megaStone('mewtwonite_y', 'Mewtwonite Y', [150], { psychic_essence: 160, mystic_dust: 35, stardust: 10 }, { spAtk: 1.42, spDef: 1.22, speed: 1.18 }),
+  megaStone('ampharosite', 'Ampharosite', [181], { electric_essence: 100, dragon_essence: 50 }, { spAtk: 1.30, spDef: 1.18 }),
+  megaStone('steelixite', 'Steelixite', [208], { steel_essence: 110, ground_essence: 60 }, { defense: 1.38, attack: 1.22 }),
+  megaStone('scizorite', 'Scizorite', [212], { bug_essence: 80, steel_essence: 100 }, { attack: 1.28, defense: 1.22 }),
+  megaStone('heracronite', 'Heracronite', [214], { bug_essence: 90, fighting_essence: 90 }, { attack: 1.36, defense: 1.14 }),
+  megaStone('houndoominite', 'Houndoominite', [229], { dark_essence: 100, fire_essence: 80 }, { spAtk: 1.32, speed: 1.18 }),
+  megaStone('tyranitarite', 'Tyranitarite', [248], { rock_essence: 120, dark_essence: 100, stardust: 8 }, { attack: 1.30, defense: 1.25, spDef: 1.18 }),
+  megaStone('sceptilite', 'Sceptilite', [254], { grass_essence: 110, dragon_essence: 60 }, { spAtk: 1.30, speed: 1.24 }),
+  megaStone('blazikenite', 'Blazikenite', [257], { fire_essence: 110, fighting_essence: 80 }, { attack: 1.30, spAtk: 1.18, speed: 1.20 }),
+  megaStone('swampertite', 'Swampertite', [260], { water_essence: 110, ground_essence: 80 }, { attack: 1.30, defense: 1.20 }),
+  megaStone('gardevoirite', 'Gardevoirite', [282], { psychic_essence: 85, fairy_essence: 85, stardust: 8 }, { spAtk: 1.34, spDef: 1.22 }),
+  megaStone('sablenite', 'Sablenite', [302], { dark_essence: 90, ghost_essence: 90 }, { defense: 1.34, spDef: 1.24 }),
+  megaStone('mawilite', 'Mawilite', [303], { steel_essence: 90, fairy_essence: 80 }, { attack: 1.34, defense: 1.18 }),
+  megaStone('aggronite', 'Aggronite', [306], { steel_essence: 130, rock_essence: 80 }, { defense: 1.40, attack: 1.20 }),
+  megaStone('medichamite', 'Medichamite', [308], { fighting_essence: 90, psychic_essence: 80 }, { attack: 1.30, speed: 1.16 }),
+  megaStone('manectite', 'Manectite', [310], { electric_essence: 120, yellow_shard: 12 }, { spAtk: 1.30, speed: 1.22 }),
+  megaStone('sharpedonite', 'Sharpedonite', [319], { water_essence: 90, dark_essence: 90 }, { attack: 1.32, speed: 1.18 }),
+  megaStone('cameruptite', 'Cameruptite', [323], { fire_essence: 90, ground_essence: 90 }, { attack: 1.18, spAtk: 1.34 }),
+  megaStone('altarianite', 'Altarianite', [334], { dragon_essence: 90, fairy_essence: 80 }, { attack: 1.18, spAtk: 1.22, spDef: 1.22 }),
+  megaStone('banettite', 'Banettite', [354], { ghost_essence: 120, mystic_dust: 25 }, { attack: 1.34 }),
+  megaStone('absolite', 'Absolite', [359], { dark_essence: 120, mystic_dust: 25 }, { attack: 1.25, spAtk: 1.20, speed: 1.22 }),
+  megaStone('glalitite', 'Glalitite', [362], { ice_essence: 110, dark_essence: 40 }, { attack: 1.22, spAtk: 1.22 }),
+  megaStone('salamencite', 'Salamencite', [373], { dragon_essence: 130, flying_essence: 80, stardust: 8 }, { attack: 1.30, defense: 1.18, speed: 1.16 }),
+  megaStone('metagrossite', 'Metagrossite', [376], { steel_essence: 100, psychic_essence: 70, stardust: 10 }, { attack: 1.28, defense: 1.20 }),
+  megaStone('latiasite', 'Latiasite', [380], { dragon_essence: 120, psychic_essence: 90, stardust: 10 }, { defense: 1.18, spAtk: 1.24, spDef: 1.26 }),
+  megaStone('latiosite', 'Latiosite', [381], { dragon_essence: 120, psychic_essence: 100, stardust: 10 }, { attack: 1.18, spAtk: 1.32, speed: 1.16 }),
+  megaStone('lopunnite', 'Lopunnite', [428], { normal_essence: 90, fighting_essence: 80 }, { attack: 1.28, speed: 1.24 }),
+  megaStone('garchompite', 'Garchompite', [445], { dragon_essence: 120, ground_essence: 90, stardust: 8 }, { attack: 1.34, defense: 1.18 }),
+  megaStone('lucarionite', 'Lucarionite', [448], { fighting_essence: 90, steel_essence: 70, stardust: 8 }, { attack: 1.30, spAtk: 1.24 }),
+  megaStone('abomasite', 'Abomasite', [460], { grass_essence: 90, ice_essence: 90 }, { attack: 1.24, spAtk: 1.24, defense: 1.18 }),
+  megaStone('galladite', 'Galladite', [475], { fighting_essence: 100, psychic_essence: 90 }, { attack: 1.34, spDef: 1.20 }),
+  megaStone('audinite', 'Audinite', [531], { normal_essence: 100, fairy_essence: 80, pink_dust: 25 }, { defense: 1.24, spDef: 1.24 }),
+  megaStone('diancite', 'Diancite', [719], { rock_essence: 130, fairy_essence: 100, stardust: 12 }, { attack: 1.28, spAtk: 1.28, speed: 1.18 }),
+];
+
 export const CRAFTING_RECIPES = {
   consumables: [
     { id: 'pokeballs', name: 'Poké Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', cost: { normal_essence: 10, currency: 100 }, type: 'ball' },
@@ -10,6 +71,11 @@ export const CRAFTING_RECIPES = {
     { id: 'leaf_stone', name: 'Leaf Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png', cost: { leaf_stone_shard: 5, grass_essence: 20, currency: 2500 }, type: 'evolution' },
     { id: 'thunder_stone', name: 'Thunder Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png', cost: { thunder_stone_shard: 5, electric_essence: 20, currency: 2500 }, type: 'evolution' },
     { id: 'moon_stone', name: 'Moon Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png', cost: { moon_stone_shard: 5, normal_essence: 20, currency: 2500 }, type: 'evolution' },
+    { id: 'sun_stone', name: 'Sun Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sun-stone.png', cost: { sun_stone_shard: 5, grass_essence: 10, fire_essence: 10, currency: 2500 }, type: 'evolution' },
+    { id: 'shiny_stone', name: 'Shiny Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/shiny-stone.png', cost: { shiny_stone_shard: 5, psychic_essence: 10, fairy_essence: 10, currency: 3000 }, type: 'evolution' },
+    { id: 'dusk_stone', name: 'Dusk Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dusk-stone.png', cost: { dusk_stone_shard: 5, ghost_essence: 10, dark_essence: 10, currency: 3000 }, type: 'evolution' },
+    { id: 'dawn_stone', name: 'Dawn Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dawn-stone.png', cost: { dawn_stone_shard: 5, psychic_essence: 10, fighting_essence: 10, currency: 3000 }, type: 'evolution' },
+    { id: 'ice_stone', name: 'Ice Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ice-stone.png', cost: { ice_stone_shard: 5, ice_essence: 20, currency: 2500 }, type: 'evolution' },
     { id: 'link_cable', name: 'Link Cable', img: '/assets/items/link-cable-custom.png', cost: { link_cable_part: 5, electric_essence: 10, normal_essence: 10, currency: 5000 }, type: 'evolution' }
   ],
   hold_items: [
@@ -17,8 +83,10 @@ export const CRAFTING_RECIPES = {
     { id: 'mystic_water', name: 'Mysty Water', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/mystic-water.png', cost: { water_essence: 50, currency: 5000 }, effect: '+20% Water Dmg' },
     { id: 'black_belt', name: 'Black Belt', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/black-belt.png', cost: { fighting_essence: 50, currency: 5000 }, effect: '+20% Fighting Dmg' },
     { id: 'magnet', name: 'Magnet', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/magnet.png', cost: { electric_essence: 50, currency: 5000 }, effect: '+20% Electric Dmg' },
+    { id: 'metal_coat', name: 'Metal Coat', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/metal-coat.png', cost: { steel_essence: 35, iron_ore: 20 }, effect: '+20% Steel Dmg' },
     { id: 'quick_claw', name: 'Quick Claw', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/quick-claw.png', cost: { flying_essence: 30, steel_essence: 10, currency: 7000 }, effect: 'Speed Priority' }
   ],
+  mega_stones: MEGA_STONE_RECIPES,
   elite_relics: [
     { 
       id: 'titan_shield', 
@@ -300,4 +368,235 @@ export const CRAFTING_RECIPES = {
       type: 'consumable',
     },
   ],
+  trainer_card: [
+    {
+      id: 'trainer_card_pikachu_badge',
+      name: 'Botao Pikachu',
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png',
+      description: 'Personalizacao do Trainer Card com energia eletrica.',
+      cost: { electric_essence: 25, trainer_card_thread: 6, yellow_shard: 3 },
+      type: 'trainer_card_custom',
+    },
+    {
+      id: 'trainer_card_eevee_badge',
+      name: 'Botao Eevee',
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/133.png',
+      description: 'Personalizacao do Trainer Card com tema de evolucao.',
+      cost: { normal_essence: 25, trainer_card_thread: 6, silk: 5 },
+      type: 'trainer_card_custom',
+    },
+    {
+      id: 'trainer_card_gengar_badge',
+      name: 'Botao Gengar',
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png',
+      description: 'Personalizacao sombria para treinadores de rotas fantasma.',
+      cost: { ghost_essence: 30, trainer_card_thread: 8, mystic_dust: 3 },
+      type: 'trainer_card_custom',
+    },
+    {
+      id: 'trainer_card_lucario_badge',
+      name: 'Botao Lucario',
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/448.png',
+      description: 'Personalizacao de aura para cards de alto poder.',
+      cost: { fighting_essence: 35, steel_essence: 20, trainer_card_thread: 10 },
+      type: 'trainer_card_custom',
+    },
+  ],
 };
+
+export const FORGE_MATERIAL_DROP_GUIDE = {
+  normal_essence: { pokemonIds: [16, 19, 20, 52, 53, 133, 143], routeId: 'route_1', label: 'Rotas iniciais - Pidgey, Rattata, Meowth, Eevee e Snorlax.' },
+  fire_essence: { pokemonIds: [4, 5, 6, 37, 38, 58, 59, 126], routeId: 'pokemon_mansion', label: 'Rotas quentes e mansoes - Charmander, Vulpix, Growlithe e Magmar.' },
+  water_essence: { pokemonIds: [7, 8, 9, 60, 61, 72, 73, 120, 129], routeId: 'route_19_20', label: 'Rotas aquaticas - Squirtle, Poliwag, Tentacool, Staryu e Magikarp.' },
+  grass_essence: { pokemonIds: [1, 2, 3, 43, 44, 69, 70, 102], routeId: 'viridian_forest', label: 'Florestas e rotas verdes - Bulbasaur, Oddish, Bellsprout e Exeggcute.' },
+  electric_essence: { pokemonIds: [25, 26, 81, 82, 100, 101, 125], routeId: 'power_plant', label: 'Usina de Energia - Pikachu, Magnemite, Voltorb e Electabuzz.' },
+  ice_essence: { pokemonIds: [87, 124, 131, 144, 220, 221, 225, 238], routeId: 'ice_path', label: 'Cavernas geladas - Dewgong, Jynx, Lapras, Smoochum e Delibird.' },
+  fighting_essence: { pokemonIds: [56, 57, 66, 67, 68, 106, 107], routeId: 'route_22', label: 'Rotas de combate - Mankey, Primeape, Machop, Hitmonlee e Hitmonchan.' },
+  poison_essence: { pokemonIds: [23, 24, 29, 32, 41, 42, 88, 109], routeId: 'pokemon_tower', label: 'Florestas, cavernas e torres - Ekans, Nidoran, Zubat, Grimer e Koffing.' },
+  ground_essence: { pokemonIds: [27, 28, 50, 51, 74, 75, 95, 111], routeId: 'rock_tunnel', label: 'Tuneis e desertos - Sandshrew, Diglett, Geodude, Onix e Rhyhorn.' },
+  flying_essence: { pokemonIds: [16, 17, 18, 21, 22, 41, 42, 123], routeId: 'route_16_17_18', label: 'Rotas abertas - Pidgey, Spearow, Zubat e Scyther.' },
+  psychic_essence: { pokemonIds: [63, 64, 65, 96, 97, 122, 150, 196], routeId: 'saffron_city', label: 'Locais psiquicos - Abra, Drowzee, Mr. Mime, Mewtwo e Espeon.' },
+  bug_essence: { pokemonIds: [10, 11, 12, 13, 14, 15, 46, 123], routeId: 'viridian_forest', label: 'Florestas - Caterpie, Weedle, Paras e Scyther.' },
+  rock_essence: { pokemonIds: [74, 75, 76, 95, 138, 140, 142, 246], routeId: 'mt_moon', label: 'Montanhas e fosseis - Geodude, Onix, Omanyte, Kabuto e Larvitar.' },
+  ghost_essence: { pokemonIds: [92, 93, 94, 200, 353, 354, 355, 356], routeId: 'pokemon_tower', label: 'Torre Pokemon e locais sombrios - Gastly, Haunter, Gengar e fantasmas.' },
+  dragon_essence: { pokemonIds: [147, 148, 149, 230, 330, 373, 445, 635], routeId: 'dragons_den', label: 'Locais sagrados e Victory Road - Dratini, Dragonair, Kingdra e dragoes.' },
+  steel_essence: { pokemonIds: [81, 82, 208, 227, 303, 306, 376, 448], routeId: 'power_plant', label: 'Usinas e montanhas - Magnemite, Steelix, Skarmory, Aggron e Lucario.' },
+  fairy_essence: { pokemonIds: [35, 36, 39, 40, 173, 174, 175, 176, 700], routeId: 'mt_moon', label: 'Monte Lua e rotas raras - Clefairy, Jigglypuff, Togepi e Sylveon.' },
+  dark_essence: { pokemonIds: [197, 198, 215, 228, 229, 302, 359, 461], routeId: 'burned_tower', label: 'Torres e rotas noturnas - Umbreon, Murkrow, Sneasel, Houndour e Absol.' },
+  iron_ore: { pokemonIds: [74, 75, 76, 81, 82, 95, 208, 304], routeId: 'rock_tunnel', label: 'Cavernas e Pokemon minerais - Geodude, Onix, Steelix, Aron e Magnemite.' },
+  apricorn: { pokemonIds: [187, 188, 190, 191, 192, 204], routeId: 'ilex_forest', label: 'Johto e florestas - Hoppip, Aipom, Sunkern e Pineco carregam Apricorns.' },
+  mystic_dust: { pokemonIds: [92, 93, 94, 150, 151, 201, 385, 480], routeId: 'pokemon_tower', label: 'Fantasma, lendarios, Unown e shinies dropam po mistico.' },
+  fire_stone_shard: { pokemonIds: [37, 38, 58, 59, 77, 126, 136], routeId: 'pokemon_mansion', label: 'Pokemon de fogo e evolucoes por pedra dropam fragmentos de Fire Stone.' },
+  water_stone_shard: { pokemonIds: [60, 61, 90, 91, 120, 121, 134], routeId: 'route_19_20', label: 'Pokemon aquaticos e evolucoes por pedra dropam fragmentos de Water Stone.' },
+  leaf_stone_shard: { pokemonIds: [43, 44, 69, 70, 102, 103, 470], routeId: 'ilex_forest', label: 'Pokemon planta e florestas dropam fragmentos de Leaf Stone.' },
+  thunder_stone_shard: { pokemonIds: [25, 26, 81, 82, 100, 101, 135, 170], routeId: 'power_plant', label: 'Pokemon eletricos dropam fragmentos de Thunder Stone.' },
+  moon_stone_shard: { pokemonIds: [35, 36, 39, 40, 173, 174, 300], routeId: 'mt_moon', label: 'Monte Lua e Pokemon lunares dropam fragmentos de Moon Stone.' },
+  sun_stone_shard: { pokemonIds: [43, 44, 191, 192, 546, 548], routeId: 'national_park', label: 'Pokemon solares e flores dropam fragmentos de Sun Stone.' },
+  shiny_stone_shard: { pokemonIds: [35, 176, 315, 407, 468, 670, 671], routeId: 'sinnoh_route_204', label: 'Pokemon belos, fadas e flores raras dropam fragmentos de Shiny Stone.' },
+  dusk_stone_shard: { pokemonIds: [92, 93, 94, 198, 200, 353, 355, 607], routeId: 'pokemon_tower', label: 'Fantasmas e Pokemon noturnos dropam fragmentos de Dusk Stone.' },
+  dawn_stone_shard: { pokemonIds: [280, 281, 361, 475, 478, 856], routeId: 'snowpoint_routes', label: 'Pokemon psiquicos, gelo e evolucoes especiais dropam fragmentos de Dawn Stone.' },
+  ice_stone_shard: { pokemonIds: [37, 38, 133, 471, 582, 613, 712], routeId: 'ice_path', label: 'Rotas geladas e Pokemon de gelo dropam fragmentos de Ice Stone.' },
+  link_cable_part: { pokemonIds: [41, 42, 64, 67, 74, 75, 92, 93, 137], routeId: 'rock_tunnel', label: 'Pokemon de evolucao por troca dropam pecas de Link Cable.' },
+  pink_dust: { pokemonIds: [35, 39, 113, 173, 174, 175, 242, 531], routeId: 'safari_zone', label: 'Pokemon rosados e curadores dropam po rosa.' },
+  gold_nugget: { pokemonIds: [52, 53, 113, 242, 302, 530], routeId: 'route_24_25', label: 'Pokemon coletores e raros dropam pepitas de ouro.' },
+  silk: { pokemonIds: [10, 11, 12, 13, 14, 15, 167, 168, 204], routeId: 'viridian_forest', label: 'Insetos e casulos dropam seda.' },
+  feather: { pokemonIds: [16, 17, 18, 21, 22, 163, 164, 227], routeId: 'route_16_17_18', label: 'Pokemon voadores dropam penas.' },
+  armor_fragment: { pokemonIds: [95, 208, 227, 306, 411, 476, 884], routeId: 'stark_mountain', label: 'Pokemon blindados, rochosos e metalicos dropam fragmentos de armadura.' },
+  fury_essence: { pokemonIds: [57, 68, 128, 217, 289, 445, 534, 612], routeId: 'victory_road', label: 'Pokemon agressivos e pseudo-lendarios dropam essencia de furia.' },
+  stardust: { pokemonIds: [120, 121, 173, 375, 376, 385, 605, 774], routeId: 'meteor_falls', label: 'Pokemon cosmicos, meteoricos e raros dropam poeira estelar.' },
+  dragon_scale: { pokemonIds: [116, 117, 147, 148, 149, 230, 330, 373], routeId: 'dragons_den', label: 'Pokemon dragoes e marinhos raros dropam escamas de dragao.' },
+  trainer_card_thread: { pokemonIds: [10, 11, 12, 13, 14, 15, 133, 447, 448], routeId: 'viridian_forest', label: 'Insetos, Eevee e Lucario dropam fio para personalizacao do Trainer Card.' },
+  yellow_shard: { pokemonIds: [25, 26, 81, 82, 100, 101, 125], routeId: 'power_plant', label: 'Pokemon eletricos dropam fragmentos amarelos.' },
+  mystic_water: { pokemonIds: [60, 61, 62, 72, 73, 120, 121, 134], routeId: 'route_19_20', label: 'Pokemon aquaticos raros dropam Mystic Water como material avancado.' },
+  mega_shard: { pokemonIds: [3, 6, 9, 15, 18, 65, 80, 94, 115, 127, 130, 142, 150, 181, 208, 212, 214, 229, 248, 254, 257, 260, 282, 302, 303, 306, 308, 310, 319, 323, 334, 354, 359, 362, 373, 376, 380, 381, 428, 445, 448, 460, 475, 531, 719], routeId: 'kalos_dex_field_4', label: 'Pokemon com potencial Mega dropam fragmentos de Mega Stone em rotas avancadas, principalmente no pos-Liga de Kalos.' },
+};
+
+const ALL_FORGE_RECIPES = Object.values(CRAFTING_RECIPES).flat();
+export const FORGE_RECIPE_IDS = [...new Set(ALL_FORGE_RECIPES.map(recipe => recipe.id))];
+export const RECIPE_GATED_FORGE_IDS = new Set(FORGE_RECIPE_IDS);
+
+const RECIPE_SOURCE_OVERRIDES = {
+  pokeballs: 'apricorn',
+  great_ball: 'iron_ore',
+  ultra_ball: 'mystic_dust',
+  revive: 'ghost_essence',
+  max_repel: 'poison_essence',
+  fire_stone: 'fire_stone_shard',
+  water_stone: 'water_stone_shard',
+  leaf_stone: 'leaf_stone_shard',
+  thunder_stone: 'thunder_stone_shard',
+  moon_stone: 'moon_stone_shard',
+  sun_stone: 'sun_stone_shard',
+  shiny_stone: 'shiny_stone_shard',
+  dusk_stone: 'dusk_stone_shard',
+  dawn_stone: 'dawn_stone_shard',
+  ice_stone: 'ice_stone_shard',
+  link_cable: 'link_cable_part',
+  charcoal: 'fire_essence',
+  mystic_water: 'water_essence',
+  black_belt: 'fighting_essence',
+  magnet: 'electric_essence',
+  metal_coat: 'steel_essence',
+  quick_claw: 'flying_essence',
+  lucky_egg: 'pink_dust',
+  amulet_coin: 'gold_nugget',
+  titan_shield: 'armor_fragment',
+  adrenaline_potion: 'fury_essence',
+  penetration_pendant: 'dragon_scale',
+  venusaurite: 'mega_shard',
+  charizardite_x: 'mega_shard',
+  blastoisinite: 'mega_shard',
+  lucarionite: 'mega_shard',
+  gardevoirite: 'mega_shard',
+  metagrossite: 'mega_shard',
+};
+
+const getRecipeSourceMaterial = (recipe) => {
+  if (RECIPE_SOURCE_OVERRIDES[recipe.id]) return RECIPE_SOURCE_OVERRIDES[recipe.id];
+  return Object.keys(recipe.cost || {}).find(material => material !== 'currency' && FORGE_MATERIAL_DROP_GUIDE[material]) || 'normal_essence';
+};
+
+const buildRecipeDropGuide = (recipe) => {
+  const override = RECIPE_DROP_GUIDE_OVERRIDES[recipe.id] || {};
+  const sourceMaterial = override.sourceMaterial || getRecipeSourceMaterial(recipe);
+  const materialGuide = FORGE_MATERIAL_DROP_GUIDE[sourceMaterial] || FORGE_MATERIAL_DROP_GUIDE.normal_essence;
+
+  return {
+    recipeItemId: `recipe_${recipe.id}`,
+    sourceMaterial,
+    pokemonIds: materialGuide.pokemonIds,
+    routeId: materialGuide.routeId,
+    label: `Receita ${recipe.name}: ${materialGuide.label}`,
+  };
+};
+
+const RECIPE_DROP_GUIDE_OVERRIDES = {
+  pokeballs: {
+    sourceMaterial: 'normal_essence',
+    pokemonIds: [16, 19],
+    routeId: 'route_1',
+    label: 'Receita Poke Ball: Kanto inicial - Pidgey e Rattata na Rota 1 ensinam a fabricacao basica.',
+  },
+  great_ball: {
+    sourceMaterial: 'iron_ore',
+    pokemonIds: [41, 74, 95],
+    routeId: 'mt_moon',
+    label: 'Receita Great Ball: Kanto - Zubat, Geodude e Onix em Mt. Moon carregam a receita reforcada.',
+  },
+  ultra_ball: {
+    sourceMaterial: 'mystic_dust',
+    pokemonIds: [92, 93, 94],
+    routeId: 'pokemon_tower',
+    label: 'Receita Ultra Ball: Kanto avancado - Gastly, Haunter e Gengar na Torre Pokemon guardam a receita rara.',
+  },
+  repel: {
+    sourceMaterial: 'normal_essence',
+    pokemonIds: [19, 21, 23],
+    routeId: 'route_22',
+    label: 'Receita Repel: Kanto - Rattata, Spearow e Ekans na Rota 22 dropam a receita comum.',
+  },
+  super_repel: {
+    sourceMaterial: 'poison_essence',
+    pokemonIds: [23, 24, 41, 42],
+    routeId: 'pokemon_tower',
+    label: 'Receita Super Repel: Kanto - Pokemon venenosos e Zubat nas rotas sombrias dropam a receita.',
+  },
+  max_repel: {
+    sourceMaterial: 'poison_essence',
+    pokemonIds: [88, 89, 109, 110],
+    routeId: 'pokemon_mansion',
+    label: 'Receita Max Repel: Kanto final - Grimer e Koffing em locais perigosos dropam a receita.',
+  },
+  lure: {
+    sourceMaterial: 'grass_essence',
+    pokemonIds: [43, 44, 69, 70],
+    routeId: 'route_24_25',
+    label: 'Receita Isca: Kanto - Oddish e Bellsprout nas Rotas 24 e 25 dropam a receita.',
+  },
+  poke_food: {
+    sourceMaterial: 'normal_essence',
+    pokemonIds: [16, 19, 52],
+    routeId: 'route_1',
+    label: 'Receita Racao Pokemon: Kanto inicial - Pidgey, Rattata e Meowth dropam a receita basica.',
+  },
+  poke_food_premium: {
+    sourceMaterial: 'normal_essence',
+    pokemonIds: [52, 53, 113],
+    routeId: 'route_24_25',
+    label: 'Receita Racao Premium: Kanto - Meowth, Persian e Chansey dropam a receita melhorada.',
+  },
+  old_rod: {
+    sourceMaterial: 'water_essence',
+    pokemonIds: [60, 72, 129],
+    routeId: 'route_19_20',
+    label: 'Receita Vara Velha: Kanto - Poliwag, Tentacool e Magikarp nas rotas aquaticas dropam a receita.',
+  },
+  good_rod: {
+    sourceMaterial: 'water_essence',
+    pokemonIds: [61, 90, 120],
+    routeId: 'route_19_20',
+    label: 'Receita Vara Boa: Kanto aquatico - Poliwhirl, Shellder e Staryu dropam a receita.',
+  },
+  super_rod: {
+    sourceMaterial: 'mystic_water',
+    pokemonIds: [117, 121, 130, 131],
+    routeId: 'route_19_20',
+    label: 'Receita Super Vara: Kanto avancado - Seadra, Starmie, Gyarados e Lapras dropam a receita.',
+  },
+  metal_coat: {
+    sourceMaterial: 'steel_essence',
+    pokemonIds: [81, 82, 227],
+    routeId: 'route_38_39',
+    label: 'Receita Metal Coat: Johto - Magnemite, Magneton e Skarmory nas Rotas 38 e 39 dropam a receita de aco.',
+  },
+};
+
+export const FORGE_RECIPE_DROP_GUIDE = Object.fromEntries(ALL_FORGE_RECIPES.map(recipe => [recipe.id, buildRecipeDropGuide(recipe)]));
+
+export const FORGE_RECIPE_DROP_BY_POKEMON = Object.entries(FORGE_RECIPE_DROP_GUIDE).reduce((acc, [recipeId, guide]) => {
+  (guide.pokemonIds || []).forEach(id => {
+    if (!acc[id]) acc[id] = [];
+    acc[id].push(`recipe_${recipeId}`);
+  });
+  return acc;
+}, {});

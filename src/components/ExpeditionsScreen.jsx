@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   EXPEDITION_BIOMES,
+  EXPEDITION_REGIONS,
   calcExpeditionEfficiency,
   calcExpeditionDuration,
   isExpeditionUnlocked,
@@ -69,7 +70,11 @@ const ExpeditionsScreen = ({
   }, []);
 
   const activeExpeditions = gameState.expeditions || {};
+  const expeditionProgress = gameState.expeditionProgress || {};
   const pcBox = gameState.pc || [];
+  const visibleRegionIds = new Set(EXPEDITION_REGIONS
+    .filter(region => !region.unlockFlag || (gameState.worldFlags || []).includes(region.unlockFlag) || gameState.activeRegion === region.id)
+    .map(region => region.id));
 
   const isUnlocked = (biome) => {
     return isExpeditionUnlocked(biome, gameState);
@@ -181,10 +186,12 @@ const ExpeditionsScreen = ({
 
           /* Grid de biomas */
           <div className="p-4 grid grid-cols-1 gap-3">
-            {Object.values(EXPEDITION_BIOMES).map(biome => {
+            {Object.values(EXPEDITION_BIOMES).filter(biome => visibleRegionIds.has(biome.region || 'kanto')).map(biome => {
               const unlocked = isUnlocked(biome);
               const active   = isActive(biome.id);
               const complete = isComplete(biome.id);
+              const progress = expeditionProgress[biome.id] || {};
+              const masteryLevel = Math.floor((progress.completed || 0) / 3);
               return (
                 <div
                   key={biome.id}
@@ -192,7 +199,7 @@ const ExpeditionsScreen = ({
                     if (!unlocked) {
                       setAlertReq(biome.leaderName);
                     } else if (!active) {
-                      setSelectedBiome(biome);
+                      setSelectedBiome({ ...biome, masteryLevel });
                     }
                   }}
                   className={`relative w-full rounded-[1.5rem] overflow-hidden shadow-xl transition-all ${
@@ -217,6 +224,17 @@ const ExpeditionsScreen = ({
                     <p className="text-white/60 text-[9px] mt-1 leading-tight">
                       {biome.description}
                     </p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      <span className="bg-black/30 text-white/70 text-[8px] font-black px-2 py-0.5 rounded-full uppercase">
+                        {(biome.region || 'kanto').toUpperCase()}
+                      </span>
+                      <span className="bg-black/30 text-white/70 text-[8px] font-black px-2 py-0.5 rounded-full uppercase">
+                        Mastery {masteryLevel}
+                      </span>
+                      <span className="bg-black/30 text-white/70 text-[8px] font-black px-2 py-0.5 rounded-full uppercase">
+                        {progress.completed || 0} concluidas
+                      </span>
+                    </div>
                     {active && (
                       <span
                         className={`mt-2 inline-block text-[9px] font-black px-2 py-0.5 rounded-full ${
@@ -268,6 +286,9 @@ const ExpeditionsScreen = ({
                   </span>
                   <span className="text-[9px] bg-black/30 text-white px-2 py-1 rounded-full font-bold">
                     P {selectedBiome.xpPerMinute} XP/min
+                  </span>
+                  <span className="text-[9px] bg-blue-500/30 text-blue-200 px-2 py-1 rounded-full font-bold">
+                    Mastery {selectedBiome.masteryLevel || 0}: +drops, +XP, -tempo
                   </span>
                   <span className="text-[9px] bg-green-500/30 text-green-300 px-2 py-1 rounded-full font-bold">
                     ✓ {selectedBiome.favoredTypes.join(', ')}

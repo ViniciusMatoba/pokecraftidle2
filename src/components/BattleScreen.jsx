@@ -6,11 +6,31 @@ import { MOVES } from '../data/moves';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { TIME_CONFIG } from '../utils/timeSystem';
 
+const ShinySparkles = () => (
+  <div className="absolute inset-0 pointer-events-none z-30">
+    {[...Array(6)].map((_, i) => (
+      <div
+        key={i}
+        className="absolute animate-bounceIn"
+        style={{
+          left: `${50 + Math.cos(i * 60 * Math.PI / 180) * 40}%`,
+          top: `${50 + Math.sin(i * 60 * Math.PI / 180) * 40}%`,
+          animationDelay: `${i * 0.1}s`,
+        }}
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 0 L9 7 L16 8 L9 9 L8 16 L7 9 L0 8 L7 7 Z" fill="#EAB308" opacity="0.9"/>
+        </svg>
+      </div>
+    ))}
+  </div>
+);
+
 const BattleScreen = ({ 
   currentEnemy, gameState, activeMemberIndex, moveIndex, weather,
   setActiveMemberIndex, addLog, battleLog, floatingTexts,
   onUseItem, setGameState, setShowAutoCaptureModal, ROUTES, fixPath, TYPE_COLORS, onGoToCity, onChallengeBoss,
-  timeOfDay, showAutoConfigExternal = false, setShowAutoConfigExternal, bossTimer
+  timeOfDay, showAutoConfigExternal = false, setShowAutoConfigExternal, bossTimer, currentLevelCap = 100
 }) => {
   const activePoke = gameState.team?.[activeMemberIndex];
   const autoConfig = gameState.autoConfig || { autoCapture: false, autoPotion: false, hpThreshold: 30, staminaThreshold: 30, autoStamina: false };
@@ -37,27 +57,6 @@ const BattleScreen = ({
       <path d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5Z" stroke="currentColor" strokeWidth="2" />
       <path d="M19.4 13.5a7.8 7.8 0 0 0 0-3l2-1.35-2-3.46-2.36.98a8.04 8.04 0 0 0-2.6-1.5L14.1 2.6h-4l-.35 2.57a8.04 8.04 0 0 0-2.6 1.5l-2.36-.98-2 3.46 2 1.35a7.8 7.8 0 0 0 0 3l-2 1.35 2 3.46 2.36-.98a8.04 8.04 0 0 0 2.6 1.5l.35 2.57h4l.35-2.57a8.04 8.04 0 0 0 2.6-1.5l2.36.98 2-3.46-2-1.35Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
     </svg>
-  );
-
-  // Componente de Estrelas para o Brilho Shiny
-  const ShinySparkles = () => (
-    <div className="absolute inset-0 pointer-events-none z-30">
-      {[...Array(6)].map((_, i) => (
-        <div
-          key={i}
-          className="absolute animate-bounceIn"
-          style={{
-            left: `${50 + Math.cos(i * 60 * Math.PI / 180) * 40}%`,
-            top: `${50 + Math.sin(i * 60 * Math.PI / 180) * 40}%`,
-            animationDelay: `${i * 0.1}s`,
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 0 L9 7 L16 8 L9 9 L8 16 L7 9 L0 8 L7 7 Z" fill="#EAB308" opacity="0.9"/>
-          </svg>
-        </div>
-      ))}
-    </div>
   );
 
   useEffect(() => {
@@ -123,10 +122,11 @@ const BattleScreen = ({
     <div className="flex flex-col h-full animate-fadeIn pb-4 gap-2 overflow-y-auto custom-scrollbar" style={{paddingTop: '8px'}}>
       {/* Nome da Rota e Botão Sair */}
       <div className="flex items-center justify-between px-2 mb-1 animate-fadeIn">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Localização:</span>
           <span className="text-[11px] font-black uppercase tracking-tighter text-slate-800">{currentEnemy.locationName || route.name}</span>
+          <span className="text-[9px] font-black uppercase tracking-widest text-pokeBlue">Cap Nv.{currentLevelCap}</span>
         </div>
         <button 
           onClick={() => onGoToCity && onGoToCity()}

@@ -2,17 +2,17 @@ import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { TYPE_COLOR_HEX } from '../data/gyms';
 
-const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], onBack }) => {
+const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 151, onBack }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPoke, setSelectedPoke] = useState(null);
 
   // Mapeia IDs que o jogador possui atualmente (time + box).
   const possessedIds = useMemo(() => {
-    const ids = new Set(Object.keys(caughtData || {}).map(Number));
-    team.forEach(p => ids.add(Number(p.id)));
-    box.forEach(p => ids.add(Number(p.id)));
+    const ids = new Set(Object.keys(caughtData || {}).map(Number).filter(id => id <= dexLimit));
+    team.forEach(p => { if (Number(p.id) <= dexLimit) ids.add(Number(p.id)); });
+    box.forEach(p => { if (Number(p.id) <= dexLimit) ids.add(Number(p.id)); });
     return ids;
-  }, [caughtData, team, box]);
+  }, [caughtData, team, box, dexLimit]);
 
   const pokedexList = useMemo(() => {
     return Object.values(POKEDEX).sort((a, b) => a.id - b.id);
@@ -199,4 +199,3 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], onBack }) => 
 };
 
 export default PokedexScreen;
-

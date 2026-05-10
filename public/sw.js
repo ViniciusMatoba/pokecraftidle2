@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pokecraft-cache-v1.50.5';
+const CACHE_NAME = 'pokecraft-cache-v1.55.19';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -6,18 +6,18 @@ const STATIC_ASSETS = [
   './favicon.svg'
 ];
 
-// Instalação: Cacheia ativos estáticos iniciais
+// InstalaÃ§Ã£o: Cacheia ativos estÃ¡ticos iniciais
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('PWA: Instalando Service Worker e cacheando assets estáticos');
+      console.log('PWA: Instalando Service Worker e cacheando assets estÃ¡ticos');
       return cache.addAll(STATIC_ASSETS);
     })
   );
 });
 
-// Ativação: Limpa caches antigos
+// AtivaÃ§Ã£o: Limpa caches antigos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -39,16 +39,16 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Estratégia de Fetch
+// EstratÃ©gia de Fetch
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Ignorar requisições do Firebase/Firestore (Network-First implicito ou deixe o SDK lidar)
+  // Ignorar requisiÃ§Ãµes do Firebase/Firestore (Network-First implicito ou deixe o SDK lidar)
   if (url.hostname.includes('firestore.googleapis.com') || url.hostname.includes('firebase')) {
     return; // Deixa o navegador lidar normalmente
   }
 
-  // Estratégia Cache-First para Ativos Estáticos (Imagens, JS, CSS do próprio domínio)
+  // EstratÃ©gia Cache-First para Ativos EstÃ¡ticos (Imagens, JS, CSS do prÃ³prio domÃ­nio)
   const isStaticAsset = 
     url.origin === self.location.origin && (
     url.pathname.includes('/assets/') || 
@@ -83,7 +83,7 @@ self.addEventListener('fetch', (event) => {
       })
     );
   } else {
-    // Network-First para o resto (incluindo index.html para garantir atualizações)
+    // Network-First para o resto (incluindo index.html para garantir atualizaÃ§Ãµes)
     event.respondWith(
       fetch(event.request).catch(() => {
         return caches.match(event.request);

@@ -6,10 +6,15 @@ import { CRAFTING_RECIPES } from '../data/recipes';
 const EVOLUTION_FRAGMENT_DROPS = {
   4: 'fire_stone_shard', 5: 'fire_stone_shard', 6: 'fire_stone_shard', 37: 'fire_stone_shard', 58: 'fire_stone_shard', 77: 'fire_stone_shard', 126: 'fire_stone_shard',
   7: 'water_stone_shard', 8: 'water_stone_shard', 9: 'water_stone_shard', 60: 'water_stone_shard', 61: 'water_stone_shard', 90: 'water_stone_shard', 120: 'water_stone_shard',
-  1: 'leaf_stone_shard', 2: 'leaf_stone_shard', 3: 'leaf_stone_shard', 43: 'leaf_stone_shard', 44: 'leaf_stone_shard', 69: 'leaf_stone_shard', 70: 'leaf_stone_shard', 102: 'leaf_stone_shard',
+  1: 'leaf_stone_shard', 2: 'leaf_stone_shard', 3: 'leaf_stone_shard', 43: 'leaf_stone_shard', 69: 'leaf_stone_shard', 70: 'leaf_stone_shard', 102: 'leaf_stone_shard',
   25: 'thunder_stone_shard', 26: 'thunder_stone_shard', 81: 'thunder_stone_shard', 82: 'thunder_stone_shard', 100: 'thunder_stone_shard', 101: 'thunder_stone_shard', 125: 'thunder_stone_shard',
   29: 'moon_stone_shard', 30: 'moon_stone_shard', 32: 'moon_stone_shard', 33: 'moon_stone_shard', 35: 'moon_stone_shard', 36: 'moon_stone_shard', 39: 'moon_stone_shard', 40: 'moon_stone_shard',
   63: 'link_cable_part', 64: 'link_cable_part', 66: 'link_cable_part', 67: 'link_cable_part', 74: 'link_cable_part', 75: 'link_cable_part', 92: 'link_cable_part', 93: 'link_cable_part',
+  191: 'sun_stone_shard', 192: 'sun_stone_shard', 44: 'sun_stone_shard',
+  176: 'shiny_stone_shard', 315: 'shiny_stone_shard', 406: 'shiny_stone_shard',
+  198: 'dusk_stone_shard', 200: 'dusk_stone_shard', 429: 'dusk_stone_shard', 430: 'dusk_stone_shard',
+  281: 'dawn_stone_shard', 475: 'dawn_stone_shard', 478: 'dawn_stone_shard',
+  361: 'ice_stone_shard', 459: 'ice_stone_shard', 460: 'ice_stone_shard',
 };
 
 const RECIPE_FRAGMENT_DROPS = {
@@ -72,6 +77,9 @@ const TravelScreen = ({
   const isRouteUnlocked = (route) => checkRouteUnlocked(route, gameState);
   const kantoChampion = (gameState.worldFlags || []).includes('champion');
   const johtoStarted = (gameState.worldFlags || []).includes('johto_started');
+  const johtoChampion = (gameState.worldFlags || []).includes('johto_champion');
+  const hoennChampion = (gameState.worldFlags || []).includes('hoenn_champion');
+  const sinnohStarted = (gameState.worldFlags || []).includes('sinnoh_started');
   const sortedRoutes = React.useMemo(() => getSortedRoutes(ROUTES), [ROUTES]);
 
   const visibleRouteEntries = React.useMemo(() => {
@@ -80,13 +88,16 @@ const TravelScreen = ({
       if (routeRegionTab === 'kanto' && route._region.id !== 'kanto') return false;
       if (routeRegionTab === 'johto' && route._region.id !== 'johto') return false;
       if (routeRegionTab === 'hoenn' && route._region.id !== 'hoenn') return false;
+      if (routeRegionTab === 'sinnoh' && route._region.id !== 'sinnoh') return false;
       return true;
     });
   }, [sortedRoutes, routeRegionTab]);
 
   React.useEffect(() => {
     if (!kantoChampion && routeRegionTab === 'johto') setRouteRegionTab('kanto');
-  }, [kantoChampion, routeRegionTab]);
+    if (!johtoChampion && routeRegionTab === 'hoenn') setRouteRegionTab(kantoChampion ? 'johto' : 'kanto');
+    if (!hoennChampion && routeRegionTab === 'sinnoh') setRouteRegionTab(johtoChampion ? 'hoenn' : kantoChampion ? 'johto' : 'kanto');
+  }, [kantoChampion, johtoChampion, hoennChampion, routeRegionTab]);
 
   React.useEffect(() => {
     if (johtoStarted && kantoChampion && gameState.currentRoute) {
@@ -94,6 +105,7 @@ const TravelScreen = ({
       if (current) {
         if (current._region.id === 'johto') setRouteRegionTab('johto');
         if (current._region.id === 'hoenn') setRouteRegionTab('hoenn');
+        if (current._region.id === 'sinnoh') setRouteRegionTab('sinnoh');
       }
     }
   }, [kantoChampion, johtoStarted, gameState.currentRoute, sortedRoutes]);
@@ -265,7 +277,21 @@ const TravelScreen = ({
       'johto_rival_ecruteak_defeated': 'Vencer o Rival na Torre Queimada',
       'johto_rocket_mahogany_cleared': 'Limpar a Base Rocket em Mahogany',
       'johto_rival_tunnel_defeated': 'Vencer o Rival no Tunel de Goldenrod',
-      'johto_champion': 'Vencer a Liga de Johto'
+      'johto_champion': 'Vencer a Liga de Johto',
+      'hoenn_champion': 'Vencer a Liga de Hoenn',
+      'sinnoh_started': 'Iniciar a jornada em Sinnoh',
+      'sinnoh_route_201_cleared': 'Treinar na Rota 201',
+      'sinnoh_route_202_cleared': 'Treinar na Rota 202',
+      'sinnoh_route_203_cleared': 'Treinar na Rota 203',
+      'sinnoh_route_204_cleared': 'Treinar na Rota 204',
+      'sinnoh_eterna_forest_cleared': 'Explorar Eterna Forest',
+      'sinnoh_route_209_cleared': 'Treinar na Rota 209',
+      'sinnoh_valor_lakefront_cleared': 'Treinar em Valor Lakefront',
+      'sinnoh_mt_coronet_cleared': 'Explorar Mt. Coronet',
+      'sinnoh_snowpoint_cleared': 'Treinar em Snowpoint',
+      'sinnoh_sunyshore_cleared': 'Treinar em Sunyshore',
+      'sinnoh_victory_training_cleared': 'Treinar na Victory Road',
+      'sinnoh_survival_area_cleared': 'Treinar na Survival Area'
     };
     return map[req] || req;
   };
@@ -287,6 +313,15 @@ const TravelScreen = ({
       setSelectedRoute(null);
     } else if (req.includes('_badge')) {
       if (setVsInitialTab) setVsInitialTab('gyms');
+      setCurrentView('vs');
+      setSelectedRoute(null);
+    } else if (req === 'sinnoh_started') {
+      setCurrentView('city');
+      setSelectedRoute(null);
+    } else if (req === 'hoenn_champion') {
+      if (setVsInitialTab) setVsInitialTab('gyms');
+      if (setVsInitialCategory) setVsInitialCategory('hoenn');
+      if (setVsInitialRegion) setVsInitialRegion('hoenn');
       setCurrentView('vs');
       setSelectedRoute(null);
     } else if (req.includes('johto_')) {
@@ -343,11 +378,17 @@ const TravelScreen = ({
       <div className="bg-white rounded-2xl p-4 shadow-md border-2 border-slate-100 flex-shrink-0">
          <h2 className="text-xl font-black text-slate-800 uppercase italic">Mapa da Região</h2>
          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Clique para ver detalhes ou viajar</p>
-         <div className="grid grid-cols-3 gap-2 mt-4">
+         <div className="grid grid-cols-4 gap-2 mt-4">
              {[
                { id: 'kanto', label: 'Kanto', available: true },
                { id: 'johto', label: 'Johto', available: kantoChampion },
-               { id: 'hoenn', label: 'Hoenn', available: (gameState.worldFlags || []).includes('johto_champion') },
+               { id: 'hoenn', label: 'Hoenn', available: johtoChampion },
+               { id: 'sinnoh', label: 'Sinnoh', available: hoennChampion && sinnohStarted },
+               { id: 'unova', label: 'Unova', available: (gameState.worldFlags || []).includes('unova_started') || (gameState.worldFlags || []).includes('sinnoh_champion') },
+               { id: 'kalos', label: 'Kalos', available: (gameState.worldFlags || []).includes('kalos_started') || (gameState.worldFlags || []).includes('unova_champion') },
+               { id: 'alola', label: 'Alola', available: (gameState.worldFlags || []).includes('alola_started') || (gameState.worldFlags || []).includes('kalos_champion') },
+               { id: 'galar', label: 'Galar', available: (gameState.worldFlags || []).includes('galar_started') || (gameState.worldFlags || []).includes('alola_champion') },
+               { id: 'paldea', label: 'Paldea', available: (gameState.worldFlags || []).includes('paldea_started') || (gameState.worldFlags || []).includes('galar_champion') },
              ].map(tab => (
                <button
                  key={tab.id}

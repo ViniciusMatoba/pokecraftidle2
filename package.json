@@ -1,7 +1,7 @@
 {
   "name": "poke-craft-idle",
   "private": true,
-  "version": "1.50.5",
+  "version": "1.55.19",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,6 +12,9 @@
     "prebuild": "node scripts/check-circulars.cjs",
     "deploy": "gh-pages -d dist",
     "check": "node scripts/check-circulars.cjs",
+    "audit-content": "node scripts/audit-content.cjs",
+    "audit-content:strict": "node scripts/audit-content.cjs --strict-obtainability",
+    "audit-forge": "node scripts/audit-forge.cjs",
     "check-integrity": "node scripts/check-integrity.cjs",
     "update-integrity": "node scripts/check-integrity.cjs --update"
   },

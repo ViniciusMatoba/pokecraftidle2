@@ -4,8 +4,9 @@ const CraftingStation = ({ recipes, inventory, currency, onCraft }) => {
   const categories = useMemo(() => Object.keys(recipes || {}), [recipes]);
   const [activeCategory, setActiveCategory] = useState(categories[0] || '');
   const visibleCategories = categories.filter(category => category === activeCategory);
+  const getMaterialCost = (item) => Object.fromEntries(Object.entries(item.cost || {}).filter(([mat]) => mat !== 'currency'));
   const hasSeenCost = (item) => Object.keys(item.cost || {}).some(mat => {
-    if (mat === 'currency') return currency >= Math.max(1, Math.floor((item.cost.currency || 0) * 0.5));
+    if (mat === 'currency') return false;
     return (inventory.materials?.[mat] || inventory.items?.[mat] || 0) > 0;
   });
 
@@ -33,8 +34,8 @@ const CraftingStation = ({ recipes, inventory, currency, onCraft }) => {
           </div>
           <div className="grid grid-cols-1 gap-3">
             {items.filter(item => hasSeenCost(item)).map(item => {
-              const canCraft = Object.entries(item.cost).every(([mat, amount]) => {
-                if (mat === 'currency') return currency >= amount;
+              const materialCost = getMaterialCost(item);
+              const canCraft = Object.entries(materialCost).every(([mat, amount]) => {
                 const available = inventory.materials[mat] || inventory.items[mat] || 0;
                 return available >= amount;
               });
@@ -48,7 +49,7 @@ const CraftingStation = ({ recipes, inventory, currency, onCraft }) => {
                     <div>
                       <h4 className="font-black text-slate-800 uppercase italic tracking-tight">{item.name}</h4>
                       <div className="flex gap-2 mt-1">
-                        {Object.entries(item.cost).map(([mat, amount]) => (
+                        {Object.entries(materialCost).map(([mat, amount]) => (
                           <span key={mat} className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase ${ (mat === 'currency' ? currency : (inventory.materials[mat] || inventory.items[mat] || 0)) >= amount ? 'bg-slate-100 text-slate-400' : 'bg-red-50 text-red-400'}`}>
                             {mat.replace('_', ' ')}: {mat === 'currency' ? currency : (inventory.materials[mat] || inventory.items[mat] || 0)}/{amount}
                           </span>

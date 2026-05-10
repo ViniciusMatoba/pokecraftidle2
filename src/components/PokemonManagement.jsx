@@ -2,8 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '../data/candies';
+import { CRAFTING_RECIPES } from '../data/recipes';
+import { getTimeOfDay } from '../utils/timeSystem';
 
 import { GYM_LEVEL_CAPS } from '../data/constants';
+import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS } from '../data/regionStandards';
 
 const PokemonManagement = ({
   gameState,
@@ -33,6 +36,7 @@ const PokemonManagement = ({
   const [dragMoved, setDragMoved] = useState(false);
   const [pcSearch, setPcSearch] = useState('');
   const [pcSort, setPcSort] = useState('number');
+  const [pcRegion, setPcRegion] = useState('all');
   const [showTeamReorder, setShowTeamReorder] = useState(false);
   const [moveSwapMode, setMoveSwapMode] = useState(null); // { activeIdx, currentMove }
   const activePokemonKey = activePokemonDetails?.pokemon?.instanceId || activePokemonDetails?.pokemon?.id || null;
@@ -40,6 +44,15 @@ const PokemonManagement = ({
   useEffect(() => {
     setCandyExpanded(false);
   }, [activePokemonKey]);
+
+  const getDexRegion = (id) => {
+    return getPokemonRegion(id);
+  };
+
+  const availablePcRegions = [
+    { id: 'all', label: 'Todas' },
+    ...getUnlockedRegions(gameState).map(id => ({ id, label: REGION_LABELS[id] || id })),
+  ];
 
   const translateMove = (moveName) => {
     if (!moveName) return '---';
@@ -83,6 +96,72 @@ const PokemonManagement = ({
     return MOVE_TRANSLATIONS[key] || data.name || translateMove(typeof move === 'string' ? move : move?.name);
   };
 
+  const forgeRecipes = Object.values(CRAFTING_RECIPES).flat();
+  const holdItemRecipes = [
+    ...(CRAFTING_RECIPES.hold_items || []),
+    ...(CRAFTING_RECIPES.elite_relics || []).filter(item => item.type === 'hold_item'),
+    ...(CRAFTING_RECIPES.mega_stones || []),
+  ];
+  const getHeldItemData = (itemId) => forgeRecipes.find(item => item.id === itemId);
+  const canHoldItem = (poke, item) => {
+    if (!item) return false;
+    if (item.type !== 'mega_stone') return true;
+    return item.megaFor?.includes(Number(poke?.id));
+  };
+
+  const equipHeldItem = (itemId) => {
+    if (!activePokemonDetails) return;
+    const targetItem = itemId ? getHeldItemData(itemId) : null;
+    const poke = activePokemonDetails.pokemon;
+    if (targetItem && !canHoldItem(poke, targetItem)) {
+      showConfirm({
+        title: 'Item Incompativel',
+        message: `${targetItem.name} so pode ser segurado pelo Pokemon correto para esta Mega Stone.`,
+        onConfirm: closeConfirm
+      });
+      return;
+    }
+
+    setGameState(prev => {
+      const location = activePokemonDetails.location;
+      const list = [...(prev[location] || [])];
+      const current = { ...list[activePokemonDetails.index] };
+      const previousItem = current.heldItem || null;
+      const inventoryItems = { ...(prev.inventory?.items || {}) };
+
+      if (itemId) {
+        if ((inventoryItems[itemId] || 0) <= 0) return prev;
+        inventoryItems[itemId] -= 1;
+      }
+      if (previousItem) {
+        inventoryItems[previousItem] = (inventoryItems[previousItem] || 0) + 1;
+      }
+
+      current.heldItem = itemId || null;
+      if (targetItem?.type === 'mega_stone' && targetItem.megaFor?.includes(Number(current.id))) {
+        current.isMega = true;
+        current.megaStoneId = targetItem.id;
+        current.megaFormName = `Mega ${current.name}`;
+      }
+      list[activePokemonDetails.index] = current;
+      setActivePokemonDetails(details => details ? { ...details, pokemon: current } : details);
+
+      const itemName = itemId ? targetItem?.name || itemId : 'nenhum item';
+      addLog(targetItem?.type === 'mega_stone'
+        ? `${current.name} despertou a Mega Forma permanente com ${itemName}!`
+        : `${current.name} agora segura ${itemName}.`, 'system');
+
+      return {
+        ...prev,
+        [location]: list,
+        inventory: {
+          ...prev.inventory,
+          items: inventoryItems,
+        }
+      };
+    });
+  };
+
   const moveToPC = (index) => {
     if (gameState.team.length <= 1) {
       showConfirm({
@@ -115,8 +194,7 @@ const PokemonManagement = ({
     // Validação de Acesso Regional
     if (validateTeamAccess && !validateTeamAccess(poke, activeRegion)) {
       const isChampion = (gameState.worldFlags || []).includes(`region_champion_${activeRegion}`) || 
-                        (activeRegion === 'kanto' && (gameState.worldFlags || []).includes('champion')) ||
-                        (activeRegion === 'johto' && (gameState.worldFlags || []).includes('johto_champion'));
+                        (gameState.worldFlags || []).includes(REGION_CHAMPION_FLAGS[activeRegion]);
 
       let reason = "Este Pokémon não pode ser usado nesta região no momento.";
       if (poke.level > (GYM_LEVEL_CAPS[activeRegion]?.[Object.values(GYM_LEVEL_CAPS[activeRegion]).length - 1] || 100)) {
@@ -263,17 +341,13 @@ const PokemonManagement = ({
     setMoveSwapMode(null);
   };
 
-  const useStoneEvolution = (stoneId) => {
+  const handleStoneEvolution = (stoneId, targetEvo) => {
     if (!activePokemonDetails) return;
-    const poke = activePokemonDetails.pokemon;
-    const pokeData = POKEDEX[poke.id];
-    if (!pokeData?.evolution?.item || pokeData.evolution.item !== stoneId) return;
-    if (isEvolutionAllowedForRegion && !isEvolutionAllowedForRegion(poke, pokeData.evolution.id, activeRegion || gameState.activeRegion || 'kanto')) {
-      addLog(getEvolutionRegionLockMessage?.(poke.name, POKEDEX[pokeData.evolution.id]?.name, activeRegion || gameState.activeRegion || 'kanto') || `${poke.name} nao pode evoluir nesta regiao.`, 'system');
-      return;
-    }
-    const itemCount = (gameState.inventory?.items?.[stoneId] || 0);
+    const itemCount = gameState.inventory?.items?.[stoneId] || 0;
     if (itemCount <= 0) return;
+
+    const poke = activePokemonDetails.pokemon;
+    const actualTarget = targetEvo || (Array.isArray(POKEDEX[poke.id]?.evolution) ? POKEDEX[poke.id]?.evolution.find(e => e.item === stoneId) : POKEDEX[poke.id]?.evolution);
 
     setGameState(prev => ({
       ...prev,
@@ -282,6 +356,7 @@ const PokemonManagement = ({
     setActivePokemonDetails(null);
     setEvolutionPending({
       ...poke,
+      targetEvolution: actualTarget,
       teamIndex: activePokemonDetails.location === 'team' ? activePokemonDetails.index : null,
       pcIndex: activePokemonDetails.location === 'pc' ? activePokemonDetails.index : null
     });
@@ -389,7 +464,17 @@ const PokemonManagement = ({
                     className="w-full bg-slate-50 border-none rounded-xl py-2.5 pl-10 pr-4 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-pokeGold/50 transition-all placeholder:text-slate-300"
                   />
                </div>
-               <div className="flex items-center gap-2">
+               <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-black uppercase text-slate-400 whitespace-nowrap">Regiao:</span>
+                  <select
+                    value={pcRegion}
+                    onChange={(e) => setPcRegion(e.target.value)}
+                    className="bg-slate-50 border-none rounded-xl py-2.5 px-3 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-pokeGold/50 outline-none transition-all cursor-pointer"
+                  >
+                    {availablePcRegions.map(region => (
+                      <option key={region.id} value={region.id}>{region.label}</option>
+                    ))}
+                  </select>
                   <span className="text-[10px] font-black uppercase text-slate-400 whitespace-nowrap">Ordenar:</span>
                   <select
                     value={pcSort}
@@ -411,7 +496,8 @@ const PokemonManagement = ({
                   .map((p, idx) => ({ ...p, originalIndex: idx }))
                   .filter(p => {
                     const term = pcSearch.toLowerCase();
-                    return p.name.toLowerCase().includes(term) || String(p.id).includes(term);
+                    const matchesRegion = pcRegion === 'all' || getDexRegion(p.id) === pcRegion;
+                    return matchesRegion && (p.name.toLowerCase().includes(term) || String(p.id).includes(term));
                   })
                   .sort((a, b) => {
                     if (pcSort === 'alpha') return a.name.localeCompare(b.name);
@@ -517,6 +603,7 @@ const PokemonManagement = ({
                   <div className="text-center mb-5">
                      <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter leading-none flex items-center justify-center gap-2">
                        {activePokemonDetails.pokemon.name}
+                       {activePokemonDetails.pokemon.isMega && <span className="text-emerald-600 text-[10px] font-black uppercase tracking-widest bg-emerald-50 border border-emerald-200 rounded-full px-2 py-1">Mega</span>}
                        {activePokemonDetails.pokemon.isShiny && <span className="text-yellow-500 text-xl animate-pulse">⭐</span>}
                      </h3>
                      <div className="flex items-center justify-center gap-2 mt-2">
@@ -546,6 +633,63 @@ const PokemonManagement = ({
                         <div className="flex justify-between items-center"><p className="text-[8px] font-black text-slate-400 uppercase">S.DEF</p><p className="text-xs font-black text-slate-700">{activePokemonDetails.pokemon.spDef || 10}</p></div>
                      </div>
                   </div>
+
+                  {(() => {
+                    const poke = activePokemonDetails.pokemon;
+                    const heldItem = poke.heldItem || null;
+                    const heldData = getHeldItemData(heldItem);
+                    const availableHoldItems = holdItemRecipes.filter(item => (gameState.inventory?.items?.[item.id] || 0) > 0 || item.id === heldItem);
+                    return (
+                      <div className="bg-slate-900 p-4 rounded-3xl border border-white/10 mb-6 shadow-lg">
+                        <div className="flex items-center justify-between gap-3 mb-3">
+                          <div>
+                            <h4 className="font-black uppercase text-[10px] text-white tracking-widest">Item Segurado</h4>
+                            <p className="text-[8px] font-black uppercase tracking-widest text-emerald-300">Hold item / Mega Stone</p>
+                          </div>
+                          {heldData && (
+                            <button onClick={() => equipHeldItem(null)} className="px-3 py-2 rounded-xl bg-white/10 text-white text-[9px] font-black uppercase">
+                              Remover
+                            </button>
+                          )}
+                        </div>
+                        <div className="min-h-[58px] rounded-2xl bg-white/10 border border-white/10 p-3 flex items-center gap-3 mb-3">
+                          <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0">
+                            {heldData ? <img src={heldData.img} className="w-9 h-9 object-contain" alt={heldData.name} /> : <span className="text-[10px] font-black text-slate-400 uppercase">Vazio</span>}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-white font-black uppercase italic text-sm leading-tight">{heldData?.name || 'Nenhum item'}</p>
+                            <p className="text-white/50 text-[10px] font-bold leading-snug">{heldData?.effect || 'Equipe um item forjado para ativar bonus em batalha.'}</p>
+                          </div>
+                        </div>
+                        {availableHoldItems.length > 0 ? (
+                          <div className="grid grid-cols-1 gap-2 max-h-52 overflow-y-auto custom-scrollbar pr-1">
+                            {availableHoldItems.map(item => {
+                              const qty = gameState.inventory?.items?.[item.id] || 0;
+                              const isHeld = heldItem === item.id;
+                              const compatible = canHoldItem(poke, item);
+                              return (
+                                <button
+                                  key={item.id}
+                                  onClick={() => !isHeld && compatible && equipHeldItem(item.id)}
+                                  disabled={isHeld || !compatible || qty <= 0}
+                                  className={`min-h-[54px] rounded-2xl border p-2 flex items-center gap-3 text-left transition-all ${isHeld ? 'bg-emerald-500/20 border-emerald-300/50' : compatible && qty > 0 ? 'bg-white/10 border-white/10 hover:bg-white/15' : 'bg-white/5 border-white/5 opacity-50'}`}
+                                >
+                                  <img src={item.img} className="w-9 h-9 object-contain shrink-0" alt="" />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-white font-black uppercase text-[10px] leading-tight">{item.name}</p>
+                                    <p className="text-white/45 text-[8px] font-bold uppercase leading-tight">{item.type === 'mega_stone' ? (compatible ? 'Mega Stone compativel' : 'Mega Stone incompativel') : item.effect}</p>
+                                  </div>
+                                  <span className="text-[9px] font-black text-emerald-200 uppercase">{isHeld ? 'ON' : `x${qty}`}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <p className="text-white/45 text-[10px] font-bold text-center py-3">Forje Hold Items ou Mega Stones para equipar seus Pokemon.</p>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   <div className="flex flex-col gap-3">
                     <h4 className="font-black uppercase text-[9px] text-slate-400 text-center tracking-widest mb-1">Treinamento Avançado</h4>
@@ -816,62 +960,130 @@ const PokemonManagement = ({
                   {(() => {
                     const poke = activePokemonDetails.pokemon;
                     const pokeData = POKEDEX[poke.id];
-                    const stoneEvol = pokeData?.evolution?.item;
-                    const evolutionAllowed = !pokeData?.evolution || !isEvolutionAllowedForRegion || isEvolutionAllowedForRegion(poke, pokeData.evolution.id, activeRegion || gameState.activeRegion || 'kanto');
-                    const evolutionLockText = pokeData?.evolution && !evolutionAllowed
-                      ? (getEvolutionRegionLockMessage?.(poke.name, POKEDEX[pokeData.evolution.id]?.name, activeRegion || gameState.activeRegion || 'kanto') || 'Evolucao bloqueada nesta regiao.')
-                      : null;
-                    const stoneNames = { thunder_stone: 'Thunder Stone', moon_stone: 'Moon Stone', link_cable: 'Link Cable', fire_stone: 'Fire Stone', water_stone: 'Water Stone', leaf_stone: 'Leaf Stone' };
+                    if (!pokeData?.evolution) {
+                      return (
+                        <div className="mt-8 border-t-2 border-slate-100 pt-6">
+                          <h4 className="font-black uppercase text-[10px] text-slate-800 mb-4 flex items-center gap-2">
+                             <span className="bg-pokeBlue text-white w-5 h-5 rounded-lg flex items-center justify-center text-[8px]">?</span>
+                             Guia de Evolução
+                          </h4>
+                          <p className="text-xs font-bold text-slate-400 italic text-left px-2">Este Pokémon atingiu sua forma final.</p>
+                        </div>
+                      );
+                    }
+
+                    const evolutions = Array.isArray(pokeData.evolution) ? pokeData.evolution : [pokeData.evolution];
+                    const currentTime = getTimeOfDay();
+
+                    const stoneNames = { 
+                      thunder_stone: 'Thunder Stone', moon_stone: 'Moon Stone', link_cable: 'Link Cable', 
+                      fire_stone: 'Fire Stone', water_stone: 'Water Stone', leaf_stone: 'Leaf Stone',
+                      sun_stone: 'Sun Stone', shiny_stone: 'Shiny Stone', dusk_stone: 'Dusk Stone', 
+                      dawn_stone: 'Dawn Stone', ice_stone: 'Ice Stone'
+                    };
                     const stoneIcons = {
                       thunder_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
                       moon_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png',
                       link_cable: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/up-grade.png',
                       fire_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png',
                       water_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png',
-                      leaf_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png'
+                      leaf_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png',
+                      sun_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sun-stone.png',
+                      shiny_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/shiny-stone.png',
+                      dusk_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dusk-stone.png',
+                      dawn_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dawn-stone.png',
+                      ice_stone: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ice-stone.png'
                     };
-                    const hasStone = !!gameState.inventory?.items?.[stoneEvol];
+
                     return (
                       <div className="mt-8 border-t-2 border-slate-100 pt-6">
                         <h4 className="font-black uppercase text-[10px] text-slate-800 mb-4 flex items-center gap-2">
                            <span className="bg-pokeBlue text-white w-5 h-5 rounded-lg flex items-center justify-center text-[8px]">?</span>
                            Guia de Evolução
                         </h4>
-                        {stoneEvol && (
-                          <div className="bg-amber-50 border-2 border-amber-200 p-4 rounded-2xl mb-4">
-                             <div className="flex items-center gap-4">
-                               <img src={stoneIcons[stoneEvol]} className="w-10 h-10" alt="Stone" />
-                               <div className="flex-1">
-                                 <p className="text-[11px] font-black text-slate-800 uppercase text-left">Evolução por Pedra</p>
-                                 <p className="text-[9px] font-bold text-slate-500 text-left">Requer: {stoneNames[stoneEvol] || stoneEvol}</p>
-                               </div>
-                               {hasStone && evolutionAllowed && (
-                                 <button onClick={() => useStoneEvolution(stoneEvol)} className="bg-amber-500 text-white font-black text-[10px] px-4 py-2 rounded-xl shadow-lg uppercase">Evoluir!</button>
-                               )}
-                             </div>
-                          </div>
-                        )}
-                        {pokeData?.evolution ? (
-                          <div className="bg-slate-50 p-4 rounded-2xl border-2 border-slate-100">
-                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                                   <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokeData.evolution.id}.png`} className="w-10 h-10 object-contain" alt="Evo" />
+                        
+                        <div className="flex flex-col gap-4">
+                          {evolutions.map((evo, idx) => {
+                            const targetData = POKEDEX[evo.id];
+                            const isItemEvo = !!evo.item;
+                            const hasItem = isItemEvo ? !!gameState.inventory?.items?.[evo.item] : false;
+                            const levelMet = evo.level ? poke.level >= evo.level : true;
+                            
+                            // Time check
+                            const timeMet = !evo.time || evo.time.includes(currentTime);
+                            
+                            const evolutionAllowed = !isEvolutionAllowedForRegion || isEvolutionAllowedForRegion(poke, evo.id, activeRegion || gameState.activeRegion || 'kanto');
+                            
+                            const evolutionLockText = !evolutionAllowed
+                              ? (getEvolutionRegionLockMessage?.(poke.name, targetData?.name, activeRegion || gameState.activeRegion || 'kanto') || 'Evolucao bloqueada nesta regiao.')
+                              : null;
+
+                            const canEvolve = (isItemEvo ? hasItem : levelMet) && timeMet && evolutionAllowed;
+
+                            return (
+                              <div key={`${evo.id}-${idx}`} className={`p-4 rounded-2xl border-2 transition-all ${canEvolve ? 'bg-blue-50 border-blue-200' : 'bg-slate-50 border-slate-100 opacity-80'}`}>
+                                <div className="flex items-center gap-4">
+                                  {/* Thumbnail */}
+                                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm shrink-0">
+                                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evo.id}.png`} className="w-10 h-10 object-contain" alt="Evo" />
+                                  </div>
+
+                                  {/* Info */}
+                                  <div className="flex-1 text-left min-w-0">
+                                    <p className="text-xs font-black text-slate-800 uppercase italic truncate">{targetData?.name || '???'}</p>
+                                    <div className="flex flex-wrap gap-2 mt-1">
+                                      {evo.level && (
+                                        <span className={`text-[8px] font-bold uppercase px-2 py-0.5 rounded-full ${levelMet ? 'bg-blue-100 text-blue-600' : 'bg-slate-200 text-slate-500'}`}>
+                                          Nível {evo.level}
+                                        </span>
+                                      )}
+                                      {isItemEvo && (
+                                        <span className={`text-[8px] font-bold uppercase px-2 py-0.5 rounded-full flex items-center gap-1 ${hasItem ? 'bg-amber-100 text-amber-600' : 'bg-slate-200 text-slate-500'}`}>
+                                          <img src={stoneIcons[evo.item]} className="w-3 h-3 object-contain" alt="" />
+                                          {stoneNames[evo.item] || evo.item}
+                                        </span>
+                                      )}
+                                      {evo.time && (
+                                        <span className={`text-[8px] font-bold uppercase px-2 py-0.5 rounded-full ${timeMet ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-200 text-slate-500'}`}>
+                                          {evo.time.join('/')}
+                                        </span>
+                                      )}
+                                    </div>
+                                    {evolutionLockText && (
+                                      <p className="mt-1 text-[8px] font-black uppercase text-red-500">{evolutionLockText}</p>
+                                    )}
+                                  </div>
+
+                                  {/* Action */}
+                                  <div className="shrink-0">
+                                    {isItemEvo ? (
+                                      hasItem && evolutionAllowed && timeMet && (
+                                        <button onClick={() => handleStoneEvolution(evo.item, evo)} className="bg-amber-500 text-white font-black text-[9px] px-3 py-2 rounded-lg shadow-lg uppercase active:scale-95 transition-all">Usar Item</button>
+                                      )
+                                    ) : (
+                                      levelMet && evolutionAllowed && timeMet && (
+                                        <button 
+                                          onClick={() => { 
+                                            setActivePokemonDetails(null); 
+                                            setEvolutionPending({ 
+                                              ...poke, 
+                                              targetEvolution: evo,
+                                              teamIndex: activePokemonDetails.location === 'team' ? activePokemonDetails.index : null, 
+                                              pcIndex: activePokemonDetails.location === 'pc' ? activePokemonDetails.index : null 
+                                            }); 
+                                          }} 
+                                          className="bg-pokeBlue text-white font-black text-[9px] px-3 py-2 rounded-lg shadow-lg uppercase animate-pulse"
+                                        >
+                                          Evoluir
+                                        </button>
+                                      )
+                                    )}
+                                  </div>
                                 </div>
-                                <div className="text-left flex-1">
-                                   <p className="text-xs font-black text-slate-800 uppercase italic">{POKEDEX[pokeData.evolution.id]?.name || '???'}</p>
-                                   <p className="text-[9px] font-bold text-pokeBlue mt-1 uppercase">{pokeData.evolution.level ? `Nível ${pokeData.evolution.level}` : `Requer Item`}</p>
-                                </div>
-                                {pokeData.evolution.level && poke.level >= pokeData.evolution.level && evolutionAllowed && (
-                                   <button onClick={() => { setActivePokemonDetails(null); setEvolutionPending({ ...poke, teamIndex: activePokemonDetails.location === 'team' ? activePokemonDetails.index : null, pcIndex: activePokemonDetails.location === 'pc' ? activePokemonDetails.index : null }); }} className="bg-pokeBlue text-white font-black text-[9px] px-3 py-2 rounded-lg uppercase animate-pulse">Evoluir</button>
-                                )}
-                             </div>
-                          </div>
-                        ) : (
-                          <p className="text-xs font-bold text-slate-400 italic text-left px-2">Este Pokémon atingiu sua forma final.</p>
-                        )}
-                        {evolutionLockText && (
-                          <p className="mt-3 text-[10px] font-black uppercase text-red-500 text-left px-2">{evolutionLockText}</p>
-                        )}
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     );
                   })()}

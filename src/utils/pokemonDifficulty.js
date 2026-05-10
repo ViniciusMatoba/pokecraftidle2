@@ -1,4 +1,14 @@
-const STARTER_IDS = new Set([1, 4, 7, 152, 155, 158, 252, 255, 258]);
+const STARTER_IDS = new Set([
+  1, 2, 3, 4, 5, 6, 7, 8, 9,
+  152, 153, 154, 155, 156, 157, 158, 159, 160,
+  252, 253, 254, 255, 256, 257, 258, 259, 260,
+  387, 388, 389, 390, 391, 392, 393, 394, 395,
+  495, 496, 497, 498, 499, 500, 501, 502, 503,
+  650, 651, 652, 653, 654, 655, 656, 657, 658,
+  722, 723, 724, 725, 726, 727, 728, 729, 730,
+  810, 811, 812, 813, 814, 815, 816, 817, 818,
+  906, 907, 908, 909, 910, 911, 912, 913, 914,
+]);
 const LEGENDARY_IDS = new Set([144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 251, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386]);
 
 export const RARITY_WEIGHTS = {
@@ -37,9 +47,12 @@ export const pickWeightedEncounter = (pool = [], pokedex = {}) => {
   if (!pool.length) return null;
   const weighted = pool.map(entry => {
     const rarity = getPokemonRarity(entry, pokedex);
+    const isStarterFamily = STARTER_IDS.has(Number(entry.id));
     return {
       entry,
-      weight: Math.max(1, entry.spawnWeight || RARITY_WEIGHTS[rarity] || RARITY_WEIGHTS.common),
+      weight: Math.max(1, isStarterFamily
+        ? Math.min(entry.spawnWeight || RARITY_WEIGHTS.super_rare, 2)
+        : (entry.spawnWeight || RARITY_WEIGHTS[rarity] || RARITY_WEIGHTS.common)),
     };
   });
   const total = weighted.reduce((sum, item) => sum + item.weight, 0);
