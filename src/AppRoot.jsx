@@ -119,11 +119,13 @@ const isMeaningfulGameState = (state = {}) => getGameStateSaveScore(state) > 0;
 const persistLocalGameState = (state) => {
   if (!state || !isMeaningfulGameState(state)) return false;
   try {
-    localStorage.setItem('poke_idle_save', JSON.stringify({
+    const saveEnvelope = {
       gameState: removeUndefinedFields({ ...state, version: state.version || APP_VERSION }),
       savedAt: Date.now(),
       version: APP_VERSION,
-    }));
+    };
+    localStorage.setItem('poke_idle_save', JSON.stringify(saveEnvelope));
+    localStorage.setItem('poke_idle_save_backup', JSON.stringify(saveEnvelope));
     return true;
   } catch (error) {
     console.error('Local save fail:', error);
@@ -144,21 +146,27 @@ const chooseBestGameState = (primaryState, fallbackState) => {
 };
 
 const loadLocalGameState = () => {
-  try {
-    const saved = localStorage.getItem('poke_idle_save');
-    if (!saved) return null;
-    const parsed = JSON.parse(saved);
-    const savedGameState = parsed?.gameState || parsed;
-    if (!savedGameState || typeof savedGameState !== 'object') return null;
-    const migrated = migrateGameState(savedGameState, { version: APP_VERSION });
-    if (!migrated.migrationAudit?.ok) {
-      console.info('Local save migration audit:', migrated.migrationAudit);
+  const storageKeys = ['poke_idle_save', 'poke_idle_save_backup'];
+  let bestState = null;
+
+  storageKeys.forEach((key) => {
+    try {
+      const saved = localStorage.getItem(key);
+      if (!saved) return;
+      const parsed = JSON.parse(saved);
+      const savedGameState = parsed?.gameState || parsed;
+      if (!savedGameState || typeof savedGameState !== 'object') return;
+      const migrated = migrateGameState(savedGameState, { version: APP_VERSION });
+      if (!migrated.migrationAudit?.ok) {
+        console.info(`Local save migration audit (${key}):`, migrated.migrationAudit);
+      }
+      bestState = chooseBestGameState(migrated, bestState);
+    } catch (e) {
+      console.error(`Error parsing local save (${key})`, e);
     }
-    return migrated;
-  } catch (e) {
-    console.error('Error parsing local save', e);
-    return null;
-  }
+  });
+
+  return bestState;
 };
 
 const EVOLUTION_FRAGMENT_DROPS = {
@@ -516,17 +524,29 @@ export default function App() {
     return loadLocalGameState() || DEFAULT_GAME_STATE;
   });
 
-  const loadGameState = async (uid) => {
-    try {
-      const docRef = doc(db, "saves", uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        return docSnap.data().gameState;
+  const loadGameState = async (uid, timeoutMs = 6000) => {
+    const loadPromise = (async () => {
+      try {
+        const docRef = doc(db, "saves", uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          return docSnap.data().gameState;
+        }
+      } catch (e) {
+        console.error("Error loading cloud save:", e);
       }
-    } catch (e) {
-      console.error("Error loading cloud save:", e);
+      return null;
+    })();
+
+    try {
+      return await Promise.race([
+        loadPromise,
+        new Promise(resolve => setTimeout(() => resolve(null), timeoutMs)),
+      ]);
+    } catch (error) {
+      console.error("Cloud save timeout/fail:", error);
+      return null;
     }
-    return null;
   };
 
   useEffect(() => {
@@ -4373,11 +4393,15 @@ export default function App() {
                   <button 
                     onClick={async () => {
                       const localState = loadLocalGameState();
-                      const cloudState = auth.currentUser ? await loadGameState(auth.currentUser.uid) : null;
-                      const bestState = chooseBestGameState(cloudState, localState || gameState);
+                      const cloudState = auth.currentUser ? await loadGameState(auth.currentUser.uid, 3500) : null;
+                      const bestState = chooseBestGameState(cloudState, localState || (isMeaningfulGameState(gameState) ? gameState : null));
                       if (bestState && isMeaningfulGameState(bestState)) {
+                        persistLocalGameState(bestState);
                         setGameState(bestState);
                         setIsSaveHydrated(true);
+                        setLoading(false);
+                        setCurrentEnemy(null);
+                        resetSession();
                         setCurrentView('city');
                         return;
                       }

@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [V1.55.23] - 10/05/2026 19:26
+### Corrigido
+- **Continuar Jornada**: o botao agora carrega o save mais completo entre dispositivo e nuvem, sem depender de estado temporario da tela.
+- **Backup Local de Save**: cada salvamento passa a gravar tambem uma copia de seguranca no navegador.
+- **Times Regionais**: ao carregar saves com `team` vazio, o jogo restaura automaticamente o time salvo da regiao ativa.
+
 ## [V1.55.22] - 10/05/2026 19:21
 ### Implementado
 - **Drops de Sementes de Apricorn**: rotas agora podem dropar sementes de Apricorn para alimentar a forja de Pokebolas especiais.

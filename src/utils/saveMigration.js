@@ -161,5 +161,17 @@ export const migrateGameState = (savedState = {}, options = {}) => {
   delete migrated.regionalTeams;
   delete migrated.regionalPc;
 
+  const activeRegion = migrated.activeRegion || DEFAULT_GAME_STATE.activeRegion;
+  const activeRegionalTeam = asArray(migrated.regional_teams?.[activeRegion]);
+  if (!asArray(migrated.team).length && activeRegionalTeam.length) {
+    migrated.team = activeRegionalTeam;
+  }
+  if (asArray(migrated.team).length && !activeRegionalTeam.length) {
+    migrated.regional_teams = {
+      ...(migrated.regional_teams || {}),
+      [activeRegion]: asArray(migrated.team),
+    };
+  }
+
   return migrated;
 };
