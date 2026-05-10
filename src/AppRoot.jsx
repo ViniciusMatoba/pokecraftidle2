@@ -6610,14 +6610,14 @@ export default function App() {
             <button onClick={() => menuUnlocked && handleSafeNavigation('pokemon_management')}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${currentView === 'pokemon_management' ? 'text-red-600' : 'text-slate-400'}`}>
-              <span className="w-7 h-7 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-base">⚪</span>
+              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-7 h-7 object-contain" alt="" />
               <span className="text-[9px] font-black uppercase mt-0.5">Equipe</span>
             </button>
 
             <button onClick={() => menuUnlocked && handleSafeNavigation('vs')}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${['vs','gyms','challenges'].includes(currentView) ? 'text-yellow-600' : 'text-slate-400'}`}>
-              <span className="w-7 h-7 rounded-xl bg-yellow-50 border border-yellow-100 flex items-center justify-center text-[10px] font-black">VS</span>
+              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png" className="w-7 h-7 object-contain" alt="" />
               <span className="text-[9px] font-black uppercase mt-0.5">Modo VS</span>
             </button>
 

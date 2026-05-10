@@ -1,5 +1,10 @@
 # Changelog - PokeCraft
 
+## [V1.55.27] - 10/05/2026 19:57
+### Ajustado
+- **Barra Inferior**: Equipe voltou a usar Pokebola e Modo VS voltou a usar VS Seeker.
+- **Identidade Visual**: Menu manteve o icone da Pokedex e os caminhos seguem compativeis com mobile/GitHub Pages.
+
 ## [V1.55.26] - 10/05/2026 19:48
 ### Corrigido
 - **Icones no Celular**: caminhos locais de icones e itens agora funcionam corretamente no GitHub Pages/PWA.
