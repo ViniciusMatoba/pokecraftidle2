@@ -51,11 +51,18 @@ const HouseScreen = ({
     );
   }, [gameState.pc]);
 
+  const getSeedQuantity = (plantId, plant) => {
+    const inventoryItems = gameState.inventory?.items || {};
+    const seedId = plant?.seed || plantId;
+    return (inventoryItems[seedId] || 0) + (seedId !== plantId ? (inventoryItems[plantId] || 0) : 0);
+  };
+
   // Lista de sementes disponíveis no inventário
   const availablePlants = useMemo(() => {
     const inventoryItems = gameState.inventory?.items || {};
     return Object.entries(PLANTABLE_ITEMS).filter(([id, plant]) => {
-      return (inventoryItems[id] || 0) > 0;
+      const seedId = plant.seed || id;
+      return ((inventoryItems[seedId] || 0) + (seedId !== id ? (inventoryItems[id] || 0) : 0)) > 0;
     });
   }, [gameState.inventory?.items]);
 
@@ -363,7 +370,7 @@ const HouseScreen = ({
                       className="bg-white/5 p-4 rounded-3xl border border-white/10 hover:bg-white/10 transition-all flex flex-col items-center gap-2 group relative"
                     >
                       <div className="absolute top-2 right-2 bg-emerald-500 text-white text-[7px] font-black px-2 py-0.5 rounded-full shadow-lg">
-                        x{gameState.inventory?.items[id] || 0}
+                        x{getSeedQuantity(id, plant)}
                       </div>
                       <img src={plant.img} className="w-12 h-12 object-contain group-hover:scale-110 transition-transform" alt="" />
                       <p className="text-[9px] font-black text-white uppercase tracking-tighter">{plant.name}</p>
@@ -389,7 +396,7 @@ const HouseScreen = ({
                   alt="" 
                 />
                 <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white text-[9px] font-black px-3 py-1 rounded-full shadow-lg border-2 border-[#1a1c2c]">
-                  x{gameState.inventory?.items[selectedPlantForConfirmation.id] || 0}
+                  x{getSeedQuantity(selectedPlantForConfirmation.id, selectedPlantForConfirmation)}
                 </div>
               </div>
               <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-1">{selectedPlantForConfirmation.name}</h3>

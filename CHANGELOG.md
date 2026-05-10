@@ -1,5 +1,17 @@
 # Changelog - PokeCraft
 
+## [V1.55.22] - 10/05/2026 19:21
+### Implementado
+- **Drops de Sementes de Apricorn**: rotas agora podem dropar sementes de Apricorn para alimentar a forja de Pokebolas especiais.
+- **Jardim da Casa**: Apricorns agora usam sementes dedicadas no plantio, igual ao fluxo das berries.
+- **Progressao de Drops**: sementes comuns aparecem mais cedo, enquanto Pink/Black Apricorn ficam ligadas a encontros mais avancados.
+
+## [V1.55.21] - 10/05/2026 19:17
+### Implementado
+- **Drops de Sementes**: berries agora possuem sementes dedicadas que podem cair em batalhas de rota.
+- **Jardim da Casa**: plantar berries consome uma semente, mantendo compatibilidade com saves que ainda tenham berries antigas como sementes.
+- **Progressao de Raridade**: sementes comuns aparecem cedo; Sitrus e Lum ficam ligadas a niveis/encounters mais avancados.
+
 ## [V1.55.20] - 10/05/2026 18:50
 ### Corrigido
 - **Salvar Jogo**: o botao do menu agora confirma imediatamente o save local.

@@ -176,6 +176,122 @@ const EVOLUTION_FRAGMENT_DROPS = {
   74: 'link_cable_part', 75: 'link_cable_part', 92: 'link_cable_part', 93: 'link_cable_part',
 };
 
+const BASIC_BERRY_SEEDS = ['oran_seed', 'cheri_seed', 'chesto_seed', 'pecha_seed', 'rawst_seed'];
+const MID_BERRY_SEEDS = ['aspear_seed', 'leppa_seed'];
+const ADVANCED_BERRY_SEEDS = ['sitrus_seed'];
+const RARE_BERRY_SEEDS = ['lum_seed'];
+const APRICORN_SEEDS = [
+  'red_apricorn_seed',
+  'white_apricorn_seed',
+  'blue_apricorn_seed',
+  'green_apricorn_seed',
+  'yellow_apricorn_seed',
+  'pink_apricorn_seed',
+  'black_apricorn_seed',
+];
+
+const BERRY_SEED_DROP_BY_POKEMON = {
+  1: 'oran_seed', 2: 'oran_seed', 3: 'sitrus_seed',
+  10: 'cheri_seed', 11: 'cheri_seed', 12: 'leppa_seed',
+  13: 'pecha_seed', 14: 'pecha_seed', 15: 'sitrus_seed',
+  43: 'oran_seed', 44: 'oran_seed', 45: 'sitrus_seed',
+  46: 'chesto_seed', 47: 'chesto_seed',
+  69: 'cheri_seed', 70: 'cheri_seed', 71: 'sitrus_seed',
+  102: 'sitrus_seed', 103: 'sitrus_seed',
+  114: 'leppa_seed', 152: 'oran_seed', 153: 'oran_seed', 154: 'sitrus_seed',
+  165: 'cheri_seed', 166: 'cheri_seed',
+  167: 'pecha_seed', 168: 'pecha_seed',
+  187: 'aspear_seed', 188: 'aspear_seed', 189: 'leppa_seed',
+  191: 'leppa_seed', 192: 'sitrus_seed',
+  204: 'rawst_seed', 205: 'rawst_seed',
+  273: 'rawst_seed', 274: 'rawst_seed', 275: 'sitrus_seed',
+  285: 'pecha_seed', 286: 'sitrus_seed',
+  315: 'lum_seed', 331: 'rawst_seed', 332: 'sitrus_seed',
+  406: 'lum_seed', 407: 'lum_seed',
+  412: 'cheri_seed', 413: 'cheri_seed', 414: 'leppa_seed',
+  420: 'cheri_seed', 421: 'sitrus_seed',
+  455: 'sitrus_seed', 459: 'aspear_seed', 460: 'lum_seed',
+  540: 'oran_seed', 541: 'oran_seed', 542: 'sitrus_seed',
+  546: 'leppa_seed', 547: 'lum_seed',
+  548: 'lum_seed', 549: 'lum_seed',
+  590: 'pecha_seed', 591: 'lum_seed',
+  669: 'oran_seed', 670: 'sitrus_seed', 671: 'lum_seed',
+  708: 'rawst_seed', 709: 'rawst_seed',
+  742: 'cheri_seed', 743: 'sitrus_seed',
+  753: 'rawst_seed', 754: 'lum_seed',
+  761: 'sitrus_seed', 762: 'sitrus_seed', 763: 'lum_seed',
+  840: 'sitrus_seed', 841: 'rawst_seed', 842: 'leppa_seed',
+  928: 'oran_seed', 929: 'sitrus_seed', 930: 'lum_seed',
+};
+
+const pickBerrySeedDrop = (enemy = {}) => {
+  const enemyId = Number(enemy.id);
+  const mappedSeed = BERRY_SEED_DROP_BY_POKEMON[enemyId];
+  const types = new Set([enemy.type, ...(enemy.types || [])].filter(Boolean));
+  const level = Number(enemy.level || 1);
+  const pool = [...BASIC_BERRY_SEEDS];
+
+  if (level >= 18) pool.push(...MID_BERRY_SEEDS);
+  if (level >= 30) pool.push(...ADVANCED_BERRY_SEEDS);
+  if (level >= 45) pool.push(...RARE_BERRY_SEEDS);
+
+  const canDropSeeds = mappedSeed || types.has('Grass') || types.has('Bug') || types.has('Fairy');
+  if (!canDropSeeds) return null;
+
+  if (mappedSeed && (pool.includes(mappedSeed) || enemy.isShiny)) return mappedSeed;
+  if (!pool.length) return null;
+  return pool[Math.floor(Math.random() * pool.length)];
+};
+
+const APRICORN_SEED_DROP_BY_POKEMON = {
+  16: 'white_apricorn_seed', 17: 'white_apricorn_seed', 18: 'white_apricorn_seed',
+  21: 'red_apricorn_seed', 22: 'red_apricorn_seed',
+  46: 'black_apricorn_seed', 47: 'black_apricorn_seed',
+  48: 'blue_apricorn_seed', 49: 'blue_apricorn_seed',
+  123: 'green_apricorn_seed',
+  161: 'red_apricorn_seed', 162: 'red_apricorn_seed',
+  163: 'yellow_apricorn_seed', 164: 'yellow_apricorn_seed',
+  165: 'pink_apricorn_seed', 166: 'pink_apricorn_seed',
+  167: 'black_apricorn_seed', 168: 'black_apricorn_seed',
+  187: 'green_apricorn_seed', 188: 'green_apricorn_seed', 189: 'green_apricorn_seed',
+  190: 'yellow_apricorn_seed',
+  191: 'yellow_apricorn_seed', 192: 'yellow_apricorn_seed',
+  204: 'black_apricorn_seed', 205: 'black_apricorn_seed',
+  214: 'blue_apricorn_seed',
+  263: 'white_apricorn_seed', 264: 'white_apricorn_seed',
+  273: 'red_apricorn_seed', 274: 'red_apricorn_seed', 275: 'black_apricorn_seed',
+  276: 'white_apricorn_seed', 277: 'white_apricorn_seed',
+  290: 'green_apricorn_seed', 291: 'green_apricorn_seed', 292: 'black_apricorn_seed',
+  313: 'yellow_apricorn_seed', 314: 'pink_apricorn_seed',
+  401: 'green_apricorn_seed', 402: 'green_apricorn_seed',
+  415: 'yellow_apricorn_seed', 416: 'black_apricorn_seed',
+  540: 'green_apricorn_seed', 541: 'green_apricorn_seed', 542: 'green_apricorn_seed',
+  546: 'white_apricorn_seed', 547: 'white_apricorn_seed',
+  588: 'blue_apricorn_seed', 589: 'black_apricorn_seed',
+  664: 'pink_apricorn_seed', 665: 'pink_apricorn_seed', 666: 'pink_apricorn_seed',
+  742: 'yellow_apricorn_seed', 743: 'yellow_apricorn_seed',
+  824: 'black_apricorn_seed', 825: 'black_apricorn_seed', 826: 'black_apricorn_seed',
+  900: 'black_apricorn_seed',
+};
+
+const pickApricornSeedDrop = (enemy = {}) => {
+  const enemyId = Number(enemy.id);
+  const mappedSeed = APRICORN_SEED_DROP_BY_POKEMON[enemyId];
+  const types = new Set([enemy.type, ...(enemy.types || [])].filter(Boolean));
+  const level = Number(enemy.level || 1);
+  const pool = APRICORN_SEEDS.slice(0, 3);
+
+  if (level >= 15) pool.push('green_apricorn_seed', 'yellow_apricorn_seed');
+  if (level >= 25) pool.push('pink_apricorn_seed');
+  if (level >= 35) pool.push('black_apricorn_seed');
+
+  const canDropSeeds = mappedSeed || types.has('Bug') || types.has('Flying') || types.has('Grass');
+  if (!canDropSeeds) return null;
+
+  if (mappedSeed && (pool.includes(mappedSeed) || enemy.isShiny)) return mappedSeed;
+  return pool[Math.floor(Math.random() * pool.length)];
+};
+
 const ownsSpecies = (gameState = {}, pokemonId) => {
   const id = Number(pokemonId);
   return (gameState.team || []).some(p => Number(p.id) === id)
@@ -1542,6 +1658,28 @@ export default function App() {
       const fragmentData = ITEM_LABELS[evolutionFragment] || { icon: '*', name: evolutionFragment };
       drops.materials[evolutionFragment] = (drops.materials[evolutionFragment] || 0) + qty;
       messages.push(`${fragmentData.icon} ${qty}x ${fragmentData.name}`);
+    }
+
+    const berrySeedDrop = pickBerrySeedDrop(enemy);
+    if (berrySeedDrop) {
+      const seedChance = enemy.isWildBoss ? 0.22 : (enemy.isShiny ? 0.45 : 0.12);
+      if (Math.random() < seedChance) {
+        const qty = enemy.isWildBoss ? 2 : 1;
+        const seedData = ITEM_LABELS[berrySeedDrop] || { icon: '🌱', name: berrySeedDrop.replace(/_/g, ' ') };
+        drops.items[berrySeedDrop] = (drops.items[berrySeedDrop] || 0) + qty;
+        messages.push(`${seedData.icon} ${qty}x ${seedData.name}`);
+      }
+    }
+
+    const apricornSeedDrop = pickApricornSeedDrop(enemy);
+    if (apricornSeedDrop) {
+      const apricornSeedChance = enemy.isWildBoss ? 0.20 : (enemy.isShiny ? 0.38 : 0.09);
+      if (Math.random() < apricornSeedChance) {
+        const qty = enemy.isWildBoss ? 2 : 1;
+        const seedData = ITEM_LABELS[apricornSeedDrop] || { icon: '🌰', name: apricornSeedDrop.replace(/_/g, ' ') };
+        drops.items[apricornSeedDrop] = (drops.items[apricornSeedDrop] || 0) + qty;
+        messages.push(`${seedData.icon} ${qty}x ${seedData.name}`);
+      }
     }
 
     const recipeDrops = FORGE_RECIPE_DROP_BY_POKEMON[Number(enemy.id)];
@@ -3521,6 +3659,20 @@ export default function App() {
         return prev;
       }
 
+      const seedId = plant.seed || plantId;
+      const inventory = {
+        ...(prev.inventory || {}),
+        items: { ...(prev.inventory?.items || {}) },
+      };
+      const seedQty = inventory.items[seedId] || 0;
+      const legacySeedQty = seedId !== plantId ? (inventory.items[plantId] || 0) : 0;
+      if (seedQty + legacySeedQty <= 0) {
+        addLog(`🌱 Voce precisa de uma semente para plantar ${plant.name}!`, 'system');
+        return prev;
+      }
+      const consumedSeedId = seedQty > 0 ? seedId : plantId;
+      inventory.items[consumedSeedId] = Math.max(0, (inventory.items[consumedSeedId] || 0) - 1);
+
       const newSlots = [...(prev.house?.slots || [])];
       newSlots[slotIndex] = { plantId, plantedAt: Date.now(), growthTime };
 
@@ -3528,6 +3680,7 @@ export default function App() {
       return {
         ...prev,
         currency: prev.currency - plant.cost,
+        inventory,
         house: { ...prev.house, slots: newSlots },
       };
     });
