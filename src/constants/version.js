@@ -1,6 +1,6 @@
-export const APP_VERSION = '1.55.28';
-export const VERSION = '1.55.28';
-export const APP_VERSION_DATE = '10/05/2026 20:04';
+export const APP_VERSION = '1.55.29';
+export const VERSION = '1.55.29';
+export const APP_VERSION_DATE = '11/05/2026 12:35';
 export const CHANGELOG = [
   'Botao Atualizar do menu agora limpa cache e service worker antes de recarregar',
   'Verificacao de versao usa a mesma rotina segura na tela de login e no jogo',

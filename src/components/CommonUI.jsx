@@ -462,7 +462,11 @@ export const TrainerCard = ({
               </div>
               <button
                 type="button"
-                onClick={() => setShowTitlePicker(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowTitlePicker(false);
+                }}
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-sm font-black text-white"
               >
                 x
@@ -575,7 +579,11 @@ export const TrainerCard = ({
               </div>
               <button
                 type="button"
-                onClick={() => setShowPsInfo(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowPsInfo(false);
+                }}
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-sm font-black text-white"
               >
                 x

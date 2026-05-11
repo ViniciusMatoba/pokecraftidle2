@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [V1.55.29] - 11/05/2026 12:35
+### Corrigido
+- **Level Cap Regional**: jogadores que conquistaram o título de campeão da região agora têm o limite de nível removido automaticamente para os Pokémon daquela mesma região.
+- **Modal do Trainer Card**: resolvido o problema em que o modal de explicação do "Poder PS" e o modal de "Seleção de Títulos" não fechavam ao clicar no botão "x".
+
+
 ## [V1.55.28] - 10/05/2026 20:04
 ### Corrigido
 - **Atualizacao no Menu**: botao Atualizar agora limpa cache, service worker e recarrega com parametro novo.

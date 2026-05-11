@@ -8,6 +8,11 @@ export const isRouteUnlocked = (route, gameState) => {
   if (!requirementsMet) return false;
   if (route.type !== 'farm' || !route.unlockLevel || route.unlockLevel <= 1) return true;
 
+  const currentRegion = gameState.activeRegion || 'kanto';
+  if (currentRegion !== 'kanto') {
+    return true;
+  }
+
   const teamMaxLevel = Math.max(
     1,
     ...(gameState.team || []).map(pokemon => Number(pokemon?.level || 1))
