@@ -25,3 +25,11 @@ export const getEffectiveStat = (pokemon, stat) => {
   const level = pokemon.level || 5;
   return Math.ceil((base * level) / 50) + 5;
 };
+
+// Multiplicador de stats baseado no nível de shiny stacking
+// shinyCount = 1 → 1.20x | cada +1 adiciona +0.05x | máximo: shinyCount 10 = 1.65x
+export const getShinyMult = (pokemon) => {
+  if (!pokemon?.isShiny) return 1.0;
+  const count = Math.min(pokemon.shinyCount || 1, 10); // cap em 10
+  return 1.2 + Math.max(0, count - 1) * 0.05;
+};

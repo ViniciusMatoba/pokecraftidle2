@@ -1,4 +1,5 @@
 import React from 'react';
+import { getShinyMult } from '../utils/gameHelpers';
 
 const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setEvolutionPending, activeRegion = 'kanto', isEvolutionAllowedForRegion, getEvolutionRegionLockMessage }) => {
   if (!evolutionPending) return null;
@@ -60,7 +61,7 @@ const EvolutionScreen = ({ evolutionPending, POKEDEX, setGameState, addLog, setE
                          setGameState(prev => {
                             const newTeam = prev.team.map((p, i) => {
                                if (i === evolutionPending.teamIndex) {
-                                  const shinyMult = p.isShiny ? 1.2 : 1.0;
+                                  const shinyMult = getShinyMult(p);
                                   const calcStat = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + 5) * shinyMult));
                                   const calcHp   = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + lv + 10) * shinyMult));
 

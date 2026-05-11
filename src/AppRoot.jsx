@@ -44,7 +44,7 @@ import {
   UNOVA_BADGE_IDS, KALOS_BADGE_IDS, ALOLA_BADGE_IDS, GALAR_BADGE_IDS, PALDEA_BADGE_IDS
 } from './data/constants';
 import { REGION_ORDER, REGION_CHAMPION_FLAGS, REGION_BADGE_IDS, getPokemonRegion, getUnlockedDexLimit as getRegionalDexLimit, isPokemonAllowedInRegion } from './data/regionStandards';
-import { getMasteryPath, getEffectiveStat } from './utils/gameHelpers';
+import { getMasteryPath, getEffectiveStat, getShinyMult } from './utils/gameHelpers';
 import { getTypeEffectiveness } from './data/typeChart';
 import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
 import { calcExpeditionDuration, calcExpeditionDrops, calcExpeditionXP, EXPEDITION_BIOMES } from './data/expeditions';
@@ -95,6 +95,29 @@ const removeUndefinedFields = (value) => {
     );
   }
   return value;
+};
+
+// Recalcula stats de um pokémon ao receber upgrade shiny (ou ao subir shinyCount)
+const applyShinyUpgrade = (pokemon, pokedexData) => {
+  const newCount = Math.min((pokemon.shinyCount || 0) + 1, 10);
+  const base = pokedexData || {};
+  const lv = pokemon.level || 1;
+  const sm = 1.2 + Math.max(0, newCount - 1) * 0.05; // mesma fórmula de getShinyMult
+  const calcStat = (b) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + 5) * sm));
+  const calcHp   = (b) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + lv + 10) * sm));
+  const newMaxHp = calcHp(base.hp || base.maxHp || 45);
+  return {
+    ...pokemon,
+    isShiny: true,
+    shinyCount: newCount,
+    maxHp:   newMaxHp,
+    hp:      newMaxHp,
+    attack:  calcStat(base.attack  || 45),
+    defense: calcStat(base.defense || 45),
+    spAtk:   calcStat(base.spAtk   || 45),
+    spDef:   calcStat(base.spDef   || 45),
+    speed:   calcStat(base.speed   || 45),
+  };
 };
 
 const EVOLUTION_FRAGMENT_DROPS = {
@@ -969,13 +992,17 @@ export default function App() {
         }
 
         if (needsStats) {
-          processed.spAtk = Math.ceil(p.spAtk || base.spAtk || 10);
-          processed.spDef = Math.ceil(p.spDef || base.spDef || 10);
-          processed.attack = Math.ceil(p.attack || base.attack || 10);
-          processed.defense = Math.ceil(p.defense || base.defense || 10);
-          processed.speed = Math.ceil(p.speed || base.speed || 10);
-          processed.maxHp = Math.ceil(p.maxHp || base.maxHp || base.hp || 30);
-          processed.hp = Math.ceil(p.hp || p.maxHp || base.maxHp || base.hp || 30);
+          const shinyMult = getShinyMult(p);
+          const calcStat = (b) => Math.max(1, Math.ceil(Math.ceil(((2 * b * p.level) / 100) + 5) * shinyMult));
+          const calcHp   = (b) => Math.max(1, Math.ceil(Math.ceil(((2 * b * p.level) / 100) + p.level + 10) * shinyMult));
+
+          processed.spAtk = calcStat(base.spAtk || 10);
+          processed.spDef = calcStat(base.spDef || 10);
+          processed.attack = calcStat(base.attack || 10);
+          processed.defense = calcStat(base.defense || 10);
+          processed.speed = calcStat(base.speed || 10);
+          processed.maxHp = calcHp(base.hp || base.maxHp || 30);
+          processed.hp = Math.ceil(p.hp || processed.maxHp);
         }
 
         if (needsInstanceId) {
@@ -2628,9 +2655,15 @@ export default function App() {
               const newList = list.map(p => {
                 if (Number(p.id) === Number(currentEnemy.id)) {
                   updated = true;
-                  if (currentEnemy.isShiny && !p.isShiny) {
-                    addLog(`✨ Upgrade Shiny: Seu ${p.name} agora é Brilhante!`, 'system');
-                    return { ...p, isShiny: true, hp: p.maxHp };
+                  if (currentEnemy.isShiny) {
+                    const upgraded = applyShinyUpgrade(p, POKEDEX[Number(p.id)]);
+                    const newCount = upgraded.shinyCount;
+                    if (!p.isShiny) {
+                      addLog(`✨ Upgrade Shiny! ${p.name} agora é Brilhante! (+20% stats)`, 'system');
+                    } else {
+                      addLog(`✨ Shiny Stack x${newCount}! ${p.name} ficou ainda mais forte! (+${Math.round((1.2 + (newCount-1)*0.05 - 1)*100)}% total)`, 'system');
+                    }
+                    return upgraded;
                   }
                 }
                 return p;
@@ -3903,7 +3936,7 @@ export default function App() {
             setEvolutionPending({ ...p, level: newLevel, targetEvolution: autoEvo, teamIndex: i });
           }
 
-          const shinyMult = p.isShiny ? 1.2 : 1.0;
+          const shinyMult = getShinyMult(p);
           const calcStat = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + 5) * shinyMult));
           const calcHp   = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + lv + 10) * shinyMult));
 
@@ -4032,9 +4065,15 @@ export default function App() {
                 if (alreadyCaught) {
                   const findAndReplace = (list) => list.map(p => {
                     if (Number(p.id) === Number(currentEnemy.id)) {
-                      if (currentEnemy.isShiny && !p.isShiny) {
-                        addLog(`✨ Upgrade Shiny: Seu ${p.name} agora é Brilhante!`, 'system');
-                        return { ...p, isShiny: true, hp: p.maxHp };
+                      if (currentEnemy.isShiny) {
+                        const upgraded = applyShinyUpgrade(p, POKEDEX[Number(p.id)]);
+                        const newCount = upgraded.shinyCount;
+                        if (!p.isShiny) {
+                          addLog(`✨ Upgrade Shiny! ${p.name} agora é Brilhante! (+20% stats)`, 'system');
+                        } else {
+                          addLog(`✨ Shiny Stack x${newCount}! ${p.name} ficou ainda mais forte!`, 'system');
+                        }
+                        return upgraded;
                       }
                     }
                     return p;

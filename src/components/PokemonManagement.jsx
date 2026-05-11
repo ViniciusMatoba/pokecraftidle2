@@ -390,7 +390,11 @@ const PokemonManagement = ({
                     <div>
                       <h4 className="font-black uppercase text-slate-800 text-sm italic leading-none flex items-baseline gap-2">
                         <span>{p.name}</span>
-                        {p.isShiny && <span className="text-yellow-500 text-xs animate-pulse">✨</span>}
+                        {p.isShiny && (
+                          <span className="text-yellow-500 text-xs animate-pulse">
+                            ✨{p.shinyCount > 1 ? ` x${p.shinyCount}` : ''}
+                          </span>
+                        )}
                         <span className="text-[10px] font-black text-slate-400 not-italic">Nv. {p.level}</span>
                       </h4>
                       <div className="flex gap-2 mt-1">
@@ -474,7 +478,11 @@ const PokemonManagement = ({
                      <div className="text-center">
                        <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none flex items-center justify-center gap-1">
                          {p.name}
-                         {p.isShiny && <span className="text-yellow-500 text-[8px]">✨</span>}
+                         {p.isShiny && (
+                           <span className="text-yellow-500 text-[8px]">
+                             ✨{p.shinyCount > 1 ? ` x${p.shinyCount}` : ''}
+                           </span>
+                         )}
                        </p>
                        <p className="text-[8px] font-bold text-slate-400 mt-0.5">Nv. {p.level}</p>
                      </div>
