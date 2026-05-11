@@ -5,7 +5,7 @@ import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '.
 import { getTimeOfDay } from '../utils/timeSystem';
 
 import { GYM_LEVEL_CAPS } from '../data/constants';
-import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS } from '../data/regionStandards';
+import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER } from '../data/regionStandards';
 
 const PokemonManagement = ({
   gameState,
@@ -50,10 +50,18 @@ const PokemonManagement = ({
     return getPokemonRegion(id);
   };
 
-  const availablePcRegions = [
-    { id: 'all', label: 'Todas' },
-    ...getUnlockedRegions(gameState).map(id => ({ id, label: REGION_LABELS[id] || id })),
-  ];
+  const availablePcRegions = (() => {
+    // Calcula as regiões pelo número da Pokédex dos Pokémons no PC
+    const regionsInPC = new Set(
+      (gameState.pc || []).map(p => getDexRegion(p.id))
+    );
+    return [
+      { id: 'all', label: 'Todas' },
+      ...REGION_ORDER
+        .filter(r => regionsInPC.has(r))
+        .map(r => ({ id: r, label: REGION_LABELS[r] || r })),
+    ];
+  })();
 
   const translateMove = (moveName) => {
     if (!moveName) return '---';
