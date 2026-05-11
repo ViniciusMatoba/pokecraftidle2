@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { getPrimaryTrainerTitle, getUnlockedTrainerTitles } from '../data/trainerTitles';
 
 const BADGE_IDS = ['boulder_badge', 'cascade_badge', 'thunder_badge', 'rainbow_badge', 'soul_badge', 'marsh_badge', 'volcano_badge', 'earth_badge'];
@@ -442,7 +443,7 @@ export const TrainerCard = ({
         )}
       </div>
 
-      {showTitlePicker && (
+      {showTitlePicker && createPortal(
         <div
           className="fixed inset-0 z-[60000] flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-md animate-fadeIn"
           onClick={(e) => {
@@ -512,7 +513,8 @@ export const TrainerCard = ({
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       <button
@@ -554,7 +556,7 @@ export const TrainerCard = ({
         </div>
       </button>
 
-      {showPsInfo && (
+      {showPsInfo && createPortal(
         <div
           className="fixed inset-0 z-[60000] flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-md animate-fadeIn"
           onClick={(e) => {
@@ -660,7 +662,8 @@ export const TrainerCard = ({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Seção de Regiões */}
