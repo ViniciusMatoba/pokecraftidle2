@@ -476,10 +476,10 @@ export default function App() {
         'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png'
       ],
       sounds: [
-        '/sounds/DERROTA.mp3',
-        '/sounds/NIVEL.mp3',
+        '/sounds/derrota.mp3',
+        '/sounds/nivel.mp3',
         '/sounds/POKE CENTER.mp3',
-        '/sounds/GYM.mp3'
+        '/sounds/gym.mp3'
       ]
     };
 
@@ -2164,7 +2164,7 @@ export default function App() {
       }
 
       // AUTO-POCAO
-      const autoConfig = prev.autoConfig || { autoPotion: false, hpThreshold: 30, focusPokemonIndex: 0 };
+      const autoConfig = prev.autoCaptureConfig || { autoPotion: false, hpThreshold: 30, focusPokemonIndex: 0 };
       const autoPotionThreshold = autoConfig.autoPotionHpPct ?? autoConfig.hpThreshold ?? 30;
       if (autoConfig.autoPotion && (prev.inventory?.items?.potions || 0) > 0) {
         const focusIdx = autoConfig.focusPokemonIndex ?? activeMemberIndex;
@@ -2489,9 +2489,9 @@ export default function App() {
       // SISTEMA DE EXAUSTAO
       const STAMINA_DRAIN  = 0.4;   // % perdida por tick
       const EXHAUSTION_DMG = 0.02;  // % do maxHp perdida por tick quando exausto
-      const autoStamEnabled = prev.autoConfig?.autoStamina;
+      const autoStamEnabled = prev.autoCaptureConfig?.autoStamina;
       // PROTECTED: Sistema de Exaustao - NAO EDITAR SEM AUTORIZACAO EXPLICITA
-      const FEED_THRESHOLD = prev.autoConfig?.autoStaminaThreshold || 30;
+      const FEED_THRESHOLD = prev.autoCaptureConfig?.staminaThreshold || prev.autoCaptureConfig?.autoStaminaThreshold || 30;
 
       const currentStamina = prev.stamina?.[myPoke.instanceId]?.value ?? 100;
       let newStamina = Math.max(0, currentStamina - STAMINA_DRAIN);
@@ -5830,7 +5830,7 @@ export default function App() {
     evening: 'PM',
     night: 'NIGHT',
   }[timeOfDay] || 'DAY';
-  const autoEnabled = !!(gameState.autoFarm || gameState.autoCapture || gameState.autoConfig?.autoPotion || gameState.autoConfig?.autoStamina);
+  const autoEnabled = !!(gameState.autoFarm || gameState.autoCapture || gameState.autoCaptureConfig?.autoPotion || gameState.autoCaptureConfig?.autoStamina);
   const autoCaptureRoute = processedRoutes[gameState.currentRoute];
   const canShowAutoCaptureModal =
     showAutoCaptureModal &&
@@ -5845,7 +5845,7 @@ export default function App() {
   const updateAutoConfig = (patch) => {
     setGameState(prev => ({
       ...prev,
-      autoConfig: { ...(prev.autoConfig || {}), ...patch },
+      autoCaptureConfig: { ...(prev.autoCaptureConfig || {}), ...patch },
     }));
   };
 
@@ -6995,14 +6995,14 @@ export default function App() {
                       <p className="text-slate-500 text-[11px] font-bold leading-snug mt-2">Usa pocao quando o HP ficar abaixo do limite.</p>
                     </div>
                   </div>
-                  <button type="button" onClick={() => updateAutoConfig({ autoPotion: !(gameState.autoConfig?.autoPotion) })} className={`shrink-0 min-h-[36px] w-16 rounded-full px-2 text-[10px] font-black uppercase ${gameState.autoConfig?.autoPotion ? 'bg-green-600 text-white shadow-md shadow-green-200' : 'bg-slate-200 text-slate-500'}`}>{gameState.autoConfig?.autoPotion ? 'ON' : 'OFF'}</button>
+                  <button type="button" onClick={() => updateAutoConfig({ autoPotion: !(gameState.autoCaptureConfig?.autoPotion) })} className={`shrink-0 min-h-[36px] w-16 rounded-full px-2 text-[10px] font-black uppercase ${gameState.autoCaptureConfig?.autoPotion ? 'bg-green-600 text-white shadow-md shadow-green-200' : 'bg-slate-200 text-slate-500'}`}>{gameState.autoCaptureConfig?.autoPotion ? 'ON' : 'OFF'}</button>
                 </div>
                 <div className="mt-4 rounded-2xl bg-green-50 border border-green-100 p-3">
                   <label className="flex items-center justify-between gap-3 text-slate-800 text-xs font-black uppercase">
                     <span>HP minimo</span>
-                    <span className="text-green-700">{gameState.autoConfig?.hpThreshold ?? gameState.autoConfig?.autoPotionHpPct ?? 30}%</span>
+                    <span className="text-green-700">{gameState.autoCaptureConfig?.hpThreshold ?? gameState.autoCaptureConfig?.autoPotionHpPct ?? 30}%</span>
                   </label>
-                  <input type="range" min="10" max="80" step="5" value={gameState.autoConfig?.hpThreshold ?? gameState.autoConfig?.autoPotionHpPct ?? 30} onChange={e => updateAutoConfig({ hpThreshold: Number(e.target.value), autoPotionHpPct: Number(e.target.value) })} className="mt-3 w-full accent-green-600" />
+                  <input type="range" min="10" max="80" step="5" value={gameState.autoCaptureConfig?.hpThreshold ?? gameState.autoCaptureConfig?.autoPotionHpPct ?? 30} onChange={e => updateAutoConfig({ hpThreshold: Number(e.target.value), autoPotionHpPct: Number(e.target.value) })} className="mt-3 w-full accent-green-600" />
                 </div>
               </div>
 
@@ -7017,14 +7017,14 @@ export default function App() {
                       <p className="text-slate-500 text-[11px] font-bold leading-snug mt-2">Alimenta Pokemon quando a energia ficar baixa.</p>
                     </div>
                   </div>
-                  <button type="button" onClick={() => updateAutoConfig({ autoStamina: !(gameState.autoConfig?.autoStamina) })} className={`shrink-0 min-h-[36px] w-16 rounded-full px-2 text-[10px] font-black uppercase ${gameState.autoConfig?.autoStamina ? 'bg-amber-600 text-white shadow-md shadow-amber-200' : 'bg-slate-200 text-slate-500'}`}>{gameState.autoConfig?.autoStamina ? 'ON' : 'OFF'}</button>
+                  <button type="button" onClick={() => updateAutoConfig({ autoStamina: !(gameState.autoCaptureConfig?.autoStamina) })} className={`shrink-0 min-h-[36px] w-16 rounded-full px-2 text-[10px] font-black uppercase ${gameState.autoCaptureConfig?.autoStamina ? 'bg-amber-600 text-white shadow-md shadow-amber-200' : 'bg-slate-200 text-slate-500'}`}>{gameState.autoCaptureConfig?.autoStamina ? 'ON' : 'OFF'}</button>
                 </div>
                 <div className="mt-4 rounded-2xl bg-amber-50 border border-amber-100 p-3">
                   <label className="flex items-center justify-between gap-3 text-slate-800 text-xs font-black uppercase">
                     <span>Energia minima</span>
-                    <span className="text-amber-700">{gameState.autoConfig?.staminaThreshold ?? gameState.autoConfig?.autoStaminaThreshold ?? 30}%</span>
+                    <span className="text-amber-700">{gameState.autoCaptureConfig?.staminaThreshold ?? gameState.autoCaptureConfig?.autoStaminaThreshold ?? 30}%</span>
                   </label>
-                  <input type="range" min="10" max="80" step="5" value={gameState.autoConfig?.staminaThreshold ?? gameState.autoConfig?.autoStaminaThreshold ?? 30} onChange={e => updateAutoConfig({ staminaThreshold: Number(e.target.value), autoStaminaThreshold: Number(e.target.value) })} className="mt-3 w-full accent-amber-600" />
+                  <input type="range" min="10" max="80" step="5" value={gameState.autoCaptureConfig?.staminaThreshold ?? gameState.autoCaptureConfig?.autoStaminaThreshold ?? 30} onChange={e => updateAutoConfig({ staminaThreshold: Number(e.target.value), autoStaminaThreshold: Number(e.target.value) })} className="mt-3 w-full accent-amber-600" />
                 </div>
               </div>
             </div>

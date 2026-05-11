@@ -33,7 +33,7 @@ const BattleScreen = ({
   timeOfDay, showAutoConfigExternal = false, setShowAutoConfigExternal, bossTimer, currentLevelCap = 100
 }) => {
   const activePoke = gameState.team?.[activeMemberIndex];
-  const autoConfig = gameState.autoConfig || { autoCapture: false, autoPotion: false, hpThreshold: 30, staminaThreshold: 30, autoStamina: false };
+  const autoConfig = gameState.autoCaptureConfig || { autoCapture: false, autoPotion: false, hpThreshold: 30, staminaThreshold: 30, autoStamina: false };
 
   const [showTrainer, setShowTrainer] = useState(true);
   const [selectedMove, setSelectedMove] = useState(null);
@@ -48,7 +48,7 @@ const BattleScreen = ({
   const updateAutoConfig = (patch) => {
     setGameState(prev => ({
       ...prev,
-      autoConfig: { ...(prev.autoConfig || {}), ...patch },
+      autoCaptureConfig: { ...(prev.autoCaptureConfig || {}), ...patch },
     }));
   };
 
