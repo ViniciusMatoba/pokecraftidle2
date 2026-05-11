@@ -885,12 +885,6 @@ export default function App() {
     }
 
     // 2. Trava de Nível (Cap)
-    const worldFlags = gameState.worldFlags || [];
-    const championFlag = REGION_CHAMPION_FLAGS[targetRegion];
-    if (championFlag && worldFlags.includes(championFlag)) {
-      return true;
-    }
-
     const badges = gameState.badges || [];
     let regionBadges = [];
     if (targetRegion === 'kanto') regionBadges = badges.filter(b => BADGE_IDS.includes(b));
