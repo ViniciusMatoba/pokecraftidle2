@@ -1611,7 +1611,9 @@ export default function App() {
     // Identificar IDs evoluídos (para filtrar rotas iniciais)
     const evolvedIds = new Set();
     Object.values(POKEDEX).forEach(p => {
-      if (p.evolution && p.evolution.id) evolvedIds.add(Number(p.evolution.id));
+      if (!p.evolution) return;
+      const evos = Array.isArray(p.evolution) ? p.evolution : [p.evolution];
+      evos.forEach(e => { if (e?.id) evolvedIds.add(Number(e.id)); });
     });
 
     // Chance de encontrar um treinador NPC (~3% por padrão, configurável por rota)
@@ -3128,15 +3130,32 @@ export default function App() {
         addLog(` ${p.name} aumentou o Ataque Especial!`, 'system');
       } else if (use.effect === 'force_evolve') {
         const pokeData = POKEDEX[p.id];
-        const evolutions = Array.isArray(pokeData?.evolution) ? pokeData.evolution : (pokeData?.evolution ? [pokeData.evolution] : []);
-        const evoData = evolutions[0];
-        if (evoData && isEvolutionAllowedForRegion(p, evoData.id, prev.activeRegion || 'kanto')) {
-          setEvolutionPending({ ...p, targetEvolution: evoData, teamIndex: location === 'team' ? pokemonIndex : null, pcIndex: location === 'pc' ? pokemonIndex : null });
-          return { ...prev, inventory: newInventory };
-        } else {
-           addLog(`✨ ${p.name} não pode evoluir mais.`, 'system');
-           return prev;
+        const allEvolutions = Array.isArray(pokeData?.evolution)
+          ? pokeData.evolution
+          : (pokeData?.evolution ? [pokeData.evolution] : []);
+
+        const validEvolutions = allEvolutions.filter(e =>
+          isEvolutionAllowedForRegion(p, e.id, prev.activeRegion || 'kanto')
+        );
+
+        if (validEvolutions.length === 0) {
+          addLog(`✨ ${p.name} não pode evoluir mais.`, 'system');
+          return prev;
         }
+
+        const pendingBase = {
+          ...p,
+          teamIndex: location === 'team' ? pokemonIndex : null,
+          pcIndex:   location === 'pc'   ? pokemonIndex : null,
+        };
+
+        if (validEvolutions.length === 1) {
+          setEvolutionPending({ ...pendingBase, targetEvolution: validEvolutions[0] });
+        } else {
+          // Múltiplos caminhos → tela de escolha
+          setEvolutionPending({ ...pendingBase, choices: validEvolutions });
+        }
+        return { ...prev, inventory: newInventory };
       }
 
       const newList = [...pokemonList];
@@ -3957,9 +3976,17 @@ export default function App() {
           }
 
           const evos = Array.isArray(pokeData?.evolution) ? pokeData.evolution : (pokeData?.evolution ? [pokeData.evolution] : []);
-          const autoEvo = evos.find(e => e.level && !e.item && newLevel >= e.level && (!e.time || e.time.includes(getTimeOfDay())) && isEvolutionAllowedForRegion(p, e.id, prev.activeRegion || 'kanto'));
-          if (autoEvo) {
-            setEvolutionPending({ ...p, level: newLevel, targetEvolution: autoEvo, teamIndex: i });
+          const levelEvos = evos.filter(e =>
+            e.level && !e.item &&
+            newLevel >= e.level &&
+            (!e.time || e.time.includes(getTimeOfDay())) &&
+            isEvolutionAllowedForRegion(p, e.id, prev.activeRegion || 'kanto')
+          );
+          if (levelEvos.length === 1) {
+            setEvolutionPending({ ...p, level: newLevel, targetEvolution: levelEvos[0], teamIndex: i });
+          } else if (levelEvos.length > 1) {
+            // Múltiplos caminhos por nível → tela de escolha
+            setEvolutionPending({ ...p, level: newLevel, choices: levelEvos, teamIndex: i });
           }
 
           const shinyMult = getShinyMult(p);
@@ -6851,6 +6878,7 @@ export default function App() {
         activeRegion={gameState.activeRegion}
         isEvolutionAllowedForRegion={isEvolutionAllowedForRegion}
         getEvolutionRegionLockMessage={getEvolutionRegionLockMessage}
+        gameState={gameState}
       />
 
       {/* NOTIFICAÇíO DE MESTRIA */}
