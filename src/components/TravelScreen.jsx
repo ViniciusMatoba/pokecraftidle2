@@ -485,8 +485,8 @@ const TravelScreen = ({
                   })}
                 </div>
               </div>
-              ))}
-            })()}
+            ))
+          })()}
           </div>
       </div>
            {/* Modal de Detalhes da Rota */}
