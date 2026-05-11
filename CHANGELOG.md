@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [V1.56.1] - 11/05/2026 20:01
+### Ajustes de Progressão
+- **Victory Road Global**: Adicionada rota de Elite (Lv 74) ao template de regiões futuras para ponte final com a Elite Four.
+- **Alola Fix**: Corrigido o nível da Kahili (Líder) de 100 para 80, eliminando a inversão de dificuldade antes da E4.
+- **Template Core**: Refinamento dos requisitos de desbloqueio para fluxo linear de rotas.
+
 ## [V1.56.0] - 11/05/2026 19:58
 ### Balanceamento e Expansão
 - **Johto Patch**: Corrigido o teto de nível das rotas finais (Ice Path, Dragon's Den, Victory Road) para eliminar o gap antes da Elite Four.
@@ -7,6 +13,7 @@
 - **Global Progression**: Adicionada rota intermediária (`route_mid` Lv 46) em todas as gerações futuras (Unova até Paldea).
 - **Conteúdo Extra**: Integradas rotas icônicas (`extraRoutes`) em todas as regiões de Gen 5 a 9.
 - **Template System**: Expansão do sistema `buildRegionRoutes` para melhor escalonamento de conteúdo.
+
 
 
 ## [V1.55.52] - 11/05/2026 19:18
