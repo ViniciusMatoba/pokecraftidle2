@@ -850,10 +850,14 @@ export default function App() {
       const shouldEvolveWild = maxWildLevel >= 18;
 
       if (shouldEvolveWild && Array.isArray(route.enemies)) {
-        route.enemies = route.enemies.map(enemy => ({
-          ...enemy,
-          id: getLeveledSpeciesId(enemy.id, Number(enemy.level || maxWildLevel), maxDexId), // ← passa maxDexId
-        }));
+        const uniqueEnemies = new Map();
+        route.enemies.forEach(enemy => {
+          const evolvedId = getLeveledSpeciesId(enemy.id, Number(enemy.level || maxWildLevel), maxDexId);
+          if (!uniqueEnemies.has(evolvedId)) {
+            uniqueEnemies.set(evolvedId, { ...enemy, id: evolvedId });
+          }
+        });
+        route.enemies = Array.from(uniqueEnemies.values());
       }
 
       if (Array.isArray(route.trainers)) {
