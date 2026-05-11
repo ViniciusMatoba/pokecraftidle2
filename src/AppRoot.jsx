@@ -16,6 +16,7 @@ import { POKEDEX } from './data/pokedex';
 import { VILLAIN_TEAMS } from './data/villains';
 import AuthScreen from './components/AuthScreen';
 import MenuScreen from './components/MenuScreen';
+import StatsScreen from './components/StatsScreen';
 import TravelScreen from './components/TravelScreen';
 import PokemonManagement from './components/PokemonManagement';
 import BattleScreen from './components/BattleScreen';
@@ -1262,6 +1263,18 @@ export default function App() {
     persistLocalGameState(gameState);
   }, [gameState, isSaveHydrated, loading]);
 
+  // Tempo de Jogo
+  useEffect(() => {
+    if (!isSaveHydrated || loading) return;
+    const interval = setInterval(() => {
+      setGameState(prev => ({
+        ...prev,
+        playTimeSeconds: (prev.playTimeSeconds || 0) + 60
+      }));
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [isSaveHydrated, loading]);
+
   useEffect(() => {
     const handleBeforeUnload = () => {
       if (isSaveHydrated && !loading) persistLocalGameState(gameState);
@@ -2426,6 +2439,8 @@ export default function App() {
       return {
         ...prev,
         currency: prev.currency + loot.coins,
+        totalCurrencyEarned: (prev.totalCurrencyEarned || 0) + loot.coins,
+        totalBattlesWon: (prev.totalBattlesWon || 0) + 1,
         inventory: {
           ...prev.inventory,
           materials: newMaterials
@@ -4302,12 +4317,14 @@ export default function App() {
       return {
         ...prev,
         currency: (prev.currency || 0) + (drops.currency || 0) + (currentEnemy.trainerReward || 0),
+        totalCurrencyEarned: (prev.totalCurrencyEarned || 0) + (drops.currency || 0) + (currentEnemy.trainerReward || 0),
         inventory: newInventory,
         team: newTeam,
         worldFlags: [...newFlags, ...tempWorldFlags].filter((v, i, a) => a.indexOf(v) === i),
         badges: newBadges,
         gymDefeatCounts: newGymCounts,
-        trainerBattleWins: (prev.trainerBattleWins || 0) + (currentEnemy.isTrainer ? 1 : 0)
+        trainerBattleWins: (prev.trainerBattleWins || 0) + (currentEnemy.isTrainer ? 1 : 0),
+        totalBattlesWon: (prev.totalBattlesWon || 0) + 1
       };
     });
 
@@ -5992,6 +6009,13 @@ export default function App() {
           onSave={triggerSave}
           MUSIC_LIST={MUSIC_LIST}
           onBack={() => setCurrentView(lastNonMenuView.current)}
+        />
+      );
+      case 'stats': return (
+        <StatsScreen
+          gameState={gameState}
+          setCurrentView={setCurrentView}
+          setGameState={setGameState}
         />
       );
 

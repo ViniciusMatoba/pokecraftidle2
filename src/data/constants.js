@@ -157,7 +157,11 @@ export const DEFAULT_GAME_STATE = {
   bossTotalDamage: 0,
   shinyCapturedCount: 0,
   trainerBattleWins: 0,
-  bossLastDamage: 0
+  bossLastDamage: 0,
+  totalBattlesWon: 0,
+  totalCurrencyEarned: 0,
+  playTimeSeconds: 0,
+  claimedAchievements: []
 };
 
 export const ITEM_LABELS = {
@@ -362,4 +366,52 @@ export const POKE_MART_DRINKS = [
     price: 5000,
     availableFrom: 'thunder_badge',
   },
+];
+
+export const ACHIEVEMENTS_LIST = [
+  {
+    id: 'first_step',
+    name: 'Primeiro Passo',
+    description: 'Capture seu primeiro Pokémon.',
+    icon: '🎯',
+    condition: (state) => Object.keys(state.caughtData || {}).length >= 1,
+    rewards: { currency: 500 },
+    rewardText: '500 Moedas',
+  },
+  {
+    id: 'collector',
+    name: 'Colecionador',
+    description: 'Capture 50 espécies diferentes de Pokémon.',
+    icon: '📦',
+    condition: (state) => Object.keys(state.caughtData || {}).length >= 50,
+    rewards: { items: { ultraball: 5 } },
+    rewardText: '5x Ultra Balls',
+  },
+  {
+    id: 'kanto_champion',
+    name: 'Campeão de Kanto',
+    description: 'Derrote Blue e torne-se o Campeão da Liga Kanto.',
+    icon: '🏆',
+    condition: (state) => (state.badges || []).includes('champion'),
+    rewards: { titleId: 'campeao_kanto' },
+    rewardText: 'Título: Campeão de Kanto',
+  },
+  {
+    id: 'shining_star',
+    name: 'Estrela Brilhante',
+    description: 'Encontre e capture seu primeiro Pokémon Shiny.',
+    icon: '✨',
+    condition: (state) => (state.shinyCapturedCount || 0) >= 1,
+    rewards: { titleId: 'cacador_shiny' },
+    rewardText: 'Título: Caçador Brilhante',
+  },
+  {
+    id: 'veteran',
+    name: 'Veterano',
+    description: 'Acumule 100 horas totais de tempo de jogo.',
+    icon: '⏱️',
+    condition: (state) => (state.playTimeSeconds || 0) >= 360000,
+    rewards: { titleId: 'veterano' },
+    rewardText: 'Título: Veterano',
+  }
 ];

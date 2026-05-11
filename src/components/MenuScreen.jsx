@@ -26,6 +26,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
   const menuItems = [
     { id: 'pokedex',  name: 'Pokedex',       icon: assetPath('/assets/menu/pokedex.png'),         desc: 'Registro de especies',    color: 'bg-red-50 border-red-200 text-red-600' },
     { id: 'backpack', name: 'Mochila',       icon: assetPath('/assets/menu/backpack.png'),        desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
+    { id: 'stats',    name: 'Estatisticas',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png', desc: 'Conquistas e Historico', color: 'bg-purple-50 border-purple-200 text-purple-600' },
     { id: 'settings', name: 'Configuracoes', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png', desc: 'Ajustes do sistema', color: 'bg-indigo-50 border-indigo-200 text-indigo-600' },
     { id: 'save',     name: 'Salvar Jogo',   icon: assetPath('/assets/menu/save.png'),            desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
     { id: 'exit',     name: 'Sair do Jogo',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/escape-rope.png', desc: 'Voltar ao inicio', color: 'bg-slate-50 border-slate-200 text-slate-600' },
@@ -60,6 +61,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
               }
             }
             else if (item.id === 'pokedex') setCurrentView('pokedex');
+            else if (item.id === 'stats') setCurrentView('stats');
             else if (item.id === 'settings') setSubView('settings');
             else if (item.id === 'backpack') setSubView('backpack');
             else {
