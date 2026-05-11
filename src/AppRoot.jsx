@@ -3024,15 +3024,30 @@ export default function App() {
           if (questUpdate.inventory) newInventory.items = questUpdate.inventory.items;
 
 
-          // Adicionar à equipe ou PC
+          // Adicionar à equipe ou PC (ou converter em Candy)
+          const alreadyHave = ownsSpecies(prev, currentEnemy.id);
           const newTeam = [...prev.team];
           const newPC = [...(prev.pc || [])];
           
-          if (newTeam.length < 6) {
-            newTeam.push(newPoke);
+          if (alreadyHave) {
+            const candyId = POKEMON_TO_CANDY[Number(currentEnemy.id)];
+            if (candyId) {
+              newInventory.candies = {
+                ...(newInventory.candies || {}),
+                [candyId]: ((newInventory.candies || {})[candyId] || 0) + 1
+              };
+              const candyName = CANDY_FAMILIES[candyId]?.name || 'Candy';
+              addLog(`${currentEnemy.name} já foi capturado antes! Convertido em 1x ${candyName}.`, 'system');
+            } else {
+              addLog(`${currentEnemy.name} já foi capturado antes e fugiu!`, 'system');
+            }
           } else {
-            newPC.push(newPoke);
-            addLog(`${newPoke.name} foi enviado para o PC!`, 'system');
+            if (newTeam.length < 6) {
+              newTeam.push(newPoke);
+            } else {
+              newPC.push(newPoke);
+              addLog(`${newPoke.name} foi enviado para o PC!`, 'system');
+            }
           }
 
           setTimeout(() => spawnEnemy(), 1000);
@@ -4372,17 +4387,32 @@ export default function App() {
                 }
                 sfxCapture();
 
-                // Adicionar à equipe ou PC
-                const newPoke = { ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now(), capturedRegion: prev.activeRegion || 'kanto' };
+                // Adicionar à equipe ou PC ou converter em Candy
+                const alreadyHave = ownsSpecies(prev, currentEnemy.id);
                 const newTeam = [...prev.team];
                 const newPC = [...(prev.pc || [])];
-                if (newTeam.length < 6) newTeam.push(newPoke); else newPC.push(newPoke);
+                let updatedCandies = prev.inventory.candies || {};
+
+                if (alreadyHave) {
+                  const candyId = POKEMON_TO_CANDY[Number(currentEnemy.id)];
+                  if (candyId) {
+                    updatedCandies = {
+                      ...updatedCandies,
+                      [candyId]: (updatedCandies[candyId] || 0) + 1
+                    };
+                    const candyName = CANDY_FAMILIES[candyId]?.name || 'Candy';
+                    addLog(`${currentEnemy.name} já foi capturado! Convertido em 1x ${candyName}.`, 'system');
+                  }
+                } else {
+                  const newPoke = { ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now(), capturedRegion: prev.activeRegion || 'kanto' };
+                  if (newTeam.length < 6) newTeam.push(newPoke); else newPC.push(newPoke);
+                }
 
                 return { 
                   ...prev, 
                   team: newTeam, 
                   pc: newPC, 
-                  inventory: { ...prev.inventory, items: newInventoryItems }, 
+                  inventory: { ...prev.inventory, items: newInventoryItems, candies: updatedCandies }, 
                   speciesMastery: newMastery, 
                   caughtData: newCaughtData, 
                   shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
