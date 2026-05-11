@@ -1,7 +1,7 @@
 {
   "name": "poke-craft-idle",
   "private": true,
-  "version": "1.56.2",
+  "version": "1.56.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,10 +15,13 @@
     "audit-content": "node scripts/audit-content.cjs"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.3.0",
+    "autoprefixer": "^10.5.0",
     "firebase": "^10.8.0",
     "lucide-react": "^0.330.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.55",

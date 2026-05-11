@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [V1.56.3] - 11/05/2026 20:09
+### Estabilidade de Desenvolvimento
+- **SW Localhost Bypass**: O registro do Service Worker foi desativado em `localhost` e `127.0.0.1` para evitar conflitos com o HMR do Vite.
+- **Service Worker Silent**: Adicionada trava de segurança no `sw.js` para não interceptar nenhuma requisição vinda de domínios locais.
+- **Auto-Cleanup**: Atualizado `CACHE_NAME` para garantir a remoção de caches corrompidos.
+
 ## [V1.56.2] - 11/05/2026 20:04
 ### Correções Críticas
 - **PWA Service Worker**: Corrigido erro `Failed to convert value to Response` que causava tela branca.
