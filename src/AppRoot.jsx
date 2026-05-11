@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { useAutoFarm } from './hooks/useAutoFarm';
 import { useSound } from './hooks/useSound';
-import { ROUTES, getRivalSprite } from './data/routes';
+import { ROUTES, getRivalSprite, inferRouteRegion } from './data/routes';
 import { INITIAL_POKEMONS } from './data/initialPokemons';
 import {
   CRAFTING_RECIPES,
@@ -814,7 +814,13 @@ export default function App() {
       addSafe('viridian_forest', 1, 8, 'leaf_stone_shard', 0.08);
     }
 
-    const getLeveledSpeciesId = (pokemonId, level) => {
+    // ── NOVO: mapa de ID máximo permitido por região ──
+    const REGION_MAX_DEX_ID = {
+      kanto: 151, johto: 251, hoenn: 386, sinnoh: 493,
+      unova: 649, kalos: 721, alola: 809, galar: 905, paldea: 1025
+    };
+
+    const getLeveledSpeciesId = (pokemonId, level, maxId = 9999) => {
       let currentId = Number(pokemonId);
       let guard = 0;
       while (guard < 3) {
@@ -822,6 +828,7 @@ export default function App() {
         const evo = base?.evolution;
         const nextId = Number(evo?.id);
         if (!evo || !nextId || !evo.level || level < evo.level) break;
+        if (nextId > maxId) break;  // ← NOVA LINHA: bloqueia gerações futuras
         currentId = nextId;
         guard += 1;
       }
@@ -830,6 +837,10 @@ export default function App() {
 
     Object.values(newRoutes).forEach(route => {
       if (route.type !== 'farm') return;
+
+      // ── NOVO: detectar região da rota e seu limite de Dex ──
+      const routeRegion = inferRouteRegion(route.id, route.group);
+      const maxDexId = REGION_MAX_DEX_ID[routeRegion?.id] || 9999;
 
       const enemyLevels = (route.enemies || [])
         .map(enemy => Number(enemy.level || 1))
@@ -841,7 +852,7 @@ export default function App() {
       if (shouldEvolveWild && Array.isArray(route.enemies)) {
         route.enemies = route.enemies.map(enemy => ({
           ...enemy,
-          id: getLeveledSpeciesId(enemy.id, Number(enemy.level || maxWildLevel)),
+          id: getLeveledSpeciesId(enemy.id, Number(enemy.level || maxWildLevel), maxDexId), // ← passa maxDexId
         }));
       }
 
@@ -852,7 +863,7 @@ export default function App() {
             const level = Math.max(Number(member.level || minTrainerLevel), minTrainerLevel);
             return {
               ...member,
-              id: getLeveledSpeciesId(member.id, level),
+              id: getLeveledSpeciesId(member.id, level, maxDexId), // ← passa maxDexId
               level,
             };
           }),
