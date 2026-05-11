@@ -1,5 +1,10 @@
 # Changelog - PokeCraft
 
+## [V1.56.4] - 11/05/2026 20:13
+### Correções de Código
+- **Save Migration Fix**: Corrigido `TypeError` no `saveMigration.js` que impedia o carregamento do jogo devido a um nome de propriedade incorreto (`autoConfig` vs `autoCaptureConfig`).
+- **Data Integrity**: Melhorada a resiliência do carregamento de saves antigos com suporte a mapeamento legado.
+
 ## [V1.56.3] - 11/05/2026 20:09
 ### Estabilidade de Desenvolvimento
 - **SW Localhost Bypass**: O registro do Service Worker foi desativado em `localhost` e `127.0.0.1` para evitar conflitos com o HMR do Vite.

@@ -136,15 +136,16 @@ export const migrateGameState = (savedState = {}, options = {}) => {
       ...DEFAULT_GAME_STATE.settings,
       ...(loaded.settings || {}),
     },
-    autoConfig: {
-      ...DEFAULT_GAME_STATE.autoConfig,
-      ...(loaded.autoConfig || {}),
+    autoCapture: !!(loaded.autoCapture ?? DEFAULT_GAME_STATE.autoCapture),
+    autoCaptureConfig: {
+      ...DEFAULT_GAME_STATE.autoCaptureConfig,
+      ...(loaded.autoCaptureConfig || loaded.autoConfig || {}),
       routeConfigs: {
-        ...DEFAULT_GAME_STATE.autoConfig.routeConfigs,
-        ...(loaded.autoConfig?.routeConfigs || {}),
+        ...(DEFAULT_GAME_STATE.autoCaptureConfig?.routeConfigs || {}),
+        ...(loaded.autoCaptureConfig?.routeConfigs || loaded.autoConfig?.routeConfigs || {}),
       },
-      shownRoutes: asArray(loaded.autoConfig?.shownRoutes),
-      targetIds: asArray(loaded.autoConfig?.targetIds),
+      shownRoutes: asArray(loaded.autoCaptureConfig?.shownRoutes || loaded.autoConfig?.shownRoutes),
+      targetIds: asArray(loaded.autoCaptureConfig?.targetIds || loaded.autoConfig?.targetIds),
     },
     migrationAudit: {
       ...audit,
