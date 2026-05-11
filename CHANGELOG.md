@@ -1,5 +1,10 @@
 # Changelog - PokeCraft
 
+## [V1.55.30] - 11/05/2026 12:52
+### Corrigido
+- **UI (Modais)**: Implementado `createPortal` para os modais do Trainer Card (Poder PS e Títulos), garantindo que sejam renderizados fora da hierarquia do card e fechem corretamente.
+- **Cache**: Sincronização forçada para garantir a aplicação imediata das correções de interface.
+
 ## [V1.55.29] - 11/05/2026 12:35
 ### Corrigido
 - **Level Cap Regional**: jogadores que conquistaram o título de campeão da região agora têm o limite de nível removido automaticamente para os Pokémon daquela mesma região.
