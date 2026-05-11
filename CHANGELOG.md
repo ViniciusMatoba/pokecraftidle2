@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [V1.56.2] - 11/05/2026 20:04
+### Correções Críticas
+- **PWA Service Worker**: Corrigido erro `Failed to convert value to Response` que causava tela branca.
+- **Dev Mode Stability**: O Service Worker agora ignora corretamente caminhos internos do Vite (`/@vite`, `node_modules`), evitando bloqueio no desenvolvimento local.
+- **Cache Management**: Atualizado nome do cache para forçar renovação de ativos estáticos.
+
 ## [V1.56.1] - 11/05/2026 20:01
 ### Ajustes de Progressão
 - **Victory Road Global**: Adicionada rota de Elite (Lv 74) ao template de regiões futuras para ponte final com a Elite Four.

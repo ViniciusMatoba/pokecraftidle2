@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pokecraft-cache-v1.55.8';
+const CACHE_NAME = 'pokecraft-cache-v1.56.1';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -6,18 +6,20 @@ const STATIC_ASSETS = [
   './favicon.svg'
 ];
 
-// InstalaÃ§Ã£o: Cacheia ativos estÃ¡ticos iniciais
+// Instalação: Cacheia ativos estáticos iniciais
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('PWA: Instalando Service Worker e cacheando assets estÃ¡ticos');
-      return cache.addAll(STATIC_ASSETS);
+      console.log('PWA: Instalando Service Worker e cacheando assets estáticos');
+      return cache.addAll(STATIC_ASSETS).catch(err => {
+        console.warn('PWA: Falha ao cachear assets iniciais:', err);
+      });
     })
   );
 });
 
-// AtivaÃ§Ã£o: Limpa caches antigos
+// Ativação: Limpa caches antigos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -39,16 +41,22 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// EstratÃ©gia de Fetch
+// Estratégia de Fetch
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Ignorar requisiÃ§Ãµes do Firebase/Firestore (Network-First implicito ou deixe o SDK lidar)
-  if (url.hostname.includes('firestore.googleapis.com') || url.hostname.includes('firebase')) {
-    return; // Deixa o navegador lidar normalmente
+  // 1. Ignorar requisições do Firebase/Firestore e Vite Dev Server
+  if (
+    url.hostname.includes('firestore.googleapis.com') || 
+    url.hostname.includes('firebase') ||
+    url.pathname.includes('/@vite/') ||
+    url.pathname.includes('/@react-refresh') ||
+    url.pathname.includes('/node_modules/')
+  ) {
+    return;
   }
 
-  // EstratÃ©gia Cache-First para Ativos EstÃ¡ticos (Imagens, JS, CSS do prÃ³prio domÃ­nio)
+  // Estratégia Cache-First para Ativos Estáticos (Imagens, JS, CSS do próprio domínio)
   const isStaticAsset = 
     url.origin === self.location.origin && (
     url.pathname.includes('/assets/') || 
@@ -79,14 +87,22 @@ self.addEventListener('fetch', (event) => {
           });
 
           return networkResponse;
+        }).catch(() => {
+          // Se falhar o fetch e não tiver cache, retorna nada (deixa o erro de rede padrão)
+          // Mas respondWith EXIGE uma Response ou Promise<Response>.
+          // Para evitar o TypeError, podemos retornar uma resposta genérica ou não chamar respondWith.
+          return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
         });
       })
     );
   } else {
-    // Network-First para o resto (incluindo index.html para garantir atualizaÃ§Ãµes)
+    // Network-First para o resto (incluindo index.html para garantir atualizações)
     event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match(event.request);
+      fetch(event.request).catch(async () => {
+        const cached = await caches.match(event.request);
+        if (cached) return cached;
+        // Retorna uma resposta válida para evitar erro de conversão
+        return new Response('Network Error', { status: 404 });
       })
     );
   }
