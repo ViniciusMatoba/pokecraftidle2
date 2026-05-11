@@ -1445,19 +1445,41 @@ export default function App() {
 
   const prevView = useRef(currentView);
   const prevRoute = useRef(gameState.currentRoute);
+  const prevTeamLevelSum = useRef(0);
+  const prevMasterySum = useRef(0);
+  const prevBossDamage = useRef(0);
+  const prevTeamIdsSum = useRef(0);
 
   useEffect(() => {
     const modalViews = ['battles', 'gym', 'vs_screen', 'pokedex', 'evolution', 'challenges'];
     const viewChanged = prevView.current !== currentView;
     const routeChanged = prevRoute.current !== gameState.currentRoute;
+    
+    // Calcula os totais atuais para detectar Level Up, Capturas, etc.
+    const currentTeamLevelSum = (gameState.team || []).reduce((acc, p) => acc + (p?.level || 0), 0);
+    const currentMasterySum = Object.values(gameState.speciesMastery || {}).reduce((acc, val) => acc + val, 0);
+    const currentBossDamage = gameState.bossTotalDamage || 0;
+    const currentTeamIdsSum = (gameState.team || []).reduce((acc, p) => acc + (p?.id || 0), 0);
+    
+    // Detecta "Conquistas" ou mudanças importantes
+    const leveledUp = currentTeamLevelSum > prevTeamLevelSum.current && prevTeamLevelSum.current > 0;
+    const pokemonCaught = currentMasterySum > prevMasterySum.current && prevMasterySum.current > 0;
+    const bossDamaged = currentBossDamage > prevBossDamage.current && prevBossDamage.current > 0;
+    const teamChanged = currentTeamIdsSum !== prevTeamIdsSum.current && prevTeamIdsSum.current > 0; // Cobre Evoluções e trocas de equipe
 
-    // Trigger save if route changed OR if a modal/important screen was closed
-    if (routeChanged || (viewChanged && modalViews.includes(prevView.current))) {
+    const shouldAutoSave = leveledUp || pokemonCaught || bossDamaged || teamChanged;
+
+    // Dispara o Cloud Save (que tem um debounce de 5s) se houver mudança de Rota, Fechamento de Tela ou Conquista
+    if (routeChanged || (viewChanged && modalViews.includes(prevView.current)) || shouldAutoSave) {
        debouncedSave(gameState);
     }
 
     prevView.current = currentView;
     prevRoute.current = gameState.currentRoute;
+    prevTeamLevelSum.current = currentTeamLevelSum;
+    prevMasterySum.current = currentMasterySum;
+    prevBossDamage.current = currentBossDamage;
+    prevTeamIdsSum.current = currentTeamIdsSum;
   }, [currentView, gameState.currentRoute, debouncedSave, gameState]);
 
   
