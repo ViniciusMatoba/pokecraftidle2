@@ -1,5 +1,16 @@
 # Changelog - PokeCraft
 
+## [V1.55.52] - 11/05/2026 19:18
+### Adicionado
+- Sistema de Shiny Stacking implementado (+5% stats por shiny repetido, cap em x10).
+- Indicadores visuais de acúmulo (✨ xN) na UI de gerenciamento.
+- Bloqueio de evoluções de gerações futuras em rotas regionais (Ex: Ursaluna em Kanto/Johto).
+- Recalculo dinâmico de stats no level-up e evolução baseado no multiplicador de shiny.
+- Sanitização de dados compatível com novos atributos de shiny.
+
+### Corrigido
+- Melhorias de estabilidade em expedições ao retornar Pokémon para o PC.
+
 ## [V1.55.8] - 09/05/2026 10:12
 ### Adicionado
 - **Titulos de Shinies**: novos titulos para 1, 5, 25 e 100 Pokemon shiny capturados.
