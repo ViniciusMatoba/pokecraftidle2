@@ -547,6 +547,7 @@ export default function App() {
   const [showOakStaminaModal, setShowOakStaminaModal] = useState(false);
   const [showKantoChampionModal, setShowKantoChampionModal] = useState(false);
   const [showSinnohIntroModal, setShowSinnohIntroModal] = useState(false);
+  const [showGymVictoryModal, setShowGymVictoryModal] = useState(null); // { leaderName, badge, badgeImg, reward }
   const [previewStarter, setPreviewStarter] = useState(null);
   const [activeQuestModal, setActiveQuestModal] = useState(null);
   const [pendingQuest, setPendingQuest] = useState(null);
@@ -3813,6 +3814,17 @@ export default function App() {
         const activeRegion = prev.activeRegion || 'kanto';
         const newShare = Math.round(getRegionExpShareRate(newBadges, activeRegion) * 100);
         addLog(`✨ Exp Share aumentado! Sua equipe agora recebe ${newShare}% da experiência compartilhada!`, 'system');
+
+        // Disparar Modal de Vitória de Ginásio
+        setTimeout(() => {
+          setShowGymVictoryModal({
+            leaderName: currentEnemy.trainerName || "Líder de Ginásio",
+            leaderSprite: currentEnemy.trainerSprite,
+            badge: currentEnemy.badgeToGive,
+            reward: currentEnemy.trainerReward || 1000,
+            expShare: newShare
+          });
+        }, 800);
         
         // Show Oak House modal after 1st badge
         if (newBadges.length === 1 && !prev.worldFlags?.includes('house_owned') && !prev.worldFlags?.includes('oak_house_shown')) {
@@ -6143,6 +6155,75 @@ export default function App() {
                   Continuar em Hoenn
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showGymVictoryModal && (
+        <div className="absolute inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-xl animate-fadeIn">
+          {/* Confetti-like background effect */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-50">
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/20 blur-[120px] rounded-full animate-pulse" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-500/20 blur-[120px] rounded-full animate-pulse" style={{animationDelay:'1s'}} />
+          </div>
+
+          <div className="w-full max-w-[420px] bg-white rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden border-b-[12px] border-emerald-500 animate-bounceIn relative">
+            {/* Header com Brilho */}
+            <div className="bg-gradient-to-br from-emerald-600 to-teal-700 px-8 py-10 flex flex-col items-center text-center relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
+              
+              <div className="w-24 h-24 rounded-[2rem] bg-white/20 backdrop-blur-md flex items-center justify-center border-2 border-white/30 shadow-inner mb-6 animate-float">
+                <img src={showGymVictoryModal.leaderSprite} className="w-20 h-20 object-contain drop-shadow-lg" alt="" />
+              </div>
+
+              <p className="text-emerald-200 text-[11px] font-black uppercase tracking-[0.4em] mb-2 drop-shadow-md">Vitória no Ginásio</p>
+              <h2 className="text-white text-3xl font-black uppercase italic tracking-tighter leading-none drop-shadow-xl">
+                Líder {showGymVictoryModal.leaderName}
+              </h2>
+            </div>
+
+            <div className="p-8 flex flex-col items-center">
+              {/* Badge Display */}
+              <div className="relative mb-8 group">
+                <div className="absolute inset-0 bg-amber-400/20 blur-3xl rounded-full animate-pulse group-hover:scale-150 transition-transform duration-1000" />
+                <div className="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center border-4 border-slate-100 shadow-xl relative z-10 animate-spin-slow">
+                   <img 
+                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${showGymVictoryModal.badge.replace(/_/g, '-')}.png`} 
+                    className="w-20 h-20 object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.2)]" 
+                    alt="Insignia"
+                    onError={(e) => { e.currentTarget.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/boulder-badge.png'; }}
+                   />
+                </div>
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-amber-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg z-20">
+                  {showGymVictoryModal.badge.replace(/_/g, ' ')}
+                </div>
+              </div>
+
+              <p className="text-slate-500 text-sm font-bold text-center leading-relaxed italic mb-8 max-w-[280px]">
+                "Incrível! Sua estratégia foi impecável. Como prova de sua vitória, receba esta insígnia!"
+              </p>
+
+              {/* Rewards Grid */}
+              <div className="grid grid-cols-2 gap-4 w-full mb-8">
+                <div className="bg-slate-50 border-2 border-slate-100 rounded-[2rem] p-4 flex flex-col items-center text-center group hover:border-amber-200 hover:bg-amber-50 transition-all">
+                   <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-8 h-8 mb-2 drop-shadow-sm group-hover:scale-110 transition-transform" alt="" />
+                   <span className="text-xl font-black text-slate-800 leading-none">+{showGymVictoryModal.reward}</span>
+                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Coins</span>
+                </div>
+                <div className="bg-slate-50 border-2 border-slate-100 rounded-[2rem] p-4 flex flex-col items-center text-center group hover:border-blue-200 hover:bg-blue-50 transition-all">
+                   <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">✨</div>
+                   <span className="text-xl font-black text-slate-800 leading-none">{showGymVictoryModal.expShare}%</span>
+                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1 text-blue-500">Exp Share</span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowGymVictoryModal(null)}
+                className="w-full bg-slate-900 text-white h-16 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-sm shadow-[0_12px_24px_-8px_rgba(0,0,0,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                Continuar Jornada
+              </button>
             </div>
           </div>
         </div>
