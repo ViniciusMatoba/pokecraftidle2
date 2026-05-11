@@ -742,7 +742,7 @@ const CHALLENGES = [
     reward: 25000,
     unlockFlag: 'mind_badge',
     requiresFlag: 'feather_badge',
-    team: [{ id: 337, level: 42 }, { id: 338, level: 42 }],
+    team: [{ id: 337, level: 35 }, { id: 338, level: 35 }],
     background: "url('/bg_mossdeep_city.png') center/cover no-repeat",
     location: 'Mossdeep Gym',
   },
@@ -758,7 +758,7 @@ const CHALLENGES = [
     reward: 30000,
     unlockFlag: 'rain_badge',
     requiresFlag: 'mind_badge',
-    team: [{ id: 370, level: 41 }, { id: 340, level: 43 }, { id: 339, level: 43 }, { id: 119, level: 46 }, { id: 350, level: 55 }],
+    team: [{ id: 370, level: 41 }, { id: 340, level: 43 }, { id: 339, level: 43 }, { id: 119, level: 46 }, { id: 350, level: 48 }],
     background: "url('/bg_sootopolis_city.png') center/cover no-repeat",
     location: 'Sootopolis Gym',
   },
@@ -2093,7 +2093,8 @@ const ChallengesScreen = ({
     return (gameState.worldFlags || []).includes(challenge.unlockFlag);
   };
 
-  const filtered = CHALLENGES.filter(c => c.category === selectedCategory && c.region === challengeRegion);
+  const filtered = CHALLENGES
+    .filter(c => c.category === selectedCategory && c.region === challengeRegion);
 
   return (
     <div className={isEmbedded ? "h-full flex flex-col bg-slate-950" : "absolute inset-0 z-[110] flex items-end justify-center bg-black/80 backdrop-blur-sm animate-fadeIn"} onClick={!isEmbedded ? onClose : undefined}>

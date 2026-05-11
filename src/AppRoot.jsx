@@ -835,7 +835,6 @@ export default function App() {
       }
       return currentId;
     };
-
     Object.values(newRoutes).forEach(route => {
       if (route.type !== 'farm') return;
 
