@@ -147,8 +147,10 @@ const PokemonManagement = ({
       let reason = "Este Pokémon não pode ser usado nesta região no momento.";
       if (poke.level > (GYM_LEVEL_CAPS[activeRegion]?.[Object.values(GYM_LEVEL_CAPS[activeRegion]).length - 1] || 100)) {
          reason = "Nível muito alto para o seu limite atual de insígnias.";
-      } else if (poke.capturedRegion && poke.capturedRegion !== activeRegion && !isChampion) {
-         reason = `Este Pokémon foi capturado em ${poke.capturedRegion.toUpperCase()} e você ainda não é campeão de ${activeRegion.toUpperCase()}.`;
+      } else if (!isChampion && getDexRegion(poke.id) !== activeRegion && activeRegion !== 'kanto') {
+         // Kanto permite tudo se for campeão, mas outras regiões podem ter restrições.
+         // Mantemos a lógica de validateTeamAccess para o grosso das regras.
+         // Se validateTeamAccess retornou falso, já parou acima.
       }
 
       showConfirm({

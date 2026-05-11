@@ -54,10 +54,12 @@ const HouseScreen = ({
   // Lista de sementes disponíveis no inventário
   const availablePlants = useMemo(() => {
     const inventoryItems = gameState.inventory?.items || {};
+    const inventoryMaterials = gameState.inventory?.materials || {};
     return Object.entries(PLANTABLE_ITEMS).filter(([id, plant]) => {
-      return (inventoryItems[id] || 0) > 0;
+      // Verifica em ambas as abas do inventário (alguns itens são classificados como materiais)
+      return (inventoryItems[id] || 0) > 0 || (inventoryMaterials[id] || 0) > 0;
     });
-  }, [gameState.inventory?.items]);
+  }, [gameState.inventory?.items, gameState.inventory?.materials]);
 
   return (
     <div className="absolute inset-0 z-[2000] bg-[#1a1c2c] flex flex-col animate-fadeIn">
@@ -362,8 +364,8 @@ const HouseScreen = ({
                       onClick={() => setSelectedPlantForConfirmation({ id, ...plant })}
                       className="bg-white/5 p-4 rounded-3xl border border-white/10 hover:bg-white/10 transition-all flex flex-col items-center gap-2 group relative"
                     >
-                      <div className="absolute top-2 right-2 bg-emerald-500 text-white text-[7px] font-black px-2 py-0.5 rounded-full shadow-lg">
-                        x{gameState.inventory?.items[id] || 0}
+                      <div className="absolute top-1 right-1 bg-emerald-500 text-white text-[12px] font-black px-2.5 py-1 rounded-lg shadow-lg border border-white/20 z-10">
+                        x{(gameState.inventory?.items?.[id] || 0) + (gameState.inventory?.materials?.[id] || 0)}
                       </div>
                       <img src={plant.img} className="w-12 h-12 object-contain group-hover:scale-110 transition-transform" alt="" />
                       <p className="text-[9px] font-black text-white uppercase tracking-tighter">{plant.name}</p>
@@ -388,8 +390,8 @@ const HouseScreen = ({
                   className="w-16 h-16 object-contain" 
                   alt="" 
                 />
-                <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white text-[9px] font-black px-3 py-1 rounded-full shadow-lg border-2 border-[#1a1c2c]">
-                  x{gameState.inventory?.items[selectedPlantForConfirmation.id] || 0}
+                <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white text-[14px] font-black px-4 py-1.5 rounded-xl shadow-xl border-2 border-[#1a1c2c] z-10">
+                  x{(gameState.inventory?.items?.[selectedPlantForConfirmation.id] || 0) + (gameState.inventory?.materials?.[selectedPlantForConfirmation.id] || 0)}
                 </div>
               </div>
               <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-1">{selectedPlantForConfirmation.name}</h3>

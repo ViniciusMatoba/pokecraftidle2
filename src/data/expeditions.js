@@ -61,7 +61,7 @@ export const EXPEDITION_BIOMES = {
       uncommon: ['poison_essence', 'normal_essence'],
       rare:     ['moon_stone_shard', 'leaf_stone'],
     },
-    xpPerMinute: 2,
+    xpPerMinute: 12,
   },
 
   oceano: {
@@ -84,7 +84,7 @@ export const EXPEDITION_BIOMES = {
       uncommon: ['water_stone', 'pink_dust'],
       rare:     ['pearl', 'dragon_scale'],
     },
-    xpPerMinute: 3,
+    xpPerMinute: 15,
   },
 
   campo_lutador: {
@@ -107,7 +107,7 @@ export const EXPEDITION_BIOMES = {
       uncommon: ['black_belt', 'iron_ore'],
       rare:     ['muscle_band', 'expert_belt_shard'],
     },
-    xpPerMinute: 3,
+    xpPerMinute: 20,
   },
 
   pradaria: {
@@ -130,7 +130,7 @@ export const EXPEDITION_BIOMES = {
       uncommon: ['gold_nugget', 'apricorn'],
       rare:     ['lucky_egg', 'amulet_coin_shard'],
     },
-    xpPerMinute: 4,
+    xpPerMinute: 22,
   },
 
   torre_fantasma: {
@@ -153,7 +153,7 @@ export const EXPEDITION_BIOMES = {
       uncommon: ['psychic_essence', 'mystic_dust'],
       rare:     ['spell_tag', 'dread_plate'],
     },
-    xpPerMinute: 4,
+    xpPerMinute: 22,
   },
 
   templo_psiquico: {
@@ -176,7 +176,7 @@ export const EXPEDITION_BIOMES = {
       uncommon: ['twist_spoon', 'mind_shard'],
       rare:     ['tm_shard_psychic', 'link_cable_shard'],
     },
-    xpPerMinute: 5,
+    xpPerMinute: 23,
   },
 
   vulcao: {
@@ -199,7 +199,7 @@ export const EXPEDITION_BIOMES = {
       uncommon: ['fire_stone', 'charcoal'],
       rare:     ['lava_cookie', 'sun_stone'],
     },
-    xpPerMinute: 5,
+    xpPerMinute: 24,
   },
 
   selva_dragao: {
@@ -222,74 +222,74 @@ export const EXPEDITION_BIOMES = {
       uncommon: ['dragon_scale', 'dragon_fang'],
       rare:     ['draco_shard', 'tm_shard_dragon'],
     },
-    xpPerMinute: 8,
+    xpPerMinute: 18,
   },
 
   johto_ilex: {
     id: 'johto_ilex', region: 'johto', name: 'Ilex Forest', badge: 2, leaderName: 'Bugsy', icon: 'IF',
     bg: "url('/bg_ilex_forest.png') center/cover", description: 'Madeira sagrada, Apricorns e essencias de Johto.',
     enemyType: ['Bug', 'Grass', 'Poison'], favoredTypes: ['Fire', 'Flying', 'Bug'], neutralTypes: ['Normal', 'Psychic', 'Steel'],
-    requires: 2, baseDuration: 45, drops: { common: ['apricorn', 'silk', 'bug_essence'], uncommon: ['grass_essence', 'pink_dust'], rare: ['leaf_stone', 'lucky_egg'] }, xpPerMinute: 5,
+    requires: 2, baseDuration: 45, drops: { common: ['apricorn', 'silk', 'bug_essence'], uncommon: ['grass_essence', 'pink_dust'], rare: ['leaf_stone', 'lucky_egg'] }, xpPerMinute: 15,
   },
   johto_whirl_islands: {
     id: 'johto_whirl_islands', region: 'johto', name: 'Whirl Islands', badge: 5, leaderName: 'Chuck', icon: 'WI',
     bg: "url('/bg_ocean_routes.png') center/cover", description: 'Cavernas marinhas para coletar recursos aquaticos raros.',
     enemyType: ['Water', 'Flying'], favoredTypes: ['Electric', 'Grass'], neutralTypes: ['Dragon', 'Ice', 'Normal'],
-    requires: 5, baseDuration: 70, drops: { common: ['water_essence', 'flying_essence'], uncommon: ['water_stone', 'mystic_water'], rare: ['dragon_scale', 'super_rod'] }, xpPerMinute: 7,
+    requires: 5, baseDuration: 70, drops: { common: ['water_essence', 'flying_essence'], uncommon: ['water_stone', 'mystic_water'], rare: ['dragon_scale', 'super_rod'] }, xpPerMinute: 17,
   },
   hoenn_meteor_falls: {
     id: 'hoenn_meteor_falls', region: 'hoenn', name: 'Meteor Falls', badge: 3, leaderName: 'Wattson', icon: 'MF',
     bg: "url('/bg_meteor_falls.png') center/cover", description: 'Minerios, poeira mistica e fragmentos de meteorito.',
     enemyType: ['Rock', 'Dragon', 'Steel'], favoredTypes: ['Water', 'Fighting', 'Ground'], neutralTypes: ['Psychic', 'Ice', 'Fairy'],
-    requires: 3, baseDuration: 70, drops: { common: ['rock_essence', 'iron_ore', 'mystic_dust'], uncommon: ['dragon_essence', 'moon_stone_shard'], rare: ['stardust', 'dragon_scale'] }, xpPerMinute: 7,
+    requires: 3, baseDuration: 70, drops: { common: ['rock_essence', 'iron_ore', 'mystic_dust'], uncommon: ['dragon_essence', 'moon_stone_shard'], rare: ['stardust', 'dragon_scale'] }, xpPerMinute: 15,
   },
   hoenn_sky_pillar: {
     id: 'hoenn_sky_pillar', region: 'hoenn', name: 'Sky Pillar', badge: 8, leaderName: 'Wallace', icon: 'SP',
     bg: "url('/bg_sky_pillar.png') center/cover", description: 'Expedicao de elite para escamas, penas e materiais draconicos.',
     enemyType: ['Dragon', 'Flying'], favoredTypes: ['Ice', 'Dragon', 'Fairy'], neutralTypes: ['Steel', 'Electric', 'Rock'],
-    requires: 8, baseDuration: 100, drops: { common: ['dragon_essence', 'flying_essence'], uncommon: ['dragon_scale', 'feather'], rare: ['stardust', 'draco_shard'] }, xpPerMinute: 10,
+    requires: 8, baseDuration: 100, drops: { common: ['dragon_essence', 'flying_essence'], uncommon: ['dragon_scale', 'feather'], rare: ['stardust', 'draco_shard'] }, xpPerMinute: 18,
   },
   sinnoh_mt_coronet: {
     id: 'sinnoh_mt_coronet', region: 'sinnoh', name: 'Mt. Coronet', badge: 6, leaderName: 'Byron', icon: 'MC',
     bg: "url('/bg_mt_coronet.png') center/cover", description: 'Nucleo mineral de Sinnoh com drops para forja avancada.',
     enemyType: ['Rock', 'Steel', 'Ice'], favoredTypes: ['Fighting', 'Ground', 'Fire'], neutralTypes: ['Water', 'Psychic', 'Dragon'],
-    requires: 6, baseDuration: 95, drops: { common: ['iron_ore', 'rock_essence', 'steel_essence'], uncommon: ['mystic_dust', 'ice_essence'], rare: ['stardust', 'armor_fragment'] }, xpPerMinute: 10,
+    requires: 6, baseDuration: 95, drops: { common: ['iron_ore', 'rock_essence', 'steel_essence'], uncommon: ['mystic_dust', 'ice_essence'], rare: ['stardust', 'armor_fragment'] }, xpPerMinute: 21,
   },
   sinnoh_stark_mountain: {
     id: 'sinnoh_stark_mountain', region: 'sinnoh', name: 'Stark Mountain', badge: 8, leaderName: 'Volkner', icon: 'SM',
     bg: "url('/bg_mt_coronet.png') center/cover", description: 'Area pos-Liga para materials de boss e treino de nivel 100.',
     enemyType: ['Fire', 'Rock', 'Steel'], favoredTypes: ['Water', 'Ground', 'Fighting'], neutralTypes: ['Dragon', 'Psychic', 'Dark'],
-    requires: 8, baseDuration: 120, drops: { common: ['fire_essence', 'rock_essence', 'steel_essence'], uncommon: ['fury_essence', 'armor_fragment'], rare: ['stardust', 'penetration_pendant'] }, xpPerMinute: 12,
+    requires: 8, baseDuration: 120, drops: { common: ['fire_essence', 'rock_essence', 'steel_essence'], uncommon: ['fury_essence', 'armor_fragment'], rare: ['stardust', 'penetration_pendant'] }, xpPerMinute: 20,
   },
   unova_pinwheel: {
     id: 'unova_pinwheel', region: 'unova', name: 'Pinwheel Forest', leaderName: 'Trio Badge', icon: 'U5',
     bg: "linear-gradient(135deg,#14532d,#0f172a)", description: 'Estrutura preparada para Unova e quinta geracao.',
     enemyType: ['Bug', 'Grass'], favoredTypes: ['Fire', 'Flying'], neutralTypes: ['Normal', 'Poison'], requiresFlag: 'unova_started', baseDuration: 80,
-    drops: { common: ['bug_essence', 'grass_essence'], uncommon: ['apricorn', 'silk'], rare: ['leaf_stone', 'stardust'] }, xpPerMinute: 9,
+    drops: { common: ['bug_essence', 'grass_essence'], uncommon: ['apricorn', 'silk'], rare: ['leaf_stone', 'stardust'] }, xpPerMinute: 18,
   },
   kalos_reflection_cave: {
     id: 'kalos_reflection_cave', region: 'kalos', name: 'Reflection Cave', leaderName: 'Bug Badge', icon: 'K6',
     bg: "linear-gradient(135deg,#7c3aed,#0f172a)", description: 'Estrutura preparada para Kalos e sexta geracao.',
     enemyType: ['Psychic', 'Rock'], favoredTypes: ['Dark', 'Ghost', 'Steel'], neutralTypes: ['Fairy', 'Ground'], requiresFlag: 'kalos_started', baseDuration: 90,
-    drops: { common: ['psychic_essence', 'rock_essence'], uncommon: ['mystic_dust', 'iron_ore'], rare: ['moon_stone_shard', 'stardust'] }, xpPerMinute: 10,
+    drops: { common: ['psychic_essence', 'rock_essence'], uncommon: ['mystic_dust', 'iron_ore'], rare: ['moon_stone_shard', 'stardust'] }, xpPerMinute: 18,
   },
   alola_akala: {
     id: 'alola_akala', region: 'alola', name: 'Akala Outskirts', leaderName: 'Ilima Trial', icon: 'A7',
     bg: "linear-gradient(135deg,#0ea5e9,#064e3b)", description: 'Estrutura preparada para Alola e setima geracao.',
     enemyType: ['Water', 'Fire', 'Grass'], favoredTypes: ['Electric', 'Water', 'Fire'], neutralTypes: ['Normal', 'Flying'], requiresFlag: 'alola_started', baseDuration: 95,
-    drops: { common: ['water_essence', 'fire_essence', 'grass_essence'], uncommon: ['pink_dust', 'mystic_dust'], rare: ['sun_stone', 'stardust'] }, xpPerMinute: 11,
+    drops: { common: ['water_essence', 'fire_essence', 'grass_essence'], uncommon: ['pink_dust', 'mystic_dust'], rare: ['sun_stone', 'stardust'] }, xpPerMinute: 18,
   },
   galar_wild_area: {
     id: 'galar_wild_area', region: 'galar', name: 'Wild Area', leaderName: 'Grass Badge', icon: 'G8',
     bg: "linear-gradient(135deg,#16a34a,#334155)", description: 'Estrutura preparada para Galar e oitava geracao.',
     enemyType: ['Steel', 'Dragon', 'Fairy'], favoredTypes: ['Fire', 'Ice', 'Poison'], neutralTypes: ['Normal', 'Fighting'], requiresFlag: 'galar_started', baseDuration: 110,
-    drops: { common: ['steel_essence', 'fairy_essence', 'dragon_essence'], uncommon: ['armor_fragment', 'mystic_dust'], rare: ['fury_essence', 'stardust'] }, xpPerMinute: 12,
+    drops: { common: ['steel_essence', 'fairy_essence', 'dragon_essence'], uncommon: ['armor_fragment', 'mystic_dust'], rare: ['fury_essence', 'stardust'] }, xpPerMinute: 18,
   },
   paldea_area_zero: {
     id: 'paldea_area_zero', region: 'paldea', name: 'Area Zero', leaderName: 'Victory Road Paldea', icon: 'P9',
     bg: "linear-gradient(135deg,#22d3ee,#111827)", description: 'Estrutura preparada para Paldea e nona geracao.',
     enemyType: ['Dragon', 'Steel', 'Psychic'], favoredTypes: ['Fairy', 'Fire', 'Dark'], neutralTypes: ['Electric', 'Ghost'], requiresFlag: 'paldea_started', baseDuration: 130,
-    drops: { common: ['dragon_essence', 'steel_essence', 'psychic_essence'], uncommon: ['stardust', 'fury_essence'], rare: ['armor_fragment', 'penetration_pendant'] }, xpPerMinute: 14,
+    drops: { common: ['dragon_essence', 'steel_essence', 'psychic_essence'], uncommon: ['stardust', 'fury_essence'], rare: ['armor_fragment', 'penetration_pendant'] }, xpPerMinute: 18,
   },
 
 };
@@ -355,7 +355,8 @@ export const calcExpeditionXP = (team, biome, durationMs) => {
   const durationMinutes = durationMs / 60000;
   return team.map(p => {
     const eff = calcExpeditionEfficiency(p, biome);
-    const xpGained = Math.floor(biome.xpPerMinute * durationMinutes * eff * (1 + (biome.masteryLevel || 0) * 0.05));
+    const levelScale = Math.max(1, (p.level || 1)) / 5;
+    const xpGained = Math.floor(biome.xpPerMinute * durationMinutes * eff * levelScale * (1 + (biome.masteryLevel || 0) * 0.05));
     return { ...p, xpGained };
   });
 };

@@ -303,6 +303,66 @@ const GearIcon = () => (
   </svg>
 );
 
+const processExpeditionPokemon = (pokemon, xpGained) => {
+  const initialLevel = pokemon.level || 1;
+  let p = { ...pokemon, xp: (pokemon.xp || 0) + xpGained };
+  const moveEvents = [];
+  let guard = 40; // máximo de 40 níveis por expedição
+
+  while (guard-- > 0) {
+    const n = p.level || 1;
+    if (n >= 100) { p = { ...p, xp: 0 }; break; }
+    const xpNeeded = Math.pow(n + 1, 3) - Math.pow(n, 3);
+    if (p.xp < xpNeeded) break;
+
+    const newLevel = n + 1;
+    const pokeData = POKEDEX[Number(p.id)];
+    const shinyMult = p.isShiny ? 1.2 : 1.0;
+    const calcStat = (b, lv) => Math.max(1, Math.ceil(((2 * b * lv) / 100 + 5) * shinyMult));
+    const calcHp   = (b, lv) => Math.max(1, Math.ceil(((2 * b * lv) / 100 + lv + 10) * shinyMult));
+    const base = pokeData || {};
+
+    let newMoves = [...(p.moves || [])];
+    let newLearned = p.learnedMoves ? [...p.learnedMoves] : [...newMoves];
+    const learnedNow = [];
+
+    if (pokeData?.learnset) {
+      pokeData.learnset.filter(l => l.level === newLevel).forEach(learn => {
+        const key = (learn.move || '').toLowerCase();
+        const mData = MOVES[key];
+        if (!mData) return;
+        const mName = MOVE_TRANSLATIONS[key] || mData.name || learn.move;
+        if (newLearned.some(m => m.name === mName)) return;
+        const mObj = { ...mData, name: mName };
+        newLearned.push(mObj);
+        learnedNow.push(mName);
+        if (newMoves.length < 4) newMoves.push(mObj);
+      });
+    }
+
+    if (learnedNow.length) moveEvents.push({ level: newLevel, moves: learnedNow });
+
+    p = {
+      ...p,
+      level: newLevel,
+      xp: p.xp - xpNeeded,
+      moves: newMoves,
+      learnedMoves: newLearned,
+      maxHp: calcHp(base.hp || 45, newLevel),
+      hp:    calcHp(base.hp || 45, newLevel),
+      attack:  calcStat(base.attack  || 45, newLevel),
+      defense: calcStat(base.defense || 45, newLevel),
+      spAtk:   calcStat(base.spAtk   || 45, newLevel),
+      spDef:   calcStat(base.spDef   || 45, newLevel),
+      speed:   calcStat(base.speed   || 45, newLevel),
+      stages: { attack:0, defense:0, spAtk:0, spDef:0, speed:0, accuracy:0, evasion:0 },
+    };
+  }
+
+  return { pokemon: p, initialLevel, finalLevel: p.level || 1,
+    levelsGained: (p.level || 1) - initialLevel, xpGained, moveEvents };
+};
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -457,6 +517,8 @@ export default function App() {
   const [isHealing, setIsHealing] = useState(false);
   const [activeTab, setActiveTab] = useState('team');
   const [showExpeditions, setShowExpeditions] = useState(false);
+  const [expeditionReport, setExpeditionReport] = useState(null);
+  const expeditionReportRef = useRef(null);
   const [showHouse, setShowHouse] = useState(false);
   const [showOakHouseModal, setShowOakHouseModal] = useState(false);
   const [showOakStaminaModal, setShowOakStaminaModal] = useState(false);
@@ -675,6 +737,13 @@ export default function App() {
         team: newTeam
       };
     });
+
+    setTimeout(() => {
+      if (expeditionReportRef.current) {
+        setExpeditionReport(expeditionReportRef.current);
+        expeditionReportRef.current = null;
+      }
+    }, 50);
   }, [addLog]);
 
   const MATERIAL_RANK_MILESTONES = {
@@ -870,29 +939,25 @@ export default function App() {
     handleGoToCity();
   };
 
-  // UNIFICACAO DE COLECAO
-  const unifyDuplicates = useCallback((prev) => {
-    const all = [...(prev.team || []), ...(prev.pc || [])];
-    const uniqueMap = {};
-    all.forEach(p => {
+  // SANEAMENTO DE COLECAO (Substitui Unificacao Agressiva)
+  const sanitizeCollection = useCallback((prev) => {
+    const sanitize = (p) => {
       const id = Number(p.id);
+      const base = POKEDEX[id] || {};
       
-      // Garante que o pokémon processado tenha ataques e todos os 6 status
-      let processed = p;
+      let processed = { ...p };
       const needsMoves = !processed.moves || processed.moves.length === 0;
       const needsStats = !processed.spAtk || !processed.spDef;
-      
-      if (needsMoves || needsStats) {
-        const base = POKEDEX[id] || {};
-        
-        let finalMoves = processed.moves;
+      const needsInstanceId = !processed.instanceId;
+
+      if (needsMoves || needsStats || needsInstanceId) {
         if (needsMoves) {
           const learnset = base.learnset || [];
           let availableMoves = learnset
             .filter(m => m.level <= (p.level || 5))
             .map(m => {
-              const moveData = MOVES[m.move] || { name: m.move, power: 40, type: 'Normal' };
               const moveKey = (m.move || '').toLowerCase();
+              const moveData = MOVES[moveKey] || { name: m.move, power: 40, type: 'Normal' };
               return {
                 name: MOVE_TRANSLATIONS[moveKey] || moveData.name || m.move,
                 power: moveData.power || 0,
@@ -900,39 +965,38 @@ export default function App() {
               };
             });
           if (availableMoves.length === 0) availableMoves = [{ name: 'Investida', power: 40, type: 'Normal' }];
-          finalMoves = availableMoves.slice(-4);
+          processed.moves = availableMoves.slice(-4);
         }
 
-        processed = { 
-          ...p, 
-          moves: finalMoves,
-          spAtk: Math.ceil(p.spAtk || base.spAtk || 10),
-          spDef: Math.ceil(p.spDef || base.spDef || 10),
-          attack: Math.ceil(p.attack || base.attack || 10),
-          defense: Math.ceil(p.defense || base.defense || 10),
-          speed: Math.ceil(p.speed || base.speed || 10),
-          maxHp: Math.ceil(p.maxHp || base.maxHp || base.hp || 30),
-          hp: Math.ceil(p.hp || p.maxHp || base.maxHp || base.hp || 30)
-        };
-      }
+        if (needsStats) {
+          processed.spAtk = Math.ceil(p.spAtk || base.spAtk || 10);
+          processed.spDef = Math.ceil(p.spDef || base.spDef || 10);
+          processed.attack = Math.ceil(p.attack || base.attack || 10);
+          processed.defense = Math.ceil(p.defense || base.defense || 10);
+          processed.speed = Math.ceil(p.speed || base.speed || 10);
+          processed.maxHp = Math.ceil(p.maxHp || base.maxHp || base.hp || 30);
+          processed.hp = Math.ceil(p.hp || p.maxHp || base.maxHp || base.hp || 30);
+        }
 
-      if (!uniqueMap[id] || (processed.level > uniqueMap[id].level)) {
-        uniqueMap[id] = processed;
-      } else if (processed.isShiny && !uniqueMap[id].isShiny) {
-        uniqueMap[id] = { ...uniqueMap[id], isShiny: true, hp: uniqueMap[id].maxHp };
+        if (needsInstanceId) {
+          processed.instanceId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        }
       }
-    });
-    const unified = Object.values(uniqueMap).sort((a, b) => b.level - a.level);
-    const newTeam = unified.slice(0, 6);
-    const newPC = unified.slice(6);
-    return { ...prev, team: newTeam, pc: newPC };
+      return processed;
+    };
+
+    return { 
+      ...prev, 
+      team: (prev.team || []).map(sanitize), 
+      pc: (prev.pc || []).map(sanitize) 
+    };
   }, []);
 
   useEffect(() => {
     setGameState(prev => {
       const all = [...(prev.team || []), ...(prev.pc || [])];
       const needsMoves = all.some(p => !p.moves || p.moves.length === 0);
-      const uniqueIds = new Set(all.map(p => Number(p.id)));
+      const needsInstanceId = all.some(p => !p.instanceId);
       
       // Sincroniza Pokedex (caughtData) com Pokémons que o jogador possui
       let caughtChanged = false;
@@ -944,11 +1008,9 @@ export default function App() {
         }
       });
 
-      if (uniqueIds.size < all.length || needsMoves || caughtChanged) {
-        // Se houver duplicatas ou precisar de golpes, unifica. Caso contrário, usa o estado atual.
-        const nextState = (uniqueIds.size < all.length || needsMoves) ? unifyDuplicates(prev) : prev;
+      if (needsMoves || needsInstanceId || caughtChanged) {
+        const nextState = (needsMoves || needsInstanceId) ? sanitizeCollection(prev) : prev;
         
-        // Aplica a mudança de caughtData se necessário
         if (caughtChanged) {
           return { ...nextState, caughtData: newCaughtData };
         }
@@ -956,7 +1018,7 @@ export default function App() {
       }
       return prev;
     });
-  }, [gameState.team?.length, gameState.pc?.length, unifyDuplicates]);
+  }, [gameState.team?.length, gameState.pc?.length, sanitizeCollection]);
 
   const processCaptureMastery = useCallback((pokemon, prevGameState) => {
     const currentCount = prevGameState.speciesMastery[pokemon.id] || 0;
@@ -1552,7 +1614,7 @@ export default function App() {
         trainerReward: Math.floor(150 * teamData.rewardMult),
         isVillainAmbush: true,
         villainColor: teamData.color,
-        instanceId: Date.now()
+        instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9)
       });
       addLog(`⚠️ EMBOSCADA! ${teamData.name} ${reason}`, 'enemy');
       return;
@@ -1600,7 +1662,7 @@ export default function App() {
         spawnTime: Date.now(),
         opponentTeam: trainer.team || [trainerPokeRef],
         opponentTeamIndex: 0,
-        instanceId: Date.now()
+        instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9)
       });
       setBattleLog([]);
       isProcessingVictory.current = false;
@@ -1794,7 +1856,7 @@ export default function App() {
       spAtk: Math.ceil((((2 * (finalBase.spAtk || 10) * level) / 100) + 5) * statMult * atkRepelMult),
       spDef: Math.ceil((((2 * (finalBase.spDef || 10) * level) / 100) + 5) * statMult),
       speed: Math.ceil((((2 * (finalBase.speed || 10) * level) / 100) + 5) * statMult),
-      instanceId: Date.now(),
+      instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
       moves: finalMoves,
       background: specialBg,
       locationName: isBossSpawn ? `Chefe: ${route.name}` : null
@@ -2546,7 +2608,7 @@ export default function App() {
             id: Number(currentEnemy.id), 
             hp: currentEnemy.maxHp, 
             xp: 0, 
-            instanceId: Date.now(),
+            instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
             capturedRegion: prev.activeRegion || 'kanto',
             stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
           };
@@ -3040,6 +3102,15 @@ export default function App() {
   const handleStartExpedition = useCallback((biomeId, team) => {
     const biome = EXPEDITION_BIOMES[biomeId];
     if (!biome || !team.length) return;
+    
+    // Bloqueio de Pokémons do Time Ativo
+    const teamInstanceIds = new Set((gameState.team || []).map(p => p.instanceId));
+    const hasTeamPokemon = team.some(p => teamInstanceIds.has(p.instanceId));
+    
+    if (hasTeamPokemon) {
+      addLog("❌ Erro: Não é possível enviar Pokémons que estão no seu time principal para expedições!", "error");
+      return;
+    }
     const masteryLevel = Math.floor(((gameState.expeditionProgress || {})[biomeId]?.completed || 0) / 3);
     const tunedBiome = { ...biome, masteryLevel };
     const duration = calcExpeditionDuration(team, tunedBiome);
@@ -3079,13 +3150,24 @@ export default function App() {
         Object.entries(rawDrops).filter(([key]) => !key.includes('_candy'))
       );
       const teamWithXP = calcExpeditionXP(exp.team, biome, duration);
-      const returnedTeam = teamWithXP.map(p => ({
-        ...p,
-        xp: (p.xp || 0) + (p.xpGained || 0),
-      }));
+      const processedResults = teamWithXP.map(p => processExpeditionPokemon(p, p.xpGained || 0));
+      const returnedTeam = processedResults.map(r => r.pokemon);
       const newMaterials = { ...prev.inventory.materials };
+      const newItems = { ...prev.inventory.items };
+      const materialList = [
+        'iron_ore', 'apricorn', 'electric_chip', 'moon_stone_shard', 'pink_dust', 'gold_nugget', 'silk', 'feather',
+        'fire_stone_shard', 'water_stone_shard', 'leaf_stone_shard', 'thunder_stone_shard', 'link_cable_part',
+        'sun_stone_shard', 'shiny_stone_shard', 'dusk_stone_shard', 'dawn_stone_shard', 'ice_stone_shard',
+        'trainer_card_thread', 'yellow_shard', 'mystic_dust', 'armor_fragment', 'fury_essence', 'stardust',
+        'dragon_scale', 'rock_essence', 'ground_essence', 'dark_essence', 'steel_essence', 'fairy_essence'
+      ];
+
       for (const [item, qty] of Object.entries(drops)) {
-        newMaterials[item] = (newMaterials[item] || 0) + qty;
+        if (materialList.includes(item) || item.includes('_essence') || item.includes('_shard')) {
+          newMaterials[item] = (newMaterials[item] || 0) + qty;
+        } else {
+          newItems[item] = (newItems[item] || 0) + qty;
+        }
       }
       const newExpeditions = { ...(prev.expeditions || {}) };
       delete newExpeditions[biomeId];
@@ -3105,18 +3187,40 @@ export default function App() {
         `📦 Expedição em ${biome.name} concluída! Coletou: ${dropSummary || 'nada desta vez'}`,
         'drop'
       );
-      teamWithXP.forEach(p => {
-        if (p.xpGained > 0)
-          addLog(`✨ ${p.name} ganhou ${p.xpGained} XP na expedição!`, 'system');
+      processedResults.forEach(r => {
+        if (r.levelsGained > 0)
+          addLog(`🎉 ${r.pokemon.name} subiu ${r.levelsGained} nível(is)! (Nv.${r.initialLevel} → ${r.finalLevel})`, 'system');
+        else if (r.xpGained > 0)
+          addLog(`✨ ${r.pokemon.name} ganhou ${r.xpGained} XP na expedição.`, 'system');
       });
+
+      expeditionReportRef.current = {
+        biomeName: biome.name,
+        biomeIcon: biome.icon || '🗺️',
+        drops,
+        pokemonResults: processedResults.map(r => ({
+          name: r.pokemon.name,
+          id: r.pokemon.id,
+          isShiny: r.pokemon.isShiny,
+          initialLevel: r.initialLevel,
+          finalLevel: r.finalLevel,
+          levelsGained: r.levelsGained,
+          xpGained: r.xpGained,
+          moveEvents: r.moveEvents,
+        })),
+      };
       return {
         ...prev,
         pc: [...(prev.pc || []), ...returnedTeam],
-        inventory: { ...prev.inventory, materials: newMaterials },
+        inventory: { ...prev.inventory, materials: newMaterials, items: newItems },
         expeditions: newExpeditions,
         expeditionProgress: progress,
       };
     });
+
+    if (expeditionReportRef.current) {
+      setExpeditionReport(expeditionReportRef.current);
+    }
   }, [addLog]);
 
   // ——— HOUSE SYSTEM HANDLERS ———
@@ -3384,11 +3488,21 @@ export default function App() {
       const newSlots = [...(prev.house?.slots || [])];
       newSlots[slotIndex] = { plantId, plantedAt: Date.now(), growthTime };
 
+      // Consumir a semente
+      const newItems = { ...prev.inventory.items };
+      const newMaterials = { ...prev.inventory.materials };
+      if ((newItems[plantId] || 0) > 0) {
+        newItems[plantId]--;
+      } else if ((newMaterials[plantId] || 0) > 0) {
+        newMaterials[plantId]--;
+      }
+
       addLog(`🌱 ${plant.name} plantado! Pronto em ${Math.floor(growthTime / 60000)} min.`, 'system');
       return {
         ...prev,
         currency: prev.currency - plant.cost,
         house: { ...prev.house, slots: newSlots },
+        inventory: { ...prev.inventory, items: newItems, materials: newMaterials }
       };
     });
   }, [addLog]);
@@ -3408,8 +3522,21 @@ export default function App() {
       newSlots[slotIndex] = null;
 
       const newMaterials = { ...prev.inventory.materials };
+      const newItems = { ...prev.inventory.items };
+      const materialList = [
+        'iron_ore', 'apricorn', 'electric_chip', 'moon_stone_shard', 'pink_dust', 'gold_nugget', 'silk', 'feather',
+        'fire_stone_shard', 'water_stone_shard', 'leaf_stone_shard', 'thunder_stone_shard', 'link_cable_part',
+        'sun_stone_shard', 'shiny_stone_shard', 'dusk_stone_shard', 'dawn_stone_shard', 'ice_stone_shard',
+        'trainer_card_thread', 'yellow_shard', 'mystic_dust', 'armor_fragment', 'fury_essence', 'stardust',
+        'dragon_scale', 'rock_essence', 'ground_essence', 'dark_essence', 'steel_essence', 'fairy_essence'
+      ];
+
       for (const [item, qty] of Object.entries(drops)) {
-        newMaterials[item] = (newMaterials[item] || 0) + qty;
+        if (materialList.includes(item) || item.includes('_essence') || item.includes('_shard')) {
+          newMaterials[item] = (newMaterials[item] || 0) + qty;
+        } else {
+          newItems[item] = (newItems[item] || 0) + qty;
+        }
       }
 
       const dropSummary = Object.entries(drops).map(([k, v]) => `${v}x ${k}`).join(', ');
@@ -3418,7 +3545,7 @@ export default function App() {
       return {
         ...prev,
         house: { ...prev.house, slots: newSlots },
-        inventory: { ...prev.inventory, materials: newMaterials },
+        inventory: { ...prev.inventory, materials: newMaterials, items: newItems },
       };
     });
   }, [addLog]);
@@ -3495,7 +3622,7 @@ export default function App() {
         unlockFlag: battleData.unlockFlag,
         badgeToGive: null,
         gymId: battleData.id,
-        instanceId: Date.now(),
+        instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
         spawnTime: Date.now(),
         opponentTeam: battleData.team,
         opponentTeamIndex: 0
@@ -3532,7 +3659,7 @@ export default function App() {
       background: fixPath('/battle_bg_lab_1776866008842.png'),
       unlockFlag: 'rival_lab_defeated',
       isInitialRival: true,
-      instanceId: Date.now()
+      instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9)
     };
 
     isProcessingVictory.current = false;
@@ -3924,7 +4051,7 @@ export default function App() {
                   };
                 } else {
                   // Primeira Captura
-                  const newPoke = { ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now(), capturedRegion: prev.activeRegion || 'kanto' };
+                  const newPoke = { ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9), capturedRegion: prev.activeRegion || 'kanto' };
                   const newTeam = [...prev.team];
                   const newPC = [...(prev.pc || [])];
                   if (newTeam.length < 6) newTeam.push(newPoke); else newPC.push(newPoke);
@@ -4496,7 +4623,7 @@ export default function App() {
                                  ...p, 
                                  hp: p.maxHp, 
                                  xp: 0, 
-                                 instanceId: Date.now(), 
+                                 instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9), 
                                  status: [],
                                  stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
                                };
@@ -5130,6 +5257,8 @@ export default function App() {
             <Suspense fallback={null}>
               <ExpeditionsScreen
                 gameState={gameState}
+                expeditionReport={expeditionReport}
+                onCloseReport={() => setExpeditionReport(null)}
                 onClose={() => setShowExpeditions(false)}
                 onStartExpedition={(biomeId, team) => {
                   handleStartExpedition(biomeId, team);
@@ -5230,6 +5359,8 @@ export default function App() {
             <Suspense fallback={null}>
               <ExpeditionsScreen
                 gameState={gameState}
+                expeditionReport={expeditionReport}
+                onCloseReport={() => setExpeditionReport(null)}
                 onClose={() => setShowExpeditions(false)}
                 onStartExpedition={(biomeId, team) => {
                   handleStartExpedition(biomeId, team);
