@@ -1,8 +1,9 @@
-export const APP_VERSION = '1.55.41';
-export const VERSION = '1.55.41';
-export const APP_VERSION_DATE = '11/05/2026 15:56';
+export const APP_VERSION = '1.55.42';
+export const VERSION = '1.55.42';
+export const APP_VERSION_DATE = '11/05/2026 16:00';
 export const CHANGELOG = [
-  'Botao Atualizar do menu agora limpa cache e service worker antes de recarregar',
-  'Verificacao de versao usa a mesma rotina segura na tela de login e no jogo',
-  'Conflitos de save permitem sobrescrever ou criar outro save nomeado'
+  'Novo: Tela de Estatísticas e Conquistas adicionada ao menu principal.',
+  'Novo: Títulos podem ser desbloqueados completando conquistas e equipados.',
+  'Otimização: Auto-Save em nuvem agora é engatilhado por conquistas (Level Up, Capturas) para economizar dados.',
+  'Correção: Botão de cura no Centro Pokémon restaurado à funcionalidade normal.'
 ];
