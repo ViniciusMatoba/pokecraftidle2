@@ -301,6 +301,8 @@ export const TrainerCard = ({
   const [expanded, setExpanded] = React.useState(!compactExpandable);
   const [showPsInfo, setShowPsInfo] = React.useState(false);
 
+  const [showTitlePicker, setShowTitlePicker] = React.useState(false);
+
   React.useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape') {
@@ -313,7 +315,6 @@ export const TrainerCard = ({
     }
     return () => window.removeEventListener('keydown', handleEsc);
   }, [showTitlePicker, showPsInfo]);
-  const [showTitlePicker, setShowTitlePicker] = React.useState(false);
   if (!trainer) return null;
   const showDetails = !compactExpandable || expanded;
   const titleContext = { caughtData, caughtCount, worldFlags, forgedItems, bossDamage, shinyCount, trainerBattleWins };
