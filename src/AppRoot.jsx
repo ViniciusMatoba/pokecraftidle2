@@ -3149,11 +3149,11 @@ export default function App() {
           pcIndex:   location === 'pc'   ? pokemonIndex : null,
         };
 
-        if (validEvolutions.length === 1) {
-          setEvolutionPending({ ...pendingBase, targetEvolution: validEvolutions[0] });
+        if (allEvolutions.length > 1) {
+          // Múltiplos caminhos ou existência de forma regional → tela de escolha
+          setEvolutionPending({ ...pendingBase, choices: allEvolutions });
         } else {
-          // Múltiplos caminhos → tela de escolha
-          setEvolutionPending({ ...pendingBase, choices: validEvolutions });
+          setEvolutionPending({ ...pendingBase, targetEvolution: validEvolutions[0] });
         }
         return { ...prev, inventory: newInventory };
       }
@@ -3982,11 +3982,11 @@ export default function App() {
             (!e.time || e.time.includes(getTimeOfDay())) &&
             isEvolutionAllowedForRegion(p, e.id, prev.activeRegion || 'kanto')
           );
-          if (levelEvos.length === 1) {
+          if (levelEvos.length === 1 && evos.length === 1) {
             setEvolutionPending({ ...p, level: newLevel, targetEvolution: levelEvos[0], teamIndex: i });
-          } else if (levelEvos.length > 1) {
-            // Múltiplos caminhos por nível → tela de escolha
-            setEvolutionPending({ ...p, level: newLevel, choices: levelEvos, teamIndex: i });
+          } else if (evos.length > 1 && levelEvos.length >= 1) {
+            // Múltiplos caminhos (por nível ou regional) → tela de escolha
+            setEvolutionPending({ ...p, level: newLevel, choices: evos, teamIndex: i });
           }
 
           const shinyMult = getShinyMult(p);

@@ -37,11 +37,13 @@ const isRequirementMet = (evo, pokemon, inventory) => {
   return true;
 };
 
-const EvoChoiceCard = ({ evo, pokemon, POKEDEX, inventory, onChoose }) => {
+const EvoChoiceCard = ({ evo, pokemon, POKEDEX, inventory, onChoose, isEvolutionAllowedForRegion, activeRegion }) => {
   const targetData = POKEDEX[evo.id];
-  const hasItem   = evo.item  ? (inventory?.items?.[evo.item] || 0) > 0 : true;
-  const levelMet  = evo.level ? (pokemon?.level || 1) >= evo.level      : true;
-  const canEvolve = hasItem && levelMet;
+  const hasItem      = evo.item  ? (inventory?.items?.[evo.item] || 0) > 0 : true;
+  const levelMet     = evo.level ? (pokemon?.level || 1) >= evo.level      : true;
+  const regionAllowed = isEvolutionAllowedForRegion ? isEvolutionAllowedForRegion(pokemon, evo.id, activeRegion) : true;
+  
+  const canEvolve = hasItem && levelMet && regionAllowed;
   const primaryType  = targetData?.types?.[0] || targetData?.type || 'Normal';
   const accentColor  = TYPE_COLORS[primaryType] || '#3b82f6';
 
@@ -129,7 +131,17 @@ const EvoChoiceCard = ({ evo, pokemon, POKEDEX, inventory, onChoose }) => {
               {Array.isArray(evo.time) ? evo.time.join('/') : evo.time}
             </span>
           )}
-          {!evo.item && !evo.level && (
+          {!regionAllowed && (
+            <span style={{
+              fontSize: 9, fontWeight: 700, textTransform: 'uppercase',
+              padding: '2px 8px', borderRadius: 99,
+              background: '#fee2e2', color: '#dc2626',
+              border: '1px solid #fecaca',
+            }}>
+              Fora de Região ✗
+            </span>
+          )}
+          {regionAllowed && !evo.item && !evo.level && (
             <span style={{
               fontSize: 9, fontWeight: 700, textTransform: 'uppercase',
               padding: '2px 8px', borderRadius: 99,
@@ -230,6 +242,8 @@ const EvolutionScreen = ({
                   POKEDEX={POKEDEX}
                   inventory={inventory}
                   onChoose={handleChoose}
+                  isEvolutionAllowedForRegion={isEvolutionAllowedForRegion}
+                  activeRegion={activeRegion}
                 />
               ))}
             </div>
