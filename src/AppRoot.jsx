@@ -3024,51 +3024,7 @@ export default function App() {
           if (questUpdate.inventory) newInventory.items = questUpdate.inventory.items;
 
 
-          // Unificação por Espécie: Se já tem na caughtData (antes dessa captura), apenas aumenta maestria
-          const alreadyCaught = ownsSpecies(prev, currentEnemy.id);
-          if (alreadyCaught) {
-            addLog(`📝 ${currentEnemy.name} já capturado! Maestria aumentada.`, 'system');
-            
-            const findAndReplace = (list) => {
-              let updated = false;
-              const newList = (list || []).map(p => {
-                if (Number(p.id) === Number(currentEnemy.id)) {
-                  updated = true;
-                  if (currentEnemy.isShiny && !p.isShiny) {
-                    addLog(`✨ Upgrade Shiny: Seu ${p.name} agora é Brilhante!`, 'system');
-                    return { ...p, isShiny: true, hp: p.maxHp };
-                  }
-                }
-                return p;
-              });
-              return { newList, updated };
-            };
-
-            let { newList: teamUpdate } = findAndReplace(prev.team);
-            let { newList: pcUpdate } = findAndReplace(prev.pc || []);
-            
-            // Verificar também em times de outras regiões
-            const newRegionalTeams = { ...(prev.regional_teams || {}) };
-            Object.keys(newRegionalTeams).forEach(reg => {
-              const { newList, updated } = findAndReplace(newRegionalTeams[reg]);
-              if (updated) newRegionalTeams[reg] = newList;
-            });
-
-            setTimeout(() => spawnEnemy(), 1000);
-            return {
-              ...prev,
-              inventory: newInventory,
-              speciesMastery: newMastery,
-              caughtData: newCaughtData,
-              team: teamUpdate,
-              pc: pcUpdate,
-              regional_teams: newRegionalTeams,
-              shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
-              ...questUpdate
-            };
-          }
-
-          // Primeira Captura
+          // Adicionar à equipe ou PC
           const newTeam = [...prev.team];
           const newPC = [...(prev.pc || [])];
           
@@ -4400,14 +4356,12 @@ export default function App() {
                   [selectedBall]: (prev.inventory.items[selectedBall] || 0) - 1 
                 };
                 
-                const alreadyCaught = ownsSpecies(prev, currentEnemy.id);
                 const newCaughtData = { ...(prev.caughtData || {}), [currentEnemy.id]: true };
                 const newMastery = processCaptureMastery({ ...currentEnemy, id: Number(currentEnemy.id) }, prev);
                 
                 const { questUpdate, log: questLog } = updateQuestProgress(prev, 'capture');
                 if (questLog) addLog(questLog, 'drop');
                 if (questUpdate.inventory) newInventoryItems = questUpdate.inventory.items;
-
 
                 addLog(
                   `${currentEnemy.isShiny ? '✨ SHINY ' : ''}${currentEnemy.name} capturado automaticamente com ${ITEM_LABELS[selectedBall]?.name || selectedBall}!`,
@@ -4418,44 +4372,22 @@ export default function App() {
                 }
                 sfxCapture();
 
-                if (alreadyCaught) {
-                  const findAndReplace = (list) => list.map(p => {
-                    if (Number(p.id) === Number(currentEnemy.id)) {
-                      if (currentEnemy.isShiny && !p.isShiny) {
-                        addLog(`✨ Upgrade Shiny: Seu ${p.name} agora é Brilhante!`, 'system');
-                        return { ...p, isShiny: true, hp: p.maxHp };
-                      }
-                    }
-                    return p;
-                  });
-                  return { 
-                    ...prev, 
-                    team: findAndReplace(prev.team), 
-                    pc: findAndReplace(prev.pc || []), 
-                    inventory: { ...prev.inventory, items: newInventoryItems }, 
-                    speciesMastery: newMastery, 
-                    caughtData: newCaughtData, 
-                    shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
-                    ...questUpdate 
-                  };
-                } else {
-                  // Primeira Captura
-                  const newPoke = { ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now(), capturedRegion: prev.activeRegion || 'kanto' };
-                  const newTeam = [...prev.team];
-                  const newPC = [...(prev.pc || [])];
-                  if (newTeam.length < 6) newTeam.push(newPoke); else newPC.push(newPoke);
+                // Adicionar à equipe ou PC
+                const newPoke = { ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now(), capturedRegion: prev.activeRegion || 'kanto' };
+                const newTeam = [...prev.team];
+                const newPC = [...(prev.pc || [])];
+                if (newTeam.length < 6) newTeam.push(newPoke); else newPC.push(newPoke);
 
-                  return { 
-                    ...prev, 
-                    team: newTeam, 
-                    pc: newPC, 
-                    inventory: { ...prev.inventory, items: newInventoryItems }, 
-                    speciesMastery: newMastery, 
-                    caughtData: newCaughtData, 
-                    shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
-                    ...questUpdate 
-                  };
-                }
+                return { 
+                  ...prev, 
+                  team: newTeam, 
+                  pc: newPC, 
+                  inventory: { ...prev.inventory, items: newInventoryItems }, 
+                  speciesMastery: newMastery, 
+                  caughtData: newCaughtData, 
+                  shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
+                  ...questUpdate 
+                };
               } else {
                 // ESCAPOU
                 addLog(`${currentEnemy.name} escapou da ${ITEM_LABELS[selectedBall]?.name || selectedBall}!`, 'enemy');
