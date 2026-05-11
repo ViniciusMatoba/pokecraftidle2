@@ -321,8 +321,14 @@ const pickApricornSeedDrop = (enemy = {}) => {
 
 const ownsSpecies = (gameState = {}, pokemonId) => {
   const id = Number(pokemonId);
-  return (gameState.team || []).some(p => Number(p.id) === id)
-    || (gameState.pc || []).some(p => Number(p.id) === id);
+  if ((gameState.team || []).some(p => Number(p.id) === id)) return true;
+  if ((gameState.pc || []).some(p => Number(p.id) === id)) return true;
+  
+  // Verificar times de outras regiões
+  const regionalTeams = gameState.regional_teams || {};
+  return Object.values(regionalTeams).some(team => 
+    (team || []).some(p => Number(p.id) === id)
+  );
 };
 
 const canCaptureGhostPokemon = (gameState = {}) => {
@@ -374,9 +380,17 @@ const getRegionBadgeCount = (badges = [], region = 'kanto') => {
 
 const getRegionExpShareRate = (badges = [], region = 'kanto') => getRegionBadgeCount(badges, region) * 0.10;
 
-const getRegionLevelCap = (badges = [], region = 'kanto') => {
+const getRegionLevelCap = (gameState, region = 'kanto') => {
+  const worldFlags = gameState.worldFlags || [];
+  const regionChampionFlag = REGION_CHAMPION_FLAGS[region] || 'champion';
+  
+  // Se for campeão da região, o cap é liberado (100)
+  if (worldFlags.includes(regionChampionFlag) || worldFlags.includes(`region_champion_${region}`)) {
+    return 100;
+  }
+
   const caps = GYM_LEVEL_CAPS[region] || {};
-  return Object.values(caps)[getRegionBadgeCount(badges, region)] || 100;
+  return Object.values(caps)[getRegionBadgeCount(gameState.badges || [], region)] || 100;
 };
 
 const getLevelGapXpMultiplier = (pokemonLevel = 1, enemyLevel = 1) => {
@@ -3013,10 +3027,11 @@ export default function App() {
           // Unificação por Espécie: Se já tem na caughtData (antes dessa captura), apenas aumenta maestria
           const alreadyCaught = ownsSpecies(prev, currentEnemy.id);
           if (alreadyCaught) {
-            addLog(`?? ${currentEnemy.name} j? capturado! Maestria aumentada.`, 'system');
+            addLog(`📝 ${currentEnemy.name} já capturado! Maestria aumentada.`, 'system');
+            
             const findAndReplace = (list) => {
               let updated = false;
-              const newList = list.map(p => {
+              const newList = (list || []).map(p => {
                 if (Number(p.id) === Number(currentEnemy.id)) {
                   updated = true;
                   if (currentEnemy.isShiny && !p.isShiny) {
@@ -3028,8 +3043,17 @@ export default function App() {
               });
               return { newList, updated };
             };
+
             let { newList: teamUpdate } = findAndReplace(prev.team);
             let { newList: pcUpdate } = findAndReplace(prev.pc || []);
+            
+            // Verificar também em times de outras regiões
+            const newRegionalTeams = { ...(prev.regional_teams || {}) };
+            Object.keys(newRegionalTeams).forEach(reg => {
+              const { newList, updated } = findAndReplace(newRegionalTeams[reg]);
+              if (updated) newRegionalTeams[reg] = newList;
+            });
+
             setTimeout(() => spawnEnemy(), 1000);
             return {
               ...prev,
@@ -3038,6 +3062,7 @@ export default function App() {
               caughtData: newCaughtData,
               team: teamUpdate,
               pc: pcUpdate,
+              regional_teams: newRegionalTeams,
               shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
               ...questUpdate
             };
@@ -3587,7 +3612,8 @@ export default function App() {
   // ——— AUTO-CAPTURA HANDLERS ———
   // PROTECTED: AutoCapture - NAO EDITAR SEM AUTORIZACAO EXPLICITA
   const handleSaveAutoCaptureConfig = useCallback((config) => {
-    const route = processedRoutes[gameState.currentRoute];
+    const routeId = (processedRoutes[gameState.currentRoute]?.type === 'farm') ? gameState.currentRoute : gameState.lastFarmingRoute;
+    const route = processedRoutes[routeId];
     setGameState(prev => ({
       ...prev,
       autoCapture: true,
@@ -3600,19 +3626,20 @@ export default function App() {
         targetIds:    config.targetIds,
         routeConfigs: {
           ...(prev.autoCaptureConfig?.routeConfigs || {}),
-          [gameState.currentRoute]: config,
+          [routeId]: config,
         },
         shownRoutes: [
           ...(prev.autoCaptureConfig?.shownRoutes || []),
-          gameState.currentRoute,
+          routeId,
         ],
       },
     }));
     setShowAutoCaptureModal(false);
-    addLog(`✅ Auto-captura configurada para ${route?.name}!`, 'system');
-  }, [gameState.currentRoute, addLog, processedRoutes]);
+    addLog(`✅ Auto-captura configurada para ${route?.name || 'rota'}!`, 'system');
+  }, [gameState.currentRoute, gameState.lastFarmingRoute, processedRoutes, addLog]);
 
   const handleDisableAutoCapture = useCallback(() => {
+    const routeId = (processedRoutes[gameState.currentRoute]?.type === 'farm') ? gameState.currentRoute : gameState.lastFarmingRoute;
     setGameState(prev => ({
       ...prev,
       autoCapture: false,
@@ -3621,27 +3648,28 @@ export default function App() {
         enabled: false,
         shownRoutes: [
           ...(prev.autoCaptureConfig?.shownRoutes || []),
-          gameState.currentRoute,
+          routeId,
         ],
       },
     }));
     setShowAutoCaptureModal(false);
     addLog('🚀 Auto-captura desativada nesta rota.', 'system');
-  }, [gameState.currentRoute, addLog]);
+  }, [gameState.currentRoute, gameState.lastFarmingRoute, processedRoutes, addLog]);
 
   const handleCloseAutoCaptureModal = useCallback(() => {
+    const routeId = (processedRoutes[gameState.currentRoute]?.type === 'farm') ? gameState.currentRoute : gameState.lastFarmingRoute;
     setGameState(prev => ({
       ...prev,
       autoCaptureConfig: {
         ...prev.autoCaptureConfig,
         shownRoutes: Array.from(new Set([
           ...(prev.autoCaptureConfig?.shownRoutes || []),
-          gameState.currentRoute,
+          routeId,
         ])),
       },
     }));
     setShowAutoCaptureModal(false);
-  }, [gameState.currentRoute]);
+  }, [gameState.currentRoute, gameState.lastFarmingRoute, processedRoutes]);
 
   // Disparar modal ao entrar em uma rota de treino.
   useEffect(() => {
@@ -3662,12 +3690,7 @@ export default function App() {
     }
   }, [currentView, currentEnemy?.instanceId, gameState.currentRoute, gameState.autoCaptureConfig, processedRoutes]);
 
-  useEffect(() => {
-    const isTrainingBattle = currentView === 'battles' && currentEnemy && !currentEnemy.isTrainer && !currentEnemy.isWildBoss && !currentEnemy.isLegendary;
-    if (showAutoCaptureModal && !isTrainingBattle) {
-      setShowAutoCaptureModal(false);
-    }
-  }, [currentView, currentEnemy?.instanceId, showAutoCaptureModal]);
+  // Removido useEffect de auto-fechar agressivo do AutoCaptureModal
 
   useEffect(() => {
     if ((gameState.worldFlags || []).includes('kanto_champion_modal_pending')) {
@@ -4215,7 +4238,7 @@ export default function App() {
 
         const newXp = (p.xp || 0) + xpToAdd;
         const n = p.level || 1; const xpNeeded = Math.pow(n + 1, 3) - Math.pow(n, 3);
-        const maxLevel = getRegionLevelCap(finalBadges, activeRegion);
+        const maxLevel = getRegionLevelCap(gameState, activeRegion);
         const isLevelCapped = gameState.settings?.levelCap !== false && (p.level || 5) >= maxLevel;
 
         if (newXp >= xpNeeded) {
@@ -5870,7 +5893,7 @@ export default function App() {
             TYPE_COLORS={TYPE_COLORS}
             onGoToCity={handleGoToCity}
                 bossTimer={bossTimer}
-                currentLevelCap={getRegionLevelCap(gameState.badges, gameState.activeRegion || 'kanto')}
+                currentLevelCap={getRegionLevelCap(gameState, gameState.activeRegion || 'kanto')}
                 onChallengeBoss={(battle) => {
                   if (battle.type === 'rival') {
                     startBattleAgainstRival(battle);
@@ -6103,6 +6126,7 @@ export default function App() {
                    if (isHealing) return;
                    stopSFX();
                    sfxHeal();
+                   sfxHealPokemonCenter();
                    setIsHealing(true);
                    setGameState(prev => ({ 
                      ...prev, 
@@ -6152,15 +6176,11 @@ export default function App() {
   }[timeOfDay] || 'DAY';
   const autoEnabled = !!(gameState.autoFarm || gameState.autoCapture || gameState.autoConfig?.autoPotion || gameState.autoConfig?.autoStamina);
   const autoCaptureRoute = processedRoutes[gameState.currentRoute];
-  const canShowAutoCaptureModal =
-    showAutoCaptureModal &&
-    currentView === 'battles' &&
-    currentEnemy &&
-    !currentEnemy.isTrainer &&
-    !currentEnemy.isWildBoss &&
-    !currentEnemy.isLegendary &&
-    autoCaptureRoute?.type === 'farm' &&
-    autoCaptureRoute?.enemies?.length > 0;
+  const autoCaptureRouteId = (processedRoutes[gameState.currentRoute]?.type === 'farm') 
+    ? gameState.currentRoute 
+    : (gameState.lastFarmingRoute || 'route_1');
+  const autoCaptureEffectiveRoute = processedRoutes[autoCaptureRouteId];
+  const canShowAutoCaptureModal = showAutoCaptureModal && autoCaptureEffectiveRoute;
   
   const updateAutoConfig = (patch) => {
     setGameState(prev => ({
@@ -6212,7 +6232,7 @@ export default function App() {
     <div className={`app-shell ${showStatusStrip ? 'info-strip-open' : ''} ${gameState.settings?.displayMode === 'pc' ? 'pc-mode' : ''}`}>
       {(!loading && user) ? (
         <>
-          {/* ⛔ PROTECTED: Header principal — NíO ALTERAR ESTRUTURA, CORES OU POSICIONAMENTO SEM AUTORIZAÇíO */}
+          {/* ⛔ PROTECTED: Header principal — NíO ALTERAR ESTRUTURA, CORES OU POSICIONAMENTO SEM ALTERAÇÃO */}
           <header style={{
             position: 'absolute',
             top: 0,
@@ -6685,6 +6705,7 @@ export default function App() {
                      if (isHealing) return;
                      stopSFX();
                      sfxHeal();
+                     sfxHealPokemonCenter();
                      setIsHealing(true);
                      setGameState(prev => {
                        const newStamina = { ...prev.stamina };
@@ -7129,7 +7150,7 @@ export default function App() {
       )}
       {canShowAutoCaptureModal && (
         <AutoCaptureModal
-          route={autoCaptureRoute}
+          route={autoCaptureEffectiveRoute}
           gameState={gameState}
           onSave={handleSaveAutoCaptureConfig}
           onClose={handleCloseAutoCaptureModal}

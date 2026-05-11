@@ -9,10 +9,17 @@ export const isRouteUnlocked = (route, gameState) => {
   if (route.type !== 'farm' || !route.unlockLevel || route.unlockLevel <= 1) return true;
 
   const currentRegion = gameState.activeRegion || 'kanto';
-  if (currentRegion !== 'kanto') {
+  const routeRegionInfo = inferRouteRegion(route.id, route.group);
+  const routeRegion = routeRegionInfo.id;
+
+  // Se o jogador está em uma região que não é Kanto, permitimos acesso às rotas dessa região
+  // (e de outras regiões já desbloqueadas) se os requisitos de progresso (requirementsMet) forem atendidos.
+  // Isso resolve o problema de Johto (level 60) bloqueando jogadores de level 5.
+  if (currentRegion !== 'kanto' || routeRegion !== 'kanto') {
     return true;
   }
 
+  // Check de level específico para a progressão original de Kanto
   const teamMaxLevel = Math.max(
     1,
     ...(gameState.team || []).map(pokemon => Number(pokemon?.level || 1))
@@ -21,22 +28,23 @@ export const isRouteUnlocked = (route, gameState) => {
 };
 
 export const getRouteLevel = (route) => {
-  let minLevel = 999;
+  let levels = [];
   if (route.enemies && route.enemies.length > 0) {
-    const levels = route.enemies.map(e => e.level).filter(l => typeof l === 'number');
-    if (levels.length > 0) minLevel = Math.min(...levels);
+    levels.push(...route.enemies.map(e => e.level).filter(l => typeof l === 'number'));
   }
   if (route.trainers && route.trainers.length > 0) {
     route.trainers.forEach(t => {
-      if (!t.team) return;
-      const lvls = t.team.map(p => p.level).filter(l => typeof l === 'number');
-      if (lvls.length > 0) {
-        const tMin = Math.min(...lvls);
-        if (tMin < minLevel) minLevel = tMin;
+      if (t.team) {
+        levels.push(...t.team.map(p => p.level).filter(l => typeof l === 'number'));
       }
     });
   }
-  return minLevel === 999 ? null : minLevel;
+  
+  if (levels.length === 0) return null;
+  
+  // Retornamos a média para representar a dificuldade geral da rota
+  const sum = levels.reduce((a, b) => a + b, 0);
+  return sum / levels.length;
 };
 
 export const inferRouteRegion = (routeId, routeGroup) => {
@@ -55,30 +63,34 @@ export const inferRouteRegion = (routeId, routeGroup) => {
 export const getSortedRoutes = (routesObj) => {
   const routesArray = Object.values(routesObj).map(route => ({
     ...route,
-    _minLevel: null,
+    _difficulty: null,
     _region: inferRouteRegion(route.id, route.group),
   }));
 
-  const groupMinLevels = {};
+  const groupDifficulties = {};
   routesArray.forEach(r => {
     const lv = getRouteLevel(r);
-    r._minLevel = lv;
+    r._difficulty = lv;
     if (lv !== null) {
-      if (!groupMinLevels[r.group] || lv < groupMinLevels[r.group]) {
-        groupMinLevels[r.group] = lv;
+      if (!groupDifficulties[r.group] || lv < groupDifficulties[r.group]) {
+        groupDifficulties[r.group] = lv;
       }
     }
   });
 
   routesArray.forEach(r => {
-    if (r._minLevel === null) {
-      r._minLevel = groupMinLevels[r.group] ?? (r.unlockLevel || 1);
+    if (r._difficulty === null) {
+      r._difficulty = groupDifficulties[r.group] ?? (r.unlockLevel || 1);
     }
   });
 
   return routesArray.sort((a, b) => {
-    if (a._minLevel !== b._minLevel) return a._minLevel - b._minLevel;
-    return a._region.order - b._region.order;
+    // Primeiro por região (caso apareçam misturadas)
+    if (a._region.order !== b._region.order) return a._region.order - b._region.order;
+    // Depois por dificuldade (nível médio)
+    if (a._difficulty !== b._difficulty) return a._difficulty - b._difficulty;
+    // Por fim, por unlockLevel como desempate
+    return (a.unlockLevel || 0) - (b.unlockLevel || 0);
   });
 };
 
@@ -240,7 +252,24 @@ const withDrops = (ids, level, drops, spawnWeight = 60) =>
     drop: drops[index % drops.length],
   }));
 
-const legacyEncounters = (regionIndex, phaseIndex) => {
+export const isStarter = (id) => {
+  const nid = Number(id);
+  // Padrão: Os primeiros 9 IDs de cada faixa de DEX regional (3 linhas evolutivas)
+  const starterRanges = [
+    [1, 9],       // Kanto
+    [152, 160],   // Johto
+    [252, 260],   // Hoenn
+    [387, 395],   // Sinnoh
+    [494, 502],   // Unova
+    [650, 658],   // Kalos
+    [722, 730],   // Alola
+    [810, 818],   // Galar
+    [906, 914]    // Paldea
+  ];
+  return starterRanges.some(([min, max]) => nid >= min && nid <= max);
+};
+
+export const legacyEncounters = (regionIndex, phaseIndex) => {
   if (regionIndex <= 0) return [];
   const previousMax = [
     151, 251, 386, 493, 649, 721, 809, 905, 1025,
@@ -251,7 +280,10 @@ const legacyEncounters = (regionIndex, phaseIndex) => {
   const span = previousMax - previousMin + 1;
   const step = Math.max(1, Math.floor(span / 8));
   const start = previousMin + (phaseIndex * step);
-  return rangeIds(start, Math.min(previousMax, start + 5));
+  const ids = rangeIds(start, Math.min(previousMax, start + 5));
+
+  // Filtra iniciais dos encontros legacy (regiões anteriores)
+  return ids.filter(id => !isStarter(id));
 };
 
 const buildRegionalDexCoverageRoutes = ({

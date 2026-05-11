@@ -300,6 +300,19 @@ export const TrainerCard = ({
 }) => {
   const [expanded, setExpanded] = React.useState(!compactExpandable);
   const [showPsInfo, setShowPsInfo] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        setShowTitlePicker(false);
+        setShowPsInfo(false);
+      }
+    };
+    if (showTitlePicker || showPsInfo) {
+      window.addEventListener('keydown', handleEsc);
+    }
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [showTitlePicker, showPsInfo]);
   const [showTitlePicker, setShowTitlePicker] = React.useState(false);
   if (!trainer) return null;
   const showDetails = !compactExpandable || expanded;
@@ -560,6 +573,7 @@ export const TrainerCard = ({
         <div
           className="fixed inset-0 z-[60000] flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-md animate-fadeIn"
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             setShowPsInfo(false);
           }}

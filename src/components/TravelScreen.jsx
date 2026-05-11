@@ -414,24 +414,28 @@ const TravelScreen = ({
 
       <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
           <div className="flex flex-col gap-8 pb-8">
-            {Object.entries(
+            {(() => {
+              const sequentialGroups = [];
               visibleRouteEntries
-              .filter(r => r.type !== 'city' && r.type !== 'gym')
-              .reduce((acc, r) => {
-                const cityGroup = r.group || 'Outras Rotas';
-                if (!acc[cityGroup]) acc[cityGroup] = [];
-                acc[cityGroup].push(r);
-                return acc;
-              }, {})
-            ).map(([groupName, groupRoutes]) => (
-              <div key={groupName} className="flex flex-col gap-4">
-                <div className="flex items-center gap-3 px-2">
-                   <div className="h-[2px] flex-1 bg-slate-200"></div>
-                   <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest bg-slate-100 px-4 py-1.5 rounded-full border-2 border-slate-200">{groupName}</h3>
-                   <div className="h-[2px] flex-1 bg-slate-200"></div>
-                </div>
+                .filter(r => r.type !== 'city' && r.type !== 'gym')
+                .forEach(r => {
+                  const groupName = r.group || 'Outras Rotas';
+                  if (sequentialGroups.length > 0 && sequentialGroups[sequentialGroups.length - 1].name === groupName) {
+                    sequentialGroups[sequentialGroups.length - 1].routes.push(r);
+                  } else {
+                    sequentialGroups.push({ name: groupName, routes: [r] });
+                  }
+                });
+
+              return sequentialGroups.map(({ name, routes }, gIdx) => (
+                <div key={`${name}-${gIdx}`} className="flex flex-col gap-4">
+                  <div className="flex items-center gap-3 px-2">
+                     <div className="h-[2px] flex-1 bg-slate-200"></div>
+                     <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest bg-slate-100 px-4 py-1.5 rounded-full border-2 border-slate-200">{name}</h3>
+                     <div className="h-[2px] flex-1 bg-slate-200"></div>
+                  </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {groupRoutes.map((route) => {
+                  {routes.map((route) => {
                     const id = route.id;
                     const unlocked = isRouteUnlocked(route);
                     const isCurrent = gameState.currentRoute === id;
@@ -481,7 +485,8 @@ const TravelScreen = ({
                   })}
                 </div>
               </div>
-            ))}
+              ))}
+            })()}
           </div>
       </div>
            {/* Modal de Detalhes da Rota */}

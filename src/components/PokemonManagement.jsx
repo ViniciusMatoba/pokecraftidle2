@@ -6,7 +6,7 @@ import { CRAFTING_RECIPES } from '../data/recipes';
 import { getTimeOfDay } from '../utils/timeSystem';
 
 import { GYM_LEVEL_CAPS } from '../data/constants';
-import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS } from '../data/regionStandards';
+import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, getUnlockedDexLimit } from '../data/regionStandards';
 
 const PokemonManagement = ({
   gameState,
@@ -174,33 +174,35 @@ const PokemonManagement = ({
     setGameState(prev => {
       const poke = prev.team[index];
       const newTeam = prev.team.filter((_, i) => i !== index);
-      const newPC = [...(prev.pc || []), poke];
+      // Ao enviar para o PC, garantimos que ele perca o status de "time regional" e vá para o pool geral
+      const newPC = [...(prev.pc || []), { ...poke, storageLocation: 'pc' }];
       return { ...prev, team: newTeam, pc: newPC };
     });
     setActivePokemonDetails(null);
   };
 
-  const moveToTeam = (index) => {
+  const withdrawFromPC = (pokemon) => {
     if (gameState.team.length >= 6) {
       showConfirm({
         title: 'Time Cheio',
-        message: 'Seu time já possui o limite máximo de 6 Pokémon. Envie alguém para o PC primeiro!',
+        message: 'Seu team já possui o limite máximo de 6 Pokémon. Envie alguém para o PC primeiro!',
         onConfirm: closeConfirm
       });
       return;
     }
-    const poke = gameState.pc[index];
     
     // Validação de Acesso Regional
-    if (validateTeamAccess && !validateTeamAccess(poke, activeRegion)) {
+    if (validateTeamAccess && !validateTeamAccess(pokemon, activeRegion)) {
       const isChampion = (gameState.worldFlags || []).includes(`region_champion_${activeRegion}`) || 
                         (gameState.worldFlags || []).includes(REGION_CHAMPION_FLAGS[activeRegion]);
 
       let reason = "Este Pokémon não pode ser usado nesta região no momento.";
-      if (poke.level > (GYM_LEVEL_CAPS[activeRegion]?.[Object.values(GYM_LEVEL_CAPS[activeRegion]).length - 1] || 100)) {
-         reason = "Nível muito alto para o seu limite atual de insígnias.";
-      } else if (poke.capturedRegion && poke.capturedRegion !== activeRegion && !isChampion) {
-         reason = `Este Pokémon foi capturado em ${poke.capturedRegion.toUpperCase()} e você ainda não é campeão de ${activeRegion.toUpperCase()}.`;
+      const regionCap = (GYM_LEVEL_CAPS[activeRegion]?.[Object.values(GYM_LEVEL_CAPS[activeRegion]).length - 1] || 100);
+      
+      if (pokemon.level > regionCap) {
+         reason = `Nível ${pokemon.level} é muito alto para o limite desta região (${regionCap}).`;
+      } else if (pokemon.capturedRegion && pokemon.capturedRegion !== activeRegion && !isChampion) {
+         reason = `Este Pokémon foi capturado em ${pokemon.capturedRegion.toUpperCase()} e você ainda não é campeão de ${activeRegion.toUpperCase()}.`;
       }
 
       showConfirm({
@@ -212,9 +214,24 @@ const PokemonManagement = ({
     }
 
     setGameState(prev => {
-      const newPC = prev.pc.filter((_, i) => i !== index);
-      const newTeam = [...prev.team, poke];
-      return { ...prev, team: newTeam, pc: newPC };
+      let newState = { ...prev };
+      
+      if (pokemon.storageLocation === 'pc') {
+        newState.pc = (prev.pc || []).filter((_, i) => i !== pokemon.storageIndex);
+      } else if (pokemon.storageLocation?.startsWith('regional_')) {
+        const reg = pokemon.storageRegion;
+        const updatedRegTeams = { ...(prev.regional_teams || {}) };
+        updatedRegTeams[reg] = (updatedRegTeams[reg] || []).filter((_, i) => i !== pokemon.storageIndex);
+        newState.regional_teams = updatedRegTeams;
+      }
+      
+      const newPoke = { ...pokemon };
+      delete newPoke.storageLocation;
+      delete newPoke.storageIndex;
+      delete newPoke.storageRegion;
+      
+      newState.team = [...prev.team, newPoke];
+      return newState;
     });
     setActivePokemonDetails(null);
   };
@@ -481,8 +498,15 @@ const PokemonManagement = ({
                     onChange={(e) => setPcSort(e.target.value)}
                     className="bg-slate-50 border-none rounded-xl py-2.5 px-4 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-pokeGold/50 outline-none transition-all cursor-pointer"
                   >
-                    <option value="number">Nº Pokedex (1-251)</option>
-                    <option value="number-desc">Nº Pokedex (251-1)</option>
+                    {(() => {
+                      const limit = getUnlockedDexLimit(gameState);
+                      return (
+                        <>
+                          <option value="number">Nº Pokedex (1-{limit})</option>
+                          <option value="number-desc">Nº Pokedex ({limit}-1)</option>
+                        </>
+                      );
+                    })()}
                     <option value="alpha">Ordem Alfabética (A-Z)</option>
                     <option value="level">Maior Nível</option>
                     <option value="type">Por Tipo</option>
@@ -492,11 +516,17 @@ const PokemonManagement = ({
 
             <div className="grid grid-cols-2 gap-3">
               {(() => {
-                const filtered = (gameState.pc || [])
-                  .map((p, idx) => ({ ...p, originalIndex: idx }))
+                const allStored = [
+                  ...(gameState.pc || []).map((p, i) => ({ ...p, storageLocation: 'pc', storageIndex: i })),
+                  ...Object.entries(gameState.regional_teams || {}).flatMap(([reg, team]) => 
+                    (team || []).map((p, i) => ({ ...p, storageLocation: `regional_${reg}`, storageRegion: reg, storageIndex: i }))
+                  )
+                ];
+
+                const filtered = allStored
                   .filter(p => {
                     const term = pcSearch.toLowerCase();
-                    const matchesRegion = pcRegion === 'all' || getDexRegion(p.id) === pcRegion;
+                    const matchesRegion = pcRegion === 'all' || (p.capturedRegion || getDexRegion(p.id)) === pcRegion;
                     return matchesRegion && (p.name.toLowerCase().includes(term) || String(p.id).includes(term));
                   })
                   .sort((a, b) => {
@@ -512,16 +542,21 @@ const PokemonManagement = ({
                 }
 
                 return filtered.map((p) => (
-                  <div key={p.instanceId || p.originalIndex} onClick={() => setActivePokemonDetails({ pokemon: p, index: p.originalIndex, location: 'pc' })} className="bg-white p-3 rounded-2xl border-2 border-slate-100 flex flex-col items-center gap-2 group relative cursor-pointer hover:border-pokeGold transition-all">
+                  <div key={p.instanceId || `${p.storageLocation}_${p.storageIndex}`} onClick={() => setActivePokemonDetails({ pokemon: p, index: p.storageIndex, location: p.storageLocation })} className="bg-white p-3 rounded-2xl border-2 border-slate-100 flex flex-col items-center gap-2 group relative cursor-pointer hover:border-pokeGold transition-all">
                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className="w-12 h-12 object-contain" alt={p.name} loading="lazy" />
                      <div className="text-center">
                        <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none flex items-center justify-center gap-1">
                          {p.name}
                          {p.isShiny && <span className="text-yellow-500 text-[8px]">✨</span>}
                        </p>
-                       <p className="text-[8px] font-bold text-slate-400 mt-0.5">Nv. {p.level}</p>
+                       <div className="flex items-center justify-center gap-1 mt-0.5">
+                          <p className="text-[8px] font-bold text-slate-400">Nv. {p.level}</p>
+                          {p.storageRegion && (
+                            <span className="text-[7px] bg-slate-100 text-slate-500 px-1 rounded uppercase font-black">{p.storageRegion.substring(0,3)}</span>
+                          )}
+                       </div>
                      </div>
-                     <button onClick={(e) => { e.stopPropagation(); moveToTeam(p.originalIndex); }} className="absolute top-1 right-1 bg-blue-50 text-blue-500 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75">
+                     <button onClick={(e) => { e.stopPropagation(); withdrawFromPC(p); }} className="absolute top-1 right-1 bg-blue-50 text-blue-500 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75">
                        <span className="font-black text-[8px] uppercase">+ Team</span>
                      </button>
                   </div>
