@@ -549,7 +549,7 @@ export default function App() {
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [avatarTab, setAvatarTab] = useState('male');
   const { 
-    playBGM, stopBGM, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxGym, stopSFX,
+    playBGM, stopBGM, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxHealPokemonCenter, sfxGym, stopSFX,
     toggleMute, isMuted, muted 
   } = useSound();
 
