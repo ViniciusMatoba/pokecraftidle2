@@ -1,9 +1,12 @@
-export const APP_VERSION = '1.55.42';
-export const VERSION = '1.55.42';
-export const APP_VERSION_DATE = '11/05/2026 16:00';
+export const APP_VERSION = '1.55.43';
+export const VERSION = '1.55.43';
+export const APP_VERSION_DATE = '11/05/2026 16:12';
 export const CHANGELOG = [
-  'Novo: Tela de Estatísticas e Conquistas adicionada ao menu principal.',
-  'Novo: Títulos podem ser desbloqueados completando conquistas e equipados.',
-  'Otimização: Auto-Save em nuvem agora é engatilhado por conquistas (Level Up, Capturas) para economizar dados.',
-  'Correção: Botão de cura no Centro Pokémon restaurado à funcionalidade normal.'
+  'Novo: Loja de Sementes na Casa — compre Berries e Ervas de Essência com moedas.',
+  'Novo: Botão Colher Tudo no Jardim para colher todos os canteiros prontos de uma vez.',
+  'Novo: Toggle Replantio Automático no Jardim.',
+  'Novo: Plantas de Essência (Fogo, Água, Folha, Elétrica, Gelo) que produzem materiais para a Forja.',
+  'Novo: Badge de plantas prontas no botão da Casa na Cidade.',
+  'Melhoria: Tempo restante dos canteiros exibido em horas e minutos.',
+  'Correção: Bônus de Cuidadores agora acumulam corretamente entre múltiplos Pokémon.'
 ];

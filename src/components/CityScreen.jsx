@@ -106,15 +106,20 @@ const CityScreen = ({
     || (gameState.worldFlags || []).includes('oak_house_shown');
   const canBuyHouse = (gameState.currency || 0) >= HOUSE_PURCHASE_COST;
 
+  const plantsReady = gameState.house?.owned
+    ? (gameState.house?.slots || []).filter(s => s && Date.now() >= s.plantedAt + s.growthTime).length
+    : 0;
+
   if (gameState.house?.owned) {
     cityBuildings.push({
       id: 'house',
       name: 'Minha Casa',
       icon: null,
       emoji: '🏠',
-      desc: 'Cultive Berries e Apricorns no seu jardim.',
+      desc: plantsReady > 0 ? `${plantsReady} planta(s) pronta(s) para colher! 🧺` : 'Cultive Berries e Apricorns no seu jardim.',
       action: () => onOpenHouse && onOpenHouse(),
-      color: 'border-amber-500 bg-amber-50',
+      color: plantsReady > 0 ? 'border-amber-400 bg-amber-100' : 'border-amber-500 bg-amber-50',
+      badge: plantsReady,
     });
   } else if (hasHouseUnlocked) {
     cityBuildings.push({
@@ -307,6 +312,12 @@ const CityScreen = ({
               }`}
             >
               <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12"></div>
+              {/* Badge de notificação */}
+              {b.badge > 0 && (
+                <span className="absolute top-3 right-3 min-w-[22px] h-[22px] bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center animate-bounce shadow-lg px-1 z-10">
+                  {b.badge}
+                </span>
+              )}
               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-inner border-2 border-white group-hover:rotate-6 transition-transform overflow-hidden">
                  {b.icon ? (
                    <img 
@@ -327,6 +338,7 @@ const CityScreen = ({
               </div>
             </button>
           ))}
+
         </div>
 
         {gameState.lastFarmingRoute && (

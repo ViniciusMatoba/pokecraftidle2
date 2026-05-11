@@ -53,6 +53,8 @@ export const PLANTABLE_ITEMS = {
     drops: ['cheri_berry'],
     rare_drops: [],
     cost: 50,
+    shopCost: 50,
+    shopUnlock: null,
     type: 'berry',
   },
 
@@ -61,13 +63,15 @@ export const PLANTABLE_ITEMS = {
     name: 'Chesto Berry',
     icon: '🫐',
     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/chesto-berry.png',
-    description: 'Cura sono. Ingrediente para Despertar e Poçíµes.',
+    description: 'Cura sono. Ingrediente para Despertar e Poções.',
     growthTime: 15,
     yield: { min: 2, max: 5 },
     seed: 'chesto_seed',
     drops: ['chesto_berry'],
     rare_drops: [],
     cost: 50,
+    shopCost: 50,
+    shopUnlock: null,
     type: 'berry',
   },
 
@@ -83,6 +87,8 @@ export const PLANTABLE_ITEMS = {
     drops: ['pecha_berry'],
     rare_drops: [],
     cost: 50,
+    shopCost: 50,
+    shopUnlock: null,
     type: 'berry',
   },
 
@@ -98,6 +104,8 @@ export const PLANTABLE_ITEMS = {
     drops: ['rawst_berry'],
     rare_drops: [],
     cost: 50,
+    shopCost: 50,
+    shopUnlock: null,
     type: 'berry',
   },
 
@@ -113,6 +121,8 @@ export const PLANTABLE_ITEMS = {
     drops: ['aspear_berry'],
     rare_drops: [],
     cost: 80,
+    shopCost: 80,
+    shopUnlock: 'boulder_badge',
     type: 'berry',
   },
 
@@ -128,6 +138,8 @@ export const PLANTABLE_ITEMS = {
     drops: ['leppa_berry'],
     rare_drops: [],
     cost: 300,
+    shopCost: 300,
+    shopUnlock: 'cascade_badge',
     type: 'berry',
   },
 
@@ -136,13 +148,15 @@ export const PLANTABLE_ITEMS = {
     name: 'Oran Berry',
     icon: '🫐',
     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png',
-    description: 'Restaura 10 HP. Ingrediente para Poçíµes básicas.',
+    description: 'Restaura 10 HP. Ingrediente para Poções básicas.',
     growthTime: 20,
     yield: { min: 3, max: 6 },
     seed: 'oran_seed',
     drops: ['oran_berry'],
     rare_drops: [],
     cost: 60,
+    shopCost: 60,
+    shopUnlock: null,
     type: 'berry',
   },
 
@@ -158,6 +172,8 @@ export const PLANTABLE_ITEMS = {
     drops: ['sitrus_berry'],
     rare_drops: [],
     cost: 200,
+    shopCost: 200,
+    shopUnlock: 'cascade_badge',
     type: 'berry',
   },
 
@@ -173,6 +189,8 @@ export const PLANTABLE_ITEMS = {
     drops: ['lum_berry'],
     rare_drops: [],
     cost: 1000,
+    shopCost: 1000,
+    shopUnlock: 'rainbow_badge',
     type: 'berry',
   },
 
@@ -279,9 +297,98 @@ export const PLANTABLE_ITEMS = {
     drops: ['yellow_apricorn', 'moon_stone_shard'],
     rare_drops: ['moon_stone_shard'],
     cost: 200,
+    shopCost: 200,
+    shopUnlock: 'thunder_badge',
     type: 'apricorn',
   },
 };
+
+// ───── PLANTAS DE ESSÊNCIA ─────
+export const ESSENCE_PLANTS = {
+  fire_herb: {
+    id: 'fire_herb',
+    name: 'Erva de Fogo',
+    icon: '🔥',
+    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png',
+    description: 'Produz essências de fogo, usadas na Forja de Equipamentos.',
+    growthTime: 90,
+    yield: { min: 3, max: 8 },
+    seed: 'fire_herb_seed',
+    drops: ['fire_essence'],
+    rare_drops: ['fire_stone_shard'],
+    cost: 0,
+    shopCost: 800,
+    shopUnlock: 'volcano_badge',
+    type: 'herb',
+  },
+  water_herb: {
+    id: 'water_herb',
+    name: 'Erva de Água',
+    icon: '💧',
+    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png',
+    description: 'Produz essências de água, usadas na Forja de Equipamentos.',
+    growthTime: 90,
+    yield: { min: 3, max: 8 },
+    seed: 'water_herb_seed',
+    drops: ['water_essence'],
+    rare_drops: ['water_stone_shard'],
+    cost: 0,
+    shopCost: 800,
+    shopUnlock: 'cascade_badge',
+    type: 'herb',
+  },
+  leaf_herb: {
+    id: 'leaf_herb',
+    name: 'Erva de Folha',
+    icon: '🌿',
+    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png',
+    description: 'Produz essências de grama, usadas na Forja de Equipamentos.',
+    growthTime: 90,
+    yield: { min: 3, max: 8 },
+    seed: 'leaf_herb_seed',
+    drops: ['grass_essence'],
+    rare_drops: ['leaf_stone_shard'],
+    cost: 0,
+    shopCost: 800,
+    shopUnlock: 'boulder_badge',
+    type: 'herb',
+  },
+  thunder_herb: {
+    id: 'thunder_herb',
+    name: 'Erva Elétrica',
+    icon: '⚡',
+    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
+    description: 'Produz essências elétricas, usadas na Forja de Equipamentos.',
+    growthTime: 90,
+    yield: { min: 3, max: 8 },
+    seed: 'thunder_herb_seed',
+    drops: ['electric_essence'],
+    rare_drops: ['thunder_stone_shard'],
+    cost: 0,
+    shopCost: 800,
+    shopUnlock: 'thunder_badge',
+    type: 'herb',
+  },
+  ice_herb: {
+    id: 'ice_herb',
+    name: 'Erva Gélida',
+    icon: '❄️',
+    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/never-melt-ice.png',
+    description: 'Produz essências de gelo, usadas na Forja de Equipamentos.',
+    growthTime: 120,
+    yield: { min: 2, max: 6 },
+    seed: 'ice_herb_seed',
+    drops: ['ice_essence'],
+    rare_drops: [],
+    cost: 0,
+    shopCost: 1200,
+    shopUnlock: 'soul_badge',
+    type: 'herb',
+  },
+};
+
+// Combina Berries, Apricorns e Ervas de Essência
+export const ALL_PLANTABLE_ITEMS = { ...PLANTABLE_ITEMS, ...ESSENCE_PLANTS };
 
 // Fórmula para calcular drops ao colher
 // Leva em conta os bônus dos cuidadores
@@ -320,19 +427,20 @@ export const calcGrowthTime = (plant, caretakerBonuses) => {
   return Math.floor((plant.growthTime * 60 * 1000) / growthMult);
 };
 
-// Calcular bônus combinados dos cuidadores
+// Calcular bônus combinados dos cuidadores (acumulativo com cap para balancear)
 export const calcCombinedCaretakerBonus = (caretakers) => {
   if (!caretakers || caretakers.length === 0) {
     return { growthMult: 1.0, yieldMult: 1.0, rarityBonus: 0, specialBonus: 0 };
   }
+  const MAX_MULT = 3.0; // cap de 3x para não quebrar o balanço
   const combined = { growthMult: 1.0, yieldMult: 1.0, rarityBonus: 0, specialBonus: 0 };
   caretakers.forEach(p => {
     const type = p.type || 'Normal';
     const bonus = CARETAKER_BONUSES[type] || CARETAKER_BONUSES.Normal;
-    combined.growthMult  = Math.max(combined.growthMult,  bonus.growthMult);
-    combined.yieldMult   = Math.max(combined.yieldMult,   bonus.yieldMult);
-    combined.rarityBonus += bonus.rarityBonus;
-    combined.specialBonus += bonus.specialBonus;
+    combined.growthMult  = Math.min(MAX_MULT, combined.growthMult  + (bonus.growthMult  - 1));
+    combined.yieldMult   = Math.min(MAX_MULT, combined.yieldMult   + (bonus.yieldMult   - 1));
+    combined.rarityBonus  = Math.min(0.50,   combined.rarityBonus  + bonus.rarityBonus);
+    combined.specialBonus = Math.min(0.30,   combined.specialBonus + bonus.specialBonus);
   });
   return combined;
 };

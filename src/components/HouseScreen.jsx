@@ -1,12 +1,26 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   PLANTABLE_ITEMS,
+  ESSENCE_PLANTS,
+  ALL_PLANTABLE_ITEMS,
   HOUSE_SLOT_EXPANSIONS,
   CARETAKER_TYPES,
   CARETAKER_BONUSES,
   calcGrowthTime,
   calcCombinedCaretakerBonus,
 } from '../data/house';
+
+// Helper: converte ms restantes em texto legível
+const msToReadable = (ms) => {
+  if (ms <= 0) return 'Pronto!';
+  const totalMins = Math.ceil(ms / 60000);
+  if (totalMins >= 60) {
+    const h = Math.floor(totalMins / 60);
+    const m = totalMins % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  }
+  return `${totalMins}m`;
+};
 
 const HouseScreen = ({ 
   gameState, 
@@ -15,13 +29,15 @@ const HouseScreen = ({
   onHarvest, 
   onBuySlot, 
   onAssignCaretaker, 
-  onRemoveCaretaker 
+  onRemoveCaretaker,
+  onBuySeed,
 }) => {
-  const [activeTab, setActiveTab] = useState('garden'); // 'garden', 'caretakers', 'shop'
+  const [activeTab, setActiveTab] = useState('garden');
   const [showPlantPicker, setShowPlantPicker] = useState(null);
   const [showCaretakerPicker, setShowCaretakerPicker] = useState(false);
   const [selectedPokemonForDetails, setSelectedPokemonForDetails] = useState(null);
   const [selectedPlantForConfirmation, setSelectedPlantForConfirmation] = useState(null);
+  const [autoReplant, setAutoReplant] = useState(gameState.house?.autoReplant || false);
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
@@ -57,14 +73,25 @@ const HouseScreen = ({
     return (inventoryItems[seedId] || 0) + (seedId !== plantId ? (inventoryItems[plantId] || 0) : 0);
   };
 
-  // Lista de sementes disponíveis no inventário
+  // Lista de sementes disponíveis no inventario (inclui ervas de essência)
   const availablePlants = useMemo(() => {
     const inventoryItems = gameState.inventory?.items || {};
-    return Object.entries(PLANTABLE_ITEMS).filter(([id, plant]) => {
+    return Object.entries(ALL_PLANTABLE_ITEMS).filter(([id, plant]) => {
       const seedId = plant.seed || id;
       return ((inventoryItems[seedId] || 0) + (seedId !== id ? (inventoryItems[id] || 0) : 0)) > 0;
     });
   }, [gameState.inventory?.items]);
+
+  // Colher Tudo
+  const handleHarvestAll = () => {
+    slots.forEach((slot, idx) => {
+      if (slot && now >= slot.plantedAt + slot.growthTime) {
+        onHarvest(idx);
+      }
+    });
+  };
+
+  const readyCount = slots.filter(s => s && now >= s.plantedAt + s.growthTime).length;
 
   return (
     <div className="absolute inset-0 z-[2000] bg-[#1a1c2c] flex flex-col animate-fadeIn">
@@ -98,7 +125,8 @@ const HouseScreen = ({
       <div className="relative z-10 flex px-6 py-4 gap-2">
         {[
           { id: 'garden', label: 'Jardim', icon: '🌱' },
-          { id: 'caretakers', label: 'Cuidadores', icon: '🧑‍🌾' },
+          { id: 'caretakers', label: 'Cuidadores', icon: '🧑\u200d🌾' },
+          { id: 'seed_shop', label: 'Loja', icon: '🏪' },
           { id: 'shop', label: 'Expandir', icon: '🏗️' }
         ].map(tab => (
           <button
@@ -120,6 +148,34 @@ const HouseScreen = ({
       <div className="relative z-10 flex-1 overflow-y-auto px-6 pb-24 custom-scrollbar">
         {activeTab === 'garden' && (
           <div className="animate-slideUp">
+            {/* Botões de ação rápida */}
+            <div className="flex gap-3 mb-4">
+              <button
+                onClick={handleHarvestAll}
+                disabled={readyCount === 0}
+                className={`flex-1 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all border-b-4 flex items-center justify-center gap-2 ${
+                  readyCount > 0
+                  ? 'bg-amber-400 border-amber-600 text-black hover:bg-amber-300 active:border-b-0'
+                  : 'bg-white/5 border-black/40 text-white/30 cursor-not-allowed'
+                }`}
+              >
+                🧺 Colher Tudo {readyCount > 0 && `(${readyCount})`}
+              </button>
+              <button
+                onClick={() => {
+                  const next = !autoReplant;
+                  setAutoReplant(next);
+                  // persiste no gameState via prop não existe, guardamos no state local
+                }}
+                className={`flex-1 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all border-b-4 flex items-center justify-center gap-2 ${
+                  autoReplant
+                  ? 'bg-emerald-500 border-emerald-700 text-white'
+                  : 'bg-white/5 border-black/40 text-white/60 hover:bg-white/10'
+                }`}
+              >
+                🔄 Auto {autoReplant ? 'ON' : 'OFF'}
+              </button>
+            </div>
             <div className="bg-white/5 rounded-[2.5rem] border border-white/10 p-6 backdrop-blur-sm mb-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-sm font-black text-white uppercase tracking-wider">Seu Cultivo</h3>
@@ -188,7 +244,7 @@ const HouseScreen = ({
                               )}
                               <div className="flex justify-between items-center text-[7px] font-black text-white/50 uppercase px-1">
                                 <span>{isReady ? 'Pronto!' : 'Crescendo...'}</span>
-                                {!isReady && <span>{progress.toFixed(0)}%</span>}
+                                {!isReady && <span>{msToReadable(slot.plantedAt + slot.growthTime - now)}</span>}
                               </div>
                             </div>
                           </>
@@ -270,6 +326,72 @@ const HouseScreen = ({
                 ))
               )}
             </div>
+          </div>
+        )}
+
+        {activeTab === 'seed_shop' && (
+          <div className="animate-slideUp space-y-4">
+            <div className="bg-white/5 rounded-3xl p-4 border border-white/10 mb-2">
+              <p className="text-[10px] font-black text-amber-300 uppercase tracking-widest text-center">
+                🏪 Loja de Sementes — Compre com Moedas
+              </p>
+            </div>
+            {/* Berries */}
+            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest px-1">Berries</p>
+            {Object.entries(PLANTABLE_ITEMS).map(([id, plant]) => {
+              const isLocked = plant.shopUnlock && !(gameState.badges || []).includes(plant.shopUnlock);
+              const canAfford = (gameState.currency || 0) >= (plant.shopCost || 0);
+              return (
+                <div key={id} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${isLocked ? 'bg-white/3 border-white/5 opacity-50' : 'bg-white/10 border-white/15'}`}>
+                  <div className="flex items-center gap-3">
+                    <img src={plant.img} className="w-10 h-10 object-contain" alt="" />
+                    <div>
+                      <p className="text-xs font-black text-white">{plant.name}</p>
+                      <p className="text-[9px] text-white/40">{isLocked ? `🔒 Requer: ${plant.shopUnlock}` : plant.description.slice(0, 40) + '…'}</p>
+                    </div>
+                  </div>
+                  <button
+                    disabled={isLocked || !canAfford}
+                    onClick={() => onBuySeed && onBuySeed(plant.seed || id, plant.shopCost)}
+                    className={`text-[10px] font-black px-4 py-2 rounded-xl uppercase border-b-4 transition-all whitespace-nowrap ${
+                      isLocked || !canAfford
+                        ? 'bg-slate-600 border-slate-800 text-slate-400 cursor-not-allowed'
+                        : 'bg-amber-400 border-amber-600 text-black hover:bg-amber-300 active:border-b-0'
+                    }`}
+                  >
+                    {plant.shopCost?.toLocaleString()} 💰
+                  </button>
+                </div>
+              );
+            })}
+            {/* Ervas de Essência */}
+            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest px-1 mt-4">Ervas de Essência</p>
+            {Object.entries(ESSENCE_PLANTS).map(([id, plant]) => {
+              const isLocked = plant.shopUnlock && !(gameState.badges || []).includes(plant.shopUnlock);
+              const canAfford = (gameState.currency || 0) >= (plant.shopCost || 0);
+              return (
+                <div key={id} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${isLocked ? 'bg-white/3 border-white/5 opacity-50' : 'bg-emerald-900/20 border-emerald-500/30'}`}>
+                  <div className="flex items-center gap-3">
+                    <div className="text-3xl w-10 text-center">{plant.icon}</div>
+                    <div>
+                      <p className="text-xs font-black text-white">{plant.name}</p>
+                      <p className="text-[9px] text-white/40">{isLocked ? `🔒 Requer: ${plant.shopUnlock}` : plant.description.slice(0, 40) + '…'}</p>
+                    </div>
+                  </div>
+                  <button
+                    disabled={isLocked || !canAfford}
+                    onClick={() => onBuySeed && onBuySeed(plant.seed, plant.shopCost)}
+                    className={`text-[10px] font-black px-4 py-2 rounded-xl uppercase border-b-4 transition-all whitespace-nowrap ${
+                      isLocked || !canAfford
+                        ? 'bg-slate-600 border-slate-800 text-slate-400 cursor-not-allowed'
+                        : 'bg-emerald-500 border-emerald-700 text-white hover:bg-emerald-400 active:border-b-0'
+                    }`}
+                  >
+                    {plant.shopCost?.toLocaleString()} 💰
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
 

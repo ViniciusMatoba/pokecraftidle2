@@ -5658,6 +5658,21 @@ export default function App() {
                 onBuySlot={handleBuySlot}
                 onAssignCaretaker={handleAssignCaretaker}
                 onRemoveCaretaker={handleRemoveCaretaker}
+                onBuySeed={(seedId, cost) => {
+                  if ((gameState.currency || 0) < cost) return;
+                  setGameState(prev => ({
+                    ...prev,
+                    currency: prev.currency - cost,
+                    inventory: {
+                      ...prev.inventory,
+                      items: {
+                        ...prev.inventory.items,
+                        [seedId]: (prev.inventory.items?.[seedId] || 0) + 1
+                      }
+                    }
+                  }));
+                  addLog(`Semente ${seedId} comprada por ${cost} moedas!`, 'system');
+                }}
               />
             </Suspense>
           )}
