@@ -1,5 +1,14 @@
 # Changelog - PokeCraft
 
+## [V1.56.0] - 11/05/2026 19:58
+### Balanceamento e Expansão
+- **Johto Patch**: Corrigido o teto de nível das rotas finais (Ice Path, Dragon's Den, Victory Road) para eliminar o gap antes da Elite Four.
+- **Hoenn Adjustments**: Suavizada a curva de nível de Tate & Liza e Wallace (Milotic).
+- **Global Progression**: Adicionada rota intermediária (`route_mid` Lv 46) em todas as gerações futuras (Unova até Paldea).
+- **Conteúdo Extra**: Integradas rotas icônicas (`extraRoutes`) em todas as regiões de Gen 5 a 9.
+- **Template System**: Expansão do sistema `buildRegionRoutes` para melhor escalonamento de conteúdo.
+
+
 ## [V1.55.52] - 11/05/2026 19:18
 ### Adicionado
 - Sistema de Shiny Stacking implementado (+5% stats por shiny repetido, cap em x10).
