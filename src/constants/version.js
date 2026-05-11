@@ -1,8 +1,8 @@
-export const APP_VERSION = '1.55.8';
-export const VERSION = '1.55.8';
-export const APP_VERSION_DATE = '09/05/2026 10:12';
+export const APP_VERSION = '1.55.43';
+export const VERSION = '1.55.43';
+export const APP_VERSION_DATE = '11/05/2026 16:12';
 export const CHANGELOG = [
-  'Novos titulos por shinies e batalhas contra treinadores',
-  'Contadores permanentes de shinies capturados e vitorias VS',
-  'Titulo ativo sincronizado com ranking global'
+  'Correção de bugs de Pokémons da mesma espécie no PC',
+  'Correção de mover Pokémon do PC para o Time',
+  'Identificação única de Pokémon por instanceId para evitar conflitos'
 ];

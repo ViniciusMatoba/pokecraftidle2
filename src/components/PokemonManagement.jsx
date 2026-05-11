@@ -38,7 +38,9 @@ const PokemonManagement = ({
   const [pcRegion, setPcRegion] = useState('all');
   const [showTeamReorder, setShowTeamReorder] = useState(false);
   const [moveSwapMode, setMoveSwapMode] = useState(null); // { activeIdx, currentMove }
-  const activePokemonKey = activePokemonDetails?.pokemon?.instanceId || activePokemonDetails?.pokemon?.id || null;
+  const activePokemonKey = activePokemonDetails
+    ? `${activePokemonDetails.pokemon?.instanceId ?? activePokemonDetails.pokemon?.id ?? 'x'}_${activePokemonDetails.location}_${activePokemonDetails.index}`
+    : null;
 
   useEffect(() => {
     setCandyExpanded(false);
@@ -113,7 +115,7 @@ const PokemonManagement = ({
     setActivePokemonDetails(null);
   };
 
-  const moveToTeam = (index) => {
+  const moveToTeam = (index, instanceId) => {
     if (gameState.team.length >= 6) {
       showConfirm({
         title: 'Time Cheio',
@@ -122,7 +124,12 @@ const PokemonManagement = ({
       });
       return;
     }
-    const poke = gameState.pc[index];
+    // Lê o Pokémon pelo instanceId (mais seguro) ou pelo índice
+    const poke = instanceId
+      ? (gameState.pc.find(p => p.instanceId === instanceId) || gameState.pc[index])
+      : gameState.pc[index];
+
+    if (!poke) return;
     
     // Validação de Acesso Regional
     if (validateTeamAccess && !validateTeamAccess(poke, activeRegion)) {
@@ -145,8 +152,15 @@ const PokemonManagement = ({
     }
 
     setGameState(prev => {
-      const newPC = prev.pc.filter((_, i) => i !== index);
-      const newTeam = [...prev.team, poke];
+      // Identifica o Pokémon de forma segura dentro do callback (evita closure stale)
+      const targetPoke = instanceId
+        ? (prev.pc.find(p => p.instanceId === instanceId) || prev.pc[index])
+        : prev.pc[index];
+      if (!targetPoke) return prev;
+      const newPC = instanceId
+        ? prev.pc.filter(p => p.instanceId !== instanceId)
+        : prev.pc.filter((_, i) => i !== index);
+      const newTeam = [...prev.team, targetPoke];
       return { ...prev, team: newTeam, pc: newPC };
     });
     setActivePokemonDetails(null);
@@ -445,7 +459,7 @@ const PokemonManagement = ({
                 }
 
                 return filtered.map((p) => (
-                  <div key={p.instanceId || p.originalIndex} onClick={() => setActivePokemonDetails({ pokemon: p, index: p.originalIndex, location: 'pc' })} className="bg-white p-3 rounded-2xl border-2 border-slate-100 flex flex-col items-center gap-2 group relative cursor-pointer hover:border-pokeGold transition-all">
+                  <div key={p.instanceId || `pc-${p.id}-${p.originalIndex}`} onClick={() => setActivePokemonDetails({ pokemon: p, index: p.originalIndex, location: 'pc' })} className="bg-white p-3 rounded-2xl border-2 border-slate-100 flex flex-col items-center gap-2 group relative cursor-pointer hover:border-pokeGold transition-all">
                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className="w-12 h-12 object-contain" alt={p.name} loading="lazy" />
                      <div className="text-center">
                        <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none flex items-center justify-center gap-1">
@@ -454,7 +468,7 @@ const PokemonManagement = ({
                        </p>
                        <p className="text-[8px] font-bold text-slate-400 mt-0.5">Nv. {p.level}</p>
                      </div>
-                     <button onClick={(e) => { e.stopPropagation(); moveToTeam(p.originalIndex); }} className="absolute top-1 right-1 bg-blue-50 text-blue-500 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75">
+                     <button onClick={(e) => { e.stopPropagation(); moveToTeam(p.originalIndex, p.instanceId); }} className="absolute top-1 right-1 bg-blue-50 text-blue-500 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75">
                        <span className="font-black text-[8px] uppercase">+ Team</span>
                      </button>
                   </div>
@@ -997,7 +1011,7 @@ const PokemonManagement = ({
                       </div>
                     </div>
                   ) : (
-                    <button onClick={() => { moveToTeam(activePokemonDetails.index); setActivePokemonDetails(null); }} className="w-full h-14 bg-gradient-to-r from-pokeBlue to-blue-600 text-white rounded-2xl shadow-lg flex items-center justify-center gap-3 font-black uppercase text-xs hover:scale-[1.02] active:scale-95 transition-all">Adicionar ao Time</button>
+                    <button onClick={() => { moveToTeam(activePokemonDetails.index, activePokemonDetails.pokemon?.instanceId); }} className="w-full h-14 bg-gradient-to-r from-pokeBlue to-blue-600 text-white rounded-2xl shadow-lg flex items-center justify-center gap-3 font-black uppercase text-xs hover:scale-[1.02] active:scale-95 transition-all">Adicionar ao Time</button>
                   )}
                </div>
             </div>
