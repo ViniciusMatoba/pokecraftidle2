@@ -1,7 +1,13 @@
-export const APP_VERSION = '1.70.0';
-export const VERSION = '1.70.0';
-export const APP_VERSION_DATE = '12/05/2026 23:00';
+export const APP_VERSION = '1.71.0';
+export const VERSION = '1.71.0';
+export const APP_VERSION_DATE = '12/05/2026 23:30';
 export const CHANGELOG = [
+  'Fix: Loja de Prestígio — tela azul ao acessar aba Avatar corrigida (hook fora de IIFE)',
+  'UI: Avatar — card de preview ao vivo com glow dinâmico da moldura e gradiente do fundo',
+  'UI: Avatar Sprites — agrupados por região com cabeçalhos, grid 3 colunas, overlay de bloqueio',
+  'UI: Avatar Tints — preview ao vivo do sprite com tint + barra de cor',
+  'UI: Avatar Molduras — mini card decorativo com gradiente e indicador visual da cor',
+  'UI: Avatar Fundos — preview do gradiente com padrão de estrelas',
   'Balance: Raids menos frequentes — intervalo de 2h→6h, gatilho de batalhas 50→200',
   'Fix: Pikachu adicionado à Floresta de Viridian com taxa canônica (~2%)',
   'Balance: Encontros com Pokémon iniciais agora são raros (~1%) nas rotas iniciais Kanto + regionais',
