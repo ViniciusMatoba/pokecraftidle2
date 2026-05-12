@@ -1,6 +1,6 @@
 export const APP_VERSION = '1.74.5';
 export const VERSION = '1.74.5';
-export const APP_VERSION_DATE = '13/05/2026 19:30';
+export const APP_VERSION_DATE = '13/05/2026 12:56';
 export const CHANGELOG = [
   'Fix: Ícones do Menu corrigidos — Pokédex 📕, Mochila 🎒 e Salvar 💾 agora usam emoji (100% confiável)',
   'Fix: Avatar Leaf — sprite corrigido (leaf.png→green.png no PS, era 404)',
