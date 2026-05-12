@@ -29,8 +29,8 @@ const FUTURE_REGION_CHALLENGE_DATA = {
   alola: {
     label: 'Alola', start: 'alola_started', champion: 'alola_champion', villain: 'Team Skull', villainSprite: psTrainer('skullgrunt'), rivalSprite: psTrainer('hau'), bg: "url('/battle_bg_route19_20.png') center/cover no-repeat",
     badges: ['melemele_stamp', 'akala_stamp', 'ulaula_stamp', 'poni_stamp', 'alola_elite_stamp', 'alola_champion_stamp', 'ultra_stamp', 'battle_tree_stamp'],
-    leaders: [['Ilima', 'Normal', 16, [735, 20]], ['Olivia', 'Rock', 28, [299, 525, 745]], ['Nanu', 'Dark', 44, [302, 53, 430]], ['Hapu', 'Ground', 55, [51, 423, 750]], ['Molayne', 'Steel', 65, [227, 462, 801]], ['Olivia Elite', 'Rock', 75, [476, 703, 745]], ['Acerola', 'Ghost', 85, [478, 426, 778]], ['Kahili', 'Flying', 80, [628, 741, 733]]],
-    league: [['Hala', 'Fighting', 82, [297, 538, 739]], ['Olivia', 'Rock', 84, [476, 703, 745]], ['Acerola', 'Ghost', 86, [478, 426, 778]], ['Kahili', 'Flying', 88, [628, 741, 733]], ['Kukui', 'Rock', 92, [745, 727, 724, 730]]],
+    leaders: [['Ilima', 'Normal', 16, [735, 20]], ['Lana', 'Water', 22, [751, 746]], ['Kiawe', 'Fire', 26, [776, 757]], ['Mallow', 'Grass', 30, [761, 754]], ['Sophocles', 'Electric', 38, [737, 777]], ['Mina', 'Fairy', 52, [742, 700]], ['Hapu', 'Ground', 58, [51, 750]], ['Molayne', 'Steel', 64, [227, 801]]],
+    league: [['Hala', 'Fighting', 82, [297, 739, 740]], ['Olivia', 'Rock', 84, [476, 703, 745]], ['Acerola', 'Ghost', 86, [478, 426, 778]], ['Kahili', 'Flying', 88, [628, 741, 733]], ['Kukui', 'Mixed', 92, [745, 727, 724, 730]]],
   },
   galar: {
     label: 'Galar', start: 'galar_started', champion: 'galar_champion', villain: 'Team Yell', villainSprite: psTrainer('yellgrunt'), rivalSprite: psTrainer('hop'), bg: "url('/battle_bg_route16_17_18.png') center/cover no-repeat",

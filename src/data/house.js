@@ -149,7 +149,7 @@ export const PLANTABLE_ITEMS = {
   sitrus_berry: {
     id: 'sitrus_berry',
     name: 'Sitrus Berry',
-    icon: '👊',
+    icon: '🍊',
     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sitrus-berry.png',
     description: 'Restaura 25% do HP máximo. Excelente para batalhas.',
     growthTime: 45,
@@ -195,7 +195,7 @@ export const PLANTABLE_ITEMS = {
   blue_apricorn: {
     id: 'blue_apricorn',
     name: 'Blue Apricorn',
-    icon: '💀',
+    icon: '🔵',
     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/blue-apricorn.png',
     description: 'Para fabricar Lure Ball. Boa taxa de crescimento.',
     growthTime: 45,
@@ -225,7 +225,7 @@ export const PLANTABLE_ITEMS = {
   pink_apricorn: {
     id: 'pink_apricorn',
     name: 'Pink Apricorn',
-    icon: '>w',
+    icon: '🌸',
     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pink-apricorn.png',
     description: 'Para fabricar Love Ball.',
     growthTime: 50,
@@ -240,7 +240,7 @@ export const PLANTABLE_ITEMS = {
   red_apricorn: {
     id: 'red_apricorn',
     name: 'Red Apricorn',
-    icon: '=4',
+    icon: '🔴',
     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/red-apricorn.png',
     description: 'Para fabricar Level Ball.',
     growthTime: 40,
@@ -329,10 +329,15 @@ export const calcCombinedCaretakerBonus = (caretakers) => {
   caretakers.forEach(p => {
     const type = p.type || 'Normal';
     const bonus = CARETAKER_BONUSES[type] || CARETAKER_BONUSES.Normal;
-    combined.growthMult  = Math.max(combined.growthMult,  bonus.growthMult);
-    combined.yieldMult   = Math.max(combined.yieldMult,   bonus.yieldMult);
+    combined.growthMult  *= bonus.growthMult;
+    combined.yieldMult   *= bonus.yieldMult;
     combined.rarityBonus += bonus.rarityBonus;
     combined.specialBonus += bonus.specialBonus;
   });
+  
+  // Cap bônus em 3.0x para balanceamento
+  combined.growthMult = Math.min(combined.growthMult, 3.0);
+  combined.yieldMult = Math.min(combined.yieldMult, 3.0);
+  
   return combined;
 };

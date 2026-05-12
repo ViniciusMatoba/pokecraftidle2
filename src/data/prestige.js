@@ -146,6 +146,7 @@ export const UI_THEMES = {
     name: 'Clássico',
     cost: 0,
     preview: '#ef4444',
+    bonus: { xpMult: 1.0 },
     css: {},
   },
   golden: {
@@ -160,6 +161,7 @@ export const UI_THEMES = {
       '--color-accent': '#fbbf24',
       '--color-bg': '#1c1407',
     },
+    bonus: { xpMult: 1.15 },
   },
   midnight: {
     id: 'midnight',
@@ -172,6 +174,7 @@ export const UI_THEMES = {
       '--color-accent': '#818cf8',
       '--color-bg': '#0f0f1a',
     },
+    bonus: { xpMult: 1.15 },
   },
   forest: {
     id: 'forest',
@@ -184,6 +187,7 @@ export const UI_THEMES = {
       '--color-accent': '#4ade80',
       '--color-bg': '#0a1a0d',
     },
+    bonus: { xpMult: 1.10 },
   },
 };
 

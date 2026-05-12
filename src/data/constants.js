@@ -214,6 +214,7 @@ export const DEFAULT_GAME_STATE = {
     fled: 0,       // raids que expiraram sem participar
   },
   battlesSinceLastRaid: 0,  // contador de batalhas para trigger
+  selectedStarters: {},
 };
 
 export const ITEM_LABELS = {
@@ -333,6 +334,16 @@ export const ITEM_LABELS = {
 
   // Drops de Expedição — Johto / Hoenn / Sinnoh
   super_rod:         { icon: '🎣', name: 'Super Vara' },
+
+  // Itens Adicionais e Apricorns
+  lucky_egg:       { icon: '🥚', name: 'Lucky Egg' },
+  black_apricorn:  { icon: '⚫', name: 'Apricorn Preto' },
+  blue_apricorn:   { icon: '🔵', name: 'Apricorn Azul' },
+  green_apricorn:  { icon: '🟢', name: 'Apricorn Verde' },
+  pink_apricorn:   { icon: '🌸', name: 'Apricorn Rosa' },
+  red_apricorn:    { icon: '🔴', name: 'Apricorn Vermelho' },
+  white_apricorn:  { icon: '⚪', name: 'Apricorn Branco' },
+  yellow_apricorn: { icon: '🟡', name: 'Apricorn Amarelo' },
 };
 
 

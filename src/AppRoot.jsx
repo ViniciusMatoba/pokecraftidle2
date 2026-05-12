@@ -1172,27 +1172,7 @@ export default function App() {
 
   // FIREBASE CLOUD SYNC
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        addLog(`👤 Logado como ${user.email}`, 'system');
-        try {
-          const docRef = doc(db, "saves", user.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            if (data?.gameState) {
-              setGameState(prev => ({ ...prev, ...data.gameState }));
-              addLog("☁️ Progresso sincronizado com a nuvem!", "system");
-            }
-          }
-        } catch (err) {
-          console.error("Erro ao carregar nuvem:", err);
-        }
-      }
-    });
-    return () => unsubscribe();
-  }, [addLog]);
+
 
   // 1. Sincronização LocalStorage (Sempre que o estado mudar)
   useEffect(() => {
@@ -3941,15 +3921,19 @@ export default function App() {
     setGameState(prev => {
       const updated_regional_teams = { ...(prev.regional_teams || {}), [prev.activeRegion || 'sinnoh']: [...prev.team] };
       return {
-        ...prev, activeRegion: 'unova',
+        ...prev, 
+        activeRegion: 'unova',
         regional_teams: updated_regional_teams,
         selectedStarters: { ...(prev.selectedStarters || {}), unova: starterId },
-        team: [starter], currentRoute: 'unova_home_town',
+        team: [starter], 
+        currentRoute: 'unova_home_town',
         caughtData: { ...(prev.caughtData || {}), [starter.id]: true },
         worldFlags: [...new Set([...(prev.worldFlags || []), 'unova_started'])],
       };
     });
-    setActiveMemberIndex(0); setCurrentEnemy(null); setCurrentView('city');
+    setActiveMemberIndex(0); 
+    setCurrentEnemy(null); 
+    setCurrentView('city');
     addLog(`🌍 Bem-vindo a Unova! Sua jornada com ${starter.name} começa agora!`, 'system');
   }, [createRegionStarter, addLog]);
 
@@ -4415,6 +4399,7 @@ export default function App() {
       }
       // ── CHAMPION MODALS — todos os 9 pares de região ─────────────────────────
       const CHAMPION_MODAL_MAP = {
+        hoenn_champion:  { pendingFlag: 'hoenn_champion_modal_pending', regionFlag: 'region_champion_hoenn',  setter: () => setTimeout(() => setShowSinnohIntroModal(true),   1200) },
         johto_champion:  { pendingFlag: 'johto_champion_modal_pending',  regionFlag: 'region_champion_johto',  setter: () => setTimeout(() => setShowJohtoChampionModal(true),  1200) },
         sinnoh_champion: { pendingFlag: 'sinnoh_champion_modal_pending', regionFlag: 'region_champion_sinnoh', setter: () => setTimeout(() => setShowSinnohChampionModal(true), 1200) },
         unova_champion:  { pendingFlag: 'unova_champion_modal_pending',  regionFlag: 'region_champion_unova',  setter: () => setTimeout(() => setShowUnovaChampionModal(true),  1200) },
@@ -4431,15 +4416,6 @@ export default function App() {
         if (!newFlags.includes(pendingFlag) && !newFlags.includes(pendingFlag.replace('_pending', '_shown'))) {
           newFlags.push(pendingFlag);
           setter();
-        }
-      }
-
-      // Hoenn champion (já existia, mantém o mesmo comportamento)
-      if (unlockFlag === 'hoenn_champion') {
-        if (!newFlags.includes('region_champion_hoenn')) newFlags.push('region_champion_hoenn');
-        if (!newFlags.includes('hoenn_champion_modal_shown') && !newFlags.includes('hoenn_champion_modal_pending')) {
-          newFlags.push('hoenn_champion_modal_pending');
-          setTimeout(() => setShowSinnohIntroModal(true), 1200);
         }
       }
 
