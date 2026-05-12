@@ -560,6 +560,8 @@ export default function App() {
   const [showOakStaminaModal, setShowOakStaminaModal] = useState(false);
   const [showKantoChampionModal, setShowKantoChampionModal] = useState(false);
   const [showSinnohIntroModal, setShowSinnohIntroModal] = useState(false);
+  const [showJohtoChampionModal, setShowJohtoChampionModal] = useState(false);
+  const [showSinnohChampionModal, setShowSinnohChampionModal] = useState(false);
   const [showGymVictoryModal, setShowGymVictoryModal] = useState(null); // { leaderName, badge, badgeImg, reward }
   const [previewStarter, setPreviewStarter] = useState(null);
   const [activeQuestModal, setActiveQuestModal] = useState(null);
@@ -3678,15 +3680,28 @@ export default function App() {
   }, [currentView, currentEnemy?.instanceId, showAutoCaptureModal]);
 
   useEffect(() => {
-    if ((gameState.worldFlags || []).includes('kanto_champion_modal_pending')) {
+    const flags = gameState.worldFlags || [];
+
+    if (flags.includes('kanto_champion_modal_pending')) {
       setShowKantoChampionModal(true);
     }
-    const flags = gameState.worldFlags || [];
     if (
       flags.includes('hoenn_champion_modal_pending') ||
       (flags.includes('hoenn_champion') && !flags.includes('sinnoh_started') && !flags.includes('hoenn_champion_modal_shown'))
     ) {
       setShowSinnohIntroModal(true);
+    }
+    if (
+      flags.includes('johto_champion_modal_pending') ||
+      (flags.includes('johto_champion') && !flags.includes('hoenn_started') && !flags.includes('johto_champion_modal_shown'))
+    ) {
+      setShowJohtoChampionModal(true);
+    }
+    if (
+      flags.includes('sinnoh_champion_modal_pending') ||
+      (flags.includes('sinnoh_champion') && !flags.includes('sinnoh_champion_modal_shown'))
+    ) {
+      setShowSinnohChampionModal(true);
     }
   }, [gameState.worldFlags]);
   // ————————————————————————————————————————————————————————————
@@ -4227,8 +4242,12 @@ export default function App() {
         newFlags.push('kanto_champion_modal_pending');
         setTimeout(() => setShowKantoChampionModal(true), 1200);
       }
-      if (currentEnemy.unlockFlag === 'johto_champion' && !newFlags.includes('region_champion_johto')) {
-        newFlags.push('region_champion_johto');
+      if (currentEnemy.unlockFlag === 'johto_champion') {
+        if (!newFlags.includes('region_champion_johto')) newFlags.push('region_champion_johto');
+        if (!newFlags.includes('johto_champion_modal_shown') && !newFlags.includes('johto_champion_modal_pending')) {
+          newFlags.push('johto_champion_modal_pending');
+          setTimeout(() => setShowJohtoChampionModal(true), 1200);
+        }
       }
       if (currentEnemy.unlockFlag === 'hoenn_champion') {
         if (!newFlags.includes('region_champion_hoenn')) newFlags.push('region_champion_hoenn');
@@ -4237,8 +4256,12 @@ export default function App() {
           setTimeout(() => setShowSinnohIntroModal(true), 1200);
         }
       }
-      if (currentEnemy.unlockFlag === 'sinnoh_champion' && !newFlags.includes('region_champion_sinnoh')) {
-        newFlags.push('region_champion_sinnoh');
+      if (currentEnemy.unlockFlag === 'sinnoh_champion') {
+        if (!newFlags.includes('region_champion_sinnoh')) newFlags.push('region_champion_sinnoh');
+        if (!newFlags.includes('sinnoh_champion_modal_shown') && !newFlags.includes('sinnoh_champion_modal_pending')) {
+          newFlags.push('sinnoh_champion_modal_pending');
+          setTimeout(() => setShowSinnohChampionModal(true), 1200);
+        }
       }
       REGION_ORDER.forEach(region => {
         const championFlag = REGION_CHAMPION_FLAGS[region];
@@ -6546,6 +6569,120 @@ export default function App() {
                   className="w-full min-h-[48px] rounded-2xl bg-slate-100 text-slate-500 font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-all"
                 >
                   Continuar em Hoenn
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showJohtoChampionModal && (
+        <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-orange-500 animate-bounceIn">
+            <div className="bg-orange-500 px-6 py-5 flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
+                <img
+                  src="https://play.pokemonshowdown.com/sprites/trainers/professorbirch.png"
+                  onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }}
+                  className="w-12 h-12 object-contain"
+                  alt="Prof. Birch"
+                />
+              </div>
+              <div>
+                <p className="text-orange-100 text-[10px] font-black uppercase tracking-[0.25em]">Prof. Birch</p>
+                <h2 className="text-white text-xl font-black uppercase italic tracking-tighter leading-none">Campeão de Johto!</h2>
+              </div>
+            </div>
+            <div className="p-6">
+              <p className="text-sm font-bold text-slate-600 leading-relaxed italic mb-3">
+                "Incrível! Lance foi derrotado. Você é o novo Campeão de Johto — uma conquista lendária!"
+              </p>
+              <div className="bg-orange-50 border-2 border-orange-100 rounded-3xl p-4 mb-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-orange-600 mb-1">Nova Região Desbloqueada</p>
+                <p className="text-xs font-bold text-orange-900">
+                  "Sou o Prof. Birch, de Littleroot Town em Hoenn. Quando estiver pronto, venha conhecer nossa região — escolha Treecko, Torchic ou Mudkip e comece do zero."
+                </p>
+              </div>
+              <div className="grid grid-cols-1 gap-3">
+                <button
+                  onClick={() => {
+                    setShowJohtoChampionModal(false);
+                    setGameState(prev => ({
+                      ...prev,
+                      worldFlags: (prev.worldFlags || [])
+                        .filter(f => f !== 'johto_champion_modal_pending')
+                        .concat(['johto_champion_modal_shown'])
+                        .filter((v, i, a) => a.indexOf(v) === i),
+                    }));
+                    setCurrentView('hoenn_intro');
+                  }}
+                  className="w-full min-h-[54px] rounded-2xl bg-orange-500 text-white font-black uppercase tracking-widest text-xs hover:bg-orange-600 transition-all shadow-lg"
+                >
+                  Conhecer Hoenn com o Prof. Birch
+                </button>
+                <button
+                  onClick={() => {
+                    setShowJohtoChampionModal(false);
+                    setGameState(prev => ({
+                      ...prev,
+                      worldFlags: (prev.worldFlags || [])
+                        .filter(f => f !== 'johto_champion_modal_pending')
+                        .concat(['johto_champion_modal_shown'])
+                        .filter((v, i, a) => a.indexOf(v) === i),
+                    }));
+                  }}
+                  className="w-full min-h-[48px] rounded-2xl bg-slate-100 text-slate-500 font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-all"
+                >
+                  Continuar em Johto por ora
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showSinnohChampionModal && (
+        <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-violet-500 animate-bounceIn">
+            <div className="bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-5 flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
+                <img
+                  src="https://play.pokemonshowdown.com/sprites/trainers/professorrowan.png"
+                  onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }}
+                  className="w-12 h-12 object-contain"
+                  alt="Prof. Rowan"
+                />
+              </div>
+              <div>
+                <p className="text-violet-100 text-[10px] font-black uppercase tracking-[0.25em]">Prof. Rowan</p>
+                <h2 className="text-white text-xl font-black uppercase italic tracking-tighter leading-none">Mestre Pokémon!</h2>
+              </div>
+            </div>
+            <div className="p-6">
+              <p className="text-sm font-bold text-slate-600 leading-relaxed italic mb-3">
+                "Cynthia foi derrotada. Você conquistou Kanto, Johto, Hoenn e Sinnoh. Poucos treinadores na história chegaram até aqui."
+              </p>
+              <div className="bg-violet-50 border-2 border-violet-100 rounded-3xl p-4 mb-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-violet-600 mb-1">🏆 Todas as Ligas Conquistadas</p>
+                <p className="text-xs font-bold text-violet-900">
+                  "Explore as rotas pós-Liga de Sinnoh, colete Pokémon lendários e complete a Pokédex. Novos conteúdos são adicionados com frequência!"
+                </p>
+              </div>
+              <div className="grid grid-cols-1 gap-3">
+                <button
+                  onClick={() => {
+                    setShowSinnohChampionModal(false);
+                    setGameState(prev => ({
+                      ...prev,
+                      worldFlags: (prev.worldFlags || [])
+                        .filter(f => f !== 'sinnoh_champion_modal_pending')
+                        .concat(['sinnoh_champion_modal_shown'])
+                        .filter((v, i, a) => a.indexOf(v) === i),
+                    }));
+                  }}
+                  className="w-full min-h-[54px] rounded-2xl bg-violet-600 text-white font-black uppercase tracking-widest text-xs hover:bg-violet-700 transition-all shadow-lg"
+                >
+                  ✨ Explorar Conteúdo Pós-Game
                 </button>
               </div>
             </div>
