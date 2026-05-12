@@ -1676,11 +1676,20 @@ export default function App() {
 
     const recipeDrops = FORGE_RECIPE_DROP_BY_POKEMON[Number(enemy.id)];
     const recipeDropList = Array.isArray(recipeDrops) ? recipeDrops : (recipeDrops ? [recipeDrops] : []);
-    if (recipeDropList.length && Math.random() < (enemy.isShiny ? 0.18 : 0.045)) {
-      const recipeDrop = recipeDropList[Math.floor(Math.random() * recipeDropList.length)];
-      drops.materials[recipeDrop] = (drops.materials[recipeDrop] || 0) + 1;
-      const cleanName = recipeDrop.replace('recipe_', '').replace(/_/g, ' ');
-      messages.push(`Receita rara: ${cleanName}`);
+    if (recipeDropList.length) {
+      // Taxa maior nas rotas iniciais (level baixo) para facilitar a progressão
+      const isEarlyGame = (enemy.level || 1) <= 20;
+      const baseRate = isEarlyGame ? 0.09 : 0.05;
+      const dropRate = enemy.isShiny ? 0.25 : baseRate;
+      if (Math.random() < dropRate) {
+        // Filtra receitas já descobertas para não duplicar
+        const undiscovered = recipeDropList.filter(r => !(gameState.inventory?.materials?.[r] > 0));
+        const pool = undiscovered.length ? undiscovered : recipeDropList;
+        const recipeDrop = pool[Math.floor(Math.random() * pool.length)];
+        drops.materials[recipeDrop] = (drops.materials[recipeDrop] || 0) + 1;
+        const cleanName = recipeDrop.replace('recipe_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        messages.push(`📜 Receita: ${cleanName}`);
+      }
     }
 
     const trainerCardMaterialByPokemon = {
@@ -6354,11 +6363,13 @@ export default function App() {
               </div>
 
               <Suspense fallback={<div className="p-10 text-center font-black text-slate-400">Carregando Forja...</div>}>
-                <CraftingStation 
+                <CraftingStation
                   recipes={CRAFTING_RECIPES}
                   inventory={gameState.inventory}
                   currency={gameState.currency}
                   onCraft={handleCraft}
+                  hasRecipe={(id) => hasForgeRecipe(gameState, id)}
+                  recipeGuides={FORGE_RECIPE_DROP_GUIDE}
                 />
               </Suspense>
 

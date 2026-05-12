@@ -391,33 +391,52 @@ const ALL_FORGE_RECIPES = Object.values(CRAFTING_RECIPES).flat();
 export const FORGE_RECIPE_IDS = [...new Set(ALL_FORGE_RECIPES.map(recipe => recipe.id))];
 export const RECIPE_GATED_FORGE_IDS = new Set(FORGE_RECIPE_IDS);
 
+// ── Mapa de onde cada receita é dropada (Pokémon fonte → material fonte) ──────
+// Receitas de itens iniciais devem dropar de Pokémon das rotas iniciais!
 const RECIPE_SOURCE_OVERRIDES = {
-  pokeballs: 'apricorn',
-  great_ball: 'iron_ore',
-  ultra_ball: 'mystic_dust',
-  revive: 'ghost_essence',
-  max_repel: 'poison_essence',
-  fire_stone: 'fire_stone_shard',
-  water_stone: 'water_stone_shard',
-  leaf_stone: 'leaf_stone_shard',
+  // Consumíveis básicos — rotas iniciais (Route 1/2/3)
+  pokeballs:   'normal_essence',   // Pidgey, Rattata (Route 1) ← antes apricorn (Johto!)
+  great_ball:  'iron_ore',         // Geodude, Onix (Mt. Moon)
+  ultra_ball:  'mystic_dust',      // Gastly, Haunter (Pokémon Tower)
+  revive:      'ghost_essence',    // Pokémon Tower — faz sentido temático
+  max_repel:   'poison_essence',   // Ekans, Zubat (rotas iniciais e cavernas)
+
+  // Pedras evolutivas — Pokémon que dropam os fragmentos
+  fire_stone:    'fire_stone_shard',
+  water_stone:   'water_stone_shard',
+  leaf_stone:    'leaf_stone_shard',
   thunder_stone: 'thunder_stone_shard',
-  moon_stone: 'moon_stone_shard',
-  sun_stone: 'sun_stone_shard',
-  shiny_stone: 'shiny_stone_shard',
-  dusk_stone: 'dusk_stone_shard',
-  dawn_stone: 'dawn_stone_shard',
-  ice_stone: 'ice_stone_shard',
-  link_cable: 'link_cable_part',
-  charcoal: 'fire_essence',
-  mystic_water: 'water_essence',
-  black_belt: 'fighting_essence',
-  magnet: 'electric_essence',
-  quick_claw: 'flying_essence',
-  lucky_egg: 'pink_dust',
-  amulet_coin: 'gold_nugget',
-  titan_shield: 'armor_fragment',
-  adrenaline_potion: 'fury_essence',
+  moon_stone:    'moon_stone_shard',
+  sun_stone:     'sun_stone_shard',
+  shiny_stone:   'shiny_stone_shard',
+  dusk_stone:    'dusk_stone_shard',
+  dawn_stone:    'dawn_stone_shard',
+  ice_stone:     'ice_stone_shard',
+  link_cable:    'link_cable_part',
+
+  // Hold Items — mesmo material do custo
+  charcoal:      'fire_essence',
+  mystic_water:  'water_essence',
+  black_belt:    'fighting_essence',
+  magnet:        'electric_essence',
+  quick_claw:    'flying_essence',
+  lucky_egg:     'pink_dust',
+  amulet_coin:   'gold_nugget',
+
+  // TMs — mapeadas ao tipo de essência correspondente
+  tm_flamethrower: 'fire_essence',    // Charmander, Vulpix, Growlithe (rotas iniciais Kanto)
+  tm_thunderbolt:  'electric_essence',// Pikachu, Magnemite (Power Plant / rotas elétricas)
+  tm_ice_beam:     'ice_essence',     // Jynx, Lapras (Ice Path / rotas geladas)
+
+  // Relíquias elite
+  titan_shield:        'armor_fragment',
+  adrenaline_potion:   'fury_essence',
   penetration_pendant: 'dragon_scale',
+
+  // Varas de pesca — insetos e Pokémon de rotas ribeirinhas
+  old_rod:   'normal_essence',  // Route 1 / rotas iniciais
+  good_rod:  'water_essence',   // rotas aquáticas
+  super_rod: 'dragon_essence',  // Dragon's Den / rotas avançadas
 };
 
 const getRecipeSourceMaterial = (recipe) => {
@@ -425,15 +444,31 @@ const getRecipeSourceMaterial = (recipe) => {
   return Object.keys(recipe.cost || {}).find(material => material !== 'currency' && FORGE_MATERIAL_DROP_GUIDE[material]) || 'normal_essence';
 };
 
+// Descrições amigáveis por tipo de fonte — aparecem na UI da Forja
+const RECIPE_LABEL_OVERRIDES = {
+  pokeballs:       'Derrote Pidgey e Rattata na Route 1 ou 2.',
+  great_ball:      'Derrote Geodude e Onix no Mt. Moon.',
+  ultra_ball:      'Derrote Gastly e Haunter na Pokémon Tower.',
+  revive:          'Derrote fantasmas na Pokémon Tower.',
+  max_repel:       'Derrote Ekans e Zubat nas cavernas iniciais.',
+  tm_flamethrower: 'Derrote Charmander, Vulpix ou Growlithe nas rotas de fogo.',
+  tm_thunderbolt:  'Derrote Pikachu, Magnemite ou Voltorb na Power Plant.',
+  tm_ice_beam:     'Derrote Jynx ou Lapras no Ice Path / Seafoam Islands.',
+  old_rod:         'Derrote qualquer Pokémon nas rotas iniciais (Route 1/2/3).',
+  good_rod:        'Derrote Pokémon aquáticos nas rotas costeiras.',
+  super_rod:       'Derrote Dratini ou Dragonair na Dragon\'s Den.',
+};
+
 export const FORGE_RECIPE_DROP_GUIDE = Object.fromEntries(ALL_FORGE_RECIPES.map(recipe => {
   const sourceMaterial = getRecipeSourceMaterial(recipe);
   const guide = FORGE_MATERIAL_DROP_GUIDE[sourceMaterial] || FORGE_MATERIAL_DROP_GUIDE.normal_essence;
+  const label = RECIPE_LABEL_OVERRIDES[recipe.id] || `Receita ${recipe.name}: ${guide.label}`;
   return [recipe.id, {
     recipeItemId: `recipe_${recipe.id}`,
     sourceMaterial,
     pokemonIds: guide.pokemonIds,
     routeId: guide.routeId,
-    label: `Receita ${recipe.name}: ${guide.label}`,
+    label,
   }];
 }));
 
