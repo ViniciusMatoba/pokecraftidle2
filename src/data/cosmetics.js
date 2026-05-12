@@ -1,0 +1,638 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// SISTEMA DE COSMÉTICOS DE AVATAR
+// Sprites, tints, molduras e fundos personalizáveis pelo jogador
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Sprites de Avatar ─────────────────────────────────────────────────────────
+// unlockFlag: worldFlag que precisa existir no save para desbloquear automaticamente
+// cost: custo em currency para comprar na loja (null = apenas por progresso, 0 = grátis)
+// minBadges: total de insígnias mínimo (opcional, adicional ao flag)
+export const AVATAR_SPRITES = {
+  // ── Padrão (sempre disponível) ────────────────────────────────────────────
+  red: {
+    id: 'red',
+    name: 'Red',
+    region: 'kanto',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/red.png',
+    unlockFlag: null,
+    cost: 0,
+    description: 'O lendário treinador de Pallet Town.',
+  },
+  leaf: {
+    id: 'leaf',
+    name: 'Leaf',
+    region: 'kanto',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/leaf.png',
+    unlockFlag: null,
+    cost: 0,
+    description: 'A rival de Red, também de Pallet Town.',
+  },
+
+  // ── Kanto (desbloqueio por progresso — campeão de Kanto) ─────────────────
+  giovannirocket: {
+    id: 'giovannirocket',
+    name: 'Giovanni',
+    region: 'kanto',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/giovanni.png',
+    unlockFlag: 'kanto_champion',
+    cost: 8000,
+    description: 'Líder da Equipe Rocket. Desbloqueado ao vencer Kanto.',
+  },
+
+  // ── Johto ─────────────────────────────────────────────────────────────────
+  gold: {
+    id: 'gold',
+    name: 'Gold',
+    region: 'johto',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/gold.png',
+    unlockFlag: 'johto_started',
+    cost: 0,
+    description: 'Treinador de New Bark Town.',
+  },
+  kris: {
+    id: 'kris',
+    name: 'Kris',
+    region: 'johto',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/kris.png',
+    unlockFlag: 'johto_started',
+    cost: 0,
+    description: 'A primeira protagonista feminina da série.',
+  },
+  lance: {
+    id: 'lance',
+    name: 'Lance',
+    region: 'johto',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/lance.png',
+    unlockFlag: 'johto_champion',
+    cost: 10000,
+    description: 'Mestre Dragão e Campeão de Johto.',
+  },
+
+  // ── Hoenn ─────────────────────────────────────────────────────────────────
+  brendan: {
+    id: 'brendan',
+    name: 'Brendan',
+    region: 'hoenn',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/brendan.png',
+    unlockFlag: 'hoenn_started',
+    cost: 0,
+    description: 'Treinador de Littleroot Town.',
+  },
+  may: {
+    id: 'may',
+    name: 'May',
+    region: 'hoenn',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/may.png',
+    unlockFlag: 'hoenn_started',
+    cost: 0,
+    description: 'A rival de Brendan em Hoenn.',
+  },
+  steven: {
+    id: 'steven',
+    name: 'Steven',
+    region: 'hoenn',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/steven.png',
+    unlockFlag: 'hoenn_champion',
+    cost: 12000,
+    description: 'Campeão de Hoenn e especialista em Pokémon de Rocha.',
+  },
+
+  // ── Sinnoh ────────────────────────────────────────────────────────────────
+  lucas: {
+    id: 'lucas',
+    name: 'Lucas',
+    region: 'sinnoh',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/lucas.png',
+    unlockFlag: 'sinnoh_started',
+    cost: 0,
+    description: 'Treinador de Twinleaf Town.',
+  },
+  dawn: {
+    id: 'dawn',
+    name: 'Dawn',
+    region: 'sinnoh',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/dawn.png',
+    unlockFlag: 'sinnoh_started',
+    cost: 0,
+    description: 'A rival de Lucas em Sinnoh.',
+  },
+  cynthia: {
+    id: 'cynthia',
+    name: 'Cynthia',
+    region: 'sinnoh',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/cynthia.png',
+    unlockFlag: 'sinnoh_champion',
+    cost: 15000,
+    description: 'A icônica Campeã de Sinnoh.',
+  },
+
+  // ── Unova ─────────────────────────────────────────────────────────────────
+  hilbert: {
+    id: 'hilbert',
+    name: 'Hilbert',
+    region: 'unova',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/hilbert.png',
+    unlockFlag: 'unova_started',
+    cost: 0,
+    description: 'Treinador de Nuvema Town.',
+  },
+  hilda: {
+    id: 'hilda',
+    name: 'Hilda',
+    region: 'unova',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/hilda.png',
+    unlockFlag: 'unova_started',
+    cost: 0,
+    description: 'A protagonista feminina de Unova.',
+  },
+  alder: {
+    id: 'alder',
+    name: 'Alder',
+    region: 'unova',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/alder.png',
+    unlockFlag: 'unova_champion',
+    cost: 15000,
+    description: 'Campeão de Unova.',
+  },
+
+  // ── Kalos ─────────────────────────────────────────────────────────────────
+  calem: {
+    id: 'calem',
+    name: 'Calem',
+    region: 'kalos',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/calem.png',
+    unlockFlag: 'kalos_started',
+    cost: 0,
+    description: 'Treinador de Vaniville Town.',
+  },
+  serena: {
+    id: 'serena',
+    name: 'Serena',
+    region: 'kalos',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/serena.png',
+    unlockFlag: 'kalos_started',
+    cost: 0,
+    description: 'A rival de Calem em Kalos.',
+  },
+  diantha: {
+    id: 'diantha',
+    name: 'Diantha',
+    region: 'kalos',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/diantha.png',
+    unlockFlag: 'kalos_champion',
+    cost: 15000,
+    description: 'Campeã de Kalos e atriz famosa.',
+  },
+
+  // ── Alola ─────────────────────────────────────────────────────────────────
+  elio: {
+    id: 'elio',
+    name: 'Elio',
+    region: 'alola',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/elio.png',
+    unlockFlag: 'alola_started',
+    cost: 0,
+    description: 'Treinador das ilhas de Alola.',
+  },
+  selene: {
+    id: 'selene',
+    name: 'Selene',
+    region: 'alola',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/selene.png',
+    unlockFlag: 'alola_started',
+    cost: 0,
+    description: 'A protagonista feminina de Alola.',
+  },
+  kukui: {
+    id: 'kukui',
+    name: 'Prof. Kukui',
+    region: 'alola',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/kukui.png',
+    unlockFlag: 'alola_champion',
+    cost: 18000,
+    description: 'Fundador da Liga de Alola.',
+  },
+
+  // ── Galar ─────────────────────────────────────────────────────────────────
+  victor: {
+    id: 'victor',
+    name: 'Victor',
+    region: 'galar',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/victor.png',
+    unlockFlag: 'galar_started',
+    cost: 0,
+    description: 'Treinador de Postwick em Galar.',
+  },
+  gloria: {
+    id: 'gloria',
+    name: 'Gloria',
+    region: 'galar',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/gloria.png',
+    unlockFlag: 'galar_started',
+    cost: 0,
+    description: 'A protagonista feminina de Galar.',
+  },
+  leon: {
+    id: 'leon',
+    name: 'Leon',
+    region: 'galar',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/leon.png',
+    unlockFlag: 'galar_champion',
+    cost: 20000,
+    description: 'O Campeão imbatível de Galar.',
+  },
+
+  // ── Paldea ────────────────────────────────────────────────────────────────
+  florian: {
+    id: 'florian',
+    name: 'Florian',
+    region: 'paldea',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/florian.png',
+    unlockFlag: 'paldea_started',
+    cost: 0,
+    description: 'Treinador de Uva Academy em Paldea.',
+  },
+  juliana: {
+    id: 'juliana',
+    name: 'Juliana',
+    region: 'paldea',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/juliana.png',
+    unlockFlag: 'paldea_started',
+    cost: 0,
+    description: 'A protagonista feminina de Paldea.',
+  },
+  geeta: {
+    id: 'geeta',
+    name: 'Geeta',
+    region: 'paldea',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/geeta.png',
+    unlockFlag: 'paldea_champion',
+    cost: 20000,
+    description: 'Campeã Suprema de Paldea.',
+  },
+
+  // ── Especiais (loja de prestígio, requer total de insígnias alto) ─────────
+  ash: {
+    id: 'ash',
+    name: 'Ash Ketchum',
+    region: 'special',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/ash.png',
+    unlockFlag: null,
+    cost: 50000,
+    minBadges: 16,
+    description: 'O treinador mais famoso do mundo. Compra exclusiva.',
+  },
+  misty_special: {
+    id: 'misty_special',
+    name: 'Misty',
+    region: 'special',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/misty.png',
+    unlockFlag: null,
+    cost: 30000,
+    minBadges: 8,
+    description: 'A líder de ginásio de Cerulean City.',
+  },
+  gary: {
+    id: 'gary',
+    name: 'Gary Oak',
+    region: 'special',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/gary.png',
+    unlockFlag: null,
+    cost: 35000,
+    minBadges: 8,
+    description: 'O neto do Professor Carvalho e rival de Red.',
+  },
+  n: {
+    id: 'n',
+    name: 'N',
+    region: 'special',
+    sprite: 'https://play.pokemonshowdown.com/sprites/trainers/n.png',
+    unlockFlag: null,
+    cost: 40000,
+    minBadges: 16,
+    description: 'O misterioso Rei Natural de Unova.',
+  },
+};
+
+// ── Tints de Cor do Avatar ────────────────────────────────────────────────────
+// Aplicado como CSS filter: hue-rotate(Xdeg) saturate(1.3) ao sprite
+export const AVATAR_TINTS = {
+  none: {
+    id: 'none',
+    name: 'Original',
+    hue: 0,
+    saturate: 1.0,
+    cost: 0,
+    unlockFlag: null,
+    preview: '#94a3b8',
+  },
+  fire: {
+    id: 'fire',
+    name: 'Chamas',
+    hue: 20,
+    saturate: 1.5,
+    cost: 3000,
+    unlockFlag: null,
+    preview: '#f97316',
+  },
+  ocean: {
+    id: 'ocean',
+    name: 'Oceano',
+    hue: 200,
+    saturate: 1.4,
+    cost: 3000,
+    unlockFlag: null,
+    preview: '#3b82f6',
+  },
+  forest: {
+    id: 'forest',
+    name: 'Floresta',
+    hue: 120,
+    saturate: 1.3,
+    cost: 3000,
+    unlockFlag: null,
+    preview: '#22c55e',
+  },
+  psychic: {
+    id: 'psychic',
+    name: 'Psíquico',
+    hue: 280,
+    saturate: 1.5,
+    cost: 5000,
+    unlockFlag: null,
+    preview: '#a855f7',
+  },
+  electric: {
+    id: 'electric',
+    name: 'Elétrico',
+    hue: 55,
+    saturate: 1.8,
+    cost: 5000,
+    unlockFlag: null,
+    preview: '#eab308',
+  },
+  dragon: {
+    id: 'dragon',
+    name: 'Dragão',
+    hue: 240,
+    saturate: 1.2,
+    cost: 8000,
+    minBadges: 6,
+    unlockFlag: null,
+    preview: '#6366f1',
+  },
+  shiny: {
+    id: 'shiny',
+    name: 'Shiny ✨',
+    hue: 50,
+    saturate: 2.0,
+    cost: 20000,
+    minBadges: 8,
+    unlockFlag: null,
+    preview: '#fbbf24',
+  },
+  shadow: {
+    id: 'shadow',
+    name: 'Sombra',
+    hue: 0,
+    saturate: 0.0,
+    cost: 15000,
+    minBadges: 8,
+    unlockFlag: null,
+    preview: '#334155',
+  },
+};
+
+// ── Molduras do Cartão de Treinador ──────────────────────────────────────────
+export const CARD_FRAMES = {
+  default: {
+    id: 'default',
+    name: 'Padrão',
+    cost: 0,
+    unlockFlag: null,
+    border: 'border-slate-600',
+    headerBg: 'from-slate-700 to-slate-900',
+    preview: '#475569',
+  },
+  kanto: {
+    id: 'kanto',
+    name: 'Kanto',
+    cost: 0,
+    unlockFlag: 'kanto_champion',
+    border: 'border-red-600',
+    headerBg: 'from-red-700 to-red-900',
+    preview: '#dc2626',
+    description: 'Desbloqueado ao vencer o Campeão de Kanto.',
+  },
+  johto: {
+    id: 'johto',
+    name: 'Johto',
+    cost: 0,
+    unlockFlag: 'johto_champion',
+    border: 'border-yellow-500',
+    headerBg: 'from-yellow-600 to-yellow-900',
+    preview: '#ca8a04',
+    description: 'Desbloqueado ao vencer o Campeão de Johto.',
+  },
+  hoenn: {
+    id: 'hoenn',
+    name: 'Hoenn',
+    cost: 0,
+    unlockFlag: 'hoenn_champion',
+    border: 'border-emerald-500',
+    headerBg: 'from-emerald-700 to-emerald-900',
+    preview: '#059669',
+    description: 'Desbloqueado ao vencer o Campeão de Hoenn.',
+  },
+  sinnoh: {
+    id: 'sinnoh',
+    name: 'Sinnoh',
+    cost: 0,
+    unlockFlag: 'sinnoh_champion',
+    border: 'border-blue-500',
+    headerBg: 'from-blue-700 to-blue-900',
+    preview: '#2563eb',
+    description: 'Desbloqueado ao vencer a Campeã de Sinnoh.',
+  },
+  unova: {
+    id: 'unova',
+    name: 'Unova',
+    cost: 0,
+    unlockFlag: 'unova_champion',
+    border: 'border-zinc-400',
+    headerBg: 'from-zinc-600 to-zinc-900',
+    preview: '#71717a',
+    description: 'Desbloqueado ao vencer o Campeão de Unova.',
+  },
+  kalos: {
+    id: 'kalos',
+    name: 'Kalos',
+    cost: 0,
+    unlockFlag: 'kalos_champion',
+    border: 'border-sky-400',
+    headerBg: 'from-sky-600 to-sky-900',
+    preview: '#0284c7',
+    description: 'Desbloqueado ao vencer a Campeã de Kalos.',
+  },
+  dragon: {
+    id: 'dragon',
+    name: 'Mestre Dragão',
+    cost: 25000,
+    minBadges: 12,
+    unlockFlag: null,
+    border: 'border-violet-500',
+    headerBg: 'from-violet-700 to-violet-950',
+    preview: '#7c3aed',
+    description: 'Para os mestres dos dragões.',
+  },
+  champion: {
+    id: 'champion',
+    name: 'Campeão ★',
+    cost: 60000,
+    minBadges: 16,
+    unlockFlag: null,
+    border: 'border-amber-400',
+    headerBg: 'from-amber-500 to-purple-900',
+    preview: '#f59e0b',
+    description: 'O mais raro. Para verdadeiros Pokémon Masters.',
+  },
+  shiny: {
+    id: 'shiny',
+    name: 'Shiny Hunter',
+    cost: 40000,
+    minBadges: 16,
+    unlockFlag: null,
+    border: 'border-pink-400',
+    headerBg: 'from-pink-600 to-fuchsia-900',
+    preview: '#ec4899',
+    description: 'Para quem dedica a vida a encontrar shinys.',
+  },
+};
+
+// ── Fundos do Cartão de Treinador ────────────────────────────────────────────
+export const CARD_BACKGROUNDS = {
+  slate: {
+    id: 'slate',
+    name: 'Escuridão',
+    cost: 0,
+    unlockFlag: null,
+    gradient: 'from-slate-800 to-slate-950',
+    preview: '#1e293b',
+  },
+  kanto_viridian: {
+    id: 'kanto_viridian',
+    name: 'Floresta Viridian',
+    cost: 0,
+    unlockFlag: 'kanto_champion',
+    gradient: 'from-green-900 to-slate-950',
+    preview: '#14532d',
+    description: 'Desbloqueado ao vencer Kanto.',
+  },
+  johto_ruins: {
+    id: 'johto_ruins',
+    name: 'Ruínas Johto',
+    cost: 0,
+    unlockFlag: 'johto_champion',
+    gradient: 'from-amber-900 to-slate-950',
+    preview: '#78350f',
+    description: 'Desbloqueado ao vencer Johto.',
+  },
+  hoenn_ocean: {
+    id: 'hoenn_ocean',
+    name: 'Oceano Hoenn',
+    cost: 0,
+    unlockFlag: 'hoenn_champion',
+    gradient: 'from-cyan-900 to-blue-950',
+    preview: '#164e63',
+    description: 'Desbloqueado ao vencer Hoenn.',
+  },
+  sinnoh_mountain: {
+    id: 'sinnoh_mountain',
+    name: 'Monte Coroa',
+    cost: 0,
+    unlockFlag: 'sinnoh_champion',
+    gradient: 'from-blue-900 to-slate-950',
+    preview: '#1e3a8a',
+    description: 'Desbloqueado ao vencer Sinnoh.',
+  },
+  space: {
+    id: 'space',
+    name: 'Espaço',
+    cost: 20000,
+    minBadges: 12,
+    unlockFlag: null,
+    gradient: 'from-indigo-950 to-black',
+    preview: '#1e1b4b',
+    description: 'Além dos limites do universo Pokémon.',
+  },
+  lava: {
+    id: 'lava',
+    name: 'Vulcão',
+    cost: 15000,
+    minBadges: 8,
+    unlockFlag: null,
+    gradient: 'from-red-900 to-orange-950',
+    preview: '#7f1d1d',
+    description: 'O calor do núcleo da terra.',
+  },
+  champion_hall: {
+    id: 'champion_hall',
+    name: 'Hall da Fama',
+    cost: 50000,
+    minBadges: 16,
+    unlockFlag: null,
+    gradient: 'from-yellow-700 via-purple-900 to-slate-950',
+    preview: '#a16207',
+    description: 'Onde os lendários são imortalizados.',
+  },
+};
+
+// ── Estado padrão de aparência ────────────────────────────────────────────────
+export const DEFAULT_APPEARANCE = {
+  spriteId: 'red',
+  tintId: 'none',
+  frameId: 'default',
+  bgId: 'slate',
+  // IDs desbloqueados via compra (progresso desbloqueia diretamente pelo flag)
+  purchasedSprites: [],
+  purchasedTints: [],
+  purchasedFrames: [],
+  purchasedBgs: [],
+};
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * Verifica se um item cosmético está desbloqueado para o jogador.
+ * @param {object} item - Item do catálogo (AVATAR_SPRITES, CARD_FRAMES, etc.)
+ * @param {string[]} worldFlags - Array de flags do save do jogador
+ * @param {string[]} purchased - IDs comprados pelo jogador
+ * @param {number} totalBadges - Total de insígnias do jogador
+ */
+export const isCosmeticUnlocked = (item, worldFlags = [], purchased = [], totalBadges = 0) => {
+  if (item.cost === 0 && !item.unlockFlag) return true;                  // sempre livre
+  if (item.unlockFlag && worldFlags.includes(item.unlockFlag)) return true; // desbloqueado por progresso
+  if (purchased.includes(item.id)) return true;                          // comprado
+  return false;
+};
+
+/**
+ * Verifica se o jogador pode comprar o item (tem coins e badges suficientes,
+ * mas ainda não o possui).
+ */
+export const canPurchaseCosmetic = (item, worldFlags = [], purchased = [], totalBadges = 0, currency = 0) => {
+  if (isCosmeticUnlocked(item, worldFlags, purchased, totalBadges)) return false; // já tem
+  if (item.cost === null || item.cost === undefined) return false;        // não comprável
+  if (currency < item.cost) return false;
+  if (item.minBadges && totalBadges < item.minBadges) return false;
+  return true;
+};
+
+/**
+ * Gera o CSS filter string a partir de um tint.
+ */
+export const getTintFilter = (tintId) => {
+  const tint = AVATAR_TINTS[tintId] || AVATAR_TINTS.none;
+  if (tint.hue === 0 && tint.saturate === 1.0) return 'none';
+  return `hue-rotate(${tint.hue}deg) saturate(${tint.saturate})`;
+};

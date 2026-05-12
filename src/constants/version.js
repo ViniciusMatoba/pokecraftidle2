@@ -1,7 +1,10 @@
-export const APP_VERSION = '1.66.3';
-export const VERSION = '1.66.3';
-export const APP_VERSION_DATE = '12/05/2026 09:52';
+export const APP_VERSION = '1.67.0';
+export const VERSION = '1.67.0';
+export const APP_VERSION_DATE = '12/05/2026 18:00';
 export const CHANGELOG = [
+  'Feature: Sistema de Avatar — sprites por região, tints de cor, molduras e fundos personalizáveis na Loja de Prestígio',
+  'Feature: Desbloqueio Progressivo de Avatar — cosméticos gratuitos ao vencer campeões regionais, premium na loja',
+  'Balance: Raids Progressivas — estrelas limitadas por insígnias (0-1→1★, 2-3→2★, 4-5→3★, 6-7→4★, 8+→5★)',
   'Fix: Sincronização de Save — redirecionamento automático para a cidade ao detectar progresso na nuvem',
   'Hotfix: Resolvido erro de monitorAuthState indefinido que causava tela azul no carregamento',
   'Feature: Modal de Vitória Unificado — novos visuais e fluxos para Ginásios, Elite Four, Rivais e Equipes Vilãs',

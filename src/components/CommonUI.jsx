@@ -1,5 +1,6 @@
 import React from 'react';
 import { getPrimaryTrainerTitle, getUnlockedTrainerTitles } from '../data/trainerTitles';
+import { AVATAR_SPRITES, AVATAR_TINTS, CARD_FRAMES, CARD_BACKGROUNDS, getTintFilter } from '../data/cosmetics';
 
 const BADGE_IDS = ['boulder_badge', 'cascade_badge', 'thunder_badge', 'rainbow_badge', 'soul_badge', 'marsh_badge', 'volcano_badge', 'earth_badge'];
 const JOHTO_BADGE_IDS = ['zephyr_badge', 'hive_badge', 'plain_badge', 'fog_badge', 'storm_badge', 'mineral_badge', 'glacier_badge', 'rising_badge'];
@@ -282,12 +283,12 @@ export const QuickInventory = ({ inventory, onUseItem }) => {
   );
 };
 
-export const TrainerCard = ({ 
-  trainer, 
-  badges = [], 
-  caughtCount = 0, 
+export const TrainerCard = ({
+  trainer,
+  badges = [],
+  caughtCount = 0,
   caughtData = {},
-  worldFlags = [], 
+  worldFlags = [],
   powerScore = 0,
   forgedItems = 0,
   bossDamage = 0,
@@ -295,12 +296,20 @@ export const TrainerCard = ({
   trainerBattleWins = 0,
   inventoryItems = {},
   compactExpandable = false,
-  onSelectTitle = null
+  onSelectTitle = null,
+  appearance = {},
 }) => {
   const [expanded, setExpanded] = React.useState(!compactExpandable);
   const [showPsInfo, setShowPsInfo] = React.useState(false);
   const [showTitlePicker, setShowTitlePicker] = React.useState(false);
   if (!trainer) return null;
+
+  // ── Resolve cosméticos equipados ────────────────────────────────────────
+  const equippedSprite = AVATAR_SPRITES[appearance.spriteId] || AVATAR_SPRITES.red;
+  const equippedFrame  = CARD_FRAMES[appearance.frameId]     || CARD_FRAMES.default;
+  const equippedBg     = CARD_BACKGROUNDS[appearance.bgId]   || CARD_BACKGROUNDS.slate;
+  const tintFilter     = getTintFilter(appearance.tintId || 'none');
+  const avatarSrc      = equippedSprite.sprite || trainer.avatarImg || 'https://play.pokemonshowdown.com/sprites/trainers/red.png';
   const showDetails = !compactExpandable || expanded;
   const titleContext = { caughtData, caughtCount, worldFlags, forgedItems, bossDamage, shinyCount, trainerBattleWins };
   const unlockedTitles = getUnlockedTrainerTitles(titleContext);
@@ -356,7 +365,8 @@ export const TrainerCard = ({
 
   return (
     <div
-      className={`relative bg-[#1a1a2e] p-5 rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-col gap-5 text-left overflow-hidden transition-all ${compactExpandable ? 'cursor-pointer active:scale-[0.99] hover:border-pokeGold/70' : ''}`}
+      className={`relative p-5 rounded-[2rem] border-4 shadow-2xl flex flex-col gap-5 text-left overflow-hidden transition-all bg-gradient-to-b ${equippedBg.gradient} ${compactExpandable ? 'cursor-pointer active:scale-[0.99]' : ''}`}
+      style={{ borderColor: equippedFrame.preview }}
       onClick={compactExpandable ? () => setExpanded(prev => !prev) : undefined}
       role={compactExpandable ? 'button' : undefined}
       tabIndex={compactExpandable ? 0 : undefined}
@@ -388,12 +398,14 @@ export const TrainerCard = ({
 
       {/* Topo: Sprite + Nome/PS */}
       <div className="flex items-center gap-3">
-        <div className="bg-slate-800 rounded-3xl p-3 border-2 border-slate-600 shadow-inner shrink-0">
-          <img 
-            src={trainer.avatarImg} 
-            onError={(e) => e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'} 
-            alt="Avatar" 
-            className="w-20 h-20 object-contain drop-shadow-lg" 
+        <div className="rounded-3xl p-3 border-2 shadow-inner shrink-0 bg-black/30"
+          style={{ borderColor: equippedFrame.preview }}>
+          <img
+            src={avatarSrc}
+            onError={(e) => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }}
+            alt="Avatar"
+            className="w-20 h-20 object-contain drop-shadow-lg"
+            style={{ imageRendering: 'pixelated', filter: tintFilter !== 'none' ? tintFilter : undefined }}
           />
         </div>
         <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -785,10 +797,10 @@ export const TrainerCardModal = ({ userData, onClose }) => {
           className="absolute -top-12 right-0 w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-black border-2 border-red-400 shadow-lg active:scale-95 z-10"
         >X</button>
         
-        <TrainerCard 
+        <TrainerCard
           trainer={{
             name: userData.name,
-            avatarImg: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/${userData.avatar || 1}.png`,
+            avatarImg: `https://play.pokemonshowdown.com/sprites/trainers/red.png`,
             level: userData.level || 1,
             titleId: userData.titleId
           }}
@@ -802,6 +814,7 @@ export const TrainerCardModal = ({ userData, onClose }) => {
           shinyCount={userData.shinyCapturedCount || 0}
           trainerBattleWins={userData.trainerBattleWins || 0}
           inventoryItems={userData.inventory?.items || {}}
+          appearance={userData.appearance || {}}
         />
 
         <div className="mt-6 text-center">

@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  TROPHIES, TRAINER_TITLES, POKEDEX_FRAMES, UI_THEMES, 
-  ALLIES, MINE_LEVELS, FISHING_RODS, GYM_BANNERS 
+import {
+  TROPHIES, TRAINER_TITLES, POKEDEX_FRAMES, UI_THEMES,
+  ALLIES, MINE_LEVELS, FISHING_RODS, GYM_BANNERS
 } from '../data/prestige';
+import {
+  AVATAR_SPRITES, AVATAR_TINTS, CARD_FRAMES, CARD_BACKGROUNDS,
+  isCosmeticUnlocked, canPurchaseCosmetic, getTintFilter,
+} from '../data/cosmetics';
 
 /* ─── Componente de Item Sprite ───────────────────────────────────────── */
 const ItemSprite = ({ src, fallback, size = 'w-12 h-12' }) => (
@@ -139,7 +143,40 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
     addLog(`⛏️ Mina ${currentLevel === 0 ? 'desbloqueada' : 'aprimorada'} para Nível ${nextLevel}!`, 'system');
   };
 
+  // ── Avatar cosmetics helpers ───────────────────────────────────────────────
+  const worldFlags   = gameState.worldFlags || [];
+  const totalBadges  = badges;
+  const appearance   = gameState.appearance || {};
+  const pSprites     = appearance.purchasedSprites || [];
+  const pTints       = appearance.purchasedTints   || [];
+  const pFrames      = appearance.purchasedFrames  || [];
+  const pBgs         = appearance.purchasedBgs     || [];
+
+  const handleBuyCosmetic = (category, item) => {
+    if (currency < item.cost) return;
+    if ((item.minBadges || 0) > totalBadges) return;
+    setGameState(prev => {
+      const app = prev.appearance || {};
+      let update = { currency: prev.currency - item.cost };
+      if (category === 'sprite') update.appearance = { ...app, purchasedSprites: [...(app.purchasedSprites || []), item.id] };
+      if (category === 'tint')   update.appearance = { ...app, purchasedTints:   [...(app.purchasedTints   || []), item.id] };
+      if (category === 'frame')  update.appearance = { ...app, purchasedFrames:  [...(app.purchasedFrames  || []), item.id] };
+      if (category === 'bg')     update.appearance = { ...app, purchasedBgs:     [...(app.purchasedBgs     || []), item.id] };
+      addLog(`✅ ${item.name} desbloqueado!`, 'system');
+      return { ...prev, ...update };
+    });
+  };
+
+  const handleEquipCosmetic = (category, id) => {
+    setGameState(prev => {
+      const app = prev.appearance || {};
+      let field = { sprite: 'spriteId', tint: 'tintId', frame: 'frameId', bg: 'bgId' }[category];
+      return { ...prev, appearance: { ...app, [field]: id } };
+    });
+  };
+
   const tabs = [
+    { id: 'avatar',   label: 'Avatar',   key: '▲' },
     { id: 'trophies', label: 'Troféus',  key: 'A' },
     { id: 'titles',   label: 'Títulos',  key: 'B' },
     { id: 'cosmetics',label: 'Visual',   key: '↑' },
@@ -225,6 +262,225 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
 
       {/* ── CONTENT AREA ────────────────────────────────────────────────── */}
       <div className="relative z-10 flex-1 overflow-y-auto p-4 pb-10">
+
+        {/* ── AVATAR ──────────────────────────────────────────────────────── */}
+        {activeTab === 'avatar' && (() => {
+          const [avatarSub, setAvatarSub] = React.useState('sprites');
+          const avatarSubTabs = [
+            { id: 'sprites', label: '🧑 Sprite'   },
+            { id: 'tints',   label: '🎨 Cor'       },
+            { id: 'frames',  label: '🖼 Moldura'   },
+            { id: 'bgs',     label: '🌄 Fundo'     },
+          ];
+          const currentSprite = AVATAR_SPRITES[appearance.spriteId || 'red'] || AVATAR_SPRITES.red;
+          const currentTint   = AVATAR_TINTS[appearance.tintId || 'none']    || AVATAR_TINTS.none;
+          const currentFrame  = CARD_FRAMES[appearance.frameId || 'default'] || CARD_FRAMES.default;
+          const currentBg     = CARD_BACKGROUNDS[appearance.bgId || 'slate'] || CARD_BACKGROUNDS.slate;
+
+          return (
+            <div className="flex flex-col gap-4">
+              {/* Preview do cartão */}
+              <div className={`rounded-none border-4 overflow-hidden bg-gradient-to-b ${currentBg.gradient}`}
+                style={{ borderColor: currentFrame.preview }}>
+                <div className={`px-4 py-2 bg-gradient-to-r ${currentFrame.headerBg} flex items-center gap-3`}>
+                  <img
+                    src={currentSprite.sprite}
+                    alt={currentSprite.name}
+                    className="w-12 h-12 object-contain"
+                    style={{ imageRendering: 'pixelated', filter: getTintFilter(appearance.tintId || 'none') }}
+                    onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }}
+                  />
+                  <div>
+                    <p className="text-[10px] text-white/50 font-mono uppercase tracking-widest">Treinador</p>
+                    <p className="text-sm font-black text-white uppercase">{currentSprite.name}</p>
+                    <p className="text-[9px] text-white/40 font-mono">{currentTint.name} · {currentFrame.name}</p>
+                  </div>
+                </div>
+                <div className="px-4 py-3 text-[9px] text-white/30 font-mono text-center uppercase tracking-widest">
+                  Preview do Cartão de Treinador
+                </div>
+              </div>
+
+              {/* Sub-tabs */}
+              <div className="flex border-b border-[#333]">
+                {avatarSubTabs.map(st => (
+                  <button key={st.id} onClick={() => setAvatarSub(st.id)}
+                    className={`flex-1 py-2 text-[10px] font-mono uppercase tracking-wide transition-all ${
+                      avatarSub === st.id
+                        ? 'bg-[#f0f0f0] text-[#1a1a2e] font-black border-b-2 border-[#c0392b]'
+                        : 'text-white/40 hover:text-white/70'
+                    }`}>
+                    {st.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* ── Sprites ── */}
+              {avatarSub === 'sprites' && (
+                <div className="grid grid-cols-3 gap-3">
+                  {Object.values(AVATAR_SPRITES).map(item => {
+                    const unlocked = isCosmeticUnlocked(item, worldFlags, pSprites, totalBadges);
+                    const canBuy   = canPurchaseCosmetic(item, worldFlags, pSprites, totalBadges, currency);
+                    const isEquipped = appearance.spriteId === item.id;
+                    const isLocked = !unlocked;
+                    return (
+                      <div key={item.id}
+                        onClick={() => {
+                          if (isEquipped) return;
+                          if (unlocked) handleEquipCosmetic('sprite', item.id);
+                          else if (canBuy) handleBuyCosmetic('sprite', item);
+                        }}
+                        className={`relative border-2 p-2 flex flex-col items-center gap-1 cursor-pointer transition-all ${
+                          isEquipped ? 'border-[#fbbf24] bg-[#1c1500]'
+                          : isLocked  ? 'border-[#333] bg-[#0d0d0d] opacity-60'
+                          : 'border-[#444] bg-[#111] hover:border-[#777]'
+                        }`}>
+                        <div className="relative">
+                          <img src={item.sprite} alt={item.name}
+                            className={`w-14 h-14 object-contain ${isLocked ? 'grayscale' : ''}`}
+                            style={{ imageRendering: 'pixelated', filter: isLocked ? 'grayscale(1)' : 'none' }}
+                            onError={e => { e.target.style.display='none'; }}
+                          />
+                          {isLocked && (
+                            <div className="absolute inset-0 flex items-center justify-center text-lg">🔒</div>
+                          )}
+                        </div>
+                        <p className={`text-[9px] font-mono text-center uppercase leading-tight ${isEquipped ? 'text-yellow-400 font-black' : 'text-white/60'}`}>
+                          {item.name}
+                        </p>
+                        <p className="text-[8px] font-mono text-white/30 text-center">{item.region}</p>
+                        {isEquipped && <span className="text-[8px] font-mono text-yellow-400 uppercase">★ Ativo</span>}
+                        {!unlocked && item.cost > 0 && (
+                          <span className={`text-[8px] font-mono ${canBuy ? 'text-yellow-400' : 'text-white/30'}`}>
+                            {item.cost.toLocaleString()} C
+                          </span>
+                        )}
+                        {!unlocked && item.unlockFlag && (
+                          <span className="text-[8px] font-mono text-purple-400 text-center leading-tight">🏆 Progresso</span>
+                        )}
+                        {unlocked && !isEquipped && (
+                          <span className="text-[8px] font-mono text-emerald-400 uppercase">Equipar</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* ── Tints ── */}
+              {avatarSub === 'tints' && (
+                <div className="grid grid-cols-3 gap-3">
+                  {Object.values(AVATAR_TINTS).map(item => {
+                    const unlocked = isCosmeticUnlocked(item, worldFlags, pTints, totalBadges);
+                    const canBuy   = canPurchaseCosmetic(item, worldFlags, pTints, totalBadges, currency);
+                    const isEquipped = appearance.tintId === item.id;
+                    return (
+                      <div key={item.id}
+                        onClick={() => {
+                          if (isEquipped) return;
+                          if (unlocked) handleEquipCosmetic('tint', item.id);
+                          else if (canBuy) handleBuyCosmetic('tint', item);
+                        }}
+                        className={`border-2 p-3 flex flex-col items-center gap-2 cursor-pointer transition-all ${
+                          isEquipped ? 'border-[#fbbf24] bg-[#1c1500]'
+                          : !unlocked ? 'border-[#333] bg-[#0d0d0d] opacity-60'
+                          : 'border-[#444] bg-[#111] hover:border-[#777]'
+                        }`}>
+                        {/* Preview: sprite + tint aplicado */}
+                        <img
+                          src={currentSprite.sprite}
+                          alt=""
+                          className="w-12 h-12 object-contain"
+                          style={{ imageRendering: 'pixelated', filter: getTintFilter(item.id) }}
+                          onError={e => { e.target.style.display='none'; }}
+                        />
+                        <div className="w-full h-2 rounded-none" style={{ backgroundColor: item.preview }} />
+                        <p className={`text-[9px] font-mono uppercase text-center ${isEquipped ? 'text-yellow-400 font-black' : 'text-white/60'}`}>
+                          {item.name}
+                        </p>
+                        {isEquipped && <span className="text-[8px] text-yellow-400 font-mono">★ Ativo</span>}
+                        {!unlocked && <span className={`text-[8px] font-mono ${canBuy ? 'text-yellow-400' : 'text-white/30'}`}>{item.cost.toLocaleString()} C</span>}
+                        {unlocked && !isEquipped && <span className="text-[8px] font-mono text-emerald-400">Equipar</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* ── Molduras ── */}
+              {avatarSub === 'frames' && (
+                <div className="grid grid-cols-2 gap-3">
+                  {Object.values(CARD_FRAMES).map(item => {
+                    const unlocked = isCosmeticUnlocked(item, worldFlags, pFrames, totalBadges);
+                    const canBuy   = canPurchaseCosmetic(item, worldFlags, pFrames, totalBadges, currency);
+                    const isEquipped = appearance.frameId === item.id;
+                    return (
+                      <div key={item.id}
+                        onClick={() => {
+                          if (isEquipped) return;
+                          if (unlocked) handleEquipCosmetic('frame', item.id);
+                          else if (canBuy) handleBuyCosmetic('frame', item);
+                        }}
+                        className={`border-2 p-3 cursor-pointer transition-all ${
+                          isEquipped ? 'bg-[#1a1000]'
+                          : !unlocked ? 'border-[#333] bg-[#0d0d0d] opacity-60'
+                          : 'border-[#444] bg-[#111] hover:border-[#777]'
+                        }`}
+                        style={{ borderColor: isEquipped ? item.preview : undefined }}>
+                        {/* Preview */}
+                        <div className="w-full h-8 rounded-none bg-gradient-to-r mb-2 border-2"
+                          style={{ borderColor: item.preview, background: `linear-gradient(90deg, ${item.preview}55, ${item.preview}22)` }} />
+                        <p className={`text-[10px] font-mono uppercase text-center ${isEquipped ? 'text-yellow-400 font-black' : 'text-white/70'}`}>{item.name}</p>
+                        {item.description && <p className="text-[8px] text-white/30 font-mono text-center mt-1 leading-tight">{item.description}</p>}
+                        <div className="text-center mt-2">
+                          {isEquipped && <span className="text-[9px] font-mono text-yellow-400">★ ATIVA</span>}
+                          {!unlocked && item.unlockFlag && <span className="text-[8px] font-mono text-purple-400">🏆 Vencer região</span>}
+                          {!unlocked && !item.unlockFlag && <span className={`text-[9px] font-mono ${canBuy ? 'text-yellow-400' : 'text-white/30'}`}>{item.cost?.toLocaleString()} C</span>}
+                          {unlocked && !isEquipped && <span className="text-[9px] font-mono text-emerald-400">Equipar</span>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* ── Fundos ── */}
+              {avatarSub === 'bgs' && (
+                <div className="grid grid-cols-2 gap-3">
+                  {Object.values(CARD_BACKGROUNDS).map(item => {
+                    const unlocked = isCosmeticUnlocked(item, worldFlags, pBgs, totalBadges);
+                    const canBuy   = canPurchaseCosmetic(item, worldFlags, pBgs, totalBadges, currency);
+                    const isEquipped = appearance.bgId === item.id;
+                    return (
+                      <div key={item.id}
+                        onClick={() => {
+                          if (isEquipped) return;
+                          if (unlocked) handleEquipCosmetic('bg', item.id);
+                          else if (canBuy) handleBuyCosmetic('bg', item);
+                        }}
+                        className={`border-2 p-3 cursor-pointer transition-all overflow-hidden ${
+                          isEquipped ? 'border-[#fbbf24]'
+                          : !unlocked ? 'border-[#333] opacity-60'
+                          : 'border-[#444] hover:border-[#777]'
+                        }`}>
+                        {/* Preview do gradiente */}
+                        <div className={`w-full h-10 rounded-none bg-gradient-to-br mb-2 ${item.gradient}`} />
+                        <p className={`text-[10px] font-mono uppercase text-center ${isEquipped ? 'text-yellow-400 font-black' : 'text-white/70'}`}>{item.name}</p>
+                        {item.description && <p className="text-[8px] text-white/30 font-mono text-center mt-1 leading-tight">{item.description}</p>}
+                        <div className="text-center mt-2">
+                          {isEquipped && <span className="text-[9px] font-mono text-yellow-400">★ ATIVO</span>}
+                          {!unlocked && item.unlockFlag && <span className="text-[8px] font-mono text-purple-400">🏆 Vencer região</span>}
+                          {!unlocked && !item.unlockFlag && <span className={`text-[9px] font-mono ${canBuy ? 'text-yellow-400' : 'text-white/30'}`}>{item.cost?.toLocaleString()} C</span>}
+                          {unlocked && !isEquipped && <span className="text-[9px] font-mono text-emerald-400">Equipar</span>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* TROFÉUS */}
         {activeTab === 'trophies' && (
