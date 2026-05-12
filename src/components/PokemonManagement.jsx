@@ -28,7 +28,8 @@ const PokemonManagement = ({
   validateTeamAccess,
   activeRegion,
   isEvolutionAllowedForRegion,
-  getEvolutionRegionLockMessage
+  getEvolutionRegionLockMessage,
+  CRAFTING_RECIPES
 }) => {
   const [candyExpanded, setCandyExpanded] = useState(false);
   const [dragTeamIndex, setDragTeamIndex] = useState(null);
@@ -259,6 +260,37 @@ const PokemonManagement = ({
        return { ...prev, pokemon: { ...poke, moves: newMoves, learnedMoves: newLearnedMoves } };
     });
     addLog(`${activePokemonDetails.pokemon.name} aprendeu ${moveObj.name}!`, 'system');
+  };
+  
+  const equipHeldItem = (itemId) => {
+    if (!activePokemonDetails) return;
+    setGameState(prev => {
+      const list = [...prev[activePokemonDetails.location]];
+      const poke = { ...list[activePokemonDetails.index] };
+      // Devolve o item atual ao inventário antes de trocar
+      const newItems = { ...prev.inventory.items };
+      if (poke.heldItem) newItems[poke.heldItem] = (newItems[poke.heldItem] || 0) + 1;
+      // Consome o novo item
+      newItems[itemId] = Math.max(0, (newItems[itemId] || 0) - 1);
+      poke.heldItem = itemId;
+      list[activePokemonDetails.index] = poke;
+      return { ...prev, [activePokemonDetails.location]: list, inventory: { ...prev.inventory, items: newItems } };
+    });
+    setActivePokemonDetails(prev => ({ ...prev, pokemon: { ...prev.pokemon, heldItem: itemId } }));
+  };
+
+  const unequipHeldItem = () => {
+    if (!activePokemonDetails) return;
+    setGameState(prev => {
+      const list = [...prev[activePokemonDetails.location]];
+      const poke = { ...list[activePokemonDetails.index] };
+      const newItems = { ...prev.inventory.items };
+      if (poke.heldItem) newItems[poke.heldItem] = (newItems[poke.heldItem] || 0) + 1;
+      poke.heldItem = null;
+      list[activePokemonDetails.index] = poke;
+      return { ...prev, [activePokemonDetails.location]: list, inventory: { ...prev.inventory, items: newItems } };
+    });
+    setActivePokemonDetails(prev => ({ ...prev, pokemon: { ...prev.pokemon, heldItem: null } }));
   };
 
   const swapMove = (activeIdx, newMoveName) => {
@@ -625,6 +657,61 @@ const PokemonManagement = ({
                           );
                         })}
                       </select>
+                    </div>
+                    
+                    {/* HELD ITEMS */}
+                    <div className="p-4 rounded-2xl border-2 border-amber-100 bg-amber-50/30 shadow-sm mt-2">
+                      <h3 className="text-[11px] font-black uppercase text-slate-800 mb-3 text-center">Item Segurado</h3>
+                      
+                      {activePokemonDetails.pokemon.heldItem ? (
+                        <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-amber-200 shadow-sm mb-3">
+                          <img 
+                            src={Object.values(CRAFTING_RECIPES).flat().find(r => r.id === activePokemonDetails.pokemon.heldItem)?.img} 
+                            className="w-10 h-10 object-contain drop-shadow" 
+                            alt="" 
+                          />
+                          <div className="flex-1">
+                            <p className="text-[10px] font-black uppercase text-slate-800 leading-none">
+                              {Object.values(CRAFTING_RECIPES).flat().find(r => r.id === activePokemonDetails.pokemon.heldItem)?.name || activePokemonDetails.pokemon.heldItem}
+                            </p>
+                            <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase italic">
+                              {Object.values(CRAFTING_RECIPES).flat().find(r => r.id === activePokemonDetails.pokemon.heldItem)?.effect || 'Sem efeito especial'}
+                            </p>
+                          </div>
+                          <button 
+                            onClick={unequipHeldItem}
+                            className="bg-red-50 text-red-500 px-3 py-2 rounded-lg font-black text-[9px] uppercase hover:bg-red-100 transition-all active:scale-95"
+                          >Remover</button>
+                        </div>
+                      ) : (
+                        <p className="text-[9px] text-slate-400 font-bold text-center mb-3 italic">Nenhum item equipado</p>
+                      )}
+
+                      <div className="space-y-2 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
+                        {(() => {
+                          const availableItems = [...(CRAFTING_RECIPES.hold_items || []), ...(CRAFTING_RECIPES.elite_relics || [])]
+                            .filter(r => (gameState.inventory?.items?.[r.id] || 0) > 0 && r.id !== activePokemonDetails.pokemon.heldItem);
+
+                          if (availableItems.length === 0) {
+                            return <p className="text-[8px] text-slate-400 font-bold text-center py-2 bg-white/50 rounded-lg">Forje itens na Estação de Forja</p>;
+                          }
+
+                          return availableItems.map(item => (
+                            <button 
+                              key={item.id}
+                              onClick={() => equipHeldItem(item.id)}
+                              className="w-full flex items-center gap-3 bg-white/70 p-2 rounded-xl border border-slate-100 hover:border-amber-400 hover:bg-white transition-all text-left"
+                            >
+                              <img src={item.img} className="w-8 h-8 object-contain" alt="" />
+                              <div className="flex-1">
+                                <p className="text-[9px] font-black uppercase text-slate-700 leading-none">{item.name}</p>
+                                <p className="text-[7px] font-bold text-slate-400 mt-0.5 uppercase">{item.effect || '---'}</p>
+                              </div>
+                              <span className="text-[8px] font-black text-amber-600 bg-amber-50 px-2 py-1 rounded-md">Equipar</span>
+                            </button>
+                          ));
+                        })()}
+                      </div>
                     </div>
 
                     {/* CANDIES */}

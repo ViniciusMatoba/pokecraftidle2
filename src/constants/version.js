@@ -1,9 +1,9 @@
-export const APP_VERSION = '1.75.6';
-export const VERSION = '1.75.6';
-export const APP_VERSION_DATE = '12/05/2026 17:35';
+export const APP_VERSION = '1.76.0';
+export const VERSION = '1.76.0';
+export const APP_VERSION_DATE = '12/05/2026 17:38';
 export const CHANGELOG = [
+  'Feature: Sistema de Itens Segurados — agora é possível equipar itens forjados (Charcoal, Magnet, etc.) nos Pokémon para ganhar bônus de dano e efeitos especiais',
   'Fix: Imagens de Expedição — corrigido o caminho das imagens de fundo para compatibilidade com GitHub Pages',
-  'Fix: Navegação da Forja — botão "Ir Forjar" agora leva ao item específico com destaque e scroll automático',
   'UI: Loja de Prestígio — nova interface premium com ícones de pixel art e navegação otimizada para mobile',
   'Fix: Drop de Receitas — corrigido bug que permitia dropar receitas já conhecidas e disparar modal indevidamente',
   'Feature: Confirmação de EXP Candy — modal com prévia de XP antes/depois, badge de Level Up e botão Voltar',

@@ -1574,20 +1574,19 @@ export default function App() {
     if (attacker.isWorldBoss || defender.isWorldBoss) {
       const playerPokemon = attacker.isWorldBoss ? defender : attacker;
       const playerIsAttacker = !attacker.isWorldBoss;
-      const holdItem = playerPokemon.holdItem || playerPokemon.item;
+      const heldItem = playerPokemon.heldItem;
       
       // Busca dados extras da receita se disponível para verificar isBossItem
-      const itemData = Object.values(CRAFTING_RECIPES).flat().find(r => r.id === holdItem);
+      const itemData = Object.values(CRAFTING_RECIPES).flat().find(r => r.id === heldItem);
       const isBossItem = itemData?.isBossItem || false;
 
-      // Só ativa bônus se for item de boss OU se não tiver restrição isBossItem explicitly set
-      // (os itens antigos não tinham essa flag, mantemos compatibilidade se necessário, mas o plano pede proteção)
+      // Só ativa bônus se for item de boss
       if (isBossItem) {
         if (playerIsAttacker) {
-          if (holdItem === 'adrenaline_potion') base *= 1.25;
-          if (holdItem === 'penetration_pendant') base *= 1.30;
+          if (heldItem === 'adrenaline_potion') base *= 1.25;
+          if (heldItem === 'penetration_pendant') base *= 1.30;
         } else {
-          if (holdItem === 'titan_shield') base *= 0.80;
+          if (heldItem === 'titan_shield') base *= 0.80;
         }
       }
 
@@ -1596,6 +1595,21 @@ export default function App() {
         base *= (1 + psBossBonus);
       }
     }
+
+    // Bônus de tipo por item segurado (apenas para o atacante do jogador)
+    const heldItem = attacker.heldItem;
+    const TYPE_BOOSTS = {
+      charcoal:     ['Fire',     0.20],
+      mystic_water: ['Water',    0.20],
+      black_belt:   ['Fighting', 0.20],
+      magnet:       ['Electric', 0.20],
+    };
+    if (heldItem && TYPE_BOOSTS[heldItem]) {
+      const [boostedType, mult] = TYPE_BOOSTS[heldItem];
+      if (move.type === boostedType) base *= (1 + mult);
+    }
+    // Quick Claw: +15% dano flat (substitui o "speed priority" que não se aplica a idle)
+    if (heldItem === 'quick_claw') base *= 1.15;
     
     // Accuracy System
     const baseAcc = move.accuracy || moveData.accuracy || 100;
@@ -6347,6 +6361,7 @@ export default function App() {
           activeRegion={gameState.activeRegion}
           isEvolutionAllowedForRegion={isEvolutionAllowedForRegion}
           getEvolutionRegionLockMessage={getEvolutionRegionLockMessage}
+          CRAFTING_RECIPES={CRAFTING_RECIPES}
         />
       );
 
