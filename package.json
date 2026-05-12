@@ -1,7 +1,7 @@
 {
   "name": "poke-craft-idle",
   "private": true,
-  "version": "1.66.3",
+  "version": "1.75.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
