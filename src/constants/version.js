@@ -1,7 +1,17 @@
-export const APP_VERSION = '1.73.0';
-export const VERSION = '1.73.0';
-export const APP_VERSION_DATE = '13/05/2026 01:00';
+export const APP_VERSION = '1.74.4';
+export const VERSION = '1.74.4';
+export const APP_VERSION_DATE = '13/05/2026 18:00';
 export const CHANGELOG = [
+  'UI: Modal de Expedição restaurado — ícones de itens (ITEM_LABELS), sprites dos Pokémon e visual completo',
+  'Fix: Modal Galar→Paldea exibia Prof. Magnolia em vez de Prof. Sada (duplicate professor corrigido)',
+  'Audit: Sistema de progressão entre regiões verificado — todas as 9 transições estão corretas',
+  'Fix: Totodile em Johto — rota 30 corrigida (unlockLevel 61, req johto_route_29_cleared, requiresFlag no Totodile)',
+  'Fix: Auditoria completa de iniciais — todos os 26 Pokémon iniciais confirmados em todas as 9 regiões',
+  'Fix: Pikachu em Viridian Forest — adicionado forceSpawn para bypass do filtro de evoluídos em rotas lvl≤15',
+  'Fix: Iniciais pós-rival — Kanto/Johto/Hoenn/Sinnoh agora exigem derrota do rival (requiresFlag)',
+  'Fix: Iniciais geração 5-9 — formas base corretas (Snivy/Tepig/Oshawott etc.) em vez de evoluções finais',
+  'Balance: Distribuição corrigida — máx 2 iniciais por rota, 3º inicial na rota intermediária (forma base)',
+  'Fix: buildRegionRoutes — starters removidos da route_1; starterBases usados nas rotas iniciais extras',
   'Balance: Economia drasticamente rebalanceada — coins por Pokémon selvagem 10x mais difícil (level×0.15)',
   'Balance: Recompensa de treinadores reduzida em 80% (multiplicador 0.20 aplicado globalmente)',
   'Balance: Encounters iniciais corrigidos — máx 2 iniciais por rota, distribuídos em todas as gerações',

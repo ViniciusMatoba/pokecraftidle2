@@ -6,6 +6,7 @@ import {
   calcExpeditionDuration,
   isExpeditionUnlocked,
 } from '../data/expeditions';
+import { ITEM_LABELS } from '../data/constants';
 
 const MAX_EXPEDITION_TEAM = 3;
 
@@ -56,77 +57,123 @@ const formatTime = (ms) => {
 
 const ExpeditionReportModal = ({ report, onClose }) => {
   if (!report) return null;
+  const drops = report.drops || {};
+  const hasDrops = Object.keys(drops).length > 0;
+
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-[400px] bg-slate-900 rounded-[2rem] border border-white/20 shadow-2xl animate-bounceIn overflow-hidden flex flex-col max-h-[85vh]">
-        <div className="p-6 pb-4 bg-gradient-to-b from-blue-900/50 to-slate-900 text-center border-b border-white/10 shrink-0">
-          <p className="text-5xl mb-2">{report.biomeIcon}</p>
-          <h2 className="text-white font-black uppercase tracking-tighter text-2xl italic leading-none">
-            {report.biomeName}
-          </h2>
-          <p className="text-blue-400 text-[10px] font-black uppercase tracking-widest mt-2">
-            Relatório da Expedição
-          </p>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+      <div className="w-full max-w-[420px] bg-slate-900 rounded-[2rem] border border-white/10 shadow-2xl animate-bounceIn overflow-hidden flex flex-col max-h-[88vh]">
+
+        {/* ── HEADER ── */}
+        <div className="relative overflow-hidden shrink-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-700/40 via-indigo-700/20 to-slate-900" />
+          <div className="relative z-10 px-6 py-5 text-center">
+            <p className="text-5xl mb-2 drop-shadow-lg">{report.biomeIcon}</p>
+            <h2 className="text-white font-black uppercase tracking-tighter text-2xl italic leading-none">
+              {report.biomeName}
+            </h2>
+            <p className="text-blue-300 text-[10px] font-black uppercase tracking-[0.2em] mt-1.5">
+              ✅ Expedição Concluída
+            </p>
+          </div>
         </div>
 
         <div className="p-4 overflow-y-auto flex-1 flex flex-col gap-4 custom-scrollbar">
-          {/* Drops */}
-          {Object.keys(report.drops || {}).length > 0 && (
-            <div className="bg-black/40 rounded-2xl p-4 border border-white/5">
-              <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mb-3 text-center">Itens Obtidos</p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {Object.entries(report.drops).map(([item, qty]) => (
-                  <div key={item} className="bg-white/10 px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/10">
-                    <span className="text-white text-xs font-bold capitalize">{item.replace(/_/g, ' ')}</span>
-                    <span className="text-yellow-400 font-black text-xs">x{qty}</span>
-                  </div>
-                ))}
+
+          {/* ── ITENS OBTIDOS ── */}
+          {hasDrops && (
+            <div className="bg-black/40 rounded-2xl p-4 border border-white/10">
+              <p className="text-white/50 text-[10px] font-black uppercase tracking-widest mb-3 text-center">
+                🎒 Itens Obtidos
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.entries(drops).map(([item, qty]) => {
+                  const label = ITEM_LABELS[item];
+                  const icon  = label?.icon || '📦';
+                  const name  = label?.name || item.replace(/_/g, ' ');
+                  return (
+                    <div
+                      key={item}
+                      className="bg-white/8 rounded-xl px-3 py-2.5 flex items-center gap-2.5 border border-white/10"
+                    >
+                      <span className="text-2xl leading-none shrink-0">{icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-[11px] font-black leading-tight truncate capitalize">{name}</p>
+                        <p className="text-yellow-400 text-[10px] font-black">×{qty}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {/* Pokémon */}
+          {/* ── EQUIPE ── */}
           <div className="flex flex-col gap-3">
-            <p className="text-white/40 text-[10px] font-black uppercase tracking-widest text-center mt-2">Equipe</p>
-            {report.pokemonResults.map((r, idx) => {
+            <p className="text-white/50 text-[10px] font-black uppercase tracking-widest text-center">
+              🧬 Equipe da Expedição
+            </p>
+            {(report.pokemonResults || []).map((r, idx) => {
               const leveledUp = r.levelsGained > 0;
               return (
-                <div key={r.id + '-' + idx} className={`rounded-2xl p-4 border relative overflow-hidden ${
-                  leveledUp ? 'bg-gradient-to-br from-blue-900/30 to-purple-900/30 border-blue-500/30' : 'bg-white/5 border-white/10'
-                }`}>
-                  <div className="flex items-center gap-4">
-                    <img
-                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${r.isShiny ? 'shiny/' : ''}${r.id}.png`}
-                      alt={r.name}
-                      className="w-16 h-16 object-contain drop-shadow-lg"
-                    />
-                    <div className="flex-1">
-                      <p className="text-white font-black text-sm">{r.name}</p>
-                      
+                <div
+                  key={r.id + '-' + idx}
+                  className={`rounded-2xl border relative overflow-hidden ${
+                    leveledUp
+                      ? 'bg-gradient-to-br from-indigo-900/50 to-purple-900/40 border-indigo-500/40'
+                      : 'bg-white/5 border-white/10'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 p-3">
+                    {/* Sprite */}
+                    <div className={`w-16 h-16 rounded-xl flex items-center justify-center shrink-0 ${
+                      leveledUp ? 'bg-indigo-500/20' : 'bg-white/5'
+                    }`}>
+                      <img
+                        src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${r.isShiny ? 'shiny/' : ''}${r.id}.png`}
+                        alt={r.name}
+                        className="w-14 h-14 object-contain drop-shadow-lg"
+                        style={r.isShiny ? { filter: 'drop-shadow(0 0 8px #fbbf24)' } : {}}
+                      />
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-white font-black text-sm">{r.name}</p>
+                        {r.isShiny && (
+                          <span className="text-[9px] bg-yellow-500/25 text-yellow-300 px-1.5 py-0.5 rounded font-black">
+                            ✨ SHINY
+                          </span>
+                        )}
+                      </div>
+
                       {leveledUp ? (
-                        <div className="mt-1 flex items-center gap-2">
-                          <span className="text-white/50 text-xs font-bold line-through">Nv. {r.initialLevel}</span>
-                          <span className="text-green-400 text-sm font-black">Nv. {r.finalLevel}</span>
-                          <span className="text-[9px] bg-green-500/20 text-green-300 px-1.5 py-0.5 rounded uppercase font-black ml-auto">
-                            +{r.levelsGained} Níveis
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <span className="text-white/40 text-xs font-bold line-through">Nv.{r.initialLevel}</span>
+                          <span className="text-green-400 font-black text-sm">→ Nv.{r.finalLevel}</span>
+                          <span className="ml-auto text-[9px] bg-green-500/20 text-green-300 px-1.5 py-0.5 rounded-full font-black">
+                            +{r.levelsGained} nível{r.levelsGained > 1 ? 's' : ''} ⬆️
                           </span>
                         </div>
                       ) : (
-                        <p className="text-white/50 text-xs mt-1 font-bold">Nv. {r.initialLevel}</p>
+                        <p className="text-white/40 text-xs mt-1 font-bold">Nv. {r.initialLevel}</p>
                       )}
-                      
-                      <p className="text-blue-300 text-[10px] font-black mt-1">+{r.xpGained} XP</p>
+
+                      <p className="text-blue-300 text-[10px] font-black mt-1">
+                        +{(r.xpGained || 0).toLocaleString('pt-BR')} XP
+                      </p>
                     </div>
                   </div>
 
-                  {/* Moves aprendidos */}
+                  {/* Golpes aprendidos */}
                   {r.moveEvents?.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-white/10 flex flex-col gap-1.5">
-                      <p className="text-white/40 text-[9px] font-black uppercase">Golpes Aprendidos</p>
+                    <div className="mx-3 mb-3 pt-2 border-t border-white/10 flex flex-col gap-1">
+                      <p className="text-white/40 text-[9px] font-black uppercase tracking-widest">⚡ Golpes Aprendidos</p>
                       {r.moveEvents.map((evt, i) => (
-                        <div key={i} className="text-[10px] text-yellow-300 font-bold">
-                          <span className="text-white/50 mr-1">Nv.{evt.level}</span>
-                          {evt.moves.join(', ')}
+                        <div key={i} className="text-[10px] text-yellow-300 font-bold flex items-center gap-1.5">
+                          <span className="text-white/30 font-bold">Nv.{evt.level}</span>
+                          <span>{evt.moves.join(', ')}</span>
                         </div>
                       ))}
                     </div>
@@ -137,12 +184,13 @@ const ExpeditionReportModal = ({ report, onClose }) => {
           </div>
         </div>
 
-        <div className="p-4 bg-slate-900 border-t border-white/10 shrink-0">
+        {/* ── BOTÃO ── */}
+        <div className="p-4 bg-black/30 border-t border-white/10 shrink-0">
           <button
             onClick={onClose}
-            className="w-full bg-blue-600 text-white font-black text-sm uppercase py-4 rounded-2xl hover:bg-blue-500 active:scale-95 transition-all shadow-xl"
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-sm uppercase py-4 rounded-2xl hover:from-blue-500 hover:to-indigo-500 active:scale-95 transition-all shadow-xl tracking-widest"
           >
-            Continuar
+            Continuar Aventura
           </button>
         </div>
       </div>

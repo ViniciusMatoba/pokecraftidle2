@@ -1894,10 +1894,15 @@ export default function App() {
       return true;
     });
 
+    // ── 2.3 FILTRO requiresFlag — Pokémon com gate por progresso (ex: iniciais pós-rival) ──
+    const currentFlags = gameState.worldFlags || [];
+    enemyPool = enemyPool.filter(e => !e.requiresFlag || currentFlags.includes(e.requiresFlag));
+
     // ── 2.5 FILTRO DE EVOLUÍDOS (Rotas Iniciais) ──
+    // forceSpawn: true permite exceções canônicas (ex: Pikachu em Viridian Forest)
     const avgLevel = route.enemies?.[0]?.level || 5;
     if (avgLevel <= 15 && enemyPool.length > 1) {
-      const filteredPool = enemyPool.filter(e => !evolvedIds.has(Number(e.id)));
+      const filteredPool = enemyPool.filter(e => e.forceSpawn || !evolvedIds.has(Number(e.id)));
       if (filteredPool.length > 0) enemyPool = filteredPool;
     }
     
@@ -6948,8 +6953,8 @@ export default function App() {
         {
           show: showGalarChampionModal, setShow: setShowGalarChampionModal,
           pendingFlag: 'galar_champion_modal_pending', shownFlag: 'galar_champion_modal_shown',
-          nextView: 'paldea_intro', professorSprite: 'professormagnolia', // Magnolia as placeholder if Sada not in Showdown sprites
-          professorName: 'Prof. Magnolia', regionWon: 'Galar', nextRegion: 'Paldea',
+          nextView: 'paldea_intro', professorSprite: 'professorsada',
+          professorName: 'Prof. Sada', regionWon: 'Galar', nextRegion: 'Paldea',
           accentColor: '#ef4444', buttonColor: 'bg-red-600 hover:bg-red-700',
           message: '"Leon foi derrotado! Você é o novo Campeão de Galar. A Profa. Sada de Paldea te espera."',
           inviteText: '"Paldea é a última grande fronteira. Venha escolher Sprigatito, Fuecoco ou Quaxly!"',

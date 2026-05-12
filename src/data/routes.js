@@ -115,7 +115,7 @@ const S = {
   star:        'https://play.pokemonshowdown.com/sprites/trainers/giacomo.png',
 };
 
-const buildRegionRoutes = ({ region, label, startFlag, previousChampion, groups, starters, early, mid, late, final, backgrounds, extraRoutes = [] }) => ({
+const buildRegionRoutes = ({ region, label, startFlag, previousChampion, groups, starters, starterBases, early, mid, late, final, backgrounds, extraRoutes = [] }) => ({
   [`${region}_home_town`]: {
     id: `${region}_home_town`, name: groups.home, type: 'city', group: `${label} Inicio`,
     unlockLevel: 1, requirements: [startFlag],
@@ -129,14 +129,11 @@ const buildRegionRoutes = ({ region, label, startFlag, previousChampion, groups,
     biome: 'grass',
     enemies: [
       ...pk(early, 8).map((p, i) => ({ ...p, drop: ['normal_essence', 'grass_essence', 'flying_essence'][i % 3] })),
-      // Iniciais 1 e 2 — raros (~1%), distribuídos: máx 2 por rota
-      { id: starters[0], level: 10, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare' },
-      { id: starters[1], level: 10, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare' },
     ],
     trainerChance: 0.06,
     trainers: [
       { name: `Treinador ${label} I`, sprite: S.youngster, team: pk([early[0], early[1]], 11), reward: 900 },
-      { name: `Treinadora ${label} I`, sprite: S.lass, team: pk([early[2], starters[0]], 12), reward: 1000 },
+      { name: `Treinadora ${label} I`, sprite: S.lass, team: pk([early[2], early[3]], 12), reward: 1000 },
     ],
     background: backgrounds.route,
     description: `Treino inicial de ${label}, com drops basicos para craft e capturas regionais.`,
@@ -147,8 +144,8 @@ const buildRegionRoutes = ({ region, label, startFlag, previousChampion, groups,
     biome: 'forest',
     enemies: [
       ...pk(mid, 32).map((p, i) => ({ ...p, drop: ['bug_essence', 'poison_essence', 'psychic_essence', 'water_essence'][i % 4] })),
-      // Inicial 3 — distribuído para rota intermediária (~1%)
-      { id: starters[2], level: 28, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare' },
+      // Inicial 3 — forma base, raro (~1%), após limpar rota 1
+      { id: (starterBases || starters)[2], level: 28, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare' },
     ],
     trainerChance: 0.08,
     trainers: [
@@ -228,7 +225,7 @@ const buildRegionRoutes = ({ region, label, startFlag, previousChampion, groups,
 const FUTURE_REGION_ROUTES = {
   ...buildRegionRoutes({
     region: 'unova', label: 'Unova', startFlag: 'unova_started', previousChampion: 'unova_champion',
-    groups: { home: 'Nuvema Town' }, starters: [497, 500, 503], early: [504, 506, 509, 519], mid: [507, 510, 520, 527], late: [530, 534, 553, 567], final: [612, 635, 637, 643],
+    groups: { home: 'Nuvema Town' }, starters: [497, 500, 503], starterBases: [495, 498, 501], early: [504, 506, 509, 519], mid: [507, 510, 520, 527], late: [530, 534, 553, 567], final: [612, 635, 637, 643],
     backgrounds: { city: '/bg_unova_city.png', route: '/bg_unova_route.png', cave: '/bg_unova_cave.png', elite: '/bg_unova_elite.png' },
     extraRoutes: [
       {
@@ -238,8 +235,9 @@ const FUTURE_REGION_ROUTES = {
         biome: 'forest',
         enemies: [
           ...pk([511, 513, 515, 519, 522, 527], 16),
-          // Samurott (#503) — inicial de Unova raro (~1%), distribuído aqui
-          { id: 503, level: 16, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare' },
+          // Snivy (#495) + Tepig (#498) — iniciais base de Unova (~1%) pós rota inicial
+          { id: 495, level: 16, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare' },
+          { id: 498, level: 16, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare' },
         ],
         trainerChance: 0.07,
         trainers: [
@@ -281,7 +279,7 @@ const FUTURE_REGION_ROUTES = {
   }),
   ...buildRegionRoutes({
     region: 'kalos', label: 'Kalos', startFlag: 'kalos_started', previousChampion: 'kalos_champion',
-    groups: { home: 'Vaniville Town' }, starters: [652, 655, 658], early: [659, 661, 664, 669], mid: [660, 662, 666, 672], late: [675, 678, 681, 697], final: [700, 706, 715, 716],
+    groups: { home: 'Vaniville Town' }, starters: [652, 655, 658], starterBases: [650, 653, 656], early: [659, 661, 664, 669], mid: [660, 662, 666, 672], late: [675, 678, 681, 697], final: [700, 706, 715, 716],
     backgrounds: { city: '/bg_kalos_city.png', route: '/bg_kalos_route.png', cave: '/bg_kalos_cave.png', elite: '/bg_kalos_elite.png' },
     extraRoutes: [
       {
@@ -291,8 +289,9 @@ const FUTURE_REGION_ROUTES = {
         biome: 'forest',
         enemies: [
           ...pk([659, 661, 664, 666, 672, 674], 14),
-          // Greninja (#658) — inicial de Kalos raro (~1%), distribuído aqui
-          { id: 658, level: 14, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare' },
+          // Chespin (#650) + Fennekin (#653) — iniciais base de Kalos (~1%) pós rota inicial
+          { id: 650, level: 14, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare' },
+          { id: 653, level: 14, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare' },
         ],
         trainerChance: 0.07,
         trainers: [
@@ -334,7 +333,7 @@ const FUTURE_REGION_ROUTES = {
   }),
   ...buildRegionRoutes({
     region: 'alola', label: 'Alola', startFlag: 'alola_started', previousChampion: 'alola_champion',
-    groups: { home: 'Hauoli Outskirts' }, starters: [724, 727, 730], early: [731, 734, 736, 739], mid: [735, 738, 744, 752], late: [758, 760, 768, 776], final: [784, 791, 792, 800],
+    groups: { home: 'Hauoli Outskirts' }, starters: [724, 727, 730], starterBases: [722, 725, 728], early: [731, 734, 736, 739], mid: [735, 738, 744, 752], late: [758, 760, 768, 776], final: [784, 791, 792, 800],
     backgrounds: { city: '/bg_alola_city.png', route: '/bg_alola_route.png', cave: '/bg_alola_cave.png', elite: '/bg_alola_elite.png' },
     extraRoutes: [
       {
@@ -344,8 +343,9 @@ const FUTURE_REGION_ROUTES = {
         biome: 'cave',
         enemies: [
           ...pk([739, 741, 744, 746, 750, 752], 18),
-          // Primarina (#730) — inicial de Alola raro (~1%), distribuído aqui
-          { id: 730, level: 18, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare' },
+          // Rowlet (#722) + Litten (#725) — iniciais base de Alola (~1%) pós rota inicial
+          { id: 722, level: 18, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare' },
+          { id: 725, level: 18, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare' },
         ],
         trainerChance: 0.07,
         trainers: [
@@ -387,7 +387,7 @@ const FUTURE_REGION_ROUTES = {
   }),
   ...buildRegionRoutes({
     region: 'galar', label: 'Galar', startFlag: 'galar_started', previousChampion: 'galar_champion',
-    groups: { home: 'Postwick' }, starters: [812, 815, 818], early: [819, 821, 824, 827], mid: [820, 823, 828, 834], late: [839, 844, 849, 861], final: [887, 888, 889, 890],
+    groups: { home: 'Postwick' }, starters: [812, 815, 818], starterBases: [810, 813, 816], early: [819, 821, 824, 827], mid: [820, 823, 828, 834], late: [839, 844, 849, 861], final: [887, 888, 889, 890],
     backgrounds: { city: '/bg_galar_city.png', route: '/bg_galar_route.png', cave: '/bg_galar_cave.png', elite: '/bg_galar_elite.png' },
     extraRoutes: [
       {
@@ -397,8 +397,9 @@ const FUTURE_REGION_ROUTES = {
         biome: 'grass',
         enemies: [
           ...pk([819, 821, 827, 831, 835, 840], 30),
-          // Inteleon (#818) — inicial de Galar raro (~1%), distribuído na Wild Area
-          { id: 818, level: 30, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare' },
+          // Grookey (#810) + Scorbunny (#813) — iniciais base de Galar (~1%) pós rota inicial
+          { id: 810, level: 30, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare' },
+          { id: 813, level: 30, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare' },
         ],
         trainerChance: 0.08,
         trainers: [
@@ -440,7 +441,7 @@ const FUTURE_REGION_ROUTES = {
   }),
   ...buildRegionRoutes({
     region: 'paldea', label: 'Paldea', startFlag: 'paldea_started', previousChampion: 'paldea_champion',
-    groups: { home: 'Cabo Poco' }, starters: [908, 911, 914], early: [915, 917, 919, 921], mid: [916, 920, 922, 926], late: [936, 943, 952, 959], final: [967, 973, 998, 1008],
+    groups: { home: 'Cabo Poco' }, starters: [908, 911, 914], starterBases: [906, 909, 912], early: [915, 917, 919, 921], mid: [916, 920, 922, 926], late: [936, 943, 952, 959], final: [967, 973, 998, 1008],
     backgrounds: { city: '/bg_paldea_city.png', route: '/bg_paldea_route.png', cave: '/bg_paldea_cave.png', elite: '/bg_paldea_elite.png' },
     extraRoutes: [
       {
@@ -450,8 +451,9 @@ const FUTURE_REGION_ROUTES = {
         biome: 'grass',
         enemies: [
           ...pk([915, 917, 919, 921, 922, 926], 16),
-          // Quaquaval (#914) — inicial de Paldea raro (~1%), distribuído aqui
-          { id: 914, level: 16, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare' },
+          // Sprigatito (#906) + Fuecoco (#909) — iniciais base de Paldea (~1%) pós rota inicial
+          { id: 906, level: 16, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare' },
+          { id: 909, level: 16, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare' },
         ],
         trainerChance: 0.07,
         trainers: [
@@ -700,9 +702,9 @@ export const ROUTES = {
     enemies: [
       { id: 16, level: 3, drop: 'normal_essence' },
       { id: 19, level: 3, drop: 'normal_essence' },
-      // Bulbasaur + Charmander — raros (~1%) na Rota 1 (max 2 por rota)
-      { id: 1, level: 5, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare' },
-      { id: 4, level: 5, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare' },
+      // Bulbasaur + Charmander — raros (~1%) pós derrota do rival na Rota 1
+      { id: 1, level: 5, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'rival_1_defeated' },
+      { id: 4, level: 5, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'rival_1_defeated' },
     ],
     trainerChance: 0.05,
     trainers: [
@@ -731,9 +733,9 @@ export const ROUTES = {
       { id: 21, level: 4, drop: 'flying_essence' },
       { id: 29, level: 4, drop: 'poison_essence' },
       { id: 32, level: 4, drop: 'poison_essence' },
-      // Squirtle + Eevee — raros (~1%) na Rota 22 (max 2 por rota)
-      { id: 7,   level: 5, drop: 'water_essence',  spawnWeight: 2, rarity: 'super_rare' },
-      { id: 133, level: 5, drop: 'normal_essence', spawnWeight: 2, rarity: 'super_rare' },
+      // Squirtle + Eevee — raros (~1%) pós derrota do rival na Rota 22
+      { id: 7,   level: 5, drop: 'water_essence',  spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'rival_1_defeated' },
+      { id: 133, level: 5, drop: 'normal_essence', spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'rival_1_defeated' },
     ],
     trainerChance: 0.05,
     trainers: [
@@ -756,7 +758,7 @@ export const ROUTES = {
       { id: 11, level: 7, drop: 'bug_essence' },
       { id: 14, level: 7, drop: 'bug_essence' },
       // Pikachu — raro canônico da Floresta de Viridian (~2%) | requer derrota do rival
-      { id: 25, level: 6, drop: 'electric_essence', spawnWeight: 5, rarity: 'rare' },
+      { id: 25, level: 6, drop: 'electric_essence', spawnWeight: 5, rarity: 'rare', forceSpawn: true },
     ],
     trainerChance: 0.05,
     trainers: [
@@ -1148,9 +1150,9 @@ export const ROUTES = {
     biome: 'grass',
     enemies: [
       ...pk([161, 162, 163, 164, 165, 167, 179, 187, 172], 3),
-      // Chikorita + Cyndaquil — iniciais raros (~1%) na Rota 29 (max 2 por rota)
-      { id: 152, level: 5, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare' },
-      { id: 155, level: 5, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare' },
+      // Chikorita + Cyndaquil — iniciais raros (~1%) pós derrota do rival em Johto
+      { id: 152, level: 5, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'johto_rival_1_defeated' },
+      { id: 155, level: 5, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'johto_rival_1_defeated' },
     ],
     trainerChance: 0.06,
     trainers: [
@@ -1172,12 +1174,12 @@ export const ROUTES = {
 
   johto_route_30: {
     id: 'johto_route_30', name: 'Rota 30', type: 'farm', group: 'Cherrygrove City',
-    unlockLevel: 62, requirements: ['johto_rival_1_defeated'],
+    unlockLevel: 61, requirements: ['johto_route_29_cleared'],
     biome: 'forest',
     enemies: [
       ...pk([10, 11, 13, 14, 16, 163, 165, 167, 187, 175], 4),
-      // Totodile — raro (~1%) após derrota do rival em Johto
-      { id: 158, level: 5, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare' },
+      // Totodile — raro (~1%) pós derrota do rival em Johto
+      { id: 158, level: 5, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'johto_rival_1_defeated' },
     ],
     trainerChance: 0.07,
     trainers: [
@@ -1719,9 +1721,6 @@ export const ROUTES = {
     biome: 'grass',
     enemies: [
       ...pk([261, 263, 265, 16, 161], 3),
-      // Treecko + Torchic — iniciais raros (~1%) na Rota 101 (max 2 por rota)
-      { id: 252, level: 5, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare' },
-      { id: 255, level: 5, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare' },
     ],
     trainerChance: 0,
     trainers: [],
@@ -1743,8 +1742,6 @@ export const ROUTES = {
     biome: 'grass',
     enemies: [
       ...pk([261, 265, 270, 273, 280], 4),
-      // Mudkip — raro (~1%) na Rota 102 (distribuído, max 2 por rota)
-      { id: 258, level: 5, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare' },
     ],
     trainerChance: 0.05,
     trainers: [
@@ -1767,7 +1764,11 @@ export const ROUTES = {
     id: 'route_104', name: 'Rota 104', type: 'farm', group: 'Hoenn Rustboro',
     unlockLevel: 5, requirements: ['hoenn_started'],
     biome: 'grass',
-    enemies: pk([276, 278, 183, 263], 5),
+    enemies: [
+      ...pk([276, 278, 183, 263], 5),
+      // Mudkip — raro (~1%) pós derrota do rival em Hoenn
+      { id: 258, level: 5, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'hoenn_rival_1_defeated' },
+    ],
     trainerChance: 0.05,
     trainers: [
       { name: 'Rich Boy Winston', sprite: S.aceM, team: pk([263], 7), reward: 200 },
@@ -1781,7 +1782,12 @@ export const ROUTES = {
     id: 'petalburg_woods', name: 'Petalburg Woods', type: 'farm', group: 'Hoenn Rustboro',
     unlockLevel: 6, requirements: ['hoenn_started'],
     biome: 'grass',
-    enemies: pk([265, 266, 267, 268, 285, 287], 6),
+    enemies: [
+      ...pk([265, 266, 267, 268, 285, 287], 6),
+      // Treecko + Torchic — iniciais raros (~1%) pós derrota do rival em Hoenn
+      { id: 252, level: 6, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'hoenn_rival_1_defeated' },
+      { id: 255, level: 6, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'hoenn_rival_1_defeated' },
+    ],
     trainerChance: 0.05,
     trainers: [
       { name: 'Bug Catcher Lyle', sprite: S.bugcatcher, team: pk([265, 266], 6), reward: 100 },
@@ -2143,9 +2149,6 @@ export const ROUTES = {
     biome: 'grass',
     enemies: [
       ...pk([396, 399, 401, 403, 406], 5),
-      // Turtwig + Chimchar — iniciais raros (~1%) na Rota 201 (max 2 por rota)
-      { id: 387, level: 5, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare' },
-      { id: 390, level: 5, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare' },
     ],
     trainerChance: 0.04,
     trainers: [
@@ -2169,8 +2172,9 @@ export const ROUTES = {
     biome: 'grass',
     enemies: [
       ...pk([396, 399, 401, 403, 406, 412], 8),
-      // Piplup — raro (~1%) na Rota 202 (distribuído, max 2 por rota)
-      { id: 393, level: 8, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare' },
+      // Turtwig + Chimchar — iniciais raros (~1%) pós derrota do rival em Sinnoh
+      { id: 387, level: 8, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'sinnoh_rival_jubilife_defeated' },
+      { id: 390, level: 8, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'sinnoh_rival_jubilife_defeated' },
     ],
     trainerChance: 0.06,
     trainers: [
@@ -2193,7 +2197,11 @@ export const ROUTES = {
     unlockLevel: 12, requirements: ['sinnoh_route_202_cleared'],
     unlocks: 'sinnoh_route_203_cleared',
     biome: 'grass',
-    enemies: pk([396, 399, 401, 403, 406, 63], 12),
+    enemies: [
+      ...pk([396, 399, 401, 403, 406, 63], 12),
+      // Piplup — raro (~1%) pós derrota do rival em Sinnoh
+      { id: 393, level: 12, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'sinnoh_rival_jubilife_defeated' },
+    ],
     trainerChance: 0.07,
     trainers: [
       { name: 'Youngster Dallas', sprite: S.youngster, team: pk([397, 64], 15), reward: 760 },
