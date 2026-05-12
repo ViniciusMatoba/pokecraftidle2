@@ -1,6 +1,6 @@
 export const APP_VERSION = '1.66.3';
 export const VERSION = '1.66.3';
-export const APP_VERSION_DATE = '12/05/2026 09:34';
+export const APP_VERSION_DATE = '12/05/2026 09:52';
 export const CHANGELOG = [
   'Fix: Sincronização de Save — redirecionamento automático para a cidade ao detectar progresso na nuvem',
   'Hotfix: Resolvido erro de monitorAuthState indefinido que causava tela azul no carregamento',

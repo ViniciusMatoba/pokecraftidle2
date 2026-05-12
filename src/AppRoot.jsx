@@ -500,28 +500,57 @@ export default function App() {
   };
 
   useEffect(() => {
+    console.log("🔐 [Auth] Monitoring auth state...");
     const unsubscribe = monitorAuthState(async (u) => {
       if (u) {
+        console.log(`🔐 [Auth] User logged in: ${u.email} (${u.uid})`);
         setUser(u);
-        const savedData = await loadGameState(u.uid);
-        if (savedData) {
-          const migratedData = migrateGameState(savedData, { version: APP_VERSION });
-          if (!migratedData.migrationAudit?.ok) {
-            console.info('Save migration audit:', migratedData.migrationAudit);
-          }
-          setGameState(migratedData);
+        setLoading(true); // Garante que o loading está ativo durante o fetch
+        
+        try {
+          console.log("☁️ [Cloud] Fetching save data...");
+          const savedData = await loadGameState(u.uid);
           
-          // Se o save tem progresso real (insígnias ou flags), pula a landing/intro e vai direto pro jogo
-          const hasRealProgress = (migratedData.worldFlags || []).length > 0 || (migratedData.badges || []).length > 0;
-          if (hasRealProgress) {
-            setCurrentView('city');
+          if (savedData) {
+            console.log("☁️ [Cloud] Save found. Migrating...");
+            const migratedData = migrateGameState(savedData, { version: APP_VERSION });
+            if (!migratedData.migrationAudit?.ok) {
+              console.info('💾 [Migration] Audit issues:', migratedData.migrationAudit);
+            }
+            setGameState(migratedData);
+            
+            const hasRealProgress = (migratedData.worldFlags || []).length > 0 || (migratedData.badges || []).length > 0;
+            if (hasRealProgress) {
+              console.log("🎮 [Flow] Progress detected. Skipping landing.");
+              setCurrentView('city');
+            }
+          } else {
+            console.warn("⚠️ [Cloud] No save found for this account. Initializing new game.");
+            // Se não encontrou save, mas o usuário acha que tinha, aqui é o perigo.
+            // Vamos apenas setar o default se tivermos certeza que é novo ou se o user confirmar.
+            setGameState(DEFAULT_GAME_STATE);
           }
-        } else {
-          setGameState(DEFAULT_GAME_STATE);
+        } catch (err) {
+          console.error("❌ [Cloud] Error loading save:", err);
+          // EM CASO DE ERRO DE REDE, NÃO RESETAR O ESTADO PADRÃO!
+          // Isso evita que o auto-save sobrescreva o save real com um vazio.
+          notify("Erro ao carregar save da nuvem. Verifique sua conexão.", "error");
         }
       } else {
+        console.log("🔐 [Auth] No user session. Loading local/default.");
         setUser(null);
-        setGameState(DEFAULT_GAME_STATE);
+        // Ao deslogar, voltamos para o save local (se existir) ou padrão
+        const localSaved = localStorage.getItem('poke_idle_save');
+        if (localSaved) {
+           try {
+             const parsed = JSON.parse(localSaved);
+             if (parsed?.gameState) {
+               setGameState(migrateGameState(parsed.gameState, { version: APP_VERSION }));
+             }
+           } catch(e) { setGameState(DEFAULT_GAME_STATE); }
+        } else {
+           setGameState(DEFAULT_GAME_STATE);
+        }
         setCurrentView('landing');
       }
       setLoading(false);
