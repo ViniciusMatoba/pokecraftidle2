@@ -9,6 +9,10 @@
 // Badge 8 (Giovanni) → Selva do Dragão
 import { getBadgeCount } from '../utils/progress';
 
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+const expBg = (file, fallback = '#1a1a2e') =>
+  `${fallback} url('${BASE}/${file}') center/cover no-repeat`;
+
 const REGION_BADGES = {
   johto: ['zephyr_badge', 'hive_badge', 'plain_badge', 'fog_badge', 'storm_badge', 'mineral_badge', 'glacier_badge', 'rising_badge'],
   hoenn: ['stone_badge', 'knuckle_badge', 'dynamo_badge', 'heat_badge', 'balance_badge', 'feather_badge', 'mind_badge', 'rain_badge'],
@@ -49,7 +53,7 @@ export const EXPEDITION_BIOMES = {
     leaderName: 'Brock',
     icon: '🌲',
     imagePrompt: 'floresta_viridian',
-    bg: "url('/expedition_floresta.png') center/cover",
+    bg: expBg('expedition_floresta.png', '#1a3a1a'),
     description: 'Rica em Seda, Apricorns e Essências de Inseto.',
     enemyType: ['Bug', 'Grass', 'Poison'],
     favoredTypes: ['Fire', 'Flying', 'Bug', 'Poison'],
@@ -72,7 +76,7 @@ export const EXPEDITION_BIOMES = {
     leaderName: 'Misty',
     icon: '🌊',
     imagePrompt: 'oceano_cerulean',
-    bg: "url('/expedition_oceano.png') center/cover",
+    bg: expBg('expedition_oceano.png', '#0a2a4a'),
     description: 'Essências de Água, Pérolas e itens marinhos.',
     enemyType: ['Water', 'Ice'],
     favoredTypes: ['Electric', 'Grass'],
@@ -95,7 +99,7 @@ export const EXPEDITION_BIOMES = {
     leaderName: 'Lt. Surge',
     icon: '👊',
     imagePrompt: 'dojo_lutador',
-    bg: "url('/expedition_campo_lutador.png') center/cover",
+    bg: expBg('expedition_campo_lutador.png', '#3a2a1a'),
     description: 'Itens de Luta, Black Belt e Muscle Band.',
     enemyType: ['Fighting', 'Normal'],
     favoredTypes: ['Flying', 'Psychic', 'Fairy'],
@@ -118,7 +122,7 @@ export const EXPEDITION_BIOMES = {
     leaderName: 'Erika',
     icon: '🌿',
     imagePrompt: 'safari_zone',
-    bg: "url('/expedition_pradaria.png') center/cover",
+    bg: expBg('expedition_pradaria.png', '#1a3a1a'),
     description: 'Penas, Pó Rosa e itens raros de safári.',
     enemyType: ['Normal', 'Flying', 'Ground'],
     favoredTypes: ['Electric', 'Poison', 'Bug', 'Fighting'],
@@ -141,7 +145,7 @@ export const EXPEDITION_BIOMES = {
     leaderName: 'Koga',
     icon: '👻',
     imagePrompt: 'torre_pokemon_fantasma',
-    bg: "url('/expedition_torre_fantasma.png') center/cover",
+    bg: expBg('expedition_torre_fantasma.png', '#1a0a2a'),
     description: 'Fragmentos Espectrais e Itens Amaldiçoados.',
     enemyType: ['Ghost', 'Poison', 'Dark'],
     favoredTypes: ['Dark', 'Ghost', 'Normal', 'Psychic'],
@@ -164,7 +168,7 @@ export const EXPEDITION_BIOMES = {
     leaderName: 'Sabrina',
     icon: '🟡',
     imagePrompt: 'templo_psiquico_saffron',
-    bg: "url('/expedition_templo_psiquico.png') center/cover",
+    bg: expBg('expedition_templo_psiquico.png', '#2a1a3a'),
     description: 'Essências Psíquicas, TM Shards e Itens Mentais.',
     enemyType: ['Psychic', 'Fairy'],
     favoredTypes: ['Ghost', 'Dark', 'Bug', 'Steel'],
@@ -187,7 +191,7 @@ export const EXPEDITION_BIOMES = {
     leaderName: 'Blaine',
     icon: '🔥',
     imagePrompt: 'vulcao_cinnabar',
-    bg: "url('/expedition_vulcao.png') center/cover",
+    bg: expBg('expedition_vulcao.png', '#3a1a0a'),
     description: 'Essências de Fogo, Pedras Fogo e Carvão.',
     enemyType: ['Fire', 'Rock'],
     favoredTypes: ['Water', 'Ground', 'Rock'],
@@ -210,7 +214,7 @@ export const EXPEDITION_BIOMES = {
     leaderName: 'Giovanni',
     icon: '🐉',
     imagePrompt: 'selva_dragao_victory_road',
-    bg: "url('/expedition_selva_dragao.png') center/cover",
+    bg: expBg('expedition_selva_dragao.png', '#0a1a2a'),
     description: 'Escamas de Dragão e itens lendários.',
     enemyType: ['Dragon', 'Flying', 'Rock'],
     favoredTypes: ['Ice', 'Dragon', 'Fairy', 'Steel'],
@@ -227,37 +231,37 @@ export const EXPEDITION_BIOMES = {
 
   johto_ilex: {
     id: 'johto_ilex', region: 'johto', name: 'Ilex Forest', badge: 2, leaderName: 'Bugsy', icon: 'IF',
-    bg: "url('/bg_ilex_forest.png') center/cover", description: 'Madeira sagrada, Apricorns e essencias de Johto.',
+    bg: expBg('bg_ilex_forest.png', '#1a3a1a'), description: 'Madeira sagrada, Apricorns e essencias de Johto.',
     enemyType: ['Bug', 'Grass', 'Poison'], favoredTypes: ['Fire', 'Flying', 'Bug'], neutralTypes: ['Normal', 'Psychic', 'Steel'],
     requires: 2, baseDuration: 45, drops: { common: ['apricorn', 'silk', 'bug_essence'], uncommon: ['grass_essence', 'pink_dust'], rare: ['leaf_stone', 'lucky_egg'] }, xpPerMinute: 15,
   },
   johto_whirl_islands: {
     id: 'johto_whirl_islands', region: 'johto', name: 'Whirl Islands', badge: 5, leaderName: 'Chuck', icon: 'WI',
-    bg: "url('/bg_ocean_routes.png') center/cover", description: 'Cavernas marinhas para coletar recursos aquaticos raros.',
+    bg: expBg('bg_ocean_routes.png', '#0a2a4a'), description: 'Cavernas marinhas para coletar recursos aquaticos raros.',
     enemyType: ['Water', 'Flying'], favoredTypes: ['Electric', 'Grass'], neutralTypes: ['Dragon', 'Ice', 'Normal'],
     requires: 5, baseDuration: 70, drops: { common: ['water_essence', 'flying_essence'], uncommon: ['water_stone', 'mystic_water'], rare: ['dragon_scale', 'super_rod'] }, xpPerMinute: 17,
   },
   hoenn_meteor_falls: {
     id: 'hoenn_meteor_falls', region: 'hoenn', name: 'Meteor Falls', badge: 3, leaderName: 'Wattson', icon: 'MF',
-    bg: "url('/bg_meteor_falls.png') center/cover", description: 'Minerios, poeira mistica e fragmentos de meteorito.',
+    bg: expBg('bg_meteor_falls.png', '#1a1a2a'), description: 'Minerios, poeira mistica e fragmentos de meteorito.',
     enemyType: ['Rock', 'Dragon', 'Steel'], favoredTypes: ['Water', 'Fighting', 'Ground'], neutralTypes: ['Psychic', 'Ice', 'Fairy'],
     requires: 3, baseDuration: 70, drops: { common: ['rock_essence', 'iron_ore', 'mystic_dust'], uncommon: ['dragon_essence', 'moon_stone_shard'], rare: ['stardust', 'dragon_scale'] }, xpPerMinute: 15,
   },
   hoenn_sky_pillar: {
     id: 'hoenn_sky_pillar', region: 'hoenn', name: 'Sky Pillar', badge: 8, leaderName: 'Wallace', icon: 'SP',
-    bg: "url('/bg_sky_pillar.png') center/cover", description: 'Expedicao de elite para escamas, penas e materiais draconicos.',
+    bg: expBg('bg_sky_pillar.png', '#0a1a2a'), description: 'Expedicao de elite para escamas, penas e materiais draconicos.',
     enemyType: ['Dragon', 'Flying'], favoredTypes: ['Ice', 'Dragon', 'Fairy'], neutralTypes: ['Steel', 'Electric', 'Rock'],
     requires: 8, baseDuration: 100, drops: { common: ['dragon_essence', 'flying_essence'], uncommon: ['dragon_scale', 'feather'], rare: ['stardust', 'draco_shard'] }, xpPerMinute: 18,
   },
   sinnoh_mt_coronet: {
     id: 'sinnoh_mt_coronet', region: 'sinnoh', name: 'Mt. Coronet', badge: 6, leaderName: 'Byron', icon: 'MC',
-    bg: "url('/bg_mt_coronet.png') center/cover", description: 'Nucleo mineral de Sinnoh com drops para forja avancada.',
+    bg: expBg('bg_mt_coronet.png', '#2a2a2a'), description: 'Nucleo mineral de Sinnoh com drops para forja avancada.',
     enemyType: ['Rock', 'Steel', 'Ice'], favoredTypes: ['Fighting', 'Ground', 'Fire'], neutralTypes: ['Water', 'Psychic', 'Dragon'],
     requires: 6, baseDuration: 95, drops: { common: ['iron_ore', 'rock_essence', 'steel_essence'], uncommon: ['mystic_dust', 'ice_essence'], rare: ['stardust', 'armor_fragment'] }, xpPerMinute: 21,
   },
   sinnoh_stark_mountain: {
     id: 'sinnoh_stark_mountain', region: 'sinnoh', name: 'Stark Mountain', badge: 8, leaderName: 'Volkner', icon: 'SM',
-    bg: "url('/bg_mt_coronet.png') center/cover", description: 'Area pos-Liga para materials de boss e treino de nivel 100.',
+    bg: expBg('bg_mt_coronet.png', '#3a1a0a'), description: 'Area pos-Liga para materials de boss e treino de nivel 100.',
     enemyType: ['Fire', 'Rock', 'Steel'], favoredTypes: ['Water', 'Ground', 'Fighting'], neutralTypes: ['Dragon', 'Psychic', 'Dark'],
     requires: 8, baseDuration: 120, drops: { common: ['fire_essence', 'rock_essence', 'steel_essence'], uncommon: ['fury_essence', 'armor_fragment'], rare: ['stardust', 'penetration_pendant'] }, xpPerMinute: 20,
   },
