@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pokecraft-cache-v1.56.3';
+const CACHE_NAME = 'pokecraft-cache-v1.58.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -16,13 +16,14 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Ativação: Limpa caches antigos
+// Ativação: Limpa TODOS os caches antigos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
+            console.log('[SW] Deletando cache antigo:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -45,19 +46,32 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Estratégia Cache-First para Ativos Estáticos
-  const isStaticAsset = 
-    url.origin === self.location.origin && (
-    url.pathname.includes('/assets/') || 
-    url.pathname.endsWith('.png') || 
-    url.pathname.endsWith('.jpg') || 
-    url.pathname.endsWith('.webp') || 
-    url.pathname.endsWith('.svg') || 
-    url.pathname.endsWith('.js') || 
-    url.pathname.endsWith('.css')
-  );
+  // 3. Network-First para index.html (sempre pega versão mais recente)
+  if (url.pathname.endsWith('/') || url.pathname.endsWith('index.html')) {
+    event.respondWith(
+      fetch(event.request).then((networkResponse) => {
+        if (!networkResponse || networkResponse.status !== 200) {
+          return caches.match(event.request).then(cached => cached || networkResponse);
+        }
+        const responseToCache = networkResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
+        });
+        return networkResponse;
+      }).catch(async () => {
+        const cached = await caches.match(event.request);
+        return cached || new Response('Offline', { status: 503 });
+      })
+    );
+    return;
+  }
 
-  if (isStaticAsset) {
+  // 4. Cache-First para assets com hash (imutáveis por definição)
+  const isHashedAsset =
+    url.origin === self.location.origin &&
+    url.pathname.includes('/assets/');
+
+  if (isHashedAsset) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         if (cachedResponse) return cachedResponse;
@@ -73,13 +87,14 @@ self.addEventListener('fetch', (event) => {
         });
       })
     );
-  } else {
-    // Network-First para o resto
-    event.respondWith(
-      fetch(event.request).catch(async () => {
-        const cached = await caches.match(event.request);
-        return cached || new Response('Offline', { status: 404 });
-      })
-    );
+    return;
   }
+
+  // 5. Network-First para o resto
+  event.respondWith(
+    fetch(event.request).catch(async () => {
+      const cached = await caches.match(event.request);
+      return cached || new Response('Offline', { status: 404 });
+    })
+  );
 });
