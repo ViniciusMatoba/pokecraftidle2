@@ -7166,13 +7166,17 @@ export default function App() {
 
                 {/* Elemento central: insígnia (ginásio) ou ícone (outros) */}
                 {isGym ? (
-                  <div className="relative mb-8">
-                    <div className="absolute inset-0 bg-amber-400/30 blur-3xl rounded-full animate-pulse" />
-                    <div className="w-32 h-32 bg-amber-50 rounded-full flex items-center justify-center border-4 border-amber-200 shadow-xl relative z-10">
-                      <BadgeSVG badgeId={showGymVictoryModal.badge} earned={true} size={88} />
-                    </div>
-                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-amber-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg z-20 whitespace-nowrap">
+                  <div className="flex flex-col items-center gap-3 mb-8">
+                    {/* Nome da insígnia ACIMA do ícone */}
+                    <div className="bg-amber-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg whitespace-nowrap">
                       {showGymVictoryModal.badge.replace(/_/g, ' ')}
+                    </div>
+                    {/* Ícone da insígnia */}
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-amber-400/30 blur-3xl rounded-full animate-pulse" />
+                      <div className="w-32 h-32 bg-amber-50 rounded-full flex items-center justify-center border-4 border-amber-200 shadow-xl relative z-10">
+                        <BadgeSVG badgeId={showGymVictoryModal.badge} earned={true} size={88} />
+                      </div>
                     </div>
                   </div>
                 ) : (

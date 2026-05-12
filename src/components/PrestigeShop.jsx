@@ -516,7 +516,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
     { id: 'allies',    label: 'Aliados',  icon: 'https://play.pokemonshowdown.com/sprites/trainers/youngster.png' },
     { id: 'mine',      label: 'Mina',     icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png' },
     { id: 'fishing',   label: 'Pesca',    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/old-rod.png' },
-    { id: 'gym',       label: 'Ginásio',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/gym-guide.png' },
+    { id: 'gym',       label: 'Ginásio',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png' },
   ];
 
   const avatarSubTabs = [
@@ -527,8 +527,8 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
   ];
 
   return (
-    <div className="absolute inset-0 z-[2000] flex flex-col overflow-hidden font-mono"
-      style={{ background: 'linear-gradient(160deg,#0d1117 0%,#161b22 50%,#0d1117 100%)' }}>
+    <div className="absolute inset-x-0 bottom-0 z-[2000] flex flex-col overflow-hidden font-mono"
+      style={{ background: 'linear-gradient(160deg,#0d1117 0%,#161b22 50%,#0d1117 100%)', top: '56px' }}>
 
       {/* Scanlines overlay */}
       <div className="absolute inset-0 pointer-events-none z-0 opacity-[0.03]"

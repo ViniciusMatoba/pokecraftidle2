@@ -1,7 +1,8 @@
-export const APP_VERSION = '1.76.3';
-export const VERSION = '1.76.3';
-export const APP_VERSION_DATE = '12/05/2026 17:49';
+export const APP_VERSION = '1.76.4';
+export const VERSION = '1.76.4';
+export const APP_VERSION_DATE = '12/05/2026 17:51';
 export const CHANGELOG = [
+  'UI: Ajustes Visuais — corrigido posicionamento da Loja de Prestígio, ícone da aba Ginásio e layout das insígnias',
   'Fix: Navegação da Forja — corrigido erro de redirecionamento que causava tela branca ao sair do modal de receita',
   'Feature: Raids Aprimoradas — gatilho de batalhas reduzido para 100 e nova arte de fundo épica para a tela de raid',
   'Feature: Sistema de Itens Segurados — agora é possível equipar itens forjados (Charcoal, Magnet, etc.) nos Pokémon para ganhar bônus de dano e efeitos especiais',
