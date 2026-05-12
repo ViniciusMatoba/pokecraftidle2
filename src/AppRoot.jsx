@@ -8207,7 +8207,7 @@ export default function App() {
               <button
                 onClick={() => {
                   setForgeTargetItem(recipeFoundModal.id);
-                  setCurrentView('forge');
+                  setCurrentView('forge_screen');
                   setRecipeFoundModal(null);
                 }}
                 className="w-full py-4 rounded-2xl font-black uppercase text-sm tracking-widest transition-all active:scale-95"
