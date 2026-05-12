@@ -628,6 +628,7 @@ export default function App() {
   const [masteryNotification, setMasteryNotification] = useState(null);
   const [activePokemonDetails, setActivePokemonDetails] = useState(null);
   const [currentView, setCurrentView] = useState('landing');
+  const [forgeTargetItem, setForgeTargetItem] = useState(null);
   const [travelTab, setTravelTab] = useState('routes');
   const [showAutoCaptureModal, setShowAutoCaptureModal] = useState(false);
   const [showBattleAutoPanel, setShowBattleAutoPanel] = useState(false);
@@ -6391,11 +6392,15 @@ export default function App() {
                   onCraft={handleCraft}
                   hasRecipe={(id) => hasForgeRecipe(gameState, id)}
                   recipeGuides={FORGE_RECIPE_DROP_GUIDE}
+                  initialItem={forgeTargetItem}
                 />
               </Suspense>
 
               <button 
-                onClick={() => setCurrentView('city')}
+                onClick={() => {
+                  setForgeTargetItem(null);
+                  setCurrentView('city');
+                }}
                 className="w-full mt-6 bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg border-b-8 border-slate-900"
               >Voltar para a Cidade</button>
            </div>
@@ -8186,7 +8191,8 @@ export default function App() {
             <div className="px-6 pb-6">
               <button
                 onClick={() => {
-                  setScreen('forge');
+                  setForgeTargetItem(recipeFoundModal.id);
+                  setCurrentView('forge');
                   setRecipeFoundModal(null);
                 }}
                 className="w-full py-4 rounded-2xl font-black uppercase text-sm tracking-widest transition-all active:scale-95"

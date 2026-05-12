@@ -16,10 +16,40 @@ const CraftingStation = ({
   onCraft,
   hasRecipe   = () => true,   // (id) => bool — verifica se a receita foi encontrada
   recipeGuides = {},          // { [id]: { label, routeId } } — onde dropar
+  initialCategory = null,
+  initialItem = null,
 }) => {
   const categories = useMemo(() => Object.keys(recipes || {}), [recipes]);
-  const [activeCategory, setActiveCategory] = useState(categories[0] || '');
+  const [activeCategory, setActiveCategory] = useState(initialCategory || categories[0] || '');
   const [showLocked, setShowLocked] = useState(true);
+  const [highlightedItem, setHighlightedItem] = useState(initialItem);
+
+  React.useEffect(() => {
+    if (initialItem) {
+      setHighlightedItem(initialItem);
+      // Encontrar a categoria do item se não foi passada
+      if (!initialCategory) {
+        for (const [cat, items] of Object.entries(recipes)) {
+          if (items.some(it => it.id === initialItem)) {
+            setActiveCategory(cat);
+            break;
+          }
+        }
+      }
+      
+      // Pequeno delay para garantir que o DOM renderizou após a troca de categoria
+      setTimeout(() => {
+        const el = document.getElementById(`recipe-item-${initialItem}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+      
+      // Limpa o highlight após um tempo
+      const timer = setTimeout(() => setHighlightedItem(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [initialItem, initialCategory, recipes]);
 
   const getMaterialCost = (item) =>
     Object.fromEntries(Object.entries(item.cost || {}).filter(([m]) => m !== 'currency'));
@@ -83,8 +113,11 @@ const CraftingStation = ({
           return (
             <div
               key={item.id}
+              id={`recipe-item-${item.id}`}
               className={`rounded-3xl border-2 p-4 transition-all ${
-                !unlocked
+                highlightedItem === item.id
+                  ? 'border-f59e0b ring-2 ring-f59e0b/50 shadow-[0_0_20px_rgba(245,158,11,0.3)] bg-amber-50/30'
+                  : !unlocked
                   ? 'border-dashed border-slate-200 bg-slate-50 opacity-80'
                   : canCraft
                   ? 'border-emerald-200 bg-white shadow-md hover:border-emerald-400'
