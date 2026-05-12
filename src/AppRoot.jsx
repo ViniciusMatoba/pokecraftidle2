@@ -324,12 +324,12 @@ const getForgeCategoryLabel = (category) => FORGE_CATEGORY_LABELS[category] || c
 
 const MUSIC_LIST = [
   { id: 'all', name: 'Tocar Todas (Shuffle)' },
-  { id: 'league_night', name: 'League Night', url: '/sounds/51383504-feora-lucas-cooper-pokemon-league-night-pokemon-diamond-410587.mp3' },
-  { id: 'littleroot', name: 'Littleroot Town', url: '/sounds/51383504-feora-vgm-yume-littleroot-town-pokemon-ruby-amp-sapphire-lofi-410588.mp3' },
-  { id: 'new_bark', name: 'New Bark Town', url: '/sounds/51383504-feora-vgm-yume-new-bark-town-pokemon-gold-amp-silver-lofi-410593.mp3' },
-  { id: 'route_101', name: 'Route 101', url: '/sounds/51383504-feora-vgm-yume-route-101-pokeon-ruby-amp-sapphire-lofi-410589.mp3' },
-  { id: 'surf', name: 'Surf Theme', url: '/sounds/51383504-feora-vgm-yume-surf-theme-pokemon-ruby-amp-sapphire-lofi-410586.mp3' },
-  { id: 'pallet', name: 'Pallet Town', url: '/sounds/51383504-pallet-town-pokemon-red-amp-blue-lofi-410591.mp3' }
+  { id: 'league_night', name: 'League Night', url: fixPath('/sounds/51383504-feora-lucas-cooper-pokemon-league-night-pokemon-diamond-410587.mp3') },
+  { id: 'littleroot', name: 'Littleroot Town', url: fixPath('/sounds/51383504-feora-vgm-yume-littleroot-town-pokemon-ruby-amp-sapphire-lofi-410588.mp3') },
+  { id: 'new_bark', name: 'New Bark Town', url: fixPath('/sounds/51383504-feora-vgm-yume-new-bark-town-pokemon-gold-amp-silver-lofi-410593.mp3') },
+  { id: 'route_101', name: 'Route 101', url: fixPath('/sounds/51383504-feora-vgm-yume-route-101-pokeon-ruby-amp-sapphire-lofi-410589.mp3') },
+  { id: 'surf', name: 'Surf Theme', url: fixPath('/sounds/51383504-feora-vgm-yume-surf-theme-pokemon-ruby-amp-sapphire-lofi-410586.mp3') },
+  { id: 'pallet', name: 'Pallet Town', url: fixPath('/sounds/51383504-pallet-town-pokemon-red-amp-blue-lofi-410591.mp3') }
 ];
 
 const GearIcon = () => (
@@ -480,19 +480,19 @@ export default function App() {
   useEffect(() => {
     const assets = {
       images: [
-        '/battle_bg_grass_1776863779024.png',
-        '/battle_bg_forest_1776863795763.png',
-        '/battle_bg_cave_1776863810604.png',
+        fixPath('/battle_bg_grass_1776863779024.png'),
+        fixPath('/battle_bg_forest_1776863795763.png'),
+        fixPath('/battle_bg_cave_1776863810604.png'),
         'https://play.pokemonshowdown.com/sprites/trainers/red.png',
         'https://play.pokemonshowdown.com/sprites/trainers/leaf-gen3.png',
         'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
         'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png'
       ],
       sounds: [
-        '/sounds/derrota.mp3',
-        '/sounds/nivel.mp3',
-        '/sounds/POKE CENTER.mp3',
-        '/sounds/gym.mp3'
+        fixPath('/sounds/derrota.mp3'),
+        fixPath('/sounds/nivel.mp3'),
+        fixPath('/sounds/POKE CENTER.mp3'),
+        fixPath('/sounds/gym.mp3')
       ]
     };
 
@@ -1926,16 +1926,16 @@ export default function App() {
 
     // Backgrounds para Lendários
     const legendaryBgs = {
-      144: '/battle_bg_seafoam.png',
-      145: '/battle_bg_power_plant.png',
-      146: '/battle_bg_gym_1776863824590.png',
-      150: '/battle_bg_cave_1776863810604.png',
-      243: '/bg_burned_tower.png',
-      244: '/bg_burned_tower.png',
-      245: '/bg_lake_of_rage.png',
-      249: '/bg_whirl_islands.png',
-      250: '/bg_tin_tower.png',
-      251: '/bg_ilex_forest.png'
+      144: fixPath('/battle_bg_seafoam.png'),
+      145: fixPath('/battle_bg_power_plant.png'),
+      146: fixPath('/battle_bg_gym_1776863824590.png'),
+      150: fixPath('/battle_bg_cave_1776863810604.png'),
+      243: fixPath('/bg_burned_tower.png'),
+      244: fixPath('/bg_burned_tower.png'),
+      245: fixPath('/bg_lake_of_rage.png'),
+      249: fixPath('/bg_whirl_islands.png'),
+      250: fixPath('/bg_tin_tower.png'),
+      251: fixPath('/bg_ilex_forest.png')
     };
     const specialBg = legendaryBgs[Number(finalBase.id)] || null;
 
@@ -5194,7 +5194,7 @@ export default function App() {
           <div
             className="relative h-full flex flex-col items-center justify-center overflow-hidden"
             style={{
-              backgroundImage: "url('/battle_bg_lab_1776866008842.png')",
+              backgroundImage: `url('${fixPath('/battle_bg_lab_1776866008842.png')}')`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
@@ -5329,7 +5329,7 @@ export default function App() {
         const johtoStarters = [152, 155, 158].map(id => POKEDEX[id]).filter(Boolean);
         return (
           <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden bg-emerald-950">
-            <div className="absolute inset-0 bg-[url('/battle_bg_grass_1776863779024.png')] bg-cover bg-center opacity-70" />
+            <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('${fixPath('/battle_bg_grass_1776863779024.png')}')` }} />
             <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/40 via-emerald-900/30 to-slate-950/80" />
 
             <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
@@ -5390,7 +5390,7 @@ export default function App() {
         const hoennStarters = [252, 255, 258].map(id => POKEDEX[id]).filter(Boolean);
         return (
           <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden bg-orange-950">
-            <div className="absolute inset-0 bg-[url('/bg_route119.png')] bg-cover bg-center opacity-70" />
+            <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('${fixPath('/bg_route119.png')}')` }} />
             <div className="absolute inset-0 bg-gradient-to-b from-orange-950/35 via-emerald-900/20 to-slate-950/80" />
 
             <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
@@ -5451,7 +5451,7 @@ export default function App() {
         const sinnohStarters = [387, 390, 393].map(id => POKEDEX[id]).filter(Boolean);
         return (
           <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden bg-sky-950">
-            <div className="absolute inset-0 bg-[url('/bg_twinleaf.png')] bg-cover bg-center opacity-70" />
+            <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('${fixPath('/bg_twinleaf.png')}')` }} />
             <div className="absolute inset-0 bg-gradient-to-b from-sky-950/35 via-cyan-900/25 to-slate-950/80" />
 
             <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">

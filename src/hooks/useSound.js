@@ -1,12 +1,14 @@
 import { useRef, useCallback, useState, useEffect } from 'react';
 
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 const SFX_MAP = {
   victory: null,
-  defeat: '/sounds/derrota.mp3',
-  levelUp: '/sounds/nivel.mp3',
+  defeat: `${BASE}/sounds/derrota.mp3`,
+  levelUp: `${BASE}/sounds/nivel.mp3`,
   capture: null, // Removido para ser usado apenas na cura
-  heal: '/sounds/POKE CENTER.mp3',
-  gym: '/sounds/gym.mp3'
+  heal: `${BASE}/sounds/POKE CENTER.mp3`,
+  gym: `${BASE}/sounds/gym.mp3`
 };
 
 export function useSound() {
@@ -28,7 +30,7 @@ export function useSound() {
     const now = Date.now();
     if (lastPlayTime.current[key] && now - lastPlayTime.current[key] < 150) return;
     lastPlayTime.current[key] = now;
-    
+
     const audio = new Audio(path);
     audio.volume = 0.4;
     sfxRef.current = audio;
@@ -71,7 +73,7 @@ export function useSound() {
 
   const playBGM = useCallback((url, volume = 0.25, loop = true, onEnded = null) => {
     if (currentBgmKey.current === url && bgmRef.current && bgmRef.current.loop === loop) return;
-    
+
     if (bgmRef.current) {
       bgmRef.current.pause();
       bgmRef.current.onended = null;
@@ -87,7 +89,7 @@ export function useSound() {
     audio.loop = loop;
     audio.volume = volume;
     if (onEnded) audio.onended = onEnded;
-    
+
     bgmRef.current = audio;
     currentBgmKey.current = url;
 
@@ -98,7 +100,7 @@ export function useSound() {
 
   const stopBGM = useCallback((fadeMs = 0) => {
     if (!bgmRef.current) return;
-    
+
     if (fadeMs > 0) {
       const step = bgmRef.current.volume / (fadeMs / 50);
       const interval = setInterval(() => {
@@ -124,12 +126,12 @@ export function useSound() {
     const next = !mutedRef.current;
     mutedRef.current = next;
     setMuted(next);
-    
+
     if (bgmRef.current) {
       if (next) bgmRef.current.pause();
       else bgmRef.current.play().catch(() => {});
     }
-    
+
     return next;
   }, []);
 
