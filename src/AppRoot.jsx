@@ -398,6 +398,60 @@ const processExpeditionPokemon = (pokemon, xpGained) => {
   return { pokemon: p, initialLevel, finalLevel: p.level || 1,
     levelsGained: (p.level || 1) - initialLevel, xpGained, moveEvents };
 };
+const RegionIntroScreen = ({
+  professorSprite, professorName, regionName, accentColor, bgColor,
+  starters, onSelectStarter, onBack, ruleText, inviteText
+}) => (
+  <div className={`h-full flex flex-col items-center animate-fadeIn relative overflow-hidden ${bgColor}`}>
+    <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-slate-950/80" />
+    <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
+      <img src={professorSprite}
+        onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }}
+        className="h-64 object-contain drop-shadow-2xl animate-float" alt={professorName} />
+    </div>
+    <div className="relative z-10 w-full p-4 pb-6">
+      <div className="bg-white rounded-[2rem] shadow-2xl p-5 max-w-2xl mx-auto" style={{ borderBottom: `10px solid ${accentColor}` }}>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center overflow-hidden border-2"
+            style={{ backgroundColor: accentColor + '22', borderColor: accentColor + '55' }}>
+            <img src={professorSprite}
+              onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }}
+              className="w-9 h-9 object-contain" alt="" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.25em]" style={{ color: accentColor }}>{professorName}</p>
+            <h2 className="text-xl font-black uppercase italic tracking-tighter text-slate-800 leading-none">
+              Bem-vindo a {regionName}
+            </h2>
+          </div>
+        </div>
+        <p className="text-sm font-bold text-slate-600 leading-relaxed mb-3 italic">"{inviteText}"</p>
+        <div className="rounded-2xl p-3 mb-4 border-2" style={{ backgroundColor: accentColor + '11', borderColor: accentColor + '33' }}>
+          <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: accentColor }}>Regra Regional</p>
+          <p className="text-xs font-bold text-slate-800">{ruleText}</p>
+        </div>
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          {starters.map(s => (
+            <button key={s.id} onClick={() => onSelectStarter(s.id)}
+              className="bg-slate-50 border-2 border-slate-100 rounded-2xl p-3 flex flex-col items-center gap-2 active:scale-95 transition-all hover:border-opacity-100"
+              style={{ '--tw-border-opacity': 0 }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = accentColor}
+              onMouseLeave={e => e.currentTarget.style.borderColor = ''}>
+              <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${s.id}.png`}
+                className="w-16 h-16 object-contain" alt={s.name} />
+              <span className="text-[10px] font-black uppercase text-slate-800">{s.name}</span>
+              <span className="text-[8px] font-black uppercase text-slate-400">{s.type}</span>
+            </button>
+          ))}
+        </div>
+        <button onClick={onBack}
+          className="w-full min-h-[48px] rounded-2xl bg-slate-100 text-slate-500 font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-all">
+          Continuar na região atual
+        </button>
+      </div>
+    </div>
+  </div>
+);
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -558,10 +612,15 @@ export default function App() {
   const [showHouse, setShowHouse] = useState(false);
   const [showOakHouseModal, setShowOakHouseModal] = useState(false);
   const [showOakStaminaModal, setShowOakStaminaModal] = useState(false);
-  const [showKantoChampionModal, setShowKantoChampionModal] = useState(false);
-  const [showSinnohIntroModal, setShowSinnohIntroModal] = useState(false);
-  const [showJohtoChampionModal, setShowJohtoChampionModal] = useState(false);
-  const [showSinnohChampionModal, setShowSinnohChampionModal] = useState(false);
+  const [showKantoChampionModal,  setShowKantoChampionModal]  = useState(false);
+  const [showSinnohIntroModal,    setShowSinnohIntroModal]    = useState(false); // Hoenn → Sinnoh (já existe)
+  const [showJohtoChampionModal,  setShowJohtoChampionModal]  = useState(false); // Johto → Hoenn
+  const [showSinnohChampionModal, setShowSinnohChampionModal] = useState(false); // Sinnoh → Unova
+  const [showUnovaChampionModal,  setShowUnovaChampionModal]  = useState(false); // Unova → Kalos
+  const [showKalosChampionModal,  setShowKalosChampionModal]  = useState(false); // Kalos → Alola
+  const [showAlolaChampionModal,  setShowAlolaChampionModal]  = useState(false); // Alola → Galar
+  const [showGalarChampionModal,  setShowGalarChampionModal]  = useState(false); // Galar → Paldea
+  const [showPaldeaChampionModal, setShowPaldeaChampionModal] = useState(false); // Paldea = Final
   const [showGymVictoryModal, setShowGymVictoryModal] = useState(null); // { leaderName, badge, badgeImg, reward }
   const [previewStarter, setPreviewStarter] = useState(null);
   const [activeQuestModal, setActiveQuestModal] = useState(null);
@@ -3682,27 +3741,49 @@ export default function App() {
   useEffect(() => {
     const flags = gameState.worldFlags || [];
 
-    if (flags.includes('kanto_champion_modal_pending')) {
-      setShowKantoChampionModal(true);
-    }
-    if (
-      flags.includes('hoenn_champion_modal_pending') ||
-      (flags.includes('hoenn_champion') && !flags.includes('sinnoh_started') && !flags.includes('hoenn_champion_modal_shown'))
-    ) {
-      setShowSinnohIntroModal(true);
-    }
-    if (
-      flags.includes('johto_champion_modal_pending') ||
-      (flags.includes('johto_champion') && !flags.includes('hoenn_started') && !flags.includes('johto_champion_modal_shown'))
-    ) {
+    // Kanto → Johto
+    if (flags.includes('kanto_champion_modal_pending')) setShowKantoChampionModal(true);
+
+    // Johto → Hoenn
+    if (flags.includes('johto_champion_modal_pending') ||
+       (flags.includes('johto_champion') && !flags.includes('hoenn_started') && !flags.includes('johto_champion_modal_shown')))
       setShowJohtoChampionModal(true);
-    }
-    if (
-      flags.includes('sinnoh_champion_modal_pending') ||
-      (flags.includes('sinnoh_champion') && !flags.includes('sinnoh_champion_modal_shown'))
-    ) {
+
+    // Hoenn → Sinnoh
+    if (flags.includes('hoenn_champion_modal_pending') ||
+       (flags.includes('hoenn_champion') && !flags.includes('sinnoh_started') && !flags.includes('hoenn_champion_modal_shown')))
+      setShowSinnohIntroModal(true);
+
+    // Sinnoh → Unova
+    if (flags.includes('sinnoh_champion_modal_pending') ||
+       (flags.includes('sinnoh_champion') && !flags.includes('unova_started') && !flags.includes('sinnoh_champion_modal_shown')))
       setShowSinnohChampionModal(true);
-    }
+
+    // Unova → Kalos
+    if (flags.includes('unova_champion_modal_pending') ||
+       (flags.includes('unova_champion') && !flags.includes('kalos_started') && !flags.includes('unova_champion_modal_shown')))
+      setShowUnovaChampionModal(true);
+
+    // Kalos → Alola
+    if (flags.includes('kalos_champion_modal_pending') ||
+       (flags.includes('kalos_champion') && !flags.includes('alola_started') && !flags.includes('kalos_champion_modal_shown')))
+      setShowKalosChampionModal(true);
+
+    // Alola → Galar
+    if (flags.includes('alola_champion_modal_pending') ||
+       (flags.includes('alola_champion') && !flags.includes('galar_started') && !flags.includes('alola_champion_modal_shown')))
+      setShowAlolaChampionModal(true);
+
+    // Galar → Paldea
+    if (flags.includes('galar_champion_modal_pending') ||
+       (flags.includes('galar_champion') && !flags.includes('paldea_started') && !flags.includes('galar_champion_modal_shown')))
+      setShowGalarChampionModal(true);
+
+    // Paldea = Final
+    if (flags.includes('paldea_champion_modal_pending') ||
+       (flags.includes('paldea_champion') && !flags.includes('paldea_champion_modal_shown')))
+      setShowPaldeaChampionModal(true);
+
   }, [gameState.worldFlags]);
   // ————————————————————————————————————————————————————————————
 
@@ -3852,6 +3933,96 @@ export default function App() {
     setShowSinnohIntroModal(false);
     setCurrentView('city');
     addLog(`🌍 Bem-vindo a SINNOH! Sua nova jornada com ${starter.name} começa agora!`, 'system');
+  }, [createRegionStarter, addLog]);
+
+  const handleStartUnova = useCallback((starterId) => {
+    const starter = createRegionStarter(starterId, 5, 'unova');
+    if (!starter) return;
+    setGameState(prev => {
+      const updated_regional_teams = { ...(prev.regional_teams || {}), [prev.activeRegion || 'sinnoh']: [...prev.team] };
+      return {
+        ...prev, activeRegion: 'unova',
+        regional_teams: updated_regional_teams,
+        selectedStarters: { ...(prev.selectedStarters || {}), unova: starterId },
+        team: [starter], currentRoute: 'unova_home_town',
+        caughtData: { ...(prev.caughtData || {}), [starter.id]: true },
+        worldFlags: [...new Set([...(prev.worldFlags || []), 'unova_started'])],
+      };
+    });
+    setActiveMemberIndex(0); setCurrentEnemy(null); setCurrentView('city');
+    addLog(`🌍 Bem-vindo a Unova! Sua jornada com ${starter.name} começa agora!`, 'system');
+  }, [createRegionStarter, addLog]);
+
+  const handleStartKalos = useCallback((starterId) => {
+    const starter = createRegionStarter(starterId, 5, 'kalos');
+    if (!starter) return;
+    setGameState(prev => {
+      const updated_regional_teams = { ...(prev.regional_teams || {}), [prev.activeRegion || 'unova']: [...prev.team] };
+      return {
+        ...prev, activeRegion: 'kalos',
+        regional_teams: updated_regional_teams,
+        selectedStarters: { ...(prev.selectedStarters || {}), kalos: starterId },
+        team: [starter], currentRoute: 'kalos_home_town',
+        caughtData: { ...(prev.caughtData || {}), [starter.id]: true },
+        worldFlags: [...new Set([...(prev.worldFlags || []), 'kalos_started'])],
+      };
+    });
+    setActiveMemberIndex(0); setCurrentEnemy(null); setCurrentView('city');
+    addLog(`🌍 Bem-vindo a Kalos! Sua jornada com ${starter.name} começa agora!`, 'system');
+  }, [createRegionStarter, addLog]);
+
+  const handleStartAlola = useCallback((starterId) => {
+    const starter = createRegionStarter(starterId, 5, 'alola');
+    if (!starter) return;
+    setGameState(prev => {
+      const updated_regional_teams = { ...(prev.regional_teams || {}), [prev.activeRegion || 'kalos']: [...prev.team] };
+      return {
+        ...prev, activeRegion: 'alola',
+        regional_teams: updated_regional_teams,
+        selectedStarters: { ...(prev.selectedStarters || {}), alola: starterId },
+        team: [starter], currentRoute: 'alola_home_town',
+        caughtData: { ...(prev.caughtData || {}), [starter.id]: true },
+        worldFlags: [...new Set([...(prev.worldFlags || []), 'alola_started'])],
+      };
+    });
+    setActiveMemberIndex(0); setCurrentEnemy(null); setCurrentView('city');
+    addLog(`🌍 Bem-vindo a Alola! Sua jornada com ${starter.name} começa agora!`, 'system');
+  }, [createRegionStarter, addLog]);
+
+  const handleStartGalar = useCallback((starterId) => {
+    const starter = createRegionStarter(starterId, 5, 'galar');
+    if (!starter) return;
+    setGameState(prev => {
+      const updated_regional_teams = { ...(prev.regional_teams || {}), [prev.activeRegion || 'alola']: [...prev.team] };
+      return {
+        ...prev, activeRegion: 'galar',
+        regional_teams: updated_regional_teams,
+        selectedStarters: { ...(prev.selectedStarters || {}), galar: starterId },
+        team: [starter], currentRoute: 'galar_home_town',
+        caughtData: { ...(prev.caughtData || {}), [starter.id]: true },
+        worldFlags: [...new Set([...(prev.worldFlags || []), 'galar_started'])],
+      };
+    });
+    setActiveMemberIndex(0); setCurrentEnemy(null); setCurrentView('city');
+    addLog(`🌍 Bem-vindo a Galar! Sua jornada com ${starter.name} começa agora!`, 'system');
+  }, [createRegionStarter, addLog]);
+
+  const handleStartPaldea = useCallback((starterId) => {
+    const starter = createRegionStarter(starterId, 5, 'paldea');
+    if (!starter) return;
+    setGameState(prev => {
+      const updated_regional_teams = { ...(prev.regional_teams || {}), [prev.activeRegion || 'galar']: [...prev.team] };
+      return {
+        ...prev, activeRegion: 'paldea',
+        regional_teams: updated_regional_teams,
+        selectedStarters: { ...(prev.selectedStarters || {}), paldea: starterId },
+        team: [starter], currentRoute: 'paldea_home_town',
+        caughtData: { ...(prev.caughtData || {}), [starter.id]: true },
+        worldFlags: [...new Set([...(prev.worldFlags || []), 'paldea_started'])],
+      };
+    });
+    setActiveMemberIndex(0); setCurrentEnemy(null); setCurrentView('city');
+    addLog(`🌍 Bem-vindo a Paldea! Sua jornada com ${starter.name} começa agora!`, 'system');
   }, [createRegionStarter, addLog]);
 
   // Plantar
@@ -4242,34 +4413,35 @@ export default function App() {
         newFlags.push('kanto_champion_modal_pending');
         setTimeout(() => setShowKantoChampionModal(true), 1200);
       }
-      if (currentEnemy.unlockFlag === 'johto_champion') {
-        if (!newFlags.includes('region_champion_johto')) newFlags.push('region_champion_johto');
-        if (!newFlags.includes('johto_champion_modal_shown') && !newFlags.includes('johto_champion_modal_pending')) {
-          newFlags.push('johto_champion_modal_pending');
-          setTimeout(() => setShowJohtoChampionModal(true), 1200);
+      // ── CHAMPION MODALS — todos os 9 pares de região ─────────────────────────
+      const CHAMPION_MODAL_MAP = {
+        johto_champion:  { pendingFlag: 'johto_champion_modal_pending',  regionFlag: 'region_champion_johto',  setter: () => setTimeout(() => setShowJohtoChampionModal(true),  1200) },
+        sinnoh_champion: { pendingFlag: 'sinnoh_champion_modal_pending', regionFlag: 'region_champion_sinnoh', setter: () => setTimeout(() => setShowSinnohChampionModal(true), 1200) },
+        unova_champion:  { pendingFlag: 'unova_champion_modal_pending',  regionFlag: 'region_champion_unova',  setter: () => setTimeout(() => setShowUnovaChampionModal(true),  1200) },
+        kalos_champion:  { pendingFlag: 'kalos_champion_modal_pending',  regionFlag: 'region_champion_kalos',  setter: () => setTimeout(() => setShowKalosChampionModal(true),  1200) },
+        alola_champion:  { pendingFlag: 'alola_champion_modal_pending',  regionFlag: 'region_champion_alola',  setter: () => setTimeout(() => setShowAlolaChampionModal(true),  1200) },
+        galar_champion:  { pendingFlag: 'galar_champion_modal_pending',  regionFlag: 'region_champion_galar',  setter: () => setTimeout(() => setShowGalarChampionModal(true),  1200) },
+        paldea_champion: { pendingFlag: 'paldea_champion_modal_pending', regionFlag: 'region_champion_paldea', setter: () => setTimeout(() => setShowPaldeaChampionModal(true), 1200) },
+      };
+
+      const unlockFlag = currentEnemy.unlockFlag;
+      if (unlockFlag && CHAMPION_MODAL_MAP[unlockFlag]) {
+        const { pendingFlag, regionFlag, setter } = CHAMPION_MODAL_MAP[unlockFlag];
+        if (!newFlags.includes(regionFlag))  newFlags.push(regionFlag);
+        if (!newFlags.includes(pendingFlag) && !newFlags.includes(pendingFlag.replace('_pending', '_shown'))) {
+          newFlags.push(pendingFlag);
+          setter();
         }
       }
-      if (currentEnemy.unlockFlag === 'hoenn_champion') {
+
+      // Hoenn champion (já existia, mantém o mesmo comportamento)
+      if (unlockFlag === 'hoenn_champion') {
         if (!newFlags.includes('region_champion_hoenn')) newFlags.push('region_champion_hoenn');
         if (!newFlags.includes('hoenn_champion_modal_shown') && !newFlags.includes('hoenn_champion_modal_pending')) {
           newFlags.push('hoenn_champion_modal_pending');
           setTimeout(() => setShowSinnohIntroModal(true), 1200);
         }
       }
-      if (currentEnemy.unlockFlag === 'sinnoh_champion') {
-        if (!newFlags.includes('region_champion_sinnoh')) newFlags.push('region_champion_sinnoh');
-        if (!newFlags.includes('sinnoh_champion_modal_shown') && !newFlags.includes('sinnoh_champion_modal_pending')) {
-          newFlags.push('sinnoh_champion_modal_pending');
-          setTimeout(() => setShowSinnohChampionModal(true), 1200);
-        }
-      }
-      REGION_ORDER.forEach(region => {
-        const championFlag = REGION_CHAMPION_FLAGS[region];
-        const normalizedFlag = `region_champion_${region}`;
-        if (currentEnemy.unlockFlag === championFlag && !newFlags.includes(normalizedFlag)) {
-          newFlags.push(normalizedFlag);
-        }
-      });
 
       const activeRegion = prev.activeRegion || 'kanto';
       const badgesCount = getRegionBadgeCount(prev.badges || [], activeRegion);
@@ -5493,65 +5665,76 @@ export default function App() {
         );
       }
       case 'sinnoh_intro': {
-        const rowanSprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorrowan.png';
-        const sinnohStarters = [387, 390, 393].map(id => POKEDEX[id]).filter(Boolean);
-        return (
-          <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden bg-sky-950">
-            <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('${fixPath('/bg_twinleaf.png')}')` }} />
-            <div className="absolute inset-0 bg-gradient-to-b from-sky-950/35 via-cyan-900/25 to-slate-950/80" />
-
-            <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
-              <img src={rowanSprite} onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="h-64 object-contain drop-shadow-2xl animate-float" alt="Prof. Rowan" />
-            </div>
-
-            <div className="relative z-10 w-full p-4 pb-6">
-              <div className="bg-white rounded-[2rem] border-b-[10px] border-sky-700 shadow-2xl p-5 max-w-2xl mx-auto">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-11 h-11 rounded-2xl bg-sky-100 flex items-center justify-center overflow-hidden border-2 border-sky-200">
-                    <img src={rowanSprite} onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-9 h-9 object-contain" alt="" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-sky-600">Prof. Rowan</p>
-                    <h2 className="text-xl font-black uppercase italic tracking-tighter text-slate-800 leading-none">Bem-vindo a Sinnoh</h2>
-                  </div>
-                </div>
-
-                <p className="text-sm font-bold text-slate-600 leading-relaxed mb-3 italic">
-                  "Campeao de Hoenn, sua jornada chamou minha atencao. Sinnoh tem especies e desafios que exigem um novo começo."
-                </p>
-                <p className="text-sm font-black text-slate-800 leading-relaxed mb-4 uppercase">
-                  "Seu time de Hoenn ficara guardado no PC regional. Escolha um novo parceiro e avance por rotas pensadas para subir do nivel 5 ate o treino de elite no nivel 100."
-                </p>
-
-                <div className="bg-cyan-50 border-2 border-cyan-200 rounded-2xl p-3 mb-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-cyan-700">Regra regional</p>
-                  <p className="text-xs font-bold text-cyan-900 mt-1">A jornada de Sinnoh comeca isolada, com progressao propria de capturas e treino.</p>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3 mb-4">
-                  {sinnohStarters.map(starter => (
-                    <button
-                      key={starter.id}
-                      onClick={() => handleStartSinnoh(starter.id)}
-                      className="bg-slate-50 border-2 border-slate-100 rounded-2xl p-3 flex flex-col items-center gap-2 hover:border-sky-400 hover:bg-sky-50 active:scale-95 transition-all"
-                    >
-                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${starter.id}.png`} className="w-16 h-16 object-contain" alt={starter.name} />
-                      <span className="text-[10px] font-black uppercase text-slate-800 leading-none">{starter.name}</span>
-                      <span className="text-[8px] font-black uppercase text-slate-400">{starter.type}</span>
-                    </button>
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => setCurrentView('city')}
-                  className="w-full min-h-[48px] rounded-2xl bg-slate-100 text-slate-500 font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-all"
-                >
-                  Voltar para Hoenn
-                </button>
-              </div>
-            </div>
-          </div>
-        );
+        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorrowan.png';
+        const starters = [387, 390, 393].map(id => POKEDEX[id]).filter(Boolean);
+        return <RegionIntroScreen
+          professorSprite={sprite} professorName="Prof. Rowan"
+          regionName="Sinnoh" accentColor="#0ea5e9" bgColor="bg-sky-950"
+          starters={starters} onSelectStarter={handleStartSinnoh}
+          onBack={() => setCurrentView('city')}
+          ruleText="A jornada de Sinnoh começa isolada, com progressão própria de capturas e treino."
+          inviteText="Campeão de Hoenn, sua jornada chamou minha atenção. Sinnoh tem espécies e desafios que exigem um novo começo."
+        />;
+      }
+      case 'unova_intro': {
+        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorjuniper.png';
+        const starters = [495, 498, 501].map(id => POKEDEX[id]).filter(Boolean);
+        return <RegionIntroScreen
+          professorSprite={sprite} professorName="Prof. Juniper"
+          regionName="Unova" accentColor="#22c55e" bgColor="bg-green-950"
+          starters={starters} onSelectStarter={handleStartUnova}
+          onBack={() => setCurrentView('city')}
+          ruleText="Ao iniciar Unova, seu time atual fica no PC regional. Escolha Snivy, Tepig ou Oshawott."
+          inviteText="Juniper aqui! Unova aguarda um novo herói. Venha descobrir os Pokémon desta região!"
+        />;
+      }
+      case 'kalos_intro': {
+        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorsycamore.png';
+        const starters = [650, 653, 656].map(id => POKEDEX[id]).filter(Boolean);
+        return <RegionIntroScreen
+          professorSprite={sprite} professorName="Prof. Sycamore"
+          regionName="Kalos" accentColor="#3b82f6" bgColor="bg-blue-950"
+          starters={starters} onSelectStarter={handleStartKalos}
+          onBack={() => setCurrentView('city')}
+          ruleText="A jornada de Kalos começa do zero. Escolha Chespin, Fennekin ou Froakie."
+          inviteText="Bonjour! Sou o Prof. Sycamore. Kalos é uma região de beleza e mistério — venha explorar!"
+        />;
+      }
+      case 'alola_intro': {
+        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorkukui.png';
+        const starters = [722, 725, 728].map(id => POKEDEX[id]).filter(Boolean);
+        return <RegionIntroScreen
+          professorSprite={sprite} professorName="Prof. Kukui"
+          regionName="Alola" accentColor="#f97316" bgColor="bg-orange-950"
+          starters={starters} onSelectStarter={handleStartAlola}
+          onBack={() => setCurrentView('city')}
+          ruleText="Em Alola não há ginásios — há os Trials! Escolha Rowlet, Litten ou Popplio."
+          inviteText="Yeah! Sou o Prof. Kukui. Alola é diferente de tudo que você já viu — sejam bem-vindos!"
+        />;
+      }
+      case 'galar_intro': {
+        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/professormagnolia.png';
+        const starters = [810, 813, 816].map(id => POKEDEX[id]).filter(Boolean);
+        return <RegionIntroScreen
+          professorSprite={sprite} professorName="Prof. Magnolia"
+          regionName="Galar" accentColor="#a855f7" bgColor="bg-purple-950"
+          starters={starters} onSelectStarter={handleStartGalar}
+          onBack={() => setCurrentView('city')}
+          ruleText="Galar tem o Wild Area e a Liga mais famosa do mundo. Escolha Grookey, Scorbunny ou Sobble."
+          inviteText="Bem-vindo a Galar! Sou a Profa. Magnolia. Esta região vai testar tudo o que você aprendeu!"
+        />;
+      }
+      case 'paldea_intro': {
+        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorsada.png';
+        const starters = [906, 909, 912].map(id => POKEDEX[id]).filter(Boolean);
+        return <RegionIntroScreen
+          professorSprite={sprite} professorName="Prof. Sada"
+          regionName="Paldea" accentColor="#ef4444" bgColor="bg-red-950"
+          starters={starters} onSelectStarter={handleStartPaldea}
+          onBack={() => setCurrentView('city')}
+          ruleText="Paldea é a região final. Escolha Sprigatito, Fuecoco ou Quaxly para a última jornada."
+          inviteText="Sou a Profa. Sada. Paldea guarda mistérios que vão além do tempo — venha descobrir!"
+        />;
       }
       case 'navigation_hub': return (
         <div className="h-full flex flex-col items-center justify-start pt-16 bg-gradient-to-b from-blue-50 to-white p-6 relative overflow-y-auto custom-scrollbar">
@@ -6576,115 +6759,168 @@ export default function App() {
         </div>
       )}
 
-      {showJohtoChampionModal && (
-        <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-          <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-orange-500 animate-bounceIn">
-            <div className="bg-orange-500 px-6 py-5 flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
-                <img
-                  src="https://play.pokemonshowdown.com/sprites/trainers/professorbirch.png"
-                  onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }}
-                  className="w-12 h-12 object-contain"
-                  alt="Prof. Birch"
-                />
+      {/* ── CHAMPION TRANSITION MODALS ─────────────────────────── */}
+      {[
+        {
+          show: showJohtoChampionModal, setShow: setShowJohtoChampionModal,
+          pendingFlag: 'johto_champion_modal_pending', shownFlag: 'johto_champion_modal_shown',
+          nextView: 'hoenn_intro', professorSprite: 'professorbirch',
+          professorName: 'Prof. Birch', regionWon: 'Johto', nextRegion: 'Hoenn',
+          accentColor: '#f97316', buttonColor: 'bg-orange-500 hover:bg-orange-600',
+          message: '"Você derrotou Lance e se tornou Campeão de Johto! Hoenn está esperando por você."',
+          inviteText: '"Quando estiver pronto, venha conhecer Hoenn — escolha Treecko, Torchic ou Mudkip e comece uma nova jornada."',
+          buttonLabel: 'Conhecer Hoenn com o Prof. Birch',
+          stayLabel: 'Continuar em Johto por ora',
+        },
+        {
+          show: showSinnohChampionModal, setShow: setShowSinnohChampionModal,
+          pendingFlag: 'sinnoh_champion_modal_pending', shownFlag: 'sinnoh_champion_modal_shown',
+          nextView: 'unova_intro', professorSprite: 'professorjuniper',
+          professorName: 'Prof. Juniper', regionWon: 'Sinnoh', nextRegion: 'Unova',
+          accentColor: '#22c55e', buttonColor: 'bg-green-600 hover:bg-green-700',
+          message: '"Cynthia foi derrotada! Você conquistou Sinnoh. A Prof. Juniper de Unova quer te conhecer."',
+          inviteText: '"Unova tem Pokémon completamente novos esperando por você — venha começar do zero!"',
+          buttonLabel: 'Conhecer Unova com a Prof. Juniper',
+          stayLabel: 'Continuar em Sinnoh por ora',
+        },
+        {
+          show: showUnovaChampionModal, setShow: setShowUnovaChampionModal,
+          pendingFlag: 'unova_champion_modal_pending', shownFlag: 'unova_champion_modal_shown',
+          nextView: 'kalos_intro', professorSprite: 'professorsycamore',
+          professorName: 'Prof. Sycamore', regionWon: 'Unova', nextRegion: 'Kalos',
+          accentColor: '#3b82f6', buttonColor: 'bg-blue-600 hover:bg-blue-700',
+          message: '"Incrível! Você venceu a Liga de Unova. O Prof. Sycamore de Kalos ouviu sobre você."',
+          inviteText: '"Kalos é repleta de beleza e segredos. Venha escolher Chespin, Fennekin ou Froakie!"',
+          buttonLabel: 'Conhecer Kalos com o Prof. Sycamore',
+          stayLabel: 'Continuar em Unova por ora',
+        },
+        {
+          show: showKalosChampionModal, setShow: setShowKalosChampionModal,
+          pendingFlag: 'kalos_champion_modal_pending', shownFlag: 'kalos_champion_modal_shown',
+          nextView: 'alola_intro', professorSprite: 'professorkukui',
+          professorName: 'Prof. Kukui', regionWon: 'Kalos', nextRegion: 'Alola',
+          accentColor: '#f97316', buttonColor: 'bg-orange-500 hover:bg-orange-600',
+          message: '"Yeah! Você derrotou Diantha e conquistou Kalos! O Prof. Kukui de Alola te convida."',
+          inviteText: '"Alola não tem ginásios — tem Trials! Venha escolher Rowlet, Litten ou Popplio!"',
+          buttonLabel: 'Conhecer Alola com o Prof. Kukui',
+          stayLabel: 'Continuar em Kalos por ora',
+        },
+        {
+          show: showAlolaChampionModal, setShow: setShowAlolaChampionModal,
+          pendingFlag: 'alola_champion_modal_pending', shownFlag: 'alola_champion_modal_shown',
+          nextView: 'galar_intro', professorSprite: 'professormagnolia',
+          professorName: 'Prof. Magnolia', regionWon: 'Alola', nextRegion: 'Galar',
+          accentColor: '#a855f7', buttonColor: 'bg-purple-600 hover:bg-purple-700',
+          message: '"Você venceu os Trials de Alola! A Prof. Magnolia de Galar quer te desafiar."',
+          inviteText: '"Galar tem a Liga mais famosa do mundo. Venha escolher Grookey, Scorbunny ou Sobble!"',
+          buttonLabel: 'Conhecer Galar com a Prof. Magnolia',
+          stayLabel: 'Continuar em Alola por ora',
+        },
+        {
+          show: showGalarChampionModal, setShow: setShowGalarChampionModal,
+          pendingFlag: 'galar_champion_modal_pending', shownFlag: 'galar_champion_modal_shown',
+          nextView: 'paldea_intro', professorSprite: 'professormagnolia', // Magnolia as placeholder if Sada not in Showdown sprites
+          professorName: 'Prof. Magnolia', regionWon: 'Galar', nextRegion: 'Paldea',
+          accentColor: '#ef4444', buttonColor: 'bg-red-600 hover:bg-red-700',
+          message: '"Leon foi derrotado! Você é o novo Campeão de Galar. A Profa. Sada de Paldea te espera."',
+          inviteText: '"Paldea é a última grande fronteira. Venha escolher Sprigatito, Fuecoco ou Quaxly!"',
+          buttonLabel: 'Conhecer Paldea com a Prof. Sada',
+          stayLabel: 'Continuar em Galar por ora',
+        },
+      ].map(({ show, setShow, pendingFlag, shownFlag, nextView, professorSprite, professorName, regionWon, nextRegion, accentColor, buttonColor, message, inviteText, buttonLabel, stayLabel }) =>
+        show ? (
+          <div key={pendingFlag} className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+            <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-bounceIn" style={{ borderBottom: `10px solid ${accentColor}` }}>
+              <div className="px-6 py-5 flex items-center gap-4" style={{ backgroundColor: accentColor }}>
+                <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
+                  <img
+                    src={`https://play.pokemonshowdown.com/sprites/trainers/${professorSprite}.png`}
+                    onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }}
+                    className="w-12 h-12 object-contain" alt={professorName}
+                  />
+                </div>
+                <div>
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.25em]">{professorName}</p>
+                  <h2 className="text-white text-xl font-black uppercase italic tracking-tighter leading-none">Campeão de {regionWon}!</h2>
+                </div>
               </div>
-              <div>
-                <p className="text-orange-100 text-[10px] font-black uppercase tracking-[0.25em]">Prof. Birch</p>
-                <h2 className="text-white text-xl font-black uppercase italic tracking-tighter leading-none">Campeão de Johto!</h2>
-              </div>
-            </div>
-            <div className="p-6">
-              <p className="text-sm font-bold text-slate-600 leading-relaxed italic mb-3">
-                "Incrível! Lance foi derrotado. Você é o novo Campeão de Johto — uma conquista lendária!"
-              </p>
-              <div className="bg-orange-50 border-2 border-orange-100 rounded-3xl p-4 mb-5">
-                <p className="text-[10px] font-black uppercase tracking-widest text-orange-600 mb-1">Nova Região Desbloqueada</p>
-                <p className="text-xs font-bold text-orange-900">
-                  "Sou o Prof. Birch, de Littleroot Town em Hoenn. Quando estiver pronto, venha conhecer nossa região — escolha Treecko, Torchic ou Mudkip e comece do zero."
-                </p>
-              </div>
-              <div className="grid grid-cols-1 gap-3">
-                <button
-                  onClick={() => {
-                    setShowJohtoChampionModal(false);
-                    setGameState(prev => ({
-                      ...prev,
-                      worldFlags: (prev.worldFlags || [])
-                        .filter(f => f !== 'johto_champion_modal_pending')
-                        .concat(['johto_champion_modal_shown'])
-                        .filter((v, i, a) => a.indexOf(v) === i),
-                    }));
-                    setCurrentView('hoenn_intro');
-                  }}
-                  className="w-full min-h-[54px] rounded-2xl bg-orange-500 text-white font-black uppercase tracking-widest text-xs hover:bg-orange-600 transition-all shadow-lg"
-                >
-                  Conhecer Hoenn com o Prof. Birch
-                </button>
-                <button
-                  onClick={() => {
-                    setShowJohtoChampionModal(false);
-                    setGameState(prev => ({
-                      ...prev,
-                      worldFlags: (prev.worldFlags || [])
-                        .filter(f => f !== 'johto_champion_modal_pending')
-                        .concat(['johto_champion_modal_shown'])
-                        .filter((v, i, a) => a.indexOf(v) === i),
-                    }));
-                  }}
-                  className="w-full min-h-[48px] rounded-2xl bg-slate-100 text-slate-500 font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-all"
-                >
-                  Continuar em Johto por ora
-                </button>
+              <div className="p-6">
+                <p className="text-sm font-bold text-slate-600 leading-relaxed italic mb-3">{message}</p>
+                <div className="rounded-3xl p-4 mb-5 border-2" style={{ backgroundColor: accentColor + '11', borderColor: accentColor + '33' }}>
+                  <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: accentColor }}>
+                    Nova Região Desbloqueada — {nextRegion}
+                  </p>
+                  <p className="text-xs font-bold text-slate-800">{inviteText}</p>
+                </div>
+                <div className="grid grid-cols-1 gap-3">
+                  <button
+                    onClick={() => {
+                      setShow(false);
+                      setGameState(prev => ({
+                        ...prev,
+                        worldFlags: (prev.worldFlags || []).filter(f => f !== pendingFlag).concat([shownFlag]).filter((v,i,a) => a.indexOf(v)===i),
+                      }));
+                      setCurrentView(nextView);
+                    }}
+                    className={`w-full min-h-[54px] rounded-2xl text-white font-black uppercase tracking-widest text-xs transition-all shadow-lg ${buttonColor}`}
+                  >
+                    {buttonLabel}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShow(false);
+                      setGameState(prev => ({
+                        ...prev,
+                        worldFlags: (prev.worldFlags || []).filter(f => f !== pendingFlag).concat([shownFlag]).filter((v,i,a) => a.indexOf(v)===i),
+                      }));
+                    }}
+                    className="w-full min-h-[48px] rounded-2xl bg-slate-100 text-slate-500 font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-all"
+                  >
+                    {stayLabel}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        ) : null
       )}
 
-      {showSinnohChampionModal && (
+      {/* Paldea = região final */}
+      {showPaldeaChampionModal && (
         <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-          <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-violet-500 animate-bounceIn">
-            <div className="bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-5 flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
-                <img
-                  src="https://play.pokemonshowdown.com/sprites/trainers/professorrowan.png"
-                  onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }}
-                  className="w-12 h-12 object-contain"
-                  alt="Prof. Rowan"
-                />
-              </div>
+          <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-violet-600 animate-bounceIn">
+            <div className="bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 px-6 py-5 flex items-center gap-4">
+              <div className="text-4xl">🏆</div>
               <div>
-                <p className="text-violet-100 text-[10px] font-black uppercase tracking-[0.25em]">Prof. Rowan</p>
+                <p className="text-violet-100 text-[10px] font-black uppercase tracking-[0.25em]">Conquista Suprema</p>
                 <h2 className="text-white text-xl font-black uppercase italic tracking-tighter leading-none">Mestre Pokémon!</h2>
               </div>
             </div>
             <div className="p-6">
               <p className="text-sm font-bold text-slate-600 leading-relaxed italic mb-3">
-                "Cynthia foi derrotada. Você conquistou Kanto, Johto, Hoenn e Sinnoh. Poucos treinadores na história chegaram até aqui."
+                "Você conquistou as 9 regiões: Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, Galar e Paldea. Sua lenda está gravada na história."
               </p>
               <div className="bg-violet-50 border-2 border-violet-100 rounded-3xl p-4 mb-5">
-                <p className="text-[10px] font-black uppercase tracking-widest text-violet-600 mb-1">🏆 Todas as Ligas Conquistadas</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-violet-600 mb-1">🌟 Jornada Completa</p>
                 <p className="text-xs font-bold text-violet-900">
-                  "Explore as rotas pós-Liga de Sinnoh, colete Pokémon lendários e complete a Pokédex. Novos conteúdos são adicionados com frequência!"
+                  Continue explorando rotas pós-Liga, coletando Pokémon lendários e completando a Pokédex Nacional. Novos conteúdos são adicionados regularmente!
                 </p>
               </div>
-              <div className="grid grid-cols-1 gap-3">
-                <button
-                  onClick={() => {
-                    setShowSinnohChampionModal(false);
-                    setGameState(prev => ({
-                      ...prev,
-                      worldFlags: (prev.worldFlags || [])
-                        .filter(f => f !== 'sinnoh_champion_modal_pending')
-                        .concat(['sinnoh_champion_modal_shown'])
-                        .filter((v, i, a) => a.indexOf(v) === i),
-                    }));
-                  }}
-                  className="w-full min-h-[54px] rounded-2xl bg-violet-600 text-white font-black uppercase tracking-widest text-xs hover:bg-violet-700 transition-all shadow-lg"
-                >
-                  ✨ Explorar Conteúdo Pós-Game
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  setShowPaldeaChampionModal(false);
+                  setGameState(prev => ({
+                    ...prev,
+                    worldFlags: (prev.worldFlags || [])
+                      .filter(f => f !== 'paldea_champion_modal_pending')
+                      .concat(['paldea_champion_modal_shown'])
+                      .filter((v,i,a) => a.indexOf(v)===i),
+                  }));
+                }}
+                className="w-full min-h-[54px] rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-black uppercase tracking-widest text-xs hover:opacity-90 transition-all shadow-lg"
+              >
+                ✨ Explorar o Pós-Game
+              </button>
             </div>
           </div>
         </div>
