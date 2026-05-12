@@ -6,94 +6,267 @@ import { EXP_CANDIES } from '../data/raids';
 const CURRENT_VERSION = APP_VERSION || '1.4';
 const VERSION_DATE = APP_VERSION_DATE || '2026-04-23';
 
+// ── Helpers de XP ────────────────────────────────────────────────────────────
+const xpForLevel = (lvl) => Math.pow(lvl, 3);
+const xpToNext   = (lvl) => Math.pow(lvl + 1, 3) - Math.pow(lvl, 3);
+
+/** Calcula o nível e XP resultantes após ganhar `gain` XP a partir de `currentXp` no `currentLevel` */
+const simulateXpGain = (currentLevel, currentXp, gain) => {
+  let lvl = currentLevel;
+  let xp  = (currentXp || 0) + gain;
+  while (xp >= xpToNext(lvl) && lvl < 100) {
+    xp -= xpToNext(lvl);
+    lvl++;
+  }
+  return { newLevel: lvl, newXp: xp, levelsGained: lvl - currentLevel };
+};
+
+// ── Modal: Confirmação de uso da EXP Candy ───────────────────────────────────
+const ExpCandyConfirmModal = ({ candy, pokemon, onConfirm, onBack }) => {
+  const lvl        = pokemon.level || 1;
+  const currentXp  = pokemon.xp   || 0;
+  const needed     = xpToNext(lvl);
+  const beforePct  = Math.min(100, Math.round((currentXp / needed) * 100));
+
+  const { newLevel, newXp, levelsGained } = simulateXpGain(lvl, currentXp, candy.xp);
+  const neededAfter  = xpToNext(newLevel);
+  const afterPct     = Math.min(100, Math.round((newXp / neededAfter) * 100));
+  const willLevelUp  = levelsGained > 0;
+
+  return (
+    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
+      onClick={onBack}>
+      <div className="w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl animate-fadeIn"
+        style={{ background: '#fff', border: `3px solid ${candy.color}` }}
+        onClick={e => e.stopPropagation()}>
+
+        {/* Barra top colorida */}
+        <div className="h-1.5 w-full" style={{ background: candy.color }} />
+
+        {/* Header — candy + pokémon */}
+        <div className="px-5 pt-5 pb-4">
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
+            Confirmar uso do item
+          </p>
+
+          {/* Candy → Pokémon */}
+          <div className="flex items-center gap-3 bg-slate-50 rounded-2xl p-3 border border-slate-100">
+            {/* Candy */}
+            <div className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
+              style={{ background: candy.color + '20' }}>
+              <img src={candy.sprite} alt={candy.name}
+                className="w-9 h-9 object-contain"
+                onError={e => { e.target.style.display = 'none'; }} />
+            </div>
+            {/* Seta */}
+            <div className="text-slate-300 font-black text-xl">→</div>
+            {/* Pokémon */}
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <img
+                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.isShiny ? 'shiny/' : ''}${pokemon.id}.png`}
+                alt={pokemon.name}
+                className="w-12 h-12 object-contain shrink-0"
+                onError={e => { e.target.style.display = 'none'; }}
+              />
+              <div className="min-w-0">
+                <p className="font-black text-slate-800 uppercase text-sm leading-none truncate">
+                  {pokemon.isShiny ? '✨ ' : ''}{pokemon.name}
+                </p>
+                <p className="text-[10px] text-slate-500 font-bold mt-0.5">
+                  Nv.{lvl}
+                  <span className="ml-2 px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-500 text-[8px] font-bold">
+                    {pokemon._loc}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Prévia de XP */}
+        <div className="px-5 pb-4 flex flex-col gap-3">
+
+          {/* Antes */}
+          <div>
+            <div className="flex justify-between text-[9px] font-black text-slate-400 uppercase mb-1">
+              <span>XP Atual</span>
+              <span>{currentXp.toLocaleString()} / {needed.toLocaleString()}</span>
+            </div>
+            <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-full rounded-full bg-blue-400 transition-all"
+                style={{ width: `${beforePct}%` }} />
+            </div>
+          </div>
+
+          {/* Ganho */}
+          <div className="flex items-center justify-center gap-2 py-1">
+            <span className="text-lg" style={{ color: candy.color }}>+</span>
+            <span className="font-black text-base" style={{ color: candy.color }}>
+              {candy.xp.toLocaleString()} XP
+            </span>
+            <span className="text-[9px] font-bold text-slate-400 uppercase">{candy.name}</span>
+          </div>
+
+          {/* Depois */}
+          <div>
+            <div className="flex justify-between text-[9px] font-black mb-1" style={{ color: willLevelUp ? '#16a34a' : '#64748b' }}>
+              <span>Após usar</span>
+              <span>
+                {willLevelUp
+                  ? `Nv.${newLevel} (+${levelsGained} level${levelsGained > 1 ? 's' : ''}!)`
+                  : `${newXp.toLocaleString()} / ${neededAfter.toLocaleString()}`}
+              </span>
+            </div>
+            <div className="h-2.5 rounded-full overflow-hidden"
+              style={{ background: willLevelUp ? '#dcfce7' : '#f1f5f9' }}>
+              <div className="h-full rounded-full transition-all"
+                style={{
+                  width: `${afterPct}%`,
+                  background: willLevelUp
+                    ? 'linear-gradient(90deg,#22c55e,#4ade80)'
+                    : 'linear-gradient(90deg,#3b82f6,#60a5fa)',
+                }} />
+            </div>
+          </div>
+
+          {/* Badge level up */}
+          {willLevelUp && (
+            <div className="flex items-center justify-center gap-2 py-1 px-3 rounded-2xl bg-green-50 border border-green-200">
+              <span className="text-base">⬆️</span>
+              <p className="text-[11px] font-black text-green-700 uppercase">
+                Level Up! Nv.{lvl} → Nv.{newLevel}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Botões */}
+        <div className="px-5 pb-5 flex gap-3">
+          <button onClick={onBack}
+            className="flex-1 py-3.5 rounded-2xl bg-slate-100 text-slate-500 font-black uppercase text-xs tracking-widest active:scale-95 transition-all">
+            ← Voltar
+          </button>
+          <button onClick={onConfirm}
+            className="flex-1 py-3.5 rounded-2xl font-black uppercase text-xs tracking-widest text-white active:scale-95 transition-all shadow-lg"
+            style={{
+              background: `linear-gradient(135deg, ${candy.color}, ${candy.color}bb)`,
+              boxShadow: `0 4px 14px ${candy.color}55`,
+            }}>
+            🍬 Usar!
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ── Modal: Selecionar Pokémon para receber EXP Candy ─────────────────────────
 const ExpCandyModal = ({ candy, gameState, onUse, onClose }) => {
+  const [confirmPokemon, setConfirmPokemon] = useState(null);
+
   const allPokemon = [
     ...(gameState.team || []).map(p => ({ ...p, _loc: 'Equipe' })),
     ...(gameState.pc   || []).map(p => ({ ...p, _loc: 'PC' })),
   ].filter(p => p && p.instanceId);
 
+  const handleConfirm = () => {
+    onUse(candy.id, confirmPokemon.instanceId);
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 z-[99999] flex items-end justify-center bg-black/70 backdrop-blur-sm animate-fadeIn"
-      onClick={onClose}>
-      <div className="w-full max-w-md bg-white rounded-t-3xl shadow-2xl border-t-4 animate-slideUp overflow-hidden"
-        style={{ borderColor: candy.color }}
-        onClick={e => e.stopPropagation()}>
+    <>
+      <div className="fixed inset-0 z-[99999] flex items-end justify-center bg-black/70 backdrop-blur-sm animate-fadeIn"
+        onClick={onClose}>
+        <div className="w-full max-w-md bg-white rounded-t-3xl shadow-2xl border-t-4 animate-slideUp overflow-hidden"
+          style={{ borderColor: candy.color }}
+          onClick={e => e.stopPropagation()}>
 
-        {/* Header */}
-        <div className="px-5 py-4 flex items-center gap-3"
-          style={{ background: candy.color + '22' }}>
-          <img src={candy.sprite} alt={candy.name}
-            className="w-10 h-10 object-contain"
-            onError={e => { e.target.style.display='none'; }} />
-          <div className="flex-1">
-            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Usar item</p>
-            <h3 className="font-black text-slate-800 text-base uppercase leading-tight">{candy.name}</h3>
-            <p className="text-[10px] font-bold" style={{ color: candy.color }}>
-              +{candy.xp.toLocaleString()} XP · Tamanho {candy.size}
-            </p>
+          {/* Header */}
+          <div className="px-5 py-4 flex items-center gap-3"
+            style={{ background: candy.color + '22' }}>
+            <img src={candy.sprite} alt={candy.name}
+              className="w-10 h-10 object-contain"
+              onError={e => { e.target.style.display='none'; }} />
+            <div className="flex-1">
+              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Usar item</p>
+              <h3 className="font-black text-slate-800 text-base uppercase leading-tight">{candy.name}</h3>
+              <p className="text-[10px] font-bold" style={{ color: candy.color }}>
+                +{candy.xp.toLocaleString()} XP · Tamanho {candy.size}
+              </p>
+            </div>
+            <button onClick={onClose}
+              className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-black text-sm">✕</button>
           </div>
-          <button onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-black text-sm">✕</button>
-        </div>
 
-        {/* Lista de Pokémon */}
-        <div className="p-3 max-h-72 overflow-y-auto flex flex-col gap-2">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
-            Selecione o Pokémon que receberá a EXP:
-          </p>
-          {allPokemon.length === 0 && (
-            <p className="text-center text-slate-400 text-sm py-6">Nenhum Pokémon disponível.</p>
-          )}
-          {allPokemon.map(p => {
-            const lvl = p.level || 1;
-            const xpNeeded = Math.pow(lvl + 1, 3) - Math.pow(lvl, 3);
-            const xpPct = Math.min(100, Math.round(((p.xp || 0) / xpNeeded) * 100));
-            return (
-              <button key={p.instanceId}
-                onClick={() => { onUse(candy.id, p.instanceId); onClose(); }}
-                className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border-2 border-slate-100 hover:border-slate-300 active:scale-[0.98] transition-all text-left w-full">
-                {/* Sprite */}
-                <img
-                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`}
-                  alt={p.name}
-                  className="w-10 h-10 object-contain"
-                  onError={e => { e.target.style.display='none'; }}
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="font-black text-slate-800 uppercase text-xs leading-none truncate">
-                      {p.isShiny ? '✨ ' : ''}{p.name}
+          {/* Lista de Pokémon */}
+          <div className="p-3 max-h-72 overflow-y-auto flex flex-col gap-2">
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+              Selecione o Pokémon que receberá a EXP:
+            </p>
+            {allPokemon.length === 0 && (
+              <p className="text-center text-slate-400 text-sm py-6">Nenhum Pokémon disponível.</p>
+            )}
+            {allPokemon.map(p => {
+              const lvl = p.level || 1;
+              const needed = xpToNext(lvl);
+              const xpPct  = Math.min(100, Math.round(((p.xp || 0) / needed) * 100));
+              return (
+                <button key={p.instanceId}
+                  onClick={() => setConfirmPokemon(p)}
+                  className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border-2 border-slate-100 hover:border-slate-300 active:scale-[0.98] transition-all text-left w-full">
+                  <img
+                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
+                    alt={p.name}
+                    className="w-10 h-10 object-contain"
+                    onError={e => { e.target.style.display='none'; }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-black text-slate-800 uppercase text-xs leading-none truncate">
+                        {p.isShiny ? '✨ ' : ''}{p.name}
+                      </p>
+                      <span className="text-[8px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full shrink-0">
+                        {p._loc}
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-500 font-bold mt-0.5">Nv.{lvl}</p>
+                    <div className="mt-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full bg-blue-500 transition-all"
+                        style={{ width: `${xpPct}%` }} />
+                    </div>
+                    <p className="text-[8px] text-slate-400 mt-0.5">
+                      {(p.xp || 0).toLocaleString()} / {needed.toLocaleString()} XP
+                      <span className="font-bold ml-1" style={{ color: candy.color }}>
+                        (+{candy.xp.toLocaleString()})
+                      </span>
                     </p>
-                    <span className="text-[8px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full shrink-0">
-                      {p._loc}
-                    </span>
                   </div>
-                  <p className="text-[9px] text-slate-500 font-bold mt-0.5">Nv.{lvl}</p>
-                  {/* Barra de XP */}
-                  <div className="mt-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full bg-blue-500 transition-all"
-                      style={{ width: `${xpPct}%` }} />
-                  </div>
-                  <p className="text-[8px] text-slate-400 mt-0.5">
-                    {(p.xp || 0).toLocaleString()} / {xpNeeded.toLocaleString()} XP
-                    <span className="text-blue-500 font-bold ml-1">(+{candy.xp.toLocaleString()})</span>
-                  </p>
-                </div>
-                <span className="text-lg shrink-0">🍬</span>
-              </button>
-            );
-          })}
-        </div>
+                  <span className="text-lg shrink-0">🍬</span>
+                </button>
+              );
+            })}
+          </div>
 
-        <div className="p-3 pt-0">
-          <button onClick={onClose}
-            className="w-full py-3 rounded-2xl bg-slate-100 text-slate-500 font-black uppercase text-xs tracking-widest">
-            Cancelar
-          </button>
+          <div className="p-3 pt-0">
+            <button onClick={onClose}
+              className="w-full py-3 rounded-2xl bg-slate-100 text-slate-500 font-black uppercase text-xs tracking-widest">
+              Cancelar
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Modal de confirmação (layer acima) */}
+      {confirmPokemon && (
+        <ExpCandyConfirmModal
+          candy={candy}
+          pokemon={confirmPokemon}
+          onConfirm={handleConfirm}
+          onBack={() => setConfirmPokemon(null)}
+        />
+      )}
+    </>
   );
 };
 

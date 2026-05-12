@@ -1,7 +1,8 @@
-export const APP_VERSION = '1.75.0';
-export const VERSION = '1.75.0';
-export const APP_VERSION_DATE = '13/05/2026 13:20';
+export const APP_VERSION = '1.75.1';
+export const VERSION = '1.75.1';
+export const APP_VERSION_DATE = '13/05/2026 13:45';
 export const CHANGELOG = [
+  'Feature: Confirmação de EXP Candy — modal com prévia de XP antes/depois, badge de Level Up e botão Voltar',
   'Feature: Modal de Receita Encontrada — celebração visual com nome, ícone e efeito do item ao dropar receita',
   'Fix: Raid sem Pokébolas — botão "Fechar" e "Recompensas" visíveis quando todas as bolas chegam a zero',
   'Fix: Ícones do Menu corrigidos — Pokédex 📕, Mochila 🎒 e Salvar 💾 agora usam emoji (100% confiável)',
