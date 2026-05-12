@@ -8183,7 +8183,10 @@ export default function App() {
             {/* Botão */}
             <div className="px-6 pb-6">
               <button
-                onClick={() => setRecipeFoundModal(null)}
+                onClick={() => {
+                  setScreen('forge');
+                  setRecipeFoundModal(null);
+                }}
                 className="w-full py-4 rounded-2xl font-black uppercase text-sm tracking-widest transition-all active:scale-95"
                 style={{
                   background: 'linear-gradient(135deg,#f59e0b,#d97706)',
