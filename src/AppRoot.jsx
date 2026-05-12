@@ -3444,7 +3444,7 @@ export default function App() {
   }, [addLog, setEvolutionPending]);
 
   // PROTECTED: handleStartExpedition - NAO EDITAR SEM AUTORIZACAO EXPLICITA
-  const handleStartExpedition = useCallback((biomeId, team) => {
+  const handleStartExpedition = useCallback((biomeId, team, autoRepeat = false, durationMultiplier = 1) => {
     const biome = EXPEDITION_BIOMES[biomeId];
     if (!biome || !team.length) return;
     
@@ -3458,7 +3458,7 @@ export default function App() {
     }
     const masteryLevel = Math.floor(((gameState.expeditionProgress || {})[biomeId]?.completed || 0) / 3);
     const tunedBiome = { ...biome, masteryLevel };
-    const duration = calcExpeditionDuration(team, tunedBiome);
+    const duration = calcExpeditionDuration(team, tunedBiome, durationMultiplier);
     const now = Date.now();
     setGameState(prev => {
       const teamIds = new Set(team.map(p => p.instanceId));
@@ -3475,28 +3475,46 @@ export default function App() {
             startedAt: now,
             endsAt: now + duration,
             duration,
+            durationMultiplier,
+            autoRepeat,
           },
         },
       };
     });
-    addLog(`🚢 Expedição para ${biome.name} iniciada! Duração: ~${Math.floor(duration / 60000)}min`, 'system');
-  }, [addLog, gameState.expeditionProgress]);
+    addLog(`🚢 Expedição para ${biome.name} iniciada! Duração: ~${Math.floor(duration / 60000)}min ${autoRepeat ? '(Auto-Repeat ON)' : ''}`, 'system');
+  }, [addLog, gameState.expeditionProgress, gameState.team]);
 
   const handleClaimExpedition = useCallback((biomeId) => {
+    const exp = gameState.expeditions?.[biomeId];
+    if (!exp || Date.now() < exp.endsAt) return null;
+
+    const biome = { ...EXPEDITION_BIOMES[biomeId], masteryLevel: exp.masteryLevel || 0 };
+    const duration = Date.now() - exp.startedAt;
+    const rawDrops = calcExpeditionDrops(exp.team, biome, duration);
+    const drops = Object.fromEntries(
+      Object.entries(rawDrops).filter(([key]) => !key.includes('_candy'))
+    );
+    const teamWithXP = calcExpeditionXP(exp.team, biome, duration);
+    const processedResults = teamWithXP.map(p => processExpeditionPokemon(p, p.xpGained || 0));
+    const returnedTeam = processedResults.map(r => r.pokemon);
+
+    const summary = {
+      biomeName: biome.name,
+      drops: Object.fromEntries(
+        Object.entries(drops).map(([id, q]) => [ITEM_LABELS[id]?.name || id, q])
+      ),
+      pokemonXP: processedResults.map(r => ({
+        name: r.pokemon.name,
+        xpGained: r.xpGained,
+        leveledUp: r.levelsGained > 0
+      }))
+    };
+
     setGameState(prev => {
-      const exp = prev.expeditions?.[biomeId];
-      if (!exp || Date.now() < exp.endsAt) return prev;
-      const biome = { ...EXPEDITION_BIOMES[biomeId], masteryLevel: exp.masteryLevel || 0 };
-      notify({ type: 'expedition', title: 'Expedição concluída!', message: `${biome.name} retornou com itens!` });
-      const duration = Date.now() - exp.startedAt;
-      const rawDrops = calcExpeditionDrops(exp.team, biome, duration);
-      // Candies são exclusivos do farm nas rotas — remover das expedições
-      const drops = Object.fromEntries(
-        Object.entries(rawDrops).filter(([key]) => !key.includes('_candy'))
-      );
-      const teamWithXP = calcExpeditionXP(exp.team, biome, duration);
-      const processedResults = teamWithXP.map(p => processExpeditionPokemon(p, p.xpGained || 0));
-      const returnedTeam = processedResults.map(r => r.pokemon);
+      // Re-verify exp in case of race condition (though unlikely in single-threaded JS)
+      const currentExp = prev.expeditions?.[biomeId];
+      if (!currentExp) return prev;
+
       const newMaterials = { ...prev.inventory.materials };
       const newItems = { ...prev.inventory.items };
       const materialList = [
@@ -3514,30 +3532,36 @@ export default function App() {
           newItems[item] = (newItems[item] || 0) + qty;
         }
       }
+
       const newExpeditions = { ...(prev.expeditions || {}) };
-      delete newExpeditions[biomeId];
+      if (currentExp.autoRepeat) {
+        const now = Date.now();
+        // Recalcular duração com o time atualizado (níveis ganhos) e o mesmo multiplicador
+        const updatedMastery = Math.floor(((progress[biomeId]?.completed || 0) + 1) / 3);
+        const updatedTunedBiome = { ...biome, masteryLevel: updatedMastery };
+        const newDuration = calcExpeditionDuration(returnedTeam, updatedTunedBiome, currentExp.durationMultiplier || 1);
+        
+        newExpeditions[biomeId] = {
+          ...currentExp,
+          team: returnedTeam,
+          masteryLevel: updatedMastery,
+          startedAt: now,
+          endsAt: now + newDuration,
+          duration: newDuration,
+        };
+      } else {
+        delete newExpeditions[biomeId];
+      }
+
       const progress = { ...(prev.expeditionProgress || {}) };
       const currentProgress = progress[biomeId] || { completed: 0, bestTeamPower: 0 };
-      const teamPower = (exp.team || []).reduce((sum, p) => sum + (p.level || 1), 0);
+      const teamPower = (currentExp.team || []).reduce((sum, p) => sum + (p.level || 1), 0);
       progress[biomeId] = {
         ...currentProgress,
         completed: (currentProgress.completed || 0) + 1,
         bestTeamPower: Math.max(currentProgress.bestTeamPower || 0, teamPower),
         lastCompletedAt: Date.now(),
       };
-      const dropSummary = Object.entries(drops)
-        .map(([k, v]) => `${v}x ${k}`)
-        .join(', ');
-      addLog(
-        `📦 Expedição em ${biome.name} concluída! Coletou: ${dropSummary || 'nada desta vez'}`,
-        'drop'
-      );
-      processedResults.forEach(r => {
-        if (r.levelsGained > 0)
-          addLog(`🎉 ${r.pokemon.name} subiu ${r.levelsGained} nível(is)! (Nv.${r.initialLevel} → ${r.finalLevel})`, 'system');
-        else if (r.xpGained > 0)
-          addLog(`✨ ${r.pokemon.name} ganhou ${r.xpGained} XP na expedição.`, 'system');
-      });
 
       expeditionReportRef.current = {
         biomeName: biome.name,
@@ -3554,19 +3578,18 @@ export default function App() {
           moveEvents: r.moveEvents,
         })),
       };
+
       return {
         ...prev,
-        pc: [...(prev.pc || []), ...returnedTeam],
+        pc: currentExp.autoRepeat ? prev.pc : [...(prev.pc || []), ...returnedTeam],
         inventory: { ...prev.inventory, materials: newMaterials, items: newItems },
         expeditions: newExpeditions,
         expeditionProgress: progress,
       };
     });
 
-    if (expeditionReportRef.current) {
-      setExpeditionReport(expeditionReportRef.current);
-    }
-  }, [addLog]);
+    return summary;
+  }, [gameState.expeditions]);
 
   // ——— HOUSE SYSTEM HANDLERS ———
   // ——— AUTO-CAPTURA HANDLERS ———
@@ -5707,8 +5730,8 @@ export default function App() {
                 expeditionReport={expeditionReport}
                 onCloseReport={() => setExpeditionReport(null)}
                 onClose={() => setShowExpeditions(false)}
-                onStartExpedition={(biomeId, team) => {
-                  handleStartExpedition(biomeId, team);
+                onStartExpedition={(biomeId, team, autoRepeat) => {
+                  handleStartExpedition(biomeId, team, autoRepeat);
                   setShowExpeditions(false);
                 }}
                 onClaimExpedition={(biomeId) => handleClaimExpedition(biomeId)}
@@ -5802,21 +5825,6 @@ export default function App() {
             </div>
           )}
 
-          {showExpeditions && (
-            <Suspense fallback={null}>
-              <ExpeditionsScreen
-                gameState={gameState}
-                expeditionReport={expeditionReport}
-                onCloseReport={() => setExpeditionReport(null)}
-                onClose={() => setShowExpeditions(false)}
-                onStartExpedition={(biomeId, team) => {
-                  handleStartExpedition(biomeId, team);
-                  setShowExpeditions(false);
-                }}
-                onClaimExpedition={(biomeId) => handleClaimExpedition(biomeId)}
-              />
-            </Suspense>
-          )}
         </>
       );
 
@@ -6786,9 +6794,15 @@ export default function App() {
             <button onClick={() => menuUnlocked && handleSafeNavigation('menu')}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${currentView === 'menu' ? 'text-slate-800' : 'text-slate-400'}`}>
-              <img src="/assets/menu/pokedex.png"
+              <img src={fixPath('/assets/menu/pokedex.png')}
                 className="w-7 h-7 object-contain" alt=""
-                onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML += '<span style="font-size:22px">📱</span>'; }} />
+                onError={e => {
+                  e.target.style.display='none';
+                  const em = document.createElement('span');
+                  em.style.fontSize = '22px';
+                  em.textContent = '📱';
+                  e.target.parentElement.insertBefore(em, e.target.nextSibling);
+                }} />
               <span className="text-[9px] font-black uppercase mt-0.5">Menu</span>
             </button>
 

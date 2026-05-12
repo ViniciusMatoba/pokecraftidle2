@@ -161,7 +161,11 @@ const ExpeditionsScreen = ({
   const [selectedBiome, setSelectedBiome] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState([]);
   const [alertReq, setAlertReq] = useState(null);
+  const [autoRepeat, setAutoRepeat] = useState(false);
+  const [durationMult, setDurationMult] = useState(1);
   const [now, setNow] = useState(Date.now());
+  const [claimSummary, setClaimSummary] = useState(null);
+  // claimSummary: { biomeName, drops, pokemonXP: [{name, xpGained, leveledUp}] }
 
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000);
@@ -209,6 +213,56 @@ const ExpeditionsScreen = ({
     });
   };
 
+  const ClaimSummaryModal = ({ summary, onClose }) => (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fadeIn">
+      <div className="bg-slate-900 rounded-3xl p-6 border border-white/10 shadow-2xl w-full max-w-sm animate-bounceIn">
+        <div className="text-center mb-4">
+          <div className="text-4xl mb-2">🎒</div>
+          <h3 className="text-white font-black text-lg uppercase italic">Expedição Concluída!</h3>
+          <p className="text-white/50 text-xs">{summary.biomeName}</p>
+        </div>
+
+        {/* Itens coletados */}
+        <div className="mb-4">
+          <p className="text-white/40 text-[9px] font-black uppercase tracking-widest mb-2">Itens Coletados</p>
+          {Object.keys(summary.drops).length === 0 ? (
+            <p className="text-white/30 text-xs text-center py-2">Nada desta vez...</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(summary.drops).map(([item, qty]) => (
+                <span key={item} className="bg-white/10 text-white text-[10px] font-black px-2 py-1 rounded-xl">
+                  {qty}× {item}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* XP dos Pokémon */}
+        {summary.pokemonXP.length > 0 && (
+          <div className="mb-4">
+            <p className="text-white/40 text-[9px] font-black uppercase tracking-widest mb-2">XP Ganho</p>
+            <div className="flex flex-col gap-1.5">
+              {summary.pokemonXP.map((p, i) => (
+                <div key={i} className="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2">
+                  <span className="text-white text-xs font-bold">{p.name}</span>
+                  <span className="text-yellow-400 text-[10px] font-black">+{p.xpGained} XP{p.leveledUp ? ' ⬆️' : ''}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={onClose}
+          className="w-full bg-green-500 hover:bg-green-400 text-white font-black py-3 rounded-2xl uppercase text-sm transition-all active:scale-95"
+        >
+          Ótimo!
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="absolute inset-0 z-[110] flex flex-col bg-slate-950 animate-fadeIn">
       {expeditionReport && (
@@ -222,6 +276,13 @@ const ExpeditionsScreen = ({
         <ExpeditionAlertModal 
           req={alertReq} 
           onClose={() => setAlertReq(null)} 
+        />
+      )}
+
+      {claimSummary && (
+        <ClaimSummaryModal
+          summary={claimSummary}
+          onClose={() => setClaimSummary(null)}
         />
       )}
 
@@ -270,12 +331,32 @@ const ExpeditionsScreen = ({
                   <p className={`text-[10px] font-bold mt-1 ${done ? 'text-green-400' : 'text-white/50'}`}>
                     {done ? '✅ Pronto!' : `⏳ ${formatTime(remaining)}`}
                   </p>
+                  
+                  {/* Barra de progresso */}
+                  {!done && (() => {
+                    const total = exp.endsAt - exp.startedAt;
+                    const elapsed = now - exp.startedAt;
+                    const pct = Math.min(100, Math.floor((elapsed / total) * 100));
+                    return (
+                      <div className="mt-2 w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className="h-full bg-yellow-400 rounded-full transition-all"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    );
+                  })()}
+
                   <p className="text-[9px] text-white/30 mt-0.5">
                     {exp.team?.length || 0} Pokémon
                   </p>
                   {done && (
                     <button
-                      onClick={() => onClaimExpedition(biomeId)}
+                      onClick={() => {
+                        // Chama o claim e recebe o summary de volta
+                        const result = onClaimExpedition(biomeId);
+                        if (result) setClaimSummary(result);
+                      }}
                       className="mt-2 w-full bg-green-500 text-white text-[10px] font-black py-1.5 rounded-xl uppercase active:scale-95 transition-all"
                     >
                       Coletar!
@@ -454,19 +535,51 @@ const ExpeditionsScreen = ({
                 </div>
               )}
 
+              {/* Seletor de Duração e Auto-Repeat */}
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-white/40 text-[10px] font-black uppercase tracking-widest">Configuração</p>
+                  <div 
+                    onClick={() => setAutoRepeat(!autoRepeat)}
+                    className="flex items-center gap-2 cursor-pointer select-none"
+                  >
+                    <span className="text-white text-[10px] font-bold uppercase">Auto-Repeat</span>
+                    <div className={`w-8 h-4 rounded-full relative transition-colors ${autoRepeat ? 'bg-green-500' : 'bg-white/10'}`}>
+                      <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${autoRepeat ? 'left-4.5' : 'left-0.5'}`} />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-5 gap-1.5">
+                  {[1, 4, 8, 12, 24].map(m => (
+                    <button
+                      key={m}
+                      onClick={() => setDurationMult(m)}
+                      className={`py-2 rounded-xl text-[10px] font-black transition-all border ${
+                        durationMult === m 
+                          ? 'bg-blue-600 border-blue-400 text-white shadow-lg shadow-blue-500/20' 
+                          : 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10'
+                      }`}
+                    >
+                      {m}h
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {selectedTeam.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
                   <div>
                     <p className="text-white/60 text-[10px]">
-                      Duracao estimada:
+                      Duração estimada:
                     </p>
                     <p className="text-white font-black text-sm">
-                      {formatTime(calcExpeditionDuration(selectedTeam, selectedBiome))}
+                      {formatTime(calcExpeditionDuration(selectedTeam, selectedBiome, durationMult))}
                     </p>
                   </div>
                   <button
                     onClick={() => {
-                      onStartExpedition(selectedBiome.id, selectedTeam);
+                      onStartExpedition(selectedBiome.id, selectedTeam, autoRepeat, durationMult);
                       setSelectedBiome(null);
                       setSelectedTeam([]);
                     }}

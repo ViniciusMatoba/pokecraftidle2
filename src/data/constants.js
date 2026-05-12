@@ -306,7 +306,33 @@ export const ITEM_LABELS = {
 
   // Itens de Batalha
   potion:            { icon: '🧪', name: 'Poção' },
-  link_cable:        { icon: '🔌', name: 'Link Cable' }
+  link_cable:        { icon: '🔌', name: 'Link Cable' },
+
+  // Pedra de Evolução extra
+  sun_stone:         { icon: '☀️', name: 'Pedra do Sol' },
+
+  // Drops de Expedição — Kanto
+  pearl:             { icon: '🔮', name: 'Pérola' },
+  black_belt:        { icon: '🥋', name: 'Black Belt' },
+  muscle_band:       { icon: '💪', name: 'Muscle Band' },
+  expert_belt_shard: { icon: '🛡️', name: 'Fragmento de Expert Belt' },
+  ghost_shard:       { icon: '👻', name: 'Fragmento Fantasma' },
+  mystic_water:      { icon: '💧', name: 'Mystic Water' },
+  twist_spoon:       { icon: '🥄', name: 'Twist Spoon' },
+  mind_shard:        { icon: '🔮', name: 'Fragmento Mental' },
+  tm_shard_psychic:  { icon: '💿', name: 'TM Shard Psíquico' },
+  link_cable_shard:  { icon: '🔌', name: 'Fragmento de Link Cable' },
+  charcoal:          { icon: '🪵', name: 'Carvão' },
+  lava_cookie:       { icon: '🍪', name: 'Lava Cookie' },
+  dragon_fang:       { icon: '🐉', name: 'Presa de Dragão' },
+  draco_shard:       { icon: '🐉', name: 'Fragmento Draco' },
+  tm_shard_dragon:   { icon: '💿', name: 'TM Shard Dragão' },
+  spell_tag:         { icon: '📜', name: 'Spell Tag' },
+  dread_plate:       { icon: '🖤', name: 'Dread Plate' },
+  amulet_coin_shard: { icon: '🪙', name: 'Fragmento de Amulet Coin' },
+
+  // Drops de Expedição — Johto / Hoenn / Sinnoh
+  super_rod:         { icon: '🎣', name: 'Super Vara' },
 };
 
 

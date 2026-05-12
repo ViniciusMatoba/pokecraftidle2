@@ -319,15 +319,19 @@ export const calcExpeditionEfficiency = (pokemon, biome) => {
 };
 
 // Calcular duração real da expedição em milissegundos
-export const calcExpeditionDuration = (team, biome) => {
-  if (!team.length) return biome.baseDuration * 60 * 1000;
+export const calcExpeditionDuration = (team, biome, durationMultiplier = 1) => {
+  const baseMinutes = (biome.baseDuration || 30) * durationMultiplier;
+  if (!team.length) return baseMinutes * 60 * 1000;
+  
   const avgLevel = team.reduce((s, p) => s + (p.level || 1), 0) / team.length;
   const avgEff   = team.reduce((s, p) => s + calcExpeditionEfficiency(p, biome), 0) / team.length;
+  
   const levelReduction = Math.min(0.6, avgLevel / 100);
   const effReduction   = (avgEff - 1) * 0.2;
   const finalMult      = Math.max(0.3, 1 - levelReduction - effReduction);
   const masteryReduction = Math.min(0.25, (biome.masteryLevel || 0) * 0.025);
-  return Math.floor(biome.baseDuration * Math.max(0.2, finalMult - masteryReduction) * 60 * 1000);
+  
+  return Math.floor(baseMinutes * Math.max(0.2, finalMult - masteryReduction) * 60 * 1000);
 };
 
 // Calcular drops ao retornar da expedição
@@ -336,14 +340,20 @@ export const calcExpeditionDrops = (team, biome, durationMs) => {
   const durationMinutes = durationMs / 60000;
   const avgEff   = team.reduce((s, p) => s + calcExpeditionEfficiency(p, biome), 0) / team.length;
   const avgLevel = team.reduce((s, p) => s + (p.level || 1), 0) / team.length;
+  
+  // O dropRate base é por minuto. Escala com eficiência e level.
   const dropRate = avgEff * (1 + avgLevel / 50) * (1 + (biome.masteryLevel || 0) * 0.08);
+  
+  // totalRolls escala linearmente com a duração real
   const totalRolls = Math.floor(durationMinutes * dropRate * 0.8);
+  
   for (let i = 0; i < totalRolls; i++) {
     const roll = Math.random();
     const rareBoost = Math.min(0.20, (biome.masteryLevel || 0) * 0.015);
     const pool = roll < 0.60 - rareBoost ? biome.drops.common
                : roll < 0.90 - rareBoost ? biome.drops.uncommon
                :                biome.drops.rare;
+    if (!pool || pool.length === 0) continue;
     const item = pool[Math.floor(Math.random() * pool.length)];
     drops[item] = (drops[item] || 0) + 1;
   }
