@@ -57,7 +57,19 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
         }
       }
 
-      if (data.version !== APP_VERSION) {
+      const isNewer = (v1, v2) => {
+        const parts1 = v1.split('.').map(Number);
+        const parts2 = v2.split('.').map(Number);
+        for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+          const p1 = parts1[i] || 0;
+          const p2 = parts2[i] || 0;
+          if (p1 > p2) return true;
+          if (p1 < p2) return false;
+        }
+        return false;
+      };
+
+      if (isNewer(data.version, APP_VERSION)) {
         if (window.confirm(`Nova versão disponível (${data.version})! Deseja atualizar agora?`)) {
           await forceAppRefresh();
         }
