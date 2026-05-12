@@ -1,7 +1,10 @@
-export const APP_VERSION = '1.69.0';
-export const VERSION = '1.69.0';
-export const APP_VERSION_DATE = '12/05/2026 22:00';
+export const APP_VERSION = '1.70.0';
+export const VERSION = '1.70.0';
+export const APP_VERSION_DATE = '12/05/2026 23:00';
 export const CHANGELOG = [
+  'Balance: Raids menos frequentes — intervalo de 2h→6h, gatilho de batalhas 50→200',
+  'Fix: Pikachu adicionado à Floresta de Viridian com taxa canônica (~2%)',
+  'Balance: Encontros com Pokémon iniciais agora são raros (~1%) nas rotas iniciais Kanto + regionais',
   'Feature: Receitas de Forja restauradas — drops progressivos nas rotas, TMs incluídas, guia de localização na UI',
   'Balance: Taxa de drop de receitas aumentada para rotas iniciais (9% lvl≤20 vs 5% geral); Pokébola agora dropa na Route 1',
   'UI: CraftingStation reformulada — mostra receitas bloqueadas com dica de onde farmar, badge ao desbloquear',

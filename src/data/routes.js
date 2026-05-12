@@ -127,7 +127,13 @@ const buildRegionRoutes = ({ region, label, startFlag, previousChampion, groups,
     id: `${region}_route_1`, name: 'Rota Inicial', type: 'farm', group: `${label} Inicio`,
     unlockLevel: 5, requirements: [startFlag], unlocks: `${region}_route_1_cleared`,
     biome: 'grass',
-    enemies: pk(early, 8).map((p, i) => ({ ...p, drop: ['normal_essence', 'grass_essence', 'flying_essence'][i % 3] })),
+    enemies: [
+      ...pk(early, 8).map((p, i) => ({ ...p, drop: ['normal_essence', 'grass_essence', 'flying_essence'][i % 3] })),
+      // Iniciais regionais — raros (~1%) em todas as rotas iniciais de cada geração
+      { id: starters[0], level: 10, drop: 'grass_essence',  spawnWeight: 2, rarity: 'super_rare' },
+      { id: starters[1], level: 10, drop: 'fire_essence',   spawnWeight: 2, rarity: 'super_rare' },
+      { id: starters[2], level: 10, drop: 'water_essence',  spawnWeight: 2, rarity: 'super_rare' },
+    ],
     trainerChance: 0.06,
     trainers: [
       { name: `Treinador ${label} I`, sprite: S.youngster, team: pk([early[0], early[1]], 11), reward: 900 },
@@ -671,6 +677,10 @@ export const ROUTES = {
     enemies: [
       { id: 16, level: 3, drop: 'normal_essence' },
       { id: 19, level: 3, drop: 'normal_essence' },
+      // Iniciais — extremamente raros (~1%) — Easter egg / recompensa exploração
+      { id: 1,  level: 5, drop: 'grass_essence',    spawnWeight: 2, rarity: 'super_rare' },
+      { id: 4,  level: 5, drop: 'fire_essence',     spawnWeight: 2, rarity: 'super_rare' },
+      { id: 7,  level: 5, drop: 'water_essence',    spawnWeight: 2, rarity: 'super_rare' },
     ],
     trainerChance: 0.05,
     trainers: [
@@ -699,6 +709,10 @@ export const ROUTES = {
       { id: 21, level: 4, drop: 'flying_essence' },
       { id: 29, level: 4, drop: 'poison_essence' },
       { id: 32, level: 4, drop: 'poison_essence' },
+      // Iniciais raros (~1%)
+      { id: 1,  level: 5, drop: 'grass_essence',  spawnWeight: 2, rarity: 'super_rare' },
+      { id: 4,  level: 5, drop: 'fire_essence',   spawnWeight: 2, rarity: 'super_rare' },
+      { id: 7,  level: 5, drop: 'water_essence',  spawnWeight: 2, rarity: 'super_rare' },
     ],
     trainerChance: 0.05,
     trainers: [
@@ -714,7 +728,19 @@ export const ROUTES = {
     id: 'viridian_forest', name: 'Floresta de Viridian', type: 'farm', group: 'Viridian City',
     unlockLevel: 5, requirements: ['has_starter', 'rival_1_defeated'],
     biome: 'forest',
-    enemies: pk([10, 13, 11, 14], 6),
+    enemies: [
+      // Comuns da floresta
+      { id: 10, level: 6, drop: 'bug_essence' },
+      { id: 13, level: 6, drop: 'bug_essence' },
+      { id: 11, level: 7, drop: 'bug_essence' },
+      { id: 14, level: 7, drop: 'bug_essence' },
+      // Pikachu — raro canônico da Floresta de Viridian (~2%)
+      { id: 25, level: 6, drop: 'electric_essence', spawnWeight: 5, rarity: 'rare' },
+      // Iniciais — ultra raros (~1%) — encontro especial
+      { id: 1,  level: 7, drop: 'grass_essence',    spawnWeight: 2, rarity: 'super_rare' },
+      { id: 4,  level: 7, drop: 'fire_essence',     spawnWeight: 2, rarity: 'super_rare' },
+      { id: 7,  level: 7, drop: 'water_essence',    spawnWeight: 2, rarity: 'super_rare' },
+    ],
     trainerChance: 0.05,
     trainers: [
       { name: 'Bug Catcher Rick',    sprite: S.bugcatcher, team: pk([10, 13], 6),      reward: 90  },
