@@ -132,6 +132,39 @@ export const migrateGameState = (savedState = {}, options = {}) => {
       slots: asArray(loaded.house?.slots),
       caretakers: asArray(loaded.house?.caretakers),
     },
+    prestige: {
+      trophies: [],
+      activeTitle: null,
+      pokedexFrame: 'default',
+      uiTheme: 'default',
+      hallOfFameEntry: null,
+      ...(loaded.prestige || {}),
+    },
+    mine: {
+      unlocked: false,
+      level: 1,
+      lastCollected: null,
+      ...(loaded.mine || {}),
+    },
+    fishing: {
+      rod: 'old_rod',
+      ...(loaded.fishing || {}),
+    },
+    ally: {
+      activeId: null,
+      expiresAt: null,
+      ...(loaded.ally || {}),
+    },
+    pokecenter: {
+      freeHeals: 0,
+      ...(loaded.pokecenter || {}),
+    },
+    gymCustom: {
+      unlocked: false,
+      bannerId: 'default',
+      colorId: null,
+      ...(loaded.gymCustom || {}),
+    },
     settings: {
       ...DEFAULT_GAME_STATE.settings,
       ...(loaded.settings || {}),

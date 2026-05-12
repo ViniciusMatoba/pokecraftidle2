@@ -160,7 +160,51 @@ export const DEFAULT_GAME_STATE = {
   bossTotalDamage: 0,
   shinyCapturedCount: 0,
   trainerBattleWins: 0,
-  bossLastDamage: 0
+  bossLastDamage: 0,
+
+  // Prestígio e Reputação
+  prestige: {
+    trophies: [],           // IDs de troféus comprados
+    activeTitle: null,      // ID do título ativo
+    pokedexFrame: 'default', // ID da moldura ativa
+    uiTheme: 'default',     // ID do tema visual ativo
+    hallOfFameEntry: null,  // Nome na Placa de Fama
+  },
+
+  // Fazenda — loja de sementes
+  seedShop: {
+    unlocked: false,        // desbloqueada após 3 badges
+  },
+
+  // Mineração passiva
+  mine: {
+    unlocked: false,
+    level: 1,               // 1-3, upgrades custam moedas
+    lastCollected: null,    // timestamp da última coleta
+  },
+
+  // Pesca avançada
+  fishing: {
+    rod: 'old_rod',         // 'old_rod' | 'good_rod' | 'super_rod'
+  },
+
+  // NPC Aliado temporário
+  ally: {
+    activeId: null,         // ID do aliado contratado
+    expiresAt: null,        // timestamp de expiração
+  },
+
+  // Pokémon Center — doações
+  pokecenter: {
+    freeHeals: 0,           // curas gratuitas restantes
+  },
+
+  // Ginásio próprio
+  gymCustom: {
+    unlocked: false,
+    bannerId: 'default',
+    colorId: null,          // cor do ginásio
+  },
 };
 
 export const ITEM_LABELS = {

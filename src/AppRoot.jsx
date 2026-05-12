@@ -62,6 +62,11 @@ import { getCaptureRate, pickWeightedEncounter } from './utils/pokemonDifficulty
 import { preloadAssets } from './utils/preloader';
 import { calculatePowerScore, getBadgeCount } from './utils/progress';
 import { migrateGameState } from './utils/saveMigration';
+import { 
+  TROPHIES, TRAINER_TITLES, POKEDEX_FRAMES, UI_THEMES, 
+  ALLIES, MINE_LEVELS, FISHING_RODS, POKECENTER_DONATIONS, GYM_BANNERS 
+} from './data/prestige';
+const PrestigeShop = lazy(() => import('./components/PrestigeShop'));
 
 const fixPath = (path) => {
   if (typeof path !== 'string') return path;
@@ -1124,6 +1129,47 @@ export default function App() {
     localStorage.setItem('poke_idle_save', JSON.stringify({ gameState }));
   }, [gameState]);
 
+  // Efeito de Tema Visual
+  useEffect(() => {
+    const themeId = gameState.prestige?.uiTheme || 'default';
+    const theme = UI_THEMES[themeId] || UI_THEMES.default;
+    const root = document.documentElement;
+    Object.entries(theme.css || {}).forEach(([key, val]) => {
+      root.style.setProperty(key, val);
+    });
+  }, [gameState.prestige?.uiTheme]);
+
+  // Coleta passiva da mina
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGameState(prev => {
+        if (!prev.mine?.unlocked) return prev;
+        const now = Date.now();
+        const lastCollected = prev.mine.lastCollected || now;
+        const level = prev.mine.level || 1;
+        const mineConfig = MINE_LEVELS[level];
+        
+        // Se ainda não deu o tempo de intervalo, não faz nada
+        if (!mineConfig || now - lastCollected < mineConfig.intervalMs) return prev;
+
+        const newMaterials = { ...prev.inventory.materials };
+        Object.entries(mineConfig.drops).forEach(([mat, range]) => {
+          const qty = Math.floor(range.min + Math.random() * (range.max - range.min + 1));
+          newMaterials[mat] = (newMaterials[mat] || 0) + qty;
+        });
+
+        addLog(`⛏️ Sua mina produziu materiais!`, 'system');
+        return {
+          ...prev,
+          mine: { ...prev.mine, lastCollected: now },
+          inventory: { ...prev.inventory, materials: newMaterials },
+        };
+      });
+    }, 60 * 1000); // checa a cada 1 minuto
+
+    return () => clearInterval(interval);
+  }, [addLog]);
+
   // 2. Gatilhos de Salvamento na Nuvem (Debounced 5s)
   // Baseado em: Fechamento de Modais ou Troca de Rota
   const saveToCloud = useCallback(async (dataToSave) => {
@@ -2061,6 +2107,13 @@ export default function App() {
   const handleBattleTick = useCallback(() => {
     const speedMultiplier = [1, 0.6, 0.3][(gameState.settings?.battleSpeed || 1) - 1] || 1;
     
+    // Bônus de Aliado Ativo
+    const allyBonus = (() => {
+      const ally = gameState.ally;
+      if (!ally?.activeId || !ally?.expiresAt || Date.now() > ally.expiresAt) return null;
+      return ALLIES[ally.activeId]?.bonus || null;
+    })();
+    
     // REGRA DE EXAUSTAO - INICIO DO TICK
     const myPoke = gameState.team?.[activeMemberIndex];
     const myPokeStamina = gameState.stamina?.[myPoke?.instanceId]?.value ?? 100;
@@ -2329,7 +2382,8 @@ export default function App() {
 
         setCurrentEnemy(updatedEnemyFinal);
       } else {
-        const playerDmg = calcDamage(myPoke, move, updatedEnemyFinal);
+        let playerDmg = calcDamage(myPoke, move, updatedEnemyFinal);
+        if (allyBonus?.damageMult) playerDmg = Math.floor(playerDmg * allyBonus.damageMult);
         const eff = getTypeEffectiveness(move.type, updatedEnemyFinal.type);
         
         if (playerDmg === 0 && eff > 0) {
@@ -2472,7 +2526,8 @@ export default function App() {
               if (enemyDmgRaw === 0 && effE > 0) {
                  addLog(`${updatedEnemyFinal.name} usou ${enemyMove.name}... mas errou!`, 'enemy');
               } else {
-                const enemyDmg = Math.max(1, Math.floor(enemyDmgRaw * 0.75));
+                let enemyDmg = Math.max(1, Math.floor(enemyDmgRaw * 0.75));
+                if (allyBonus?.defenseMult) enemyDmg = Math.floor(enemyDmg * (2 - allyBonus.defenseMult)); // Reduz se defenseMult > 1
                 updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - enemyDmg);
                 addFloat(`-${enemyDmg}`, '#ef4444');
                 if (effE > 1) addLog("💥 É super efetivo!", 'enemy');
@@ -3539,6 +3594,57 @@ export default function App() {
   }, [createRegionStarter, addLog]);
 
   // Plantar
+  const handleBuySeed = useCallback((seedId, cost) => {
+    setGameState(prev => {
+      if (prev.currency < cost) return prev;
+      const newInventory = { ...prev.inventory };
+      // Sementes são estocadas como materiais
+      newInventory.materials[seedId] = (newInventory.materials[seedId] || 0) + 1;
+      addLog(`🌰 Comprou 1x ${PLANTABLE_ITEMS[seedId]?.name || seedId}!`, 'system');
+      return {
+        ...prev,
+        currency: prev.currency - cost,
+        inventory: newInventory
+      };
+    });
+  }, [addLog]);
+
+  const handleHireAlly = useCallback((allyId, cost) => {
+    setGameState(prev => {
+      if (prev.currency < cost) return prev;
+      const allyConfig = ALLIES[allyId];
+      if (!allyConfig) return prev;
+
+      addLog(`🤝 Você contratou ${allyConfig.name}!`, 'system');
+      return {
+        ...prev,
+        currency: prev.currency - cost,
+        ally: {
+          activeId: allyId,
+          expiresAt: Date.now() + allyConfig.durationMs
+        }
+      };
+    });
+  }, [addLog]);
+
+  const handlePokecenterDonation = useCallback((donationId, cost) => {
+    setGameState(prev => {
+      if (prev.currency < cost) return prev;
+      const donation = POKECENTER_DONATIONS[donationId];
+      if (!donation) return prev;
+
+      addLog(`🏥 Você doou ao PokéCenter e recebeu ${donation.bonusHeals} curas gratuitas!`, 'system');
+      return {
+        ...prev,
+        currency: prev.currency - cost,
+        pokecenter: {
+          ...prev.pokecenter,
+          freeHeals: (prev.pokecenter?.freeHeals || 0) + donation.bonusHeals
+        }
+      };
+    });
+  }, [addLog]);
+
   const handlePlant = useCallback((slotIndex, plantId) => {
     setGameState(prev => {
       const plant        = PLANTABLE_ITEMS[plantId];
@@ -3906,6 +4012,16 @@ export default function App() {
       const xpMult = (effects.activeLuckyEgg?.endsAt > now ? (effects.activeLuckyEgg.xpMult || 1.5) : 1.0) * 
                     (effects.activeSootheBell?.endsAt > now ? (effects.activeSootheBell.xpMult || 1.2) : 1.0);
 
+      // Bônus de Aliado e Tema no XP
+      const allyBonusXP = (() => {
+        const ally = prev.ally;
+        if (!ally?.activeId || !ally?.expiresAt || now > ally.expiresAt) return 1;
+        return ALLIES[ally.activeId]?.bonus?.xpMult || 1;
+      })();
+
+      const themeXP = UI_THEMES[prev.prestige?.uiTheme || 'default']?.bonus?.xpMult || 1;
+      const finalXPMult = xpMult * allyBonusXP * themeXP;
+
       const newTeam = prev.team.map((p, i) => {
         const isLead = (i === activeMemberIndex);
         let xpToAdd = 0;
@@ -3913,11 +4029,11 @@ export default function App() {
         const levelScalingMult = getLevelGapXpMultiplier(p.level || 1, currentEnemy.level || 1);
 
         if (isLead && p.hp > 0) {
-          xpToAdd = Math.floor(baseXpGain * xpMult * levelScalingMult);
+          xpToAdd = Math.floor(baseXpGain * finalXPMult * levelScalingMult);
         } else if (p.hp > 0 && effects.activeExpShare?.endsAt > now) {
-          xpToAdd = Math.floor(baseXpGain * (effects.activeExpShare.xpShare || 0.5) * xpMult * levelScalingMult);
+          xpToAdd = Math.floor(baseXpGain * (effects.activeExpShare.xpShare || 0.5) * finalXPMult * levelScalingMult);
         } else if (p.hp > 0 && badgesCount > 0) {
-          xpToAdd = Math.floor(baseXpGain * getRegionExpShareRate(finalBadges, activeRegion) * xpMult * levelScalingMult);
+          xpToAdd = Math.floor(baseXpGain * getRegionExpShareRate(finalBadges, activeRegion) * finalXPMult * levelScalingMult);
         }
 
         // Lucky Egg (Antiga Lógica Hold - Mantida para compatibilidade se necessário)
@@ -5341,6 +5457,7 @@ export default function App() {
                 onBuySlot={handleBuySlot}
                 onAssignCaretaker={handleAssignCaretaker}
                 onRemoveCaretaker={handleRemoveCaretaker}
+                onBuySeed={handleBuySeed}
               />
             </Suspense>
           )}
@@ -6378,7 +6495,7 @@ export default function App() {
         const isRivalBattle = currentEnemy?.isInitialRival === true;
         const menuUnlocked = (gameState.oakTutorialShown || (gameState.worldFlags && gameState.worldFlags.includes('has_starter'))) && !isRivalBattle;
         return (
-          <nav className="absolute bottom-0 left-0 right-0 w-full bg-white border-t border-slate-200 flex items-center justify-around px-2 py-2 z-50 shadow-xl">
+          <nav className="absolute bottom-0 left-0 right-0 w-full bg-white border-t border-slate-200 flex items-center justify-around px-2 py-2 z-[10001] shadow-xl">
 
             <button onClick={() => menuUnlocked && handleSafeNavigation('routes')}
               disabled={!menuUnlocked}
@@ -6470,47 +6587,100 @@ export default function App() {
                    "Bem-vindo ao Centro Pokémon! Deseja que cuidemos da sua equipe agora?"
                  </p>
                  
-                 <button 
-                   onClick={() => {
-                     if (isHealing) return;
-                     stopSFX();
-                     sfxHeal();
-                     setIsHealing(true);
-                     setGameState(prev => {
-                       const newStamina = { ...prev.stamina };
-                       prev.team.forEach(p => {
-                         if (p?.instanceId) {
-                           newStamina[p.instanceId] = { value: 100, lastFed: Date.now() };
-                         }
-                       });
-                       return {
-                         ...prev,
-                         team: prev.team.map(p => ({
-                           ...p,
-                           hp: p.maxHp,
-                           status: [],
-                           stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
-                         })),
-                         stamina: newStamina,
-                       };
-                     });
-                     
-                     setTimeout(() => {
-                       setActiveBuildingModal(null);
-                       setIsHealing(false);
-                     }, 2000);
-                   }}
-                   className={`w-full ${isHealing ? 'bg-slate-400 animate-pulse' : 'bg-red-500 hover:bg-red-600 active:scale-95'} text-white py-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-[0_10px_25px_rgba(239,68,68,0.3)] flex items-center justify-center gap-4 border-b-8 border-red-700`}
-                 >
-                   <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/full-restore.png" className="w-8 h-8" alt="Heal" />
-                   {isHealing ? 'Cuidando...' : 'Sim, por favor!'}
-                 </button>
+                 <div className="flex flex-col gap-4">
+                    <button 
+                      onClick={() => {
+                        if (isHealing) return;
+                        stopSFX();
+                        sfxHeal();
+                        setIsHealing(true);
+                        setGameState(prev => {
+                          const newStamina = { ...prev.stamina };
+                          prev.team.forEach(p => {
+                            if (p?.instanceId) {
+                              newStamina[p.instanceId] = { value: 100, lastFed: Date.now() };
+                            }
+                          });
+                          
+                          const hasFreeHeals = (prev.pokecenter?.freeHeals || 0) > 0;
+                          
+                          return {
+                            ...prev,
+                            team: prev.team.map(p => ({
+                              ...p, 
+                              hp: p.maxHp, 
+                              status: [],
+                              stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 } 
+                            })),
+                            stamina: newStamina,
+                            pokecenter: {
+                              ...prev.pokecenter,
+                              freeHeals: Math.max(0, (prev.pokecenter?.freeHeals || 0) - 1)
+                            }
+                          };
+                        });
+                        
+                        setTimeout(() => {
+                          setActiveBuildingModal(null);
+                          setIsHealing(false);
+                        }, 2000);
+                      }}
+                      className={`w-full ${isHealing ? 'bg-slate-400 animate-pulse' : 'bg-red-500 hover:bg-red-600 active:scale-95'} text-white py-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-[0_10px_25px_rgba(239,68,68,0.3)] flex items-center justify-center gap-4 border-b-8 border-red-700`}
+                    >
+                      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/full-restore.png" className="w-8 h-8" alt="Heal" />
+                      {isHealing ? 'Cuidando...' : 'Cuidar da Equipe'}
+                    </button>
+
+                    {/* Seção de Doação */}
+                    <div className="mt-4 pt-6 border-t border-slate-100">
+                      <div className="flex items-center justify-between mb-4 px-2">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">💝 Apoie o Centro Pokémon</p>
+                        <span className="bg-emerald-500 text-white text-[9px] font-black px-2 py-1 rounded-lg">
+                          {gameState.pokecenter?.freeHeals || 0} CURAS SALVAS
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        {POKECENTER_DONATIONS.map((don, idx) => {
+                          const canDonate = (gameState.currency || 0) >= don.cost;
+                          return (
+                            <button
+                              key={idx}
+                              disabled={!canDonate || isHealing}
+                              onClick={() => handlePokecenterDonation(idx, don.cost)}
+                              className={`flex flex-col items-center p-3 rounded-2xl border-2 transition-all ${
+                                canDonate ? 'border-red-100 bg-red-50/50 hover:bg-red-100' : 'border-slate-100 bg-slate-50 opacity-50'
+                              }`}
+                            >
+                              <span className="text-xs font-black text-red-600 mb-1">{don.heals}x</span>
+                              <span className="text-[8px] font-black text-slate-400 uppercase leading-none mb-2">{don.label}</span>
+                              <span className="text-[9px] font-black text-slate-800">
+                                {don.cost.toLocaleString()} <span className="text-[7px] opacity-50">C</span>
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                 </div>
               </div>
            </div>
         </div>
       )}
 
-      {(activeBuildingModal && activeBuildingModal !== 'pokecenter') && (
+      {activeBuildingModal === 'prestige_shop' && (
+        <Suspense fallback={<div className="h-full bg-[#0f172a] flex items-center justify-center text-amber-400 font-black uppercase tracking-[0.5em] animate-pulse">Carregando Loja de Prestígio...</div>}>
+          <PrestigeShop 
+            gameState={gameState}
+            setGameState={setGameState}
+            addLog={addLog}
+            getBadgeCount={(gs) => (gs.badges || []).length}
+            onHireAlly={handleHireAlly}
+            onBack={() => setActiveBuildingModal(null)}
+          />
+        </Suspense>
+      )}
+
+      {activeBuildingModal && activeBuildingModal !== 'pokecenter' && activeBuildingModal !== 'prestige_shop' && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
            <div className="modal-panel-mobile shadow-2xl flex flex-col relative border-b-[8px] border-slate-800 overflow-hidden" style={{ backgroundColor: '#ffffff', opacity: 1 }}>
               <div

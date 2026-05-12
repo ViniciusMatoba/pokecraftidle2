@@ -99,6 +99,15 @@ const CityScreen = ({
       desc: 'Envie Pokémon do PC para coletar recursos em biomas.',
       action: () => onOpenExpeditions && onOpenExpeditions(),
       color: 'border-purple-500 bg-purple-50',
+    },
+    {
+      id: 'prestige_shop',
+      name: 'Loja de Prestígio',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png',
+      emoji: '🏆',
+      desc: 'Troque conquistas por recompensas exclusivas.',
+      action: () => setActiveBuildingModal('prestige_shop'),
+      color: 'border-amber-500 bg-amber-50',
     }
   ];
 

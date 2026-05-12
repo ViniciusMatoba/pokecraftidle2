@@ -7,6 +7,7 @@ import {
   calcGrowthTime,
   calcCombinedCaretakerBonus,
 } from '../data/house';
+import { TROPHIES } from '../data/prestige';
 
 const HouseScreen = ({ 
   gameState, 
@@ -15,7 +16,8 @@ const HouseScreen = ({
   onHarvest, 
   onBuySlot, 
   onAssignCaretaker, 
-  onRemoveCaretaker 
+  onRemoveCaretaker,
+  onBuySeed,
 }) => {
   const [activeTab, setActiveTab] = useState('garden'); // 'garden', 'caretakers', 'shop'
   const [showPlantPicker, setShowPlantPicker] = useState(null);
@@ -94,6 +96,7 @@ const HouseScreen = ({
         {[
           { id: 'garden', label: 'Jardim', icon: '🌱' },
           { id: 'caretakers', label: 'Cuidadores', icon: '🧑‍🌾' },
+          { id: 'trophies', label: 'Troféus', icon: '🏆' },
           { id: 'shop', label: 'Expandir', icon: '🏗️' }
         ].map(tab => (
           <button
@@ -273,7 +276,7 @@ const HouseScreen = ({
              <div className="grid gap-4">
                {HOUSE_SLOT_EXPANSIONS.map((exp, i) => {
                  const isBought = totalSlots >= exp.totalSlots;
-                 const canBuy = gameState.currency >= exp.cost;
+                 const canBuy = (gameState.currency || 0) >= exp.cost;
                  
                  return (
                    <div key={i} className={`p-6 rounded-[2rem] border-2 flex items-center justify-between transition-all ${isBought ? 'bg-white/5 border-white/10 opacity-60' : 'bg-white/10 border-white/20 shadow-xl'}`}>
@@ -307,6 +310,76 @@ const HouseScreen = ({
                  );
                })}
              </div>
+
+             {/* Loja de sementes */}
+             <div className="mt-8 mb-8">
+                <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 px-2">
+                  🌰 Comprar Sementes
+                </h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {Object.entries(PLANTABLE_ITEMS).map(([id, plant]) => {
+                    const canBuy = (gameState.currency || 0) >= plant.cost;
+                    return (
+                      <div key={id} className={`p-4 rounded-3xl border transition-all ${canBuy ? 'bg-white/10 border-white/20' : 'bg-white/5 border-white/5 opacity-60'}`}>
+                        <div className="flex items-center gap-3 mb-4">
+                          <img src={plant.img} className="w-10 h-10 object-contain" alt="" />
+                          <div>
+                            <p className="text-[10px] font-black text-white uppercase tracking-tighter leading-none">{plant.name}</p>
+                            <p className="text-[8px] text-white/40 mt-1">{plant.growthTime}min</p>
+                          </div>
+                        </div>
+                        <button
+                          disabled={!canBuy}
+                          onClick={() => onBuySeed(id, plant.cost)}
+                          className={`w-full py-2.5 rounded-xl text-[9px] font-black uppercase transition-all ${
+                            canBuy
+                            ? 'bg-amber-400 text-black border-b-2 border-amber-600 active:border-b-0 active:translate-y-0.5'
+                            : 'bg-slate-700 text-slate-500'
+                          }`}
+                        >
+                          {plant.cost.toLocaleString()} <span className="text-[7px]">Coins</span>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+             </div>
+          </div>
+        )}
+
+        {activeTab === 'trophies' && (
+          <div className="animate-slideUp pb-10">
+            <div className="bg-white/5 rounded-[2.5rem] border border-white/10 p-6 backdrop-blur-sm mb-6">
+              <h3 className="text-sm font-black text-white uppercase tracking-wider mb-6 px-2">Galeria de Troféus</h3>
+              
+              {(gameState.prestige?.trophies || []).length === 0 ? (
+                <div className="py-12 text-center bg-black/20 rounded-3xl border border-dashed border-white/5">
+                  <span className="text-4xl opacity-20 grayscale block mb-4">🏆</span>
+                  <p className="text-[10px] font-black text-white/20 uppercase">Sua estante está vazia.</p>
+                  <p className="text-[9px] text-white/10 uppercase mt-1">Conquiste troféus na Loja de Prestígio!</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4">
+                  {gameState.prestige.trophies.map(trophyId => {
+                    const trophy = TROPHIES[trophyId];
+                    if (!trophy) return null;
+                    return (
+                      <div key={trophyId} className="bg-gradient-to-b from-white/10 to-transparent p-6 rounded-[2rem] border border-white/10 flex flex-col items-center text-center shadow-xl">
+                        <span className="text-4xl mb-3 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">{trophy.icon}</span>
+                        <p className="text-[10px] font-black text-white uppercase tracking-tighter leading-tight mb-1">{trophy.name}</p>
+                        <p className="text-[8px] text-white/40 uppercase leading-none">{trophyId.replace('_', ' ')}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-amber-400/5 p-6 rounded-[2rem] border border-amber-400/10">
+              <p className="text-[10px] font-bold text-amber-400/60 uppercase tracking-widest text-center">
+                Os troféus são exibidos para todos que visitarem sua casa!
+              </p>
+            </div>
           </div>
         )}
       </div>

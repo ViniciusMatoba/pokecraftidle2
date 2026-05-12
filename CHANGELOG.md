@@ -1,6 +1,24 @@
 # Changelog - PokeCraft
 
-## [V1.56.4] - 11/05/2026 20:13
+## [V1.57.2] - 11/05/2026 21:28
+### Adicionado
+- **Sistema de Prestígio e Reputação**: Novo hub de progressão de fim de jogo centralizado na cidade.
+- **Loja de Prestígio**: Interface tabulada com Troféus, Títulos, Visual (Molduras/Temas), Aliados, Mineração, Pesca e Ginásio.
+- **Mineração Passiva**: Coleta automática de materiais a cada hora, com até 3 níveis de upgrade.
+- **Aliados NPC Temporários**: Contratar aliados que aplicam bônus de dano/defesa/XP por tempo limitado.
+- **Temas Visuais Premium**: Esquemas cromáticos que alteram variáveis CSS do jogo e concedem bônus passivos.
+- **PokéCenter Doações**: Sistema de doação que converte moedas em curas gratuitas armazenadas.
+- **Personalização de Ginásio**: Estandartes exclusivos para representar seu ginásio no cenário competitivo.
+
+### Melhorado
+- **UI Prestígio**: Redesign completo com glassmorphism, gradientes dinâmicos, animações de entrada e tipografia temática.
+- **Molduras Pokédex e Títulos**: Cosméticos visuais colecionáveis desbloqueados por badges e moedas.
+
+### Corrigido
+- **ReferenceError: PrestigeShop is not defined**: Corrigido desbalanceamento de parênteses no AppRoot.jsx que impedia o Vite de transformar o arquivo, resultando em erro 500 e tela branca.
+- **Z-index da barra de navegação**: Elevado para `z-[10001]` para garantir visibilidade sobre todos os modais.
+
+
 ### Correções de Código
 - **Save Migration Fix**: Corrigido `TypeError` no `saveMigration.js` que impedia o carregamento do jogo devido a um nome de propriedade incorreto (`autoConfig` vs `autoCaptureConfig`).
 - **Data Integrity**: Melhorada a resiliência do carregamento de saves antigos com suporte a mapeamento legado.
