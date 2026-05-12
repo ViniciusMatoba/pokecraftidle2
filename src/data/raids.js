@@ -7,7 +7,7 @@
 export const RAID_SPAWN_INTERVAL_MS = 6 * 60 * 60 * 1000; // 6 horas
 
 // Raids também disparam a cada X batalhas ganhas
-export const RAID_BATTLE_TRIGGER = 200;
+export const RAID_BATTLE_TRIGGER = 100;
 
 // Duração máxima de uma raid ativa (janela para participar)
 export const RAID_DURATION_MS = 30 * 60 * 1000; // 30 minutos
