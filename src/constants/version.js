@@ -1,7 +1,8 @@
-export const APP_VERSION = '1.75.2';
-export const VERSION = '1.75.2';
-export const APP_VERSION_DATE = '12/05/2026 17:18';
+export const APP_VERSION = '1.75.3';
+export const VERSION = '1.75.3';
+export const APP_VERSION_DATE = '12/05/2026 17:26';
 export const CHANGELOG = [
+  'UI: Loja de Prestígio — navegação reformulada com ícones pixel art, melhorias mobile e novo visual premium',
   'Fix: Drop de Receitas — corrigido bug que permitia dropar receitas já conhecidas e disparar modal indevidamente',
   'Feature: Confirmação de EXP Candy — modal com prévia de XP antes/depois, badge de Level Up e botão Voltar',
   'Feature: Modal de Receita Encontrada — celebração visual com nome, ícone e efeito do item ao dropar receita',

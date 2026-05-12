@@ -509,21 +509,21 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
 
   // ── Tabs ─────────────────────────────────────────────────────────────────────
   const tabs = [
-    { id: 'avatar',    label: 'Avatar',   key: '▲' },
-    { id: 'trophies',  label: 'Troféus',  key: 'A' },
-    { id: 'titles',    label: 'Títulos',  key: 'B' },
-    { id: 'cosmetics', label: 'Visual',   key: '↑' },
-    { id: 'allies',    label: 'Aliados',  key: '↓' },
-    { id: 'mine',      label: 'Mina',     key: 'L' },
-    { id: 'fishing',   label: 'Pesca',    key: 'R' },
-    { id: 'gym',       label: 'Ginásio',  key: 'St'},
+    { id: 'avatar',    label: 'Avatar',   icon: 'https://play.pokemonshowdown.com/sprites/trainers/red.png' },
+    { id: 'trophies',  label: 'Troféus',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png' },
+    { id: 'titles',    label: 'Títulos',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pokedex.png' },
+    { id: 'cosmetics', label: 'Visual',   icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/prism-scale.png' },
+    { id: 'allies',    label: 'Aliados',  icon: 'https://play.pokemonshowdown.com/sprites/trainers/youngster.png' },
+    { id: 'mine',      label: 'Mina',     icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png' },
+    { id: 'fishing',   label: 'Pesca',    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/old-rod.png' },
+    { id: 'gym',       label: 'Ginásio',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/gym-guide.png' },
   ];
 
   const avatarSubTabs = [
-    { id: 'sprites', label: '🧑 Sprite'  },
-    { id: 'tints',   label: '🎨 Cor'     },
-    { id: 'frames',  label: '🖼 Moldura' },
-    { id: 'bgs',     label: '🌄 Fundo'   },
+    { id: 'sprites', label: 'Sprite',  icon: 'https://play.pokemonshowdown.com/sprites/trainers/red.png' },
+    { id: 'tints',   label: 'Cores',   icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png' },
+    { id: 'frames',  label: 'Moldura', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pokedex.png' },
+    { id: 'bgs',     label: 'Fundo',   icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png' },
   ];
 
   return (
@@ -573,23 +573,36 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
       </div>
 
       {/* ── TABS ────────────────────────────────────────────────────────────── */}
-      <div className="relative z-10 shrink-0 flex overflow-x-auto border-b-2 border-[#333]"
-        style={{ background: '#1a1a2e' }}>
-        {tabs.map(tab => {
-          const isActive = activeTab === tab.id;
-          return (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className={`relative px-4 py-3 text-[10px] font-mono uppercase tracking-widest whitespace-nowrap border-r border-[#333] transition-all shrink-0
-                ${isActive ? 'bg-[#f0f0f0] text-[#1a1a2e] border-b-2 border-b-[#c0392b]' : 'text-white/40 hover:text-white/70 hover:bg-white/5'}`}>
-              <span className="text-[8px] opacity-40 block">[{tab.key}]</span>
-              {tab.label}
-              {isActive && (
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0"
-                  style={{ borderLeft:'5px solid transparent', borderRight:'5px solid transparent', borderBottom:'5px solid #c0392b' }} />
-              )}
-            </button>
-          );
-        })}
+      <div className="relative z-10 shrink-0 flex overflow-x-auto scrollbar-hide border-b-2 border-black/40 shadow-lg"
+        style={{ background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(8px)' }}>
+        {/* Indicador de rolagem (opcional, sombra sutil) */}
+        <div className="flex px-2 py-2 gap-1.5">
+          {tabs.map(tab => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                className={`relative flex flex-col items-center justify-center min-w-[72px] px-3 py-2.5 transition-all duration-200 border-2
+                  ${isActive 
+                    ? 'bg-[#c0392b] border-[#e74c3c] text-white translate-y-[-2px] shadow-[0_4px_0_#7b241c]' 
+                    : 'bg-black/40 border-white/10 text-white/40 hover:bg-black/60 hover:text-white/70 active:translate-y-[2px] active:shadow-none'}`}
+                style={isActive ? { borderRadius: '4px' } : { borderRadius: '4px' }}>
+                
+                {/* Icone Pixel Art */}
+                <div className={`w-8 h-8 mb-1 flex items-center justify-center ${isActive ? 'drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]' : 'grayscale opacity-60'}`}>
+                  <img src={tab.icon} alt="" className="w-7 h-7 object-contain" style={{ imageRendering: 'pixelated' }} />
+                </div>
+
+                <span className="text-[9px] font-black uppercase tracking-tighter text-center leading-none">
+                  {tab.label}
+                </span>
+
+                {isActive && (
+                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full animate-pulse" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* ── CONTENT AREA ────────────────────────────────────────────────────── */}
@@ -610,16 +623,22 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
             />
 
             {/* Sub-tabs */}
-            <div className="flex border-b-2 border-[#333]">
-              {avatarSubTabs.map(st => (
-                <button key={st.id} onClick={() => setAvatarSub(st.id)}
-                  className={`flex-1 py-2.5 text-[10px] font-mono uppercase tracking-wide transition-all
-                    ${avatarSub === st.id
-                      ? 'bg-[#f0f0f0] text-[#1a1a2e] font-black border-b-2 border-[#c0392b]'
-                      : 'text-white/40 hover:text-white/70 hover:bg-white/5'}`}>
-                  {st.label}
-                </button>
-              ))}
+            <div className="flex gap-2 p-1 bg-black/40 border border-white/10 rounded-lg">
+              {avatarSubTabs.map(st => {
+                const isActive = avatarSub === st.id;
+                return (
+                  <button key={st.id} onClick={() => setAvatarSub(st.id)}
+                    className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-md transition-all
+                      ${isActive
+                        ? 'bg-white/10 text-white shadow-[inset_0_0_10px_rgba(255,255,255,0.1)] border border-white/20'
+                        : 'text-white/40 hover:bg-white/5 hover:text-white/60 border border-transparent'}`}>
+                    <img src={st.icon} alt="" 
+                      className={`w-6 h-6 object-contain ${isActive ? '' : 'grayscale opacity-50'}`} 
+                      style={{ imageRendering: 'pixelated' }} />
+                    <span className="text-[8px] font-bold uppercase tracking-widest">{st.label}</span>
+                  </button>
+                );
+              })}
             </div>
 
             {/* Conteúdo de cada sub-tab */}
