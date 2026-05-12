@@ -3,7 +3,7 @@ export const TROPHIES = {
   bronze_trainer: {
     id: 'bronze_trainer',
     name: 'Treinador de Bronze',
-    icon: '🥉',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/big-mushroom.png',
     description: 'Exibido na sua casa. Prova que você iniciou sua jornada.',
     cost: 5000,
     minBadges: 1,
@@ -11,7 +11,7 @@ export const TROPHIES = {
   silver_trainer: {
     id: 'silver_trainer',
     name: 'Treinador de Prata',
-    icon: '🥈',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png',
     description: 'Conquista intermediária. Exibido com destaque na casa.',
     cost: 15000,
     minBadges: 4,
@@ -19,7 +19,7 @@ export const TROPHIES = {
   gold_trainer: {
     id: 'gold_trainer',
     name: 'Treinador de Ouro',
-    icon: '🥇',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png',
     description: 'Raridade máxima. Só os melhores treinadores possuem.',
     cost: 50000,
     minBadges: 8,
@@ -27,7 +27,7 @@ export const TROPHIES = {
   shiny_hunter: {
     id: 'shiny_hunter',
     name: 'Caçador de Shinys',
-    icon: '✨',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/comet-shard.png',
     description: 'Para quem dedica sua vida a encontrar Pokémon raros.',
     cost: 30000,
     minBadges: 5,
@@ -35,7 +35,7 @@ export const TROPHIES = {
   pokemon_master: {
     id: 'pokemon_master',
     name: 'Mestre Pokémon',
-    icon: '🏆',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png',
     description: 'O troféu mais cobiçado. Exige ser Campeão de uma região.',
     cost: 100000,
     minBadges: 8,
@@ -48,36 +48,42 @@ export const TRAINER_TITLES = {
   youngster: {
     id: 'youngster',
     label: 'Youngster',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
     cost: 500,
     minBadges: 0,
   },
   bug_catcher: {
     id: 'bug_catcher',
     label: 'Bug Catcher',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/net-ball.png',
     cost: 1000,
     minBadges: 1,
   },
   ace_trainer: {
     id: 'ace_trainer',
     label: 'Ace Trainer',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png',
     cost: 8000,
     minBadges: 4,
   },
   pokemon_ranger: {
     id: 'pokemon_ranger',
     label: 'Pokémon Ranger',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/friend-ball.png',
     cost: 12000,
     minBadges: 5,
   },
   elite_four: {
     id: 'elite_four',
     label: 'Elite Four',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dusk-ball.png',
     cost: 30000,
     minBadges: 8,
   },
   pokemon_master: {
     id: 'pokemon_master',
     label: 'Pokémon Master',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png',
     cost: 80000,
     minBadges: 8,
     requireChampion: true,
@@ -278,6 +284,7 @@ export const FISHING_RODS = {
   old_rod: {
     id: 'old_rod',
     name: 'Vara Velha',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/old-rod.png',
     cost: 0,
     description: 'Você já tem. Pesca Pokémon aquáticos comuns.',
     bonus: {},
@@ -285,6 +292,7 @@ export const FISHING_RODS = {
   good_rod: {
     id: 'good_rod',
     name: 'Boa Vara',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/good-rod.png',
     cost: 8000,
     minBadges: 3,
     description: '+20% de aparição de Pokémon aquáticos. Desbloqueia Poliwag, Horsea, Krabby.',
@@ -296,6 +304,7 @@ export const FISHING_RODS = {
   super_rod: {
     id: 'super_rod',
     name: 'Super Vara',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-rod.png',
     cost: 30000,
     minBadges: 6,
     description: '+40% Pokémon aquáticos. Desbloqueia Dratini, Lapras, Gyarados.',

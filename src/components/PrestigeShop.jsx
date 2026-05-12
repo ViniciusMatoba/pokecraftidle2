@@ -4,20 +4,105 @@ import {
   ALLIES, MINE_LEVELS, FISHING_RODS, GYM_BANNERS 
 } from '../data/prestige';
 
-const PrestigeShop = ({ 
-  gameState, 
-  setGameState, 
-  addLog, 
-  getBadgeCount,
-  onHireAlly,
-  onBack 
-}) => {
+/* ─── Componente de Item Sprite ───────────────────────────────────────── */
+const ItemSprite = ({ src, fallback, size = 'w-12 h-12' }) => (
+  <img
+    src={src}
+    alt=""
+    className={`${size} object-contain pixelated drop-shadow-md`}
+    style={{ imageRendering: 'pixelated' }}
+    onError={e => { e.target.style.display = 'none'; }}
+  />
+);
+
+/* ─── Barra de HP estilo Game Boy ─────────────────────────────────────── */
+const GBHPBar = ({ value, max, color = '#78c030' }) => {
+  const pct = Math.min(100, Math.round((value / max) * 100));
+  const barColor = pct > 50 ? '#78c030' : pct > 20 ? '#f8b800' : '#d82800';
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex-1 h-2 bg-[#1a1a1a] border border-[#555] rounded-none overflow-hidden">
+        <div
+          className="h-full transition-all duration-300"
+          style={{ width: `${pct}%`, backgroundColor: barColor, boxShadow: `0 0 4px ${barColor}80` }}
+        />
+      </div>
+      <span className="text-[9px] font-mono text-white/50">{pct}%</span>
+    </div>
+  );
+};
+
+/* ─── Card estilo Menu Pokémon ─────────────────────────────────────────── */
+const MenuCard = ({ children, owned, locked, onClick, className = '' }) => (
+  <div
+    onClick={onClick}
+    className={`
+      relative border-2 rounded-none transition-all duration-150 cursor-pointer
+      ${owned
+        ? 'bg-[#e8f5e9] border-[#2e7d32] shadow-[inset_0_-3px_0_#1b5e20]'
+        : locked
+        ? 'bg-[#1a1a2e] border-[#333] opacity-50 cursor-not-allowed'
+        : 'bg-[#f0f0f0] border-[#1a1a2e] shadow-[inset_0_-3px_0_#1a1a2e] hover:translate-y-[-1px] active:translate-y-[2px] active:shadow-none'
+      }
+      ${className}
+    `}
+  >
+    {children}
+  </div>
+);
+
+/* ─── Botão estilo GBA ─────────────────────────────────────────────────── */
+const GBAButton = ({ children, onClick, disabled, variant = 'red', className = '' }) => {
+  const variants = {
+    red:    { bg: '#c0392b', shadow: '#7b241c', text: 'text-white' },
+    blue:   { bg: '#2471a3', shadow: '#1a4f6e', text: 'text-white' },
+    gold:   { bg: '#b7950b', shadow: '#7d6608', text: 'text-white' },
+    green:  { bg: '#1e8449', shadow: '#145a32', text: 'text-white' },
+    grey:   { bg: '#626567', shadow: '#424949', text: 'text-white' },
+  };
+  const v = variants[variant] || variants.red;
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`
+        relative px-5 py-2.5 font-mono font-bold text-[11px] uppercase tracking-widest
+        border-2 border-black rounded-none transition-all duration-100
+        ${disabled
+          ? 'bg-[#444] border-[#333] text-white/30 cursor-not-allowed shadow-none'
+          : `${v.text} hover:brightness-110 active:translate-y-[3px] active:shadow-none`
+        }
+        ${className}
+      `}
+      style={disabled ? {} : {
+        backgroundColor: v.bg,
+        boxShadow: `0 4px 0 ${v.shadow}, inset 0 1px 0 rgba(255,255,255,0.2)`,
+      }}
+    >
+      {children}
+    </button>
+  );
+};
+
+/* ─── Tag de Badge Requisito ───────────────────────────────────────────── */
+const BadgeTag = ({ required, current }) => {
+  const ok = current >= required;
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 border text-[9px] font-mono font-bold uppercase ${
+      ok ? 'border-[#1e8449] bg-[#e8f5e9] text-[#1e8449]' : 'border-[#c0392b] bg-[#fde8e8] text-[#c0392b]'
+    }`}>
+      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/badge-case.png"
+        className="w-3 h-3 object-contain" alt=""
+        onError={e => e.target.remove()}
+      />
+      {required} BADGE{required !== 1 ? 'S' : ''}
+    </span>
+  );
+};
+
+/* ─── COMPONENTE PRINCIPAL ─────────────────────────────────────────────── */
+const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAlly, onBack }) => {
   const [activeTab, setActiveTab] = useState('trophies');
-  const [isVisible, setIsVisible] = useState(false);
-  
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
 
   const badges = getBadgeCount(gameState);
   const currency = gameState.currency || 0;
@@ -26,48 +111,15 @@ const PrestigeShop = ({
   const handleBuy = (type, item) => {
     if (currency < item.cost) return;
     if (badges < (item.minBadges || 0)) return;
-
     setGameState(prev => {
       const newState = { ...prev, currency: prev.currency - item.cost };
-      
-      if (type === 'trophy') {
-        newState.prestige = {
-          ...prev.prestige,
-          trophies: [...(prev.prestige?.trophies || []), item.id]
-        };
-        addLog(`🏆 Adquiriu o troféu: ${item.name}!`, 'system');
-      } else if (type === 'title') {
-        newState.prestige = {
-          ...prev.prestige,
-          activeTitle: item.id
-        };
-        addLog(`🎖️ Novo título ativado: ${item.label}!`, 'system');
-      } else if (type === 'frame') {
-        newState.prestige = {
-          ...prev.prestige,
-          pokedexFrame: item.id
-        };
-        addLog(`🖼️ Nova moldura da Pokédex: ${item.name}!`, 'system');
-      } else if (type === 'theme') {
-        newState.prestige = {
-          ...prev.prestige,
-          uiTheme: item.id
-        };
-        addLog(`🎨 Novo tema visual aplicado: ${item.name}!`, 'system');
-      } else if (type === 'rod') {
-        newState.fishing = {
-          ...prev.fishing,
-          rod: item.id
-        };
-        addLog(`🎣 Nova vara de pesca: ${item.name}!`, 'system');
-      } else if (type === 'banner') {
-        newState.gymCustom = {
-          ...prev.gymCustom,
-          bannerId: item.id
-        };
-        addLog(`🚩 Novo estandarte para seu ginásio: ${item.name}!`, 'system');
-      }
-
+      if (type === 'trophy')  newState.prestige = { ...prev.prestige, trophies: [...(prev.prestige?.trophies || []), item.id] };
+      if (type === 'title')   newState.prestige = { ...prev.prestige, activeTitle: item.id };
+      if (type === 'frame')   newState.prestige = { ...prev.prestige, pokedexFrame: item.id };
+      if (type === 'theme')   newState.prestige = { ...prev.prestige, uiTheme: item.id };
+      if (type === 'rod')     newState.fishing   = { ...prev.fishing,  rod: item.id };
+      if (type === 'banner')  newState.gymCustom = { ...prev.gymCustom, bannerId: item.id };
+      addLog(`✅ ${item.name} adquirido!`, 'system');
       return newState;
     });
   };
@@ -75,177 +127,194 @@ const PrestigeShop = ({
   const handleMineUpgrade = () => {
     const currentLevel = gameState.mine?.level || 0;
     const nextLevel = currentLevel + 1;
-    const config = MINE_LEVELS[nextLevel] || MINE_LEVELS[1];
-    const cost = currentLevel === 0 ? config.unlockCost : MINE_LEVELS[currentLevel].upgradeCost;
-
-    if (currency < cost) return;
-    if (badges < (config.minBadges || 0)) return;
-
+    const config = MINE_LEVELS[nextLevel];
+    if (!config) return;
+    const cost = currentLevel === 0 ? config.unlockCost : config.upgradeCost;
+    if (currency < cost || badges < (config.minBadges || 0)) return;
     setGameState(prev => ({
       ...prev,
       currency: prev.currency - cost,
-      mine: {
-        ...prev.mine,
-        unlocked: true,
-        level: nextLevel,
-        lastCollected: prev.mine?.lastCollected || Date.now()
-      }
+      mine: { ...prev.mine, unlocked: true, level: nextLevel, lastCollected: prev.mine?.lastCollected || Date.now() }
     }));
-    addLog(`⛏️ Mina ${currentLevel === 0 ? 'Desbloqueada' : 'Aprimorada'} para o Nível ${nextLevel}!`, 'system');
+    addLog(`⛏️ Mina ${currentLevel === 0 ? 'desbloqueada' : 'aprimorada'} para Nível ${nextLevel}!`, 'system');
   };
 
   const tabs = [
-    { id: 'trophies', label: 'Troféus', icon: '🏆', color: '#fbbf24' },
-    { id: 'titles',   label: 'Títulos', icon: '🎖️', color: '#60a5fa' },
-    { id: 'cosmetics', label: 'Visual',  icon: '🎨', color: '#f472b6' },
-    { id: 'allies',   label: 'Aliados', icon: '🤝', color: '#4ade80' },
-    { id: 'mine',     label: 'Mina',    icon: '⛏️', color: '#a78bfa' },
-    { id: 'fishing',  label: 'Pesca',   icon: '🎣', color: '#2dd4bf' },
-    { id: 'gym',      label: 'Ginásio', icon: '🚩', color: '#f87171' },
+    { id: 'trophies', label: 'Troféus',  key: 'A' },
+    { id: 'titles',   label: 'Títulos',  key: 'B' },
+    { id: 'cosmetics',label: 'Visual',   key: '↑' },
+    { id: 'allies',   label: 'Aliados',  key: '↓' },
+    { id: 'mine',     label: 'Mina',     key: 'L' },
+    { id: 'fishing',  label: 'Pesca',    key: 'R' },
+    { id: 'gym',      label: 'Ginásio',  key: 'St' },
   ];
 
-  const currentTabColor = tabs.find(t => t.id === activeTab)?.color || '#fbbf24';
-
   return (
-    <div className={`absolute inset-0 z-[2000] bg-[#020617] flex flex-col transition-all duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'} overflow-hidden text-white font-sans`}>
-      {/* Background Decorativo */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-30">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-500/20 blur-[120px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/20 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
-      </div>
+    <div className="absolute inset-0 z-[2000] flex flex-col overflow-hidden font-mono"
+      style={{ background: 'linear-gradient(160deg, #0d1117 0%, #161b22 50%, #0d1117 100%)' }}>
 
-      {/* Header Premium */}
-      <div className="relative z-10 bg-slate-900/60 backdrop-blur-2xl border-b border-white/10 px-6 py-8 flex items-center justify-between shadow-[0_10px_30px_rgba(0,0,0,0.5)] shrink-0">
-        <div className="flex items-center gap-6">
-          <button 
-            onClick={() => onBack()}
-            className="group w-14 h-14 flex items-center justify-center rounded-[1.2rem] bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all active:scale-90 shadow-lg"
-          >
-            <span className="text-2xl group-hover:-translate-x-1 transition-transform">←</span>
+      {/* Scanlines overlay */}
+      <div className="absolute inset-0 pointer-events-none z-0 opacity-[0.04]"
+        style={{ backgroundImage: 'repeating-linear-gradient(0deg, #fff 0px, #fff 1px, transparent 1px, transparent 4px)' }}
+      />
+
+      {/* ── HEADER ──────────────────────────────────────────────────────── */}
+      <div className="relative z-10 shrink-0 border-b-4 border-[#c0392b]"
+        style={{ background: 'linear-gradient(90deg, #c0392b 0%, #e74c3c 50%, #c0392b 100%)' }}>
+        <div className="flex items-center justify-between px-4 py-3">
+          {/* Botão Voltar estilo GBA */}
+          <button onClick={onBack}
+            className="flex items-center gap-2 bg-black/30 border border-white/20 px-3 py-2 text-white font-mono text-[11px] uppercase tracking-widest hover:bg-black/50 active:translate-y-[1px] transition-all">
+            ← SAIR
           </button>
-          <div>
-            <h2 className="text-3xl font-black uppercase tracking-tighter leading-none italic bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 bg-clip-text text-transparent drop-shadow-sm">
-              Loja de Prestígio
+
+          {/* Título */}
+          <div className="text-center">
+            <p className="text-[8px] text-white/60 uppercase tracking-[0.4em] font-mono">★ EXCLUSIVO ★</p>
+            <h2 className="text-lg font-black uppercase tracking-tighter text-white leading-none drop-shadow-lg font-pixel text-[10px]">
+              LOJA DE PRESTÍGIO
             </h2>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-              <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Ambiente de Trocas Exclusivas</p>
+          </div>
+
+          {/* Saldo */}
+          <div className="flex items-center gap-2 bg-black/40 border border-white/20 px-3 py-2">
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png"
+              className="w-5 h-5 object-contain" style={{ imageRendering: 'pixelated' }} alt="" />
+            <div className="text-right">
+              <p className="text-[8px] text-white/50 uppercase">Coins</p>
+              <p className="text-sm font-black text-yellow-300 tabular-nums">{currency.toLocaleString()}</p>
             </div>
           </div>
         </div>
-        
-        <div className="flex flex-col items-end gap-2">
-          <div className="group flex items-center gap-4 bg-black/60 px-5 py-3 rounded-2xl border border-white/10 shadow-2xl hover:border-amber-400/50 transition-colors">
-            <div className="flex flex-col items-end">
-              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest leading-none mb-1">Saldo Disponível</p>
-              <span className="text-xl font-black text-amber-400 tabular-nums leading-none">
-                {currency.toLocaleString()}
-              </span>
-            </div>
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-8 h-8 group-hover:scale-110 transition-transform" alt="" />
+
+        {/* Barra de badges */}
+        <div className="flex items-center gap-3 px-4 pb-2">
+          <span className="text-[9px] text-white/50 uppercase tracking-widest">Badges:</span>
+          <div className="flex gap-1">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i}
+                className={`w-4 h-4 border ${i < badges ? 'bg-yellow-400 border-yellow-600' : 'bg-black/40 border-white/20'}`}
+                style={{ clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)' }}
+              />
+            ))}
           </div>
-          <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5">
-            <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{badges} Badges</span>
-          </div>
+          <span className="text-[9px] text-white/40 font-mono">{badges}/8</span>
         </div>
       </div>
 
-      {/* Tabs Menu Lateral/Superior */}
-      <div className="relative z-10 flex px-4 py-4 gap-3 overflow-x-auto custom-scrollbar shrink-0 bg-slate-900/40 backdrop-blur-md border-b border-white/5">
-        {tabs.map((tab, idx) => {
+      {/* ── TABS estilo categoria de mochila ────────────────────────────── */}
+      <div className="relative z-10 shrink-0 flex overflow-x-auto border-b-2 border-[#333]"
+        style={{ background: '#1a1a2e' }}>
+        {tabs.map(tab => {
           const isActive = activeTab === tab.id;
           return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`relative px-6 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center gap-3 shrink-0 border-b-4 ${
-                isActive 
-                ? 'bg-white text-slate-900 border-amber-500 translate-y-[-2px] shadow-[0_10px_20px_rgba(0,0,0,0.3)]' 
-                : 'bg-white/5 text-white/40 border-black/40 hover:bg-white/10 hover:text-white/60'
-              }`}
-              style={{ animationDelay: `${idx * 50}ms` }}
-            >
-              {isActive && (
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
-              )}
-              <span className="text-xl transform group-hover:scale-125 transition-transform">{tab.icon}</span>
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+              className={`relative px-4 py-3 text-[10px] font-mono uppercase tracking-widest whitespace-nowrap border-r border-[#333] transition-all shrink-0 ${
+                isActive
+                  ? 'bg-[#f0f0f0] text-[#1a1a2e] border-b-2 border-b-[#c0392b]'
+                  : 'text-white/40 hover:text-white/70 hover:bg-white/5'
+              }`}>
+              <span className="text-[8px] opacity-40 block">[{tab.key}]</span>
               {tab.label}
+              {isActive && <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0"
+                style={{ borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderBottom: '5px solid #c0392b' }} />}
             </button>
           );
         })}
       </div>
 
-      {/* Content Area */}
-      <div className="relative z-10 flex-1 overflow-y-auto px-6 py-8 custom-scrollbar pb-40">
-        
-        {/* Título da Seção Dinâmico */}
-        <div className="flex items-center gap-4 mb-8 animate-fadeIn">
-          <div className="w-1.5 h-8 rounded-full" style={{ backgroundColor: currentTabColor }} />
-          <h3 className="text-2xl font-black uppercase italic tracking-tight flex items-center gap-3">
-             {tabs.find(t => t.id === activeTab)?.label}
-             <span className="text-[10px] not-italic font-bold text-white/20 tracking-[0.4em] translate-y-1">— EXCLUSIVOS</span>
-          </h3>
-        </div>
+      {/* ── CONTENT AREA ────────────────────────────────────────────────── */}
+      <div className="relative z-10 flex-1 overflow-y-auto p-4 pb-10">
 
-        {/* TAB: TROPHIES */}
+        {/* TROFÉUS */}
         {activeTab === 'trophies' && (
-          <div className="grid gap-6 animate-slideUp">
-            {Object.values(TROPHIES).map((item, idx) => {
+          <div className="flex flex-col gap-3">
+            {Object.values(TROPHIES).map(item => {
               const isOwned = prestige.trophies?.includes(item.id);
               const canAfford = currency >= item.cost;
               const hasBadges = badges >= (item.minBadges || 0);
-              const isLocked = !hasBadges;
-
               return (
-                <div 
-                  key={item.id} 
-                  className={`group relative p-6 rounded-[2.5rem] border-2 flex items-center justify-between transition-all duration-500 overflow-hidden ${
-                    isOwned 
-                    ? 'bg-emerald-500/10 border-emerald-500/30' 
-                    : isLocked ? 'bg-black/40 border-white/5 opacity-50' : 'bg-slate-800/40 border-white/10 hover:border-amber-400/30'
-                  }`}
-                  style={{ animationDelay: `${idx * 100}ms` }}
-                >
-                  {isOwned && <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full" />}
-                  
-                  <div className="flex items-center gap-6 relative z-10">
-                    <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center text-5xl shadow-2xl transition-transform group-hover:scale-110 duration-500 ${
-                      isOwned ? 'bg-emerald-500/20 border-2 border-emerald-400/50' : 'bg-black/60 border-2 border-white/10'
+                <MenuCard key={item.id} owned={isOwned} locked={!hasBadges && !isOwned}>
+                  <div className="flex items-center gap-4 p-4">
+                    {/* Sprite */}
+                    <div className={`w-16 h-16 flex items-center justify-center border-2 shrink-0 ${
+                      isOwned ? 'border-[#2e7d32] bg-[#e8f5e9]' : 'border-[#444] bg-[#111]'
                     }`}>
-                      <span className="drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)]">{item.icon}</span>
+                      <ItemSprite src={item.sprite} size="w-12 h-12" />
                     </div>
-                    <div>
-                      <h4 className="text-xl font-black uppercase italic leading-none mb-2 text-white group-hover:text-amber-400 transition-colors">{item.name}</h4>
-                      <p className="text-[11px] font-medium text-white/50 leading-relaxed max-w-[220px] italic">"{item.description}"</p>
-                      <div className="flex gap-2 mt-4">
-                        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border ${hasBadges ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
-                          <span className="text-[10px] font-black uppercase tracking-tighter">{item.minBadges} Badges</span>
-                        </div>
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className={`text-sm font-black uppercase leading-none ${isOwned ? 'text-[#1b5e20]' : 'text-white'}`}>
+                          {item.name}
+                        </h4>
+                        {isOwned && <span className="text-[9px] bg-[#2e7d32] text-white px-2 py-0.5 font-mono uppercase">OBTIDO</span>}
+                      </div>
+                      <p className="text-[10px] text-white/40 mt-1 italic leading-tight">{item.description}</p>
+                      <div className="flex gap-2 mt-2 flex-wrap">
+                        <BadgeTag required={item.minBadges || 0} current={badges} />
+                        {!isOwned && (
+                          <span className="text-[9px] font-mono font-bold text-yellow-400">
+                            💰 {item.cost.toLocaleString()} C
+                          </span>
+                        )}
                       </div>
                     </div>
-                  </div>
-
-                  <div className="text-right relative z-10">
-                    {isOwned ? (
-                      <div className="flex flex-col items-end gap-1">
-                        <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-400/10 px-5 py-2.5 rounded-2xl border border-emerald-400/20">Adquirido</span>
-                      </div>
-                    ) : (
-                      <button 
-                        disabled={!canAfford || isLocked}
+                    {/* Ação */}
+                    {!isOwned && (
+                      <GBAButton
+                        variant={canAfford && hasBadges ? 'red' : 'grey'}
+                        disabled={!canAfford || !hasBadges}
                         onClick={() => handleBuy('trophy', item)}
-                        className={`group/btn relative px-8 py-5 rounded-3xl font-black uppercase text-xs tracking-[0.2em] transition-all overflow-hidden ${
-                          canAfford && !isLocked 
-                          ? 'bg-amber-400 text-black shadow-[0_10px_25px_rgba(251,191,36,0.3)] hover:scale-105 active:scale-95' 
-                          : 'bg-white/5 text-white/20 grayscale cursor-not-allowed'
-                        }`}
                       >
-                        <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 skew-x-12" />
-                        <span className="relative flex items-center gap-2 justify-center">
-                          {item.cost.toLocaleString()} <span className="text-[9px] opacity-60">COINS</span>
-                        </span>
-                      </button>
+                        COMPRAR
+                      </GBAButton>
+                    )}
+                  </div>
+                </MenuCard>
+              );
+            })}
+          </div>
+        )}
+
+        {/* TÍTULOS */}
+        {activeTab === 'titles' && (
+          <div className="flex flex-col gap-2">
+            <p className="text-[9px] text-white/30 uppercase font-mono tracking-widest mb-2 border-b border-[#333] pb-2">
+              ▶ Selecione seu título de treinador
+            </p>
+            {Object.values(TRAINER_TITLES).map(item => {
+              const isActive = prestige.activeTitle === item.id;
+              const canAfford = currency >= item.cost;
+              const hasBadges = badges >= (item.minBadges || 0);
+              return (
+                <div key={item.id}
+                  onClick={() => canAfford && hasBadges && handleBuy('title', item)}
+                  className={`flex items-center gap-4 px-4 py-3 border-2 cursor-pointer transition-all ${
+                    isActive
+                      ? 'bg-[#1a237e] border-[#3949ab] text-white shadow-[0_0_12px_rgba(57,73,171,0.5)]'
+                      : 'bg-[#111] border-[#333] text-white/60 hover:border-[#555] hover:text-white/80'
+                  }`}>
+                  {/* Indicador */}
+                  <div className={`w-4 h-4 border-2 shrink-0 flex items-center justify-center ${
+                    isActive ? 'border-white bg-white' : 'border-[#555]'
+                  }`}>
+                    {isActive && <div className="w-2 h-2 bg-[#1a237e]" />}
+                  </div>
+                  {/* Sprite */}
+                  <ItemSprite src={item.sprite} size="w-8 h-8" />
+                  {/* Label */}
+                  <span className={`flex-1 text-sm font-black uppercase ${isActive ? 'text-white' : ''}`}>
+                    {item.label}
+                  </span>
+                  {/* Requisito / preço */}
+                  <div className="text-right shrink-0">
+                    <BadgeTag required={item.minBadges || 0} current={badges} />
+                    {!isActive && (
+                      <p className="text-[10px] font-mono text-yellow-400 mt-1">{item.cost.toLocaleString()} C</p>
+                    )}
+                    {isActive && (
+                      <span className="text-[9px] font-mono text-blue-300 uppercase">★ ATIVO</span>
                     )}
                   </div>
                 </div>
@@ -254,127 +323,79 @@ const PrestigeShop = ({
           </div>
         )}
 
-        {/* TAB: TITLES */}
-        {activeTab === 'titles' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-slideUp">
-            {Object.values(TRAINER_TITLES).map((item, idx) => {
-              const isActive = prestige.activeTitle === item.id;
-              const canAfford = currency >= item.cost;
-              const hasBadges = badges >= (item.minBadges || 0);
-
-              return (
-                <button 
-                  key={item.id}
-                  disabled={!isActive && (!canAfford || !hasBadges)}
-                  onClick={() => handleBuy('title', item)}
-                  className={`group relative p-6 rounded-[2rem] border-2 flex items-center justify-between transition-all duration-300 ${
-                    isActive 
-                    ? 'bg-blue-600 border-blue-400 shadow-[0_15px_35px_rgba(37,99,235,0.4)]' 
-                    : 'bg-slate-800/40 border-white/10 hover:bg-slate-800/60'
-                  }`}
-                  style={{ animationDelay: `${idx * 50}ms` }}
-                >
-                  <div className="flex items-center gap-5">
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-2xl shadow-inner transition-transform group-hover:rotate-12 ${
-                      isActive ? 'bg-white text-blue-600' : 'bg-white/5 text-white/40'
-                    }`}>
-                      {item.label[0]}
-                    </div>
-                    <div className="text-left">
-                      <h4 className={`text-lg font-black uppercase italic tracking-tighter ${isActive ? 'text-white' : 'text-slate-200'}`}>
-                        {item.label}
-                      </h4>
-                      <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${isActive ? 'text-blue-100/60' : 'text-white/20'}`}>
-                         Requisito: {item.minBadges} Badges
+        {/* VISUAL (Frames + Themes) */}
+        {activeTab === 'cosmetics' && (
+          <div className="flex flex-col gap-6">
+            {/* Molduras */}
+            <section>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-0.5 w-4 bg-[#c0392b]" />
+                <p className="text-[9px] font-mono text-white/50 uppercase tracking-widest">Molduras da Pokédex</p>
+                <div className="flex-1 h-0.5 bg-[#333]" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {Object.values(POKEDEX_FRAMES).map(item => {
+                  const isActive = prestige.pokedexFrame === item.id;
+                  const canAfford = currency >= item.cost;
+                  return (
+                    <div key={item.id}
+                      onClick={() => canAfford && handleBuy('frame', item)}
+                      className={`border-2 p-3 cursor-pointer transition-all ${
+                        isActive ? 'border-[#fbbf24] bg-[#1a1500]' : 'border-[#333] bg-[#111] hover:border-[#555]'
+                      }`}
+                      style={isActive ? { borderColor: item.borderColor } : {}}>
+                      {/* Preview da moldura */}
+                      <div className="w-full aspect-square border-4 mb-2 flex items-center justify-center relative"
+                        style={{ borderColor: item.borderColor, backgroundColor: item.headerColor + '33' }}>
+                        <div className="w-1/2 h-1/2 rounded-full opacity-30"
+                          style={{ backgroundColor: item.headerColor }} />
+                        {isActive && (
+                          <div className="absolute top-1 right-1 w-4 h-4 flex items-center justify-center text-[8px]"
+                            style={{ backgroundColor: item.borderColor }}>✓</div>
+                        )}
+                      </div>
+                      <p className="text-[10px] font-mono uppercase text-center text-white/70">{item.name}</p>
+                      <p className="text-[9px] font-mono text-center mt-0.5"
+                        style={{ color: isActive ? item.borderColor : '#fbbf24' }}>
+                        {isActive ? 'EQUIPADA' : `${item.cost.toLocaleString()} C`}
                       </p>
                     </div>
-                  </div>
-                  {isActive ? (
-                    <div className="bg-white/20 px-3 py-1.5 rounded-xl">
-                      <span className="text-[10px] font-black text-white uppercase tracking-widest animate-pulse">Ativo</span>
-                    </div>
-                  ) : (
-                    <span className="text-sm font-black text-amber-400 tabular-nums">
-                      {item.cost.toLocaleString()} <span className="text-[9px] opacity-50">C</span>
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {/* TAB: COSMETICS */}
-        {activeTab === 'cosmetics' && (
-          <div className="flex flex-col gap-12 animate-slideUp">
-            {/* Frames Section */}
-            <section>
-              <div className="flex items-center gap-4 mb-6">
-                <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em]">Molduras da Pokédex</h4>
-                <div className="flex-1 h-[1px] bg-white/10" />
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
-                {Object.values(POKEDEX_FRAMES).map((item, idx) => {
-                  const isActive = prestige.pokedexFrame === item.id;
-                  return (
-                    <button 
-                      key={item.id}
-                      onClick={() => handleBuy('frame', item)}
-                      className={`group relative p-6 rounded-[2.5rem] border-4 flex flex-col items-center gap-4 transition-all duration-300 ${
-                        isActive ? 'bg-white/10 scale-105 shadow-xl' : 'bg-slate-800/40 border-white/5 hover:border-white/20'
-                      }`}
-                      style={{ borderColor: item.borderColor, animationDelay: `${idx * 100}ms` }}
-                    >
-                      {isActive && <div className="absolute -top-3 -right-3 w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center text-slate-900 text-xs shadow-lg font-black">✓</div>}
-                      <div className="w-20 h-20 rounded-[1.5rem] shadow-2xl flex items-center justify-center border-4 border-black/20" style={{ backgroundColor: item.headerColor }}>
-                         <div className="w-12 h-12 bg-white/20 rounded-full blur-xl" />
-                      </div>
-                      <div className="text-center">
-                        <p className="text-xs font-black uppercase tracking-widest mb-1">{item.name}</p>
-                        <p className="text-[10px] font-black text-amber-400 italic">
-                          {isActive ? 'EQUIPADO' : `${item.cost.toLocaleString()} COINS`}
-                        </p>
-                      </div>
-                    </button>
                   );
                 })}
               </div>
             </section>
 
-            {/* Themes Section */}
+            {/* Temas */}
             <section>
-              <div className="flex items-center gap-4 mb-6">
-                <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em]">Esquemas Cromáticos</h4>
-                <div className="flex-1 h-[1px] bg-white/10" />
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-0.5 w-4 bg-[#2471a3]" />
+                <p className="text-[9px] font-mono text-white/50 uppercase tracking-widest">Esquemas de Cor</p>
+                <div className="flex-1 h-0.5 bg-[#333]" />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
                 {Object.values(UI_THEMES).map(item => {
                   const isActive = prestige.uiTheme === item.id;
                   return (
-                    <button 
-                      key={item.id}
+                    <div key={item.id}
                       onClick={() => handleBuy('theme', item)}
-                      className={`group p-6 rounded-[2rem] border-2 flex items-center justify-between transition-all ${
-                        isActive ? 'bg-white/10 border-white/40 shadow-2xl' : 'bg-slate-800/40 border-white/5 hover:bg-slate-800/60'
-                      }`}
-                    >
-                      <div className="flex items-center gap-6">
-                        <div className="relative w-12 h-12 rounded-2xl shadow-xl overflow-hidden" style={{ backgroundColor: item.preview }}>
-                           <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent" />
-                        </div>
-                        <div className="text-left">
-                          <p className="text-sm font-black uppercase italic tracking-tighter leading-none mb-1">{item.name}</p>
-                          <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Interface Premium</p>
-                        </div>
+                      className={`flex items-center gap-4 border-2 p-3 cursor-pointer transition-all ${
+                        isActive ? 'border-[#3949ab] bg-[#0d1117]' : 'border-[#333] bg-[#111] hover:border-[#555]'
+                      }`}>
+                      {/* Paleta de cores */}
+                      <div className="flex gap-0.5 shrink-0">
+                        {[item.preview, item.preview + 'aa', item.preview + '55'].map((c, i) => (
+                          <div key={i} className="w-3 h-8 border border-black/20" style={{ backgroundColor: c }} />
+                        ))}
                       </div>
-                      <div className="text-right">
-                        {isActive ? (
-                           <span className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] bg-blue-400/10 px-4 py-2 rounded-xl border border-blue-400/20">Ativo</span>
-                        ) : (
-                           <span className="text-xs font-black text-amber-400 tabular-nums">{item.cost.toLocaleString()} C</span>
-                        )}
+                      <div className="flex-1">
+                        <p className="text-xs font-mono font-bold uppercase text-white">{item.name}</p>
+                        <p className="text-[9px] text-white/30 uppercase">Interface Premium</p>
                       </div>
-                    </button>
+                      {isActive
+                        ? <span className="text-[9px] font-mono text-blue-400 uppercase border border-blue-400/40 px-2 py-1">ATIVO</span>
+                        : <span className="text-[10px] font-mono text-yellow-400">{item.cost.toLocaleString()} C</span>
+                      }
+                    </div>
                   );
                 })}
               </div>
@@ -382,57 +403,59 @@ const PrestigeShop = ({
           </div>
         )}
 
-        {/* TAB: ALLIES */}
+        {/* ALIADOS */}
         {activeTab === 'allies' && (
-          <div className="grid gap-6 animate-slideUp">
-            {Object.values(ALLIES).map((item, idx) => {
+          <div className="flex flex-col gap-3">
+            {Object.values(ALLIES).map(item => {
               const isHired = gameState.ally?.activeId === item.id;
               const timeLeft = isHired ? Math.max(0, gameState.ally.expiresAt - Date.now()) : 0;
               const minutesLeft = Math.ceil(timeLeft / 60000);
               const canAfford = currency >= item.cost;
               const hasBadges = badges >= (item.minBadges || 0);
-
               return (
-                <div 
-                  key={item.id} 
-                  className={`group relative p-8 rounded-[3rem] border-2 flex items-center justify-between transition-all duration-500 ${
-                    isHired ? 'bg-blue-600/10 border-blue-400 shadow-2xl' : 'bg-slate-800/40 border-white/10 hover:border-blue-400/30'
-                  }`}
-                  style={{ animationDelay: `${idx * 100}ms` }}
-                >
-                  <div className="flex items-center gap-8 relative z-10">
-                    <div className={`w-28 h-28 rounded-[2.5rem] flex items-center justify-center transition-all duration-500 overflow-hidden shadow-2xl border-2 ${
-                      isHired ? 'bg-blue-600/20 border-blue-400' : 'bg-black/40 border-white/10 group-hover:rotate-3'
+                <div key={item.id}
+                  className={`border-2 overflow-hidden ${isHired ? 'border-[#2471a3]' : 'border-[#333]'}`}>
+                  {/* Faixa colorida no topo */}
+                  <div className={`h-1 w-full ${isHired ? 'bg-[#2471a3]' : 'bg-[#333]'}`} />
+                  <div className="flex items-center gap-4 p-4 bg-[#111]">
+                    {/* Sprite do aliado */}
+                    <div className={`w-20 h-20 border-2 shrink-0 flex items-center justify-center ${
+                      isHired ? 'border-[#2471a3] bg-[#0d2137]' : 'border-[#333] bg-[#0d0d0d]'
                     }`}>
-                      <img src={item.sprite} className="h-24 object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] transform scale-110" alt="" />
+                      <img src={item.sprite} className="w-16 h-16 object-contain"
+                        style={{ imageRendering: 'pixelated' }} alt={item.name}
+                        onError={e => e.target.remove()} />
                     </div>
-                    <div className="text-left">
-                      <h4 className="text-2xl font-black uppercase italic leading-none mb-2 text-white group-hover:text-blue-400 transition-colors">{item.name}</h4>
-                      <p className="text-xs font-medium text-white/50 leading-relaxed max-w-[280px] italic mb-4">"{item.description}"</p>
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-black uppercase ${isHired ? 'text-[#5dade2]' : 'text-white'}`}>
+                        {item.name}
+                      </p>
+                      <p className="text-[10px] text-white/40 italic mt-1 leading-tight">"{item.description}"</p>
                       {isHired && (
-                        <div className="bg-blue-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest flex items-center gap-2 shadow-lg animate-bounceSlow">
-                          <span className="w-2 h-2 rounded-full bg-white animate-ping" />
-                          🕒 {minutesLeft}m restantes
+                        <div className="mt-2">
+                          <GBHPBar value={timeLeft} max={gameState.ally?.duration || 3600000} />
+                          <p className="text-[9px] font-mono text-blue-400 mt-1">⏱ {minutesLeft}min restantes</p>
+                        </div>
+                      )}
+                      {!isHired && (
+                        <div className="flex gap-2 mt-2 flex-wrap">
+                          <BadgeTag required={item.minBadges || 0} current={badges} />
+                          <span className="text-[9px] font-mono text-yellow-400">💰 {item.cost.toLocaleString()} C</span>
                         </div>
                       )}
                     </div>
-                  </div>
-                  <div className="text-right relative z-10">
-                    <button 
-                      disabled={isHired || !canAfford || !hasBadges}
-                      onClick={() => onHireAlly(item.id, item.cost)}
-                      className={`group/btn relative px-10 py-6 rounded-3xl font-black uppercase text-xs tracking-[0.3em] transition-all overflow-hidden ${
-                        !isHired && canAfford && hasBadges
-                        ? 'bg-blue-500 text-white shadow-[0_15px_35px_rgba(37,99,235,0.4)] hover:scale-105 active:scale-95 border-b-8 border-blue-800' 
-                        : isHired ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-400/40 cursor-default' : 'bg-white/5 text-white/20 grayscale cursor-not-allowed'
-                      }`}
-                    >
-                      {isHired ? 'EM CAMPO' : (
-                        <span className="flex flex-col items-center">
-                          <span className="leading-none">{item.cost.toLocaleString()} C</span>
-                        </span>
-                      )}
-                    </button>
+                    {/* Botão */}
+                    <div className="shrink-0">
+                      {isHired
+                        ? <span className="text-[9px] font-mono text-blue-400 border border-blue-400/40 px-2 py-1 block text-center">EM CAMPO</span>
+                        : <GBAButton variant={canAfford && hasBadges ? 'blue' : 'grey'}
+                            disabled={!canAfford || !hasBadges}
+                            onClick={() => onHireAlly(item.id, item.cost)}>
+                            CONTRATAR
+                          </GBAButton>
+                      }
+                    </div>
                   </div>
                 </div>
               );
@@ -440,169 +463,179 @@ const PrestigeShop = ({
           </div>
         )}
 
-        {/* TAB: MINE */}
-        {activeTab === 'mine' && (
-          <div className="animate-slideUp flex flex-col gap-10">
-            <div className="relative bg-gradient-to-br from-slate-900 via-[#0f172a] to-slate-900 p-12 rounded-[4rem] border-2 border-white/10 text-center overflow-hidden shadow-2xl">
-               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent" />
-               <div className="absolute -top-24 -right-24 w-64 h-64 bg-amber-400/10 blur-[100px] rounded-full" />
-               
-               <div className="relative z-10">
-                 <div className="w-32 h-32 bg-black/60 rounded-[3rem] flex items-center justify-center text-7xl mx-auto mb-8 shadow-2xl border-2 border-white/5 group hover:rotate-12 transition-transform duration-700">
-                   <span className="drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]">⛏️</span>
-                 </div>
-                 <h3 className="text-4xl font-black uppercase italic mb-3 tracking-tighter leading-none bg-gradient-to-b from-white to-white/50 bg-clip-text text-transparent">Mineração Passiva</h3>
-                 <p className="text-sm text-white/40 leading-relaxed mb-10 max-w-md mx-auto italic">
-                   "A extração automatizada garante recursos para sua forja enquanto você treina seus Pokémon."
-                 </p>
-
-                 <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-10">
-                    <div className="bg-black/40 p-6 rounded-[2rem] border border-white/5">
-                      <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Nível de Operação</p>
-                      <p className="text-3xl font-black text-amber-400 italic tabular-nums">{gameState.mine?.level || 0}</p>
-                    </div>
-                    <div className="bg-black/40 p-6 rounded-[2rem] border border-white/5">
-                      <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Produção / Hora</p>
-                      <p className="text-3xl font-black text-blue-400 italic tabular-nums">
-                        {gameState.mine?.level > 0 ? (gameState.mine.level * 5) : 0} <span className="text-sm font-bold opacity-30 italic">Pç</span>
-                      </p>
-                    </div>
-                 </div>
-
-                 {(!gameState.mine?.level || gameState.mine.level < 3) && (
-                   <button 
-                     onClick={handleMineUpgrade}
-                     disabled={currency < (MINE_LEVELS[(gameState.mine?.level || 0) + 1]?.unlockCost || MINE_LEVELS[(gameState.mine?.level || 0) + 1]?.upgradeCost)}
-                     className="group relative w-full max-w-sm bg-amber-400 text-slate-900 py-7 rounded-[2rem] font-black uppercase tracking-[0.3em] shadow-[0_20px_50px_rgba(251,191,36,0.3)] border-b-8 border-amber-600 hover:scale-[1.02] active:translate-y-2 active:border-b-0 transition-all duration-300"
-                   >
-                     <span className="text-lg leading-none block mb-1">
-                       {gameState.mine?.level === 0 ? 'DESBLOQUEAR MINA' : 'UPGRADE DE OPERAÇÃO'}
-                     </span>
-                     <span className="block text-[10px] font-bold opacity-70">
-                       Investimento: {(gameState.mine?.level === 0 ? MINE_LEVELS[1].unlockCost : MINE_LEVELS[gameState.mine.level].upgradeCost)?.toLocaleString()} Coins
-                     </span>
-                   </button>
-                 )}
-               </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB: FISHING */}
-        {activeTab === 'fishing' && (
-          <div className="grid gap-6 animate-slideUp">
-            {Object.values(FISHING_RODS).map((item, idx) => {
-              const isOwned = gameState.fishing?.rod === item.id;
-              const canAfford = currency >= item.cost;
-              const hasBadges = badges >= (item.minBadges || 0);
-
-              return (
-                <div key={item.id} className={`group p-8 rounded-[3rem] border-2 flex items-center justify-between transition-all duration-500 ${isOwned ? 'bg-sky-500/10 border-sky-400' : 'bg-slate-800/40 border-white/10'}`}>
-                   <div className="flex items-center gap-8">
-                    <div className="w-24 h-24 bg-black/60 rounded-[2rem] flex items-center justify-center text-6xl shadow-2xl border-2 border-white/5 transition-transform group-hover:-rotate-12">
-                      🎣
-                    </div>
-                    <div>
-                      <h4 className="text-2xl font-black uppercase italic leading-none mb-2 group-hover:text-sky-400 transition-colors">{item.name}</h4>
-                      <p className="text-xs font-medium text-white/40 leading-relaxed max-w-[300px] italic">"{item.description}"</p>
-                    </div>
+        {/* MINA */}
+        {activeTab === 'mine' && (() => {
+          const mineLevel = gameState.mine?.level || 0;
+          const nextConfig = MINE_LEVELS[mineLevel + 1];
+          const cost = mineLevel === 0 ? nextConfig?.unlockCost : nextConfig?.upgradeCost;
+          const canAfford = cost && currency >= cost;
+          const hasBadges = !nextConfig?.minBadges || badges >= nextConfig.minBadges;
+          return (
+            <div className="flex flex-col gap-4">
+              {/* Status da Mina */}
+              <div className="border-2 border-[#555] bg-[#111] p-5">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-16 h-16 border-2 border-[#555] flex items-center justify-center bg-[#0d0d0d]">
+                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png"
+                      className="w-12 h-12 object-contain" style={{ imageRendering: 'pixelated' }} alt="" />
                   </div>
-                  <div className="text-right">
-                    {isOwned ? (
-                      <div className="bg-sky-400/10 text-sky-400 px-6 py-3 rounded-2xl border border-sky-400/30 font-black uppercase tracking-widest text-[10px]">Equipado</div>
-                    ) : (
-                      <button 
-                        disabled={!canAfford || !hasBadges}
-                        onClick={() => handleBuy('rod', item)}
-                        className={`px-8 py-5 rounded-[2rem] font-black uppercase text-xs tracking-widest border-b-8 transition-all ${
-                          canAfford && hasBadges 
-                          ? 'bg-sky-500 text-white border-sky-700 shadow-xl hover:scale-105' 
-                          : 'bg-white/5 text-white/20 grayscale'
-                        }`}
-                      >
-                        {item.cost.toLocaleString()} <span className="text-[9px] opacity-60">COINS</span>
-                      </button>
+                  <div>
+                    <p className="text-xs font-mono text-white/40 uppercase">Status da Instalação</p>
+                    <p className="text-2xl font-black text-white uppercase">
+                      {mineLevel === 0 ? 'INATIVA' : `MINA Nv.${mineLevel}`}
+                    </p>
+                    {mineLevel > 0 && (
+                      <p className="text-[10px] font-mono text-yellow-400">
+                        ⛏ {mineLevel * 5} peças / hora
+                      </p>
                     )}
                   </div>
                 </div>
+                {/* Barra de nível */}
+                <div className="mb-3">
+                  <div className="flex justify-between text-[9px] font-mono text-white/30 mb-1">
+                    <span>NÍVEL</span>
+                    <span>{mineLevel}/3</span>
+                  </div>
+                  <GBHPBar value={mineLevel} max={3} />
+                </div>
+                {/* Grade de levels */}
+                <div className="grid grid-cols-3 gap-2 mt-4">
+                  {[1, 2, 3].map(lv => {
+                    const cfg = MINE_LEVELS[lv];
+                    const unlocked = mineLevel >= lv;
+                    return (
+                      <div key={lv} className={`border p-2 text-center ${unlocked ? 'border-[#fbbf24] bg-[#1a1300]' : 'border-[#333] bg-[#0d0d0d]'}`}>
+                        <p className={`text-[9px] font-mono uppercase ${unlocked ? 'text-yellow-400' : 'text-white/30'}`}>
+                          {unlocked ? '★' : '○'} NV.{lv}
+                        </p>
+                        <p className="text-[8px] text-white/30 mt-1">{cfg?.label || `${lv * 5}/h`}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              {/* Botão de upgrade */}
+              {nextConfig && (
+                <div className="border-2 border-[#333] bg-[#111] p-4">
+                  <p className="text-[9px] font-mono text-white/30 uppercase mb-3">
+                    {mineLevel === 0 ? '▶ Desbloquear Mina' : `▶ Upgrade → Nv.${mineLevel + 1}`}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <BadgeTag required={nextConfig.minBadges || 0} current={badges} />
+                      <p className="text-yellow-400 font-mono text-sm mt-1">💰 {cost?.toLocaleString()} C</p>
+                    </div>
+                    <GBAButton variant={canAfford && hasBadges ? 'gold' : 'grey'}
+                      disabled={!canAfford || !hasBadges}
+                      onClick={handleMineUpgrade}>
+                      {mineLevel === 0 ? 'DESBLOQUEAR' : 'UPGRADE'}
+                    </GBAButton>
+                  </div>
+                </div>
+              )}
+              {mineLevel >= 3 && (
+                <div className="border-2 border-[#2e7d32] bg-[#0a1f0a] p-4 text-center">
+                  <p className="text-[#4caf50] font-mono font-bold uppercase text-sm">★ MINA NO NÍVEL MÁXIMO ★</p>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* PESCA */}
+        {activeTab === 'fishing' && (
+          <div className="flex flex-col gap-3">
+            <p className="text-[9px] font-mono text-white/30 uppercase tracking-widest border-b border-[#333] pb-2 mb-1">
+              ▶ Equipe sua vara de pesca
+            </p>
+            {Object.values(FISHING_RODS).map(item => {
+              const isOwned = gameState.fishing?.rod === item.id;
+              const canAfford = currency >= item.cost;
+              const hasBadges = badges >= (item.minBadges || 0);
+              return (
+                <div key={item.id} className={`border-2 flex items-center gap-4 p-4 transition-all ${
+                  isOwned ? 'border-[#0288d1] bg-[#0a1929]' : 'border-[#333] bg-[#111] hover:border-[#555]'
+                }`}>
+                  <div className={`w-14 h-14 border-2 flex items-center justify-center shrink-0 ${
+                    isOwned ? 'border-[#0288d1] bg-[#0d2137]' : 'border-[#444] bg-[#0d0d0d]'
+                  }`}>
+                    <ItemSprite src={item.sprite} size="w-10 h-10" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm font-black uppercase ${isOwned ? 'text-[#4fc3f7]' : 'text-white'}`}>
+                      {item.name}
+                    </p>
+                    <p className="text-[10px] italic text-white/40 mt-0.5">"{item.description}"</p>
+                    <div className="flex gap-2 mt-1">
+                      <BadgeTag required={item.minBadges || 0} current={badges} />
+                    </div>
+                  </div>
+                  <div className="shrink-0">
+                    {isOwned
+                      ? <span className="text-[9px] font-mono text-[#4fc3f7] border border-[#0288d1]/50 px-2 py-1">EQUIPADA</span>
+                      : <GBAButton variant={canAfford && hasBadges ? 'blue' : 'grey'}
+                          disabled={!canAfford || !hasBadges}
+                          onClick={() => handleBuy('rod', item)}>
+                          {item.cost.toLocaleString()} C
+                        </GBAButton>
+                    }
+                  </div>
+                </div>
               );
             })}
           </div>
         )}
 
-        {/* TAB: GYM */}
+        {/* GINÁSIO */}
         {activeTab === 'gym' && (
-          <div className="animate-slideUp">
-            <div className="bg-slate-800/40 p-8 rounded-[4rem] border-2 border-white/10">
-              <div className="flex flex-col items-center text-center mb-10">
-                 <span className="text-6xl mb-4">🚩</span>
-                 <h4 className="text-2xl font-black text-white uppercase italic tracking-tighter">Personalização de Ginásio</h4>
-                 <p className="text-xs text-white/30 max-w-xs mt-2 uppercase font-bold tracking-widest">Defina sua identidade visual no cenário competitivo</p>
-              </div>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
-                {Object.values(GYM_BANNERS).map((item, idx) => {
-                  const isActive = gameState.gymCustom?.bannerId === item.id;
-                  const canAfford = currency >= item.cost;
-                  return (
-                    <button 
-                      key={item.id}
-                      onClick={() => handleBuy('banner', item)}
-                      className={`group relative p-6 rounded-[2.5rem] border-2 flex flex-col items-center gap-4 transition-all duration-300 ${
-                        isActive ? 'bg-white/10 border-white/40 shadow-2xl' : 'bg-black/40 border-white/5 hover:border-white/20'
-                      }`}
-                      style={{ animationDelay: `${idx * 50}ms` }}
-                    >
-                      <div className="w-full h-20 rounded-2xl border-4 border-black/30 shadow-inner relative overflow-hidden" style={{ backgroundColor: item.color }}>
-                         <div className="absolute top-0 left-0 w-full h-1/2 bg-white/10" />
-                         <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                            <span className="text-4xl">🔱</span>
-                         </div>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-[10px] font-black uppercase tracking-widest mb-1">{item.name}</p>
-                        {isActive ? (
-                           <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">ATIVO</span>
-                        ) : (
-                           <span className="text-[10px] font-black text-amber-400 tabular-nums">{item.cost.toLocaleString()} C</span>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+          <div className="flex flex-col gap-4">
+            <p className="text-[9px] font-mono text-white/30 uppercase tracking-widest border-b border-[#333] pb-2 mb-1">
+              ▶ Escolha o estandarte do seu ginásio
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {Object.values(GYM_BANNERS).map(item => {
+                const isActive = gameState.gymCustom?.bannerId === item.id;
+                const canAfford = currency >= item.cost;
+                return (
+                  <div key={item.id}
+                    onClick={() => canAfford && handleBuy('banner', item)}
+                    className={`border-2 cursor-pointer transition-all overflow-hidden ${
+                      isActive ? 'border-[#fbbf24]' : 'border-[#333] hover:border-[#555]'
+                    }`}>
+                    {/* Preview do banner */}
+                    <div className="h-16 relative overflow-hidden" style={{ backgroundColor: item.color }}>
+                      <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
+                      {/* Pixel pattern */}
+                      <div className="absolute inset-0 opacity-10"
+                        style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0px, #000 2px, transparent 2px, transparent 8px)' }} />
+                      {isActive && (
+                        <div className="absolute top-2 right-2 w-5 h-5 bg-black/60 flex items-center justify-center">
+                          <span className="text-yellow-400 text-[10px] font-black">★</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="bg-[#111] p-2 text-center">
+                      <p className="text-[10px] font-mono uppercase text-white/70">{item.name}</p>
+                      <p className="text-[9px] font-mono mt-0.5"
+                        style={{ color: isActive ? '#fbbf24' : '#9ca3af' }}>
+                        {isActive ? '★ ATIVO' : `${item.cost.toLocaleString()} C`}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
 
       </div>
 
-      {/* Footer / Fade Out Layer */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#020617] to-transparent pointer-events-none z-20" />
-      
-      {/* Estilos Globais Customizados para a Loja */}
+      {/* CSS customizado */}
       <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes bounceSlow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
-        }
-        .animate-bounceSlow {
-          animation: bounceSlow 3s ease-in-out infinite;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-          height: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.02);
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
+        .pixelated { image-rendering: pixelated; image-rendering: crisp-edges; }
+        @keyframes gbaBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .gba-blink { animation: gbaBlink 1s step-end infinite; }
       `}} />
     </div>
   );
