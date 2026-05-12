@@ -33,9 +33,7 @@ const ExpeditionsScreen = lazy(() => import('./components/ExpeditionsScreen'));
 import { MoveCategoryIcon, StatusBadges, QuickInventory, TrainerCard } from './components/CommonUI';
 import { GYMS, ELITE_FOUR } from './data/gyms';
 import { auth, db } from './firebase';
-import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
-import { monitorAuthState } from './auth';
 import { 
   APP_VERSION, APP_VERSION_DATE, DEFAULT_GAME_STATE, GYM_LEVEL_CAPS, 
   NATURE_LIST, NATURES, TYPE_COLORS, trainerAvatars, ITEM_LABELS,
@@ -3847,6 +3845,7 @@ export default function App() {
         ...prev,
         activeRegion: 'johto',
         regional_teams: updated_regional_teams,
+        selectedStarters: { ...(prev.selectedStarters || {}), johto: starterId },
         team: [starter],
         currentRoute: 'new_bark_town',
         caughtData: { ...(prev.caughtData || {}), [starter.id]: true },
@@ -3874,6 +3873,7 @@ export default function App() {
         ...prev,
         activeRegion: 'hoenn',
         regional_teams: updated_regional_teams,
+        selectedStarters: { ...(prev.selectedStarters || {}), hoenn: starterId },
         team: [starter],
         currentRoute: 'littleroot_town',
         caughtData: { ...(prev.caughtData || {}), [starter.id]: true },
@@ -3902,6 +3902,7 @@ export default function App() {
         ...prev,
         activeRegion: 'sinnoh',
         regional_teams: updated_regional_teams,
+        selectedStarters: { ...(prev.selectedStarters || {}), sinnoh: starterId },
         team: [starter],
         currentRoute: 'twinleaf_town',
         caughtData: { ...(prev.caughtData || {}), [starter.id]: true },

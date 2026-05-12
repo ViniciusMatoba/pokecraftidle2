@@ -116,7 +116,7 @@ export const EXPEDITION_BIOMES = {
     badge: 4,
     badgeName: 'Insígnia do Arco-Íris',
     leaderName: 'Erika',
-    icon: '🌊',
+    icon: '🌿',
     imagePrompt: 'safari_zone',
     bg: "url('/expedition_pradaria.png') center/cover",
     description: 'Penas, Pó Rosa e itens raros de safári.',
