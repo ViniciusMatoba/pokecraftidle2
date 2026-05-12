@@ -1,7 +1,9 @@
-export const APP_VERSION = '1.74.5';
-export const VERSION = '1.74.5';
-export const APP_VERSION_DATE = '13/05/2026 12:56';
+export const APP_VERSION = '1.75.0';
+export const VERSION = '1.75.0';
+export const APP_VERSION_DATE = '13/05/2026 13:20';
 export const CHANGELOG = [
+  'Feature: Modal de Receita Encontrada — celebração visual com nome, ícone e efeito do item ao dropar receita',
+  'Fix: Raid sem Pokébolas — botão "Fechar" e "Recompensas" visíveis quando todas as bolas chegam a zero',
   'Fix: Ícones do Menu corrigidos — Pokédex 📕, Mochila 🎒 e Salvar 💾 agora usam emoji (100% confiável)',
   'Fix: Avatar Leaf — sprite corrigido (leaf.png→green.png no PS, era 404)',
   'Fix: Avatar Florian/Juliana — sprites de Paldea corrigidos (florian→giacomo, juliana→penny)',

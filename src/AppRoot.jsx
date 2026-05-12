@@ -707,6 +707,7 @@ export default function App() {
   const [bossLoot, setBossLoot] = useState(null);
   const [battleResult, setBattleResult] = useState(null);
   const [showRaidScreen, setShowRaidScreen] = useState(false);
+  const [recipeFoundModal, setRecipeFoundModal] = useState(null); // { name, img, effect }
 
   const [installPrompt, setInstallPrompt] = useState(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -1676,6 +1677,7 @@ export default function App() {
 
     const recipeDrops = FORGE_RECIPE_DROP_BY_POKEMON[Number(enemy.id)];
     const recipeDropList = Array.isArray(recipeDrops) ? recipeDrops : (recipeDrops ? [recipeDrops] : []);
+    const foundRecipes = [];
     if (recipeDropList.length) {
       // Taxa maior nas rotas iniciais (level baixo) para facilitar a progressão
       const isEarlyGame = (enemy.level || 1) <= 20;
@@ -1689,6 +1691,11 @@ export default function App() {
         drops.materials[recipeDrop] = (drops.materials[recipeDrop] || 0) + 1;
         const cleanName = recipeDrop.replace('recipe_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
         messages.push(`📜 Receita: ${cleanName}`);
+        // Localiza dados completos da receita para o modal
+        const recipeId = recipeDrop.replace('recipe_', '');
+        const allRecipesList = Object.values(CRAFTING_RECIPES).flat();
+        const recipeData = allRecipesList.find(r => r.id === recipeId);
+        if (recipeData) foundRecipes.push({ ...recipeData, isNew: undiscovered.length > 0 });
       }
     }
 
@@ -1731,7 +1738,7 @@ export default function App() {
       messages.push(`+1 Poke Bola`);
     }
 
-    return { drops, messages };
+    return { drops, messages, foundRecipes };
   }, []);
 
   // SPAWN
@@ -4445,7 +4452,7 @@ export default function App() {
 
     // Vitória! O som de GYM tocará apenas se ganhar insígnia
 
-    const { drops, messages } = processDrops(currentEnemy);
+    const { drops, messages, foundRecipes } = processDrops(currentEnemy);
     // ⛏️” PROTECTED: Fórmula XP — NíO ALTERAR DIVISOR SEM AUTORIZAÇíO
     const baseXpGain = Math.floor(((currentEnemy.level || 1) * 1.5 * (POKEDEX[Number(currentEnemy.id)]?.baseXp || 50)) / 7);
 
@@ -4705,6 +4712,10 @@ export default function App() {
     });
 
     messages.forEach(m => addLog(m, 'drop'));
+    // Modal de receita encontrada
+    if (foundRecipes?.length > 0) {
+      setTimeout(() => setRecipeFoundModal(foundRecipes[0]), 400);
+    }
     if (currentEnemy.isTrainer && currentEnemy.trainerReward) {
       const actualReward = Math.floor((currentEnemy.trainerReward || 0) * 0.20);
       addLog(` 🏆 ${currentEnemy.trainerName} derrotado! +${actualReward} coins`, 'system');
@@ -8102,6 +8113,88 @@ export default function App() {
               onClaimRewards={handleClaimRaidRewards}
               POKEDEX={POKEDEX}
             />
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: Receita Encontrada ──────────────────────────────────────── */}
+      {recipeFoundModal && (
+        <div
+          className="fixed inset-0 z-[99990] flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)' }}
+          onClick={() => setRecipeFoundModal(null)}
+        >
+          <div
+            className="relative w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl"
+            style={{ background: 'linear-gradient(160deg,#1c1410 0%,#2d1f0a 100%)', border: '2px solid #f59e0b55' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Brilho dourado topo */}
+            <div style={{
+              position: 'absolute', top: 0, left: 0, right: 0, height: 3,
+              background: 'linear-gradient(90deg,transparent,#f59e0b,#fbbf24,#f59e0b,transparent)',
+            }} />
+
+            {/* Header */}
+            <div className="pt-6 pb-3 px-6 text-center">
+              <div className="text-5xl mb-2" style={{ filter: 'drop-shadow(0 0 16px #f59e0b)' }}>📜</div>
+              <p style={{ color: '#f59e0b', fontSize: 9, fontWeight: 900, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: 4 }}>
+                {recipeFoundModal.isNew ? '✨ Nova Receita Encontrada!' : '📜 Receita Obtida'}
+              </p>
+              <h3 style={{ color: '#fff', fontWeight: 900, fontSize: 20, textTransform: 'uppercase', fontStyle: 'italic', margin: 0 }}>
+                {recipeFoundModal.name}
+              </h3>
+            </div>
+
+            {/* Item preview */}
+            <div className="mx-6 mb-4 rounded-2xl flex items-center gap-4 p-4"
+              style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}>
+              <div className="shrink-0 w-16 h-16 rounded-xl flex items-center justify-center"
+                style={{ background: 'rgba(245,158,11,0.15)' }}>
+                <img src={recipeFoundModal.img} alt={recipeFoundModal.name}
+                  className="w-12 h-12 object-contain"
+                  style={{ imageRendering: 'pixelated', filter: 'drop-shadow(0 0 6px #f59e0b66)' }}
+                  onError={e => { e.target.style.display = 'none'; }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p style={{ color: '#fbbf24', fontWeight: 900, fontSize: 13, textTransform: 'uppercase', marginBottom: 3 }}>
+                  {recipeFoundModal.name}
+                </p>
+                {recipeFoundModal.effect && typeof recipeFoundModal.effect === 'string' && (
+                  <p style={{ color: '#94a3b8', fontSize: 11, fontStyle: 'italic', margin: 0 }}>
+                    {recipeFoundModal.effect}
+                  </p>
+                )}
+                {recipeFoundModal.description && (
+                  <p style={{ color: '#64748b', fontSize: 10, marginTop: 3 }}>
+                    {recipeFoundModal.description}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Info */}
+            <div className="mx-6 mb-4 text-center">
+              <p style={{ color: '#475569', fontSize: 11, fontWeight: 700 }}>
+                🔨 Agora você pode forjar este item na <span style={{ color: '#f59e0b' }}>Forja</span>!
+              </p>
+            </div>
+
+            {/* Botão */}
+            <div className="px-6 pb-6">
+              <button
+                onClick={() => setRecipeFoundModal(null)}
+                className="w-full py-4 rounded-2xl font-black uppercase text-sm tracking-widest transition-all active:scale-95"
+                style={{
+                  background: 'linear-gradient(135deg,#f59e0b,#d97706)',
+                  color: '#1c1410',
+                  boxShadow: '0 6px 20px rgba(245,158,11,0.4)',
+                  border: 'none', cursor: 'pointer',
+                }}
+              >
+                🔨 Ótimo! Ir Forjar
+              </button>
+            </div>
           </div>
         </div>
       )}

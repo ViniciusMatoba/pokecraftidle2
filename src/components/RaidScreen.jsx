@@ -247,59 +247,113 @@ const RaidScreen = ({
         )}
 
         {/* ── CAPTURE ── */}
-        {raid.phase === 'capture' && (
-          <div>
-            <div style={{
-              background: '#0f172a', borderRadius: 20, padding: 20,
-              marginBottom: 14, border: '1px solid #22c55e30', textAlign: 'center',
-            }}>
-              <p style={{ color: '#4ade80', fontWeight: 900, fontSize: 14,
-                textTransform: 'uppercase', margin: '0 0 8px' }}>
-                {raid.currentHp <= 0 ? '💥 Derrotado!' : '⚠️ HP Crítico!'} Tente capturar!
-              </p>
-              <p style={{ color: '#64748b', fontSize: 12, fontWeight: 700, margin: 0 }}>
-                Tentativas restantes: <span style={{ color: '#fff' }}>{raid.catchAttemptsLeft}</span>
-              </p>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {balls.map(ball => (
+        {raid.phase === 'capture' && (() => {
+          const noBalls = balls.every(b => b.count === 0);
+          return (
+            <div>
+              <div style={{
+                background: '#0f172a', borderRadius: 20, padding: 20,
+                marginBottom: 14, border: '1px solid #22c55e30', textAlign: 'center',
+              }}>
+                <p style={{ color: '#4ade80', fontWeight: 900, fontSize: 14,
+                  textTransform: 'uppercase', margin: '0 0 8px' }}>
+                  {raid.currentHp <= 0 ? '💥 Derrotado!' : '⚠️ HP Crítico!'} Tente capturar!
+                </p>
+                <p style={{ color: '#64748b', fontSize: 12, fontWeight: 700, margin: 0 }}>
+                  Tentativas restantes: <span style={{ color: '#fff' }}>{raid.catchAttemptsLeft}</span>
+                </p>
+              </div>
+
+              {/* Aviso sem Pokébolas */}
+              {noBalls && (
+                <div style={{
+                  background: '#7f1d1d22', border: '1px solid #ef444440',
+                  borderRadius: 16, padding: '12px 16px', marginBottom: 12,
+                  display: 'flex', alignItems: 'center', gap: 10,
+                }}>
+                  <span style={{ fontSize: 20 }}>🚫</span>
+                  <div>
+                    <p style={{ color: '#fca5a5', fontWeight: 900, fontSize: 12,
+                      textTransform: 'uppercase', margin: '0 0 2px' }}>
+                      Sem Pokébolas!
+                    </p>
+                    <p style={{ color: '#64748b', fontSize: 10, fontWeight: 600, margin: 0 }}>
+                      Compre na loja ou forje antes de entrar em raids.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {balls.map(ball => (
+                  <button
+                    key={ball.id}
+                    disabled={ball.count === 0 || raid.catchAttemptsLeft === 0}
+                    onClick={() => onCatchAttempt(ball.id)}
+                    style={{
+                      padding: '14px 20px', borderRadius: 16,
+                      background: ball.count > 0 ? '#1e293b' : '#0f172a',
+                      border: ball.count > 0 ? '2px solid #334155' : '2px solid #1e293b',
+                      color: ball.count > 0 ? '#fff' : '#334155',
+                      cursor: ball.count > 0 ? 'pointer' : 'not-allowed',
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      fontWeight: 900, fontSize: 13,
+                    }}
+                  >
+                    <img src={ball.img} style={{ width: 28, height: 28 }} alt="" />
+                    <span>{ball.label}</span>
+                    <span style={{ marginLeft: 'auto', color: ball.count > 0 ? '#94a3b8' : '#334155', fontSize: 11 }}>
+                      x{ball.count}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Ir para Recompensas quando tentativas acabaram */}
+              {raid.catchAttemptsLeft === 0 && (
                 <button
-                  key={ball.id}
-                  disabled={ball.count === 0 || raid.catchAttemptsLeft === 0}
-                  onClick={() => onCatchAttempt(ball.id)}
+                  onClick={onClaimRewards}
                   style={{
-                    padding: '14px 20px', borderRadius: 16,
-                    background: ball.count > 0 ? '#1e293b' : '#0f172a',
-                    border: ball.count > 0 ? '2px solid #334155' : '2px solid #1e293b',
-                    color: ball.count > 0 ? '#fff' : '#334155',
-                    cursor: ball.count > 0 ? 'pointer' : 'not-allowed',
-                    display: 'flex', alignItems: 'center', gap: 12,
-                    fontWeight: 900, fontSize: 13,
+                    width: '100%', padding: 16, borderRadius: 20, marginTop: 14,
+                    background: '#1e293b', color: '#94a3b8',
+                    fontWeight: 900, fontSize: 13, textTransform: 'uppercase',
+                    border: 'none', cursor: 'pointer',
                   }}
                 >
-                  <img src={ball.img} style={{ width: 28, height: 28 }} alt="" />
-                  <span>{ball.label}</span>
-                  <span style={{ marginLeft: 'auto', color: '#475569', fontSize: 11 }}>
-                    x{ball.count}
-                  </span>
+                  Ir para Recompensas →
                 </button>
-              ))}
+              )}
+
+              {/* Fechar quando não tem bolas mas ainda tem tentativas */}
+              {noBalls && raid.catchAttemptsLeft > 0 && (
+                <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+                  <button
+                    onClick={onClaimRewards}
+                    style={{
+                      flex: 1, padding: 14, borderRadius: 18,
+                      background: '#1e293b', color: '#94a3b8',
+                      fontWeight: 900, fontSize: 11, textTransform: 'uppercase',
+                      border: '1px solid #334155', cursor: 'pointer',
+                    }}
+                  >
+                    Recompensas →
+                  </button>
+                  <button
+                    onClick={onDismiss}
+                    style={{
+                      flex: 1, padding: 14, borderRadius: 18,
+                      background: '#ef444415', color: '#ef4444',
+                      fontWeight: 900, fontSize: 11, textTransform: 'uppercase',
+                      border: '1px solid #ef444440', cursor: 'pointer',
+                    }}
+                  >
+                    ✕ Fechar
+                  </button>
+                </div>
+              )}
             </div>
-            {raid.catchAttemptsLeft === 0 && (
-              <button
-                onClick={onClaimRewards}
-                style={{
-                  width: '100%', padding: 16, borderRadius: 20, marginTop: 14,
-                  background: '#1e293b', color: '#94a3b8',
-                  fontWeight: 900, fontSize: 13, textTransform: 'uppercase',
-                  border: 'none', cursor: 'pointer',
-                }}
-              >
-                Ir para Recompensas →
-              </button>
-            )}
-          </div>
-        )}
+          );
+        })()}
 
         {/* ── REWARDS ── */}
         {raid.phase === 'rewards' && (
