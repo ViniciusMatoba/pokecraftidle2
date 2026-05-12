@@ -1,7 +1,8 @@
-export const APP_VERSION = '1.76.4';
-export const VERSION = '1.76.4';
-export const APP_VERSION_DATE = '12/05/2026 17:51';
+export const APP_VERSION = '1.76.5';
+export const VERSION = '1.76.5';
+export const APP_VERSION_DATE = '12/05/2026 17:58';
 export const CHANGELOG = [
+  'UX: Melhoria de Fluxo — adicionada confirmação de destino após batalhas de história (Rival/Equipes)',
   'UI: Ajustes Visuais — corrigido posicionamento da Loja de Prestígio, ícone da aba Ginásio e layout das insígnias',
   'Fix: Navegação da Forja — corrigido erro de redirecionamento que causava tela branca ao sair do modal de receita',
   'Feature: Raids Aprimoradas — gatilho de batalhas reduzido para 100 e nova arte de fundo épica para a tela de raid',

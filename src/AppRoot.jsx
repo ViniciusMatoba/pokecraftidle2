@@ -7133,9 +7133,25 @@ export default function App() {
 
         const handleClose = () => {
           const nextView = showGymVictoryModal.nextView;
+          const isStoryBattle = cat === 'rival' || cat === 'rocket' || cat === 'villain' || cat === 'team';
+
           setShowGymVictoryModal(null);
           setCurrentEnemy(null);
-          if (nextView && nextView !== 'city') setCurrentView(nextView);
+
+          if (isStoryBattle) {
+            // Batalha de história: perguntar destino ao jogador
+            showConfirm({
+              type: 'confirm',
+              title: 'Onde deseja ir?',
+              message: 'Seus Pokémon podem precisar de recuperação.',
+              confirmLabel: '🗺️ Rotas',
+              cancelLabel: '🏥 Cidade',
+              onConfirm: () => { closeConfirm(); setCurrentView('battles'); },
+              onCancel:  () => { closeConfirm(); handleGoToCity(); },
+            });
+          } else if (nextView && nextView !== 'city') {
+            setCurrentView(nextView);
+          }
         };
 
         return (
