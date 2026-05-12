@@ -66,7 +66,15 @@ import {
   TROPHIES, TRAINER_TITLES, POKEDEX_FRAMES, UI_THEMES, 
   ALLIES, MINE_LEVELS, FISHING_RODS, POKECENTER_DONATIONS, GYM_BANNERS 
 } from './data/prestige';
+import {
+  createRaid, RAID_FIGHT_SECONDS, RAID_BATTLE_TRIGGER,
+  RAID_SPAWN_INTERVAL_MS, RAID_CATCH_RATE_MULT
+} from './data/raids';
+import RaidScreen from './components/RaidScreen';
 const PrestigeShop = lazy(() => import('./components/PrestigeShop'));
+
+const RAID_SPAWN_STORAGE_KEY = 'pokecraftidle_next_raid_at';
+const RAID_STAR_COLOR = { 1: '#94a3b8', 2: '#22c55e', 3: '#3b82f6', 4: '#a855f7', 5: '#f59e0b' };
 
 const fixPath = (path) => {
   if (typeof path !== 'string') return path;
@@ -600,6 +608,7 @@ export default function App() {
   const [bossTimer, setBossTimer] = useState(null);
   const [bossLoot, setBossLoot] = useState(null);
   const [battleResult, setBattleResult] = useState(null);
+  const [showRaidScreen, setShowRaidScreen] = useState(false);
 
   const [installPrompt, setInstallPrompt] = useState(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -2056,6 +2065,76 @@ export default function App() {
     return () => clearInterval(timer);
   }, [bossTimer, currentView, currentEnemy?.isWorldBoss]);
 
+  // ── RAID: Spawn Timer ─────────────────────────────────────────────────────
+  useEffect(() => {
+    // Inicializa o timer na primeira execução
+    const stored = localStorage.getItem(RAID_SPAWN_STORAGE_KEY);
+    if (!stored) {
+      localStorage.setItem(RAID_SPAWN_STORAGE_KEY, String(Date.now() + RAID_SPAWN_INTERVAL_MS));
+    }
+
+    const checkSpawn = () => {
+      const region = gameState.currentRegion || 'kanto';
+      const nextAt = parseInt(localStorage.getItem(RAID_SPAWN_STORAGE_KEY) || '0', 10);
+      if (!gameState.activeRaid && Date.now() >= nextAt) {
+        const raid = createRaid(region, POKEDEX);
+        if (raid) {
+          setGameState(prev => ({ ...prev, activeRaid: raid, battlesSinceLastRaid: 0 }));
+          localStorage.setItem(RAID_SPAWN_STORAGE_KEY, String(Date.now() + RAID_SPAWN_INTERVAL_MS));
+          addLog(`⚔️ RAID APARECEU! ${raid.name} (${raid.stars}⭐) está na área! [${region.toUpperCase()}]`, 'system');
+        }
+      }
+    };
+    checkSpawn();
+    const id = setInterval(checkSpawn, 30_000);
+    return () => clearInterval(id);
+  }, [gameState.activeRaid, gameState.currentRegion]);
+
+  // ── RAID: Expiration ──────────────────────────────────────────────────────
+  useEffect(() => {
+    const raid = gameState.activeRaid;
+    if (!raid || raid.phase === 'ended' || raid.phase === 'rewards') return;
+    const remaining = raid.expiresAt - Date.now();
+    if (remaining <= 0) {
+      setGameState(prev => ({
+        ...prev,
+        activeRaid: prev.activeRaid ? { ...prev.activeRaid, phase: 'ended' } : null,
+        raidStats: { ...(prev.raidStats || {}), fled: (prev.raidStats?.fled || 0) + 1 }
+      }));
+      return;
+    }
+    const t = setTimeout(() => {
+      setGameState(prev => ({
+        ...prev,
+        activeRaid: prev.activeRaid ? { ...prev.activeRaid, phase: 'ended' } : null,
+        raidStats: { ...(prev.raidStats || {}), fled: (prev.raidStats?.fled || 0) + 1 }
+      }));
+      addLog(`⌛ A raid expirou! ${raid.name} fugiu...`, 'system');
+    }, remaining);
+    return () => clearTimeout(t);
+  }, [gameState.activeRaid?.id, gameState.activeRaid?.phase]);
+
+  // ── RAID: Fight Timer ─────────────────────────────────────────────────────
+  useEffect(() => {
+    const raid = gameState.activeRaid;
+    if (!raid || raid.phase !== 'fighting' || !raid.fightEndsAt) return;
+    const remaining = raid.fightEndsAt - Date.now();
+    if (remaining <= 0) {
+      setGameState(prev => ({
+        ...prev,
+        activeRaid: prev.activeRaid ? { ...prev.activeRaid, phase: 'capture' } : null
+      }));
+      return;
+    }
+    const t = setTimeout(() => {
+      setGameState(prev => ({
+        ...prev,
+        activeRaid: prev.activeRaid ? { ...prev.activeRaid, phase: 'capture' } : null
+      }));
+    }, remaining);
+    return () => clearTimeout(t);
+  }, [gameState.activeRaid?.phase, gameState.activeRaid?.fightEndsAt]);
+
   const calculateBossLoot = useCallback((damage) => {
     const loot = { coins: Math.floor(damage / 5), materials: {} };
     if (damage >= 40000) {
@@ -2101,6 +2180,131 @@ export default function App() {
     
     // O modal de loot segurará a saída da batalha
   }, [bossDamage, saveBossDamage, calculateBossLoot]);
+
+  // ── RAID Handlers ─────────────────────────────────────────────────────────
+  const handleStartRaid = useCallback(() => {
+    setGameState(prev => {
+      if (!prev.activeRaid || prev.activeRaid.phase !== 'idle') return prev;
+      const now = Date.now();
+      return {
+        ...prev,
+        activeRaid: {
+          ...prev.activeRaid,
+          phase: 'fighting',
+          fightStartedAt: now,
+          fightEndsAt: now + RAID_FIGHT_SECONDS * 1000,
+        }
+      };
+    });
+  }, []);
+
+  const handleRaidCatchAttempt = useCallback((ballType = 'poke_ball') => {
+    setGameState(prev => {
+      const raid = prev.activeRaid;
+      if (!raid || raid.phase !== 'capture') return prev;
+      const attemptsLeft = (raid.catchAttemptsLeft || 1) - 1;
+      const baseRate = RAID_CATCH_RATE_MULT[raid.stars] || 0.1;
+      const ballMult = ballType === 'ultra_ball' ? 2.0 : ballType === 'great_ball' ? 1.5 : 1.0;
+      const caught = Math.random() < (baseRate * ballMult);
+
+      // Consome a pokebola usada
+      const ballKey = ballType === 'ultra_ball' ? 'ultra_ball' : ballType === 'great_ball' ? 'great_ball' : 'pokeballs';
+      const currentBalls = prev.inventory?.items?.[ballKey] || 0;
+      const newItems = currentBalls > 0
+        ? { ...prev.inventory.items, [ballKey]: currentBalls - 1 }
+        : { ...prev.inventory.items };
+
+      if (caught) {
+        const pokedexEntry = POKEDEX[raid.pokemonId] || {};
+        const newPoke = {
+          instanceId: `raid_caught_${Date.now()}`,
+          id: raid.pokemonId,
+          name: raid.name,
+          level: raid.level,
+          isShiny: raid.isShiny,
+          hp: pokedexEntry.hp || 60,
+          maxHp: pokedexEntry.hp || 60,
+          xp: 0,
+          moves: (pokedexEntry.moves || []).slice(0, 4),
+          type: pokedexEntry.type || 'Normal',
+          types: pokedexEntry.types || [pokedexEntry.type || 'Normal'],
+          attack: pokedexEntry.attack || 60,
+          defense: pokedexEntry.defense || 60,
+          spAtk: pokedexEntry.spAtk || 60,
+          spDef: pokedexEntry.spDef || 60,
+          speed: pokedexEntry.speed || 60,
+          status: [],
+          stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
+          fromRaid: true,
+        };
+        addLog(`🎉 Você capturou ${raid.isShiny ? '✨ ' : ''}${raid.name}!`, 'system');
+        return {
+          ...prev,
+          pc: [...(prev.pc || []), newPoke],
+          inventory: { ...prev.inventory, items: newItems },
+          activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
+          raidStats: {
+            ...(prev.raidStats || {}),
+            captured: (prev.raidStats?.captured || 0) + 1,
+          }
+        };
+      } else if (attemptsLeft <= 0) {
+        addLog(`💨 ${raid.name} não foi capturado. Tentativas esgotadas.`, 'system');
+        return {
+          ...prev,
+          inventory: { ...prev.inventory, items: newItems },
+          activeRaid: { ...raid, phase: 'rewards', catchAttemptsLeft: 0 }
+        };
+      } else {
+        addLog(`💨 ${raid.name} escapou! ${attemptsLeft} tentativa(s) restante(s).`, 'system');
+        return {
+          ...prev,
+          inventory: { ...prev.inventory, items: newItems },
+          activeRaid: { ...raid, catchAttemptsLeft: attemptsLeft }
+        };
+      }
+    });
+  }, []);
+
+  const handleClaimRaidRewards = useCallback(() => {
+    setGameState(prev => {
+      const raid = prev.activeRaid;
+      if (!raid || raid.phase !== 'rewards') return prev;
+      const rewards = raid.rewards || [];
+      let newCurrency = prev.currency || 0;
+      const newInventory = {
+        ...prev.inventory,
+        items:     { ...prev.inventory.items },
+        materials: { ...prev.inventory.materials },
+        candies:   { ...(prev.inventory.candies || {}) },
+      };
+      rewards.forEach(r => {
+        if (r.type === 'currency') {
+          newCurrency += r.quantity || 0;
+        } else if (r.type === 'item') {
+          newInventory.items[r.id] = (newInventory.items[r.id] || 0) + (r.quantity || 1);
+        } else if (r.type === 'material') {
+          newInventory.materials[r.id] = (newInventory.materials[r.id] || 0) + (r.quantity || 1);
+        } else if (r.type === 'candy') {
+          newInventory.candies[r.id] = (newInventory.candies[r.id] || 0) + (r.quantity || 1);
+        }
+      });
+      // Agenda próxima raid
+      localStorage.setItem(RAID_SPAWN_STORAGE_KEY, String(Date.now() + RAID_SPAWN_INTERVAL_MS));
+      return {
+        ...prev,
+        currency: newCurrency,
+        inventory: newInventory,
+        activeRaid: null,
+        battlesSinceLastRaid: 0,
+        raidStats: {
+          ...(prev.raidStats || {}),
+          total: (prev.raidStats?.total || 0) + 1,
+        }
+      };
+    });
+    setShowRaidScreen(false);
+  }, []);
 
   // TICK DE BATALHA
   // ⛏️” PROTECTED: handleBattleTick — NíO EDITAR SEM AUTORIZAÇíO EXPLíCITA
@@ -2283,6 +2487,7 @@ export default function App() {
       
       let updatedTeamFinal = [...updatedTeam];
       let updatedEnemyFinal = { ...updatedEnemy };
+      let raidDmgToApply = 0;
 
       if (move.category === 'Status' || move.power === 0) {
         nextDelay = 600;
@@ -2406,6 +2611,9 @@ export default function App() {
               return newVal;
             });
           }
+
+          // Raid: 50% do dano do jogador vai para o Raid Boss (se ativo)
+          raidDmgToApply = Math.floor(playerDmg * 0.5);
 
           addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
           if (eff > 1) addLog("💥 É super efetivo!", 'system');
@@ -2648,14 +2856,29 @@ export default function App() {
       }
 
       setCurrentEnemy(updatedEnemyFinal);
-      return { 
-        ...prev, 
+
+      // Atualiza HP da raid com o dano acumulado
+      let newActiveRaid = prev.activeRaid;
+      if (raidDmgToApply > 0 && prev.activeRaid && prev.activeRaid.phase === 'fighting') {
+        const raidNewHp = Math.max(0, prev.activeRaid.currentHp - raidDmgToApply);
+        const raidHpPct = raidNewHp / prev.activeRaid.maxHp;
+        newActiveRaid = {
+          ...prev.activeRaid,
+          currentHp: raidNewHp,
+          totalDamageDealt: prev.activeRaid.totalDamageDealt + raidDmgToApply,
+          phase: (raidHpPct <= 0.3 || raidNewHp === 0) ? 'capture' : 'fighting',
+        };
+      }
+
+      return {
+        ...prev,
         team: updatedTeamFinal,
         inventory: finalInventory,
         stamina: {
           ...prev.stamina,
           [myPoke.instanceId]: staminaEntry
-        }
+        },
+        activeRaid: newActiveRaid,
       };
     });
 
@@ -4129,6 +4352,19 @@ export default function App() {
         };
       });
 
+      // ── Raid: contagem de batalhas e spawn por batalhas ──────────────────────
+      const newBattlesSinceRaid = (prev.battlesSinceLastRaid || 0) + 1;
+      let raidSpawnUpdate = {};
+      if (!prev.activeRaid && newBattlesSinceRaid >= RAID_BATTLE_TRIGGER) {
+        const region = prev.currentRegion || 'kanto';
+        const raid = createRaid(region, POKEDEX);
+        if (raid) {
+          raidSpawnUpdate = { activeRaid: raid, battlesSinceLastRaid: 0 };
+          localStorage.setItem(RAID_SPAWN_STORAGE_KEY, String(Date.now() + RAID_SPAWN_INTERVAL_MS));
+          setTimeout(() => addLog(`⚔️ RAID APARECEU! ${raid.name} (${raid.stars}⭐) está na área!`, 'system'), 0);
+        }
+      }
+
       return {
         ...prev,
         currency: (prev.currency || 0) + (drops.currency || 0) + (currentEnemy.trainerReward || 0),
@@ -4137,7 +4373,9 @@ export default function App() {
         worldFlags: [...newFlags, ...tempWorldFlags].filter((v, i, a) => a.indexOf(v) === i),
         badges: newBadges,
         gymDefeatCounts: newGymCounts,
-        trainerBattleWins: (prev.trainerBattleWins || 0) + (currentEnemy.isTrainer ? 1 : 0)
+        trainerBattleWins: (prev.trainerBattleWins || 0) + (currentEnemy.isTrainer ? 1 : 0),
+        battlesSinceLastRaid: raidSpawnUpdate.activeRaid ? 0 : newBattlesSinceRaid,
+        ...raidSpawnUpdate,
       };
     });
 
@@ -7234,6 +7472,64 @@ export default function App() {
             <div className="flex-shrink-0 px-5 pt-3 pb-6 border-t border-slate-100 bg-white">
               <button onClick={() => setShowBattleAutoPanel(false)} className="w-full min-h-[52px] bg-slate-900 text-white rounded-2xl font-black uppercase tracking-[0.12em] shadow-xl hover:bg-slate-700 transition-all">Salvar Ajustes</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── RAID: Botão flutuante ─────────────────────────────────────────── */}
+      {gameState.activeRaid && gameState.activeRaid.phase !== 'ended' && !showRaidScreen && (
+        <button
+          type="button"
+          onClick={() => setShowRaidScreen(true)}
+          style={{
+            position: 'fixed',
+            bottom: '88px',
+            right: '16px',
+            zIndex: 8000,
+            background: RAID_STAR_COLOR[gameState.activeRaid.stars] || '#f59e0b',
+            border: 'none',
+            borderRadius: '50px',
+            padding: '10px 16px',
+            color: 'white',
+            fontWeight: 900,
+            fontSize: '13px',
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            animation: 'pulse 2s infinite',
+          }}
+        >
+          <span style={{ fontSize: '18px' }}>⚔️</span>
+          RAID {gameState.activeRaid.stars}⭐
+        </button>
+      )}
+
+      {/* ── RAID: Tela de Raid ────────────────────────────────────────────── */}
+      {showRaidScreen && gameState.activeRaid && (
+        <div
+          className="absolute inset-0 z-[8500] flex items-end justify-center"
+          style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
+          onClick={() => {
+            if (['idle', 'ended'].includes(gameState.activeRaid?.phase)) setShowRaidScreen(false);
+          }}
+        >
+          <div
+            style={{ width: '100%', maxWidth: '480px', maxHeight: '92dvh', overflowY: 'auto' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <RaidScreen
+              raid={gameState.activeRaid}
+              gameState={gameState}
+              onStart={handleStartRaid}
+              onDismiss={() => setShowRaidScreen(false)}
+              onCatchAttempt={handleRaidCatchAttempt}
+              onClaimRewards={handleClaimRaidRewards}
+              POKEDEX={POKEDEX}
+            />
           </div>
         </div>
       )}

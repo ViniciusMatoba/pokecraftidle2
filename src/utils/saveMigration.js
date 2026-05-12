@@ -165,6 +165,12 @@ export const migrateGameState = (savedState = {}, options = {}) => {
       colorId: null,
       ...(loaded.gymCustom || {}),
     },
+    activeRaid: loaded.activeRaid || null,
+    raidStats: {
+      total: 0, captured: 0, fled: 0,
+      ...(loaded.raidStats || {}),
+    },
+    battlesSinceLastRaid: loaded.battlesSinceLastRaid || 0,
     settings: {
       ...DEFAULT_GAME_STATE.settings,
       ...(loaded.settings || {}),

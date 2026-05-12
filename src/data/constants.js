@@ -205,6 +205,15 @@ export const DEFAULT_GAME_STATE = {
     bannerId: 'default',
     colorId: null,          // cor do ginásio
   },
+
+  // Raid
+  activeRaid: null,
+  raidStats: {
+    total: 0,      // raids completadas
+    captured: 0,   // Pokémon capturados em raids
+    fled: 0,       // raids que expiraram sem participar
+  },
+  battlesSinceLastRaid: 0,  // contador de batalhas para trigger
 };
 
 export const ITEM_LABELS = {
