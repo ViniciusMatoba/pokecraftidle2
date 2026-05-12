@@ -1686,16 +1686,17 @@ export default function App() {
       if (Math.random() < dropRate) {
         // Filtra receitas já descobertas para não duplicar
         const undiscovered = recipeDropList.filter(r => !(gameState.inventory?.materials?.[r] > 0));
-        const pool = undiscovered.length ? undiscovered : recipeDropList;
-        const recipeDrop = pool[Math.floor(Math.random() * pool.length)];
-        drops.materials[recipeDrop] = (drops.materials[recipeDrop] || 0) + 1;
-        const cleanName = recipeDrop.replace('recipe_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-        messages.push(`📜 Receita: ${cleanName}`);
-        // Localiza dados completos da receita para o modal
-        const recipeId = recipeDrop.replace('recipe_', '');
-        const allRecipesList = Object.values(CRAFTING_RECIPES).flat();
-        const recipeData = allRecipesList.find(r => r.id === recipeId);
-        if (recipeData) foundRecipes.push({ ...recipeData, isNew: undiscovered.length > 0 });
+        if (undiscovered.length > 0) {
+          const recipeDrop = undiscovered[Math.floor(Math.random() * undiscovered.length)];
+          drops.materials[recipeDrop] = (drops.materials[recipeDrop] || 0) + 1;
+          const cleanName = recipeDrop.replace('recipe_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+          messages.push(`📜 Receita: ${cleanName}`);
+          // Localiza dados completos da receita para o modal
+          const recipeId = recipeDrop.replace('recipe_', '');
+          const allRecipesList = Object.values(CRAFTING_RECIPES).flat();
+          const recipeData = allRecipesList.find(r => r.id === recipeId);
+          if (recipeData) foundRecipes.push({ ...recipeData, isNew: true });
+        }
       }
     }
 
@@ -4712,9 +4713,10 @@ export default function App() {
     });
 
     messages.forEach(m => addLog(m, 'drop'));
-    // Modal de receita encontrada
-    if (foundRecipes?.length > 0) {
-      setTimeout(() => setRecipeFoundModal(foundRecipes[0]), 400);
+    // Modal de receita encontrada — só aparece se for nova
+    const newRecipes = foundRecipes?.filter(r => r.isNew);
+    if (newRecipes?.length > 0) {
+      setTimeout(() => setRecipeFoundModal(newRecipes[0]), 400);
     }
     if (currentEnemy.isTrainer && currentEnemy.trainerReward) {
       const actualReward = Math.floor((currentEnemy.trainerReward || 0) * 0.20);

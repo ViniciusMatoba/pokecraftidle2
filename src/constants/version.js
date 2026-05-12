@@ -1,7 +1,8 @@
-export const APP_VERSION = '1.75.1';
-export const VERSION = '1.75.1';
-export const APP_VERSION_DATE = '13/05/2026 13:45';
+export const APP_VERSION = '1.75.2';
+export const VERSION = '1.75.2';
+export const APP_VERSION_DATE = '12/05/2026 17:18';
 export const CHANGELOG = [
+  'Fix: Drop de Receitas — corrigido bug que permitia dropar receitas já conhecidas e disparar modal indevidamente',
   'Feature: Confirmação de EXP Candy — modal com prévia de XP antes/depois, badge de Level Up e botão Voltar',
   'Feature: Modal de Receita Encontrada — celebração visual com nome, ícone e efeito do item ao dropar receita',
   'Fix: Raid sem Pokébolas — botão "Fechar" e "Recompensas" visíveis quando todas as bolas chegam a zero',
