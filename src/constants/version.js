@@ -1,7 +1,11 @@
-export const APP_VERSION = '1.74.4';
-export const VERSION = '1.74.4';
-export const APP_VERSION_DATE = '13/05/2026 18:00';
+export const APP_VERSION = '1.74.5';
+export const VERSION = '1.74.5';
+export const APP_VERSION_DATE = '13/05/2026 19:30';
 export const CHANGELOG = [
+  'Fix: Ícones do Menu corrigidos — Pokédex 📕, Mochila 🎒 e Salvar 💾 agora usam emoji (100% confiável)',
+  'Fix: Avatar Leaf — sprite corrigido (leaf.png→green.png no PS, era 404)',
+  'Fix: Avatar Florian/Juliana — sprites de Paldea corrigidos (florian→giacomo, juliana→penny)',
+  'Fix: onError em todos os sprites de treinador — fallback para Red em vez de sumir',
   'UI: Modal de Expedição restaurado — ícones de itens (ITEM_LABELS), sprites dos Pokémon e visual completo',
   'Fix: Modal Galar→Paldea exibia Prof. Magnolia em vez de Prof. Sada (duplicate professor corrigido)',
   'Audit: Sistema de progressão entre regiões verificado — todas as 9 transições estão corretas',

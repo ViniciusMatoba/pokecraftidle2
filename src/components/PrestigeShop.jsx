@@ -95,7 +95,7 @@ const AvatarPreviewCard = ({ sprite, tintId, frame, bg, name }) => {
           <img src={sprite.sprite} alt={sprite.name}
             className="relative w-16 h-16 object-contain z-10"
             style={{ imageRendering: 'pixelated', filter: tintFilter !== 'none' ? tintFilter : undefined }}
-            onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }} />
+            onError={e => { if (e.target.src !== 'https://play.pokemonshowdown.com/sprites/trainers/red.png') e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }} />
         </div>
 
         {/* Info */}
@@ -195,13 +195,13 @@ const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, 
                           <img src={item.sprite} alt=""
                             className="w-14 h-14 object-contain opacity-20"
                             style={{ imageRendering: 'pixelated', filter: 'grayscale(1)' }}
-                            onError={e => e.target.style.display = 'none'} />
+                            onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }} />
                         </>
                       ) : (
                         <img src={item.sprite} alt={item.name}
                           className="w-14 h-14 object-contain"
                           style={{ imageRendering: 'pixelated' }}
-                          onError={e => e.target.style.display = 'none'} />
+                          onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }} />
                       )}
                     </div>
 
@@ -272,7 +272,8 @@ const TintsGrid = ({ appearance, worldFlags, pTints, totalBadges, currency, curr
             <img src={currentSprite?.sprite}
               className="w-12 h-12 object-contain"
               style={{ imageRendering: 'pixelated', filter: tintFilter !== 'none' ? tintFilter : undefined }}
-              onError={e => e.target.style.display = 'none'} alt="" />
+              onError={e => { if (e.target.src !== 'https://play.pokemonshowdown.com/sprites/trainers/red.png') e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }}
+              alt="" />
             {isLocked && (
               <div className="absolute inset-0 flex items-center justify-center text-base bg-black/60">🔒</div>
             )}
@@ -818,7 +819,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                       ${isHired ? 'border-[#2471a3] bg-[#0d2137]' : 'border-[#333] bg-[#0d0d0d]'}`}>
                       <img src={item.sprite} className="w-16 h-16 object-contain"
                         style={{ imageRendering: 'pixelated' }} alt={item.name}
-                        onError={e => e.target.remove()} />
+                        onError={e => { if (e.target.src !== 'https://play.pokemonshowdown.com/sprites/trainers/red.png') e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-black uppercase ${isHired ? 'text-[#5dade2]' : 'text-white'}`}>

@@ -110,10 +110,10 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
   };
 
   const menuItems = [
-    { id: 'pokedex',  name: 'Pokedex',       icon: '/assets/menu/pokedex.png',         desc: 'Registro de especies',    color: 'bg-red-50 border-red-200 text-red-600' },
-    { id: 'backpack', name: 'Mochila',       icon: '/assets/menu/backpack.png',        desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
+    { id: 'pokedex',  name: 'Pokedex',       icon: '📕',  desc: 'Registro de especies',    color: 'bg-red-50 border-red-200 text-red-600' },
+    { id: 'backpack', name: 'Mochila',        icon: '🎒',  desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
     { id: 'settings', name: 'Configuracoes', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png', desc: 'Ajustes do sistema', color: 'bg-indigo-50 border-indigo-200 text-indigo-600' },
-    { id: 'save',     name: 'Salvar Jogo',   icon: '/assets/menu/save.png',            desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
+    { id: 'save',     name: 'Salvar Jogo',   icon: '💾',  desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
     { id: 'exit',     name: 'Sair do Jogo',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/escape-rope.png', desc: 'Voltar ao inicio', color: 'bg-slate-50 border-slate-200 text-slate-600' },
   ];
 
@@ -160,7 +160,12 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         >
           <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12"></div>
           <div className="w-16 h-16 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-inner border-2 border-white group-hover:rotate-6 transition-transform">
-            <img src={item.icon} className="w-10 h-10 object-contain drop-shadow-md" alt={item.name} />
+            {item.icon.startsWith('http') || item.icon.startsWith('/') ? (
+              <img src={item.icon} className="w-10 h-10 object-contain drop-shadow-md" alt={item.name}
+                onError={e => { e.target.style.display = 'none'; }} />
+            ) : (
+              <span className="text-3xl leading-none select-none">{item.icon}</span>
+            )}
           </div>
           <div className="flex-1">
             <h3 className="text-xl font-black uppercase italic leading-none tracking-tight">{item.name}</h3>
