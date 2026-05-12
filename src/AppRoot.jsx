@@ -785,13 +785,17 @@ export default function App() {
     
     // Se não for campeão da região ativa, só pode usar Pokémon daquela região/geração permitida
     if (targetRegion === 'hoenn') {
-      if (pokemonGen !== 3) return false;
+      const capturedHere = pokemon.capturedRegion === 'hoenn';
+      if (!capturedHere && pokemonGen !== 3) return false;
     } else if (targetRegion === 'sinnoh') {
-      if (pokemonGen !== 4) return false;
+      const capturedHere = pokemon.capturedRegion === 'sinnoh';
+      if (!capturedHere && pokemonGen !== 4) return false;
     } else if (targetRegion === 'johto') {
-      if (pokemonGen > 2) return false;
+      const capturedHere = pokemon.capturedRegion === 'johto';
+      if (!capturedHere && pokemonGen > 2) return false;
     } else if (targetRegion === 'kanto') {
-      if (pokemonGen > 1) return false;
+      const capturedHere = pokemon.capturedRegion === 'kanto';
+      if (!capturedHere && pokemonGen > 1) return false;
     }
 
     // 2. Trava de Nível (Cap)
@@ -5266,6 +5270,7 @@ export default function App() {
                                  xp: 0, 
                                  instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9), 
                                  status: [],
+                                 capturedRegion: 'kanto',
                                  stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
                                };
 

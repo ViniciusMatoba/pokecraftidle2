@@ -105,7 +105,7 @@ const PokemonManagement = ({
     return MOVE_TRANSLATIONS[key] || data.name || translateMove(typeof move === 'string' ? move : move?.name);
   };
 
-  const moveToPC = (index) => {
+  const moveToPC = (instanceId) => {
     if (gameState.team.length <= 1) {
       showConfirm({
         title: 'Ação Bloqueada',
@@ -115,8 +115,9 @@ const PokemonManagement = ({
       return;
     }
     setGameState(prev => {
-      const poke = prev.team[index];
-      const newTeam = prev.team.filter((_, i) => i !== index);
+      const poke = prev.team.find(p => p.instanceId === instanceId);
+      if (!poke) return prev;
+      const newTeam = prev.team.filter(p => p.instanceId !== instanceId);
       const newPC = [...(prev.pc || []), poke];
       return { ...prev, team: newTeam, pc: newPC };
     });
@@ -1025,7 +1026,7 @@ const PokemonManagement = ({
                         <button onClick={() => setShowTeamReorder(!showTeamReorder)} className={`flex-1 h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2 ${showTeamReorder ? 'bg-slate-100 text-slate-400' : 'bg-slate-50 text-slate-600 border-2 border-slate-100 hover:border-pokeBlue'}`}>
                            <span>{showTeamReorder ? '✕ Fechar' : '⇄ Mudar Posição'}</span>
                         </button>
-                        <button onClick={() => { moveToPC(activePokemonDetails.index); setActivePokemonDetails(null); }} className="flex-1 h-14 bg-slate-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-800 transition-all active:scale-95 shadow-lg">Enviar p/ PC</button>
+                        <button onClick={() => { moveToPC(activePokemonDetails.pokemon?.instanceId); setActivePokemonDetails(null); }} className="flex-1 h-14 bg-slate-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-800 transition-all active:scale-95 shadow-lg">Enviar p/ PC</button>
                       </div>
                     </div>
                   ) : (
