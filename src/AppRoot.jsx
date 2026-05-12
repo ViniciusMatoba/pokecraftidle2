@@ -33,6 +33,7 @@ const ExpeditionsScreen = lazy(() => import('./components/ExpeditionsScreen'));
 import { MoveCategoryIcon, StatusBadges, QuickInventory, TrainerCard, BadgeSVG } from './components/CommonUI';
 import { GYMS, ELITE_FOUR } from './data/gyms';
 import { auth, db } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { 
   APP_VERSION, APP_VERSION_DATE, DEFAULT_GAME_STATE, GYM_LEVEL_CAPS, 
@@ -73,6 +74,8 @@ const PrestigeShop = lazy(() => import('./components/PrestigeShop'));
 
 const RAID_SPAWN_STORAGE_KEY = 'pokecraftidle_next_raid_at';
 const RAID_STAR_COLOR = { 1: '#94a3b8', 2: '#22c55e', 3: '#3b82f6', 4: '#a855f7', 5: '#f59e0b' };
+
+const monitorAuthState = (callback) => onAuthStateChanged(auth, callback);
 
 const fixPath = (path) => {
   if (typeof path !== 'string') return path;
@@ -507,12 +510,19 @@ export default function App() {
             console.info('Save migration audit:', migratedData.migrationAudit);
           }
           setGameState(migratedData);
+          
+          // Se o save tem progresso real (insígnias ou flags), pula a landing/intro e vai direto pro jogo
+          const hasRealProgress = (migratedData.worldFlags || []).length > 0 || (migratedData.badges || []).length > 0;
+          if (hasRealProgress) {
+            setCurrentView('city');
+          }
         } else {
           setGameState(DEFAULT_GAME_STATE);
         }
       } else {
         setUser(null);
         setGameState(DEFAULT_GAME_STATE);
+        setCurrentView('landing');
       }
       setLoading(false);
     });
@@ -4860,7 +4870,7 @@ export default function App() {
                     onClick={() => setCurrentView(hasSave ? 'city' : 'intro')}
                     style={{width:'100%', padding:'20px', borderRadius:'24px', fontWeight:'900', fontSize:'18px', textTransform:'uppercase', letterSpacing:'2px', background:'white', color:'#1d4ed8', border:'none', boxShadow:'0 4px 12px rgba(0,0,0,0.3)', cursor:'pointer'}}
                   >
-                    CONTINUAR JORNADA
+                    {hasSave ? 'CONTINUAR JORNADA' : 'INICIAR NOVA JORNADA'}
                   </button>
                    {/* ⛔ END PROTECTED: Botões Landing */}
 

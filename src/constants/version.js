@@ -1,7 +1,9 @@
-export const APP_VERSION = '1.66.0';
-export const VERSION = '1.66.0';
-export const APP_VERSION_DATE = '12/05/2026 11:45';
+export const APP_VERSION = '1.66.2';
+export const VERSION = '1.66.2';
+export const APP_VERSION_DATE = '12/05/2026 12:24';
 export const CHANGELOG = [
+  'Fix: Sincronização de Save — redirecionamento automático para a cidade ao detectar progresso na nuvem',
+  'Hotfix: Resolvido erro de monitorAuthState indefinido que causava tela azul no carregamento',
   'Feature: Modal de Vitória Unificado — novos visuais e fluxos para Ginásios, Elite Four, Rivais e Equipes Vilãs',
   'Fix: Acesso Regional — validateTeamAccess agora permite Pokémon capturados na região ativa, independente da geração',
   'Fix: Estabilidade de PC — refatoração de moveToPC para usar instanceId, eliminando bugs de dessincronização de índice',
