@@ -3688,16 +3688,20 @@ export default function App() {
     const processedResults = teamWithXP.map(p => processExpeditionPokemon(p, p.xpGained || 0));
     const returnedTeam = processedResults.map(r => r.pokemon);
 
-    const summary = {
+    const report = {
       biomeName: biome.name,
-      drops: Object.fromEntries(
-        Object.entries(drops).map(([id, q]) => [ITEM_LABELS[id]?.name || id, q])
-      ),
-      pokemonXP: processedResults.map(r => ({
+      biomeIcon: biome.icon || '🗺️',
+      drops,
+      pokemonResults: processedResults.map(r => ({
         name: r.pokemon.name,
+        id: r.pokemon.id,
+        isShiny: r.pokemon.isShiny,
+        initialLevel: r.initialLevel,
+        finalLevel: r.finalLevel,
+        levelsGained: r.levelsGained,
         xpGained: r.xpGained,
-        leveledUp: r.levelsGained > 0
-      }))
+        moveEvents: r.moveEvents,
+      })),
     };
 
     setGameState(prev => {
@@ -3723,11 +3727,22 @@ export default function App() {
         }
       }
 
+      const progress = { ...(prev.expeditionProgress || {}) };
+      const currentProgress = progress[biomeId] || { completed: 0, bestTeamPower: 0 };
+      const teamPower = (currentExp.team || []).reduce((sum, p) => sum + (p.level || 1), 0);
+      const nextCompleted = (currentProgress.completed || 0) + 1;
+      progress[biomeId] = {
+        ...currentProgress,
+        completed: nextCompleted,
+        bestTeamPower: Math.max(currentProgress.bestTeamPower || 0, teamPower),
+        lastCompletedAt: Date.now(),
+      };
+
       const newExpeditions = { ...(prev.expeditions || {}) };
       if (currentExp.autoRepeat) {
         const now = Date.now();
         // Recalcular duração com o time atualizado (níveis ganhos) e o mesmo multiplicador
-        const updatedMastery = Math.floor(((progress[biomeId]?.completed || 0) + 1) / 3);
+        const updatedMastery = Math.floor(nextCompleted / 3);
         const updatedTunedBiome = { ...biome, masteryLevel: updatedMastery };
         const newDuration = calcExpeditionDuration(returnedTeam, updatedTunedBiome, currentExp.durationMultiplier || 1);
         
@@ -3743,32 +3758,6 @@ export default function App() {
         delete newExpeditions[biomeId];
       }
 
-      const progress = { ...(prev.expeditionProgress || {}) };
-      const currentProgress = progress[biomeId] || { completed: 0, bestTeamPower: 0 };
-      const teamPower = (currentExp.team || []).reduce((sum, p) => sum + (p.level || 1), 0);
-      progress[biomeId] = {
-        ...currentProgress,
-        completed: (currentProgress.completed || 0) + 1,
-        bestTeamPower: Math.max(currentProgress.bestTeamPower || 0, teamPower),
-        lastCompletedAt: Date.now(),
-      };
-
-      expeditionReportRef.current = {
-        biomeName: biome.name,
-        biomeIcon: biome.icon || '🗺️',
-        drops,
-        pokemonResults: processedResults.map(r => ({
-          name: r.pokemon.name,
-          id: r.pokemon.id,
-          isShiny: r.pokemon.isShiny,
-          initialLevel: r.initialLevel,
-          finalLevel: r.finalLevel,
-          levelsGained: r.levelsGained,
-          xpGained: r.xpGained,
-          moveEvents: r.moveEvents,
-        })),
-      };
-
       return {
         ...prev,
         pc: currentExp.autoRepeat ? prev.pc : [...(prev.pc || []), ...returnedTeam],
@@ -3778,7 +3767,9 @@ export default function App() {
       };
     });
 
-    return summary;
+    expeditionReportRef.current = null;
+    setExpeditionReport(report);
+    return report;
   }, [gameState.expeditions]);
 
   // ——— HOUSE SYSTEM HANDLERS ———
@@ -4216,33 +4207,43 @@ export default function App() {
   const handlePlant = useCallback((slotIndex, plantId) => {
     setGameState(prev => {
       const plant        = PLANTABLE_ITEMS[plantId];
+      if (!plant) return prev;
+      const totalSlots   = prev.house?.totalSlots || 4;
+      const slotNumber   = Number(slotIndex);
+      if (!Number.isInteger(slotNumber) || slotNumber < 0 || slotNumber >= totalSlots) {
+        addLog('Slot de plantio inválido.', 'system');
+        return prev;
+      }
+
+      const newSlots = Array.from({ length: totalSlots }, (_, index) => prev.house?.slots?.[index] || null);
+      if (newSlots[slotNumber]) {
+        addLog('Este canteiro já está ocupado.', 'system');
+        return prev;
+      }
+
       const caretakers   = prev.house?.caretakers || [];
       const bonus        = calcCombinedCaretakerBonus(caretakers);
       const growthTime   = calcGrowthTime(plant, bonus);
 
-      // Descontar coins do custo da semente
-      if ((prev.currency || 0) < plant.cost) {
-        addLog(`💰 Coins insuficientes para plantar ${plant.name}!`, 'system');
-        return prev;
-      }
-
-      const newSlots = [...(prev.house?.slots || [])];
-      newSlots[slotIndex] = { plantId, plantedAt: Date.now(), growthTime };
 
       // Consumir a semente
-      const newItems = { ...prev.inventory.items };
-      const newMaterials = { ...prev.inventory.materials };
+      const newItems = { ...(prev.inventory?.items || {}) };
+      const newMaterials = { ...(prev.inventory?.materials || {}) };
       if ((newItems[plantId] || 0) > 0) {
         newItems[plantId]--;
       } else if ((newMaterials[plantId] || 0) > 0) {
         newMaterials[plantId]--;
+      } else {
+        addLog(`Você não possui sementes de ${plant.name} para plantar.`, 'system');
+        return prev;
       }
+
+      newSlots[slotNumber] = { plantId, plantedAt: Date.now(), growthTime };
 
       addLog(`🌱 ${plant.name} plantado! Pronto em ${Math.floor(growthTime / 60000)} min.`, 'system');
       return {
         ...prev,
-        currency: prev.currency - plant.cost,
-        house: { ...prev.house, slots: newSlots },
+        house: { ...prev.house, totalSlots, slots: newSlots },
         inventory: { ...prev.inventory, items: newItems, materials: newMaterials }
       };
     });
@@ -6095,9 +6096,8 @@ export default function App() {
                 expeditionReport={expeditionReport}
                 onCloseReport={() => setExpeditionReport(null)}
                 onClose={() => setShowExpeditions(false)}
-                onStartExpedition={(biomeId, team, autoRepeat) => {
-                  handleStartExpedition(biomeId, team, autoRepeat);
-                  setShowExpeditions(false);
+                onStartExpedition={(biomeId, team, autoRepeat, durationMultiplier) => {
+                  handleStartExpedition(biomeId, team, autoRepeat, durationMultiplier);
                 }}
                 onClaimExpedition={(biomeId) => handleClaimExpedition(biomeId)}
               />

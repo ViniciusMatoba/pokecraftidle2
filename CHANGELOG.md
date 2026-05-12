@@ -1,5 +1,29 @@
 # Changelog - PokeCraft
 
+## [V1.76.9] - 12/05/2026 18:36
+### Publicado
+- **Release Consolidado**: pacote final com Loja de Prestigio refinada, relatorio de Expedicoes corrigido e Minha Casa plantando em todos os slots disponiveis.
+- **Versao Publica**: `package.json`, `package-lock.json`, `version.json`, `APP_VERSION` e Service Worker sincronizados para V1.76.9.
+
+## [V1.76.8] - 12/05/2026 18:33
+### Corrigido
+- **Minha Casa**: plantio agora valida o canteiro selecionado e permite usar todos os slots disponiveis.
+- **Sementes**: plantar consome 1 semente do inventario por slot, sem cobrar coins novamente.
+
+## [V1.76.7] - 12/05/2026 18:27
+### Corrigido
+- **Relatorio de Expedicoes**: removido o modal antigo que piscava e podia impedir o fechamento correto.
+- **Sprites no Relatorio**: itens coletados e Pokemon da equipe agora usam sprites com fallback estavel.
+- **Fluxo de Expedicoes**: iniciar expedicao nao retorna mais automaticamente para a Cidade.
+- **Duracao Escolhida**: multiplicador de duracao da expedicao agora e respeitado ao iniciar.
+
+## [V1.76.6] - 12/05/2026 18:15
+### Ajustado
+- **Loja de Prestigio**: abas principais refinadas com sprites tematicos de Pokemon, subtitulos e destaque ativo.
+- **Icones Quebrados**: adicionados fallbacks de Pokebola para sprites remotos que falharem.
+- **Ginasio Proprio**: estandartes agora exibem icones ligados ao tipo/tema em vez de blocos simples.
+- **Versao Publica**: cache PWA atualizado para V1.76.6.
+
 ## [V1.76.5] - 12/05/2026 17:58
 ### Corrigido
 - **Batalhas de Historia**: adicionada confirmacao de destino apos vitorias contra Rival e Equipes.

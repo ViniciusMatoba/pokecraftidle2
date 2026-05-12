@@ -1,7 +1,15 @@
-export const APP_VERSION = '1.76.5';
-export const VERSION = '1.76.5';
-export const APP_VERSION_DATE = '12/05/2026 17:58';
+export const APP_VERSION = '1.76.9';
+export const VERSION = '1.76.9';
+export const APP_VERSION_DATE = '12/05/2026 18:36';
 export const CHANGELOG = [
+  'Release: V1.76.9 consolidando Loja de Prestigio, Expedições e Minha Casa com cache publico atualizado',
+  'Fix: Minha Casa — plantio agora respeita todos os slots disponiveis e consome sementes por canteiro',
+  'Fix: Expedições — relatório de conclusão estabilizado, sem piscar e com botão de fechar funcionando',
+  'UI: Expedições — recompensas agora exibem sprites de itens e Pokémon com fallbacks estáveis',
+  'UX: Expedições — iniciar uma expedição mantém o jogador na área de expedições e respeita a duração escolhida',
+  'UI: Loja de Prestigio refinada com abas tematicas, sprites Pokemon e fallbacks para icones quebrados',
+  'UI: Estandartes de ginasio receberam icones de tipo e visual mais colecionavel',
+  'Fix: Header, badges e moedas da Loja de Prestigio trocados para assets estaveis',
   'UX: Melhoria de Fluxo — adicionada confirmação de destino após batalhas de história (Rival/Equipes)',
   'UI: Ajustes Visuais — corrigido posicionamento da Loja de Prestígio, ícone da aba Ginásio e layout das insígnias',
   'Fix: Navegação da Forja — corrigido erro de redirecionamento que causava tela branca ao sair do modal de receita',

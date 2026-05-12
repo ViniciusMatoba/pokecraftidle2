@@ -3,7 +3,7 @@ export const TROPHIES = {
   bronze_trainer: {
     id: 'bronze_trainer',
     name: 'Treinador de Bronze',
-    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/big-mushroom.png',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
     description: 'Exibido na sua casa. Prova que você iniciou sua jornada.',
     cost: 5000,
     minBadges: 1,
@@ -11,7 +11,7 @@ export const TROPHIES = {
   silver_trainer: {
     id: 'silver_trainer',
     name: 'Treinador de Prata',
-    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/silver-powder.png',
     description: 'Conquista intermediária. Exibido com destaque na casa.',
     cost: 15000,
     minBadges: 4,
@@ -27,7 +27,7 @@ export const TROPHIES = {
   shiny_hunter: {
     id: 'shiny_hunter',
     name: 'Caçador de Shinys',
-    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/comet-shard.png',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/shiny-charm.png',
     description: 'Para quem dedica sua vida a encontrar Pokémon raros.',
     cost: 30000,
     minBadges: 5,
@@ -328,13 +328,13 @@ export const POKECENTER_DONATIONS = [
 
 // ── GINÁSIO PRÓPRIO ───────────────────────────────────────────────────────────
 export const GYM_BANNERS = {
-  default:  { id: 'default',  name: 'Padrão',    cost: 0,     color: '#6b7280' },
-  fire:     { id: 'fire',     name: 'Chamas',    cost: 5000,  color: '#ef4444' },
-  water:    { id: 'water',    name: 'Oceano',    cost: 5000,  color: '#3b82f6' },
-  grass:    { id: 'grass',    name: 'Floresta',  cost: 5000,  color: '#22c55e' },
-  electric: { id: 'electric', name: 'Trovão',   cost: 5000,  color: '#eab308' },
-  psychic:  { id: 'psychic',  name: 'Psíquico', cost: 8000,  color: '#a855f7' },
-  dragon:   { id: 'dragon',   name: 'Dragão',   cost: 15000, color: '#6366f1' },
-  dark:     { id: 'dark',     name: 'Sombra',   cost: 12000, color: '#1e293b' },
-  champion: { id: 'champion', name: 'Campeão',  cost: 40000, color: '#f59e0b', requireChampion: true },
+  default:  { id: 'default',  name: 'Padrao',    cost: 0,     color: '#6b7280', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png' },
+  fire:     { id: 'fire',     name: 'Chamas',    cost: 5000,  color: '#ef4444', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png' },
+  water:    { id: 'water',    name: 'Oceano',    cost: 5000,  color: '#3b82f6', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png' },
+  grass:    { id: 'grass',    name: 'Floresta',  cost: 5000,  color: '#22c55e', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png' },
+  electric: { id: 'electric', name: 'Trovao',    cost: 5000,  color: '#eab308', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png' },
+  psychic:  { id: 'psychic',  name: 'Psiquico',  cost: 8000,  color: '#a855f7', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/twisted-spoon.png' },
+  dragon:   { id: 'dragon',   name: 'Dragao',    cost: 15000, color: '#6366f1', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dragon-fang.png' },
+  dark:     { id: 'dark',     name: 'Sombra',    cost: 12000, color: '#1e293b', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/black-glasses.png' },
+  champion: { id: 'champion', name: 'Campeao',   cost: 40000, color: '#f59e0b', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png', requireChampion: true },
 };

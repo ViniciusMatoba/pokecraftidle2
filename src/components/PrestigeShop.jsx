@@ -7,14 +7,33 @@ import {
   AVATAR_SPRITES, AVATAR_TINTS, CARD_FRAMES, CARD_BACKGROUNDS,
   isCosmeticUnlocked, canPurchaseCosmetic, getTintFilter,
 } from '../data/cosmetics';
-
+const itemSprite = (name) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${name}.png`;
+const trainerSprite = (name) => `https://play.pokemonshowdown.com/sprites/trainers/${name}.png`;
+const FALLBACK_ITEM = itemSprite('poke-ball');
+const BADGE_ICON = itemSprite('rainbow-badge');
+const COIN_ICON = itemSprite('nugget');
+const ACTIVE_ICON = itemSprite('premier-ball');
 /* ─── Helpers visuais ─────────────────────────────────────────────────────── */
 const ItemSprite = ({ src, size = 'w-12 h-12' }) => (
-  <img src={src} alt="" className={`${size} object-contain`}
+  <img src={src || FALLBACK_ITEM} alt="" className={`${size} object-contain drop-shadow-sm`}
     style={{ imageRendering: 'pixelated' }}
-    onError={e => { e.target.style.display = 'none'; }} />
+    onError={e => { if (e.currentTarget.src !== FALLBACK_ITEM) e.currentTarget.src = FALLBACK_ITEM; }} />
 );
-
+const SpriteBadge = ({ src, tone = 'red', size = 'w-10 h-10', children }) => {
+  const tones = {
+    red: 'from-red-500 to-orange-500 border-red-300',
+    blue: 'from-sky-500 to-blue-700 border-sky-300',
+    gold: 'from-amber-400 to-yellow-700 border-yellow-300',
+    green: 'from-emerald-500 to-lime-700 border-emerald-300',
+    violet: 'from-violet-500 to-fuchsia-700 border-violet-300',
+    slate: 'from-slate-600 to-slate-950 border-slate-400',
+  };
+  return (
+    <span className={`relative grid ${size} shrink-0 place-items-center rounded-2xl border-2 bg-gradient-to-br ${tones[tone] || tones.red} shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_4px_10px_rgba(0,0,0,0.25)]`}>
+      {src ? <ItemSprite src={src} size="w-8 h-8" /> : children}
+    </span>
+  );
+};
 const GBHPBar = ({ value, max }) => {
   const pct = Math.min(100, Math.round((value / max) * 100));
   const barColor = pct > 50 ? '#78c030' : pct > 20 ? '#f8b800' : '#d82800';
@@ -28,7 +47,6 @@ const GBHPBar = ({ value, max }) => {
     </div>
   );
 };
-
 const MenuCard = ({ children, owned, locked, onClick, className = '' }) => (
   <div onClick={onClick} className={`relative border-2 transition-all duration-150 cursor-pointer
     ${owned ? 'bg-[#e8f5e9] border-[#2e7d32] shadow-[inset_0_-3px_0_#1b5e20]'
@@ -38,7 +56,6 @@ const MenuCard = ({ children, owned, locked, onClick, className = '' }) => (
     {children}
   </div>
 );
-
 const GBAButton = ({ children, onClick, disabled, variant = 'red', className = '' }) => {
   const variants = {
     red:   { bg: '#c0392b', shadow: '#7b241c' },
@@ -60,19 +77,30 @@ const GBAButton = ({ children, onClick, disabled, variant = 'red', className = '
     </button>
   );
 };
-
 const BadgeTag = ({ required, current }) => {
   const ok = current >= required;
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 border text-[9px] font-mono font-bold uppercase
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-1 border text-[9px] font-mono font-bold uppercase
       ${ok ? 'border-[#1e8449] bg-[#e8f5e9] text-[#1e8449]' : 'border-[#c0392b] bg-[#fde8e8] text-[#c0392b]'}`}>
-      🏅 {required} BADGE{required !== 1 ? 'S' : ''}
+      <ItemSprite src={BADGE_ICON} size="w-4 h-4" />
+      {required} BADGE{required !== 1 ? 'S' : ''}
     </span>
   );
 };
-
+const StatusPill = ({ active, children }) => (
+  <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[8px] font-mono font-black uppercase
+    ${active ? 'border-yellow-500/50 bg-yellow-500/10 text-yellow-300' : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'}`}>
+    <ItemSprite src={active ? ACTIVE_ICON : itemSprite('friend-ball')} size="w-4 h-4" />
+    {children}
+  </span>
+);
+const PriceTag = ({ value }) => (
+  <span className="inline-flex items-center gap-1.5 text-[9px] font-mono font-black text-yellow-300">
+    <ItemSprite src={COIN_ICON} size="w-4 h-4" />
+    {Number(value || 0).toLocaleString()} C
+  </span>
+);
 /* ─── AVATAR SUB-COMPONENTES ─────────────────────────────────────────────── */
-
 /** Card de preview do treinador no topo da aba Avatar */
 const AvatarPreviewCard = ({ sprite, tintId, frame, bg, name }) => {
   const tintFilter = getTintFilter(tintId);
@@ -82,12 +110,10 @@ const AvatarPreviewCard = ({ sprite, tintId, frame, bg, name }) => {
       {/* Scanlines internas */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.06]"
         style={{ backgroundImage: 'repeating-linear-gradient(0deg,#fff 0,#fff 1px,transparent 1px,transparent 3px)' }} />
-
       {/* Header com gradiente da moldura */}
       <div className={`relative px-4 py-3 bg-gradient-to-r ${frame.headerBg} flex items-center gap-3`}>
         {/* Brilho diagonal no header */}
         <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent pointer-events-none" />
-
         {/* Sprite do treinador */}
         <div className="relative w-16 h-16 shrink-0">
           <div className="absolute inset-0 rounded-full opacity-20"
@@ -97,20 +123,17 @@ const AvatarPreviewCard = ({ sprite, tintId, frame, bg, name }) => {
             style={{ imageRendering: 'pixelated', filter: tintFilter !== 'none' ? tintFilter : undefined }}
             onError={e => { if (e.target.src !== 'https://play.pokemonshowdown.com/sprites/trainers/red.png') e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }} />
         </div>
-
         {/* Info */}
         <div className="flex-1">
           <p className="text-[8px] text-white/40 font-mono uppercase tracking-[0.3em]">TREINADOR</p>
           <p className="text-base font-black text-white uppercase leading-tight drop-shadow">{sprite.name}</p>
           <p className="text-[9px] text-white/50 font-mono mt-0.5">{sprite.region?.toUpperCase()} · {frame.name}</p>
         </div>
-
         {/* Região badge */}
         <div className="shrink-0 px-2 py-1 border border-white/20 bg-black/30">
           <p className="text-[8px] font-mono text-white/60 uppercase">{bg.name}</p>
         </div>
       </div>
-
       {/* Footer decorativo */}
       <div className="px-4 py-2 flex items-center justify-between">
         <div className="flex gap-1">
@@ -128,7 +151,6 @@ const AvatarPreviewCard = ({ sprite, tintId, frame, bg, name }) => {
     </div>
   );
 };
-
 /** Grid de sprites com agrupamento por região */
 const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, onEquip, onBuy }) => {
   const REGION_ORDER_LIST = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea', 'special'];
@@ -137,13 +159,11 @@ const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, 
     unova: '⚫ Unova', kalos: '🗼 Kalos', alola: '🌺 Alola', galar: '⚔️ Galar',
     paldea: '🍊 Paldea', special: '⭐ Especiais',
   };
-
   const grouped = {};
   Object.values(AVATAR_SPRITES).forEach(s => {
     if (!grouped[s.region]) grouped[s.region] = [];
     grouped[s.region].push(s);
   });
-
   return (
     <div className="flex flex-col gap-5">
       {REGION_ORDER_LIST.map(region => {
@@ -165,7 +185,6 @@ const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, 
                 const canBuy = canPurchaseCosmetic(item, worldFlags, pSprites, totalBadges, currency);
                 const isEquipped = appearance.spriteId === item.id;
                 const isLocked = !unlocked;
-
                 return (
                   <div key={item.id}
                     onClick={() => {
@@ -181,12 +200,10 @@ const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, 
                         : 'border-[#2a2a2a] bg-[#111] hover:border-[#555] hover:bg-[#1a1a1a] active:scale-95'
                       }`}
                     style={isEquipped ? { boxShadow: '0 0 12px #fbbf2444' } : {}}>
-
                     {/* Brilho no equipped */}
                     {isEquipped && (
                       <div className="absolute top-1 right-1 text-[8px] text-yellow-400 font-black">★</div>
                     )}
-
                     {/* Sprite */}
                     <div className="relative w-14 h-14 flex items-center justify-center">
                       {isLocked ? (
@@ -204,13 +221,11 @@ const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, 
                           onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }} />
                       )}
                     </div>
-
                     {/* Nome */}
                     <p className={`text-[9px] font-mono uppercase text-center leading-none
                       ${isEquipped ? 'text-yellow-300 font-black' : isLocked ? 'text-white/25' : 'text-white/60'}`}>
                       {item.name}
                     </p>
-
                     {/* Status / preço */}
                     {isEquipped && (
                       <span className="text-[7px] font-mono text-yellow-400 uppercase border border-yellow-600/40 px-1.5 py-0.5">
@@ -238,7 +253,6 @@ const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, 
     </div>
   );
 };
-
 /** Grid de tints com preview ao vivo */
 const TintsGrid = ({ appearance, worldFlags, pTints, totalBadges, currency, currentSprite, onEquip, onBuy }) => (
   <div className="grid grid-cols-3 gap-2">
@@ -248,7 +262,6 @@ const TintsGrid = ({ appearance, worldFlags, pTints, totalBadges, currency, curr
       const isEquipped = appearance.tintId === item.id;
       const isLocked = !unlocked;
       const tintFilter = getTintFilter(item.id);
-
       return (
         <div key={item.id}
           onClick={() => {
@@ -264,9 +277,7 @@ const TintsGrid = ({ appearance, worldFlags, pTints, totalBadges, currency, curr
               : 'border-[#2a2a2a] bg-[#111] hover:border-[#555] active:scale-95'
             }`}
           style={isEquipped ? { boxShadow: '0 0 10px #fbbf2433' } : {}}>
-
           {isEquipped && <div className="absolute top-1 right-1 text-[8px] text-yellow-400 font-black">★</div>}
-
           {/* Preview sprite com o tint */}
           <div className="relative">
             <img src={currentSprite?.sprite}
@@ -278,16 +289,13 @@ const TintsGrid = ({ appearance, worldFlags, pTints, totalBadges, currency, curr
               <div className="absolute inset-0 flex items-center justify-center text-base bg-black/60">🔒</div>
             )}
           </div>
-
           {/* Barra de cor */}
           <div className="w-full h-1.5 border border-white/10"
             style={{ backgroundColor: item.preview }} />
-
           <p className={`text-[9px] font-mono uppercase text-center leading-none
             ${isEquipped ? 'text-yellow-300 font-black' : isLocked ? 'text-white/25' : 'text-white/60'}`}>
             {item.name}
           </p>
-
           {isEquipped && <span className="text-[7px] font-mono text-yellow-400 border border-yellow-600/40 px-1.5 py-0.5">ATIVO</span>}
           {!isEquipped && unlocked && <span className="text-[7px] font-mono text-emerald-400">Equipar</span>}
           {isLocked && <span className={`text-[8px] font-mono font-bold ${canBuy ? 'text-yellow-300' : 'text-white/25'}`}>{item.cost.toLocaleString()} C</span>}
@@ -296,7 +304,6 @@ const TintsGrid = ({ appearance, worldFlags, pTints, totalBadges, currency, curr
     })}
   </div>
 );
-
 /** Grid de molduras */
 const FramesGrid = ({ appearance, worldFlags, pFrames, totalBadges, currency, onEquip, onBuy }) => (
   <div className="grid grid-cols-2 gap-3">
@@ -305,7 +312,6 @@ const FramesGrid = ({ appearance, worldFlags, pFrames, totalBadges, currency, on
       const canBuy = canPurchaseCosmetic(item, worldFlags, pFrames, totalBadges, currency);
       const isEquipped = appearance.frameId === item.id;
       const isLocked = !unlocked;
-
       return (
         <div key={item.id}
           onClick={() => {
@@ -324,7 +330,6 @@ const FramesGrid = ({ appearance, worldFlags, pFrames, totalBadges, currency, on
             borderColor: isEquipped ? item.preview : undefined,
             boxShadow: isEquipped ? `0 0 16px ${item.preview}44, inset 0 0 30px ${item.preview}11` : undefined,
           }}>
-
           {/* Preview da moldura — mini card decorativo */}
           <div className={`relative w-full h-12 border-2 overflow-hidden bg-gradient-to-r ${item.headerBg}`}
             style={{ borderColor: item.preview }}>
@@ -346,7 +351,6 @@ const FramesGrid = ({ appearance, worldFlags, pFrames, totalBadges, currency, on
               <div className="absolute top-1 right-1 text-yellow-400 text-xs font-black">★</div>
             )}
           </div>
-
           <div>
             <p className={`text-[10px] font-mono uppercase font-bold
               ${isEquipped ? 'text-yellow-300' : isLocked ? 'text-white/25' : 'text-white/80'}`}>
@@ -356,7 +360,6 @@ const FramesGrid = ({ appearance, worldFlags, pFrames, totalBadges, currency, on
               <p className="text-[8px] text-white/25 font-mono leading-tight mt-0.5">{item.description}</p>
             )}
           </div>
-
           <div>
             {isEquipped && <span className="text-[8px] font-mono text-yellow-400 border border-yellow-600/40 px-2 py-0.5">★ ATIVA</span>}
             {!isEquipped && unlocked && <span className="text-[8px] font-mono text-emerald-400">Equipar</span>}
@@ -368,7 +371,6 @@ const FramesGrid = ({ appearance, worldFlags, pFrames, totalBadges, currency, on
     })}
   </div>
 );
-
 /** Grid de fundos */
 const BgsGrid = ({ appearance, worldFlags, pBgs, totalBadges, currency, onEquip, onBuy }) => (
   <div className="grid grid-cols-2 gap-3">
@@ -377,7 +379,6 @@ const BgsGrid = ({ appearance, worldFlags, pBgs, totalBadges, currency, onEquip,
       const canBuy = canPurchaseCosmetic(item, worldFlags, pBgs, totalBadges, currency);
       const isEquipped = appearance.bgId === item.id;
       const isLocked = !unlocked;
-
       return (
         <div key={item.id}
           onClick={() => {
@@ -393,7 +394,6 @@ const BgsGrid = ({ appearance, worldFlags, pBgs, totalBadges, currency, onEquip,
               : 'border-[#2a2a2a] hover:border-[#555] active:scale-[0.98]'
             }`}
           style={isEquipped ? { boxShadow: '0 0 14px #fbbf2433' } : {}}>
-
           {/* Preview do gradiente — altura maior para sentir o ambiente */}
           <div className={`relative w-full h-14 rounded-none bg-gradient-to-br overflow-hidden ${item.gradient}`}>
             {/* Estrelinhas aleatórias para dar vida */}
@@ -406,7 +406,6 @@ const BgsGrid = ({ appearance, worldFlags, pBgs, totalBadges, currency, onEquip,
               <div className="absolute top-1 right-1 text-yellow-400 font-black text-xs">★</div>
             )}
           </div>
-
           <div>
             <p className={`text-[10px] font-mono uppercase font-bold
               ${isEquipped ? 'text-yellow-300' : isLocked ? 'text-white/25' : 'text-white/80'}`}>
@@ -416,7 +415,6 @@ const BgsGrid = ({ appearance, worldFlags, pBgs, totalBadges, currency, onEquip,
               <p className="text-[8px] text-white/25 font-mono leading-tight mt-0.5">{item.description}</p>
             )}
           </div>
-
           <div>
             {isEquipped && <span className="text-[8px] font-mono text-yellow-400 border border-yellow-600/40 px-2 py-0.5">★ ATIVO</span>}
             {!isEquipped && unlocked && <span className="text-[8px] font-mono text-emerald-400">Equipar</span>}
@@ -428,17 +426,14 @@ const BgsGrid = ({ appearance, worldFlags, pBgs, totalBadges, currency, onEquip,
     })}
   </div>
 );
-
 /* ─── COMPONENTE PRINCIPAL ─────────────────────────────────────────────────── */
 const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAlly, onBack }) => {
   // ── State — TODOS os hooks aqui no topo, fora de qualquer condicional ──────
   const [activeTab,  setActiveTab]  = useState('avatar');
   const [avatarSub,  setAvatarSub]  = useState('sprites');  // ← FIX: estava dentro de IIFE!
-
   const badges   = getBadgeCount(gameState);
   const currency = gameState.currency || 0;
   const prestige = gameState.prestige || {};
-
   // Avatar
   const worldFlags = gameState.worldFlags || [];
   const appearance = gameState.appearance || {};
@@ -446,12 +441,10 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
   const pTints     = appearance.purchasedTints   || [];
   const pFrames    = appearance.purchasedFrames  || [];
   const pBgs       = appearance.purchasedBgs     || [];
-
   const currentSprite = AVATAR_SPRITES[appearance.spriteId] || AVATAR_SPRITES.red;
   const currentTint   = AVATAR_TINTS[appearance.tintId]     || AVATAR_TINTS.none;
   const currentFrame  = CARD_FRAMES[appearance.frameId]     || CARD_FRAMES.default;
   const currentBg     = CARD_BACKGROUNDS[appearance.bgId]   || CARD_BACKGROUNDS.slate;
-
   // ── Handlers ────────────────────────────────────────────────────────────────
   const handleBuy = (type, item) => {
     if (currency < item.cost) return;
@@ -468,7 +461,6 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
       return newState;
     });
   };
-
   const handleMineUpgrade = () => {
     const currentLevel = gameState.mine?.level || 0;
     const nextLevel = currentLevel + 1;
@@ -483,7 +475,6 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
     }));
     addLog(`⛏️ Mina ${currentLevel === 0 ? 'desbloqueada' : 'aprimorada'} para Nível ${nextLevel}!`, 'system');
   };
-
   const handleBuyCosmetic = (category, item) => {
     if (currency < item.cost) return;
     if ((item.minBadges || 0) > badges) return;
@@ -498,7 +489,6 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
       return { ...prev, ...update };
     });
   };
-
   const handleEquipCosmetic = (category, id) => {
     setGameState(prev => {
       const app = prev.appearance || {};
@@ -506,51 +496,45 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
       return { ...prev, appearance: { ...app, [field]: id } };
     });
   };
-
   // ── Tabs ─────────────────────────────────────────────────────────────────────
   const tabs = [
-    { id: 'avatar',    label: 'Avatar',   icon: 'https://play.pokemonshowdown.com/sprites/trainers/red.png' },
-    { id: 'trophies',  label: 'Troféus',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png' },
-    { id: 'titles',    label: 'Títulos',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pokedex.png' },
-    { id: 'cosmetics', label: 'Visual',   icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/prism-scale.png' },
-    { id: 'allies',    label: 'Aliados',  icon: 'https://play.pokemonshowdown.com/sprites/trainers/youngster.png' },
-    { id: 'mine',      label: 'Mina',     icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png' },
-    { id: 'fishing',   label: 'Pesca',    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/old-rod.png' },
-    { id: 'gym',       label: 'Ginásio',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png' },
+    { id: 'avatar',    label: 'Avatar',   caption: 'Treinador', icon: trainerSprite('red'), tone: 'red' },
+    { id: 'trophies',  label: 'Trofeus',  caption: 'Conquistas', icon: itemSprite('star-piece'), tone: 'gold' },
+    { id: 'titles',    label: 'Titulos',  caption: 'Identidade', icon: itemSprite('blue-card'), tone: 'blue' },
+    { id: 'cosmetics', label: 'Visual',   caption: 'Cartao',     icon: itemSprite('prism-scale'), tone: 'violet' },
+    { id: 'allies',    label: 'Aliados',  caption: 'Suporte',    icon: trainerSprite('youngster'), tone: 'green' },
+    { id: 'mine',      label: 'Mina',     caption: 'Drops',      icon: itemSprite('hard-stone'), tone: 'slate' },
+    { id: 'fishing',   label: 'Pesca',    caption: 'Rotas',      icon: itemSprite('super-rod'), tone: 'blue' },
+    { id: 'gym',       label: 'Ginasio',  caption: 'Estandarte', icon: itemSprite('vs-seeker'), tone: 'red' },
   ];
-
   const avatarSubTabs = [
-    { id: 'sprites', label: 'Sprite',  icon: 'https://play.pokemonshowdown.com/sprites/trainers/red.png' },
-    { id: 'tints',   label: 'Cores',   icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png' },
-    { id: 'frames',  label: 'Moldura', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pokedex.png' },
-    { id: 'bgs',     label: 'Fundo',   icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png' },
+    { id: 'sprites', label: 'Sprite',  icon: trainerSprite('red') },
+    { id: 'tints',   label: 'Cores',   icon: itemSprite('fire-stone') },
+    { id: 'frames',  label: 'Moldura', icon: itemSprite('trainer-card') },
+    { id: 'bgs',     label: 'Fundo',   icon: itemSprite('town-map') },
   ];
-
   return (
     <div className="absolute inset-x-0 bottom-0 z-[2000] flex flex-col overflow-hidden font-mono"
       style={{ background: 'linear-gradient(160deg,#0d1117 0%,#161b22 50%,#0d1117 100%)', top: '56px' }}>
-
       {/* Scanlines overlay */}
       <div className="absolute inset-0 pointer-events-none z-0 opacity-[0.03]"
         style={{ backgroundImage: 'repeating-linear-gradient(0deg,#fff 0px,#fff 1px,transparent 1px,transparent 4px)' }} />
-
       {/* ── HEADER ──────────────────────────────────────────────────────────── */}
       <div className="relative z-10 shrink-0 border-b-4 border-[#c0392b]"
         style={{ background: 'linear-gradient(90deg,#c0392b 0%,#e74c3c 50%,#c0392b 100%)' }}>
         <div className="flex items-center justify-between px-4 py-3">
           <button onClick={onBack}
             className="flex items-center gap-2 bg-black/30 border border-white/20 px-3 py-2 text-white font-mono text-[11px] uppercase tracking-widest hover:bg-black/50 active:translate-y-[1px] transition-all">
-            ← SAIR
+            <ItemSprite src={itemSprite('escape-rope')} size="w-4 h-4" /> SAIR
           </button>
           <div className="text-center">
-            <p className="text-[8px] text-white/60 uppercase tracking-[0.4em] font-mono">★ EXCLUSIVO ★</p>
+            <p className="text-[8px] text-white/60 uppercase tracking-[0.4em] font-mono">PRESTIGE SHOP</p>
             <h2 className="text-lg font-black uppercase tracking-tighter text-white leading-none drop-shadow-lg">
-              LOJA DE PRESTÍGIO
+              LOJA DE PRESTIGIO
             </h2>
           </div>
           <div className="flex items-center gap-2 bg-black/40 border border-white/20 px-3 py-2">
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png"
-              className="w-5 h-5 object-contain" style={{ imageRendering: 'pixelated' }} alt="" />
+            <ItemSprite src={COIN_ICON} size="w-5 h-5" />
             <div className="text-right">
               <p className="text-[8px] text-white/50 uppercase">Coins</p>
               <p className="text-sm font-black text-yellow-300 tabular-nums">{currency.toLocaleString()}</p>
@@ -559,7 +543,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
         </div>
         {/* Barra de badges */}
         <div className="flex items-center gap-3 px-4 pb-2">
-          <span className="text-[9px] text-white/50 uppercase tracking-widest">Badges:</span>
+          <span className="inline-flex items-center gap-1 text-[9px] text-white/50 uppercase tracking-widest"><ItemSprite src={BADGE_ICON} size="w-4 h-4" /> Badges:</span>
           <div className="flex gap-1">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i}
@@ -571,49 +555,42 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
           <span className="text-[9px] text-white/40 font-mono">{badges}/8</span>
         </div>
       </div>
-
       {/* ── TABS ────────────────────────────────────────────────────────────── */}
       <div className="relative z-10 shrink-0 flex overflow-x-auto scrollbar-hide border-b-2 border-black/40 shadow-lg"
         style={{ background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(8px)' }}>
         {/* Indicador de rolagem (opcional, sombra sutil) */}
-        <div className="flex px-2 py-2 gap-1.5">
+        <div className="grid min-w-full grid-cols-4 gap-2 px-3 py-3 sm:grid-cols-8">
           {tabs.map(tab => {
             const isActive = activeTab === tab.id;
             return (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                className={`relative flex flex-col items-center justify-center min-w-[72px] px-3 py-2.5 transition-all duration-200 border-2
+                className={`relative flex min-h-[76px] flex-col items-center justify-center overflow-hidden rounded-2xl border-2 px-2 py-2 transition-all duration-200
                   ${isActive 
-                    ? 'bg-[#c0392b] border-[#e74c3c] text-white translate-y-[-2px] shadow-[0_4px_0_#7b241c]' 
-                    : 'bg-black/40 border-white/10 text-white/40 hover:bg-black/60 hover:text-white/70 active:translate-y-[2px] active:shadow-none'}`}
-                style={isActive ? { borderRadius: '4px' } : { borderRadius: '4px' }}>
+                    ? 'border-white/30 bg-[#c0392b] text-white translate-y-[-2px] shadow-[0_4px_0_#7b241c]' 
+                    : 'border-white/10 bg-black/40 text-white/45 hover:bg-black/60 hover:text-white/75 active:translate-y-[2px] active:shadow-none'}`}>
+                <div className={`absolute inset-x-0 top-0 h-1 ${isActive ? 'bg-yellow-300' : 'bg-white/10'}`} />
                 
                 {/* Icone Pixel Art */}
-                <div className={`w-8 h-8 mb-1 flex items-center justify-center ${isActive ? 'drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]' : 'grayscale opacity-60'}`}>
-                  <img src={tab.icon} alt="" className="w-7 h-7 object-contain" style={{ imageRendering: 'pixelated' }} />
-                </div>
-
-                <span className="text-[9px] font-black uppercase tracking-tighter text-center leading-none">
+                <SpriteBadge src={tab.icon} tone={tab.tone} size="w-10 h-10" />
+                <span className="mt-1 text-[9px] font-black uppercase tracking-tighter text-center leading-none">
                   {tab.label}
                 </span>
-
+                <span className="mt-0.5 text-[7px] font-bold uppercase tracking-widest text-white/35">{tab.caption}</span>
                 {isActive && (
-                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full animate-pulse" />
+                  <div className="absolute right-2 top-2 h-2 w-2 rounded-full bg-yellow-300 shadow-[0_0_8px_#facc15] animate-pulse" />
                 )}
               </button>
             );
           })}
         </div>
       </div>
-
       {/* ── CONTENT AREA ────────────────────────────────────────────────────── */}
       <div className="relative z-10 flex-1 overflow-y-auto p-4 pb-10">
-
         {/* ══════════════════════════════════════════════════════════════════
             AVATAR — sem IIFE, usa avatarSub do estado do componente
             ══════════════════════════════════════════════════════════════ */}
         {activeTab === 'avatar' && (
           <div className="flex flex-col gap-4">
-
             {/* Preview card ao vivo */}
             <AvatarPreviewCard
               sprite={currentSprite}
@@ -621,7 +598,6 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
               frame={currentFrame}
               bg={currentBg}
             />
-
             {/* Sub-tabs */}
             <div className="flex gap-2 p-1 bg-black/40 border border-white/10 rounded-lg">
               {avatarSubTabs.map(st => {
@@ -634,13 +610,13 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                         : 'text-white/40 hover:bg-white/5 hover:text-white/60 border border-transparent'}`}>
                     <img src={st.icon} alt="" 
                       className={`w-6 h-6 object-contain ${isActive ? '' : 'grayscale opacity-50'}`} 
-                      style={{ imageRendering: 'pixelated' }} />
+                      style={{ imageRendering: 'pixelated' }}
+                      onError={e => { if (e.currentTarget.src !== FALLBACK_ITEM) e.currentTarget.src = FALLBACK_ITEM; }} />
                     <span className="text-[8px] font-bold uppercase tracking-widest">{st.label}</span>
                   </button>
                 );
               })}
             </div>
-
             {/* Conteúdo de cada sub-tab */}
             {avatarSub === 'sprites' && (
               <SpritesGrid
@@ -672,7 +648,6 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
             )}
           </div>
         )}
-
         {/* ── TROFÉUS ─────────────────────────────────────────────────────── */}
         {activeTab === 'trophies' && (
           <div className="flex flex-col gap-3">
@@ -697,7 +672,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                       <p className="text-[10px] text-white/40 mt-1 italic leading-tight">{item.description}</p>
                       <div className="flex gap-2 mt-2 flex-wrap">
                         <BadgeTag required={item.minBadges || 0} current={badges} />
-                        {!isOwned && <span className="text-[9px] font-mono font-bold text-yellow-400">💰 {item.cost.toLocaleString()} C</span>}
+                        {!isOwned && <PriceTag value={item.cost} />}
                       </div>
                     </div>
                     {!isOwned && (
@@ -713,7 +688,6 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
             })}
           </div>
         )}
-
         {/* ── TÍTULOS ─────────────────────────────────────────────────────── */}
         {activeTab === 'titles' && (
           <div className="flex flex-col gap-2">
@@ -740,14 +714,13 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                   <div className="text-right shrink-0">
                     <BadgeTag required={item.minBadges || 0} current={badges} />
                     {!isActive && <p className="text-[10px] font-mono text-yellow-400 mt-1">{item.cost.toLocaleString()} C</p>}
-                    {isActive  && <span className="text-[9px] font-mono text-blue-300 uppercase">★ ATIVO</span>}
+                    {isActive  && <StatusPill active>ATIVO</StatusPill>}
                   </div>
                 </div>
               );
             })}
           </div>
         )}
-
         {/* ── VISUAL (Frames + Themes) ─────────────────────────────────────── */}
         {activeTab === 'cosmetics' && (
           <div className="flex flex-col gap-6">
@@ -770,7 +743,8 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                       <div className="w-full aspect-square border-4 mb-2 flex items-center justify-center relative"
                         style={{ borderColor: item.borderColor, backgroundColor: item.headerColor + '33' }}>
                         <div className="w-1/2 h-1/2 rounded-full opacity-30" style={{ backgroundColor: item.headerColor }} />
-                        {isActive && (
+                        <ItemSprite src={itemSprite('trainer-card')} size="w-10 h-10" />
+                      {isActive && (
                           <div className="absolute top-1 right-1 w-4 h-4 flex items-center justify-center text-[8px]"
                             style={{ backgroundColor: item.borderColor }}>✓</div>
                         )}
@@ -785,7 +759,6 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                 })}
               </div>
             </section>
-
             <section>
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-0.5 w-4 bg-[#2471a3]" />
@@ -820,7 +793,6 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
             </section>
           </div>
         )}
-
         {/* ── ALIADOS ─────────────────────────────────────────────────────── */}
         {activeTab === 'allies' && (
           <div className="flex flex-col gap-3">
@@ -854,7 +826,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                       {!isHired && (
                         <div className="flex gap-2 mt-2 flex-wrap">
                           <BadgeTag required={item.minBadges || 0} current={badges} />
-                          <span className="text-[9px] font-mono text-yellow-400">💰 {item.cost.toLocaleString()} C</span>
+                          <PriceTag value={item.cost} />
                         </div>
                       )}
                     </div>
@@ -874,7 +846,6 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
             })}
           </div>
         )}
-
         {/* ── MINA ─────────────────────────────────────────────────────────── */}
         {activeTab === 'mine' && (() => {
           const mineLevel  = gameState.mine?.level || 0;
@@ -927,7 +898,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                   <div className="flex items-center justify-between">
                     <div>
                       <BadgeTag required={nextConfig.minBadges || 0} current={badges} />
-                      <p className="text-yellow-400 font-mono text-sm mt-1">💰 {cost?.toLocaleString()} C</p>
+                      <div className="mt-1"><PriceTag value={cost} /></div>
                     </div>
                     <GBAButton variant={canAfford && hasBadges ? 'gold' : 'grey'}
                       disabled={!canAfford || !hasBadges}
@@ -945,7 +916,6 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
             </div>
           );
         })()}
-
         {/* ── PESCA ────────────────────────────────────────────────────────── */}
         {activeTab === 'fishing' && (
           <div className="flex flex-col gap-3">
@@ -985,12 +955,11 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
             })}
           </div>
         )}
-
         {/* ── GINÁSIO ──────────────────────────────────────────────────────── */}
         {activeTab === 'gym' && (
           <div className="flex flex-col gap-4">
             <p className="text-[9px] font-mono text-white/30 uppercase tracking-widest border-b border-[#333] pb-2 mb-1">
-              ▶ Escolha o estandarte do seu ginásio
+              Escolha o estandarte do seu ginasio
             </p>
             <div className="grid grid-cols-2 gap-3">
               {Object.values(GYM_BANNERS).map(item => {
@@ -1001,20 +970,25 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                     onClick={() => canAfford && handleBuy('banner', item)}
                     className={`border-2 cursor-pointer transition-all overflow-hidden
                       ${isActive ? 'border-[#fbbf24]' : 'border-[#333] hover:border-[#555]'}`}>
-                    <div className="h-16 relative overflow-hidden" style={{ backgroundColor: item.color }}>
+                    <div className="h-20 relative overflow-hidden" style={{ backgroundColor: item.color }}>
                       <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
                       <div className="absolute inset-0 opacity-10"
                         style={{ backgroundImage: 'repeating-linear-gradient(45deg,#000 0,#000 2px,transparent 2px,transparent 8px)' }} />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="grid h-14 w-14 place-items-center rounded-2xl border-2 border-white/35 bg-black/25 shadow-lg backdrop-blur-sm">
+                          <ItemSprite src={item.sprite} size="w-10 h-10" />
+                        </div>
+                      </div>
                       {isActive && (
                         <div className="absolute top-2 right-2 w-5 h-5 bg-black/60 flex items-center justify-center">
-                          <span className="text-yellow-400 text-[10px] font-black">★</span>
+                          <ItemSprite src={ACTIVE_ICON} size="w-5 h-5" />
                         </div>
                       )}
                     </div>
                     <div className="bg-[#111] p-2 text-center">
                       <p className="text-[10px] font-mono uppercase text-white/70">{item.name}</p>
                       <p className="text-[9px] font-mono mt-0.5" style={{ color: isActive ? '#fbbf24' : '#9ca3af' }}>
-                        {isActive ? '★ ATIVO' : `${item.cost.toLocaleString()} C`}
+                        {isActive ? 'ATIVO' : `${item.cost.toLocaleString()} C`}
                       </p>
                     </div>
                   </div>
@@ -1023,9 +997,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
             </div>
           </div>
         )}
-
       </div>
-
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes gbaBlink { 0%,100%{opacity:1}50%{opacity:0} }
         .gba-blink { animation: gbaBlink 1s step-end infinite; }
@@ -1033,5 +1005,4 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
     </div>
   );
 };
-
 export default PrestigeShop;
