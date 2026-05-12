@@ -1,10 +1,10 @@
-export const APP_VERSION = '1.75.5';
-export const VERSION = '1.75.5';
-export const APP_VERSION_DATE = '12/05/2026 17:33';
+export const APP_VERSION = '1.75.6';
+export const VERSION = '1.75.6';
+export const APP_VERSION_DATE = '12/05/2026 17:35';
 export const CHANGELOG = [
-  'Fix: Imagens de Expedição — corrigido o caminho das imagens de fundo que não carregavam no GitHub Pages',
-  'Fix: Navegação do Modal de Receita — o botão "Ir Forjar" agora leva diretamente ao item na Forja, com destaque visual e rolagem automática',
-  'UI: Loja de Prestígio — navegação reformulada com ícones pixel art, melhorias mobile e novo visual premium',
+  'Fix: Imagens de Expedição — corrigido o caminho das imagens de fundo para compatibilidade com GitHub Pages',
+  'Fix: Navegação da Forja — botão "Ir Forjar" agora leva ao item específico com destaque e scroll automático',
+  'UI: Loja de Prestígio — nova interface premium com ícones de pixel art e navegação otimizada para mobile',
   'Fix: Drop de Receitas — corrigido bug que permitia dropar receitas já conhecidas e disparar modal indevidamente',
   'Feature: Confirmação de EXP Candy — modal com prévia de XP antes/depois, badge de Level Up e botão Voltar',
   'Feature: Modal de Receita Encontrada — celebração visual com nome, ícone e efeito do item ao dropar receita',
