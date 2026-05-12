@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [V1.76.5] - 12/05/2026 17:58
+### Corrigido
+- **Batalhas de Historia**: adicionada confirmacao de destino apos vitorias contra Rival e Equipes.
+- **Versao Publica**: `package.json`, `package-lock.json`, `version.json` e Service Worker sincronizados para V1.76.5.
+- **Publicacao**: cache PWA atualizado para evitar exibir builds antigas.
+
 ## [V1.57.2] - 11/05/2026 21:28
 ### Adicionado
 - **Sistema de Prestígio e Reputação**: Novo hub de progressão de fim de jogo centralizado na cidade.
