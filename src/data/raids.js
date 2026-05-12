@@ -100,6 +100,10 @@ export const RAID_REWARDS_TABLE = {
 // ── Pool de Pokémon de Raid por região ────────────────────────────────────────
 export const RAID_POKEMON_POOL = {
   kanto: [
+    { id: 16,  stars: 1, level: 18, name: 'Pidgeot'    },
+    { id: 19,  stars: 1, level: 18, name: 'Ratticate'  },
+    { id: 37,  stars: 1, level: 20, name: 'Vulpix'     },
+    { id: 56,  stars: 1, level: 20, name: 'Mankey'     },
     { id: 59,  stars: 2, level: 35, name: 'Arcanine'   },
     { id: 62,  stars: 2, level: 35, name: 'Poliwrath'  },
     { id: 68,  stars: 3, level: 40, name: 'Machamp'    },
@@ -115,6 +119,11 @@ export const RAID_POKEMON_POOL = {
     { id: 3,   stars: 4, level: 50, name: 'Venusaur',   isShinyLocked: false },
   ],
   johto: [
+    { id: 162, stars: 1, level: 20, name: 'Furret'     },
+    { id: 166, stars: 1, level: 22, name: 'Ledian'     },
+    { id: 180, stars: 2, level: 28, name: 'Flaaffy'    },
+    { id: 185, stars: 2, level: 30, name: 'Sudowoodo'  },
+    { id: 195, stars: 2, level: 30, name: 'Quagsire'   },
     { id: 157, stars: 3, level: 42, name: 'Typhlosion' },
     { id: 160, stars: 3, level: 42, name: 'Feraligatr' },
     { id: 154, stars: 3, level: 42, name: 'Meganium'   },
@@ -127,6 +136,10 @@ export const RAID_POKEMON_POOL = {
     { id: 248, stars: 5, level: 60, name: 'Tyranitar'  },
   ],
   hoenn: [
+    { id: 264, stars: 1, level: 22, name: 'Linoone'    },
+    { id: 271, stars: 2, level: 28, name: 'Lombre'     },
+    { id: 295, stars: 2, level: 30, name: 'Exploud'    },
+    { id: 303, stars: 2, level: 30, name: 'Mawile'     },
     { id: 257, stars: 3, level: 45, name: 'Blaziken'   },
     { id: 260, stars: 3, level: 45, name: 'Swampert'   },
     { id: 254, stars: 3, level: 45, name: 'Sceptile'   },
@@ -138,15 +151,20 @@ export const RAID_POKEMON_POOL = {
     { id: 376, stars: 5, level: 62, name: 'Metagross'  },
   ],
   sinnoh: [
+    { id: 400, stars: 1, level: 25, name: 'Bibarel'    },
+    { id: 404, stars: 2, level: 30, name: 'Luxio'      },
+    { id: 417, stars: 2, level: 28, name: 'Pachirisu'  },
     { id: 398, stars: 3, level: 50, name: 'Staraptor'  },
     { id: 430, stars: 3, level: 50, name: 'Honchkrow'  },
-    { id: 445, stars: 5, level: 65, name: 'Garchomp'   },
     { id: 448, stars: 4, level: 55, name: 'Lucario'    },
     { id: 461, stars: 4, level: 55, name: 'Weavile'    },
     { id: 462, stars: 4, level: 55, name: 'Magnezone'  },
     { id: 468, stars: 4, level: 55, name: 'Togekiss'   },
+    { id: 445, stars: 5, level: 65, name: 'Garchomp'   },
   ],
   unova: [
+    { id: 505, stars: 1, level: 25, name: 'Watchog'    },
+    { id: 523, stars: 2, level: 30, name: 'Zebstrika'  },
     { id: 503, stars: 3, level: 50, name: 'Samurott'   },
     { id: 528, stars: 3, level: 50, name: 'Swoobat'    },
     { id: 534, stars: 4, level: 55, name: 'Conkeldurr' },
@@ -154,23 +172,31 @@ export const RAID_POKEMON_POOL = {
     { id: 635, stars: 5, level: 68, name: 'Hydreigon'  },
   ],
   kalos: [
+    { id: 651, stars: 1, level: 25, name: 'Quilladin'  },
+    { id: 674, stars: 2, level: 30, name: 'Pangoro'    },
     { id: 658, stars: 3, level: 50, name: 'Greninja'   },
     { id: 700, stars: 3, level: 50, name: 'Sylveon'    },
     { id: 715, stars: 4, level: 58, name: 'Noivern'    },
     { id: 717, stars: 5, level: 65, name: 'Yveltal'    },
   ],
   alola: [
+    { id: 735, stars: 1, level: 28, name: 'Gumshoos'   },
+    { id: 738, stars: 2, level: 32, name: 'Vikavolt'   },
     { id: 730, stars: 3, level: 55, name: 'Primarina'  },
     { id: 763, stars: 3, level: 55, name: 'Tsareena'   },
     { id: 784, stars: 4, level: 60, name: 'Kommo-o'    },
     { id: 786, stars: 5, level: 65, name: 'Tapu Lele'  },
   ],
   galar: [
+    { id: 813, stars: 1, level: 28, name: 'Thwackey'   },
+    { id: 836, stars: 2, level: 32, name: 'Boltund'    },
     { id: 812, stars: 3, level: 55, name: 'Rillaboom'  },
     { id: 841, stars: 4, level: 60, name: 'Flapple'    },
     { id: 887, stars: 5, level: 70, name: 'Dragapult'  },
   ],
   paldea: [
+    { id: 909, stars: 1, level: 28, name: 'Crocalor'   },
+    { id: 921, stars: 2, level: 32, name: 'Pawmo'      },
     { id: 908, stars: 3, level: 55, name: 'Meowscarada'},
     { id: 964, stars: 4, level: 62, name: 'Palafin'    },
     { id: 998, stars: 5, level: 72, name: 'Iron Valiant'},
@@ -184,14 +210,55 @@ export const rollRaidRewards = (stars) => {
   return table.filter(reward => Math.random() < reward.chance);
 };
 
-export const pickRaidPokemon = (region = 'kanto') => {
-  const pool = RAID_POKEMON_POOL[region] || RAID_POKEMON_POOL.kanto;
-  if (!pool.length) return null;
-  return pool[Math.floor(Math.random() * pool.length)];
+// Máximo de estrelas desbloqueadas com base no número de insígnias
+export const RAID_MAX_STARS_BY_BADGES = (badgeCount) => {
+  if (badgeCount <= 1) return 1;
+  if (badgeCount <= 3) return 2;
+  if (badgeCount <= 5) return 3;
+  if (badgeCount <= 7) return 4;
+  return 5;
 };
 
-export const createRaid = (region = 'kanto', pokedex = {}) => {
-  const template = pickRaidPokemon(region);
+// Tabela de pesos por tier de estrelas (conforme maxStars desbloqueado)
+export const getRaidStarWeights = (maxStars) => {
+  const table = {
+    1: [{ stars: 1, w: 1.0 }],
+    2: [{ stars: 1, w: 0.6 }, { stars: 2, w: 0.4 }],
+    3: [{ stars: 1, w: 0.2 }, { stars: 2, w: 0.5 }, { stars: 3, w: 0.3 }],
+    4: [{ stars: 2, w: 0.2 }, { stars: 3, w: 0.5 }, { stars: 4, w: 0.3 }],
+    5: [{ stars: 3, w: 0.1 }, { stars: 4, w: 0.4 }, { stars: 5, w: 0.5 }],
+  };
+  return table[maxStars] || table[5];
+};
+
+export const pickRaidPokemon = (region = 'kanto', maxStars = 5) => {
+  const pool = RAID_POKEMON_POOL[region] || RAID_POKEMON_POOL.kanto;
+  if (!pool.length) return null;
+
+  // Filtra Pokémon disponíveis até o maxStars permitido
+  const eligible = pool.filter(p => p.stars <= maxStars);
+  if (!eligible.length) return pool[0]; // fallback: menor estrela disponível
+
+  // Seleciona tier por peso
+  const weights = getRaidStarWeights(maxStars);
+  const totalWeight = weights.reduce((sum, w) => sum + w.w, 0);
+  let rand = Math.random() * totalWeight;
+  let chosenStars = weights[weights.length - 1].stars;
+  for (const entry of weights) {
+    rand -= entry.w;
+    if (rand <= 0) { chosenStars = entry.stars; break; }
+  }
+
+  // Filtra pool pelo tier sorteado; se vazio, usa o tier mais próximo disponível
+  let tierPool = eligible.filter(p => p.stars === chosenStars);
+  if (!tierPool.length) tierPool = eligible;
+
+  return tierPool[Math.floor(Math.random() * tierPool.length)];
+};
+
+export const createRaid = (region = 'kanto', pokedex = {}, badgeCount = 0) => {
+  const maxStars = RAID_MAX_STARS_BY_BADGES(badgeCount);
+  const template = pickRaidPokemon(region, maxStars);
   if (!template) return null;
 
   const base = pokedex[template.id] || {};
