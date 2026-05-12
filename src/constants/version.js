@@ -1,7 +1,8 @@
-export const APP_VERSION = '1.65.0';
-export const VERSION = '1.65.0';
-export const APP_VERSION_DATE = '12/05/2026 11:32';
+export const APP_VERSION = '1.66.0';
+export const VERSION = '1.66.0';
+export const APP_VERSION_DATE = '12/05/2026 11:45';
 export const CHANGELOG = [
+  'Feature: Modal de Vitória Unificado — novos visuais e fluxos para Ginásios, Elite Four, Rivais e Equipes Vilãs',
   'Fix: Acesso Regional — validateTeamAccess agora permite Pokémon capturados na região ativa, independente da geração',
   'Fix: Estabilidade de PC — refatoração de moveToPC para usar instanceId, eliminando bugs de dessincronização de índice',
   'Fix: Service Worker atualizado para v1.64.0 — cache antigo invalidado corretamente',

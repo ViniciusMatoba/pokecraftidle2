@@ -30,7 +30,7 @@ const GymScreen = lazy(() => import('./components/GymScreen'));
 const ChallengesScreen = lazy(() => import('./components/ChallengesScreen'));
 const HouseScreen = lazy(() => import('./components/HouseScreen'));
 const ExpeditionsScreen = lazy(() => import('./components/ExpeditionsScreen'));
-import { MoveCategoryIcon, StatusBadges, QuickInventory, TrainerCard } from './components/CommonUI';
+import { MoveCategoryIcon, StatusBadges, QuickInventory, TrainerCard, BadgeSVG } from './components/CommonUI';
 import { GYMS, ELITE_FOUR } from './data/gyms';
 import { auth, db } from './firebase';
 import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
@@ -4734,8 +4734,29 @@ export default function App() {
       } else if (currentEnemy.isInitialRival) {
         setCurrentView('rival_post_battle');
       } else if (isStoryVsEnemy(currentEnemy)) {
-        openStoryBattleResult(currentEnemy, 'victory');
+        // Rival / Equipe vilã — modal de vitória completo
+        setShowGymVictoryModal({
+          leaderName: currentEnemy.trainerName || 'Rival',
+          leaderSprite: currentEnemy.trainerSprite,
+          badge: null,
+          category: currentEnemy.challengeCategory || 'rival',
+          reward: currentEnemy.trainerReward || 500,
+          expShare: null,
+          nextView: 'battles',
+        });
       } else if (currentEnemy.isGymLeader || currentEnemy.isBoss) {
+        // Elite Four / Boss sem insígnia — modal de vitória sem badge
+        if (!currentEnemy.badgeToGive) {
+          setShowGymVictoryModal({
+            leaderName: currentEnemy.trainerName || 'Elite Four',
+            leaderSprite: currentEnemy.trainerSprite,
+            badge: null,
+            category: currentEnemy.challengeCategory || 'elite',
+            reward: currentEnemy.trainerReward || 2000,
+            expShare: null,
+            nextView: 'city',
+          });
+        }
         handleGoToCity();
       } else {
         spawnEnemy();
@@ -6908,74 +6929,125 @@ export default function App() {
         </div>
       )}
 
-      {showGymVictoryModal && (
-        <div className="absolute inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-xl animate-fadeIn">
-          {/* Confetti-like background effect */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-50">
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/20 blur-[120px] rounded-full animate-pulse" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-500/20 blur-[120px] rounded-full animate-pulse" style={{animationDelay:'1s'}} />
-          </div>
+      {showGymVictoryModal && (() => {
+        const cat = showGymVictoryModal.category || 'gym';
+        const isGym     = !!showGymVictoryModal.badge;
+        const isElite   = cat === 'elite' || cat === 'champion';
+        const isRival   = cat === 'rival';
+        const isVillain = cat === 'rocket' || cat === 'villain' || cat === 'team';
 
-          <div className="w-full max-w-[420px] bg-white rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden border-b-[12px] border-emerald-500 animate-bounceIn relative">
-            {/* Header com Brilho */}
-            <div className="bg-gradient-to-br from-emerald-600 to-teal-700 px-8 py-10 flex flex-col items-center text-center relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
-              
-              <div className="w-24 h-24 rounded-[2rem] bg-white/20 backdrop-blur-md flex items-center justify-center border-2 border-white/30 shadow-inner mb-6 animate-float">
-                <img src={showGymVictoryModal.leaderSprite} className="w-20 h-20 object-contain drop-shadow-lg" alt="" />
-              </div>
+        const headerGradient = isGym     ? 'from-emerald-600 to-teal-700'
+                             : isElite   ? 'from-purple-700 to-violet-900'
+                             : isRival   ? 'from-blue-600 to-indigo-800'
+                             : isVillain ? 'from-slate-700 to-slate-900'
+                             :             'from-emerald-600 to-teal-700';
 
-              <p className="text-emerald-200 text-[11px] font-black uppercase tracking-[0.4em] mb-2 drop-shadow-md">Vitória no Ginásio</p>
-              <h2 className="text-white text-3xl font-black uppercase italic tracking-tighter leading-none drop-shadow-xl">
-                Líder {showGymVictoryModal.leaderName}
-              </h2>
+        const borderColor = isGym     ? 'border-amber-400'
+                          : isElite   ? 'border-purple-500'
+                          : isRival   ? 'border-blue-500'
+                          : isVillain ? 'border-slate-500'
+                          :             'border-emerald-500';
+
+        const categoryLabel = isGym     ? 'Vitória no Ginásio'
+                            : isElite   ? 'Elite Four Derrotada'
+                            : isRival   ? 'Rival Derrotado'
+                            : isVillain ? 'Equipe Vilã Derrotada'
+                            :             'Vitória';
+
+        const titlePrefix = isGym ? 'Líder ' : isElite ? '' : isRival ? 'Rival ' : '';
+
+        const centralIcon = isElite   ? '👑'
+                          : isRival   ? '🏅'
+                          : isVillain ? '⚡'
+                          :             '🏆';
+
+        const quote = isGym     ? '"Incrível! Sua estratégia foi impecável. Como prova de sua vitória, receba esta insígnia!"'
+                    : isElite   ? '"Extraordinário! Poucos chegam até aqui e saem vitoriosos!"'
+                    : isRival   ? '"Você superou o rival! Continue crescendo, a jornada não terminou."'
+                    : isVillain ? '"Equipe derrotada! Você protegeu a região mais uma vez!"'
+                    :             '"Vitória confirmada! Continue sua jornada."';
+
+        const handleClose = () => {
+          const nextView = showGymVictoryModal.nextView;
+          setShowGymVictoryModal(null);
+          setCurrentEnemy(null);
+          if (nextView && nextView !== 'city') setCurrentView(nextView);
+        };
+
+        return (
+          <div className="absolute inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-xl animate-fadeIn">
+            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
+              <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/20 blur-[120px] rounded-full animate-pulse" />
+              <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-500/20 blur-[120px] rounded-full animate-pulse" style={{animationDelay:'1s'}} />
             </div>
 
-            <div className="p-8 flex flex-col items-center">
-              {/* Badge Display */}
-              <div className="relative mb-8 group">
-                <div className="absolute inset-0 bg-amber-400/20 blur-3xl rounded-full animate-pulse group-hover:scale-150 transition-transform duration-1000" />
-                <div className="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center border-4 border-slate-100 shadow-xl relative z-10 animate-spin-slow">
-                   <img 
-                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${showGymVictoryModal.badge.replace(/_/g, '-')}.png`} 
-                    className="w-20 h-20 object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.2)]" 
-                    alt="Insignia"
-                    onError={(e) => { e.currentTarget.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/boulder-badge.png'; }}
-                   />
+            <div className={`w-full max-w-[420px] bg-white rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden border-b-[12px] ${borderColor} animate-bounceIn relative`}>
+
+              {/* Header */}
+              <div className={`bg-gradient-to-br ${headerGradient} px-8 py-10 flex flex-col items-center text-center relative overflow-hidden`}>
+                <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
+                <div className="w-24 h-24 rounded-[2rem] bg-white/20 backdrop-blur-md flex items-center justify-center border-2 border-white/30 shadow-inner mb-6">
+                  {showGymVictoryModal.leaderSprite
+                    ? <img src={showGymVictoryModal.leaderSprite} className="w-20 h-20 object-contain drop-shadow-lg" alt="" onError={(e) => { e.currentTarget.style.display='none'; }} />
+                    : <span className="text-5xl">{centralIcon}</span>
+                  }
                 </div>
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-amber-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg z-20">
-                  {showGymVictoryModal.badge.replace(/_/g, ' ')}
-                </div>
+                <p className="text-white/70 text-[11px] font-black uppercase tracking-[0.4em] mb-2 drop-shadow-md">{categoryLabel}</p>
+                <h2 className="text-white text-3xl font-black uppercase italic tracking-tighter leading-none drop-shadow-xl">
+                  {titlePrefix}{showGymVictoryModal.leaderName}
+                </h2>
               </div>
 
-              <p className="text-slate-500 text-sm font-bold text-center leading-relaxed italic mb-8 max-w-[280px]">
-                "Incrível! Sua estratégia foi impecável. Como prova de sua vitória, receba esta insígnia!"
-              </p>
+              <div className="p-8 flex flex-col items-center">
 
-              {/* Rewards Grid */}
-              <div className="grid grid-cols-2 gap-4 w-full mb-8">
-                <div className="bg-slate-50 border-2 border-slate-100 rounded-[2rem] p-4 flex flex-col items-center text-center group hover:border-amber-200 hover:bg-amber-50 transition-all">
-                   <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-8 h-8 mb-2 drop-shadow-sm group-hover:scale-110 transition-transform" alt="" />
-                   <span className="text-xl font-black text-slate-800 leading-none">+{showGymVictoryModal.reward}</span>
-                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Coins</span>
+                {/* Elemento central: insígnia (ginásio) ou ícone (outros) */}
+                {isGym ? (
+                  <div className="relative mb-8">
+                    <div className="absolute inset-0 bg-amber-400/30 blur-3xl rounded-full animate-pulse" />
+                    <div className="w-32 h-32 bg-amber-50 rounded-full flex items-center justify-center border-4 border-amber-200 shadow-xl relative z-10">
+                      <BadgeSVG badgeId={showGymVictoryModal.badge} earned={true} size={88} />
+                    </div>
+                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-amber-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg z-20 whitespace-nowrap">
+                      {showGymVictoryModal.badge.replace(/_/g, ' ')}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-slate-100 border-4 border-slate-200 flex items-center justify-center mb-8 text-5xl shadow-inner">
+                    {centralIcon}
+                  </div>
+                )}
+
+                <p className="text-slate-500 text-sm font-bold text-center leading-relaxed italic mb-8 max-w-[280px]">
+                  {quote}
+                </p>
+
+                {/* Recompensas */}
+                <div className={`grid ${showGymVictoryModal.expShare != null ? 'grid-cols-2' : 'grid-cols-1'} gap-4 w-full mb-8`}>
+                  <div className="bg-slate-50 border-2 border-slate-100 rounded-[2rem] p-4 flex flex-col items-center text-center hover:border-amber-200 hover:bg-amber-50 transition-all">
+                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-8 h-8 mb-2 drop-shadow-sm" alt="" />
+                    <span className="text-xl font-black text-slate-800 leading-none">+{showGymVictoryModal.reward}</span>
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Coins</span>
+                  </div>
+                  {showGymVictoryModal.expShare != null && (
+                    <div className="bg-slate-50 border-2 border-slate-100 rounded-[2rem] p-4 flex flex-col items-center text-center hover:border-blue-200 hover:bg-blue-50 transition-all">
+                      <div className="text-2xl mb-1">✨</div>
+                      <span className="text-xl font-black text-slate-800 leading-none">{showGymVictoryModal.expShare}%</span>
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1 text-blue-500">Exp Share</span>
+                    </div>
+                  )}
                 </div>
-                <div className="bg-slate-50 border-2 border-slate-100 rounded-[2rem] p-4 flex flex-col items-center text-center group hover:border-blue-200 hover:bg-blue-50 transition-all">
-                   <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">✨</div>
-                   <span className="text-xl font-black text-slate-800 leading-none">{showGymVictoryModal.expShare}%</span>
-                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1 text-blue-500">Exp Share</span>
-                </div>
+
+                <button
+                  onClick={handleClose}
+                  className="w-full bg-slate-900 text-white h-16 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-sm shadow-[0_12px_24px_-8px_rgba(0,0,0,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  Continuar Jornada
+                </button>
               </div>
-
-              <button
-                onClick={() => setShowGymVictoryModal(null)}
-                className="w-full bg-slate-900 text-white h-16 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-sm shadow-[0_12px_24px_-8px_rgba(0,0,0,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all"
-              >
-                Continuar Jornada
-              </button>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {sessionStats && (
         <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
