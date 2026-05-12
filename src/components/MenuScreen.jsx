@@ -1,14 +1,107 @@
 import React, { useState } from 'react';
 import { APP_VERSION, APP_VERSION_DATE, ITEM_LABELS } from '../data/constants';
 import { CANDY_FAMILIES, getCandyIconUrl } from '../data/candies';
+import { EXP_CANDIES } from '../data/raids';
 
 const CURRENT_VERSION = APP_VERSION || '1.4';
 const VERSION_DATE = APP_VERSION_DATE || '2026-04-23';
 
-const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUSIC_LIST, onBack, showConfirm, closeConfirm }) => {
+// ── Modal: Selecionar Pokémon para receber EXP Candy ─────────────────────────
+const ExpCandyModal = ({ candy, gameState, onUse, onClose }) => {
+  const allPokemon = [
+    ...(gameState.team || []).map(p => ({ ...p, _loc: 'Equipe' })),
+    ...(gameState.pc   || []).map(p => ({ ...p, _loc: 'PC' })),
+  ].filter(p => p && p.instanceId);
+
+  return (
+    <div className="fixed inset-0 z-[99999] flex items-end justify-center bg-black/70 backdrop-blur-sm animate-fadeIn"
+      onClick={onClose}>
+      <div className="w-full max-w-md bg-white rounded-t-3xl shadow-2xl border-t-4 animate-slideUp overflow-hidden"
+        style={{ borderColor: candy.color }}
+        onClick={e => e.stopPropagation()}>
+
+        {/* Header */}
+        <div className="px-5 py-4 flex items-center gap-3"
+          style={{ background: candy.color + '22' }}>
+          <img src={candy.sprite} alt={candy.name}
+            className="w-10 h-10 object-contain"
+            onError={e => { e.target.style.display='none'; }} />
+          <div className="flex-1">
+            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Usar item</p>
+            <h3 className="font-black text-slate-800 text-base uppercase leading-tight">{candy.name}</h3>
+            <p className="text-[10px] font-bold" style={{ color: candy.color }}>
+              +{candy.xp.toLocaleString()} XP · Tamanho {candy.size}
+            </p>
+          </div>
+          <button onClick={onClose}
+            className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-black text-sm">✕</button>
+        </div>
+
+        {/* Lista de Pokémon */}
+        <div className="p-3 max-h-72 overflow-y-auto flex flex-col gap-2">
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+            Selecione o Pokémon que receberá a EXP:
+          </p>
+          {allPokemon.length === 0 && (
+            <p className="text-center text-slate-400 text-sm py-6">Nenhum Pokémon disponível.</p>
+          )}
+          {allPokemon.map(p => {
+            const lvl = p.level || 1;
+            const xpNeeded = Math.pow(lvl + 1, 3) - Math.pow(lvl, 3);
+            const xpPct = Math.min(100, Math.round(((p.xp || 0) / xpNeeded) * 100));
+            return (
+              <button key={p.instanceId}
+                onClick={() => { onUse(candy.id, p.instanceId); onClose(); }}
+                className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border-2 border-slate-100 hover:border-slate-300 active:scale-[0.98] transition-all text-left w-full">
+                {/* Sprite */}
+                <img
+                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`}
+                  alt={p.name}
+                  className="w-10 h-10 object-contain"
+                  onError={e => { e.target.style.display='none'; }}
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="font-black text-slate-800 uppercase text-xs leading-none truncate">
+                      {p.isShiny ? '✨ ' : ''}{p.name}
+                    </p>
+                    <span className="text-[8px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full shrink-0">
+                      {p._loc}
+                    </span>
+                  </div>
+                  <p className="text-[9px] text-slate-500 font-bold mt-0.5">Nv.{lvl}</p>
+                  {/* Barra de XP */}
+                  <div className="mt-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full bg-blue-500 transition-all"
+                      style={{ width: `${xpPct}%` }} />
+                  </div>
+                  <p className="text-[8px] text-slate-400 mt-0.5">
+                    {(p.xp || 0).toLocaleString()} / {xpNeeded.toLocaleString()} XP
+                    <span className="text-blue-500 font-bold ml-1">(+{candy.xp.toLocaleString()})</span>
+                  </p>
+                </div>
+                <span className="text-lg shrink-0">🍬</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="p-3 pt-0">
+          <button onClick={onClose}
+            className="w-full py-3 rounded-2xl bg-slate-100 text-slate-500 font-black uppercase text-xs tracking-widest">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy }) => {
   const [updating, setUpdating] = useState(false);
   const [subView, setSubView] = useState('main'); // 'main' ou 'settings'
   const [activeTab, setActiveTab] = useState('balls');
+  const [expCandyModal, setExpCandyModal] = useState(null); // candy def ou null
 
   const handleUpdate = () => {
     setUpdating(true);
@@ -192,6 +285,22 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
           })),
       },
       {
+        id: 'exp_candies',
+        label: 'EXP Candy',
+        emoji: '🍬',
+        entries: Object.values(EXP_CANDIES)
+          .filter(c => (items[c.id] || 0) > 0)
+          .map(c => ({
+            key: c.id,
+            label: c.name,
+            img: c.sprite,
+            color: c.color,
+            qty: items[c.id] || 0,
+            isExpCandy: true,
+            candyDef: c,
+          })),
+      },
+      {
         id: 'candies',
         label: 'Candies',
         emoji: 'C',
@@ -284,27 +393,26 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
             <div className="grid grid-cols-3 gap-2">
               {currentCat.entries.map(entry => {
                 const qty = entry.qty || (entry.src === 'materials' ? (materials[entry.key] || 0) : (items[entry.key] || 0));
+                const isExpCandy = entry.isExpCandy && onUseExpCandy;
                 return (
                   <div
                     key={entry.key}
-                    className="bg-slate-50 border border-slate-100 rounded-2xl p-2 flex flex-col items-center gap-1 text-center"
+                    onClick={isExpCandy ? () => setExpCandyModal(entry.candyDef) : undefined}
+                    className={`bg-slate-50 border rounded-2xl p-2 flex flex-col items-center gap-1 text-center transition-all ${
+                      isExpCandy
+                        ? 'border-2 cursor-pointer active:scale-95 hover:shadow-md'
+                        : 'border-slate-100'
+                    }`}
+                    style={isExpCandy ? { borderColor: entry.color + '88' } : {}}
                   >
                     {entry.img && entry.color ? (
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center border-2 border-white shadow-sm" style={{ background: entry.color }}>
-                      <img
-                        src={entry.img}
-                        alt={entry.label}
-                        className="w-10 h-10 object-contain"
-                        onError={e => { e.target.style.display = 'none'; }}
-                      />
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center border-2 border-white shadow-sm" style={{ background: entry.color + '33' }}>
+                        <img src={entry.img} alt={entry.label} className="w-10 h-10 object-contain"
+                          onError={e => { e.target.style.display = 'none'; }} />
                       </div>
                     ) : entry.img ? (
-                      <img
-                        src={entry.img}
-                        alt={entry.label}
-                        className="w-10 h-10 object-contain"
-                        onError={e => { e.target.style.display = 'none'; }}
-                      />
+                      <img src={entry.img} alt={entry.label} className="w-10 h-10 object-contain"
+                        onError={e => { e.target.style.display = 'none'; }} />
                     ) : (
                       <span className="text-2xl">{entry.icon || '📦'}</span>
                     )}
@@ -318,6 +426,11 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
                     }`}>
                       x{qty}
                     </span>
+                    {isExpCandy && (
+                      <span className="text-[8px] font-bold uppercase tracking-wide" style={{ color: entry.color }}>
+                        Usar ▶
+                      </span>
+                    )}
                   </div>
                 );
               })}
@@ -325,12 +438,22 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
           )}
         </div>
         
-        <button 
+        <button
           onClick={() => setSubView('main')}
           className="w-full mt-4 bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg border-b-8 border-slate-900"
         >
           Voltar ao Menu
         </button>
+
+        {/* Modal EXP Candy */}
+        {expCandyModal && (
+          <ExpCandyModal
+            candy={expCandyModal}
+            gameState={gameState}
+            onUse={onUseExpCandy}
+            onClose={() => setExpCandyModal(null)}
+          />
+        )}
       </div>
     );
   };

@@ -1,7 +1,10 @@
-export const APP_VERSION = '1.67.0';
-export const VERSION = '1.67.0';
-export const APP_VERSION_DATE = '12/05/2026 18:00';
+export const APP_VERSION = '1.68.0';
+export const VERSION = '1.68.0';
+export const APP_VERSION_DATE = '12/05/2026 20:00';
 export const CHANGELOG = [
+  'Fix: Raid duplicata → EXP Candy — capturar espécie já existente gera EXP Candy proporcional às estrelas (XS→XL)',
+  'Feature: EXP Candies — 5 tamanhos (XS/S/M/L/XL) drop de raids, armazenadas na Mochila, aplicáveis a qualquer Pokémon',
+  'UI: Mochila → aba EXP Candy com modal de seleção de Pokémon — mostra XP atual, barra de progresso e preview do ganho',
   'Feature: Sistema de Avatar — sprites por região, tints de cor, molduras e fundos personalizáveis na Loja de Prestígio',
   'Feature: Desbloqueio Progressivo de Avatar — cosméticos gratuitos ao vencer campeões regionais, premium na loja',
   'Balance: Raids Progressivas — estrelas limitadas por insígnias (0-1→1★, 2-3→2★, 4-5→3★, 6-7→4★, 8+→5★)',

@@ -67,7 +67,7 @@ import {
 } from './data/prestige';
 import {
   createRaid, RAID_FIGHT_SECONDS, RAID_BATTLE_TRIGGER,
-  RAID_SPAWN_INTERVAL_MS, RAID_CATCH_RATE_MULT
+  RAID_SPAWN_INTERVAL_MS, RAID_CATCH_RATE_MULT, EXP_CANDIES
 } from './data/raids';
 import RaidScreen from './components/RaidScreen';
 const PrestigeShop = lazy(() => import('./components/PrestigeShop'));
@@ -2299,6 +2299,30 @@ export default function App() {
 
       if (caught) {
         const pokedexEntry = POKEDEX[raid.pokemonId] || {};
+
+        // Verifica se o jogador já tem essa espécie (equipe ou PC)
+        const alreadyOwns = [...(prev.team || []), ...(prev.pc || [])]
+          .some(p => Number(p.id) === Number(raid.pokemonId));
+
+        if (alreadyOwns && !raid.isShiny) {
+          // Duplicata: converte em EXP Candy de acordo com as estrelas da raid
+          const candyMap = { 1: 'exp_candy_xs', 2: 'exp_candy_s', 3: 'exp_candy_m', 4: 'exp_candy_l', 5: 'exp_candy_xl' };
+          const candyId = candyMap[raid.stars] || 'exp_candy_s';
+          const candyQty = raid.stars >= 4 ? 2 : 1;
+          const newItemsWithCandy = {
+            ...newItems,
+            [candyId]: (newItems[candyId] || 0) + candyQty,
+          };
+          addLog(`📦 ${raid.name} já está no seu PC! Recebeu ${candyQty}x ${EXP_CANDIES[candyId]?.name} no lugar.`, 'system');
+          return {
+            ...prev,
+            inventory: { ...prev.inventory, items: newItemsWithCandy },
+            activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
+            raidStats: { ...(prev.raidStats || {}), captured: (prev.raidStats?.captured || 0) + 1 },
+          };
+        }
+
+        // Espécie nova (ou shiny): vai para o PC normalmente
         const newPoke = {
           instanceId: `raid_caught_${Date.now()}`,
           id: raid.pokemonId,
@@ -3525,6 +3549,52 @@ export default function App() {
       return { ...prev, inventory: newInventory, [location]: newList };
     });
   }, [addLog, setEvolutionPending]);
+
+  // ── EXP Candy — usa da mochila em um Pokémon específico ─────────────────────
+  const handleUseExpCandy = useCallback((candyId, pokemonInstanceId) => {
+    const candyDef = EXP_CANDIES[candyId];
+    if (!candyDef) return;
+    setGameState(prev => {
+      const items = prev.inventory?.items || {};
+      if ((items[candyId] || 0) <= 0) {
+        addLog(`❌ Nenhum ${candyDef.name} na mochila.`, 'system');
+        return prev;
+      }
+      // Encontra Pokémon na equipe ou PC
+      const inTeam = (prev.team || []).findIndex(p => p.instanceId === pokemonInstanceId);
+      const location = inTeam >= 0 ? 'team' : 'pc';
+      const list = [...(prev[location] || [])];
+      const idx = inTeam >= 0 ? inTeam : list.findIndex(p => p.instanceId === pokemonInstanceId);
+      if (idx === -1) {
+        addLog(`❌ Pokémon não encontrado.`, 'system');
+        return prev;
+      }
+      const p = { ...list[idx] };
+      // Aplica XP: acumula e faz level-up se necessário
+      let xp = (p.xp || 0) + candyDef.xp;
+      let level = p.level || 1;
+      let leveled = false;
+      while (level < 100) {
+        const xpNeeded = Math.pow(level + 1, 3) - Math.pow(level, 3);
+        if (xp >= xpNeeded) { xp -= xpNeeded; level++; leveled = true; }
+        else break;
+      }
+      if (xp < 0) xp = 0;
+      list[idx] = { ...p, xp, level,
+        maxHp: leveled ? Math.ceil(((2 * (POKEDEX[p.id]?.hp || 60) * level) / 100) + level + 10) : p.maxHp,
+        hp:    leveled ? Math.ceil(((2 * (POKEDEX[p.id]?.hp || 60) * level) / 100) + level + 10) : Math.min(p.hp || p.maxHp, p.maxHp),
+      };
+      const msg = leveled
+        ? `🍬 ${p.name} usou ${candyDef.name} e subiu para Nível ${level}!`
+        : `🍬 ${p.name} ganhou ${candyDef.xp.toLocaleString()} XP com ${candyDef.name}!`;
+      addLog(msg, 'system');
+      return {
+        ...prev,
+        [location]: list,
+        inventory: { ...prev.inventory, items: { ...items, [candyId]: items[candyId] - 1 } },
+      };
+    });
+  }, [addLog]);
 
   // PROTECTED: handleStartExpedition - NAO EDITAR SEM AUTORIZACAO EXPLICITA
   const handleStartExpedition = useCallback((biomeId, team, autoRepeat = false, durationMultiplier = 1) => {
@@ -6300,15 +6370,16 @@ export default function App() {
         </div>
       );
       case 'menu': return (
-        <MenuScreen 
+        <MenuScreen
           {...props}
-          gameState={gameState} 
-          setCurrentView={setCurrentView} 
+          gameState={gameState}
+          setCurrentView={setCurrentView}
           setGameState={setGameState}
           user={user}
           onSave={triggerSave}
           MUSIC_LIST={MUSIC_LIST}
           onBack={() => setCurrentView(lastNonMenuView.current)}
+          onUseExpCandy={handleUseExpCandy}
         />
       );
 

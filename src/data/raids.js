@@ -42,15 +42,28 @@ export const RAID_CATCH_RATE_MULT = {
   5: 0.12,
 };
 
+// ── EXP Candies — definição centralizada ─────────────────────────────────────
+// Armazenadas em inventory.items (mochila). XP ganho por nível do Pokémon.
+export const EXP_CANDIES = {
+  exp_candy_xs: { id: 'exp_candy_xs', name: 'EXP Candy XS', size: 'XS', xp: 100,   color: '#86efac', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-xs.png'  },
+  exp_candy_s:  { id: 'exp_candy_s',  name: 'EXP Candy S',  size: 'S',  xp: 800,   color: '#4ade80', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-s.png'   },
+  exp_candy_m:  { id: 'exp_candy_m',  name: 'EXP Candy M',  size: 'M',  xp: 3000,  color: '#f59e0b', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-m.png'   },
+  exp_candy_l:  { id: 'exp_candy_l',  name: 'EXP Candy L',  size: 'L',  xp: 10000, color: '#f97316', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-l.png'   },
+  exp_candy_xl: { id: 'exp_candy_xl', name: 'EXP Candy XL', size: 'XL', xp: 30000, color: '#ef4444', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-xl.png'  },
+};
+
 // ── Tabela de recompensas por estrelas ───────────────────────────────────────
 export const RAID_REWARDS_TABLE = {
   1: [
-    { type: 'candy',    id: 'rare_candy',        quantity: 2,    chance: 1.0 },
+    { type: 'item',     id: 'exp_candy_xs',      quantity: 3,    chance: 1.0 },
+    { type: 'candy',    id: 'rare_candy',         quantity: 2,    chance: 1.0 },
     { type: 'currency', id: 'currency',           quantity: 500,  chance: 1.0 },
     { type: 'item',     id: 'great_ball',         quantity: 3,    chance: 0.8 },
     { type: 'material', id: 'stardust',           quantity: 5,    chance: 0.6 },
   ],
   2: [
+    { type: 'item',     id: 'exp_candy_xs',      quantity: 3,    chance: 1.0 },
+    { type: 'item',     id: 'exp_candy_s',       quantity: 1,    chance: 0.8 },
     { type: 'candy',    id: 'rare_candy',         quantity: 5,    chance: 1.0 },
     { type: 'currency', id: 'currency',           quantity: 1200, chance: 1.0 },
     { type: 'item',     id: 'ultra_ball',         quantity: 3,    chance: 0.9 },
@@ -60,6 +73,8 @@ export const RAID_REWARDS_TABLE = {
     { type: 'material', id: 'stardust',           quantity: 10,   chance: 0.8 },
   ],
   3: [
+    { type: 'item',     id: 'exp_candy_s',       quantity: 2,    chance: 1.0 },
+    { type: 'item',     id: 'exp_candy_m',       quantity: 1,    chance: 0.9 },
     { type: 'candy',    id: 'rare_candy',         quantity: 10,   chance: 1.0 },
     { type: 'currency', id: 'currency',           quantity: 3000, chance: 1.0 },
     { type: 'item',     id: 'ultra_ball',         quantity: 5,    chance: 1.0 },
@@ -70,6 +85,8 @@ export const RAID_REWARDS_TABLE = {
     { type: 'material', id: 'stardust',           quantity: 20,   chance: 1.0 },
   ],
   4: [
+    { type: 'item',     id: 'exp_candy_m',       quantity: 2,    chance: 1.0 },
+    { type: 'item',     id: 'exp_candy_l',       quantity: 1,    chance: 0.9 },
     { type: 'candy',    id: 'rare_candy',         quantity: 20,   chance: 1.0 },
     { type: 'currency', id: 'currency',           quantity: 8000, chance: 1.0 },
     { type: 'item',     id: 'ultra_ball',         quantity: 8,    chance: 1.0 },
@@ -82,6 +99,8 @@ export const RAID_REWARDS_TABLE = {
     { type: 'material', id: 'stardust',           quantity: 40,   chance: 1.0 },
   ],
   5: [
+    { type: 'item',     id: 'exp_candy_l',       quantity: 2,    chance: 1.0 },
+    { type: 'item',     id: 'exp_candy_xl',      quantity: 1,    chance: 0.9 },
     { type: 'candy',    id: 'rare_candy',         quantity: 40,   chance: 1.0 },
     { type: 'currency', id: 'currency',           quantity: 20000,chance: 1.0 },
     { type: 'item',     id: 'ultra_ball',         quantity: 10,   chance: 1.0 },
