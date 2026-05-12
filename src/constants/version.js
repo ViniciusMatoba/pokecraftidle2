@@ -1,6 +1,6 @@
 export const APP_VERSION = '1.58.0';
 export const VERSION = '1.58.0';
-export const APP_VERSION_DATE = '11/05/2026 23:45';
+export const APP_VERSION_DATE = '11/05/2026 21:55';
 export const CHANGELOG = [
   'Feature: Sistema de Raids — eventos pontuais com Pokémon raros e fortes da região atual',
   'Feature: Raids spawnadas por timer (2h) ou a cada 50 batalhas vencidas',
