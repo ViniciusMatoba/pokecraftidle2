@@ -1,7 +1,13 @@
-export const APP_VERSION = '1.71.0';
-export const VERSION = '1.71.0';
-export const APP_VERSION_DATE = '12/05/2026 23:30';
+export const APP_VERSION = '1.72.0';
+export const VERSION = '1.72.0';
+export const APP_VERSION_DATE = '13/05/2026 00:30';
 export const CHANGELOG = [
+  'Balance: Encounters iniciais corrigidos — máx 2 iniciais por rota, distribuídos em todas as gerações',
+  'Kanto: Rota 1 → Bulbasaur+Charmander | Rota 22 → Squirtle+Eevee | Viridian Forest → Pikachu (pós rival)',
+  'Johto: Rota 29 → Chikorita+Cyndaquil | Rota 30 → Totodile (pós rival)',
+  'Hoenn: Rota 101 → Treecko+Torchic | Rota 102 → Mudkip',
+  'Sinnoh: Rota 201 → Turtwig+Chimchar | Rota 202 → Piplup',
+  'Unova/Kalos/Alola/Galar/Paldea: inicial[0]+[1] na rota 1, inicial[2] na rota inicial secundária',
   'Fix: Loja de Prestígio — tela azul ao acessar aba Avatar corrigida (hook fora de IIFE)',
   'UI: Avatar — card de preview ao vivo com glow dinâmico da moldura e gradiente do fundo',
   'UI: Avatar Sprites — agrupados por região com cabeçalhos, grid 3 colunas, overlay de bloqueio',
