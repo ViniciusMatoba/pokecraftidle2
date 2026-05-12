@@ -1617,8 +1617,8 @@ export default function App() {
     const drops = { materials: {}, items: {}, currency: 0 };
     const messages = [];
 
-    // Moedas base
-    let coinAmount = Math.max(1, Math.floor((enemy.level || 5) * 1.5 * (enemy.isShiny ? 2 : 1)));
+    // Moedas base — reduzido drasticamente para tornar a economia mais desafiadora
+    let coinAmount = Math.max(1, Math.floor((enemy.level || 5) * 0.15 * (enemy.isShiny ? 2 : 1)));
     
     // Efeitos especiais de dano
     const now = Date.now();
@@ -4686,7 +4686,8 @@ export default function App() {
 
       return {
         ...prev,
-        currency: (prev.currency || 0) + (drops.currency || 0) + (currentEnemy.trainerReward || 0),
+        // trainerReward reduzido 80% para tornar a economia mais desafiadora
+        currency: (prev.currency || 0) + (drops.currency || 0) + Math.floor((currentEnemy.trainerReward || 0) * 0.20),
         inventory: newInventory,
         team: newTeam,
         worldFlags: [...newFlags, ...tempWorldFlags].filter((v, i, a) => a.indexOf(v) === i),
@@ -4700,13 +4701,15 @@ export default function App() {
 
     messages.forEach(m => addLog(m, 'drop'));
     if (currentEnemy.isTrainer && currentEnemy.trainerReward) {
-      addLog(` 🏆 ${currentEnemy.trainerName} derrotado! +${currentEnemy.trainerReward} coins`, 'system');
+      const actualReward = Math.floor((currentEnemy.trainerReward || 0) * 0.20);
+      addLog(` 🏆 ${currentEnemy.trainerName} derrotado! +${actualReward} coins`, 'system');
     }
     if (currentEnemy.isRocket) addLog('🚀 Grunt da Equipe Rocket derrotado!', 'system');
     if (currentEnemy.isShiny) addLog('✨ Pokémon shiny derrotado!', 'system');
 
+    const actualTrainerReward = Math.floor((currentEnemy.trainerReward || 0) * 0.20);
     sessionRef.current.kills += 1;
-    sessionRef.current.coins += (drops.currency || 0) + (currentEnemy.trainerReward || 0);
+    sessionRef.current.coins += (drops.currency || 0) + actualTrainerReward;
     if (currentEnemy.isTrainer) sessionRef.current.trainers += 1;
     if (currentEnemy.isShiny) sessionRef.current.shinyKills += 1;
 

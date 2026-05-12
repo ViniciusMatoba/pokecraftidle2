@@ -1,7 +1,9 @@
-export const APP_VERSION = '1.72.0';
-export const VERSION = '1.72.0';
-export const APP_VERSION_DATE = '13/05/2026 00:30';
+export const APP_VERSION = '1.73.0';
+export const VERSION = '1.73.0';
+export const APP_VERSION_DATE = '13/05/2026 01:00';
 export const CHANGELOG = [
+  'Balance: Economia drasticamente rebalanceada — coins por Pokémon selvagem 10x mais difícil (level×0.15)',
+  'Balance: Recompensa de treinadores reduzida em 80% (multiplicador 0.20 aplicado globalmente)',
   'Balance: Encounters iniciais corrigidos — máx 2 iniciais por rota, distribuídos em todas as gerações',
   'Kanto: Rota 1 → Bulbasaur+Charmander | Rota 22 → Squirtle+Eevee | Viridian Forest → Pikachu (pós rival)',
   'Johto: Rota 29 → Chikorita+Cyndaquil | Rota 30 → Totodile (pós rival)',
