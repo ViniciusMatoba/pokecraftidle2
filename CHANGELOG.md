@@ -1,5 +1,12 @@
 # Changelog - PokeCraft
 
+## [V1.77.6] - 13/05/2026 09:00
+### Corrigido
+- **Balanceamento Global de Spawns**:
+    - Padronização total da taxa de spawn de Pokémon iniciais (Starters) em todas as 9 gerações para **spawnWeight: 10** (~1% de chance).
+    - Implementação de trava de progresso para todos os starters: agora só aparecem após a derrota do primeiro rival de sua respectiva região.
+    - Regiões afetadas nesta etapa: Unova, Kalos, Alola, Galar e Paldea (Johto/Hoenn/Sinnoh já corrigidas na v1.77.5).
+
 ## [V1.77.5] - 13/05/2026 08:45
 ### Corrigido
 - **Balanceamento de Spawns**:

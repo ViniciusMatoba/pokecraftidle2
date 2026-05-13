@@ -1,9 +1,12 @@
-export const APP_VERSION = '1.77.5';
-export const VERSION = '1.77.5';
-export const APP_VERSION_DATE = '13/05/2026 08:45';
+export const APP_VERSION = '1.77.6';
+export const VERSION = '1.77.6';
+export const APP_VERSION_DATE = '13/05/2026 09:00';
 export const CHANGELOG = [
+  'Fix: Padronização total da taxa de spawn de todos os 27 Pokémon iniciais (Starters) para spawnWeight 10 (~1% chance)',
+  'Fix: Implementação de trava de progresso para todos os starters: spawns agora exigem derrota do primeiro rival de sua região',
+  'Fix: Iniciais de todas as 9 gerações — spawnWeight padronizado em 10 para ~1% de chance',
+  'Fix: Encontros com iniciais em todas as regiões agora exigem a derrota do primeiro rival',
   'Fix: Iniciais de Johto/Hoenn/Sinnoh — spawnWeight aumentado de 2→10 para taxa de aparição equivalente a Kanto (~1%)',
-  'Fix: Iniciais de Johto dependem de derrotar Silver em Desafios > Johto > Rival (comportamento correto, agora documentado)',
   'Fix: Ícones de região (Johto/Hoenn/Alola/Paldea) trocados para sprites dos lendários via PokeAPI',
   'Fix: Ícone do título Rival trocado para scope-lens (blue-card era 404)',
   'Fix: Imagens do Pokémart/Forja — link_cable, poke_food, poke_food_premium agora usam PokeAPI',

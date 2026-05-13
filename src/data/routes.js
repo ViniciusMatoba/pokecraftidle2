@@ -144,8 +144,8 @@ const buildRegionRoutes = ({ region, label, startFlag, previousChampion, groups,
     biome: 'forest',
     enemies: [
       ...pk(mid, 32).map((p, i) => ({ ...p, drop: ['bug_essence', 'poison_essence', 'psychic_essence', 'water_essence'][i % 4] })),
-      // Inicial 3 — forma base, raro (~1%), após limpar rota 1
-      { id: (starterBases || starters)[2], level: 28, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare' },
+      // Inicial 3 — forma base, raro (~1%), após derrotar rival
+      { id: (starterBases || starters)[2], level: 28, drop: 'water_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: `${region}_rival_1_defeated` },
     ],
     trainerChance: 0.08,
     trainers: [
@@ -235,9 +235,9 @@ const FUTURE_REGION_ROUTES = {
         biome: 'forest',
         enemies: [
           ...pk([511, 513, 515, 519, 522, 527], 16),
-          // Snivy (#495) + Tepig (#498) — iniciais base de Unova (~1%) pós rota inicial
-          { id: 495, level: 16, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare' },
-          { id: 498, level: 16, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare' },
+          // Snivy (#495) + Tepig (#498) — iniciais base de Unova (~1%) pós derrotar rival
+          { id: 495, level: 16, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'unova_rival_1_defeated' },
+          { id: 498, level: 16, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'unova_rival_1_defeated' },
         ],
         trainerChance: 0.07,
         trainers: [
@@ -289,9 +289,9 @@ const FUTURE_REGION_ROUTES = {
         biome: 'forest',
         enemies: [
           ...pk([659, 661, 664, 666, 672, 674], 14),
-          // Chespin (#650) + Fennekin (#653) — iniciais base de Kalos (~1%) pós rota inicial
-          { id: 650, level: 14, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare' },
-          { id: 653, level: 14, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare' },
+          // Chespin (#650) + Fennekin (#653) — iniciais base de Kalos (~1%) pós derrotar rival
+          { id: 650, level: 14, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'kalos_rival_1_defeated' },
+          { id: 653, level: 14, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'kalos_rival_1_defeated' },
         ],
         trainerChance: 0.07,
         trainers: [
@@ -343,9 +343,9 @@ const FUTURE_REGION_ROUTES = {
         biome: 'cave',
         enemies: [
           ...pk([739, 741, 744, 746, 750, 752], 18),
-          // Rowlet (#722) + Litten (#725) — iniciais base de Alola (~1%) pós rota inicial
-          { id: 722, level: 18, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare' },
-          { id: 725, level: 18, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare' },
+          // Rowlet (#722) + Litten (#725) — iniciais base de Alola (~1%) pós derrotar rival
+          { id: 722, level: 18, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'alola_rival_1_defeated' },
+          { id: 725, level: 18, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'alola_rival_1_defeated' },
         ],
         trainerChance: 0.07,
         trainers: [
@@ -397,9 +397,9 @@ const FUTURE_REGION_ROUTES = {
         biome: 'grass',
         enemies: [
           ...pk([819, 821, 827, 831, 835, 840], 30),
-          // Grookey (#810) + Scorbunny (#813) — iniciais base de Galar (~1%) pós rota inicial
-          { id: 810, level: 30, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare' },
-          { id: 813, level: 30, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare' },
+          // Grookey (#810) + Scorbunny (#813) — iniciais base de Galar (~1%) pós derrota do rival
+          { id: 810, level: 30, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'galar_rival_1_defeated' },
+          { id: 813, level: 30, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'galar_rival_1_defeated' },
         ],
         trainerChance: 0.08,
         trainers: [
@@ -451,9 +451,9 @@ const FUTURE_REGION_ROUTES = {
         biome: 'grass',
         enemies: [
           ...pk([915, 917, 919, 921, 922, 926], 16),
-          // Sprigatito (#906) + Fuecoco (#909) — iniciais base de Paldea (~1%) pós rota inicial
-          { id: 906, level: 16, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare' },
-          { id: 909, level: 16, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare' },
+          // Sprigatito (#906) + Fuecoco (#909) — iniciais base de Paldea (~1%) pós derrota do rival
+          { id: 906, level: 16, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'paldea_rival_1_defeated' },
+          { id: 909, level: 16, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'paldea_rival_1_defeated' },
         ],
         trainerChance: 0.07,
         trainers: [
