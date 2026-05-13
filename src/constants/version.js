@@ -1,7 +1,10 @@
-export const APP_VERSION = '1.80.5';
-export const VERSION = '1.80.5';
-export const APP_VERSION_DATE = '13/05/2026 23:55';
+export const APP_VERSION = '1.80.6';
+export const VERSION = '1.80.6';
+export const APP_VERSION_DATE = '13/05/2026 23:56';
 export const CHANGELOG = [
+  '## [V1.80.6] - 13/05/2026 23:56',
+  '### Corrigido',
+  '- **Evoluções (Correção)**: Atualizadas 18 linhas evolutivas (Lampent, Tadbulb, Floette, etc.) para usarem pedras evolutivas em vez de nível, respeitando a mecânica oficial.',
   '## [V1.80.5] - 13/05/2026 23:55',
   '### Adicionado',
   '- **Sistema de Candies (Expansão Global)**: Candies agora disponíveis para TODAS as 9 gerações (1025 Pokémon).',
