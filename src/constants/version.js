@@ -1,7 +1,13 @@
-export const APP_VERSION = '1.78.4';
-export const VERSION = '1.78.4';
-export const APP_VERSION_DATE = '13/05/2026 12:35';
+export const APP_VERSION = '1.79.0';
+export const VERSION = '1.79.0';
+export const APP_VERSION_DATE = '13/05/2026 15:12';
 export const CHANGELOG = [
+  '## [V1.79.0] - 13/05/2026 15:12',
+  '### Adicionado',
+  '- **Mega Evoluções (Sistema Global)**:',
+  '    - Lançamento oficial com 96 novas formas e branching paths.',
+  '    - Sincronização total de itens evolutivos e Pokedex.',
+  '    - Novas receitas na Forja e economia de Mega Shards.',
   '## [V1.78.4] - 13/05/2026 12:35',
   '### Adicionado',
   '- **Expansão Total de Mega Stones**:',
@@ -50,7 +56,7 @@ export const CHANGELOG = [
   'UX: Seleção de título — delay de 200ms antes de fechar modal para mostrar badge Ativo',
   'Fix: Materiais de Forja agora dropam em todas as 9 regiões via TYPE_MATERIAL_MAP',
   'Feature: FORGE_MATERIAL_DROP_GUIDE expandido com 200+ novos Pokémon de todas as gerações',
-  'Feature: Efeitos visuais de golpes — 120+ moves com animações únicas usando sprites do Pokémon Showdown (/fx/)',
+  'Feature: Efeitos visuais de golpes — 120+ moves with animações únicas usando sprites do Pokémon Showdown (/fx/)',
   'Feature: Motor MoveAnimationLayer — 12 tipos de animação (projectile, burst, drain, quake, beam, slash, etc.)',
   'Feature: Fallback por tipo — todo golpe sem animação específica recebe visual baseado no seu tipo',
   'Feature: Efeitos secundários completos — Drain cura HP, Recoil dá dano próprio, Power-Up Punch/Flame Charge buffam stats, 6 tipos de chance de status em golpes de dano',
