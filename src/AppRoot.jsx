@@ -2334,21 +2334,31 @@ export default function App() {
     const raid = gameState.activeRaid;
     if (!raid || raid.phase !== 'fighting' || !raid.fightEndsAt) return;
     const remaining = raid.fightEndsAt - Date.now();
+    
+    const handleTimeout = () => {
+      setGameState(prev => {
+        const r = prev.activeRaid;
+        if (!r || r.phase !== 'fighting') return prev;
+        const hpPct = r.currentHp / r.maxHp;
+        // Só entra em captura se HP for <= 30%. Caso contrário, a raid falha (ended).
+        const nextPhase = hpPct <= 0.3 ? 'capture' : 'ended';
+        if (nextPhase === 'ended') {
+           addLog(`⌛ Tempo esgotado! ${r.name} fugiu antes de ser enfraquecido o suficiente.`, 'enemy');
+        }
+        return {
+          ...prev,
+          activeRaid: { ...r, phase: nextPhase }
+        };
+      });
+    };
+
     if (remaining <= 0) {
-      setGameState(prev => ({
-        ...prev,
-        activeRaid: prev.activeRaid ? { ...prev.activeRaid, phase: 'capture' } : null
-      }));
+      handleTimeout();
       return;
     }
-    const t = setTimeout(() => {
-      setGameState(prev => ({
-        ...prev,
-        activeRaid: prev.activeRaid ? { ...prev.activeRaid, phase: 'capture' } : null
-      }));
-    }, remaining);
+    const t = setTimeout(handleTimeout, remaining);
     return () => clearTimeout(t);
-  }, [gameState.activeRaid?.phase, gameState.activeRaid?.fightEndsAt]);
+  }, [gameState.activeRaid?.phase, gameState.activeRaid?.fightEndsAt, addLog]);
 
   const calculateBossLoot = useCallback((damage) => {
     const loot = { coins: Math.floor(damage / 5), materials: {} };
@@ -2489,10 +2499,16 @@ export default function App() {
         };
       } else if (attemptsLeft <= 0) {
         addLog(`💨 ${raid.name} não foi capturado. Tentativas esgotadas.`, 'system');
+        // Recompensas apenas se derrotado (HP=0) ou capturado. 
+        // Como falhou na captura, só ganha se HP já estivesse em 0.
+        const nextPhase = raid.currentHp === 0 ? 'rewards' : 'ended';
+        if (nextPhase === 'ended') {
+          addLog(`💨 ${raid.name} fugiu vitorioso! Você não conseguiu enfraquecê-lo o suficiente.`, 'enemy');
+        }
         return {
           ...prev,
           inventory: { ...prev.inventory, items: newItems },
-          activeRaid: { ...raid, phase: 'rewards', catchAttemptsLeft: 0 }
+          activeRaid: { ...raid, phase: nextPhase, catchAttemptsLeft: 0 }
         };
       } else {
         addLog(`💨 ${raid.name} escapou! ${attemptsLeft} tentativa(s) restante(s).`, 'system');
@@ -3303,11 +3319,21 @@ export default function App() {
       if (raidDmgToApply > 0 && prev.activeRaid && prev.activeRaid.phase === 'fighting') {
         const raidNewHp = Math.max(0, prev.activeRaid.currentHp - raidDmgToApply);
         const raidHpPct = raidNewHp / prev.activeRaid.maxHp;
+        
+        let nextPhase = 'fighting';
+        if (raidNewHp === 0) {
+          nextPhase = 'rewards';
+          addLog(`🏆 ${prev.activeRaid.name} foi TOTALMENTE DERROTADO! Recompensas liberadas.`, 'system');
+        } else if (raidHpPct <= 0.3) {
+          nextPhase = 'capture';
+          addLog(`🎯 ${prev.activeRaid.name} está enfraquecido! Iniciando fase de captura!`, 'system');
+        }
+
         newActiveRaid = {
           ...prev.activeRaid,
           currentHp: raidNewHp,
           totalDamageDealt: prev.activeRaid.totalDamageDealt + raidDmgToApply,
-          phase: (raidHpPct <= 0.3 || raidNewHp === 0) ? 'capture' : 'fighting',
+          phase: nextPhase,
         };
       }
 

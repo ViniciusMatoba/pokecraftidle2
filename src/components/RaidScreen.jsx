@@ -32,6 +32,13 @@ const REWARD_ICONS = {
   stardust:        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/stardust.png',
   dragon_scale:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dragon-scale.png',
   armor_fragment:  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png',
+  mega_stone_shard:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/red-shard.png',
+  exp_candy_xs:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-xs.png',
+  exp_candy_s:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-s.png',
+  exp_candy_m:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-m.png',
+  exp_candy_l:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-l.png',
+  exp_candy_xl:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-xl.png',
+  currency:        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/relic-gold-coin.png',
 };
 
 const formatTime = (ms) => {
