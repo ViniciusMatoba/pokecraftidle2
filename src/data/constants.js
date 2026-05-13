@@ -164,6 +164,24 @@ export const DEFAULT_GAME_STATE = {
   shinyCapturedCount: 0,
   trainerBattleWins: 0,
   bossLastDamage: 0,
+  playerStats: {
+    startedAt: null,
+    playTimeMs: 0,
+    pokemonDefeated: 0,
+    pokemonCaptured: 0,
+    shinyDefeated: 0,
+    shinyCaptured: 0,
+    trainersDefeated: 0,
+    villainEncounters: 0,
+    villainDefeated: 0,
+    wildBossEncounters: 0,
+    wildBossDefeated: 0,
+    raidEncounters: 0,
+    raidsWon: 0,
+    raidsCaptured: 0,
+    raidsFled: 0,
+    lastSeenAt: null,
+  },
 
   // Prestígio e Reputação
   prestige: {

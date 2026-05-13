@@ -1,5 +1,12 @@
 # Changelog - PokeCraft
 
+## [V1.79.7] - 13/05/2026 17:38
+### Adicionado
+- **Menu Estatisticas**: nova area dentro do MENU para exibir tempo de jogo, especies registradas, capturas, derrotas, shinies, treinadores, equipe vila, boss de area, raids e dano em boss.
+- **Contadores Persistentes**: o save passa a registrar estatisticas de jornada em `playerStats`, mantendo compatibilidade com dados antigos como `trainerBattleWins`, `shinyCapturedCount` e `raidStats`.
+### Melhorado
+- **Mochila Mobile**: as categorias agora aparecem como bolsos grandes em grade, com sprites tematicos, contadores visiveis e cards maiores para toque no celular.
+
 ## [V1.79.6] - 13/05/2026 17:34
 ### Release
 - **Forja e TMs**:

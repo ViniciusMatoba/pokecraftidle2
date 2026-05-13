@@ -5,6 +5,18 @@ import { EXP_CANDIES } from '../data/raids';
 
 const CURRENT_VERSION = APP_VERSION || '1.4';
 const VERSION_DATE = APP_VERSION_DATE || '2026-04-23';
+const POKEAPI_ITEM = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
+const assetPath = (path) => `${(import.meta.env.BASE_URL || '/').replace(/\/$/, '')}${path}`;
+
+const fmtNumber = (value) => Number(value || 0).toLocaleString('pt-BR');
+
+const formatPlayTime = (ms = 0) => {
+  const totalMinutes = Math.max(0, Math.floor(ms / 60000));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours <= 0) return `${minutes}min`;
+  return `${hours}h ${String(minutes).padStart(2, '0')}min`;
+};
 
 // ── Helpers de XP ────────────────────────────────────────────────────────────
 const xpForLevel = (lvl) => Math.pow(lvl, 3);
@@ -283,10 +295,11 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
   };
 
   const menuItems = [
-    { id: 'pokedex',  name: 'Pokedex',       icon: '📕',  desc: 'Registro de especies',    color: 'bg-red-50 border-red-200 text-red-600' },
-    { id: 'backpack', name: 'Mochila',        icon: '🎒',  desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
+    { id: 'pokedex',  name: 'Pokedex',       icon: assetPath('/assets/menu/pokedex.png'),  desc: 'Registro de especies',    color: 'bg-red-50 border-red-200 text-red-600' },
+    { id: 'backpack', name: 'Mochila',        icon: assetPath('/assets/menu/backpack.png'),  desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
+    { id: 'stats',    name: 'Estatisticas', icon: `${POKEAPI_ITEM}data-card-01.png`, desc: 'Dados da Jornada', color: 'bg-cyan-50 border-cyan-200 text-cyan-700' },
     { id: 'settings', name: 'Configuracoes', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png', desc: 'Ajustes do sistema', color: 'bg-indigo-50 border-indigo-200 text-indigo-600' },
-    { id: 'save',     name: 'Salvar Jogo',   icon: '💾',  desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
+    { id: 'save',     name: 'Salvar Jogo',   icon: assetPath('/assets/menu/save.png'),  desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
     { id: 'exit',     name: 'Sair do Jogo',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/escape-rope.png', desc: 'Voltar ao inicio', color: 'bg-slate-50 border-slate-200 text-slate-600' },
   ];
 
@@ -321,6 +334,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
             else if (item.id === 'pokedex') setCurrentView('pokedex');
             else if (item.id === 'settings') setSubView('settings');
             else if (item.id === 'backpack') setSubView('backpack');
+            else if (item.id === 'stats') setSubView('stats');
             else {
               showConfirm({
                 title: 'Em Breve',
@@ -381,6 +395,8 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         id: 'balls',
         label: 'Pokebolas',
         emoji: 'O',
+        img: `${POKEAPI_ITEM}poke-ball.png`,
+        caption: 'Captura',
         entries: [
           { key: 'pokeballs',  label: 'Poke Bola',  img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png' },
           { key: 'great_ball', label: 'Great Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png' },
@@ -398,6 +414,8 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         id: 'potions',
         label: 'Cura',
         emoji: '+',
+        img: `${POKEAPI_ITEM}potion.png`,
+        caption: 'Restauracao',
         entries: [
           { key: 'potions',      label: 'Pocao',         img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png' },
           { key: 'super_potion', label: 'Super Pocao',   img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-potion.png' },
@@ -414,6 +432,8 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         id: 'food',
         label: 'Comida',
         emoji: '*',
+        img: `${POKEAPI_ITEM}berry-juice.png`,
+        caption: 'Energia',
         entries: [
           { key: 'fresh_water',       label: 'Agua Fresca',    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png',   src: 'items' },
           { key: 'soda_pop',          label: 'Soda Pop',       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/soda-pop.png',       src: 'items' },
@@ -440,6 +460,8 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         id: 'materials',
         label: 'Materiais',
         emoji: '#',
+        img: `${POKEAPI_ITEM}hard-stone.png`,
+        caption: 'Forja',
         entries: Object.entries(materials || {})
           .filter(([k, v]) => v > 0 && !k.includes('berry') && !k.includes('apricorn'))
           .map(([k, v]) => ({
@@ -453,6 +475,8 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         id: 'berries_apricorns',
         label: 'Berries',
         emoji: '@',
+        img: `${POKEAPI_ITEM}oran-berry.png`,
+        caption: 'Plantio',
         entries: Object.entries(materials || {})
           .filter(([k, v]) => v > 0 && (k.includes('berry') || k.includes('apricorn')))
           .map(([k, v]) => ({
@@ -466,6 +490,8 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         id: 'exp_candies',
         label: 'EXP Candy',
         emoji: '🍬',
+        img: `${POKEAPI_ITEM}rare-candy.png`,
+        caption: 'Treino',
         entries: Object.values(EXP_CANDIES)
           .filter(c => (items[c.id] || 0) > 0)
           .map(c => ({
@@ -482,6 +508,8 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         id: 'candies',
         label: 'Candies',
         emoji: 'C',
+        img: `${POKEAPI_ITEM}rare-candy.png`,
+        caption: 'Familias',
         entries: Object.entries({ ...(candies || {}), ...Object.fromEntries(Object.entries(materials || {}).filter(([k]) => k.includes('_candy'))) })
           .filter(([k, v]) => v > 0)
           .map(([k, v]) => {
@@ -502,6 +530,8 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         id: 'key_items',
         label: 'Itens Chave',
         emoji: 'K',
+        img: `${POKEAPI_ITEM}works-key.png`,
+        caption: 'Especiais',
         entries: [
           { key: 'old_rod',    label: 'Vara Velha',   img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/old-rod.png' },
           { key: 'good_rod',   label: 'Vara Boa',     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/good-rod.png' },
@@ -528,32 +558,43 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
 
         {/* Header */}
         <div className="flex items-center gap-3 p-4 border-b border-slate-100 shrink-0">
-          <div className="w-10 h-10 bg-orange-100 rounded-2xl flex items-center justify-center text-xl">🎒</div>
+          <div className="w-10 h-10 bg-orange-100 rounded-2xl flex items-center justify-center border border-orange-200">
+            <img src={assetPath('/assets/menu/backpack.png')} alt="Mochila" className="w-8 h-8 object-contain" />
+          </div>
           <div>
             <h3 className="font-black text-slate-800 uppercase italic text-base leading-none">Mochila</h3>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{totalItems} tipos de item</p>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1.5 px-3 py-2 overflow-x-auto shrink-0 border-b border-slate-100">
+        {/* Bolsos da mochila */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 px-3 py-3 shrink-0 border-b border-slate-100 bg-white/70">
           {categories.map(cat => (
             <button
               key={cat.id}
               onClick={() => setActiveTab(cat.id)}
-              className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase transition-all ${
+              className={`min-h-[76px] rounded-2xl border-2 p-2.5 text-left transition-all active:scale-95 ${
                 activeTab === cat.id
-                  ? 'bg-orange-500 text-white shadow-md'
-                  : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                  ? 'bg-orange-500 border-orange-600 text-white shadow-lg'
+                  : 'bg-white border-slate-200 text-slate-700 shadow-sm hover:border-orange-200'
               }`}
             >
-              <span>{cat.emoji}</span>
-              <span>{cat.label}</span>
-              {cat.entries.length > 0 && (
-                <span className={`text-[8px] px-1 rounded-full font-black ${activeTab === cat.id ? 'bg-white/30 text-white' : 'bg-slate-300 text-slate-600'}`}>
+              <div className="flex items-center gap-2">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${activeTab === cat.id ? 'bg-white/25' : 'bg-slate-100'}`}>
+                  {cat.img ? (
+                    <img src={cat.img} alt={cat.label} className="w-8 h-8 object-contain" onError={e => { e.target.style.display = 'none'; }} />
+                  ) : (
+                    <span className="text-xl">{cat.emoji}</span>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-black uppercase leading-tight truncate">{cat.label}</p>
+                  <p className={`text-[8px] font-black uppercase tracking-wide ${activeTab === cat.id ? 'text-white/75' : 'text-slate-400'}`}>{cat.caption || 'Bolso'}</p>
+                </div>
+                <span className={`text-[10px] px-2 py-1 rounded-full font-black ${activeTab === cat.id ? 'bg-white text-orange-600' : 'bg-slate-100 text-slate-500'}`}>
                   {cat.entries.length}
                 </span>
-              )}
+              </div>
             </button>
           ))}
         </div>
@@ -568,7 +609,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {currentCat.entries.map(entry => {
                 const qty = entry.qty || (entry.src === 'materials' ? (materials[entry.key] || 0) : (items[entry.key] || 0));
                 const isExpCandy = entry.isExpCandy && onUseExpCandy;
@@ -576,7 +617,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
                   <div
                     key={entry.key}
                     onClick={isExpCandy ? () => setExpCandyModal(entry.candyDef) : undefined}
-                    className={`bg-slate-50 border rounded-2xl p-2 flex flex-col items-center gap-1 text-center transition-all ${
+                    className={`min-h-[122px] bg-white border rounded-2xl p-3 flex flex-col items-center justify-center gap-2 text-center transition-all shadow-sm ${
                       isExpCandy
                         ? 'border-2 cursor-pointer active:scale-95 hover:shadow-md'
                         : 'border-slate-100'
@@ -584,12 +625,12 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
                     style={isExpCandy ? { borderColor: entry.color + '88' } : {}}
                   >
                     {entry.img && entry.color ? (
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center border-2 border-white shadow-sm" style={{ background: entry.color + '33' }}>
-                        <img src={entry.img} alt={entry.label} className="w-10 h-10 object-contain"
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center border-2 border-white shadow-sm" style={{ background: entry.color + '33' }}>
+                        <img src={entry.img} alt={entry.label} className="w-11 h-11 object-contain"
                           onError={e => { e.target.style.display = 'none'; }} />
                       </div>
                     ) : entry.img ? (
-                      <img src={entry.img} alt={entry.label} className="w-10 h-10 object-contain"
+                      <img src={entry.img} alt={entry.label} className="w-12 h-12 object-contain"
                         onError={e => { e.target.style.display = 'none'; }} />
                     ) : (
                       <span className="text-2xl">{entry.icon || '📦'}</span>
@@ -632,6 +673,69 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
             onClose={() => setExpCandyModal(null)}
           />
         )}
+      </div>
+    );
+  };
+
+  const renderStats = () => {
+    const stats = gameState?.playerStats || {};
+    const allPokemon = [...(gameState?.team || []), ...(gameState?.pc || [])];
+    const masteryCaptures = Object.values(gameState?.speciesMastery || {}).reduce((sum, value) => sum + Number(value || 0), 0);
+    const caughtSpecies = Object.keys(gameState?.caughtData || {}).length;
+    const shinyOwned = allPokemon.reduce((sum, p) => sum + (p?.isShiny ? 1 : 0) + Math.max(0, Number(p?.shinyCount || 0) - (p?.isShiny ? 1 : 0)), 0);
+    const raidStats = gameState?.raidStats || {};
+    const playTime = Number(stats.playTimeMs || 0);
+    const startedAt = stats.startedAt ? new Date(stats.startedAt).toLocaleDateString('pt-BR') : 'Nova jornada';
+    const pokemonCaptured = Math.max(Number(stats.pokemonCaptured || 0), masteryCaptures, allPokemon.length);
+    const shinyCaptured = Math.max(Number(stats.shinyCaptured || 0), Number(gameState?.shinyCapturedCount || 0), shinyOwned);
+    const trainersDefeated = Math.max(Number(stats.trainersDefeated || 0), Number(gameState?.trainerBattleWins || 0));
+    const raidsWon = Math.max(Number(stats.raidsWon || 0), Number(raidStats.total || 0));
+    const raidsCaptured = Math.max(Number(stats.raidsCaptured || 0), Number(raidStats.captured || 0));
+    const raidsFled = Math.max(Number(stats.raidsFled || 0), Number(raidStats.fled || 0));
+
+    const statCards = [
+      { label: 'Tempo de jogo', value: formatPlayTime(playTime), sub: `Inicio: ${startedAt}`, img: `${POKEAPI_ITEM}town-map.png`, color: 'bg-slate-900 text-white border-slate-950' },
+      { label: 'Pokedex', value: fmtNumber(caughtSpecies), sub: 'especies registradas', img: assetPath('/assets/menu/pokedex.png'), color: 'bg-red-50 text-red-700 border-red-200' },
+      { label: 'Capturados', value: fmtNumber(pokemonCaptured), sub: 'capturas totais', img: `${POKEAPI_ITEM}poke-ball.png`, color: 'bg-orange-50 text-orange-700 border-orange-200' },
+      { label: 'Derrotados', value: fmtNumber(stats.pokemonDefeated), sub: 'batalhas vencidas em rota', img: `${POKEAPI_ITEM}muscle-band.png`, color: 'bg-blue-50 text-blue-700 border-blue-200' },
+      { label: 'Shiny capturados', value: fmtNumber(shinyCaptured), sub: 'raros no time e PC', img: `${POKEAPI_ITEM}shiny-charm.png`, color: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
+      { label: 'Shiny derrotados', value: fmtNumber(stats.shinyDefeated), sub: 'encontros brilhantes vencidos', img: `${POKEAPI_ITEM}shiny-stone.png`, color: 'bg-amber-50 text-amber-700 border-amber-200' },
+      { label: 'Treinadores', value: fmtNumber(trainersDefeated), sub: 'vitorias contra treinadores', img: `${POKEAPI_ITEM}vs-seeker.png`, color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+      { label: 'Equipe vila', value: fmtNumber(stats.villainDefeated), sub: `${fmtNumber(stats.villainEncounters)} encontros registrados`, img: `${POKEAPI_ITEM}black-glasses.png`, color: 'bg-zinc-100 text-zinc-800 border-zinc-300' },
+      { label: 'Boss da area', value: fmtNumber(stats.wildBossDefeated), sub: `${fmtNumber(stats.wildBossEncounters)} encontrados`, img: `${POKEAPI_ITEM}scope-lens.png`, color: 'bg-purple-50 text-purple-700 border-purple-200' },
+      { label: 'Raids vencidas', value: fmtNumber(raidsWon), sub: `${fmtNumber(stats.raidEncounters)} raids encontradas`, img: `${POKEAPI_ITEM}star-piece.png`, color: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
+      { label: 'Raids capturadas', value: fmtNumber(raidsCaptured), sub: `${fmtNumber(raidsFled)} raids fugiram`, img: `${POKEAPI_ITEM}premier-ball.png`, color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+      { label: 'Dano em boss', value: fmtNumber(gameState?.bossTotalDamage), sub: `ultimo: ${fmtNumber(gameState?.bossLastDamage)}`, img: `${POKEAPI_ITEM}life-orb.png`, color: 'bg-rose-50 text-rose-700 border-rose-200' },
+    ];
+
+    return (
+      <div className="animate-slideUp flex flex-col gap-4">
+        <div className="bg-slate-900 text-white rounded-[2rem] p-5 shadow-xl border-b-8 border-slate-950 overflow-hidden relative">
+          <img src={`${POKEAPI_ITEM}data-card-01.png`} alt="" className="absolute -right-4 -top-5 w-28 h-28 opacity-20 rotate-12" />
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-cyan-300">Registro da jornada</p>
+          <h3 className="text-2xl font-black uppercase italic leading-none mt-1">{gameState?.trainer?.name || 'Treinador'}</h3>
+          <p className="text-xs font-bold text-slate-300 mt-2">Tudo que o jogador fez fica reunido aqui para acompanhar progresso, captura, batalhas, boss e raids.</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          {statCards.map(card => (
+            <div key={card.label} className={`rounded-2xl border-2 p-3 min-h-[118px] shadow-sm ${card.color}`}>
+              <div className="flex items-start justify-between gap-2">
+                <img src={card.img} alt="" className="w-10 h-10 object-contain drop-shadow-sm" onError={e => { e.target.style.display = 'none'; }} />
+                <span className="text-[9px] font-black uppercase opacity-60 text-right leading-tight">{card.label}</span>
+              </div>
+              <p className="text-2xl font-black leading-none mt-3 break-words">{card.value}</p>
+              <p className="text-[9px] font-bold uppercase opacity-70 mt-1 leading-tight">{card.sub}</p>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => setSubView('main')}
+          className="w-full bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg border-b-8 border-slate-900"
+        >
+          Voltar ao Menu
+        </button>
       </div>
     );
   };
@@ -725,6 +829,21 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
     </div>
   );
 
+  const screenTitle = subView === 'settings'
+    ? 'Configuracoes'
+    : subView === 'backpack'
+      ? 'Mochila'
+      : subView === 'stats'
+        ? 'Estatisticas'
+        : 'Menu Principal';
+  const screenIcon = subView === 'settings'
+    ? `${POKEAPI_ITEM}vs-seeker.png`
+    : subView === 'stats'
+      ? `${POKEAPI_ITEM}data-card-01.png`
+      : subView === 'backpack'
+        ? assetPath('/assets/menu/backpack.png')
+        : `${POKEAPI_ITEM}poke-doll.png`;
+
   return (
     <div className="h-full bg-slate-100 animate-fadeIn relative overflow-y-auto custom-scrollbar pt-12 pb-24">
       <div className="absolute inset-0 opacity-5 pointer-events-none">
@@ -734,14 +853,14 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
       <div className="relative z-10 w-full max-w-2xl mx-auto px-6">
         <div className="flex items-center gap-4 mb-8">
           <div className="bg-pokeRed p-3 rounded-2xl shadow-lg">
-            <img src={subView === 'settings' ? 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png' : 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png'} className="w-8 h-8 object-contain" alt="Menu" />
+            <img src={screenIcon} className="w-8 h-8 object-contain" alt="Menu" />
           </div>
           <h2 className="text-4xl font-black text-slate-800 uppercase italic tracking-tighter">
-            {subView === 'settings' ? 'Configurações' : subView === 'backpack' ? 'Mochila' : 'Menu Principal'}
+            {screenTitle}
           </h2>
         </div>
 
-        {subView === 'main' ? renderMain() : subView === 'settings' ? renderSettings() : renderBackpack()}
+        {subView === 'main' ? renderMain() : subView === 'settings' ? renderSettings() : subView === 'stats' ? renderStats() : renderBackpack()}
 
         {subView === 'main' && (
           <button 

@@ -1,7 +1,13 @@
-export const APP_VERSION = '1.79.6';
-export const VERSION = '1.79.6';
-export const APP_VERSION_DATE = '13/05/2026 17:34';
+export const APP_VERSION = '1.79.7';
+export const VERSION = '1.79.7';
+export const APP_VERSION_DATE = '13/05/2026 17:38';
 export const CHANGELOG = [
+  '## [V1.79.7] - 13/05/2026 17:38',
+  '### Adicionado',
+  '- **Menu Estatisticas**: nova area no MENU com tempo de jogo, Pokedex, capturas, derrotas, shinies, treinadores, equipe vila, boss de area, raids e dano em boss.',
+  '- **Player Stats Persistente**: progresso passa a registrar contadores de captura, batalha, shiny, boss, raid e tempo ativo de jogo.',
+  '### Melhorado',
+  '- **Mochila Mobile**: categorias viraram bolsos grandes em grade, com sprites de itens, contadores claros e cards de item maiores para toque em celular.',
   '## [V1.79.1] - 13/05/2026 15:47',
   '### Corrigido',
   '- **Sistema de Raids**: Corrigido erro de ícones quebrados no modal de recompensas.',

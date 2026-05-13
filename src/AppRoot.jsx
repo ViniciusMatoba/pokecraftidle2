@@ -76,6 +76,20 @@ const PrestigeShop = lazy(() => import('./components/PrestigeShop'));
 const RAID_SPAWN_STORAGE_KEY = 'pokecraftidle_next_raid_at';
 const RAID_STAR_COLOR = { 1: '#94a3b8', 2: '#22c55e', 3: '#3b82f6', 4: '#a855f7', 5: '#f59e0b' };
 
+const bumpPlayerStats = (stats = {}, increments = {}) => {
+  const now = Date.now();
+  const next = {
+    startedAt: stats.startedAt || now,
+    playTimeMs: stats.playTimeMs || 0,
+    ...stats,
+    lastSeenAt: now,
+  };
+  Object.entries(increments).forEach(([key, value]) => {
+    next[key] = (Number(next[key]) || 0) + (Number(value) || 0);
+  });
+  return next;
+};
+
 const monitorAuthState = (callback) => onAuthStateChanged(auth, callback);
 
 const fixPath = (path) => {
@@ -1276,6 +1290,28 @@ export default function App() {
     localStorage.setItem('poke_idle_save', JSON.stringify({ gameState }));
   }, [gameState]);
 
+  useEffect(() => {
+    setGameState(prev => {
+      const stats = prev.playerStats || {};
+      if (stats.startedAt) return prev;
+      return {
+        ...prev,
+        playerStats: bumpPlayerStats(stats, {}),
+      };
+    });
+  }, []);
+
+  useEffect(() => {
+    if (loading || ['landing', 'auth'].includes(currentView)) return undefined;
+    const id = setInterval(() => {
+      setGameState(prev => ({
+        ...prev,
+        playerStats: bumpPlayerStats(prev.playerStats, { playTimeMs: 60000 }),
+      }));
+    }, 60000);
+    return () => clearInterval(id);
+  }, [loading, currentView]);
+
   // Efeito de Tema Visual
   useEffect(() => {
     const themeId = gameState.prestige?.uiTheme || 'default';
@@ -1352,6 +1388,7 @@ export default function App() {
         bossLastDamage: dataToSave.bossLastDamage || 0,
         shinyCapturedCount: dataToSave.shinyCapturedCount || 0,
         trainerBattleWins: dataToSave.trainerBattleWins || 0,
+        playerStats: dataToSave.playerStats || {},
         updatedAt: serverTimestamp()
       }, { merge: true });
 
@@ -2111,7 +2148,12 @@ export default function App() {
       const badgeCount = getRegionBadgeCount(gameState.badges || [], region);
       const raid = createRaid(region, POKEDEX, badgeCount);
       if (raid) {
-        setGameState(prev => ({ ...prev, activeRaid: raid, battlesSinceLastRaid: 0 }));
+        setGameState(prev => ({
+          ...prev,
+          activeRaid: raid,
+          battlesSinceLastRaid: 0,
+          playerStats: bumpPlayerStats(prev.playerStats, { raidEncounters: 1 }),
+        }));
         localStorage.setItem(RAID_SPAWN_STORAGE_KEY, String(Date.now() + RAID_SPAWN_INTERVAL_MS));
         addLog(`⚔️ UMA RAID SURGIU NA ROTA! ${raid.name} (${raid.stars}⭐) apareceu!`, 'system');
       }
@@ -2220,6 +2262,12 @@ export default function App() {
     });
     setBattleLog([]);
     isProcessingVictory.current = false;
+    if (isBossSpawn) {
+      setGameState(prev => ({
+        ...prev,
+        playerStats: bumpPlayerStats(prev.playerStats, { wildBossEncounters: 1 }),
+      }));
+    }
     // BGM agora gerenciado pelas configuraçííµes
   }, [gameState.currentRoute, gameState.speciesMastery, playBGM, addLog, processedRoutes]);
 
@@ -2339,7 +2387,12 @@ export default function App() {
         const badgeCount = getRegionBadgeCount(gameState.badges || [], region);
         const raid = createRaid(region, POKEDEX, badgeCount);
         if (raid) {
-          setGameState(prev => ({ ...prev, activeRaid: raid, battlesSinceLastRaid: 0 }));
+          setGameState(prev => ({
+            ...prev,
+            activeRaid: raid,
+            battlesSinceLastRaid: 0,
+            playerStats: bumpPlayerStats(prev.playerStats, { raidEncounters: 1 }),
+          }));
           localStorage.setItem(RAID_SPAWN_STORAGE_KEY, String(Date.now() + RAID_SPAWN_INTERVAL_MS));
           addLog(`⚔️ RAID APARECEU! ${raid.name} (${raid.stars}⭐) está na área! [${region.toUpperCase()}]`, 'system');
         }
@@ -2360,7 +2413,8 @@ export default function App() {
       setGameState(prev => ({
         ...prev,
         activeRaid: prev.activeRaid ? { ...prev.activeRaid, phase: 'ended' } : null,
-        raidStats: { ...(prev.raidStats || {}), fled: (prev.raidStats?.fled || 0) + 1 }
+        raidStats: { ...(prev.raidStats || {}), fled: (prev.raidStats?.fled || 0) + 1 },
+        playerStats: bumpPlayerStats(prev.playerStats, { raidsFled: 1 }),
       }));
       return;
     }
@@ -2368,7 +2422,8 @@ export default function App() {
       setGameState(prev => ({
         ...prev,
         activeRaid: prev.activeRaid ? { ...prev.activeRaid, phase: 'ended' } : null,
-        raidStats: { ...(prev.raidStats || {}), fled: (prev.raidStats?.fled || 0) + 1 }
+        raidStats: { ...(prev.raidStats || {}), fled: (prev.raidStats?.fled || 0) + 1 },
+        playerStats: bumpPlayerStats(prev.playerStats, { raidsFled: 1 }),
       }));
       addLog(`⌛ A raid expirou! ${raid.name} fugiu...`, 'system');
       showRaidRouteNotice(raid, 'expired');
@@ -2522,6 +2577,7 @@ export default function App() {
             inventory: { ...prev.inventory, items: newItemsWithCandy },
             activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
             raidStats: { ...(prev.raidStats || {}), captured: (prev.raidStats?.captured || 0) + 1 },
+            playerStats: bumpPlayerStats(prev.playerStats, { raidsCaptured: 1 }),
           };
         }
 
@@ -2557,7 +2613,12 @@ export default function App() {
           raidStats: {
             ...(prev.raidStats || {}),
             captured: (prev.raidStats?.captured || 0) + 1,
-          }
+          },
+          playerStats: bumpPlayerStats(prev.playerStats, {
+            pokemonCaptured: 1,
+            shinyCaptured: raid.isShiny ? 1 : 0,
+            raidsCaptured: 1,
+          }),
         };
       } else if (attemptsLeft <= 0) {
         addLog(`💨 ${raid.name} não foi capturado. Tentativas esgotadas.`, 'system');
@@ -2621,7 +2682,8 @@ export default function App() {
         raidStats: {
           ...(prev.raidStats || {}),
           total: (prev.raidStats?.total || 0) + 1,
-        }
+        },
+        playerStats: bumpPlayerStats(prev.playerStats, { raidsWon: 1 }),
       };
     });
     setShowRaidScreen(false);
@@ -3517,6 +3579,10 @@ export default function App() {
               team: teamUpdate,
               pc: pcUpdate,
               shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
+              playerStats: bumpPlayerStats(prev.playerStats, {
+                pokemonCaptured: 1,
+                shinyCaptured: currentEnemy.isShiny ? 1 : 0,
+              }),
               ...questUpdate
             };
           }
@@ -3541,6 +3607,10 @@ export default function App() {
             caughtData: newCaughtData,
             speciesMastery: newMastery,
             shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
+            playerStats: bumpPlayerStats(prev.playerStats, {
+              pokemonCaptured: 1,
+              shinyCaptured: currentEnemy.isShiny ? 1 : 0,
+            }),
             ...questUpdate
           };
         } else {
@@ -5130,6 +5200,15 @@ export default function App() {
         badges: newBadges,
         gymDefeatCounts: newGymCounts,
         trainerBattleWins: (prev.trainerBattleWins || 0) + (currentEnemy.isTrainer ? 1 : 0),
+        playerStats: bumpPlayerStats(prev.playerStats, {
+          pokemonDefeated: 1,
+          shinyDefeated: currentEnemy.isShiny ? 1 : 0,
+          trainersDefeated: currentEnemy.isTrainer ? 1 : 0,
+          villainEncounters: (currentEnemy.isRocket || currentEnemy.isVillainAmbush || ['rocket', 'villain', 'team'].includes(currentEnemy.challengeCategory)) ? 1 : 0,
+          villainDefeated: (currentEnemy.isRocket || currentEnemy.isVillainAmbush || ['rocket', 'villain', 'team'].includes(currentEnemy.challengeCategory)) ? 1 : 0,
+          wildBossDefeated: currentEnemy.isWildBoss ? 1 : 0,
+          raidEncounters: raidSpawnUpdate.activeRaid ? 1 : 0,
+        }),
         battlesSinceLastRaid: raidSpawnUpdate.activeRaid ? 0 : newBattlesSinceRaid,
         ...raidSpawnUpdate,
       };
@@ -5256,6 +5335,10 @@ export default function App() {
                     speciesMastery: newMastery, 
                     caughtData: newCaughtData, 
                     shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
+                    playerStats: bumpPlayerStats(prev.playerStats, {
+                      pokemonCaptured: 1,
+                      shinyCaptured: currentEnemy.isShiny ? 1 : 0,
+                    }),
                     ...questUpdate 
                   };
                 } else {
@@ -5273,6 +5356,10 @@ export default function App() {
                     speciesMastery: newMastery, 
                     caughtData: newCaughtData, 
                     shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
+                    playerStats: bumpPlayerStats(prev.playerStats, {
+                      pokemonCaptured: 1,
+                      shinyCaptured: currentEnemy.isShiny ? 1 : 0,
+                    }),
                     ...questUpdate 
                   };
                 }
