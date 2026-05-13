@@ -1,7 +1,12 @@
-export const APP_VERSION = '1.80.0';
-export const VERSION = '1.80.0';
-export const APP_VERSION_DATE = '13/05/2026 23:00';
+export const APP_VERSION = '1.80.1';
+export const VERSION = '1.80.1';
+export const APP_VERSION_DATE = '13/05/2026 23:59';
 export const CHANGELOG = [
+  '## [V1.80.1] - 13/05/2026 23:59',
+  '### Corrigido',
+  '- **Raids (Bug Crítico)**: raids agora usam corretamente a região ativa do jogador (`activeRegion`) — antes usavam sempre Kanto por referir `currentRegion` (campo inexistente).',
+  '- **Raids**: estrelas máximas calculadas pelo número de insígnias da região atual do jogador.',
+  '- **Forja (Categorias)**: ícones de categoria substituídos por sprites de item PokeAPI (sem emojis).',
   '## [V1.80.0] - 13/05/2026 23:00',
   '### Corrigido',
   '- **MENU**: ícones corrigidos (pokedex, mochila, salvar agora aparecem corretamente).',

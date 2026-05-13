@@ -2145,7 +2145,7 @@ export default function App() {
     // ⚔️ CHANCE ALEATÓRIA DE RAID (0.5% por encontro em rotas)
     const isRaidBusyNow = gameState.activeRaid && gameState.activeRaid.phase !== 'ended';
     if (!isRaidBusyNow && Math.random() < 0.005) {
-      const region = gameState.currentRegion || 'kanto';
+      const region = gameState.activeRegion || 'kanto';
       const badgeCount = getRegionBadgeCount(gameState.badges || [], region);
       const raid = createRaid(region, POKEDEX, badgeCount);
       if (raid) {
@@ -2381,7 +2381,7 @@ export default function App() {
     }
 
     const checkSpawn = () => {
-      const region = gameState.currentRegion || 'kanto';
+      const region = gameState.activeRegion || 'kanto';
       const nextAt = parseInt(localStorage.getItem(RAID_SPAWN_STORAGE_KEY) || '0', 10);
       const isRaidBusy = gameState.activeRaid && gameState.activeRaid.phase !== 'ended';
       if (!isRaidBusy && Date.now() >= nextAt) {
@@ -2402,7 +2402,7 @@ export default function App() {
     checkSpawn();
     const id = setInterval(checkSpawn, 30_000);
     return () => clearInterval(id);
-  }, [gameState.activeRaid, gameState.currentRegion]);
+  }, [gameState.activeRaid, gameState.activeRegion]);
 
   // ── RAID: Expiration ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -5192,7 +5192,7 @@ export default function App() {
       let raidSpawnUpdate = {};
       const isRaidBusy = prev.activeRaid && prev.activeRaid.phase !== 'ended';
       if (!isRaidBusy && newBattlesSinceRaid >= RAID_BATTLE_TRIGGER) {
-        const region = prev.currentRegion || 'kanto';
+        const region = prev.activeRegion || 'kanto';
         const badgeCount = getRegionBadgeCount(prev.badges || [], region);
         const raid = createRaid(region, POKEDEX, badgeCount);
         if (raid) {
