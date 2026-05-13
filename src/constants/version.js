@@ -8,6 +8,8 @@ export const CHANGELOG = [
   '    - Lançamento oficial com 96 novas formas e branching paths.',
   '    - Sincronização total de itens evolutivos e Pokedex.',
   '    - Novas receitas na Forja e economia de Mega Shards.',
+  '    - **Raids**: Rebalanceamento de recompensas e correção de ícones de itens.',
+  '    - **Sistema de Vitória**: Trava de recompensas vinculada à derrota/captura do Boss.',
   '## [V1.78.4] - 13/05/2026 12:35',
   '### Adicionado',
   '- **Expansão Total de Mega Stones**:',
