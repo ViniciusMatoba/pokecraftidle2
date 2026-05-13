@@ -1,7 +1,10 @@
-export const APP_VERSION = '1.77.1';
-export const VERSION = '1.77.1';
-export const APP_VERSION_DATE = '13/05/2026 06:30';
+export const APP_VERSION = '1.77.2';
+export const VERSION = '1.77.2';
+export const APP_VERSION_DATE = '13/05/2026 06:50';
 export const CHANGELOG = [
+  'Feature: Efeitos visuais de golpes — 120+ moves com animações únicas usando sprites do Pokémon Showdown (/fx/)',
+  'Feature: Motor MoveAnimationLayer — 12 tipos de animação (projectile, burst, drain, quake, beam, slash, etc.)',
+  'Feature: Fallback por tipo — todo golpe sem animação específica recebe visual baseado no seu tipo',
   'Feature: Efeitos secundários completos — Drain cura HP, Recoil dá dano próprio, Power-Up Punch/Flame Charge buffam stats, 6 tipos de chance de status em golpes de dano',
   'Release: V1.77.0 — Sistema completo de Held Items: 18 tipos + 4 especiais com efeitos de batalha',
   'Feature: TYPE_BOOSTS expandido para todos os 18 tipos (Silk Scarf, Miracle Seed, Never-Melt Ice, etc.)',

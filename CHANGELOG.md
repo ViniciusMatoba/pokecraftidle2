@@ -1,5 +1,13 @@
 # Changelog - PokeCraft
 
+## [V1.77.2] - 13/05/2026 06:50
+### Adicionado
+- **Efeitos Visuais de Golpes**: Sistema de animação estilo Pokémon Showdown:
+    - 120+ golpes com animações exclusivas usando sprites `/fx/`.
+    - **MoveAnimationLayer**: Motor de animação com 12 tipos (projectile, burst, drain, quake, beam, slash, etc.).
+    - **Fallback por Tipo**: Golpes sem animação definida usam um efeito visual padrão baseado no seu tipo elemental.
+    - **Integração Visual**: Sistema desacoplado via CustomEvents entre a lógica de batalha e a interface.
+
 ## [V1.77.1] - 13/05/2026 06:30
 ### Adicionado
 - **Efeitos Secundários de Golpes**: Implementação completa de efeitos para golpes de dano:

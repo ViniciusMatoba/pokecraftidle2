@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import MoveAnimationLayer from './MoveAnimationLayer';
 import { StatusBadges } from './CommonUI';
 import { BATTLE_BACKGROUNDS } from '../data/battleBackgrounds';
 import ActiveEffectsBar from './ActiveEffectsBar';
@@ -40,6 +41,18 @@ const BattleScreen = ({
   const [showAutoConfig, setShowAutoConfig] = useState(false);
   const [shinyFlash, setShinyFlash] = useState(false);
   const [itemCategory, setItemCategory] = useState('capture');
+  const animLayerRef = useRef(null);
+
+  // Escuta eventos de golpe disparados pelo AppRoot
+  useEffect(() => {
+    const onMove = (e) => {
+      const { name, type, direction } = e.detail;
+      animLayerRef.current?.play(name, type, direction);
+    };
+    window.addEventListener('pokemove', onMove);
+    return () => window.removeEventListener('pokemove', onMove);
+  }, []);
+
   const isAutoPanelOpen = showAutoConfig || showAutoConfigExternal;
   const closeAutoPanel = () => {
     setShowAutoConfig(false);
@@ -376,6 +389,9 @@ const BattleScreen = ({
             </div>
           )}
         </div>
+        
+        {/* Camada de animações de golpe */}
+        <MoveAnimationLayer ref={animLayerRef} />
       </div>
 
       {/* ── ITENS CATEGORIAS ── */}

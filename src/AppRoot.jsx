@@ -2767,6 +2767,11 @@ export default function App() {
         setCurrentEnemy(updatedEnemyFinal);
       } else {
         playerDmg = calcDamage(myPoke, move, updatedEnemyFinal);
+
+        // Dispara evento de animação do golpe para o BattleScreen
+        window.dispatchEvent(new CustomEvent('pokemove', {
+          detail: { name: move.name, type: move.type, direction: 'player-to-enemy' }
+        }));
         if (allyBonus?.damageMult) playerDmg = Math.floor(playerDmg * allyBonus.damageMult);
         const eff = getTypeEffectiveness(move.type, updatedEnemyFinal.type);
         
@@ -3081,6 +3086,11 @@ export default function App() {
               }
             } else {
               const enemyDmgRaw = calcDamage(updatedEnemyFinal, enemyMove, updatedTeamFinal[activeMemberIndex]);
+
+              // Dispara evento de animação do golpe inimigo
+              window.dispatchEvent(new CustomEvent('pokemove', {
+                detail: { name: enemyMove.name, type: enemyMove.type, direction: 'enemy-to-player' }
+              }));
               const effE = getTypeEffectiveness(enemyMove.type, updatedTeamFinal[activeMemberIndex].type);
               
               if (enemyDmgRaw === 0 && effE > 0) {
