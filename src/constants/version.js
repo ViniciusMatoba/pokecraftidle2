@@ -1,15 +1,18 @@
-export const APP_VERSION = '1.79.0';
-export const VERSION = '1.79.0';
-export const APP_VERSION_DATE = '13/05/2026 15:12';
+export const APP_VERSION = '1.79.1';
+export const VERSION = '1.79.1';
+export const APP_VERSION_DATE = '13/05/2026 15:47';
 export const CHANGELOG = [
+  '## [V1.79.1] - 13/05/2026 15:47',
+  '### Corrigido',
+  '- **Sistema de Raids**: Corrigido erro de ícones quebrados no modal de recompensas.',
+  '- **Balanceamento de Raids**: Redução das quantidades de EXP Candy e Rare Candy nas recompensas.',
+  '- **Lógica de Vitória**: Recompensas de Raid agora exigem a derrota ou captura do Boss.',
   '## [V1.79.0] - 13/05/2026 15:12',
   '### Adicionado',
   '- **Mega Evoluções (Sistema Global)**:',
   '    - Lançamento oficial com 96 novas formas e branching paths.',
   '    - Sincronização total de itens evolutivos e Pokedex.',
   '    - Novas receitas na Forja e economia de Mega Shards.',
-  '    - **Raids**: Rebalanceamento de recompensas e correção de ícones de itens.',
-  '    - **Sistema de Vitória**: Trava de recompensas vinculada à derrota/captura do Boss.',
   '## [V1.78.4] - 13/05/2026 12:35',
   '### Adicionado',
   '- **Expansão Total de Mega Stones**:',
@@ -122,24 +125,8 @@ export const CHANGELOG = [
   'Feature: Receitas de Forja restauradas — drops progressivos nas rotas, TMs incluídas, guia de localização na UI',
   'Balance: Taxa de drop de receitas aumentada para rotas iniciais (9% lvl≤20 vs 5% geral); Pokébola agora dropa na Route 1',
   'UI: CraftingStation reformulada — mostra receitas bloqueadas com dica de onde farmar, badge ao desbloquear',
-  'Fix: Raid duplicata → EXP Candy — capturar espécie já existente gera EXP Candy proporcional às estrelas (XS→XL)',
-  'Feature: EXP Candies — 5 tamanhos (XS/S/M/L/XL) drop de raids, armazenadas na Mochila, aplicáveis a qualquer Pokémon',
-  'UI: Mochila → aba EXP Candy com modal de seleção de Pokémon — mostra XP atual, barra de progresso e preview do ganho',
-  'Feature: Sistema de Avatar — sprites por região, tints de cor, molduras e fundos personalizáveis na Loja de Prestígio',
-  'Feature: Desbloqueio Progressivo de Avatar — cosméticos gratuitos ao vencer campeões regionais, premium na loja',
-  'Balance: Raids Progressivas — estrelas limitadas por insígnias (0-1→1★, 2-3→2★, 4-5→3★, 6-7→4★, 8+→5★)',
-  'Fix: Sincronização de Save — redirecionamento automático para a cidade ao detectar progresso na nuvem',
-  'Hotfix: Resolvido erro de monitorAuthState indefinido que causava tela azul no carregamento',
-  'Feature: Modal de Vitória Unificado — novos visuais e fluxos para Ginásios, Elite Four, Rivais e Equipes Vilãs',
-  'Fix: Acesso Regional — validateTeamAccess agora permite Pokémon capturados na região ativa, independente da geração',
-  'Fix: Estabilidade de PC — refatoração de moveToPC para usar instanceId, eliminando bugs de dessincronização de índice',
+  'Fix: Raid sem Pokébolas — botão "Fechar" e "Recompensas" visíveis quando todas as bolas chegam a zero',
+  'Fix: Ícones do Menu corrigidos — Pokédex 📕, Mochila 🎒 e Salvar 💾 agora usam emoji (100% confiável)',
+  'Audit: Sistema de progressão entre regiões verificado — todas as 9 transições estão corretas',
   'Fix: Service Worker atualizado para v1.64.0 — cache antigo invalidado corretamente',
-  'Fix: Import morto de onAuthStateChanged removido do AppRoot (redução de bundle)',
-  'Fix: Bioma Pradaria (Safari Zone) com ícone correto 🌿 em vez de 🌊',
-  'Fix: selectedStarters agora salvo corretamente em Johto, Hoenn e Sinnoh (consistência com Gen 5+)',
-  'Fix: Auditoria v1.63.0 — estabilização de rotas iniciais (Unova) e carregamento de saves',
-  'Fix: Race Condition — unificação dos listeners de autenticação e sincronização cloud',
-  'Feature: Estabilização de Alola — refatoração dos Trial Captains e remoção de duplicatas na Liga',
-  'Balance: Bônus de Prestígio — multiplicadores de XP em temas e bônus de cuidador acumulativo (3x cap)',
-  'UI: Consistência de Itens — correção de ícones (Sitrus Berry/Apricorns) e rótulos faltantes',
 ];

@@ -1,5 +1,12 @@
 # Changelog - PokeCraft
 
+## [V1.79.1] - 13/05/2026 15:47
+### Corrigido
+- **Sistema de Raids**: 
+    - Correção de ícones quebrados no modal de recompensas (Candies, Shards e moedas).
+    - Rebalanceamento da tabela de drops (quantidades reduzidas para melhor economia).
+    - Nova regra: recompensas só são liberadas se o Boss for derrotado (HP=0) ou capturado.
+
 ## [V1.79.0] - 13/05/2026 15:12
 ### Adicionado
 - **Mega Evoluções (Sistema Global)**: 
@@ -10,11 +17,8 @@
     - 96 novas receitas de Mega Stones adicionadas ao sistema de crafting.
     - Integração de `mega_stone_shard` como material base universal para pedras evolutivas.
     - Mapeamento de drops raros para as novas receitas.
-- **Raids e Recompensas**:
-    - Rebalanceamento completo da tabela de drops de Raid (quantidades reduzidas para maior desafio).
-    - Nova trava de segurança: recompensas agora são entregues APENAS se o Boss for derrotado (HP=0) ou capturado.
-    - Correção de ícones quebrados no modal de recompensas (Candies, Shards e moedas).
-    - Adicionado Fragmento de Mega Pedra como recompensa rara em Raids 5 estrelas.
+- **Ferramentas de Desenvolvimento**:
+    - Script de auditoria `audit_megas.ps1` para validação automática de dados evolutivos.
 
 ## [V1.78.2] - 13/05/2026 12:12
 
