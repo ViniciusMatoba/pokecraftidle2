@@ -1599,15 +1599,33 @@ export default function App() {
     // Bônus de tipo por item segurado (apenas para o atacante do jogador)
     const heldItem = attacker.heldItem;
     const TYPE_BOOSTS = {
-      charcoal:     ['Fire',     0.20],
-      mystic_water: ['Water',    0.20],
-      black_belt:   ['Fighting', 0.20],
-      magnet:       ['Electric', 0.20],
+      charcoal:       ['Fire',     0.20],
+      mystic_water:   ['Water',    0.20],
+      black_belt:     ['Fighting', 0.20],
+      magnet:         ['Electric', 0.20],
+      miracle_seed:   ['Grass',    0.20],
+      never_melt_ice: ['Ice',      0.20],
+      poison_barb:    ['Poison',   0.20],
+      soft_sand:      ['Ground',   0.20],
+      sharp_beak:     ['Flying',   0.20],
+      twisted_spoon:  ['Psychic',  0.20],
+      silver_powder:  ['Bug',      0.20],
+      hard_stone:     ['Rock',     0.20],
+      spell_tag:      ['Ghost',    0.20],
+      dragon_fang:    ['Dragon',   0.20],
+      black_glasses:  ['Dark',     0.20],
+      metal_coat:     ['Steel',    0.20],
+      fairy_feather:  ['Fairy',    0.20],
+      silk_scarf:     ['Normal',   0.20],
     };
     if (heldItem && TYPE_BOOSTS[heldItem]) {
       const [boostedType, mult] = TYPE_BOOSTS[heldItem];
       if (move.type === boostedType) base *= (1 + mult);
     }
+    // Life Orb: +30% dano
+    if (heldItem === 'life_orb') base *= 1.30;
+    // Expert Belt: +20% se super efetivo
+    if (heldItem === 'expert_belt' && effectiveness > 1) base *= 1.20;
     // Quick Claw: +15% dano flat (substitui o "speed priority" que não se aplica a idle)
     if (heldItem === 'quick_claw') base *= 1.15;
     
@@ -1690,6 +1708,19 @@ export default function App() {
       messages.push(`${fragmentData.icon} ${qty}x ${fragmentData.name}`);
     }
 
+    // Global Pokémon-specific material drops based on FORGE_MATERIAL_DROP_GUIDE
+    Object.entries(FORGE_MATERIAL_DROP_GUIDE).forEach(([matId, guide]) => {
+      if (guide.pokemonIds && guide.pokemonIds.includes(Number(enemy.id))) {
+        const dropChance = enemy.isShiny ? 0.35 : 0.12;
+        if (Math.random() < dropChance) {
+          const qty = enemy.isShiny ? 2 : 1;
+          drops.materials[matId] = (drops.materials[matId] || 0) + qty;
+          const dropData = ITEM_LABELS[matId] || { icon: '📦', name: matId.replace(/_/g, ' ') };
+          messages.push(`Drop: ${qty}x ${dropData.name}`);
+        }
+      }
+    });
+
     const recipeDrops = FORGE_RECIPE_DROP_BY_POKEMON[Number(enemy.id)];
     const recipeDropList = Array.isArray(recipeDrops) ? recipeDrops : (recipeDrops ? [recipeDrops] : []);
     const foundRecipes = [];
@@ -1730,14 +1761,17 @@ export default function App() {
       messages.push(`Card: ${qty}x ${cardMaterialDrop.replace(/_/g, ' ')}`);
     }
 
-    if (enemy.drop && enemy.dropChance && Math.random() < (enemy.isShiny ? enemy.dropChance * 3 : enemy.dropChance)) {
+    const baseDropChance = enemy.dropChance || 0.12;
+    if (enemy.drop && Math.random() < (enemy.isShiny ? baseDropChance * 3 : baseDropChance)) {
       // Aqui determinamos se o drop antigo é material ou item (maioria é material)
       const materialList = [
         'iron_ore', 'apricorn', 'electric_chip', 'moon_stone_shard', 'pink_dust', 'gold_nugget', 'silk', 'feather',
         'fire_stone_shard', 'water_stone_shard', 'leaf_stone_shard', 'thunder_stone_shard', 'link_cable_part',
         'sun_stone_shard', 'shiny_stone_shard', 'dusk_stone_shard', 'dawn_stone_shard', 'ice_stone_shard',
         'trainer_card_thread', 'yellow_shard', 'mystic_dust', 'armor_fragment', 'fury_essence', 'stardust',
-        'dragon_scale', 'rock_essence', 'ground_essence', 'dark_essence', 'steel_essence', 'fairy_essence'
+        'dragon_scale', 'rock_essence', 'ground_essence', 'dark_essence', 'steel_essence', 'fairy_essence',
+        'sharp_claw', 'scale_dust', 'ember_shard', 'thunder_fang', 'ice_crystal', 'poison_barb', 'hard_shell',
+        'spirit_dust', 'dragon_fang', 'aura_fragment', 'leaf_debris', 'wave_stone'
       ];
       const dropData = ITEM_LABELS[enemy.drop] || { icon: '📦', name: enemy.drop.toUpperCase() };
       if (materialList.includes(enemy.drop)) {
@@ -2766,6 +2800,14 @@ export default function App() {
         }
       }
 
+      // Life Orb: -8% HP do atacante após dano
+      const myHeldItem = updatedTeamFinal[activeMemberIndex]?.heldItem;
+      if (myHeldItem === 'life_orb' && updatedEnemyFinal.hp !== (currentEnemy?.hp)) {
+        const recoil = Math.max(1, Math.floor((updatedTeamFinal[activeMemberIndex].maxHp || 30) * 0.08));
+        updatedTeamFinal[activeMemberIndex].hp = Math.max(1, updatedTeamFinal[activeMemberIndex].hp - recoil);
+        addLog(`💥 ${updatedTeamFinal[activeMemberIndex].name} sofreu recuo do Life Orb! (-${recoil} HP)`, 'system');
+      }
+
       // Dano de Status (Inimigo)
       if (enemyStatus.includes('poison') || enemyStatus.includes('burn')) {
         const dot = Math.max(1, Math.floor(updatedEnemyFinal.maxHp / 16));
@@ -2892,11 +2934,29 @@ export default function App() {
         }
       }
 
+      // Focus Sash: sobrevive a um golpe fatal com 1 HP (uma vez por batalha se HP era > 1)
+      const focusPoke = updatedTeamFinal[activeMemberIndex];
+      if (focusPoke?.heldItem === 'focus_sash' && focusPoke.hp <= 0 && myPoke.hp > 1) {
+        updatedTeamFinal[activeMemberIndex].hp = 1;
+        addLog(`🔮 Focus Sash protegeu ${myPoke.name}! Sobreviveu com 1 HP!`, 'system');
+        addFloat('Focus Sash!', '#a78bfa');
+      }
+
       // Dano de Status (Jogador)
       if (myStatus.includes('poison') || myStatus.includes('burn')) {
         const dot = Math.max(1, Math.floor(updatedTeamFinal[activeMemberIndex].maxHp / 16));
         updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - dot);
         addLog(`☠️ ${myPoke.name} sofreu dano por status!`, 'system');
+      }
+
+      // Leftovers: recupera 5% HP por turno
+      if (focusPoke?.heldItem === 'leftovers' && focusPoke.hp > 0) {
+        const regen = Math.max(1, Math.floor((focusPoke.maxHp || 30) * 0.05));
+        const newHp = Math.min(focusPoke.maxHp, (updatedTeamFinal[activeMemberIndex].hp || 0) + regen);
+        if (newHp > (updatedTeamFinal[activeMemberIndex].hp || 0)) {
+          updatedTeamFinal[activeMemberIndex].hp = newHp;
+          addFloat(`+${regen} HP`, '#22c55e');
+        }
       }
 
       // SISTEMA DE EXAUSTAO
@@ -4729,9 +4789,9 @@ export default function App() {
     });
 
     messages.forEach(m => addLog(m, 'drop'));
-    // Modal de receita encontrada — só aparece se for nova
+    // Modal de receita encontrada — só aparece se for nova e não houver um modal aberto
     const newRecipes = foundRecipes?.filter(r => r.isNew);
-    if (newRecipes?.length > 0) {
+    if (newRecipes?.length > 0 && !recipeFoundModal) {
       setTimeout(() => setRecipeFoundModal(newRecipes[0]), 400);
     }
     if (currentEnemy.isTrainer && currentEnemy.trainerReward) {

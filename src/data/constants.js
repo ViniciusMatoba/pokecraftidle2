@@ -100,7 +100,10 @@ export const DEFAULT_GAME_STATE = {
       ground_essence: 0, flying_essence: 0, psychic_essence: 0, bug_essence: 0,
       rock_essence: 0, ghost_essence: 0, dragon_essence: 0, steel_essence: 0,
       fairy_essence: 0, dark_essence: 0, mystic_dust: 0, iron_ore: 0,
-      armor_fragment: 0, fury_essence: 0, dragon_scale: 0, stardust: 0
+      armor_fragment: 0, fury_essence: 0, dragon_scale: 0, stardust: 0,
+      sharp_claw: 0, scale_dust: 0, ember_shard: 0, thunder_fang: 0,
+      ice_crystal: 0, poison_barb: 0, hard_shell: 0, spirit_dust: 0,
+      dragon_fang: 0, aura_fragment: 0, leaf_debris: 0, wave_stone: 0
     },
     items: { pokeballs: 5, potions: 2 },
     candies: {}
@@ -247,6 +250,20 @@ export const ITEM_LABELS = {
   fury_essence: { icon: '💢', name: 'Essência de Fúria' },
   dragon_scale: { icon: '🦎', name: 'Escama de Dragão' },
   stardust: { icon: '✨', name: 'Poeira Estelar' },
+
+  // Materiais Específicos de Pokémon
+  sharp_claw: { icon: '💅', name: 'Garra Afiada' },
+  scale_dust: { icon: '✨', name: 'Pó de Escama' },
+  ember_shard: { icon: '🔥', name: 'Fragmento de Brasa' },
+  thunder_fang: { icon: '⚡', name: 'Presa de Trovão' },
+  ice_crystal: { icon: '❄️', name: 'Cristal de Gelo' },
+  poison_barb: { icon: '🌵', name: 'Farpas Venenosas' },
+  hard_shell: { icon: '🐚', name: 'Concha Dura' },
+  spirit_dust: { icon: '👻', name: 'Pó Espiritual' },
+  dragon_fang: { icon: '🐉', name: 'Presa de Dragão' },
+  aura_fragment: { icon: '✨', name: 'Fragmento de Aura' },
+  leaf_debris: { icon: '🍃', name: 'Restos de Folha' },
+  wave_stone: { icon: '🌊', name: 'Pedra de Onda' },
 
   // Itens de Forja de Boss
   titan_shield: { icon: '🏰', name: 'Escudo de Titã' },

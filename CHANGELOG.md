@@ -1,5 +1,14 @@
 # Changelog - PokeCraft
 
+## [V1.77.0] - 13/05/2026 10:30
+### Adicionado
+- **Expansão Massiva de TMs**: 40 novos TMs divididos em 4 tiers regionais, abrangendo todas as gerações.
+- **Sistema de Materiais de Pokémon**: 12 novos materiais temáticos (ex: Ember Shard, Scale Dust, Thunder Fang) que dropam de famílias específicas de Pokémon.
+- **Drop Global Inteligente**: Pokémon agora dropam seus materiais específicos em qualquer rota do jogo automaticamente.
+- **Held Items Completos**: Expansão para 18 itens de bônus de tipo (Silk Scarf, Miracle Seed, etc.) + 4 itens especiais (Life Orb, Leftovers, Focus Sash, Expert Belt).
+- **Efeitos de Batalha**: Implementação de recuo de Life Orb, cura passiva de Leftovers, bônus de Expert Belt e sobrevivência com Focus Sash.
+- **Guia de Localização**: Dicas de onde encontrar as receitas de todos os 22 held items e 40 TMs integradas na UI da Forja.
+
 ## [V1.76.9] - 12/05/2026 18:36
 ### Publicado
 - **Release Consolidado**: pacote final com Loja de Prestigio refinada, relatorio de Expedicoes corrigido e Minha Casa plantando em todos os slots disponiveis.

@@ -1,7 +1,14 @@
-export const APP_VERSION = '1.76.9';
-export const VERSION = '1.76.9';
-export const APP_VERSION_DATE = '12/05/2026 18:36';
+export const APP_VERSION = '1.77.0';
+export const VERSION = '1.77.0';
+export const APP_VERSION_DATE = '13/05/2026 10:30';
 export const CHANGELOG = [
+  'Release: V1.77.0 — Sistema completo de Held Items: 18 tipos + 4 especiais com efeitos de batalha',
+  'Feature: TYPE_BOOSTS expandido para todos os 18 tipos (Silk Scarf, Miracle Seed, Never-Melt Ice, etc.)',
+  'Feature: Life Orb — +30% dano + -8% HP de recuo por turno ao atacar',
+  'Feature: Expert Belt — +20% dano adicional em golpes super efetivos',
+  'Feature: Leftovers — recupera 5% HP por turno automaticamente',
+  'Feature: Focus Sash — sobrevive a um golpe fatal com 1 HP (se HP era > 1)',
+  'Feature: RECIPE_LABEL_OVERRIDES — dicas de localização para receitas de todos os held items',
   'Release: V1.76.9 consolidando Loja de Prestigio, Expedições e Minha Casa com cache publico atualizado',
   'Fix: Minha Casa — plantio agora respeita todos os slots disponiveis e consome sementes por canteiro',
   'Fix: Expedições — relatório de conclusão estabilizado, sem piscar e com botão de fechar funcionando',

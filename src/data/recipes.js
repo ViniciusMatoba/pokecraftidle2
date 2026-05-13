@@ -18,11 +18,49 @@ export const CRAFTING_RECIPES = {
     { id: 'link_cable', name: 'Link Cable', img: '/assets/items/link-cable-custom.png', cost: { link_cable_part: 5, electric_essence: 10, normal_essence: 10, currency: 5000 }, type: 'evolution' }
   ],
   hold_items: [
-    { id: 'charcoal', name: 'Charcoal', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/charcoal.png', cost: { fire_essence: 50, currency: 5000 }, effect: '+20% Fire Dmg' },
-    { id: 'mystic_water', name: 'Mysty Water', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/mystic-water.png', cost: { water_essence: 50, currency: 5000 }, effect: '+20% Water Dmg' },
-    { id: 'black_belt', name: 'Black Belt', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/black-belt.png', cost: { fighting_essence: 50, currency: 5000 }, effect: '+20% Fighting Dmg' },
-    { id: 'magnet', name: 'Magnet', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/magnet.png', cost: { electric_essence: 50, currency: 5000 }, effect: '+20% Electric Dmg' },
-    { id: 'quick_claw', name: 'Quick Claw', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/quick-claw.png', cost: { flying_essence: 30, steel_essence: 10, currency: 7000 }, effect: 'Speed Priority' }
+    // ── Tipo Normal ───────────────────────────────────────────────────────────
+    { id: 'silk_scarf',    name: 'Silk Scarf',     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/silk-scarf.png',    cost: { normal_essence: 50, silk: 20, currency: 5000 },           effect: '+20% Normal Dmg' },
+    // ── Tipo Fogo ─────────────────────────────────────────────────────────────
+    { id: 'charcoal',      name: 'Charcoal',        img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/charcoal.png',       cost: { fire_essence: 50, currency: 5000 },                        effect: '+20% Fire Dmg' },
+    // ── Tipo Água ─────────────────────────────────────────────────────────────
+    { id: 'mystic_water',  name: 'Mystic Water',    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/mystic-water.png',   cost: { water_essence: 50, currency: 5000 },                       effect: '+20% Water Dmg' },
+    // ── Tipo Elétrico ─────────────────────────────────────────────────────────
+    { id: 'magnet',        name: 'Magnet',           img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/magnet.png',         cost: { electric_essence: 50, currency: 5000 },                    effect: '+20% Electric Dmg' },
+    // ── Tipo Planta ───────────────────────────────────────────────────────────
+    { id: 'miracle_seed',  name: 'Miracle Seed',    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png',   cost: { grass_essence: 50, currency: 5000 },                       effect: '+20% Grass Dmg' },
+    // ── Tipo Gelo ─────────────────────────────────────────────────────────────
+    { id: 'never_melt_ice',name: 'NeverMeltIce',    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/never-melt-ice.png', cost: { ice_essence: 50, currency: 5000 },                         effect: '+20% Ice Dmg' },
+    // ── Tipo Lutador ──────────────────────────────────────────────────────────
+    { id: 'black_belt',    name: 'Black Belt',       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/black-belt.png',     cost: { fighting_essence: 50, currency: 5000 },                    effect: '+20% Fighting Dmg' },
+    // ── Tipo Veneno ───────────────────────────────────────────────────────────
+    { id: 'poison_barb',   name: 'Poison Barb',     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poison-barb.png',    cost: { poison_essence: 50, currency: 5000 },                      effect: '+20% Poison Dmg' },
+    // ── Tipo Terra ────────────────────────────────────────────────────────────
+    { id: 'soft_sand',     name: 'Soft Sand',        img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/soft-sand.png',      cost: { ground_essence: 50, currency: 5000 },                      effect: '+20% Ground Dmg' },
+    // ── Tipo Voador ───────────────────────────────────────────────────────────
+    { id: 'sharp_beak',    name: 'Sharp Beak',       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sharp-beak.png',     cost: { flying_essence: 50, currency: 5000 },                      effect: '+20% Flying Dmg' },
+    // ── Tipo Psíquico ─────────────────────────────────────────────────────────
+    { id: 'twisted_spoon', name: 'Twisted Spoon',   img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/twisted-spoon.png',  cost: { psychic_essence: 50, currency: 5000 },                     effect: '+20% Psychic Dmg' },
+    // ── Tipo Inseto ───────────────────────────────────────────────────────────
+    { id: 'silver_powder', name: 'Silver Powder',   img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/silver-powder.png',  cost: { bug_essence: 50, silk: 10, currency: 5000 },               effect: '+20% Bug Dmg' },
+    // ── Tipo Pedra ────────────────────────────────────────────────────────────
+    { id: 'hard_stone',    name: 'Hard Stone',       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png',     cost: { rock_essence: 50, iron_ore: 10, currency: 5000 },          effect: '+20% Rock Dmg' },
+    // ── Tipo Fantasma ─────────────────────────────────────────────────────────
+    { id: 'spell_tag',     name: 'Spell Tag',        img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/spell-tag.png',      cost: { ghost_essence: 50, mystic_dust: 10, currency: 6000 },      effect: '+20% Ghost Dmg' },
+    // ── Tipo Dragão ───────────────────────────────────────────────────────────
+    { id: 'dragon_fang',   name: 'Dragon Fang',     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dragon-fang.png',    cost: { dragon_essence: 40, dragon_scale: 3, currency: 10000 },    effect: '+20% Dragon Dmg' },
+    // ── Tipo Sombrio ──────────────────────────────────────────────────────────
+    { id: 'black_glasses', name: 'Black Glasses',   img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/black-glasses.png',  cost: { dark_essence: 50, currency: 6000 },                        effect: '+20% Dark Dmg' },
+    // ── Tipo Aço ──────────────────────────────────────────────────────────────
+    { id: 'metal_coat',    name: 'Metal Coat',       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/metal-coat.png',     cost: { steel_essence: 50, iron_ore: 20, currency: 8000 },         effect: '+20% Steel Dmg' },
+    // ── Tipo Fada ─────────────────────────────────────────────────────────────
+    { id: 'fairy_feather', name: 'Fairy Feather',   img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pixie-plate.png',    cost: { fairy_essence: 50, pink_dust: 15, currency: 8000 },        effect: '+20% Fairy Dmg' },
+    // ── Velocidade ────────────────────────────────────────────────────────────
+    { id: 'quick_claw',    name: 'Quick Claw',       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/quick-claw.png',     cost: { flying_essence: 30, steel_essence: 10, currency: 7000 },  effect: '+15% Velocidade/Dano' },
+    // ── Itens Especiais ───────────────────────────────────────────────────────
+    { id: 'leftovers',     name: 'Leftovers',        img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png',      cost: { normal_essence: 80, apricorn: 20, currency: 12000 },       effect: 'Recupera 5% HP/turno' },
+    { id: 'life_orb',      name: 'Life Orb',         img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/life-orb.png',       cost: { dragon_essence: 30, mystic_dust: 20, currency: 25000 },    effect: '+30% Dmg, -8% HP/turno' },
+    { id: 'expert_belt',   name: 'Expert Belt',      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/expert-belt.png',    cost: { fighting_essence: 60, steel_essence: 20, currency: 15000 },effect: '+20% Dmg Super-Efetivo' },
+    { id: 'focus_sash',    name: 'Focus Sash',       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/focus-sash.png',     cost: { psychic_essence: 40, silk: 30, currency: 18000 },          effect: 'Sobrevive 1 golpe fatal' },
   ],
   elite_relics: [
     { 
@@ -57,6 +95,53 @@ export const CRAFTING_RECIPES = {
     }
   ],
   tms: [
+    // Tier 1 — Kanto (5.000–15.000 coins)
+    { id: 'tm_thunder_wave', name: 'TM Thunder Wave', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-electric.png', cost: { electric_essence: 40, thunder_fang: 5, currency: 5000 } },
+    { id: 'tm_toxic', name: 'TM Toxic', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-poison.png', cost: { poison_essence: 40, poison_barb: 5, currency: 6000 } },
+    { id: 'tm_dig', name: 'TM Dig', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-ground.png', cost: { ground_essence: 40, hard_shell: 5, currency: 7000 } },
+    { id: 'tm_aerial_ace', name: 'TM Aerial Ace', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-flying.png', cost: { flying_essence: 40, feather: 5, currency: 8000 } },
+    { id: 'tm_shadow_ball', name: 'TM Shadow Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-ghost.png', cost: { ghost_essence: 40, spirit_dust: 5, currency: 10000 } },
+    { id: 'tm_brick_break', name: 'TM Brick Break', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-fighting.png', cost: { fighting_essence: 40, aura_fragment: 5, currency: 12000 } },
+    { id: 'tm_rock_tomb', name: 'TM Rock Tomb', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-rock.png', cost: { rock_essence: 40, hard_shell: 5, currency: 13000 } },
+    { id: 'tm_thief', name: 'TM Thief', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-dark.png', cost: { dark_essence: 40, sharp_claw: 5, currency: 15000 } },
+
+    // Tier 2 — Johto/Hoenn (20.000–40.000 coins)
+    { id: 'tm_earthquake', name: 'TM Earthquake', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-ground.png', cost: { ground_essence: 100, hard_shell: 15, currency: 30000 } },
+    { id: 'tm_surf', name: 'TM Surf', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-water.png', cost: { water_essence: 100, wave_stone: 15, currency: 25000 } },
+    { id: 'tm_rock_slide', name: 'TM Rock Slide', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-rock.png', cost: { rock_essence: 100, hard_shell: 15, currency: 22000 } },
+    { id: 'tm_bulk_up', name: 'TM Bulk Up', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-fighting.png', cost: { fighting_essence: 100, aura_fragment: 15, currency: 20000 } },
+    { id: 'tm_calm_mind', name: 'TM Calm Mind', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-psychic.png', cost: { psychic_essence: 100, spirit_dust: 15, currency: 28000 } },
+    { id: 'tm_swords_dance', name: 'TM Swords Dance', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-normal.png', cost: { normal_essence: 100, sharp_claw: 15, currency: 35000 } },
+    { id: 'tm_fire_punch', name: 'TM Fire Punch', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-fire.png', cost: { fire_essence: 80, ember_shard: 10, currency: 24000 } },
+    { id: 'tm_thunder_punch', name: 'TM Thunder Punch', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-electric.png', cost: { electric_essence: 80, thunder_fang: 10, currency: 24000 } },
+    { id: 'tm_ice_punch', name: 'TM Ice Punch', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-ice.png', cost: { ice_essence: 80, ice_crystal: 10, currency: 24000 } },
+    { id: 'tm_drain_punch', name: 'TM Drain Punch', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-fighting.png', cost: { fighting_essence: 80, aura_fragment: 10, currency: 26000 } },
+
+    // Tier 3 — Sinnoh/Unova (50.000–80.000 coins)
+    { id: 'tm_aura_sphere', name: 'TM Aura Sphere', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-fighting.png', cost: { fighting_essence: 150, aura_fragment: 25, currency: 60000 } },
+    { id: 'tm_stone_edge', name: 'TM Stone Edge', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-rock.png', cost: { rock_essence: 150, hard_shell: 25, currency: 55000 } },
+    { id: 'tm_flash_cannon', name: 'TM Flash Cannon', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-steel.png', cost: { steel_essence: 150, hard_shell: 25, currency: 58000 } },
+    { id: 'tm_dark_pulse', name: 'TM Dark Pulse', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-dark.png', cost: { dark_essence: 150, spirit_dust: 25, currency: 65000 } },
+    { id: 'tm_energy_ball', name: 'TM Energy Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-grass.png', cost: { grass_essence: 150, leaf_debris: 25, currency: 50000 } },
+    { id: 'tm_close_combat', name: 'TM Close Combat', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-fighting.png', cost: { fighting_essence: 200, aura_fragment: 30, currency: 80000 } },
+    { id: 'tm_stealth_rock', name: 'TM Stealth Rock', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-rock.png', cost: { rock_essence: 120, hard_shell: 20, currency: 52000 } },
+    { id: 'tm_dragon_claw', name: 'TM Dragon Claw', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-dragon.png', cost: { dragon_essence: 150, dragon_fang: 25, currency: 75000 } },
+    { id: 'tm_wild_charge', name: 'TM Wild Charge', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-electric.png', cost: { electric_essence: 150, thunder_fang: 25, currency: 62000 } },
+    { id: 'tm_giga_drain', name: 'TM Giga Drain', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-grass.png', cost: { grass_essence: 150, leaf_debris: 25, currency: 54000 } },
+
+    // Tier 4 — Kalos+ / Elite (100.000+ coins)
+    { id: 'tm_moonblast', name: 'TM Moonblast', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-fairy.png', cost: { fairy_essence: 250, spirit_dust: 40, currency: 120000 } },
+    { id: 'tm_dazzling_gleam', name: 'TM Dazzling Gleam', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-fairy.png', cost: { fairy_essence: 200, scale_dust: 30, currency: 100000 } },
+    { id: 'tm_dragon_dance', name: 'TM Dragon Dance', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-dragon.png', cost: { dragon_essence: 250, dragon_fang: 40, currency: 150000 } },
+    { id: 'tm_nasty_plot', name: 'TM Nasty Plot', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-dark.png', cost: { dark_essence: 200, spirit_dust: 30, currency: 110000 } },
+    { id: 'tm_hyper_voice', name: 'TM Hyper Voice', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-normal.png', cost: { normal_essence: 250, scale_dust: 30, currency: 105000 } },
+    { id: 'tm_leaf_storm', name: 'TM Leaf Storm', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-grass.png', cost: { grass_essence: 250, leaf_debris: 40, currency: 130000 } },
+    { id: 'tm_hurricane', name: 'TM Hurricane', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-flying.png', cost: { flying_essence: 250, feather: 40, currency: 115000 } },
+    { id: 'tm_focus_blast', name: 'TM Focus Blast', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-fighting.png', cost: { fighting_essence: 250, aura_fragment: 40, currency: 140000 } },
+    { id: 'tm_flare_blitz', name: 'TM Flare Blitz', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-fire.png', cost: { fire_essence: 250, ember_shard: 40, currency: 135000 } },
+    { id: 'tm_earthquake_ex', name: 'TM Tera Blast', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-normal.png', cost: { dragon_essence: 300, stardust: 50, scale_dust: 50, currency: 250000 } },
+    
+    // Legacy / Others
     { id: 'tm_flamethrower', name: 'TM Flamethrower', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-fire.png', cost: { fire_essence: 100, psychic_essence: 20, currency: 15000 } },
     { id: 'tm_thunderbolt', name: 'TM Thunderbolt', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-electric.png', cost: { electric_essence: 100, psychic_essence: 20, currency: 15000 } },
     { id: 'tm_ice_beam', name: 'TM Ice Beam', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-ice.png', cost: { ice_essence: 100, psychic_essence: 20, currency: 15000 } }
@@ -385,6 +470,20 @@ export const FORGE_MATERIAL_DROP_GUIDE = {
   trainer_card_thread: { pokemonIds: [10, 11, 12, 13, 14, 15, 133, 447, 448], routeId: 'viridian_forest', label: 'Insetos, Eevee e Lucario dropam fio para personalizacao do Trainer Card.' },
   yellow_shard: { pokemonIds: [25, 26, 81, 82, 100, 101, 125], routeId: 'power_plant', label: 'Pokemon eletricos dropam fragmentos amarelos.' },
   mystic_water: { pokemonIds: [60, 61, 62, 72, 73, 120, 121, 134], routeId: 'route_19_20', label: 'Pokemon aquaticos raros dropam Mystic Water como material avancado.' },
+
+  // Novos Materiais Específicos
+  sharp_claw:    { pokemonIds: [27, 28, 52, 53, 215, 461], routeId: 'route_22', label: 'Sandshrew, Meowth, Persian e Sneasel.' },
+  scale_dust:    { pokemonIds: [147, 371, 610, 611, 612], routeId: 'dragons_den', label: 'Dratini, Bagon e Axew.' },
+  ember_shard:   { pokemonIds: [126, 218, 219, 240], routeId: 'pokemon_mansion', label: 'Magmar, Slugma e Magby.' },
+  thunder_fang:  { pokemonIds: [403, 404, 405, 135, 466], routeId: 'power_plant', label: 'Luxray, Jolteon e Electivire.' },
+  ice_crystal:   { pokemonIds: [361, 220, 221, 712], routeId: 'ice_path', label: 'Snorunt, Swinub e Bergmite.' },
+  poison_barb:   { pokemonIds: [15, 406, 407, 453, 454], routeId: 'viridian_forest', label: 'Beedrill, Roserade e Toxicroak.' },
+  hard_shell:    { pokemonIds: [90, 91, 74, 75, 76, 304, 305, 306], routeId: 'mt_moon', label: 'Shellder, Golem e Aron.' },
+  spirit_dust:   { pokemonIds: [200, 353, 355, 607, 608, 609], routeId: 'pokemon_tower', label: 'Misdreavus, Duskull e Litwick.' },
+  dragon_fang:   { pokemonIds: [443, 444, 445, 148], routeId: 'dragons_den', label: 'Gible, Gabite e Dragonair.' },
+  aura_fragment: { pokemonIds: [447, 448, 307, 308], routeId: 'sinnoh_route_201', label: 'Riolu, Lucario e Meditite.' },
+  leaf_debris:   { pokemonIds: [406, 546, 420], routeId: 'ilex_forest', label: 'Budew, Cottonee e Cherubi.' },
+  wave_stone:    { pokemonIds: [183, 194, 258], routeId: 'route_19_20', label: 'Marill, Wooper e Mudkip.' },
 };
 
 const ALL_FORGE_RECIPES = Object.values(CRAFTING_RECIPES).flat();
@@ -414,12 +513,32 @@ const RECIPE_SOURCE_OVERRIDES = {
   ice_stone:     'ice_stone_shard',
   link_cable:    'link_cable_part',
 
-  // Hold Items — mesmo material do custo
+  // ── Hold Items — tipo básico (18 tipos) ──────────────────────────────────
+  silk_scarf:    'normal_essence',
   charcoal:      'fire_essence',
   mystic_water:  'water_essence',
-  black_belt:    'fighting_essence',
   magnet:        'electric_essence',
+  miracle_seed:  'grass_essence',
+  never_melt_ice:'ice_essence',
+  black_belt:    'fighting_essence',
+  poison_barb:   'poison_essence',
+  soft_sand:     'ground_essence',
+  sharp_beak:    'flying_essence',
+  twisted_spoon: 'psychic_essence',
+  silver_powder: 'bug_essence',
+  hard_stone:    'rock_essence',
+  spell_tag:     'ghost_essence',
+  dragon_fang:   'dragon_essence',
+  black_glasses: 'dark_essence',
+  metal_coat:    'steel_essence',
+  fairy_feather: 'fairy_essence',
   quick_claw:    'flying_essence',
+  // ── Hold Items especiais ──────────────────────────────────────────────────
+  leftovers:     'normal_essence',
+  life_orb:      'dragon_essence',
+  expert_belt:   'fighting_essence',
+  focus_sash:    'psychic_essence',
+  // ── Badges Items (consumíveis com efeito de hold) ─────────────────────────
   lucky_egg:     'pink_dust',
   amulet_coin:   'gold_nugget',
 
@@ -427,6 +546,46 @@ const RECIPE_SOURCE_OVERRIDES = {
   tm_flamethrower: 'fire_essence',    // Charmander, Vulpix, Growlithe (rotas iniciais Kanto)
   tm_thunderbolt:  'electric_essence',// Pikachu, Magnemite (Power Plant / rotas elétricas)
   tm_ice_beam:     'ice_essence',     // Jynx, Lapras (Ice Path / rotas geladas)
+
+  // Novos TMs mapeados aos materiais específicos
+  tm_thunder_wave: 'thunder_fang',
+  tm_toxic:        'poison_barb',
+  tm_dig:          'hard_shell',
+  tm_aerial_ace:   'feather',
+  tm_shadow_ball:  'spirit_dust',
+  tm_brick_break:  'aura_fragment',
+  tm_rock_tomb:    'hard_shell',
+  tm_thief:        'sharp_claw',
+  tm_earthquake:   'hard_shell',
+  tm_surf:         'wave_stone',
+  tm_rock_slide:   'hard_shell',
+  tm_bulk_up:      'aura_fragment',
+  tm_calm_mind:    'spirit_dust',
+  tm_swords_dance: 'sharp_claw',
+  tm_fire_punch:   'ember_shard',
+  tm_thunder_punch:'thunder_fang',
+  tm_ice_punch:    'ice_crystal',
+  tm_drain_punch:  'aura_fragment',
+  tm_aura_sphere:  'aura_fragment',
+  tm_stone_edge:   'hard_shell',
+  tm_flash_cannon: 'hard_shell',
+  tm_dark_pulse:   'spirit_dust',
+  tm_energy_ball:  'leaf_debris',
+  tm_close_combat: 'aura_fragment',
+  tm_stealth_rock: 'hard_shell',
+  tm_dragon_claw:  'dragon_fang',
+  tm_wild_charge:  'thunder_fang',
+  tm_giga_drain:   'leaf_debris',
+  tm_moonblast:    'spirit_dust',
+  tm_dazzling_gleam:'scale_dust',
+  tm_dragon_dance: 'dragon_fang',
+  tm_nasty_plot:   'spirit_dust',
+  tm_hyper_voice:  'scale_dust',
+  tm_leaf_storm:   'leaf_debris',
+  tm_hurricane:    'feather',
+  tm_focus_blast:  'aura_fragment',
+  tm_flare_blitz:  'ember_shard',
+  tm_earthquake_ex:'stardust',
 
   // Relíquias elite
   titan_shield:        'armor_fragment',
@@ -454,9 +613,70 @@ const RECIPE_LABEL_OVERRIDES = {
   tm_flamethrower: 'Derrote Charmander, Vulpix ou Growlithe nas rotas de fogo.',
   tm_thunderbolt:  'Derrote Pikachu, Magnemite ou Voltorb na Power Plant.',
   tm_ice_beam:     'Derrote Jynx ou Lapras no Ice Path / Seafoam Islands.',
+  tm_thunder_wave: 'Derrote Pikachu, Magnemite ou Jolteon.',
+  tm_toxic:        'Derrote Ekans, Koffing ou Weezing.',
+  tm_dig:          'Derrote Diglett, Sandshrew ou Geodude.',
+  tm_aerial_ace:   'Derrote Pidgeot, Farfetch\'d ou Scyther.',
+  tm_shadow_ball:  'Derrote Gastly, Haunter ou Gengar.',
+  tm_brick_break:  'Derrote Mankey, Machop ou Hitmonchan.',
+  tm_rock_tomb:    'Derrote Geodude, Graveler ou Onix.',
+  tm_thief:        'Derrote Meowth, Murkrow ou Sneasel.',
+  tm_earthquake:   'Derrote Rhyhorn, Donphan ou Trapinch.',
+  tm_surf:         'Derrote Lapras, Tentacruel ou Gyarados.',
+  tm_rock_slide:   'Derrote Rhyhorn, Rhydon ou Larvitar.',
+  tm_bulk_up:      'Derrote Machoke, Hariyama ou Breloom.',
+  tm_calm_mind:    'Derrote Abra, Slowpoke ou Espeon.',
+  tm_swords_dance: 'Derrote Farfetch\'d, Scyther ou Houndour.',
+  tm_fire_punch:   'Derrote Magmar, Magby ou Hitmonchan.',
+  tm_thunder_punch:'Derrote Electivire, Electabuzz ou Jolteon.',
+  tm_ice_punch:    'Derrote Jynx, Swinub ou Snorunt.',
+  tm_drain_punch:  'Derrote Croagunk, Toxicroak ou Medicham.',
+  tm_aura_sphere:  'Derrote Lucario, Meditite ou Riolu.',
+  tm_stone_edge:   'Derrote Rhydon, Rhyperior ou Golem.',
+  tm_flash_cannon: 'Derrote Magnezone, Bronzong ou Steelix.',
+  tm_dark_pulse:   'Derrote Absol, Weavile ou Umbreon.',
+  tm_energy_ball:  'Derrote Roserade, Tangrowth ou Leafeon.',
+  tm_close_combat: 'Derrote Lucario, Infernape ou Gallade.',
+  tm_stealth_rock: 'Derrote Onix, Sudowoodo ou Golem.',
+  tm_dragon_claw:  'Derrote Gible, Gabite ou Garchomp.',
+  tm_wild_charge:  'Derrote Zebstrika, Luxray ou Lanturn.',
+  tm_giga_drain:   'Derrote Vileplume, Victreebel ou Roserade.',
+  tm_moonblast:    'Derrote Clefable, Sylveon ou Gardevoir.',
+  tm_dazzling_gleam:'Derrote Togekiss, Ribombee ou Florges.',
+  tm_dragon_dance: 'Derrote Gyarados, Dragonite ou Kingdra.',
+  tm_nasty_plot:   'Derrote Gengar, Honchkrow ou Zoroark.',
+  tm_hyper_voice:  'Derrote Exploud, Meloetta ou Sylveon.',
+  tm_leaf_storm:   'Derrote Leafeon, Serperior ou Roserade.',
+  tm_hurricane:    'Derrote Dragonite ou Togekiss.',
+  tm_focus_blast:  'Derrote Alakazam, Lucario ou Conkeldurr.',
+  tm_flare_blitz:  'Derrote Arcanine, Charizard ou Infernape.',
+  tm_earthquake_ex:'Derrote Pseudo-lendários (Garchomp, Dragonite, Metagross).',
   old_rod:         'Derrote qualquer Pokémon nas rotas iniciais (Route 1/2/3).',
   good_rod:        'Derrote Pokémon aquáticos nas rotas costeiras.',
   super_rod:       'Derrote Dratini ou Dragonair na Dragon\'s Den.',
+  // Held items — Tipos
+  charcoal:        'Derrote Charmander, Vulpix ou Growlithe em rotas vulcânicas (Fire).',
+  mystic_water:    'Derrote Squirtle, Psyduck ou Poliwag em rios e oceanos (Water).',
+  black_belt:      'Derrote Mankey, Machop ou Tyrogue no Fighting Dojo (Fighting).',
+  magnet:          'Derrote Pikachu, Magnemite ou Voltorb na Power Plant (Electric).',
+  silk_scarf:      'Derrote Meowth, Rattata ou Eevee nas rotas iniciais (Normal).',
+  miracle_seed:    'Derrote Oddish, Bellsprout ou Exeggcute em florestas (Grass).',
+  never_melt_ice:  'Derrote Swinub, Snorunt ou Jynx no Ice Path (Ice).',
+  twisted_spoon:   'Derrote Abra, Drowzee ou Mr. Mime em Saffron City (Psychic).',
+  hard_stone:      'Derrote Geodude, Rhyhorn ou Larvitar no Rock Tunnel (Rock).',
+  spell_tag:       'Derrote Gastly, Haunter ou Gengar na Pokémon Tower (Ghost).',
+  dragon_fang:     'Derrote Dratini, Dragonair ou Bagon na Dragon\'s Den (Dragon).',
+  black_glasses:   'Derrote Murkrow, Sneasel ou Absol na Burned Tower (Dark).',
+  metal_coat:      'Derrote Magnemite, Aron ou Bronzor na Power Plant (Steel).',
+  fairy_feather:   'Derrote Clefairy, Togepi ou Marill no Mt. Moon (Fairy).',
+  poison_barb:     'Derrote Ekans, Grimer ou Koffing nas cavernas (Poison).',
+  soft_sand:       'Derrote Diglett, Sandshrew ou Trapinch no Rock Tunnel (Ground).',
+  sharp_beak:      'Derrote Pidgeot, Doduo ou Farfetch\'d nas rotas abertas (Flying).',
+  silver_powder:   'Derrote Caterpie, Paras ou Scyther na Viridian Forest (Bug).',
+  leftovers:       'Derrote Snorlax, Munchlax ou Lickitung nas rotas comuns.',
+  life_orb:        'Derrote Dragonite, Garchomp ou Metagross em Victory Road.',
+  expert_belt:     'Derrote Lucario, Machamp ou Conkeldurr no Fighting Dojo.',
+  focus_sash:      'Derrote Alakazam, Gardevoir ou Espeon em Saffron City.',
 };
 
 export const FORGE_RECIPE_DROP_GUIDE = Object.fromEntries(ALL_FORGE_RECIPES.map(recipe => {
