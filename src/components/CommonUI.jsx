@@ -491,7 +491,8 @@ export const TrainerCard = ({
                   onClick={() => {
                     if (!canEditTitle) return;
                     onSelectTitle(title.id);
-                    setShowTitlePicker(false);
+                    // Pequeno delay para o usuário ver o highlight "Ativo" antes de fechar
+                    setTimeout(() => setShowTitlePicker(false), 200);
                   }}
                   className={`rounded-2xl border p-3 text-left shadow-inner transition-all ${canEditTitle ? 'active:scale-[0.99] hover:brightness-110' : ''} ${selected ? 'ring-2 ring-white/60' : ''}`}
                   style={{ borderColor: selected ? title.color : `${title.color}66`, background: title.bg }}

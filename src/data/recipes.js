@@ -15,7 +15,7 @@ export const CRAFTING_RECIPES = {
     { id: 'dusk_stone', name: 'Dusk Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dusk-stone.png', cost: { dusk_stone_shard: 5, ghost_essence: 10, dark_essence: 10, currency: 3000 }, type: 'evolution' },
     { id: 'dawn_stone', name: 'Dawn Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dawn-stone.png', cost: { dawn_stone_shard: 5, psychic_essence: 10, fighting_essence: 10, currency: 3000 }, type: 'evolution' },
     { id: 'ice_stone', name: 'Ice Stone', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ice-stone.png', cost: { ice_stone_shard: 5, ice_essence: 20, currency: 2500 }, type: 'evolution' },
-    { id: 'link_cable', name: 'Link Cable', img: '/assets/items/link-cable-custom.png', cost: { link_cable_part: 5, electric_essence: 10, normal_essence: 10, currency: 5000 }, type: 'evolution' }
+    { id: 'link_cable', name: 'Link Cable', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/link-cable.png', cost: { link_cable_part: 5, electric_essence: 10, normal_essence: 10, currency: 5000 }, type: 'evolution' }
   ],
   hold_items: [
     // ── Tipo Normal ───────────────────────────────────────────────────────────
@@ -374,7 +374,7 @@ export const CRAFTING_RECIPES = {
     {
       id: 'poke_food',
       name: 'Ração Pokémon',
-      img: '/assets/items/poke-food-bag.png',
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png',
       description: 'Ração básica. Restaura 30% de Energia. Pode ser fabricada com materiais simples.',
       effect: { type: 'stamina', restore: 30 },
       cost: { apricorn: 5, normal_essence: 10, currency: 200 },
@@ -383,7 +383,7 @@ export const CRAFTING_RECIPES = {
     {
       id: 'poke_food_premium',
       name: 'Ração Premium',
-      img: '/assets/items/poke-food-premium-bag.png',
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sitrus-berry.png',
       description: 'Ração de alta qualidade. Restaura 60% de Energia e cura status.',
       effect: { type: 'stamina', restore: 60, cureStatus: true },
       cost: { apricorn: 10, grass_essence: 15, normal_essence: 20, currency: 800 },

@@ -1,7 +1,11 @@
-export const APP_VERSION = '1.77.3';
-export const VERSION = '1.77.3';
-export const APP_VERSION_DATE = '13/05/2026 07:10';
+export const APP_VERSION = '1.77.4';
+export const VERSION = '1.77.4';
+export const APP_VERSION_DATE = '13/05/2026 08:30';
 export const CHANGELOG = [
+  'Fix: Ícones de região (Johto/Hoenn/Alola/Paldea) trocados para sprites dos lendários via PokeAPI',
+  'Fix: Ícone do título Rival trocado para scope-lens (blue-card era 404)',
+  'Fix: Imagens do Pokémart/Forja — link_cable, poke_food, poke_food_premium agora usam PokeAPI',
+  'UX: Seleção de título — delay de 200ms antes de fechar modal para mostrar badge Ativo',
   'Fix: Materiais de Forja agora dropam em todas as 9 regiões via TYPE_MATERIAL_MAP',
   'Feature: FORGE_MATERIAL_DROP_GUIDE expandido com 200+ novos Pokémon de todas as gerações',
   'Feature: Efeitos visuais de golpes — 120+ moves com animações únicas usando sprites do Pokémon Showdown (/fx/)',

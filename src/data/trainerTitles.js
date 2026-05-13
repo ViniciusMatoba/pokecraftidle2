@@ -1,13 +1,13 @@
 const REGION_DEX_RANGES = {
   kanto: { label: 'Kanto', min: 1, max: 151, color: '#ef4444', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png' },
-  johto: { label: 'Johto', min: 152, max: 251, color: '#f59e0b', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/apricorn-box.png' },
-  hoenn: { label: 'Hoenn', min: 252, max: 386, color: '#22c55e', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/devon-scope.png' },
+  johto: { label: 'Johto', min: 152, max: 251, color: '#f59e0b', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/249.png' },
+  hoenn: { label: 'Hoenn', min: 252, max: 386, color: '#22c55e', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/384.png' },
   sinnoh: { label: 'Sinnoh', min: 387, max: 493, color: '#38bdf8', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/explorer-kit.png' },
   unova: { label: 'Unova', min: 494, max: 649, color: '#64748b', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/liberty-pass.png' },
   kalos: { label: 'Kalos', min: 650, max: 721, color: '#ec4899', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fairy-gem.png' },
-  alola: { label: 'Alola', min: 722, max: 809, color: '#f97316', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sparkling-stone.png' },
+  alola: { label: 'Alola', min: 722, max: 809, color: '#f97316', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/791.png' },
   galar: { label: 'Galar', min: 810, max: 905, color: '#8b5cf6', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dynamax-band.png' },
-  paldea: { label: 'Paldea', min: 906, max: 1025, color: '#14b8a6', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tera-orb.png' },
+  paldea: { label: 'Paldea', min: 906, max: 1025, color: '#14b8a6', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/994.png' },
 };
 
 const countCaughtInRange = (caughtIds, min, max) =>
@@ -159,7 +159,7 @@ export const TRAINER_TITLES = [
     id: 'rival_breaker',
     label: 'Superou o Rival',
     shortLabel: 'Rival',
-    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/blue-card.png',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/scope-lens.png',
     color: '#2563eb',
     bg: 'linear-gradient(135deg, rgba(37,99,235,.26), rgba(15,23,42,.66))',
     description: 'Venca uma batalha importante contra rival.',

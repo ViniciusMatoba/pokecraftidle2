@@ -1,5 +1,14 @@
 # Changelog - PokeCraft
 
+## [V1.77.4] - 13/05/2026 08:30
+### Corrigido
+- **Imagens e Ícones**:
+    - Ícones de região (Johto/Hoenn/Alola/Paldea) atualizados para sprites dos lendários (Lugia, Rayquaza, Solgaleo, Koraidon).
+    - Ícone do título `rival_breaker` corrigido para `scope-lens` (evitando erro 404).
+    - Imagens de itens da Forja/Mart (`link_cable`, `poke_food`, `poke_food_premium`) migradas para o PokeAPI para maior confiabilidade.
+- **UX/UI**:
+    - Seleção de Títulos: Adicionado um delay de 200ms ao selecionar um título para permitir que o usuário veja a confirmação visual ("Ativo") antes do fechamento do modal.
+
 ## [V1.77.3] - 13/05/2026 07:10
 ### Corrigido
 - **Sistema de Drops da Forja**: 
