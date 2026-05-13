@@ -1,6 +1,6 @@
-export const APP_VERSION = '1.78.1';
-export const VERSION = '1.78.1';
-export const APP_VERSION_DATE = '13/05/2026 12:02';
+export const APP_VERSION = '1.78.2';
+export const VERSION = '1.78.2';
+export const APP_VERSION_DATE = '13/05/2026 12:12';
 export const CHANGELOG = [
   '## [V1.78.1] - 13/05/2026 12:02',
   '### Adicionado',
@@ -9,6 +9,8 @@ export const CHANGELOG = [
   '    - Corrigido bug onde Raids expiradas bloqueavam o surgimento de novas.',
   '    - Reduzido tempo de spawn passivo para 1 hora.',
   '## [V1.78.0] - 13/05/2026 11:36',
+  'UI: Redesign completo da tela de Raid com sprite centralizado e melhor legibilidade',
+  'UI: Botões de ação da Raid agora possuem alto contraste (Branco/Preto) para melhor navegação',
   'System: Raids agora podem surgir aleatoriamente durante encontros nas rotas (0.5% de chance)',
   'Fix: Corrigida trava que impedia novas Raids se a anterior expirasse sem ser visualizada',
   'System: Intervalo de spawn automático de Raids reduzido de 6h para 1h',

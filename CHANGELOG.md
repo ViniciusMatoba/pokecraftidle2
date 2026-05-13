@@ -1,5 +1,14 @@
 # Changelog - PokeCraft
 
+## [V1.78.2] - 13/05/2026 12:12
+### Adicionado
+- **Interface (UI)**:
+    - Novo layout da tela de Raid:
+        - Nome e Nível movidos para o cabeçalho superior.
+        - Pokémon centralizado com animação de flutuar e brilho pulsante.
+        - Barra de HP e cronômetro reposicionados abaixo do Pokémon.
+        - Botões de fechar e coletar agora em branco para máximo contraste.
+
 ## [V1.78.1] - 13/05/2026 12:02
 ### Adicionado
 - **Sistema de Raids**:

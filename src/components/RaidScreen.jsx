@@ -86,90 +86,96 @@ const RaidScreen = ({
         background: `radial-gradient(ellipse at 50% 30%, ${starColor}22, transparent 70%)`,
       }} />
 
-      <div style={{ maxWidth: 480, width: '100%', position: 'relative', zIndex: 10, maxHeight: '90vh', overflowY: 'auto' }}>
-
-        {/* ── Header ── */}
+      <div style={{ maxWidth: 420, width: '100%', position: 'relative', zIndex: 10, maxHeight: '95vh', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        
+        {/* ── NOVO CABEÇALHO (TOPO) ── */}
         <div style={{
-          background: '#0f172a', borderRadius: 24, padding: '20px 24px',
-          marginBottom: 14, display: 'flex', alignItems: 'center',
-          justifyContent: 'space-between', border: `2px solid ${starColor}40`,
+          textAlign: 'center', background: 'rgba(15, 23, 42, 0.6)', 
+          backdropFilter: 'blur(10px)', borderRadius: 20, padding: '16px 10px',
+          border: `1px solid ${starColor}40`
         }}>
-          <div>
-            <p style={{ color: '#64748b', fontSize: 9, fontWeight: 700,
-              textTransform: 'uppercase', letterSpacing: 2, margin: '0 0 4px' }}>
-              {PHASE_LABELS[raid.phase] || 'Raid'}
-            </p>
-            <h2 style={{ color: '#fff', fontWeight: 900, fontSize: 20,
-              textTransform: 'uppercase', fontStyle: 'italic', margin: 0 }}>
-              {raid.isShiny && <span style={{ marginRight: 6 }}>✨</span>}
-              {raid.name}
-            </h2>
-            <div style={{ display: 'flex', gap: 6, marginTop: 6, alignItems: 'center' }}>
-              <span style={{ color: starColor, fontSize: 14 }}>{'⭐'.repeat(raid.stars)}</span>
-              <span style={{ color: '#475569', fontSize: 10, fontWeight: 700 }}>
-                Nível {raid.level}
-              </span>
-            </div>
+          <p style={{ color: starColor, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 2, margin: '0 0 4px' }}>
+            {PHASE_LABELS[raid.phase] || 'Raid'}
+          </p>
+          <h2 style={{ 
+            color: '#fff', fontWeight: 900, fontSize: 24, 
+            textTransform: 'uppercase', fontStyle: 'italic', margin: 0,
+            textShadow: `0 0 20px ${starColor}66`
+          }}>
+            {raid.isShiny && <span style={{ marginRight: 8 }}>✨</span>}
+            {raid.name}
+          </h2>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginTop: 4, alignItems: 'center' }}>
+            <span style={{ fontSize: 14 }}>{'⭐'.repeat(raid.stars)}</span>
+            <span style={{ color: '#94a3b8', fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>
+              Nível {raid.level}
+            </span>
           </div>
+        </div>
+
+        {/* ── SPRITE CENTRALIZADO ── */}
+        <div style={{ 
+          height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', 
+          position: 'relative', margin: '10px 0' 
+        }}>
+          {/* Brilho Pulsante Atrás */}
+          <div style={{
+            position: 'absolute', width: 140, height: 140,
+            background: `radial-gradient(circle, ${starColor}44 0%, transparent 70%)`,
+            borderRadius: '50%', animation: 'pulse 2s infinite ease-in-out'
+          }} />
+          
           <img
             src={pokemonSprite}
             style={{
-              width: 80, height: 80, objectFit: 'contain',
-              filter: raid.isShiny ? 'drop-shadow(0 0 12px #fbbf24)' : `drop-shadow(0 0 8px ${starColor}44)`,
+              width: 160, height: 160, objectFit: 'contain',
+              filter: raid.isShiny ? 'drop-shadow(0 0 15px #fbbf24)' : `drop-shadow(0 0 10px ${starColor}66)`,
               imageRendering: 'pixelated',
+              position: 'relative', zIndex: 2,
+              animation: 'float 3s infinite ease-in-out'
             }}
             alt={raid.name}
           />
         </div>
 
-        {/* ── HP Bar ── */}
+        {/* ── BARRA DE HP (ABAIXO DO SPRITE) ── */}
         <div style={{
-          background: '#0f172a', borderRadius: 20, padding: '16px 20px',
-          marginBottom: 14, border: '1px solid #1e293b',
+          background: 'rgba(15, 23, 42, 0.8)', borderRadius: 20, padding: '16px 20px',
+          border: '1px solid #1e293b', boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between',
-            marginBottom: 8, alignItems: 'center' }}>
-            <span style={{ color: '#64748b', fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}>HP da Raid</span>
-            <span style={{ color: '#fff', fontSize: 12, fontWeight: 900 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, alignItems: 'center' }}>
+            <span style={{ color: '#94a3b8', fontSize: 10, fontWeight: 800, textTransform: 'uppercase' }}>Energia da Raid</span>
+            <span style={{ color: '#fff', fontSize: 12, fontWeight: 900, fontFamily: 'monospace' }}>
               {raid.currentHp.toLocaleString()} / {raid.maxHp.toLocaleString()}
             </span>
           </div>
-          <div style={{ background: '#1e293b', borderRadius: 99, height: 14, overflow: 'hidden' }}>
+          <div style={{ background: '#1e293b', borderRadius: 99, height: 12, overflow: 'hidden', border: '1px solid #334155' }}>
             <div style={{
-              height: '100%', borderRadius: 99, transition: 'width 0.5s ease',
+              height: '100%', borderRadius: 99, transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
               width: `${hpPct}%`,
               background: hpPct > 50
-                ? 'linear-gradient(90deg,#22c55e,#4ade80)'
+                ? 'linear-gradient(90deg, #22c55e, #4ade80)'
                 : hpPct > 20
-                  ? 'linear-gradient(90deg,#f59e0b,#fbbf24)'
-                  : 'linear-gradient(90deg,#ef4444,#f87171)',
+                  ? 'linear-gradient(90deg, #f59e0b, #fbbf24)'
+                  : 'linear-gradient(90deg, #ef4444, #f87171)',
+              boxShadow: `0 0 10px ${hpPct > 50 ? '#22c55e44' : hpPct > 20 ? '#f59e0b44' : '#ef444444'}`
             }} />
           </div>
-          {raid.totalDamageDealt > 0 && (
-            <p style={{ color: '#475569', fontSize: 9, fontWeight: 700,
-              marginTop: 8, textAlign: 'right', textTransform: 'uppercase' }}>
-              Dano total acumulado: {raid.totalDamageDealt.toLocaleString()}
-            </p>
-          )}
+          
+          {/* Tempo Restante (Sempre visível abaixo do HP) */}
+          <div style={{ marginTop: 12, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6 }}>
+            <span style={{ color: '#475569', fontSize: 10, fontWeight: 700 }}>⏳ EXPIRA EM:</span>
+            <span style={{ color: starColor, fontSize: 14, fontWeight: 900, fontFamily: 'monospace' }}>
+              {formatTime(raid.phase === 'fighting' ? timeLeftFight : timeLeftExpire)}
+            </span>
+          </div>
         </div>
 
-        {/* ── IDLE ── */}
-        {raid.phase === 'idle' && (
-          <div>
-            <div style={{
-              background: '#0f172a', borderRadius: 20, padding: 20,
-              marginBottom: 14, border: '1px solid #1e293b', textAlign: 'center',
-            }}>
-              <p style={{ color: '#94a3b8', fontSize: 13, fontWeight: 700, margin: '0 0 8px' }}>
-                ⏱️ Tempo para expirar:
-              </p>
-              <p style={{ color: starColor, fontSize: 30, fontWeight: 900, fontFamily: 'monospace', margin: 0 }}>
-                {formatTime(timeLeftExpire)}
-              </p>
-              <p style={{ color: '#334155', fontSize: 10, fontWeight: 700, marginTop: 8 }}>
-                {'⭐'.repeat(raid.stars)} Dificuldade {raid.stars}/5
-              </p>
-            </div>
+        {/* ── SEÇÃO DE CONTEÚDO DINÂMICO ── */}
+        <div style={{ flex: 1, overflowY: 'auto', paddingRight: 4 }}>
+          
+          {/* ── IDLE / INÍCIO ── */}
+          {raid.phase === 'idle' && (
             <button
               onClick={onStart}
               style={{
@@ -178,281 +184,118 @@ const RaidScreen = ({
                 color: '#fff', fontWeight: 900, fontSize: 15,
                 textTransform: 'uppercase', letterSpacing: 2,
                 border: 'none', cursor: 'pointer',
-                boxShadow: `0 8px 28px ${starColor}50`,
-                marginBottom: 12,
+                boxShadow: `0 8px 25px ${starColor}44`,
+                marginTop: 10
               }}
             >
-              ⚔️ Entrar na Raid
+              ⚔️ Desafiar Raid
             </button>
-            <button
-              onClick={onDismiss}
-              style={{
-                width: '100%', padding: 12, borderRadius: 16,
-                background: 'transparent', color: '#475569',
-                fontWeight: 700, fontSize: 11, textTransform: 'uppercase',
-                border: '1px solid #1e293b', cursor: 'pointer',
-              }}
-            >
-              Ignorar Raid
-            </button>
-          </div>
-        )}
+          )}
 
-        {/* ── FIGHTING ── */}
-        {raid.phase === 'fighting' && (
-          <div>
-            <div style={{
-              background: '#0f172a', borderRadius: 20, padding: 20,
-              marginBottom: 14, border: `2px solid ${starColor}30`,
-              display: 'flex', justifyContent: 'space-around', textAlign: 'center',
-            }}>
-              <div>
-                <p style={{ color: '#64748b', fontSize: 9, textTransform: 'uppercase', fontWeight: 700, margin: '0 0 6px' }}>Tempo</p>
-                <p style={{ color: timeLeftFight < 30000 ? '#ef4444' : '#fff',
-                  fontSize: 26, fontWeight: 900, fontFamily: 'monospace', margin: 0 }}>
-                  {formatTime(timeLeftFight)}
-                </p>
-              </div>
-              <div style={{ width: 1, background: '#1e293b' }} />
-              <div>
-                <p style={{ color: '#64748b', fontSize: 9, textTransform: 'uppercase', fontWeight: 700, margin: '0 0 6px' }}>Seu Dano</p>
-                <p style={{ color: starColor, fontSize: 26, fontWeight: 900, margin: 0 }}>
+          {/* ── FIGHTING / EM COMBATE ── */}
+          {raid.phase === 'fighting' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{
+                background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)',
+                borderRadius: 16, padding: 14, textAlign: 'center'
+              }}>
+                <p style={{ color: '#3b82f6', fontSize: 11, fontWeight: 800, margin: '0 0 4px', textTransform: 'uppercase' }}>Seu Dano Contribuído</p>
+                <p style={{ color: '#fff', fontSize: 24, fontWeight: 900, margin: 0 }}>
                   {raid.totalDamageDealt.toLocaleString()}
                 </p>
               </div>
-            </div>
-            <div style={{
-              background: `${starColor}12`, border: `1px solid ${starColor}30`,
-              borderRadius: 16, padding: 16, textAlign: 'center',
-            }}>
-              <p style={{ color: '#94a3b8', fontSize: 12, fontWeight: 700, margin: 0 }}>
-                ⚔️ Continue batalhando normalmente!
-              </p>
-              <p style={{ color: '#475569', fontSize: 10, fontWeight: 600, margin: '6px 0 0' }}>
-                50% do dano causado é aplicado à raid automaticamente.
-              </p>
-            </div>
-            <button
-              onClick={onDismiss}
-              style={{
-                width: '100%', padding: 12, borderRadius: 16, marginTop: 12,
-                background: 'transparent', color: '#475569',
-                fontWeight: 700, fontSize: 11, textTransform: 'uppercase',
-                border: '1px solid #1e293b', cursor: 'pointer',
-              }}
-            >
-              Fechar (batalha continua)
-            </button>
-          </div>
-        )}
-
-        {/* ── CAPTURE ── */}
-        {raid.phase === 'capture' && (() => {
-          const noBalls = balls.every(b => b.count === 0);
-          return (
-            <div>
-              <div style={{
-                background: '#0f172a', borderRadius: 20, padding: 20,
-                marginBottom: 14, border: '1px solid #22c55e30', textAlign: 'center',
-              }}>
-                <p style={{ color: '#4ade80', fontWeight: 900, fontSize: 14,
-                  textTransform: 'uppercase', margin: '0 0 8px' }}>
-                  {raid.currentHp <= 0 ? '💥 Derrotado!' : '⚠️ HP Crítico!'} Tente capturar!
-                </p>
-                <p style={{ color: '#64748b', fontSize: 12, fontWeight: 700, margin: 0 }}>
-                  Tentativas restantes: <span style={{ color: '#fff' }}>{raid.catchAttemptsLeft}</span>
+              <div style={{ textAlign: 'center', padding: '0 10px' }}>
+                <p style={{ color: '#475569', fontSize: 10, fontWeight: 600, lineHeight: 1.4, margin: 0 }}>
+                  A Raid continua em segundo plano.<br/>50% do seu dano em rotas é aplicado aqui!
                 </p>
               </div>
+            </div>
+          )}
 
-              {/* Aviso sem Pokébolas */}
-              {noBalls && (
-                <div style={{
-                  background: '#7f1d1d22', border: '1px solid #ef444440',
-                  borderRadius: 16, padding: '12px 16px', marginBottom: 12,
-                  display: 'flex', alignItems: 'center', gap: 10,
-                }}>
-                  <span style={{ fontSize: 20 }}>🚫</span>
-                  <div>
-                    <p style={{ color: '#fca5a5', fontWeight: 900, fontSize: 12,
-                      textTransform: 'uppercase', margin: '0 0 2px' }}>
-                      Sem Pokébolas!
-                    </p>
-                    <p style={{ color: '#64748b', fontSize: 10, fontWeight: 600, margin: 0 }}>
-                      Compre na loja ou forje antes de entrar em raids.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {balls.map(ball => (
-                  <button
-                    key={ball.id}
-                    disabled={ball.count === 0 || raid.catchAttemptsLeft === 0}
-                    onClick={() => onCatchAttempt(ball.id)}
-                    style={{
-                      padding: '14px 20px', borderRadius: 16,
-                      background: ball.count > 0 ? '#1e293b' : '#0f172a',
-                      border: ball.count > 0 ? '2px solid #334155' : '2px solid #1e293b',
-                      color: ball.count > 0 ? '#fff' : '#334155',
-                      cursor: ball.count > 0 ? 'pointer' : 'not-allowed',
-                      display: 'flex', alignItems: 'center', gap: 12,
-                      fontWeight: 900, fontSize: 13,
-                    }}
-                  >
-                    <img src={ball.img} style={{ width: 28, height: 28 }} alt="" />
-                    <span>{ball.label}</span>
-                    <span style={{ marginLeft: 'auto', color: ball.count > 0 ? '#94a3b8' : '#334155', fontSize: 11 }}>
-                      x{ball.count}
-                    </span>
-                  </button>
-                ))}
+          {/* ── CAPTURE ── */}
+          {raid.phase === 'capture' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ textAlign: 'center', marginBottom: 5 }}>
+                <p style={{ color: '#22c55e', fontWeight: 900, fontSize: 13, textTransform: 'uppercase', margin: 0 }}>
+                   Tentativas: {raid.catchAttemptsLeft}
+                </p>
               </div>
-
-              {/* Ir para Recompensas quando tentativas acabaram */}
-              {raid.catchAttemptsLeft === 0 && (
+              {balls.map(ball => (
                 <button
-                  onClick={onClaimRewards}
+                  key={ball.id}
+                  disabled={ball.count === 0 || raid.catchAttemptsLeft === 0}
+                  onClick={() => onCatchAttempt(ball.id)}
                   style={{
-                    width: '100%', padding: 16, borderRadius: 20, marginTop: 14,
-                    background: '#1e293b', color: '#94a3b8',
-                    fontWeight: 900, fontSize: 13, textTransform: 'uppercase',
-                    border: 'none', cursor: 'pointer',
+                    padding: '12px 16px', borderRadius: 16,
+                    background: ball.count > 0 ? 'rgba(30, 41, 59, 0.8)' : 'rgba(15, 23, 42, 0.4)',
+                    border: ball.count > 0 ? '1px solid #334155' : '1px solid #1e293b',
+                    color: ball.count > 0 ? '#fff' : '#475569',
+                    cursor: ball.count > 0 ? 'pointer' : 'not-allowed',
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    fontWeight: 800, fontSize: 13,
                   }}
                 >
-                  Ir para Recompensas →
+                  <img src={ball.img} style={{ width: 24, height: 24 }} alt="" />
+                  <span>{ball.label}</span>
+                  <span style={{ marginLeft: 'auto', fontSize: 11, opacity: 0.7 }}>x{ball.count}</span>
                 </button>
-              )}
-
-              {/* Fechar quando não tem bolas mas ainda tem tentativas */}
-              {noBalls && raid.catchAttemptsLeft > 0 && (
-                <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
-                  <button
-                    onClick={onClaimRewards}
-                    style={{
-                      flex: 1, padding: 14, borderRadius: 18,
-                      background: '#1e293b', color: '#94a3b8',
-                      fontWeight: 900, fontSize: 11, textTransform: 'uppercase',
-                      border: '1px solid #334155', cursor: 'pointer',
-                    }}
-                  >
-                    Recompensas →
-                  </button>
-                  <button
-                    onClick={onDismiss}
-                    style={{
-                      flex: 1, padding: 14, borderRadius: 18,
-                      background: '#ef444415', color: '#ef4444',
-                      fontWeight: 900, fontSize: 11, textTransform: 'uppercase',
-                      border: '1px solid #ef444440', cursor: 'pointer',
-                    }}
-                  >
-                    ✕ Fechar
-                  </button>
-                </div>
-              )}
+              ))}
             </div>
-          );
-        })()}
+          )}
 
-        {/* ── REWARDS ── */}
-        {raid.phase === 'rewards' && (
-          <div>
-            {raid.captured && (
-              <div style={{
-                background: 'linear-gradient(135deg,#16a34a20,#15803d20)',
-                borderRadius: 20, padding: 16, marginBottom: 14,
-                border: '1px solid #16a34a40', textAlign: 'center',
-              }}>
-                <p style={{ color: '#4ade80', fontWeight: 900, fontSize: 15,
-                  textTransform: 'uppercase', margin: 0 }}>
-                  ✅ {raid.name} Capturado{raid.isShiny ? ' (✨ SHINY!)' : ''}!
-                </p>
-              </div>
-            )}
-            {!raid.captured && (
-              <div style={{
-                background: '#1e293b22', borderRadius: 20, padding: 12, marginBottom: 14,
-                border: '1px solid #ef444430', textAlign: 'center',
-              }}>
-                <p style={{ color: '#ef4444', fontWeight: 700, fontSize: 12, margin: 0 }}>
-                  😔 {raid.name} escapou... mas você ganhou recompensas!
-                </p>
-              </div>
-            )}
-            <div style={{
-              background: '#0f172a', borderRadius: 20, padding: 20,
-              marginBottom: 14, border: '1px solid #1e293b',
-            }}>
-              <p style={{ color: '#94a3b8', fontSize: 10, fontWeight: 700,
-                textTransform: 'uppercase', letterSpacing: 2, marginBottom: 14 }}>
-                🎁 Recompensas obtidas:
-              </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+          {/* ── REWARDS ── */}
+          {raid.phase === 'rewards' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
                 {raid.rewards.map((r, i) => (
                   <div key={i} style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center',
-                    gap: 4, background: '#1e293b', borderRadius: 14, padding: '10px 14px',
-                    border: '1px solid #334155',
+                    background: '#1e293b', borderRadius: 12, padding: '8px 12px', minWidth: 60
                   }}>
-                    {REWARD_ICONS[r.id]
-                      ? <img src={REWARD_ICONS[r.id]} style={{ width: 32, height: 32 }} alt="" />
-                      : <span style={{ fontSize: 24 }}>💰</span>
-                    }
-                    <span style={{ color: starColor, fontWeight: 900, fontSize: 13 }}>
-                      x{r.quantity}
-                    </span>
-                    <span style={{ color: '#475569', fontSize: 8, textTransform: 'uppercase', textAlign: 'center' }}>
-                      {r.id.replace(/_/g, ' ')}
-                    </span>
+                    <img src={REWARD_ICONS[r.id] || '💰'} style={{ width: 24, height: 24 }} alt="" />
+                    <span style={{ color: '#fff', fontWeight: 900, fontSize: 12 }}>x{r.quantity}</span>
                   </div>
                 ))}
               </div>
+              <button
+                onClick={onClaimRewards}
+                style={{
+                  width: '100%', padding: 16, borderRadius: 18,
+                  background: '#fff', color: '#0f172a', 
+                  fontWeight: 900, fontSize: 14, textTransform: 'uppercase',
+                  border: 'none', cursor: 'pointer',
+                  boxShadow: '0 4px 15px rgba(255,255,255,0.2)'
+                }}
+              >
+                Coletar e Sair
+              </button>
             </div>
-            <button
-              onClick={onClaimRewards}
-              style={{
-                width: '100%', padding: 18, borderRadius: 20,
-                background: `linear-gradient(135deg,${starColor},${starColor}bb)`,
-                color: '#fff', fontWeight: 900, fontSize: 15,
-                textTransform: 'uppercase', letterSpacing: 2,
-                border: 'none', cursor: 'pointer',
-                boxShadow: `0 8px 28px ${starColor}50`,
-              }}
-            >
-              🎁 Coletar Recompensas
-            </button>
-          </div>
-        )}
+          )}
 
-        {/* ── ENDED / EXPIRADO ── */}
-        {raid.phase === 'ended' && (
-          <div style={{ textAlign: 'center' }}>
-            <div style={{
-              background: '#0f172a', borderRadius: 20, padding: 24,
-              marginBottom: 14, border: '1px solid #ef444430',
-            }}>
-              <p style={{ fontSize: 40, margin: '0 0 12px' }}>⏰</p>
-              <p style={{ color: '#ef4444', fontWeight: 900, fontSize: 15,
-                textTransform: 'uppercase', margin: '0 0 8px' }}>
-                Raid Expirada!
-              </p>
-              <p style={{ color: '#475569', fontSize: 12, fontWeight: 700, margin: 0 }}>
-                {raid.name} fugiu antes que você pudesse agir.
-              </p>
+          {/* ── ENDED ── */}
+          {raid.phase === 'ended' && (
+            <div style={{ textAlign: 'center', padding: 20 }}>
+              <p style={{ color: '#ef4444', fontWeight: 900, fontSize: 16, textTransform: 'uppercase' }}>Raid Encerrada</p>
+              <p style={{ color: '#64748b', fontSize: 12 }}>O Pokémon fugiu ou o tempo acabou.</p>
             </div>
-            <button
-              onClick={onDismiss}
-              style={{
-                width: '100%', padding: 16, borderRadius: 20,
-                background: '#1e293b', color: '#94a3b8',
-                fontWeight: 900, fontSize: 13, textTransform: 'uppercase',
-                border: 'none', cursor: 'pointer',
-              }}
-            >
-              Fechar
-            </button>
-          </div>
+          )}
+        </div>
+
+        {/* ── BOTÃO DE FECHAR (CONTRASTE ALTO) ── */}
+        {(raid.phase === 'idle' || raid.phase === 'fighting' || raid.phase === 'ended') && (
+          <button
+            onClick={onDismiss}
+            style={{
+              width: '100%', padding: 14, borderRadius: 18,
+              background: '#fff', color: '#0f172a',
+              fontWeight: 900, fontSize: 12, textTransform: 'uppercase',
+              border: 'none', cursor: 'pointer',
+              marginTop: 5, boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+              transition: 'transform 0.1s active:scale-95'
+            }}
+          >
+            {raid.phase === 'fighting' ? 'Voltar para Rotas' : 'Fechar'}
+          </button>
         )}
       </div>
     </div>
