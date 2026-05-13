@@ -1,4 +1,14 @@
-import { RAID_HP_MULTIPLIER, RAID_CATCH_ATTEMPTS, RAID_DURATION_MS } from './constants/raids_config';
+// ── Configurações de Raid ──────────────────────────────────────────────────
+export const RAID_HP_MULTIPLIER = 10;
+export const RAID_CATCH_ATTEMPTS = {
+  1: 10, 2: 8, 3: 5, 4: 3, 5: 1
+};
+export const RAID_DURATION_MS = 3600000; // 1 hora (conforme changelog V1.78.0)
+export const RAID_FIGHT_SECONDS = 60;
+export const RAID_BATTLE_TRIGGER = 100; // Conforme changelog V1.80.3/V1.78.0
+export const RAID_SPAWN_INTERVAL_MS = 3600000; // 1 hora
+export const RAID_CATCH_RATE_MULT = 1.0;
+export const RAID_BALANCE_VERSION = '1.80.4';
 
 // ── Tabelas de Recompensas por Estrela ──────────────────────────────────────
 export const RAID_REWARDS_TABLE = {
@@ -285,4 +295,4 @@ export const EXP_CANDIES = {
   exp_candy_xl: { name: 'EXP Candy XL', xp: 30000,img: '/items/exp_candy_xl.png' },
 };
 
-export const RAID_BALANCE_VERSION = '1.2';
+

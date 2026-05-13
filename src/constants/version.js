@@ -1,7 +1,12 @@
-export const APP_VERSION = '1.80.4';
-export const VERSION = '1.80.4';
-export const APP_VERSION_DATE = '13/05/2026 20:30';
+export const APP_VERSION = '1.80.5';
+export const VERSION = '1.80.5';
+export const APP_VERSION_DATE = '13/05/2026 23:55';
 export const CHANGELOG = [
+  '## [V1.80.5] - 13/05/2026 23:55',
+  '### Adicionado',
+  '- **Sistema de Candies (Expansão Global)**: Candies agora disponíveis para TODAS as 9 gerações (1025 Pokémon).',
+  '- **Famílias Evolutivas**: Implementada lógica de agrupamento automático por família (ex: Chikorita Candy serve para Chikorita, Bayleef e Meganium).',
+  '- **Visual**: Ícones de Candy agora usam sprites do Pokémon base da família via PokeAPI, garantindo suporte a todos os novos Pokémon.',
   '## [V1.80.4] - 13/05/2026 20:30',
   '### Melhorado',
   '- **Forja (Crafting)**: Introduzido seletor de quantidade (x1, x10, Max) e exibição da quantidade de itens já possuídos.',
