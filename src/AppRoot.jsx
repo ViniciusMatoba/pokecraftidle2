@@ -783,9 +783,9 @@ export default function App() {
     setBattleLog(prev => [{ msg: cleanBattleText(msg), type, id: Date.now() + Math.random() }, ...prev].slice(0, 8));
   }, []);
 
-  const addFloat = useCallback((text, color = '#ef4444') => {
+  const addFloat = useCallback((text, color = '#ef4444', target = 'enemy') => {
     const id = Date.now() + Math.random();
-    setFloatingTexts(prev => [...prev, { id, text: cleanBattleText(text), color }]);
+    setFloatingTexts(prev => [...prev, { id, text: cleanBattleText(text), color, target }]);
     setTimeout(() => setFloatingTexts(prev => prev.filter(f => f.id !== id)), 1200);
   }, []);
 
@@ -2726,7 +2726,7 @@ export default function App() {
             hp: Math.min(myPoke.maxHp, myPoke.hp + healed)
           };
           addLog(`💚 ${myPoke.name} usou ${move.name}! Recuperou ${healed} HP!`, 'system');
-          addFloat(`+${healed} HP`, '#22c55e');
+          addFloat(`+${healed} HP`, '#22c55e', 'player');
 
         } else {
           // Stat changes
@@ -2746,7 +2746,7 @@ export default function App() {
                 const arrow = c.change > 0 ? '↑' : '↓';
                 const statNames = { attack:'ATK', defense:'DEF', spAtk:'SATK', spDef:'SDEF', speed:'SPD' };
                 addLog(`${myPoke.name} usou ${move.name}! ${statNames[c.stat]||c.stat} ${c.change > 0 ? 'subiu' : 'caiu'}!`, 'system');
-                addFloat(`${arrow} ${statNames[c.stat]||c.stat}`, c.change > 0 ? '#3b82f6' : '#64748b');
+                addFloat(`${arrow} ${statNames[c.stat]||c.stat}`, c.change > 0 ? '#3b82f6' : '#64748b', 'player');
               }
           });
 
@@ -2773,7 +2773,7 @@ export default function App() {
               updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, evasion: newVal } };
             }
             addLog(`${myPoke.name} usou ${move.name}! Evasão subiu!`, 'system');
-            addFloat('↑ EVA', '#3b82f6');
+            addFloat('↑ EVA', '#3b82f6', 'player');
           }
 
           // Status condition
@@ -2853,7 +2853,7 @@ export default function App() {
             updatedTeamFinal[activeMemberIndex].hp + healAmt
           );
           addLog(`💚 ${myPoke.name} absorveu ${healAmt} HP!`, 'system');
-          addFloat(`+${healAmt} HP`, '#22c55e');
+          addFloat(`+${healAmt} HP`, '#22c55e', 'player');
         }
 
         // 2. RECUO — dano ao próprio usuário
@@ -2876,25 +2876,25 @@ export default function App() {
         if (['power-up-punch','rage-fist'].includes(_nm)) {
           updatedTeamFinal[activeMemberIndex].stages = { ..._stages, attack: Math.min(6, (_stages.attack || 0) + 1) };
           addLog(`💪 ${myPoke.name}: Ataque subiu!`, 'system');
-          addFloat('↑ ATK', '#3b82f6');
+          addFloat('↑ ATK', '#3b82f6', 'player');
         }
         // +1 Velocidade
         if (['flame-charge','aqua-step','trailblaze','pounce'].includes(_nm)) {
           updatedTeamFinal[activeMemberIndex].stages = { ..._stages, speed: Math.min(6, (_stages.speed || 0) + 1) };
           addLog(`⚡ ${myPoke.name}: Velocidade subiu!`, 'system');
-          addFloat('↑ SPD', '#3b82f6');
+          addFloat('↑ SPD', '#3b82f6', 'player');
         }
         // +1 At. Especial
         if (['torch-song','make-it-rain','fiery-dance','charge-beam'].includes(_nm)) {
           updatedTeamFinal[activeMemberIndex].stages = { ..._stages, spAtk: Math.min(6, (_stages.spAtk || 0) + 1) };
           addLog(`✨ ${myPoke.name}: At. Especial subiu!`, 'system');
-          addFloat('↑ SATK', '#3b82f6');
+          addFloat('↑ SATK', '#3b82f6', 'player');
         }
         // Fell Stinger: +3 Ataque se der KO
         if (_nm === 'fell-stinger' && updatedEnemyFinal.hp <= 0) {
           updatedTeamFinal[activeMemberIndex].stages = { ..._stages, attack: Math.min(6, (_stages.attack || 0) + 3) };
           addLog(`🐝 ${myPoke.name}: Ataque subiu drasticamente!`, 'system');
-          addFloat('↑↑↑ ATK', '#3b82f6');
+          addFloat('↑↑↑ ATK', '#3b82f6', 'player');
         }
         // Lumina Crash: -2 Def. Especial inimigo (100%)
         if (_nm === 'lumina-crash') {
@@ -3082,7 +3082,7 @@ export default function App() {
 
                 updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - dmgE);
                 addLog(`${updatedEnemyFinal.name} usou ${enemyMove.name}! ${dmgE} de dano!`, 'enemy');
-                addFloat(`-${dmgE}`, '#ef4444');
+                addFloat(`-${dmgE}`, '#ef4444', 'player');
               } else {
                 fxE.statChanges.forEach(c => {
                   const statNames = { attack:'ATK', defense:'DEF', spAtk:'SATK', spDef:'SDEF', speed:'SPD' };
@@ -3127,7 +3127,7 @@ export default function App() {
                 let enemyDmg = Math.max(1, Math.floor(enemyDmgRaw * 0.75));
                 if (allyBonus?.defenseMult) enemyDmg = Math.floor(enemyDmg * (2 - allyBonus.defenseMult)); // Reduz se defenseMult > 1
                 updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - enemyDmg);
-                addFloat(`-${enemyDmg}`, '#ef4444');
+                addFloat(`-${enemyDmg}`, '#ef4444', 'player');
                 if (effE > 1) addLog("💥 É super efetivo!", 'enemy');
                 if (effE > 0 && effE < 1) addLog("💢 Não é muito efetivo!", 'enemy');
                 if (effE === 0) addLog("🚫 Não afetou seu Pokemon!", 'enemy');
@@ -3143,7 +3143,7 @@ export default function App() {
       if (focusPoke?.heldItem === 'focus_sash' && focusPoke.hp <= 0 && myPoke.hp > 1) {
         updatedTeamFinal[activeMemberIndex].hp = 1;
         addLog(`🔮 Focus Sash protegeu ${myPoke.name}! Sobreviveu com 1 HP!`, 'system');
-        addFloat('Focus Sash!', '#a78bfa');
+        addFloat('Focus Sash!', '#a78bfa', 'player');
       }
 
       // Dano de Status (Jogador)
@@ -3159,7 +3159,7 @@ export default function App() {
         const newHp = Math.min(focusPoke.maxHp, (updatedTeamFinal[activeMemberIndex].hp || 0) + regen);
         if (newHp > (updatedTeamFinal[activeMemberIndex].hp || 0)) {
           updatedTeamFinal[activeMemberIndex].hp = newHp;
-          addFloat(`+${regen} HP`, '#22c55e');
+          addFloat(`+${regen} HP`, '#22c55e', 'player');
         }
       }
 

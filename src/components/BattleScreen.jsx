@@ -282,7 +282,7 @@ const BattleScreen = ({
         <div className="absolute top-12 right-10 z-10 w-24 h-24 flex items-center justify-center">
           <div className="relative">
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none z-20 whitespace-nowrap">
-              {(floatingTexts || []).map(f => <span key={f.id} className="block text-center font-black text-lg animate-floatUp" style={{ color: f.color, textShadow: '2px 2px 0 #000' }}>{f.text}</span>)}
+              {(floatingTexts || []).filter(f => !f.target || f.target === 'enemy').map(f => <span key={f.id} className="block text-center font-black text-lg animate-floatUp" style={{ color: f.color, textShadow: '2px 2px 0 #000' }}>{f.text}</span>)}
             </div>
             {shinyFlash && !showTrainer && <ShinySparkles />}
             <img
@@ -380,6 +380,9 @@ const BattleScreen = ({
         <div className="absolute bottom-2 left-6 z-10 w-24 h-24 flex items-center justify-center">
           {activePoke && (
             <div className="relative">
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none z-20 whitespace-nowrap">
+                {(floatingTexts || []).filter(f => f.target === 'player').map(f => <span key={f.id} className="block text-center font-black text-lg animate-floatUp" style={{ color: f.color, textShadow: '2px 2px 0 #000' }}>{f.text}</span>)}
+              </div>
               {playerShinyFlash && <ShinySparkles />}
               <img
                 src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.gif`}

@@ -1,5 +1,10 @@
 # Changelog - PokeCraft
 
+## [V1.77.9] - 13/05/2026 11:24
+### Corrigido
+- **Batalha**:
+    - Corrigido posicionamento dos textos flutuantes. Agora curas (`+HP`), buffs e debuffs aparecem sobre o Pokémon alvo (jogador ou inimigo) corretamente.
+
 ## [V1.77.8] - 13/05/2026 10:51
 ### Corrigido
 - **Expedições**:

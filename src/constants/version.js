@@ -1,7 +1,8 @@
-export const APP_VERSION = '1.77.8';
-export const VERSION = '1.77.8';
-export const APP_VERSION_DATE = '13/05/2026 10:51';
+export const APP_VERSION = '1.77.9';
+export const VERSION = '1.77.9';
+export const APP_VERSION_DATE = '13/05/2026 11:24';
 export const CHANGELOG = [
+  'Fix: Textos flutuantes (+HP, Buffs/Debuffs) agora aparecem sobre o Pokémon correto na batalha',
   'Fix: Duplicação de Pokémon em expedições resolvida (Pokémon agora permanecem no PC com status onExpedition)',
   'UI: Badge de status e travas de segurança adicionadas ao gerenciamento de Pokémon para expedições',
   'Fix: Notificações redundantes de receitas de forja resolvidas (correção de dependências de estado)',
