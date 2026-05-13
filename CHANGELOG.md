@@ -1,5 +1,15 @@
 # Changelog - PokeCraft
 
+## [V1.77.1] - 13/05/2026 06:30
+### Adicionado
+- **Efeitos Secundários de Golpes**: Implementação completa de efeitos para golpes de dano:
+    - **Drain**: Recupera 50% do dano causado (Absorb, Giga Drain, etc.).
+    - **Recoil**: Dano ao próprio usuário (Double-Edge, Brave Bird, etc.).
+    - **Buffs de Stat**: Golpes que aumentam Ataque, Velocidade ou At. Especial (Power-Up Punch, Flame Charge, Torch Song).
+    - **Chance de Status**: Chance de queimar, paralisar, envenenar, congelar ou confundir o inimigo ao causar dano.
+    - **Debuffs Inimigos**: Chance de reduzir Defesa, Def. Especial ou Velocidade do oponente.
+    - **Golpes Especiais**: Nuzzle (sempre paralisa), Fell Stinger (+3 Atk se nocautear), Syrup Bomb, etc.
+
 ## [V1.77.0] - 13/05/2026 10:30
 ### Adicionado
 - **Expansão Massiva de TMs**: 40 novos TMs divididos em 4 tiers regionais, abrangendo todas as gerações.

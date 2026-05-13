@@ -1,7 +1,8 @@
-export const APP_VERSION = '1.77.0';
-export const VERSION = '1.77.0';
-export const APP_VERSION_DATE = '13/05/2026 10:30';
+export const APP_VERSION = '1.77.1';
+export const VERSION = '1.77.1';
+export const APP_VERSION_DATE = '13/05/2026 06:30';
 export const CHANGELOG = [
+  'Feature: Efeitos secundários completos — Drain cura HP, Recoil dá dano próprio, Power-Up Punch/Flame Charge buffam stats, 6 tipos de chance de status em golpes de dano',
   'Release: V1.77.0 — Sistema completo de Held Items: 18 tipos + 4 especiais com efeitos de batalha',
   'Feature: TYPE_BOOSTS expandido para todos os 18 tipos (Silk Scarf, Miracle Seed, Never-Melt Ice, etc.)',
   'Feature: Life Orb — +30% dano + -8% HP de recuo por turno ao atacar',

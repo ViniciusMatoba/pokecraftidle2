@@ -2666,6 +2666,7 @@ export default function App() {
       let updatedTeamFinal = [...updatedTeam];
       let updatedEnemyFinal = { ...updatedEnemy };
       let raidDmgToApply = 0;
+      let playerDmg = 0;
 
       if (move.category === 'Status' || move.power === 0) {
         nextDelay = 600;
@@ -2765,7 +2766,7 @@ export default function App() {
 
         setCurrentEnemy(updatedEnemyFinal);
       } else {
-        let playerDmg = calcDamage(myPoke, move, updatedEnemyFinal);
+        playerDmg = calcDamage(myPoke, move, updatedEnemyFinal);
         if (allyBonus?.damageMult) playerDmg = Math.floor(playerDmg * allyBonus.damageMult);
         const eff = getTypeEffectiveness(move.type, updatedEnemyFinal.type);
         
@@ -2799,6 +2800,171 @@ export default function App() {
           if (eff === 0) addLog("🚫 Não afetou o inimigo!", 'system');
         }
       }
+
+      // ── Efeitos Secundários de Golpes de Dano ─────────────────────────────
+      if (playerDmg > 0) {
+        const _nm = (move.name || '').toLowerCase().replace(/ /g, '-');
+        const _fullMove = MOVES[_nm] || move;
+        const _eff = (_fullMove.effect || move.effect || '').toLowerCase();
+
+        // 1. DRAIN — recupera 50% do dano causado
+        const DRAIN_NAMES = new Set([
+          'absorb','mega-drain','giga-drain','drain-punch','leech-life',
+          'horn-leech','draining-kiss','oblivion-wing','dream-eater',
+          'bitter-blade','matcha-gotcha','bouncy-bubble'
+        ]);
+        if (DRAIN_NAMES.has(_nm) || _eff.includes('drains half the damage')) {
+          const healAmt = Math.max(1, Math.floor(playerDmg / 2));
+          updatedTeamFinal[activeMemberIndex].hp = Math.min(
+            updatedTeamFinal[activeMemberIndex].maxHp,
+            updatedTeamFinal[activeMemberIndex].hp + healAmt
+          );
+          addLog(`💚 ${myPoke.name} absorveu ${healAmt} HP!`, 'system');
+          addFloat(`+${healAmt} HP`, '#22c55e');
+        }
+
+        // 2. RECUO — dano ao próprio usuário
+        const RECOIL_QUARTER = new Set(['take-down','submission','wild-charge','head-charge','struggle']);
+        const RECOIL_THIRD   = new Set(['double-edge','brave-bird','flare-blitz','volt-tackle','wood-hammer','head-smash','light-of-ruin','chloroblast']);
+        const RECOIL_HALF    = new Set(['shadow-end']);
+        if (RECOIL_QUARTER.has(_nm) || RECOIL_THIRD.has(_nm) || RECOIL_HALF.has(_nm) ||
+            (_eff.includes('recoil') && !_eff.includes('no recoil'))) {
+          let _frac = 0.25;
+          if (RECOIL_THIRD.has(_nm) || _eff.includes('1/3') || _eff.includes('one-third')) _frac = 1/3;
+          if (RECOIL_HALF.has(_nm)) _frac = 0.5;
+          const _recoil = Math.max(1, Math.floor(playerDmg * _frac));
+          updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - _recoil);
+          addLog(`💥 ${myPoke.name} sofreu ${_recoil} de recuo!`, 'system');
+        }
+
+        // 3. BUFF PRÓPRIO AO CAUSAR DANO
+        const _stages = updatedTeamFinal[activeMemberIndex].stages || {};
+        // +1 Ataque
+        if (['power-up-punch','rage-fist'].includes(_nm)) {
+          updatedTeamFinal[activeMemberIndex].stages = { ..._stages, attack: Math.min(6, (_stages.attack || 0) + 1) };
+          addLog(`💪 ${myPoke.name}: Ataque subiu!`, 'system');
+          addFloat('↑ ATK', '#3b82f6');
+        }
+        // +1 Velocidade
+        if (['flame-charge','aqua-step','trailblaze','pounce'].includes(_nm)) {
+          updatedTeamFinal[activeMemberIndex].stages = { ..._stages, speed: Math.min(6, (_stages.speed || 0) + 1) };
+          addLog(`⚡ ${myPoke.name}: Velocidade subiu!`, 'system');
+          addFloat('↑ SPD', '#3b82f6');
+        }
+        // +1 At. Especial
+        if (['torch-song','make-it-rain','fiery-dance','charge-beam'].includes(_nm)) {
+          updatedTeamFinal[activeMemberIndex].stages = { ..._stages, spAtk: Math.min(6, (_stages.spAtk || 0) + 1) };
+          addLog(`✨ ${myPoke.name}: At. Especial subiu!`, 'system');
+          addFloat('↑ SATK', '#3b82f6');
+        }
+        // Fell Stinger: +3 Ataque se der KO
+        if (_nm === 'fell-stinger' && updatedEnemyFinal.hp <= 0) {
+          updatedTeamFinal[activeMemberIndex].stages = { ..._stages, attack: Math.min(6, (_stages.attack || 0) + 3) };
+          addLog(`🐝 ${myPoke.name}: Ataque subiu drasticamente!`, 'system');
+          addFloat('↑↑↑ ATK', '#3b82f6');
+        }
+        // Lumina Crash: -2 Def. Especial inimigo (100%)
+        if (_nm === 'lumina-crash') {
+          const _es = updatedEnemyFinal.stages || {};
+          updatedEnemyFinal.stages = { ..._es, spDef: Math.max(-6, (_es.spDef || 0) - 2) };
+          addLog(`📉 Def. Especial de ${updatedEnemyFinal.name} caiu muito!`, 'enemy');
+        }
+        // Make It Rain: -1 At. Especial própria (100%)
+        if (_nm === 'make-it-rain') {
+          updatedTeamFinal[activeMemberIndex].stages = { ..._stages, spAtk: Math.max(-6, (_stages.spAtk || 0) - 1) };
+          addLog(`💸 ${myPoke.name}: At. Especial caiu!`, 'system');
+        }
+        // Syrup Bomb: -1 Speed inimigo (100%)
+        if (_nm === 'syrup-bomb') {
+          const _es = updatedEnemyFinal.stages || {};
+          updatedEnemyFinal.stages = { ..._es, speed: Math.max(-6, (_es.speed || 0) - 1) };
+          addLog(`🍯 Velocidade de ${updatedEnemyFinal.name} caiu!`, 'enemy');
+        }
+
+        // 4. EFEITOS SECUNDÁRIOS DE STATUS (chance)
+        const _enemySt = updatedEnemyFinal.status || [];
+
+        // Queimar (30%)
+        const BURN30 = new Set(['fire-punch','lava-plume','scald','sacred-fire','blue-flare','pyro-ball',
+          'scorching-sands','burning-jealousy','mystical-fire','raging-bull','matcha-gotcha']);
+        // Queimar (10%)
+        const BURN10 = new Set(['ember','flamethrower','fire-blast','flame-wheel','heat-wave','blaze-kick',
+          'fire-fang','searing-shot','steam-eruption','ice-burn','shadow-fire']);
+        // Paralisia (30%)
+        const PARA30 = new Set(['thunder-punch','body-slam','discharge','nuzzle','bounce','force-palm',
+          'spark','thunder-fang','shadow-bolt']);
+        // Paralisia (10%)
+        const PARA10 = new Set(['thunder-shock','thunderbolt','thunder','lick','zap-cannon',
+          'dragon-breath','volt-tackle','bolt-strike','freeze-shock','stoked-sparksurfer']);
+        // Veneno (30%)
+        const POIS30 = new Set(['poison-sting','sludge','sludge-bomb','poison-jab','cross-poison',
+          'gunk-shot','sludge-wave','poison-fang','poison-tail','smog','twineedle',
+          'barb-barrage','malignant-chain']);
+        // Congelar (10%)
+        const FRZE10 = new Set(['ice-punch','ice-beam','blizzard','powder-snow','ice-fang','shadow-chill']);
+        // Confundir (10%)
+        const CONF10 = new Set(['psybeam','confusion','dizzy-punch','dynamic-punch','signal-beam',
+          'water-pulse','hurricane','strange-steam']);
+
+        if (!_enemySt.includes('burn')) {
+          if ((BURN30.has(_nm) && Math.random() < 0.30) || (BURN10.has(_nm) && Math.random() < 0.10)) {
+            updatedEnemyFinal.status = [..._enemySt, 'burn'];
+            addLog(`🔥 ${updatedEnemyFinal.name} foi queimado!`, 'enemy');
+          }
+        } else if (!_enemySt.includes('paralyze')) {
+          if ((PARA30.has(_nm) && Math.random() < 0.30) || (PARA10.has(_nm) && Math.random() < 0.10)) {
+            updatedEnemyFinal.status = [..._enemySt, 'paralyze'];
+            addLog(`⚡ ${updatedEnemyFinal.name} foi paralisado!`, 'enemy');
+          }
+        } else if (!_enemySt.includes('poison')) {
+          if (POIS30.has(_nm) && Math.random() < 0.30) {
+            updatedEnemyFinal.status = [..._enemySt, 'poison'];
+            addLog(`☠️ ${updatedEnemyFinal.name} foi envenenado!`, 'enemy');
+          }
+        } else if (FRZE10.has(_nm) && !_enemySt.includes('freeze') && Math.random() < 0.10) {
+          updatedEnemyFinal.status = [..._enemySt, 'freeze'];
+          addLog(`❄️ ${updatedEnemyFinal.name} foi congelado!`, 'enemy');
+        } else if (CONF10.has(_nm) && !_enemySt.includes('confuse') && Math.random() < 0.10) {
+          updatedEnemyFinal.status = [..._enemySt, 'confuse'];
+          addLog(`💫 ${updatedEnemyFinal.name} ficou confuso!`, 'enemy');
+        }
+
+        // 5. DEBUFF INIMIGO AO CAUSAR DANO (chance)
+        const _es = updatedEnemyFinal.stages || {};
+        // Baixar Velocidade (100%)
+        const SPD_DOWN_100 = new Set(['icy-wind','rock-tomb','mud-shot','low-sweep','bulldoze',
+          'electroweb','glaciate','drum-beating']);
+        // Baixar Velocidade (30%)
+        const SPD_DOWN_30  = new Set(['bubble-beam','constrict','bubble','hammer-arm','scale-shot','ice-hammer']);
+        if (SPD_DOWN_100.has(_nm)) {
+          updatedEnemyFinal.stages = { ..._es, speed: Math.max(-6, (_es.speed || 0) - 1) };
+          addLog(`📉 Velocidade de ${updatedEnemyFinal.name} caiu!`, 'enemy');
+        } else if (SPD_DOWN_30.has(_nm) && Math.random() < 0.30) {
+          updatedEnemyFinal.stages = { ..._es, speed: Math.max(-6, (_es.speed || 0) - 1) };
+          addLog(`📉 Velocidade de ${updatedEnemyFinal.name} caiu!`, 'enemy');
+        }
+        // Baixar Def. Especial (30%)
+        const SPDEF_DOWN = new Set(['acid','psychic','shadow-ball','bug-buzz','focus-blast','energy-ball',
+          'earth-power','flash-cannon','acid-spray','seed-flare','lumina-crash']);
+        if (SPDEF_DOWN.has(_nm) && Math.random() < 0.30 && _nm !== 'lumina-crash') {
+          updatedEnemyFinal.stages = { ..._es, spDef: Math.max(-6, (_es.spDef || 0) - 1) };
+          addLog(`📉 Def. Especial de ${updatedEnemyFinal.name} caiu!`, 'enemy');
+        }
+        // Baixar Defesa (30%)
+        const DEF_DOWN = new Set(['crunch','crush-claw','shadow-ball','brick-break','rock-smash',
+          'razor-shell','sacred-sword']);
+        if (DEF_DOWN.has(_nm) && Math.random() < 0.30) {
+          updatedEnemyFinal.stages = { ..._es, defense: Math.max(-6, (_es.defense || 0) - 1) };
+          addLog(`📉 Defesa de ${updatedEnemyFinal.name} caiu!`, 'enemy');
+        }
+        // Nuzzle: sempre paralisa
+        if (_nm === 'nuzzle' && !_enemySt.includes('paralyze')) {
+          updatedEnemyFinal.status = [..._enemySt, 'paralyze'];
+          addLog(`⚡ ${updatedEnemyFinal.name} foi paralisado!`, 'enemy');
+        }
+      }
+      // ── Fim dos Efeitos Secundários ────────────────────────────────────────
+
 
       // Life Orb: -8% HP do atacante após dano
       const myHeldItem = updatedTeamFinal[activeMemberIndex]?.heldItem;
