@@ -197,6 +197,16 @@ const S = {
   skull:       'https://play.pokemonshowdown.com/sprites/trainers/skullgrunt.png',
   yell:        'https://play.pokemonshowdown.com/sprites/trainers/yellgrunt.png',
   star:        'https://play.pokemonshowdown.com/sprites/trainers/giacomo.png',
+  // Gen9 / Paldea-specific trainer types
+  schoolkidm:  'https://play.pokemonshowdown.com/sprites/trainers/schoolkidm.png',
+  schoolkidf:  'https://play.pokemonshowdown.com/sprites/trainers/schoolkidf.png',
+  delinquent:  'https://play.pokemonshowdown.com/sprites/trainers/delinquent.png',
+  delinquentF: 'https://play.pokemonshowdown.com/sprites/trainers/delinquentf.png',
+  backpacker:  'https://play.pokemonshowdown.com/sprites/trainers/backpacker.png',
+  cook:        'https://play.pokemonshowdown.com/sprites/trainers/cook.png',
+  janitor:     'https://play.pokemonshowdown.com/sprites/trainers/janitor.png',
+  worker:      'https://play.pokemonshowdown.com/sprites/trainers/worker.png',
+  courier:     'https://play.pokemonshowdown.com/sprites/trainers/courier.png',
 };
 
 const buildRegionRoutes = ({ region, label, startFlag, previousChampion, groups, starters, starterBases, early, mid, late, final, backgrounds, extraRoutes = [] }) => ({
@@ -541,8 +551,9 @@ const FUTURE_REGION_ROUTES = {
         ],
         trainerChance: 0.07,
         trainers: [
-          { name: 'Student Paldea', sprite: S.youngster, team: pk([917, 921], 19), reward: 1400 },
-          { name: 'Lass Paldea', sprite: S.lass, team: pk([919, 922], 20), reward: 1500 },
+          { name: 'Estudante Paldea', sprite: S.schoolkidm, team: pk([917, 921], 19), reward: 1400 },
+          { name: 'Estudante Paldea F', sprite: S.schoolkidf, team: pk([919, 922], 20), reward: 1500 },
+          { name: 'Entregador Paldea', sprite: S.courier, team: pk([915, 919], 18), reward: 1300 },
         ],
         background: '/bg_paldea_route.png',
         description: 'Províncias sul de Paldea com encontros iniciais.',
@@ -555,8 +566,9 @@ const FUTURE_REGION_ROUTES = {
         enemies: pk([936, 943, 952, 959, 973, 974], 58),
         trainerChance: 0.09,
         trainers: [
-          { name: 'Star Boss Paldea', sprite: S.star, team: pk([943, 952], 62), reward: 5600 },
-          { name: 'Elite Paldea', sprite: S.aceM, team: pk([959, 974], 63), reward: 5800 },
+          { name: 'Delinquente Paldea', sprite: S.delinquent, team: pk([943, 952], 62), reward: 5600 },
+          { name: 'Delinquente Paldea F', sprite: S.delinquentF, team: pk([959, 974], 63), reward: 5800 },
+          { name: 'Operário Paldea', sprite: S.worker, team: pk([936, 952], 61), reward: 5400 },
         ],
         background: '/bg_paldea_cave.png',
         description: 'Montanha gelada de Paldea com Pokémon Ice e Dragon.',
@@ -569,8 +581,9 @@ const FUTURE_REGION_ROUTES = {
         enemies: pk([967, 973, 998, 1008, 1002, 1003], 80),
         trainerChance: 0.10,
         trainers: [
-          { name: 'Research Unit Paldea', sprite: S.aceM, team: pk([998, 1008], 84), reward: 8200 },
-          { name: 'Elite Scholar', sprite: S.aceF, team: pk([967, 1002], 83), reward: 8000 },
+          { name: 'Pesquisador Area Zero', sprite: S.aceM, team: pk([998, 1008], 84), reward: 8200 },
+          { name: 'Cientista Area Zero', sprite: S.aceF, team: pk([967, 1002], 83), reward: 8000 },
+          { name: 'Cozinheiro Laboratorio', sprite: S.cook, team: pk([973, 1003], 82), reward: 7800 },
         ],
         background: '/bg_paldea_elite.png',
         description: 'Zero Lab — o coração do Grande Abismo de Paldea.',

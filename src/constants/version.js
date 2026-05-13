@@ -1,7 +1,14 @@
-export const APP_VERSION = '1.79.8';
-export const VERSION = '1.79.8';
-export const APP_VERSION_DATE = '13/05/2026 20:00';
+export const APP_VERSION = '1.79.9';
+export const VERSION = '1.79.9';
+export const APP_VERSION_DATE = '13/05/2026 21:30';
 export const CHANGELOG = [
+  '## [V1.79.9] - 13/05/2026 21:30',
+  '### Adicionado',
+  '- **Sprites de Treinadores (Equipes)**: villains.js corrigido — Aqua/Magma/Galáctica agora usam sprites corretos; 6 novas equipes adicionadas (Plasma, Flare, Skull, Rainbow Rocket, Yell, Star).',
+  '- **Avatares da Loja de Prestígio**: ~40 novos avatares adicionados cobrindo todos os rivais, líderes e personagens icônicos de todas as 9 regiões.',
+  '- **Treinadores Gen9 em Paldea**: tipos exclusivos de Paldea (Estudante, Delinquente, Operário, Entregador, Cozinheiro) agora aparecem nas rotas regionais.',
+  '### Corrigido',
+  '- **Florian/Juliana**: sprites dos protagonistas de Paldea corrigidos para `florian-s.png` e `juliana-s.png`.',
   '## [V1.79.8] - 13/05/2026 20:00',
   '### Adicionado',
   '- **Modal Mega Evolução**: Prof. Sycamore aparece após vencer o 1º Ginásio de Kalos (Viola) explicando o sistema de Mega Evolução.',
