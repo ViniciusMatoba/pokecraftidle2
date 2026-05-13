@@ -1693,6 +1693,34 @@ export default function App() {
       messages.push(`${essenceData.icon} 1x ${essenceData.name}`);
     }
 
+    // MATERIAL FÍSICO BASEADO NO TIPO — funciona em todas as regiões (20% de chance)
+    const TYPE_MATERIAL_MAP = {
+      Rock:     'iron_ore',
+      Steel:    'iron_ore',
+      Bug:      'silk',
+      Flying:   'feather',
+      Fairy:    'pink_dust',
+      Ghost:    'mystic_dust',
+      Psychic:  'mystic_dust',
+      Dragon:   'dragon_scale',
+      Normal:   'apricorn',
+      Grass:    'apricorn',
+      Ice:      'ice_crystal',
+      Ground:   'iron_ore',
+      Fighting: 'armor_fragment',
+      Dark:     'mystic_dust',
+      Poison:   'poison_barb',
+      Fire:     'ember_shard',
+      Electric: 'electric_chip',
+      Water:    'wave_stone',
+    };
+    const physicalMaterial = TYPE_MATERIAL_MAP[enemy.type];
+    if (physicalMaterial && Math.random() < 0.20) {
+      drops.materials[physicalMaterial] = (drops.materials[physicalMaterial] || 0) + 1;
+      const matLabel = ITEM_LABELS[physicalMaterial] || { icon: '📦', name: physicalMaterial.replace(/_/g, ' ') };
+      messages.push(`${matLabel.icon} 1x ${matLabel.name}`);
+    }
+
     // 2. Mystic Dust para Shinies (100% se for shiny)
     if (enemy.isShiny) {
       drops.materials.mystic_dust = (drops.materials.mystic_dust || 0) + 5;

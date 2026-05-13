@@ -1,7 +1,9 @@
-export const APP_VERSION = '1.77.2';
-export const VERSION = '1.77.2';
-export const APP_VERSION_DATE = '13/05/2026 06:50';
+export const APP_VERSION = '1.77.3';
+export const VERSION = '1.77.3';
+export const APP_VERSION_DATE = '13/05/2026 07:10';
 export const CHANGELOG = [
+  'Fix: Materiais de Forja agora dropam em todas as 9 regiões via TYPE_MATERIAL_MAP',
+  'Feature: FORGE_MATERIAL_DROP_GUIDE expandido com 200+ novos Pokémon de todas as gerações',
   'Feature: Efeitos visuais de golpes — 120+ moves com animações únicas usando sprites do Pokémon Showdown (/fx/)',
   'Feature: Motor MoveAnimationLayer — 12 tipos de animação (projectile, burst, drain, quake, beam, slash, etc.)',
   'Feature: Fallback por tipo — todo golpe sem animação específica recebe visual baseado no seu tipo',

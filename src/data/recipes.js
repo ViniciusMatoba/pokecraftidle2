@@ -445,28 +445,106 @@ export const FORGE_MATERIAL_DROP_GUIDE = {
   steel_essence: { pokemonIds: [81, 82, 208, 227, 303, 306, 376, 448], routeId: 'power_plant', label: 'Usinas e montanhas - Magnemite, Steelix, Skarmory, Aggron e Lucario.' },
   fairy_essence: { pokemonIds: [35, 36, 39, 40, 173, 174, 175, 176, 700], routeId: 'mt_moon', label: 'Monte Lua e rotas raras - Clefairy, Jigglypuff, Togepi e Sylveon.' },
   dark_essence: { pokemonIds: [197, 198, 215, 228, 229, 302, 359, 461], routeId: 'burned_tower', label: 'Torres e rotas noturnas - Umbreon, Murkrow, Sneasel, Houndour e Absol.' },
-  iron_ore: { pokemonIds: [74, 75, 76, 81, 82, 95, 208, 304], routeId: 'rock_tunnel', label: 'Cavernas e Pokemon minerais - Geodude, Onix, Steelix, Aron e Magnemite.' },
-  apricorn: { pokemonIds: [187, 188, 190, 191, 192, 204], routeId: 'ilex_forest', label: 'Johto e florestas - Hoppip, Aipom, Sunkern e Pineco carregam Apricorns.' },
-  mystic_dust: { pokemonIds: [92, 93, 94, 150, 151, 201, 385, 480], routeId: 'pokemon_tower', label: 'Fantasma, lendarios, Unown e shinies dropam po mistico.' },
-  fire_stone_shard: { pokemonIds: [37, 38, 58, 59, 77, 126, 136], routeId: 'pokemon_mansion', label: 'Pokemon de fogo e evolucoes por pedra dropam fragmentos de Fire Stone.' },
-  water_stone_shard: { pokemonIds: [60, 61, 90, 91, 120, 121, 134], routeId: 'route_19_20', label: 'Pokemon aquaticos e evolucoes por pedra dropam fragmentos de Water Stone.' },
-  leaf_stone_shard: { pokemonIds: [43, 44, 69, 70, 102, 103, 470], routeId: 'ilex_forest', label: 'Pokemon planta e florestas dropam fragmentos de Leaf Stone.' },
-  thunder_stone_shard: { pokemonIds: [25, 26, 81, 82, 100, 101, 135, 170], routeId: 'power_plant', label: 'Pokemon eletricos dropam fragmentos de Thunder Stone.' },
-  moon_stone_shard: { pokemonIds: [35, 36, 39, 40, 173, 174, 300], routeId: 'mt_moon', label: 'Monte Lua e Pokemon lunares dropam fragmentos de Moon Stone.' },
+  iron_ore: { pokemonIds: [
+    74, 75, 76, 81, 82, 95, 208,        // Gen 1-2: Geodude, Magnemite, Onix, Steelix
+    304, 305, 306, 374, 375, 376,        // Gen 3: Aron, Beldum, Metagross
+    299, 476, 436, 437, 408, 409,        // Gen 4: Nosepass, Probopass, Bronzor, Cranidos
+    597, 598, 599, 600, 624, 625,        // Gen 5: Ferroseed, Klink, Pawniard
+    679, 680, 681, 707,                  // Gen 6: Honedge, Klefki
+    782, 783, 784, 809,                  // Gen 7: Jangmo-o, Melmetal
+    878, 879, 884,                       // Gen 8: Cufant, Copperajah, Duraludon
+    957, 958, 959, 968,                  // Gen 9: Tinkatink, Orthworm
+  ], routeId: 'rock_tunnel', label: 'Cavernas e Pokemon minerais - Geodude, Onix, Steelix, Aron e Magnemite.' },
+  apricorn: { pokemonIds: [
+    43, 44, 46, 47, 102, 103,          // Gen 1: Oddish, Paras, Exeggcute
+    187, 188, 189, 190, 191, 192, 204, // Gen 2: Hoppip, Aipom, Sunkern, Pineco
+    285, 286, 315, 316, 357,           // Gen 3: Shroomish, Roselia, Tropius
+    406, 420, 421, 455, 470,           // Gen 4: Budew, Cherubi, Carnivine, Leafeon
+    546, 547, 548, 549, 590, 591,      // Gen 5: Cottonee, Petilil, Foongus
+    669, 670, 671, 672, 673,           // Gen 6: Flabébé, Skiddo
+    761, 762, 763, 753, 754,           // Gen 7: Bounsweet, Fomantis
+    829, 830,                          // Gen 8: Gossifleur
+    928, 929, 930, 940,                // Gen 9: Smoliv, Capsakid
+  ], routeId: 'ilex_forest', label: 'Johto e florestas - Hoppip, Aipom, Sunkern e Pineco carregam Apricorns.' },
+  mystic_dust: { pokemonIds: [
+    92, 93, 94, 150, 151,              // Gen 1: Gastly, Mewtwo, Mew
+    200, 201, 385,                     // Gen 2: Misdreavus, Unown, Jirachi
+    302, 353, 354, 355, 356,           // Gen 3: Sableye, Shuppet, Duskull
+    425, 426, 429, 479, 480, 481, 482, // Gen 4: Drifloon, Mismagius, Rotom, Trio
+    607, 608, 609, 622, 623,           // Gen 5: Litwick, Golett
+    708, 709, 710, 711,                // Gen 6: Phantump, Pumpkaboo
+    778, 769, 770, 771,                // Gen 7: Mimikyu, Sandygast
+    854, 855, 864, 885, 886, 887,      // Gen 8: Sinistea, Cursola, Dreepy
+    971, 972, 946, 947, 987,           // Gen 9: Greavard, Bramblin
+  ], routeId: 'pokemon_tower', label: 'Fantasma, lendarios, Unown e shinies dropam po mistico.' },
+  fire_stone_shard: { pokemonIds: [37, 38, 58, 59, 77, 126, 136, 228, 322, 513, 554, 636, 757, 921, 667], routeId: 'pokemon_mansion', label: 'Pokemon de fogo e evolucoes por pedra dropam fragmentos de Fire Stone.' },
+  water_stone_shard: { pokemonIds: [60, 61, 90, 91, 120, 121, 134, 183, 270, 318, 363, 456, 489, 564, 692, 771, 846], routeId: 'route_19_20', label: 'Pokemon aquaticos e evolucoes por pedra dropam fragmentos de Water Stone.' },
+  leaf_stone_shard: { pokemonIds: [43, 44, 69, 70, 102, 103, 470, 187, 273, 285, 315, 420, 546, 548, 672, 755], routeId: 'ilex_forest', label: 'Pokemon planta e florestas dropam fragmentos de Leaf Stone.' },
+  thunder_stone_shard: { pokemonIds: [25, 26, 81, 82, 100, 101, 135, 170, 179, 311, 312, 403, 417, 595, 694, 737, 848], routeId: 'power_plant', label: 'Pokemon eletricos dropam fragmentos de Thunder Stone.' },
+  moon_stone_shard: { pokemonIds: [35, 36, 39, 40, 173, 174, 300, 209, 517, 676, 742], routeId: 'mt_moon', label: 'Monte Lua e Pokemon lunares dropam fragmentos de Moon Stone.' },
   sun_stone_shard: { pokemonIds: [43, 44, 191, 192, 546, 548], routeId: 'national_park', label: 'Pokemon solares e flores dropam fragmentos de Sun Stone.' },
   shiny_stone_shard: { pokemonIds: [35, 176, 315, 407, 468, 670, 671], routeId: 'sinnoh_route_204', label: 'Pokemon belos, fadas e flores raras dropam fragmentos de Shiny Stone.' },
-  dusk_stone_shard: { pokemonIds: [92, 93, 94, 198, 200, 353, 355, 607], routeId: 'pokemon_tower', label: 'Fantasmas e Pokemon noturnos dropam fragmentos de Dusk Stone.' },
-  dawn_stone_shard: { pokemonIds: [280, 281, 361, 475, 478, 856], routeId: 'snowpoint_routes', label: 'Pokemon psiquicos, gelo e evolucoes especiais dropam fragmentos de Dawn Stone.' },
+  dusk_stone_shard: { pokemonIds: [92, 93, 94, 198, 200, 353, 355, 607, 425, 710, 708, 854], routeId: 'pokemon_tower', label: 'Fantasmas e Pokemon noturnos dropam fragmentos de Dusk Stone.' },
+  dawn_stone_shard: { pokemonIds: [280, 281, 361, 475, 478, 856, 308, 362, 858], routeId: 'snowpoint_routes', label: 'Pokemon psiquicos, gelo e evolucoes especiais dropam fragmentos de Dawn Stone.' },
   ice_stone_shard: { pokemonIds: [37, 38, 133, 471, 582, 613, 712], routeId: 'ice_path', label: 'Rotas geladas e Pokemon de gelo dropam fragmentos de Ice Stone.' },
-  link_cable_part: { pokemonIds: [41, 42, 64, 67, 74, 75, 92, 93, 137], routeId: 'rock_tunnel', label: 'Pokemon de evolucao por troca dropam pecas de Link Cable.' },
-  pink_dust: { pokemonIds: [35, 39, 113, 173, 174, 175, 242, 531], routeId: 'safari_zone', label: 'Pokemon rosados e curadores dropam po rosa.' },
+  link_cable_part: { pokemonIds: [
+    64, 67, 74, 75, 92, 93, 41, 42, 137, 79, 95, 123, 61,
+    223, 280, 281, 315, 349, 356, 375,  // Gen 3
+    404, 440, 436, 355,                 // Gen 4
+    525, 533, 538, 539, 560, 562,       // Gen 5
+    664, 690, 707,                      // Gen 6
+    765, 796, 802,                      // Gen 7
+    855, 864, 882,                      // Gen 8
+    957, 959, 980,                      // Gen 9
+  ], routeId: 'rock_tunnel', label: 'Pokemon de evolucao por troca dropam pecas de Link Cable.' },
+  pink_dust: { pokemonIds: [
+    35, 36, 39, 40, 113, 242,          // Gen 1-2: Clefairy, Jigglypuff, Chansey, Blissey
+    175, 176, 209, 210, 241,           // Gen 2: Togepi, Snubbull, Miltank
+    183, 184, 280, 281, 282, 303,      // Gen 3: Marill, Ralts, Mawile
+    440, 439, 468,                     // Gen 4: Happiny, Mime Jr., Togekiss
+    531, 574, 575, 576,                // Gen 5: Audino, Gothita
+    669, 670, 671, 683, 684, 700,      // Gen 6: Flabébé, Aromatisse, Sylveon
+    742, 743, 764,                     // Gen 7: Cutiefly, Comfey
+    868, 869,                          // Gen 8: Milcery, Alcremie
+    926, 927, 957,                     // Gen 9: Fidough, Tinkatink
+  ], routeId: 'safari_zone', label: 'Pokemon rosados e curadores dropam po rosa.' },
   gold_nugget: { pokemonIds: [52, 53, 113, 242, 302, 530], routeId: 'route_24_25', label: 'Pokemon coletores e raros dropam pepitas de ouro.' },
-  silk: { pokemonIds: [10, 11, 12, 13, 14, 15, 167, 168, 204], routeId: 'viridian_forest', label: 'Insetos e casulos dropam seda.' },
-  feather: { pokemonIds: [16, 17, 18, 21, 22, 163, 164, 227], routeId: 'route_16_17_18', label: 'Pokemon voadores dropam penas.' },
+  silk: { pokemonIds: [
+    10, 11, 12, 13, 14, 15, 46, 47,    // Gen 1: Caterpie, Weedle, Paras
+    165, 166, 167, 168, 204, 205,       // Gen 2: Ledyba, Spinarak, Pineco
+    265, 266, 267, 268, 269, 283, 284,  // Gen 3: Wurmple, Surskit
+    401, 402, 412, 413, 414, 415,       // Gen 4: Kricketot, Burmy, Combee
+    540, 541, 542, 595, 596, 616, 617,  // Gen 5: Sewaddle, Joltik, Shelmet
+    664, 665, 666, 751, 752,            // Gen 6: Scatterbug, Dewpider
+    736, 737, 738,                      // Gen 7: Grubbin
+    824, 825, 826, 872, 873,            // Gen 8: Blipbug, Snom
+    832, 833, 840, 841,                 // Gen 9: Tarountula, Nymble
+  ], routeId: 'viridian_forest', label: 'Insetos e casulos dropam seda.' },
+  feather: { pokemonIds: [
+    16, 17, 18, 21, 22, 41, 42, 123,   // Gen 1: Pidgey, Spearow, Zubat, Scyther
+    163, 164, 169, 176, 198, 225,       // Gen 2: Hoothoot, Togetic, Murkrow, Delibird
+    276, 277, 278, 279, 333, 334,       // Gen 3: Taillow, Wingull, Swablu
+    396, 397, 398, 441, 468, 479,       // Gen 4: Starly, Chatot, Togekiss
+    519, 520, 521, 527, 528, 627, 628,  // Gen 5: Pidove, Woobat, Rufflet
+    661, 662, 663, 701,                 // Gen 6: Fletchling, Hawlucha
+    731, 732, 733, 741,                 // Gen 7: Pikipek, Oricorio
+    821, 822, 823, 845,                 // Gen 8: Rookidee, Cramorant
+    931, 962, 973,                      // Gen 9: Squawkabilly, Bombirdier, Flamigo
+  ], routeId: 'route_16_17_18', label: 'Pokemon voadores dropam penas.' },
   armor_fragment: { pokemonIds: [95, 208, 227, 306, 411, 476, 884], routeId: 'stark_mountain', label: 'Pokemon blindados, rochosos e metalicos dropam fragmentos de armadura.' },
   fury_essence: { pokemonIds: [57, 68, 128, 217, 289, 445, 534, 612], routeId: 'victory_road', label: 'Pokemon agressivos e pseudo-lendarios dropam essencia de furia.' },
   stardust: { pokemonIds: [120, 121, 173, 375, 376, 385, 605, 774], routeId: 'meteor_falls', label: 'Pokemon cosmicos, meteoricos e raros dropam poeira estelar.' },
-  dragon_scale: { pokemonIds: [116, 117, 147, 148, 149, 230, 330, 373], routeId: 'dragons_den', label: 'Pokemon dragoes e marinhos raros dropam escamas de dragao.' },
+  dragon_scale: { pokemonIds: [
+    116, 117, 118, 147, 148, 149,      // Gen 1: Horsea, Goldeen, Dratini
+    230, 246, 247, 248,                // Gen 2: Kingdra, Larvitar, Tyranitar
+    329, 330, 371, 372, 373,           // Gen 3: Vibrava, Flygon, Bagon, Salamence
+    443, 444, 445, 447, 448,           // Gen 4: Gible, Riolu, Lucario
+    610, 611, 612, 633, 634, 635,      // Gen 5: Axew, Deino
+    696, 697, 704, 705, 706,           // Gen 6: Tyrunt, Goomy
+    782, 783, 784, 776,                // Gen 7: Jangmo-o, Turtonator
+    884, 886, 887,                     // Gen 8: Duraludon, Dreepy (Dragon)
+    996, 997, 998, 999,                // Gen 9: Frigibax e linha
+  ], routeId: 'dragons_den', label: 'Pokemon dragoes e marinhos raros dropam escamas de dragao.' },
   trainer_card_thread: { pokemonIds: [10, 11, 12, 13, 14, 15, 133, 447, 448], routeId: 'viridian_forest', label: 'Insetos, Eevee e Lucario dropam fio para personalizacao do Trainer Card.' },
   yellow_shard: { pokemonIds: [25, 26, 81, 82, 100, 101, 125], routeId: 'power_plant', label: 'Pokemon eletricos dropam fragmentos amarelos.' },
   mystic_water: { pokemonIds: [60, 61, 62, 72, 73, 120, 121, 134], routeId: 'route_19_20', label: 'Pokemon aquaticos raros dropam Mystic Water como material avancado.' },

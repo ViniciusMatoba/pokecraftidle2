@@ -1,5 +1,12 @@
 # Changelog - PokeCraft
 
+## [V1.77.3] - 13/05/2026 07:10
+### Corrigido
+- **Sistema de Drops da Forja**: 
+    - Implementado `TYPE_MATERIAL_MAP` que garante drop de materiais físicos baseados no tipo do Pokémon em qualquer região.
+    - Expansão massiva do `FORGE_MATERIAL_DROP_GUIDE` com IDs de Pokémon de todas as 9 gerações (Aron, Gible, Tinkatink, etc.).
+    - Fix: Materiais como Iron Ore, Silk e Feather agora estão acessíveis globalmente.
+
 ## [V1.77.2] - 13/05/2026 06:50
 ### Adicionado
 - **Efeitos Visuais de Golpes**: Sistema de animação estilo Pokémon Showdown:
