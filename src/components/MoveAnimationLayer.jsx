@@ -1,6 +1,33 @@
 // src/components/MoveAnimationLayer.jsx
 import React, { useRef, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { FX_BASE, MOVE_ANIMATIONS, TYPE_FX } from '../data/moveAnimations';
+import { MOVE_TRANSLATIONS } from '../data/translations';
+
+const normalizeMoveKey = (value) => String(value || '')
+  .trim()
+  .toLowerCase()
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .replace(/['’]/g, '')
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '');
+
+const TRANSLATED_MOVE_KEYS = Object.fromEntries(
+  Object.entries(MOVE_TRANSLATIONS).map(([moveId, label]) => [normalizeMoveKey(label), moveId])
+);
+
+const resolveMoveKey = (moveName, moveKey) => {
+  const explicit = normalizeMoveKey(moveKey);
+  if (explicit && MOVE_ANIMATIONS[explicit]) return explicit;
+
+  const normalizedName = normalizeMoveKey(moveName);
+  if (MOVE_ANIMATIONS[normalizedName]) return normalizedName;
+
+  const translatedKey = TRANSLATED_MOVE_KEYS[normalizedName];
+  if (translatedKey) return translatedKey;
+
+  return normalizedName;
+};
 
 // Posições dos sprites dentro do container de batalha (em % do container)
 // Confirmado pelo código do BattleScreen.jsx:
@@ -26,10 +53,12 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
       endOpacity   = 0,
       easing       = 'ease-out',
       size         = 64,
+      fallbackSprite = 'impact',
     } = opts;
 
     const img = document.createElement('img');
-    img.src = `${FX_BASE}${spriteName}.png`;
+    const safeSpriteName = spriteName || fallbackSprite;
+    img.src = `${FX_BASE}${safeSpriteName}.png`;
     img.draggable = false;
     img.style.cssText = `
       position: absolute;
@@ -67,7 +96,14 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
     });
 
     animation.onfinish = () => { try { img.remove(); } catch (_) {} };
-    img.onerror        = () => { try { img.remove(); } catch (_) {} };
+    img.onerror        = () => {
+      if (fallbackSprite && safeSpriteName !== fallbackSprite && img.dataset.fxFallback !== '1') {
+        img.dataset.fxFallback = '1';
+        img.src = `${FX_BASE}${fallbackSprite}.png`;
+      } else {
+        try { img.remove(); } catch (_) {}
+      }
+    };
   }, []);
 
   // Flash de cor sobre toda a área de batalha
@@ -89,14 +125,14 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
   }, []);
 
   // Motor de animação principal
-  const playAnimation = useCallback((moveName, moveType, direction = 'player-to-enemy') => {
+  const playAnimation = useCallback((moveName, moveType, direction = 'player-to-enemy', moveKey = null) => {
     if (!layerRef.current) return;
 
     const from = direction === 'player-to-enemy' ? POS.player : POS.enemy;
     const to   = direction === 'player-to-enemy' ? POS.enemy  : POS.player;
 
     // Resolve definição de animação
-    const key    = (moveName || '').toLowerCase().replace(/ /g, '-');
+    const key    = resolveMoveKey(moveName, moveKey);
     const def    = MOVE_ANIMATIONS[key];
     const typeFb = TYPE_FX[moveType] || TYPE_FX['Normal'];
 

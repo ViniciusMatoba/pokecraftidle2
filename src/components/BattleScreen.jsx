@@ -46,8 +46,8 @@ const BattleScreen = ({
   // Escuta eventos de golpe disparados pelo AppRoot
   useEffect(() => {
     const onMove = (e) => {
-      const { name, type, direction } = e.detail;
-      animLayerRef.current?.play(name, type, direction);
+      const { name, type, direction, moveKey } = e.detail;
+      animLayerRef.current?.play(name, type, direction, moveKey);
     };
     window.addEventListener('pokemove', onMove);
     return () => window.removeEventListener('pokemove', onMove);

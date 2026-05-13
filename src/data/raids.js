@@ -16,12 +16,14 @@ export const RAID_DURATION_MS = 30 * 60 * 1000; // 30 minutos
 export const RAID_FIGHT_SECONDS = 300; // 5 minutos
 
 // ── Multiplicadores de HP por estrelas ───────────────────────────────────────
+export const RAID_BALANCE_VERSION = 2;
+
 export const RAID_HP_MULTIPLIER = {
-  1: 8,
-  2: 15,
-  3: 30,
-  4: 60,
-  5: 100,
+  1: 3.5,
+  2: 6,
+  3: 10,
+  4: 15,
+  5: 22,
 };
 
 // Tentativas de captura por estrelas
@@ -233,6 +235,12 @@ export const RAID_POKEMON_POOL = {
 
 // ── Funções utilitárias ───────────────────────────────────────────────────────
 
+export const calculateRaidMaxHp = (base = {}, level = 1, stars = 1) => {
+  const hpMult = RAID_HP_MULTIPLIER[stars] || RAID_HP_MULTIPLIER[1];
+  const baseHp = base.hp || 60;
+  return Math.ceil(((2 * baseHp * level) / 100 + level + 10) * hpMult);
+};
+
 export const rollRaidRewards = (stars) => {
   const table = RAID_REWARDS_TABLE[stars] || RAID_REWARDS_TABLE[1];
   return table.filter(reward => Math.random() < reward.chance);
@@ -290,10 +298,8 @@ export const createRaid = (region = 'kanto', pokedex = {}, badgeCount = 0) => {
   if (!template) return null;
 
   const base = pokedex[template.id] || {};
-  const hpMult = RAID_HP_MULTIPLIER[template.stars] || 8;
   const level  = template.level;
-  const baseHp = base.hp || 60;
-  const maxHp  = Math.ceil(((2 * baseHp * level) / 100 + level + 10) * hpMult);
+  const maxHp  = calculateRaidMaxHp(base, level, template.stars);
   const isShiny = !template.isShinyLocked && Math.random() < 0.01;
 
   return {
@@ -304,6 +310,7 @@ export const createRaid = (region = 'kanto', pokedex = {}, badgeCount = 0) => {
     stars: template.stars,
     maxHp,
     currentHp: maxHp,
+    balanceVersion: RAID_BALANCE_VERSION,
     region,
     spawnedAt: Date.now(),
     expiresAt: Date.now() + RAID_DURATION_MS,

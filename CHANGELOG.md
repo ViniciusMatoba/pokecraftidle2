@@ -1,5 +1,41 @@
 # Changelog - PokeCraft
 
+## [V1.79.6] - 13/05/2026 17:34
+### Release
+- **Forja e TMs**:
+    - Incluidos 329 TMs oficiais como receitas fabricaveis com drops pelo sistema existente.
+- **Raids**:
+    - HP rebalanceado por estrelas e aviso visivel na rota ao finalizar, expirar, entrar em captura ou liberar recompensas.
+- **Batalhas**:
+    - Efeitos visuais dos golpes agora resolvem nomes traduzidos e usam sprites `/fx/` do Pokemon Showdown.
+- **Rotas e Pokedex Regional**:
+    - Progressao de nivel normalizada em todas as regioes, com cobertura completa dos Pokemon regionais nas rotas/habitats.
+## [V1.79.5] - 13/05/2026 17:32
+### Balanceamento
+- **Progressao das Rotas**:
+    - Normalizada a escala de niveis das rotas de treino por regiao, do inicio ate o nivel 100.
+    - Corrigidos saltos grandes em Johto e nas demais regioes.
+    - Treinadores de rota passam a ficar pelo menos 3 niveis acima dos selvagens, exceto limite natural do nivel 100.
+- **Auditoria de Pokedex Regional**:
+    - Confirmada cobertura completa dos Pokemon de cada geracao em rotas/habitats da respectiva regiao.
+## [V1.79.4] - 13/05/2026 17:25
+### Corrigido
+- **Efeitos Visuais de Golpes**:
+    - Golpes traduzidos agora resolvem para a chave oficial e usam a animacao correta.
+    - Golpes de status tambem disparam FX durante a batalha.
+    - Sprites publicos `/fx/` do Pokemon Showdown foram validados e ganharam fallback seguro.
+## [V1.79.3] - 13/05/2026 17:15
+### Balanceamento
+- **Raids**:
+    - Reduzida a curva de HP por estrelas para batalhas dificeis, mas possiveis.
+    - Raids ja salvas sao recalculadas para a curva nova quando iniciadas.
+    - Adicionado aviso na tela de rota para raid expirada, falha, captura liberada e recompensas coletadas.
+## [V1.79.2] - 13/05/2026 17:07
+### Adicionado
+- **Forja de TMs Completa**:
+    - Incluidos 329 TMs oficiais como receitas fabricaveis.
+    - Todas as receitas de TM entram no sistema existente de drop por Pokemon.
+    - Custos de fabricacao escalam por tier de poder/categoria e usam essencias + materiais tematicos.
 ## [V1.79.1] - 13/05/2026 15:47
 ### Corrigido
 - **Sistema de Raids**: 

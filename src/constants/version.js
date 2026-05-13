@@ -1,6 +1,6 @@
-export const APP_VERSION = '1.79.1';
-export const VERSION = '1.79.1';
-export const APP_VERSION_DATE = '13/05/2026 15:47';
+export const APP_VERSION = '1.79.6';
+export const VERSION = '1.79.6';
+export const APP_VERSION_DATE = '13/05/2026 17:34';
 export const CHANGELOG = [
   '## [V1.79.1] - 13/05/2026 15:47',
   '### Corrigido',

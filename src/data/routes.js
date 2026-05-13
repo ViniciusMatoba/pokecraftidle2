@@ -71,6 +71,90 @@ export const getSortedRoutes = (routesObj) => {
 // POKEDEX resolvido em runtime pelo App   sem import circular
 const pk = (ids, level) => ids.map(id => ({ id: Number(id), level }));
 
+const ROUTE_PROGRESS_REGIONS = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea'];
+
+const getRouteMinMaxLevel = (route) => {
+  const levels = [];
+  (route.enemies || []).forEach(enemy => {
+    if (Number.isFinite(enemy.level)) levels.push(enemy.level);
+  });
+  (route.trainers || []).forEach(trainer => {
+    (trainer.team || []).forEach(pokemon => {
+      if (Number.isFinite(pokemon.level)) levels.push(pokemon.level);
+    });
+  });
+  if (!levels.length) return null;
+  return { min: Math.min(...levels), max: Math.max(...levels) };
+};
+
+const shiftRouteLevels = (route, delta) => ({
+  ...route,
+  enemies: (route.enemies || []).map(enemy => ({
+    ...enemy,
+    level: Number.isFinite(enemy.level) ? Math.max(1, Math.min(100, enemy.level + delta)) : enemy.level,
+  })),
+  trainers: (route.trainers || []).map(trainer => ({
+    ...trainer,
+    team: (trainer.team || []).map(pokemon => ({
+      ...pokemon,
+      level: Number.isFinite(pokemon.level) ? Math.max(1, Math.min(100, pokemon.level + delta)) : pokemon.level,
+    })),
+  })),
+});
+
+const keepRouteTrainersAboveWild = (route) => {
+  const wildLevels = (route.enemies || []).map(enemy => enemy.level).filter(Number.isFinite);
+  if (!wildLevels.length || !route.trainers?.length) return route;
+  const trainerFloor = Math.min(100, Math.max(...wildLevels) + 3);
+  return {
+    ...route,
+    trainers: route.trainers.map(trainer => ({
+      ...trainer,
+      team: (trainer.team || []).map(pokemon => ({
+        ...pokemon,
+        level: Number.isFinite(pokemon.level) ? Math.max(pokemon.level, trainerFloor) : pokemon.level,
+      })),
+    })),
+  };
+};
+
+const normalizeRouteProgression = (routesObj) => {
+  const normalized = Object.fromEntries(Object.entries(routesObj).map(([id, route]) => [id, {
+    ...route,
+    enemies: (route.enemies || []).map(enemy => ({ ...enemy })),
+    trainers: (route.trainers || []).map(trainer => ({
+      ...trainer,
+      team: (trainer.team || []).map(pokemon => ({ ...pokemon })),
+    })),
+  }]));
+
+  ROUTE_PROGRESS_REGIONS.forEach(region => {
+    const farmRoutes = getSortedRoutes(normalized)
+      .filter(route => route.type === 'farm' && inferRouteRegion(route.id, route.group).id === region)
+      .filter(route => getRouteMinMaxLevel(route));
+
+    if (farmRoutes.length < 2) return;
+    const firstLevel = Math.min(getRouteMinMaxLevel(farmRoutes[0])?.min || 5, 5);
+    const lastLevel = 100;
+    const span = Math.max(1, farmRoutes.length - 1);
+
+    farmRoutes.forEach((route, index) => {
+      const currentLevels = getRouteMinMaxLevel(normalized[route.id]);
+      if (!currentLevels) return;
+      const desiredMin = Math.round(firstLevel + ((lastLevel - firstLevel) * index) / span);
+      const delta = desiredMin - currentLevels.min;
+      const shifted = shiftRouteLevels(normalized[route.id], delta);
+      const smoothed = keepRouteTrainersAboveWild(shifted);
+      normalized[route.id] = {
+        ...smoothed,
+        unlockLevel: Math.min(100, desiredMin),
+      };
+    });
+  });
+
+  return normalized;
+};
+
 export const getRivalSprite = (playerAvatarImg) => {
   if (playerAvatarImg && playerAvatarImg.includes('blue.png')) {
     return 'https://play.pokemonshowdown.com/sprites/trainers/blue-gen3.png';
@@ -685,7 +769,7 @@ export const GYM_LEADERS = {
   giovanni: { id: 'giovanni', name: 'Giovanni', sprite: S.giovanni, badge: 8, badgeName: 'Insígnia da Terra',     reward: 15000, team: pk([111, 51, 112, 34], 55),    unlockFlag: 'earth_badge',   introText: 'Eu, Giovanni, vou destruí-lo!' },
 };
 
-export const ROUTES = {
+const RAW_ROUTES = {
 
   pallet_town: {
     id: 'pallet_town', name: 'Cidade de Pallet', type: 'city', group: 'Pallet Town',
@@ -2351,3 +2435,5 @@ export const ROUTES = {
   ...REGIONAL_DEX_COVERAGE_ROUTES,
   ...FUTURE_REGION_ROUTES,
 };
+
+export const ROUTES = normalizeRouteProgression(RAW_ROUTES);

@@ -67,7 +67,8 @@ import {
 } from './data/prestige';
 import {
   createRaid, RAID_FIGHT_SECONDS, RAID_BATTLE_TRIGGER,
-  RAID_SPAWN_INTERVAL_MS, RAID_CATCH_RATE_MULT, EXP_CANDIES
+  RAID_SPAWN_INTERVAL_MS, RAID_CATCH_RATE_MULT, EXP_CANDIES,
+  RAID_BALANCE_VERSION, calculateRaidMaxHp
 } from './data/raids';
 import RaidScreen from './components/RaidScreen';
 const PrestigeShop = lazy(() => import('./components/PrestigeShop'));
@@ -717,6 +718,7 @@ export default function App() {
   const [bossLoot, setBossLoot] = useState(null);
   const [battleResult, setBattleResult] = useState(null);
   const [showRaidScreen, setShowRaidScreen] = useState(false);
+  const [raidRouteNotice, setRaidRouteNotice] = useState(null);
   const [recipeFoundModal, setRecipeFoundModal] = useState(null); // { name, img, effect }
 
   const [installPrompt, setInstallPrompt] = useState(null);
@@ -790,6 +792,49 @@ export default function App() {
 
   const addLog = useCallback((msg, type = 'default') => {
     setBattleLog(prev => [{ msg: cleanBattleText(msg), type, id: Date.now() + Math.random() }, ...prev].slice(0, 8));
+  }, []);
+
+  const showRaidRouteNotice = useCallback((raid, status = 'ended') => {
+    if (!raid) return;
+    const messages = {
+      rewards: {
+        title: 'Raid concluida!',
+        message: `${raid.name} foi derrotado. Colete as recompensas da raid.`,
+        tone: '#22c55e',
+      },
+      captured: {
+        title: 'Raid capturada!',
+        message: `${raid.name} foi capturado. As recompensas estao prontas.`,
+        tone: '#22c55e',
+      },
+      capture: {
+        title: 'Raid enfraquecida!',
+        message: `${raid.name} chegou na fase de captura. Abra a raid e tente capturar.`,
+        tone: '#f59e0b',
+      },
+      failed: {
+        title: 'Raid finalizada',
+        message: `${raid.name} fugiu antes de ser derrotado ou capturado.`,
+        tone: '#ef4444',
+      },
+      expired: {
+        title: 'Raid expirada',
+        message: `${raid.name} saiu da rota. Continue batalhando para encontrar outra raid.`,
+        tone: '#ef4444',
+      },
+      claimed: {
+        title: 'Recompensas coletadas',
+        message: `A raid contra ${raid.name} foi encerrada com sucesso.`,
+        tone: '#3b82f6',
+      },
+    };
+    setRaidRouteNotice({
+      id: `${raid.id || 'raid'}_${status}_${Date.now()}`,
+      raidName: raid.name,
+      stars: raid.stars,
+      pokemonId: raid.pokemonId,
+      ...(messages[status] || messages.failed),
+    });
   }, []);
 
   const addFloat = useCallback((text, color = '#ef4444', target = 'enemy') => {
@@ -2311,6 +2356,7 @@ export default function App() {
     if (!raid || raid.phase === 'ended' || raid.phase === 'rewards') return;
     const remaining = raid.expiresAt - Date.now();
     if (remaining <= 0) {
+      showRaidRouteNotice(raid, 'expired');
       setGameState(prev => ({
         ...prev,
         activeRaid: prev.activeRaid ? { ...prev.activeRaid, phase: 'ended' } : null,
@@ -2325,9 +2371,10 @@ export default function App() {
         raidStats: { ...(prev.raidStats || {}), fled: (prev.raidStats?.fled || 0) + 1 }
       }));
       addLog(`⌛ A raid expirou! ${raid.name} fugiu...`, 'system');
+      showRaidRouteNotice(raid, 'expired');
     }, remaining);
     return () => clearTimeout(t);
-  }, [gameState.activeRaid?.id, gameState.activeRaid?.phase]);
+  }, [gameState.activeRaid?.id, gameState.activeRaid?.phase, showRaidRouteNotice]);
 
   // ── RAID: Fight Timer ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -2344,6 +2391,9 @@ export default function App() {
         const nextPhase = hpPct <= 0.3 ? 'capture' : 'ended';
         if (nextPhase === 'ended') {
            addLog(`⌛ Tempo esgotado! ${r.name} fugiu antes de ser enfraquecido o suficiente.`, 'enemy');
+           showRaidRouteNotice(r, 'failed');
+        } else {
+           showRaidRouteNotice(r, 'capture');
         }
         return {
           ...prev,
@@ -2358,7 +2408,7 @@ export default function App() {
     }
     const t = setTimeout(handleTimeout, remaining);
     return () => clearTimeout(t);
-  }, [gameState.activeRaid?.phase, gameState.activeRaid?.fightEndsAt, addLog]);
+  }, [gameState.activeRaid?.phase, gameState.activeRaid?.fightEndsAt, addLog, showRaidRouteNotice]);
 
   const calculateBossLoot = useCallback((damage) => {
     const loot = { coins: Math.floor(damage / 5), materials: {} };
@@ -2411,11 +2461,21 @@ export default function App() {
     setGameState(prev => {
       if (!prev.activeRaid || prev.activeRaid.phase !== 'idle') return prev;
       const now = Date.now();
+      const base = POKEDEX[prev.activeRaid.pokemonId] || {};
+      const balancedMaxHp = calculateRaidMaxHp(base, prev.activeRaid.level, prev.activeRaid.stars);
+      const shouldRebalance = prev.activeRaid.balanceVersion !== RAID_BALANCE_VERSION && balancedMaxHp > 0;
+      const hpRatio = prev.activeRaid.maxHp > 0 ? prev.activeRaid.currentHp / prev.activeRaid.maxHp : 1;
+      const currentHp = shouldRebalance
+        ? Math.max(1, Math.ceil(balancedMaxHp * Math.min(1, hpRatio)))
+        : prev.activeRaid.currentHp;
       return {
         ...prev,
         activeRaid: {
           ...prev.activeRaid,
           phase: 'fighting',
+          maxHp: shouldRebalance ? balancedMaxHp : prev.activeRaid.maxHp,
+          currentHp,
+          balanceVersion: RAID_BALANCE_VERSION,
           fightStartedAt: now,
           fightEndsAt: now + RAID_FIGHT_SECONDS * 1000,
         }
@@ -2456,6 +2516,7 @@ export default function App() {
             [candyId]: (newItems[candyId] || 0) + candyQty,
           };
           addLog(`📦 ${raid.name} já está no seu PC! Recebeu ${candyQty}x ${EXP_CANDIES[candyId]?.name} no lugar.`, 'system');
+          showRaidRouteNotice(raid, 'captured');
           return {
             ...prev,
             inventory: { ...prev.inventory, items: newItemsWithCandy },
@@ -2487,6 +2548,7 @@ export default function App() {
           fromRaid: true,
         };
         addLog(`🎉 Você capturou ${raid.isShiny ? '✨ ' : ''}${raid.name}!`, 'system');
+        showRaidRouteNotice(raid, 'captured');
         return {
           ...prev,
           pc: [...(prev.pc || []), newPoke],
@@ -2504,6 +2566,9 @@ export default function App() {
         const nextPhase = raid.currentHp === 0 ? 'rewards' : 'ended';
         if (nextPhase === 'ended') {
           addLog(`💨 ${raid.name} fugiu vitorioso! Você não conseguiu enfraquecê-lo o suficiente.`, 'enemy');
+          showRaidRouteNotice(raid, 'failed');
+        } else {
+          showRaidRouteNotice(raid, 'rewards');
         }
         return {
           ...prev,
@@ -2519,7 +2584,7 @@ export default function App() {
         };
       }
     });
-  }, []);
+  }, [showRaidRouteNotice]);
 
   const handleClaimRaidRewards = useCallback(() => {
     setGameState(prev => {
@@ -2544,6 +2609,7 @@ export default function App() {
           newInventory.candies[r.id] = (newInventory.candies[r.id] || 0) + (r.quantity || 1);
         }
       });
+      showRaidRouteNotice(raid, 'claimed');
       // Agenda próxima raid
       localStorage.setItem(RAID_SPAWN_STORAGE_KEY, String(Date.now() + RAID_SPAWN_INTERVAL_MS));
       return {
@@ -2559,7 +2625,7 @@ export default function App() {
       };
     });
     setShowRaidScreen(false);
-  }, []);
+  }, [showRaidRouteNotice]);
 
   // TICK DE BATALHA
   // ⛏️” PROTECTED: handleBattleTick — NíO EDITAR SEM AUTORIZAÇíO EXPLíCITA
@@ -2747,6 +2813,9 @@ export default function App() {
 
       if (move.category === 'Status' || move.power === 0) {
         nextDelay = 600;
+        window.dispatchEvent(new CustomEvent('pokemove', {
+          detail: { name: move.name, type: move.type, direction: 'player-to-enemy', moveKey: move.moveId || move.key }
+        }));
         const fx = interpretMoveEffect(move);
 
         if (fx.noEffect) {
@@ -2847,7 +2916,7 @@ export default function App() {
 
         // Dispara evento de animação do golpe para o BattleScreen
         window.dispatchEvent(new CustomEvent('pokemove', {
-          detail: { name: move.name, type: move.type, direction: 'player-to-enemy' }
+          detail: { name: move.name, type: move.type, direction: 'player-to-enemy', moveKey: move.moveId || move.key }
         }));
         if (allyBonus?.damageMult) playerDmg = Math.floor(playerDmg * allyBonus.damageMult);
         const eff = getTypeEffectiveness(move.type, updatedEnemyFinal.type);
@@ -3111,6 +3180,9 @@ export default function App() {
             
             if (enemyMove) {
             if (enemyMove.category === 'Status' || enemyMove.power === 0) {
+              window.dispatchEvent(new CustomEvent('pokemove', {
+                detail: { name: enemyMove.name, type: enemyMove.type, direction: 'enemy-to-player', moveKey: enemyMove.moveId || enemyMove.key }
+              }));
               const fxE = interpretMoveEffect(enemyMove);
 
               if (fxE.noEffect || fxE.heal) {
@@ -3166,7 +3238,7 @@ export default function App() {
 
               // Dispara evento de animação do golpe inimigo
               window.dispatchEvent(new CustomEvent('pokemove', {
-                detail: { name: enemyMove.name, type: enemyMove.type, direction: 'enemy-to-player' }
+                detail: { name: enemyMove.name, type: enemyMove.type, direction: 'enemy-to-player', moveKey: enemyMove.moveId || enemyMove.key }
               }));
               const effE = getTypeEffectiveness(enemyMove.type, updatedTeamFinal[activeMemberIndex].type);
               
@@ -3324,9 +3396,11 @@ export default function App() {
         if (raidNewHp === 0) {
           nextPhase = 'rewards';
           addLog(`🏆 ${prev.activeRaid.name} foi TOTALMENTE DERROTADO! Recompensas liberadas.`, 'system');
+          showRaidRouteNotice(prev.activeRaid, 'rewards');
         } else if (raidHpPct <= 0.3) {
           nextPhase = 'capture';
           addLog(`🎯 ${prev.activeRaid.name} está enfraquecido! Iniciando fase de captura!`, 'system');
+          showRaidRouteNotice(prev.activeRaid, 'capture');
         }
 
         newActiveRaid = {
@@ -3351,7 +3425,7 @@ export default function App() {
 
     setMoveIndex(m => m + 1);
     return nextDelay;
-  }, [currentEnemy, activeMemberIndex, moveIndex, calcDamage, addFloat, setCurrentEnemy, gameState.team, gameState.stamina, gameState.settings, isStoryVsEnemy, openStoryBattleResult, processDrops, spawnEnemy, handleGoToCity]);
+  }, [currentEnemy, activeMemberIndex, moveIndex, calcDamage, addFloat, setCurrentEnemy, gameState.team, gameState.stamina, gameState.settings, isStoryVsEnemy, openStoryBattleResult, processDrops, spawnEnemy, handleGoToCity, showRaidRouteNotice]);
 
   useAutoFarm(gameState.team[activeMemberIndex], gameState.currentRoute, handleBattleTick, battleReady);
 
@@ -8435,6 +8509,48 @@ export default function App() {
       )}
 
       {/* ── RAID: Botão flutuante ─────────────────────────────────────────── */}
+      {raidRouteNotice && ['routes', 'battles'].includes(currentView) && (
+        <div
+          className="fixed left-4 right-4 z-[8100] animate-bounceIn"
+          style={{ bottom: gameState.activeRaid && gameState.activeRaid.phase !== 'ended' && !showRaidScreen ? 146 : 88 }}
+        >
+          <div
+            className="mx-auto max-w-md rounded-3xl border-2 bg-slate-950/95 p-3 shadow-2xl backdrop-blur-xl"
+            style={{ borderColor: `${raidRouteNotice.tone}88`, boxShadow: `0 18px 40px ${raidRouteNotice.tone}33` }}
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-14 w-14 shrink-0 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
+                <img
+                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${raidRouteNotice.pokemonId}.png`}
+                  alt={raidRouteNotice.raidName}
+                  className="h-12 w-12 object-contain"
+                  style={{ imageRendering: 'pixelated' }}
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-white text-sm font-black uppercase italic tracking-wide truncate">{raidRouteNotice.title}</p>
+                  <span className="text-[10px] font-black text-amber-300 whitespace-nowrap">RAID {raidRouteNotice.stars || 1}</span>
+                </div>
+                <p className="text-slate-300 text-[11px] font-bold leading-snug mt-1">{raidRouteNotice.message}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setRaidRouteNotice(null);
+                  if (gameState.activeRaid?.phase === 'ended') {
+                    setGameState(prev => ({ ...prev, activeRaid: null }));
+                  }
+                }}
+                className="shrink-0 rounded-2xl bg-white px-3 py-2 text-[10px] font-black uppercase text-slate-900 shadow-lg active:scale-95"
+              >
+                Ok
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {gameState.activeRaid && gameState.activeRaid.phase !== 'ended' && !showRaidScreen && (
         <button
           type="button"
