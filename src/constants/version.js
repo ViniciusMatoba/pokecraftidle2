@@ -1,7 +1,9 @@
-export const APP_VERSION = '1.77.9';
-export const VERSION = '1.77.9';
-export const APP_VERSION_DATE = '13/05/2026 11:24';
+export const APP_VERSION = '1.78.0';
+export const VERSION = '1.78.0';
+export const APP_VERSION_DATE = '13/05/2026 11:36';
 export const CHANGELOG = [
+  'System: Taxa de Pokémon Shiny padronizada para 1/4096 (escala progressiva por maestria)',
+  'System: Gatilho de Raids ajustado para 50 batalhas (selvagens ou treinadores)',
   'Fix: Textos flutuantes (+HP, Buffs/Debuffs) agora aparecem sobre o Pokémon correto na batalha',
   'Fix: Duplicação de Pokémon em expedições resolvida (Pokémon agora permanecem no PC com status onExpedition)',
   'UI: Badge de status e travas de segurança adicionadas ao gerenciamento de Pokémon para expedições',

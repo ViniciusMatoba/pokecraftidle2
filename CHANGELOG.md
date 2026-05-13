@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [V1.78.0] - 13/05/2026 11:36
+### Adicionado
+- **Sistema**:
+    - Padronização da taxa Shiny para 1/4096 (base).
+    - Redução do gatilho de Raids para 50 batalhas.
+
 ## [V1.77.9] - 13/05/2026 11:24
 ### Corrigido
 - **Batalha**:

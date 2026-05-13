@@ -2045,7 +2045,7 @@ export default function App() {
     const masteryCount = (gameState.speciesMastery || {})[pokeId] || (gameState.speciesMastery || {})[base.id] || 0;
     
     // ⛏️” PROTECTED: Spawn Rates
-    const shinyRateDivisor = masteryCount >= 200 ? 410 : masteryCount >= 100 ? 1024 : 2048;
+    const shinyRateDivisor = masteryCount >= 200 ? 1024 : masteryCount >= 100 ? 2048 : 4096;
     const isShiny = Math.floor(Math.random() * shinyRateDivisor) === 0;
     const isBossSpawn = !isShiny && Math.floor(Math.random() * 500) === 0; // Boss (não capturável)
     const isStarterSpawn = !isShiny && !isBossSpawn && Math.floor(Math.random() * 2048) === 0; // Starter raro
