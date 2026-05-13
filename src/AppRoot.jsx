@@ -97,6 +97,12 @@ const cleanBattleText = (value) => {
     .trim();
 };
 
+const MEGA_CAPABLE_SPECIES = [
+  3, 6, 9, 15, 18, 65, 80, 94, 115, 127, 130, 142, 150, 181, 208, 212, 214, 229, 248, 
+  254, 257, 260, 282, 302, 303, 306, 308, 310, 319, 323, 334, 354, 359, 362, 373, 376, 
+  380, 381, 384, 428, 445, 448, 460, 475, 531, 719
+];
+
 const removeUndefinedFields = (value) => {
   if (Array.isArray(value)) {
     return value.map(removeUndefinedFields).filter(item => item !== undefined);
@@ -1748,6 +1754,16 @@ export default function App() {
         }
       }
     });
+
+    // MEGA STONE SHARDS - KALOS ONLY + MEGA SPECIES
+    if (gameState.activeRegion === 'kalos' && MEGA_CAPABLE_SPECIES.includes(Number(enemy.id))) {
+      const megaChance = enemy.isShiny ? 0.40 : 0.15;
+      if (Math.random() < megaChance) {
+        const qty = enemy.isWildBoss ? 2 : 1;
+        drops.materials.mega_stone_shard = (drops.materials.mega_stone_shard || 0) + qty;
+        messages.push(`💎 ${qty}x Fragmento de Mega Pedra`);
+      }
+    }
 
     const recipeDrops = FORGE_RECIPE_DROP_BY_POKEMON[Number(enemy.id)];
     const recipeDropList = Array.isArray(recipeDrops) ? recipeDrops : (recipeDrops ? [recipeDrops] : []);

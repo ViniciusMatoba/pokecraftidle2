@@ -192,11 +192,18 @@ export const RAID_POKEMON_POOL = {
   ],
   kalos: [
     { id: 651, stars: 1, level: 25, name: 'Quilladin'  },
+    { id: 661, stars: 1, level: 25, name: 'Fletchling' },
     { id: 674, stars: 2, level: 30, name: 'Pangoro'    },
+    { id: 663, stars: 3, level: 45, name: 'Talonflame' },
     { id: 658, stars: 3, level: 50, name: 'Greninja'   },
     { id: 700, stars: 3, level: 50, name: 'Sylveon'    },
-    { id: 715, stars: 4, level: 58, name: 'Noivern'    },
-    { id: 717, stars: 5, level: 65, name: 'Yveltal'    },
+    { id: 681, stars: 4, level: 55, name: 'Aegislash'  },
+    { id: 697, stars: 4, level: 58, name: 'Tyrantrum'  },
+    { id: 706, stars: 5, level: 65, name: 'Goodra'     },
+    { id: 713, stars: 4, level: 55, name: 'Avalugg'    },
+    { id: 717, stars: 5, level: 70, name: 'Yveltal'    },
+    { id: 716, stars: 5, level: 70, name: 'Xerneas'    },
+    { id: 718, stars: 5, level: 75, name: 'Zygarde'    },
   ],
   alola: [
     { id: 735, stars: 1, level: 28, name: 'Gumshoos'   },
@@ -231,10 +238,10 @@ export const rollRaidRewards = (stars) => {
 
 // Máximo de estrelas desbloqueadas com base no número de insígnias
 export const RAID_MAX_STARS_BY_BADGES = (badgeCount) => {
-  if (badgeCount <= 1) return 1;
-  if (badgeCount <= 3) return 2;
-  if (badgeCount <= 5) return 3;
-  if (badgeCount <= 7) return 4;
+  if (badgeCount < 2) return 1;
+  if (badgeCount < 4) return 2;
+  if (badgeCount < 6) return 3;
+  if (badgeCount < 8) return 4;
   return 5;
 };
 

@@ -6,6 +6,7 @@ const CATEGORY_LABELS = {
   hold_items:   { label: 'Hold Items',  emoji: '💎' },
   elite_relics: { label: 'Relíquias',   emoji: '⚔️' },
   tms:          { label: 'TMs',         emoji: '💿' },
+  mega_stones:  { label: 'Mega Stones', emoji: '💎' },
   fishing_rods: { label: 'Varas',       emoji: '🎣' },
 };
 

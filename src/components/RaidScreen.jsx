@@ -196,17 +196,28 @@ const RaidScreen = ({
           {raid.phase === 'fighting' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{
-                background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)',
-                borderRadius: 16, padding: 14, textAlign: 'center'
+                background: 'rgba(15, 23, 42, 0.8)', 
+                border: `1px solid ${starColor}40`,
+                borderRadius: 20, 
+                padding: '16px 20px', 
+                textAlign: 'center',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+                backdropFilter: 'blur(10px)'
               }}>
-                <p style={{ color: '#3b82f6', fontSize: 11, fontWeight: 800, margin: '0 0 4px', textTransform: 'uppercase' }}>Seu Dano Contribuído</p>
-                <p style={{ color: '#fff', fontSize: 24, fontWeight: 900, margin: 0 }}>
+                <p style={{ color: starColor, fontSize: 10, fontWeight: 800, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: 1.5 }}>
+                  Seu Dano Contribuído
+                </p>
+                <p style={{ 
+                  color: '#fff', fontSize: 32, fontWeight: 900, margin: 0,
+                  fontFamily: 'monospace', textShadow: `0 0 15px ${starColor}44`
+                }}>
                   {raid.totalDamageDealt.toLocaleString()}
                 </p>
               </div>
               <div style={{ textAlign: 'center', padding: '0 10px' }}>
-                <p style={{ color: '#475569', fontSize: 10, fontWeight: 600, lineHeight: 1.4, margin: 0 }}>
-                  A Raid continua em segundo plano.<br/>50% do seu dano em rotas é aplicado aqui!
+                <p style={{ color: '#94a3b8', fontSize: 10, fontWeight: 600, lineHeight: 1.5, margin: 0 }}>
+                  A Raid continua em segundo plano.<br/>
+                  <span style={{ color: '#64748b' }}>50% do seu dano em rotas é aplicado aqui!</span>
                 </p>
               </div>
             </div>

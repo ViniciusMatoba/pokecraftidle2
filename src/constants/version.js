@@ -1,8 +1,26 @@
-export const APP_VERSION = '1.78.2';
-export const VERSION = '1.78.2';
-export const APP_VERSION_DATE = '13/05/2026 12:12';
+export const APP_VERSION = '1.78.4';
+export const VERSION = '1.78.4';
+export const APP_VERSION_DATE = '13/05/2026 12:35';
 export const CHANGELOG = [
-  '## [V1.78.1] - 13/05/2026 12:02',
+  '## [V1.78.4] - 13/05/2026 12:35',
+  '### Adicionado',
+  '- **Expansão Total de Mega Stones**:',
+  '    - Implementadas receitas para TODAS as Mega Stones conhecidas (46 pedras ao todo).',
+  '    - Todas as receitas agora dropam de Pokémon capazes de Mega Evoluir na região de Kalos.',
+  '    - Atualizado o guia de drop na Forja para mostrar todos os Pokémon que fornecem fragmentos.',
+  '## [V1.78.3] - 13/05/2026 12:25',
+  '### Adicionado',
+  '- **Sistema de Mega Evolução (Alpha)**:',
+  '    - Mega Evoluções agora são possíveis em Kalos!',
+  '    - Adicionado item "Fragmento de Mega Pedra" como drop raro (15%) de Pokémon capazes de Mega Evoluir em Kalos.',
+  '    - Nova categoria na Forja: Mega Stones.',
+  '    - Adicionadas receitas para Charizardite X/Y, Venusaurite, Blastoisinite, Lucarionite e Garchompite.',
+  '    - Mega Evoluções registradas na Pokedex: Mega Venusaur, Charizard X/Y, Blastoise, Lucario e Garchomp.',
+  '- **Refinamento de Raids**:',
+  '    - Estrelas das Raids agora são estritamente limitadas pelo progresso regional (insígnias).',
+  '    - Pool de Raids em Kalos expandida e priorizada com Pokémon da região (Talonflame, Aegislash, Goodra, etc).',
+  '    - UI de Dano Contribuído na Raid modernizada para melhor visualização.',
+  '## [V1.78.2] - 13/05/2026 12:12',
   '### Adicionado',
   '- **Sistema de Raids**:',
   '    - Adicionada chance de 0.5% de spawn imediato ao encontrar Pokémon selvagens nas rotas.',
