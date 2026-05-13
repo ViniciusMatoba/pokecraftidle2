@@ -1,7 +1,17 @@
-export const APP_VERSION = '1.78.0';
-export const VERSION = '1.78.0';
-export const APP_VERSION_DATE = '13/05/2026 11:36';
+export const APP_VERSION = '1.78.1';
+export const VERSION = '1.78.1';
+export const APP_VERSION_DATE = '13/05/2026 12:02';
 export const CHANGELOG = [
+  '## [V1.78.1] - 13/05/2026 12:02',
+  '### Adicionado',
+  '- **Sistema de Raids**:',
+  '    - Adicionada chance de 0.5% de spawn imediato ao encontrar Pokémon selvagens nas rotas.',
+  '    - Corrigido bug onde Raids expiradas bloqueavam o surgimento de novas.',
+  '    - Reduzido tempo de spawn passivo para 1 hora.',
+  '## [V1.78.0] - 13/05/2026 11:36',
+  'System: Raids agora podem surgir aleatoriamente durante encontros nas rotas (0.5% de chance)',
+  'Fix: Corrigida trava que impedia novas Raids se a anterior expirasse sem ser visualizada',
+  'System: Intervalo de spawn automático de Raids reduzido de 6h para 1h',
   'System: Taxa de Pokémon Shiny padronizada para 1/4096 (escala progressiva por maestria)',
   'System: Gatilho de Raids ajustado para 50 batalhas (selvagens ou treinadores)',
   'Fix: Textos flutuantes (+HP, Buffs/Debuffs) agora aparecem sobre o Pokémon correto na batalha',

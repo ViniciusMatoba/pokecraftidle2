@@ -2040,6 +2040,19 @@ export default function App() {
           name: (POKEDEX[Number(baseRef.id)] || POKEDEX[String(baseRef.id)])?.name || baseRef.name || 'Pokémon Selvagem'
         };
     
+    // ⚔️ CHANCE ALEATÓRIA DE RAID (0.5% por encontro em rotas)
+    const isRaidBusyNow = gameState.activeRaid && gameState.activeRaid.phase !== 'ended';
+    if (!isRaidBusyNow && Math.random() < 0.005) {
+      const region = gameState.currentRegion || 'kanto';
+      const badgeCount = getRegionBadgeCount(gameState.badges || [], region);
+      const raid = createRaid(region, POKEDEX, badgeCount);
+      if (raid) {
+        setGameState(prev => ({ ...prev, activeRaid: raid, battlesSinceLastRaid: 0 }));
+        localStorage.setItem(RAID_SPAWN_STORAGE_KEY, String(Date.now() + RAID_SPAWN_INTERVAL_MS));
+        addLog(`⚔️ UMA RAID SURGIU NA ROTA! ${raid.name} (${raid.stars}⭐) apareceu!`, 'system');
+      }
+    }
+
     // Sistema de Maestria: Chance de Shiny
     const pokeId = Number(base.id);
     const masteryCount = (gameState.speciesMastery || {})[pokeId] || (gameState.speciesMastery || {})[base.id] || 0;
@@ -2257,7 +2270,8 @@ export default function App() {
     const checkSpawn = () => {
       const region = gameState.currentRegion || 'kanto';
       const nextAt = parseInt(localStorage.getItem(RAID_SPAWN_STORAGE_KEY) || '0', 10);
-      if (!gameState.activeRaid && Date.now() >= nextAt) {
+      const isRaidBusy = gameState.activeRaid && gameState.activeRaid.phase !== 'ended';
+      if (!isRaidBusy && Date.now() >= nextAt) {
         const badgeCount = getRegionBadgeCount(gameState.badges || [], region);
         const raid = createRaid(region, POKEDEX, badgeCount);
         if (raid) {
@@ -4975,7 +4989,8 @@ export default function App() {
       // ── Raid: contagem de batalhas e spawn por batalhas ──────────────────────
       const newBattlesSinceRaid = (prev.battlesSinceLastRaid || 0) + 1;
       let raidSpawnUpdate = {};
-      if (!prev.activeRaid && newBattlesSinceRaid >= RAID_BATTLE_TRIGGER) {
+      const isRaidBusy = prev.activeRaid && prev.activeRaid.phase !== 'ended';
+      if (!isRaidBusy && newBattlesSinceRaid >= RAID_BATTLE_TRIGGER) {
         const region = prev.currentRegion || 'kanto';
         const badgeCount = getRegionBadgeCount(prev.badges || [], region);
         const raid = createRaid(region, POKEDEX, badgeCount);

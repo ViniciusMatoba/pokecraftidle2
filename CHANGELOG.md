@@ -1,5 +1,12 @@
 # Changelog - PokeCraft
 
+## [V1.78.1] - 13/05/2026 12:02
+### Adicionado
+- **Sistema de Raids**:
+    - Adicionada chance de 0.5% de spawn imediato ao encontrar Pokémon selvagens nas rotas.
+    - Corrigido bug onde Raids expiradas bloqueavam o surgimento de novas.
+    - Reduzido tempo de spawn passivo para 1 hora.
+
 ## [V1.78.0] - 13/05/2026 11:36
 ### Adicionado
 - **Sistema**:

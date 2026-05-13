@@ -4,7 +4,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Tempo entre spawns automáticos de raid
-export const RAID_SPAWN_INTERVAL_MS = 6 * 60 * 60 * 1000; // 6 horas
+export const RAID_SPAWN_INTERVAL_MS = 1 * 60 * 60 * 1000; // 1 hora
 
 // Raids também disparam a cada X batalhas ganhas
 export const RAID_BATTLE_TRIGGER = 50;
