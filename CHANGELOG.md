@@ -1,6 +1,20 @@
 # Changelog - PokeCraft
 
+## [V1.79.0] - 13/05/2026 15:12
+### Adicionado
+- **Mega Evoluções (Sistema Global)**: 
+    - Implementação de 96 novas formas Mega Evolution com suporte a branching paths (ex: Absolite Z).
+    - Registro completo de atributos, tipos e habilidades exclusivas no Pokedex.
+    - Sincronização de IDs regionais (bloco 20XXX) para garantir estabilidade do motor de jogo.
+- **Forja e Economia**:
+    - 96 novas receitas de Mega Stones adicionadas ao sistema de crafting.
+    - Integração de `mega_stone_shard` como material base universal para pedras evolutivas.
+    - Mapeamento de drops raros para as novas receitas.
+- **Ferramentas de Desenvolvimento**:
+    - Script de auditoria `audit_megas.ps1` para validação automática de dados evolutivos.
+
 ## [V1.78.2] - 13/05/2026 12:12
+
 ### Adicionado
 - **Interface (UI)**:
     - Novo layout da tela de Raid:
