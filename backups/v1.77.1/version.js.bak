@@ -1,25 +1,7 @@
-export const APP_VERSION = '1.77.8';
-export const VERSION = '1.77.8';
-export const APP_VERSION_DATE = '13/05/2026 10:51';
+export const APP_VERSION = '1.77.1';
+export const VERSION = '1.77.1';
+export const APP_VERSION_DATE = '13/05/2026 06:30';
 export const CHANGELOG = [
-  'Fix: Duplicação de Pokémon em expedições resolvida (Pokémon agora permanecem no PC com status onExpedition)',
-  'UI: Badge de status e travas de segurança adicionadas ao gerenciamento de Pokémon para expedições',
-  'Fix: Notificações redundantes de receitas de forja resolvidas (correção de dependências de estado)',
-  'Fix: Navegação do botão "CIDADE" corrigida para levar à Cidade em vez do Mapa',
-  'Fix: Padronização total da taxa de spawn de todos os 27 Pokémon iniciais (Starters) para spawnWeight 10 (~1% chance)',
-  'Fix: Implementação de trava de progresso para todos os starters: spawns agora exigem derrota do primeiro rival de sua região',
-  'Fix: Iniciais de todas as 9 gerações — spawnWeight padronizado em 10 para ~1% de chance',
-  'Fix: Encontros com iniciais em todas as regiões agora exigem a derrota do primeiro rival',
-  'Fix: Iniciais de Johto/Hoenn/Sinnoh — spawnWeight aumentado de 2→10 para taxa de aparição equivalente a Kanto (~1%)',
-  'Fix: Ícones de região (Johto/Hoenn/Alola/Paldea) trocados para sprites dos lendários via PokeAPI',
-  'Fix: Ícone do título Rival trocado para scope-lens (blue-card era 404)',
-  'Fix: Imagens do Pokémart/Forja — link_cable, poke_food, poke_food_premium agora usam PokeAPI',
-  'UX: Seleção de título — delay de 200ms antes de fechar modal para mostrar badge Ativo',
-  'Fix: Materiais de Forja agora dropam em todas as 9 regiões via TYPE_MATERIAL_MAP',
-  'Feature: FORGE_MATERIAL_DROP_GUIDE expandido com 200+ novos Pokémon de todas as gerações',
-  'Feature: Efeitos visuais de golpes — 120+ moves com animações únicas usando sprites do Pokémon Showdown (/fx/)',
-  'Feature: Motor MoveAnimationLayer — 12 tipos de animação (projectile, burst, drain, quake, beam, slash, etc.)',
-  'Feature: Fallback por tipo — todo golpe sem animação específica recebe visual baseado no seu tipo',
   'Feature: Efeitos secundários completos — Drain cura HP, Recoil dá dano próprio, Power-Up Punch/Flame Charge buffam stats, 6 tipos de chance de status em golpes de dano',
   'Release: V1.77.0 — Sistema completo de Held Items: 18 tipos + 4 especiais com efeitos de batalha',
   'Feature: TYPE_BOOSTS expandido para todos os 18 tipos (Silk Scarf, Miracle Seed, Never-Melt Ice, etc.)',

@@ -1,5 +1,12 @@
 # Changelog - PokeCraft
 
+## [V1.77.8] - 13/05/2026 10:51
+### Corrigido
+- **Expedições**:
+    - Resolvido bug crítico de duplicação de Pokémon (agora permanecem no PC com flag `onExpedition`).
+    - Implementada trava de segurança na UI para impedir evolução ou alteração de Pokémon em missão.
+    - Adicionado feedback visual (badges e cadeados) para Pokémon ocupados.
+
 ## [V1.77.7] - 13/05/2026 09:23
 ### Corrigido
 - **Forja & Navegação**:

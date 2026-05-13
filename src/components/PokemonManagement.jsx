@@ -518,10 +518,19 @@ const PokemonManagement = ({
                          )}
                        </p>
                        <p className="text-[8px] font-bold text-slate-400 mt-0.5">Nv. {p.level}</p>
+                       {p.onExpedition && (
+                         <p className="text-[7px] font-black text-blue-500 uppercase mt-0.5 animate-pulse">🚢 Expedição</p>
+                       )}
                      </div>
-                     <button onClick={(e) => { e.stopPropagation(); moveToTeam(p.originalIndex, p.instanceId); }} className="absolute top-1 right-1 bg-blue-50 text-blue-500 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75">
-                       <span className="font-black text-[8px] uppercase">+ Team</span>
-                     </button>
+                     {!p.onExpedition ? (
+                       <button onClick={(e) => { e.stopPropagation(); moveToTeam(p.originalIndex, p.instanceId); }} className="absolute top-1 right-1 bg-blue-50 text-blue-500 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75">
+                         <span className="font-black text-[8px] uppercase">+ Team</span>
+                       </button>
+                     ) : (
+                       <div className="absolute top-1 right-1 bg-slate-100 text-slate-400 p-1.5 rounded-lg opacity-100 scale-75">
+                         <span className="font-black text-[8px] uppercase">🔒</span>
+                       </div>
+                     )}
                   </div>
                 ));
               })()}
@@ -606,6 +615,14 @@ const PokemonManagement = ({
                      <div className="flex items-center justify-center gap-2 mt-2">
                         <span className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Nv. {activePokemonDetails.pokemon.level}</span>
                         <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
+                        {activePokemonDetails.pokemon.onExpedition && (
+                          <>
+                            <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[8px] font-black uppercase tracking-wider bg-blue-600 text-white shadow-sm animate-pulse">
+                              🚢 Em Expedição
+                            </span>
+                            <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
+                          </>
+                        )}
                         {(activePokemonDetails.pokemon.types || [activePokemonDetails.pokemon.type || 'Normal']).map(t => (
                           <span
                             key={t}
@@ -646,8 +663,8 @@ const PokemonManagement = ({
                       <select
                         value={activePokemonDetails.pokemon.equippedNature || ''}
                         onChange={(e) => equipNature(e.target.value)}
-                        className="min-h-[44px] w-full bg-white border-2 border-pokeBlue/40 rounded-xl px-3 text-[11px] font-black text-slate-700 outline-none focus:border-pokeBlue shadow-sm"
-                        disabled={masteryCount < 5}
+                        className="min-h-[44px] w-full bg-white border-2 border-pokeBlue/40 rounded-xl px-3 text-[11px] font-black text-slate-700 outline-none focus:border-pokeBlue shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={masteryCount < 5 || activePokemonDetails.pokemon.onExpedition}
                       >
                         <option value="">Padrão (Neutro)</option>
                         {NATURE_LIST.slice(0, Math.floor(masteryCount / 5)).map((name) => {
@@ -680,7 +697,8 @@ const PokemonManagement = ({
                           </div>
                           <button 
                             onClick={unequipHeldItem}
-                            className="bg-red-50 text-red-500 px-3 py-2 rounded-lg font-black text-[9px] uppercase hover:bg-red-100 transition-all active:scale-95"
+                            className="bg-red-50 text-red-500 px-3 py-2 rounded-lg font-black text-[9px] uppercase hover:bg-red-100 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={activePokemonDetails.pokemon.onExpedition}
                           >Remover</button>
                         </div>
                       ) : (
@@ -699,8 +717,8 @@ const PokemonManagement = ({
                           return availableItems.map(item => (
                             <button 
                               key={item.id}
-                              onClick={() => equipHeldItem(item.id)}
-                              className="w-full flex items-center gap-3 bg-white/70 p-2 rounded-xl border border-slate-100 hover:border-amber-400 hover:bg-white transition-all text-left"
+                              onClick={() => !activePokemonDetails.pokemon.onExpedition && equipHeldItem(item.id)}
+                              className={`w-full flex items-center gap-3 bg-white/70 p-2 rounded-xl border border-slate-100 transition-all text-left ${activePokemonDetails.pokemon.onExpedition ? 'opacity-50 cursor-not-allowed' : 'hover:border-amber-400 hover:bg-white'}`}
                             >
                               <img src={item.img} className="w-8 h-8 object-contain" alt="" />
                               <div className="flex-1">
@@ -1053,12 +1071,14 @@ const PokemonManagement = ({
                                   <div className="shrink-0">
                                     {isItemEvo ? (
                                       hasItem && evolutionAllowed && timeMet && (
-                                        <button onClick={() => handleStoneEvolution(evo.item, evo)} className="bg-amber-500 text-white font-black text-[9px] px-3 py-2 rounded-lg shadow-lg uppercase active:scale-95 transition-all">Usar Item</button>
+                                        <button onClick={() => !activePokemonDetails.pokemon.onExpedition && handleStoneEvolution(evo.item, evo)} disabled={activePokemonDetails.pokemon.onExpedition} className="bg-amber-500 text-white font-black text-[9px] px-3 py-2 rounded-lg shadow-lg uppercase active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">Usar Item</button>
                                       )
                                     ) : (
                                       levelMet && evolutionAllowed && timeMet && (
                                         <button 
+                                          disabled={activePokemonDetails.pokemon.onExpedition}
                                           onClick={() => { 
+                                            if (activePokemonDetails.pokemon.onExpedition) return;
                                             setActivePokemonDetails(null); 
                                             setEvolutionPending({ 
                                               ...poke, 
@@ -1067,7 +1087,7 @@ const PokemonManagement = ({
                                               pcIndex: activePokemonDetails.location === 'pc' ? activePokemonDetails.index : null 
                                             }); 
                                           }} 
-                                          className="bg-pokeBlue text-white font-black text-[9px] px-3 py-2 rounded-lg shadow-lg uppercase animate-pulse"
+                                          className="bg-pokeBlue text-white font-black text-[9px] px-3 py-2 rounded-lg shadow-lg uppercase animate-pulse disabled:animate-none disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                           Evoluir
                                         </button>
@@ -1113,11 +1133,11 @@ const PokemonManagement = ({
                         <button onClick={() => setShowTeamReorder(!showTeamReorder)} className={`flex-1 h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2 ${showTeamReorder ? 'bg-slate-100 text-slate-400' : 'bg-slate-50 text-slate-600 border-2 border-slate-100 hover:border-pokeBlue'}`}>
                            <span>{showTeamReorder ? '✕ Fechar' : '⇄ Mudar Posição'}</span>
                         </button>
-                        <button onClick={() => { moveToPC(activePokemonDetails.pokemon?.instanceId); setActivePokemonDetails(null); }} className="flex-1 h-14 bg-slate-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-800 transition-all active:scale-95 shadow-lg">Enviar p/ PC</button>
+                        <button onClick={() => { if (!activePokemonDetails.pokemon.onExpedition) { moveToPC(activePokemonDetails.pokemon?.instanceId); setActivePokemonDetails(null); } }} disabled={activePokemonDetails.pokemon.onExpedition} className="flex-1 h-14 bg-slate-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-800 transition-all active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">Enviar p/ PC</button>
                       </div>
                     </div>
                   ) : (
-                    <button onClick={() => { moveToTeam(activePokemonDetails.index, activePokemonDetails.pokemon?.instanceId); }} className="w-full h-14 bg-gradient-to-r from-pokeBlue to-blue-600 text-white rounded-2xl shadow-lg flex items-center justify-center gap-3 font-black uppercase text-xs hover:scale-[1.02] active:scale-95 transition-all">Adicionar ao Time</button>
+                    <button onClick={() => { if (!activePokemonDetails.pokemon.onExpedition) moveToTeam(activePokemonDetails.index, activePokemonDetails.pokemon?.instanceId); }} disabled={activePokemonDetails.pokemon.onExpedition} className="w-full h-14 bg-gradient-to-r from-pokeBlue to-blue-600 text-white rounded-2xl shadow-lg flex items-center justify-center gap-3 font-black uppercase text-xs hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">Adicionar ao Time</button>
                   )}
                </div>
             </div>

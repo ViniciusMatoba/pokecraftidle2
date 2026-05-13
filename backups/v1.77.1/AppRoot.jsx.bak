@@ -1059,7 +1059,7 @@ export default function App() {
       }));
       setCurrentEnemy(null);
       resetSession();
-      setCurrentView('city'); // Retorna ao menu da cidade
+      setCurrentView('routes'); // Retorna ao menu de escolha de rota
     };
 
     if (isKeyBattle) {
@@ -1693,34 +1693,6 @@ export default function App() {
       messages.push(`${essenceData.icon} 1x ${essenceData.name}`);
     }
 
-    // MATERIAL FÍSICO BASEADO NO TIPO — funciona em todas as regiões (20% de chance)
-    const TYPE_MATERIAL_MAP = {
-      Rock:     'iron_ore',
-      Steel:    'iron_ore',
-      Bug:      'silk',
-      Flying:   'feather',
-      Fairy:    'pink_dust',
-      Ghost:    'mystic_dust',
-      Psychic:  'mystic_dust',
-      Dragon:   'dragon_scale',
-      Normal:   'apricorn',
-      Grass:    'apricorn',
-      Ice:      'ice_crystal',
-      Ground:   'iron_ore',
-      Fighting: 'armor_fragment',
-      Dark:     'mystic_dust',
-      Poison:   'poison_barb',
-      Fire:     'ember_shard',
-      Electric: 'electric_chip',
-      Water:    'wave_stone',
-    };
-    const physicalMaterial = TYPE_MATERIAL_MAP[enemy.type];
-    if (physicalMaterial && Math.random() < 0.20) {
-      drops.materials[physicalMaterial] = (drops.materials[physicalMaterial] || 0) + 1;
-      const matLabel = ITEM_LABELS[physicalMaterial] || { icon: '📦', name: physicalMaterial.replace(/_/g, ' ') };
-      messages.push(`${matLabel.icon} 1x ${matLabel.name}`);
-    }
-
     // 2. Mystic Dust para Shinies (100% se for shiny)
     if (enemy.isShiny) {
       drops.materials.mystic_dust = (drops.materials.mystic_dust || 0) + 5;
@@ -1817,7 +1789,7 @@ export default function App() {
     }
 
     return { drops, messages, foundRecipes };
-  }, [gameState, activeMemberIndex]);
+  }, []);
 
   // SPAWN
   const handleAcceptQuest = useCallback((quest) => {
@@ -2795,11 +2767,6 @@ export default function App() {
         setCurrentEnemy(updatedEnemyFinal);
       } else {
         playerDmg = calcDamage(myPoke, move, updatedEnemyFinal);
-
-        // Dispara evento de animação do golpe para o BattleScreen
-        window.dispatchEvent(new CustomEvent('pokemove', {
-          detail: { name: move.name, type: move.type, direction: 'player-to-enemy' }
-        }));
         if (allyBonus?.damageMult) playerDmg = Math.floor(playerDmg * allyBonus.damageMult);
         const eff = getTypeEffectiveness(move.type, updatedEnemyFinal.type);
         
@@ -3114,11 +3081,6 @@ export default function App() {
               }
             } else {
               const enemyDmgRaw = calcDamage(updatedEnemyFinal, enemyMove, updatedTeamFinal[activeMemberIndex]);
-
-              // Dispara evento de animação do golpe inimigo
-              window.dispatchEvent(new CustomEvent('pokemove', {
-                detail: { name: enemyMove.name, type: enemyMove.type, direction: 'enemy-to-player' }
-              }));
               const effE = getTypeEffectiveness(enemyMove.type, updatedTeamFinal[activeMemberIndex].type);
               
               if (enemyDmgRaw === 0 && effE > 0) {
@@ -3292,7 +3254,7 @@ export default function App() {
 
     setMoveIndex(m => m + 1);
     return nextDelay;
-  }, [currentEnemy, activeMemberIndex, moveIndex, calcDamage, addFloat, setCurrentEnemy, gameState.team, gameState.stamina, gameState.settings, isStoryVsEnemy, openStoryBattleResult, processDrops, spawnEnemy, handleGoToCity]);
+  }, [currentEnemy, activeMemberIndex, moveIndex, calcDamage, addFloat, setCurrentEnemy, gameState.team, gameState.stamina, gameState.settings, isStoryVsEnemy, openStoryBattleResult]);
 
   useAutoFarm(gameState.team[activeMemberIndex], gameState.currentRoute, handleBattleTick, battleReady);
 
@@ -3916,7 +3878,7 @@ export default function App() {
     const now = Date.now();
     setGameState(prev => {
       const teamIds = new Set(team.map(p => p.instanceId));
-      const newPC = (prev.pc || []).map(p => teamIds.has(p.instanceId) ? { ...p, onExpedition: biomeId } : p);
+      const newPC = (prev.pc || []).filter(p => !teamIds.has(p.instanceId));
       return {
         ...prev,
         pc: newPC,
@@ -4024,16 +3986,7 @@ export default function App() {
 
       return {
         ...prev,
-        pc: (prev.pc || []).map(p => {
-          const returnedPoke = returnedTeam.find(rp => rp.instanceId === p.instanceId);
-          if (returnedPoke) {
-            return {
-              ...returnedPoke,
-              onExpedition: currentExp.autoRepeat ? biomeId : null
-            };
-          }
-          return p;
-        }),
+        pc: currentExp.autoRepeat ? prev.pc : [...(prev.pc || []), ...returnedTeam],
         inventory: { ...prev.inventory, materials: newMaterials, items: newItems },
         expeditions: newExpeditions,
         expeditionProgress: progress,
