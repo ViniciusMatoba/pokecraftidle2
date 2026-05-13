@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [V1.77.5] - 13/05/2026 08:45
+### Corrigido
+- **Balanceamento de Spawns**:
+    - Taxa de aparição dos Pokémon iniciais (Starters) em Johto, Hoenn e Sinnoh corrigida. O `spawnWeight` foi aumentado de 2 para 10, garantindo uma chance de ~1% por batalha (mesmo padrão de Kanto).
+    - Nota: Requisito de derrota do rival Silver para liberar starters de Johto permanece ativo e documentado.
+
 ## [V1.77.4] - 13/05/2026 08:30
 ### Corrigido
 - **Imagens e Ícones**:

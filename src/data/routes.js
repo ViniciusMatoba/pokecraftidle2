@@ -1151,8 +1151,8 @@ export const ROUTES = {
     enemies: [
       ...pk([161, 162, 163, 164, 165, 167, 179, 187, 172], 3),
       // Chikorita + Cyndaquil — iniciais raros (~1%) pós derrota do rival em Johto
-      { id: 152, level: 5, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'johto_rival_1_defeated' },
-      { id: 155, level: 5, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'johto_rival_1_defeated' },
+      { id: 152, level: 5, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'johto_rival_1_defeated' },
+      { id: 155, level: 5, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'johto_rival_1_defeated' },
     ],
     trainerChance: 0.06,
     trainers: [
@@ -1179,7 +1179,7 @@ export const ROUTES = {
     enemies: [
       ...pk([10, 11, 13, 14, 16, 163, 165, 167, 187, 175], 4),
       // Totodile — raro (~1%) pós derrota do rival em Johto
-      { id: 158, level: 5, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'johto_rival_1_defeated' },
+      { id: 158, level: 5, drop: 'water_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'johto_rival_1_defeated' },
     ],
     trainerChance: 0.07,
     trainers: [
@@ -1767,7 +1767,7 @@ export const ROUTES = {
     enemies: [
       ...pk([276, 278, 183, 263], 5),
       // Mudkip — raro (~1%) pós derrota do rival em Hoenn
-      { id: 258, level: 5, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'hoenn_rival_1_defeated' },
+      { id: 258, level: 5, drop: 'water_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'hoenn_rival_1_defeated' },
     ],
     trainerChance: 0.05,
     trainers: [
@@ -1785,8 +1785,8 @@ export const ROUTES = {
     enemies: [
       ...pk([265, 266, 267, 268, 285, 287], 6),
       // Treecko + Torchic — iniciais raros (~1%) pós derrota do rival em Hoenn
-      { id: 252, level: 6, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'hoenn_rival_1_defeated' },
-      { id: 255, level: 6, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'hoenn_rival_1_defeated' },
+      { id: 252, level: 6, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'hoenn_rival_1_defeated' },
+      { id: 255, level: 6, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'hoenn_rival_1_defeated' },
     ],
     trainerChance: 0.05,
     trainers: [
@@ -2173,8 +2173,8 @@ export const ROUTES = {
     enemies: [
       ...pk([396, 399, 401, 403, 406, 412], 8),
       // Turtwig + Chimchar — iniciais raros (~1%) pós derrota do rival em Sinnoh
-      { id: 387, level: 8, drop: 'grass_essence', spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'sinnoh_rival_jubilife_defeated' },
-      { id: 390, level: 8, drop: 'fire_essence',  spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'sinnoh_rival_jubilife_defeated' },
+      { id: 387, level: 8, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'sinnoh_rival_jubilife_defeated' },
+      { id: 390, level: 8, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'sinnoh_rival_jubilife_defeated' },
     ],
     trainerChance: 0.06,
     trainers: [
@@ -2200,7 +2200,7 @@ export const ROUTES = {
     enemies: [
       ...pk([396, 399, 401, 403, 406, 63], 12),
       // Piplup — raro (~1%) pós derrota do rival em Sinnoh
-      { id: 393, level: 12, drop: 'water_essence', spawnWeight: 2, rarity: 'super_rare', requiresFlag: 'sinnoh_rival_jubilife_defeated' },
+      { id: 393, level: 12, drop: 'water_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'sinnoh_rival_jubilife_defeated' },
     ],
     trainerChance: 0.07,
     trainers: [
