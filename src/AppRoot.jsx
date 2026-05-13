@@ -8244,159 +8244,43 @@ export default function App() {
               )}
 
               {activeBuildingModal === 'forge' && (
-                <div className="p-5 flex-1 flex flex-col overflow-hidden">
-                   <div className="flex items-center justify-between mb-4 gap-3">
-                      <div className="flex flex-col">
-                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Poder Global (PS)</span>
-                        <span className="text-sm font-black text-slate-800 tracking-tighter">{powerScore.toLocaleString()}</span>
-                      </div>
-                      <div className="flex flex-col items-center px-4 py-1.5 bg-slate-900 rounded-xl border border-white/10 shadow-lg">
-                        <span className="text-[7px] font-black text-amber-500 uppercase tracking-widest leading-none mb-0.5">Material Rank</span>
-                        <span className="text-[10px] font-black text-white italic leading-none">{currentRank}</span>
-                      </div>
-                      <div className="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-xl font-black text-amber-700 text-sm flex items-center gap-1 shrink-0">
-                         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-4 h-4 object-contain" alt="" /> {gameState.currency}
-                      </div>
-                   </div>
-
-                   <div className="grid grid-cols-5 gap-1.5 pb-3 mb-3">
-                      {Object.keys(CRAFTING_RECIPES).map(category => (
-                        <button
-                          key={category}
-                          onClick={() => setForgeCategory(category)}
-                          className={`min-h-[46px] px-1.5 py-2 rounded-xl text-[8px] leading-tight font-black uppercase transition-all ${forgeCategory === category ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 text-slate-500'}`}
-                        >
-                          {getForgeCategoryLabel(category)}
-                        </button>
-                      ))}
-                   </div>
-
-                   <div className="space-y-6 overflow-y-auto pr-1 custom-scrollbar flex-1 pb-6">
-                      {Object.entries(CRAFTING_RECIPES).filter(([category]) => category === forgeCategory).map(([category, items]) => (
-                        <div key={category} className="space-y-3">
-                           <div className={`flex items-center gap-2 border-b-2 pb-2 ${category === 'elite_relics' ? 'border-amber-500/30' : 'border-slate-100'}`}>
-                              <div className={`w-2 h-2 rounded-full ${category === 'elite_relics' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]' : 'bg-orange-500'}`}></div>
-                              <h3 className={`text-sm font-black uppercase tracking-[0.18em] ${category === 'elite_relics' ? 'text-amber-600 italic' : 'text-slate-400'}`}>
-                                {getForgeCategoryLabel(category)}
-                              </h3>
-                           </div>
-                           <div className="flex flex-col gap-3">
-                              {items
-                                .filter(item => {
-                                  const hasAnyMaterial = Object.keys(item.cost || {}).some(mat => mat !== 'currency' && (gameState.inventory.materials?.[mat] || 0) > 0);
-                                  return isForgeItemUnlocked(gameState, item.id, powerScore) || (RECIPE_GATED_FORGE_IDS.has(item.id) && (FORGE_RECIPE_DROP_GUIDE[item.id] || hasAnyMaterial));
-                                })
-                                .map(item => {
-                                 const ownedQty = gameState.inventory?.items?.[item.id] || 0;
-                                 const materialCost = Object.fromEntries(Object.entries(item.cost || {}).filter(([mat]) => mat !== 'currency'));
-                                 const recipeUnlocked = hasForgeRecipe(gameState, item.id);
-                                 const itemUnlocked = isForgeItemUnlocked(gameState, item.id, powerScore);
-                                 const recipeGuide = FORGE_RECIPE_DROP_GUIDE[item.id];
-                                 const getMaxCraft = () => {
-                                 let maxN = Infinity;
-                                 Object.entries(materialCost).forEach(([mat, amount]) => {
-                                   const have = gameState.inventory.materials?.[mat] || 0;
-                                   maxN = Math.min(maxN, Math.floor(have / amount));
-                                 });
-                                 return maxN === Infinity ? 0 : maxN;
-                               };
-                               const craftFn = (qty) => {
-                                 if (qty < 1) return;
-                                 const performCraft = () => {
-                                   setGameState(prev => {
-                                     const newInv = { ...prev.inventory, materials: { ...prev.inventory.materials } };
-                                     Object.entries(materialCost).forEach(([mat, amount]) => {
-                                       newInv.materials[mat] = (newInv.materials[mat] || 0) - amount * qty;
-                                     });
-                                     return {
-                                       ...prev,
-                                       inventory: { ...newInv, items: { ...newInv.items, [item.id]: (newInv.items[item.id] || 0) + qty } }
-                                     };
-                                   });
-                                   addLog(`Forjado: ${qty}x ${item.name}`, 'system');
-                                   notify(`Forjado: ${item.name}`, 'success');
-                                 };
-
-                                  showConfirm({
-                                     type: 'confirm',
-                                     title: 'Confirmar Forja',
-                                     message: `Forjar ${qty}x ${item.name} usando apenas materiais?`,
-                                     confirmLabel: 'Forjar',
-                                     cancelLabel: 'Cancelar',
-                                     onConfirm: () => {
-                                       closeConfirm();
-                                       performCraft();
-                                     },
-                                     onCancel: closeConfirm
-                                    });
-                               };
-                               const maxCraft = getMaxCraft();
-                               return (
-                                  <div key={item.id} className={`rounded-2xl border-2 shadow-sm overflow-hidden transition-all ${!itemUnlocked ? 'opacity-90' : ''} ${category === 'elite_relics' ? 'bg-slate-900 border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'bg-white border-slate-100'}`}>
-                                    <div className="flex items-start gap-3 p-3 pb-2">
-                                       <div className={`${category === 'elite_relics' ? 'bg-amber-500/20 border-amber-500/40' : 'bg-orange-50 border-orange-100'} w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border`}>
-                                          <img src={item.img} className="w-9 h-9 object-contain" alt={item.name} />
-                                       </div>
-                                       <div className="flex-1 min-w-0">
-                                          <h4 className={`font-black uppercase italic text-base leading-tight ${category === 'elite_relics' ? 'text-amber-500' : 'text-slate-800'}`}>{item.name}</h4>
-                                          <p className={`text-[11px] font-bold leading-snug mt-1 ${category === 'elite_relics' ? 'text-white/40' : 'text-slate-500'}`} style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                                            {typeof item.effect === 'string' ? item.effect : (item.description || 'Item de Crafting')}
-                                          </p>
-                                          <p className={`mt-2 inline-flex items-center rounded-lg px-2 py-0.5 text-[9px] font-black uppercase ${category === 'elite_relics' ? 'bg-white/10 text-white/70' : 'bg-slate-100 text-slate-600'}`}>
-                                            Na mochila: {ownedQty.toLocaleString()}
-                                          </p>
-                                       </div>
-                                    </div>
-                                     <div className="flex flex-wrap gap-1.5 px-3 pb-3">
-                                       {Object.entries(materialCost).map(([mat, amount]) => {
-                                         const have = gameState.inventory.materials?.[mat] || 0;
-                                         const ok = have >= amount;
-                                         return (
-                                           <button key={mat} onClick={() => setActiveMaterialModal(mat)}
-                                             className={`min-h-[36px] px-2 py-1.5 rounded-lg border text-[9px] leading-tight font-black uppercase text-left ${ok ? 'border-green-200 bg-green-50 text-green-700' : 'border-red-200 bg-red-50 text-red-600'}`}
-                                           >
-                                             {mat.replace(/_/g,' ')}: {have}/{amount}
-                                           </button>
-                                         );
-                                       })}
-                                     </div>
-                                     {!recipeUnlocked && recipeGuide && (
-                                       <div className="mx-3 mb-3 rounded-xl border-2 border-blue-200 bg-blue-50 p-3 text-left">
-                                         <p className="text-[9px] font-black uppercase tracking-widest text-blue-500">Receita bloqueada</p>
-                                         <p className="mt-1 text-[11px] font-bold leading-snug text-blue-900">{recipeGuide.label}</p>
-                                         <button
-                                           onClick={() => handleGoToRecipeSource(item.id)}
-                                           className="mt-3 min-h-[40px] w-full rounded-xl bg-blue-600 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-md transition-all hover:bg-blue-500 active:scale-95"
-                                         >
-                                           Ir dropar receita
-                                         </button>
-                                       </div>
-                                     )}
-                                     <div className="grid grid-cols-3 gap-2 bg-orange-50/70 p-2">
-                                       {[{label:'x1',qty:1},{label:'x10',qty:10},{label:'Max',qty:maxCraft}].map(opt => {
-                                          const canAffordQty = itemUnlocked && Object.entries(materialCost).every(([mat, amount]) => {
-                                            const have = gameState.inventory.materials?.[mat] || 0;
-                                            return have >= amount * opt.qty;
-                                          });
-                                         return (
-                                           <button key={opt.label}
-                                             disabled={!canAffordQty || opt.qty < 1}
-                                             onClick={() => craftFn(opt.qty)}
-                                             className="min-h-[44px] rounded-xl font-black text-sm uppercase transition-all bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed"
-                                           >
-                                             {opt.label}{opt.label==='Max'&&maxCraft>0?` (${maxCraft})`:''}
-                                           </button>
-                                         );
-                                       })}
-                                    </div>
-                                 </div>
-                               );
-                             })}
-                          </div>
-                       </div>
-                     ))}
+                <div className="p-4 flex-1 flex flex-col overflow-hidden min-h-0">
+                  <div className="flex items-center justify-between mb-3 gap-2 shrink-0">
+                    <div className="flex flex-col">
+                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Poder Global</span>
+                      <span className="text-xs font-black text-slate-800">{powerScore.toLocaleString()}</span>
+                    </div>
+                    <div className="flex flex-col items-center px-3 py-1 bg-slate-900 rounded-xl border border-white/10">
+                      <span className="text-[7px] font-black text-amber-500 uppercase tracking-widest leading-none mb-0.5">Rank</span>
+                      <span className="text-[9px] font-black text-white italic leading-none">{currentRank}</span>
+                    </div>
+                    <div className="bg-amber-50 border border-amber-200 px-2.5 py-1.5 rounded-xl font-black text-amber-700 text-xs flex items-center gap-1 shrink-0">
+                      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-4 h-4 object-contain" alt="" /> {gameState.currency.toLocaleString()}
+                    </div>
                   </div>
-               </div>
+                  {!(gameState.worldFlags || []).includes('mega_evolution_unlocked') && (
+                    <div className="mb-3 rounded-2xl bg-blue-50 border border-blue-200 px-3 py-2.5 flex items-center gap-2.5 shrink-0">
+                      <span className="text-base">💎</span>
+                      <p className="text-[9px] font-black text-blue-700 uppercase tracking-widest leading-tight">
+                        Mega Pedras desbloqueadas após o 1º Ginásio de Kalos (Viola).
+                      </p>
+                    </div>
+                  )}
+                  <Suspense fallback={<div className="p-6 text-center font-black text-slate-400 text-xs animate-pulse">Carregando Forja...</div>}>
+                    <CraftingStation
+                      recipes={
+                        (gameState.worldFlags || []).includes('mega_evolution_unlocked')
+                          ? CRAFTING_RECIPES
+                          : Object.fromEntries(Object.entries(CRAFTING_RECIPES).filter(([cat]) => cat !== 'mega_stones'))
+                      }
+                      inventory={gameState.inventory}
+                      currency={gameState.currency}
+                      onCraft={handleCraft}
+                      hasRecipe={(id) => hasForgeRecipe(gameState, id)}
+                      recipeGuides={FORGE_RECIPE_DROP_GUIDE}
+                    />
+                  </Suspense>
+                </div>
              )}
           </div>
        </div>

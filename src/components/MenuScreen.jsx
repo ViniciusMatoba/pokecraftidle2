@@ -295,12 +295,12 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
   };
 
   const menuItems = [
-    { id: 'pokedex',  name: 'Pokedex',       icon: assetPath('/assets/menu/pokedex.png'),  desc: 'Registro de especies',    color: 'bg-red-50 border-red-200 text-red-600' },
-    { id: 'backpack', name: 'Mochila',        icon: assetPath('/assets/menu/backpack.png'),  desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
-    { id: 'stats',    name: 'Estatisticas', icon: `${POKEAPI_ITEM}data-card-01.png`, desc: 'Dados da Jornada', color: 'bg-cyan-50 border-cyan-200 text-cyan-700' },
-    { id: 'settings', name: 'Configuracoes', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png', desc: 'Ajustes do sistema', color: 'bg-indigo-50 border-indigo-200 text-indigo-600' },
-    { id: 'save',     name: 'Salvar Jogo',   icon: assetPath('/assets/menu/save.png'),  desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
-    { id: 'exit',     name: 'Sair do Jogo',  icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/escape-rope.png', desc: 'Voltar ao inicio', color: 'bg-slate-50 border-slate-200 text-slate-600' },
+    { id: 'pokedex',  name: 'Pokedex',       icon: '📕',                                   desc: 'Registro de especies',    color: 'bg-red-50 border-red-200 text-red-600' },
+    { id: 'backpack', name: 'Mochila',        icon: '🎒',                                   desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
+    { id: 'stats',    name: 'Estatisticas',   icon: `${POKEAPI_ITEM}data-card-01.png`,      desc: 'Dados da Jornada',        color: 'bg-cyan-50 border-cyan-200 text-cyan-700' },
+    { id: 'settings', name: 'Configuracoes',  icon: `${POKEAPI_ITEM}vs-seeker.png`,         desc: 'Ajustes do sistema',      color: 'bg-indigo-50 border-indigo-200 text-indigo-600' },
+    { id: 'save',     name: 'Salvar Jogo',    icon: '💾',                                   desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
+    { id: 'exit',     name: 'Sair do Jogo',   icon: `${POKEAPI_ITEM}escape-rope.png`,       desc: 'Voltar ao inicio',        color: 'bg-slate-50 border-slate-200 text-slate-600' },
   ];
 
   const renderMain = () => (
@@ -558,8 +558,8 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
 
         {/* Header */}
         <div className="flex items-center gap-3 p-4 border-b border-slate-100 shrink-0">
-          <div className="w-10 h-10 bg-orange-100 rounded-2xl flex items-center justify-center border border-orange-200">
-            <img src={assetPath('/assets/menu/backpack.png')} alt="Mochila" className="w-8 h-8 object-contain" />
+          <div className="w-10 h-10 bg-orange-100 rounded-2xl flex items-center justify-center border border-orange-200 text-xl">
+            🎒
           </div>
           <div>
             <h3 className="font-black text-slate-800 uppercase italic text-base leading-none">Mochila</h3>
@@ -719,13 +719,13 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
 
         <div className="grid grid-cols-2 gap-3">
           {statCards.map(card => (
-            <div key={card.label} className={`rounded-2xl border-2 p-3 min-h-[118px] shadow-sm ${card.color}`}>
-              <div className="flex items-start justify-between gap-2">
+            <div key={card.label} className={`rounded-2xl border-2 p-4 min-h-[120px] shadow-sm flex flex-col items-center text-center gap-1 ${card.color}`}>
+              <div className="w-11 h-11 flex items-center justify-center">
                 <img src={card.img} alt="" className="w-10 h-10 object-contain drop-shadow-sm" onError={e => { e.target.style.display = 'none'; }} />
-                <span className="text-[9px] font-black uppercase opacity-60 text-right leading-tight">{card.label}</span>
               </div>
-              <p className="text-2xl font-black leading-none mt-3 break-words">{card.value}</p>
-              <p className="text-[9px] font-bold uppercase opacity-70 mt-1 leading-tight">{card.sub}</p>
+              <p className="text-[8px] font-black uppercase opacity-60 leading-tight">{card.label}</p>
+              <p className="text-xl font-black leading-none mt-0.5 break-words">{card.value}</p>
+              <p className="text-[8px] font-bold uppercase opacity-60 leading-tight">{card.sub}</p>
             </div>
           ))}
         </div>
@@ -841,7 +841,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
     : subView === 'stats'
       ? `${POKEAPI_ITEM}data-card-01.png`
       : subView === 'backpack'
-        ? assetPath('/assets/menu/backpack.png')
+        ? `${POKEAPI_ITEM}bag.png`
         : `${POKEAPI_ITEM}poke-doll.png`;
 
   return (

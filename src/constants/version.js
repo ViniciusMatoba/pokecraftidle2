@@ -1,7 +1,14 @@
-export const APP_VERSION = '1.79.9';
-export const VERSION = '1.79.9';
-export const APP_VERSION_DATE = '13/05/2026 21:30';
+export const APP_VERSION = '1.80.0';
+export const VERSION = '1.80.0';
+export const APP_VERSION_DATE = '13/05/2026 23:00';
 export const CHANGELOG = [
+  '## [V1.80.0] - 13/05/2026 23:00',
+  '### Corrigido',
+  '- **MENU**: ícones corrigidos (pokedex, mochila, salvar agora aparecem corretamente).',
+  '- **Estatísticas**: cards com ícone centralizado e layout mais limpo.',
+  '- **Forja (Cidade)**: CIDADE > FORJA POKEMON agora usa o mesmo componente moderno da Forja, com receitas bloqueadas/desbloqueadas corretamente.',
+  '### Melhorado',
+  '- **Forja**: separação por categoria reformulada — bolsos visuais com emoji, caption e contador de desbloqueadas/total.',
   '## [V1.79.9] - 13/05/2026 21:30',
   '### Adicionado',
   '- **Sprites de Treinadores (Equipes)**: villains.js corrigido — Aqua/Magma/Galáctica agora usam sprites corretos; 6 novas equipes adicionadas (Plasma, Flare, Skull, Rainbow Rocket, Yell, Star).',

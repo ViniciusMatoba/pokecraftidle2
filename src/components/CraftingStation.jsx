@@ -2,12 +2,12 @@ import React, { useMemo, useState } from 'react';
 
 // Labels amigáveis para as categorias
 const CATEGORY_LABELS = {
-  consumables:  { label: 'Consumíveis', emoji: '🧪' },
-  hold_items:   { label: 'Hold Items',  emoji: '💎' },
-  elite_relics: { label: 'Relíquias',   emoji: '⚔️' },
-  tms:          { label: 'TMs',         emoji: '💿' },
-  mega_stones:  { label: 'Mega Stones', emoji: '💎' },
-  fishing_rods: { label: 'Varas',       emoji: '🎣' },
+  consumables:  { label: 'Consumíveis', emoji: '🧪', caption: 'Poções/Bolas' },
+  hold_items:   { label: 'Hold Items',  emoji: '🔮', caption: 'Equipamentos' },
+  elite_relics: { label: 'Relíquias',   emoji: '⚔️', caption: 'Boss Drops' },
+  tms:          { label: 'TMs',         emoji: '💿', caption: 'Golpes' },
+  mega_stones:  { label: 'Mega Stones', emoji: '💎', caption: 'Mega Evoluções' },
+  fishing_rods: { label: 'Varas',       emoji: '🎣', caption: 'Pesca' },
 };
 
 const CraftingStation = ({
@@ -61,22 +61,35 @@ const CraftingStation = ({
   return (
     <div className="flex min-h-0 flex-1 flex-col text-left">
 
-      {/* Tabs de categoria */}
-      <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
+      {/* Bolsos por categoria — estilo mochila */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3 shrink-0">
         {categories.map(cat => {
-          const meta = CATEGORY_LABELS[cat] || { label: cat.replace(/_/g, ' '), emoji: '📦' };
+          const meta = CATEGORY_LABELS[cat] || { label: cat.replace(/_/g, ' '), emoji: '📦', caption: 'Itens' };
+          const items = (recipes[cat] || []);
+          const unlockedCount = items.filter(it => hasRecipe(it.id)).length;
+          const isActive = activeCategory === cat;
           return (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`shrink-0 flex items-center gap-1.5 rounded-xl px-4 py-2 text-[10px] font-black uppercase transition-all ${
-                activeCategory === cat
-                  ? 'bg-slate-800 text-white shadow-md'
-                  : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+              className={`min-h-[68px] rounded-2xl border-2 p-2.5 text-left transition-all active:scale-95 ${
+                isActive
+                  ? 'bg-slate-800 border-slate-900 text-white shadow-lg'
+                  : 'bg-white border-slate-200 text-slate-700 shadow-sm hover:border-slate-400'
               }`}
             >
-              <span>{meta.emoji}</span>
-              <span>{meta.label}</span>
+              <div className="flex items-center gap-2">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-xl ${isActive ? 'bg-white/20' : 'bg-slate-100'}`}>
+                  {meta.emoji}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-black uppercase leading-tight truncate">{meta.label}</p>
+                  <p className={`text-[8px] font-bold uppercase tracking-wide ${isActive ? 'text-white/60' : 'text-slate-400'}`}>{meta.caption}</p>
+                </div>
+                <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-black shrink-0 ${isActive ? 'bg-white text-slate-800' : 'bg-slate-100 text-slate-500'}`}>
+                  {unlockedCount}/{items.length}
+                </span>
+              </div>
             </button>
           );
         })}
