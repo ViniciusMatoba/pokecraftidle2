@@ -1,7 +1,13 @@
-export const APP_VERSION = '1.79.7';
-export const VERSION = '1.79.7';
-export const APP_VERSION_DATE = '13/05/2026 17:38';
+export const APP_VERSION = '1.79.8';
+export const VERSION = '1.79.8';
+export const APP_VERSION_DATE = '13/05/2026 20:00';
 export const CHANGELOG = [
+  '## [V1.79.8] - 13/05/2026 20:00',
+  '### Adicionado',
+  '- **Modal Mega Evolução**: Prof. Sycamore aparece após vencer o 1º Ginásio de Kalos (Viola) explicando o sistema de Mega Evolução.',
+  '- **Bloqueio de Mega Pedras**: categoria Mega Stones na Forja fica oculta até desbloquear Mega Evolução em Kalos.',
+  '### Corrigido',
+  '- **Shiny Rate**: taxa ajustada para exatamente 1/4000 (base), 1/2000 (maestria 100+) e 1/1000 (maestria 200+).',
   '## [V1.79.7] - 13/05/2026 17:38',
   '### Adicionado',
   '- **Menu Estatisticas**: nova area no MENU com tempo de jogo, Pokedex, capturas, derrotas, shinies, treinadores, equipe vila, boss de area, raids e dano em boss.',

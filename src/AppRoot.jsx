@@ -683,6 +683,7 @@ export default function App() {
   const [showAlolaChampionModal,  setShowAlolaChampionModal]  = useState(false); // Alola → Galar
   const [showGalarChampionModal,  setShowGalarChampionModal]  = useState(false); // Galar → Paldea
   const [showPaldeaChampionModal, setShowPaldeaChampionModal] = useState(false); // Paldea = Final
+  const [showMegaIntroModal, setShowMegaIntroModal] = useState(false); // Sycamore mega evolution intro
   const [showGymVictoryModal, setShowGymVictoryModal] = useState(null); // { leaderName, badge, badgeImg, reward }
   const [previewStarter, setPreviewStarter] = useState(null);
   const [activeQuestModal, setActiveQuestModal] = useState(null);
@@ -2163,8 +2164,8 @@ export default function App() {
     const pokeId = Number(base.id);
     const masteryCount = (gameState.speciesMastery || {})[pokeId] || (gameState.speciesMastery || {})[base.id] || 0;
     
-    // ⛏️” PROTECTED: Spawn Rates
-    const shinyRateDivisor = masteryCount >= 200 ? 1024 : masteryCount >= 100 ? 2048 : 4096;
+    // ⛏️ PROTECTED: Spawn Rates — base 1/4000, reduz com maestria
+    const shinyRateDivisor = masteryCount >= 200 ? 1000 : masteryCount >= 100 ? 2000 : 4000;
     const isShiny = Math.floor(Math.random() * shinyRateDivisor) === 0;
     const isBossSpawn = !isShiny && Math.floor(Math.random() * 500) === 0; // Boss (não capturável)
     const isStarterSpawn = !isShiny && !isBossSpawn && Math.floor(Math.random() * 2048) === 0; // Starter raro
@@ -4337,6 +4338,11 @@ export default function App() {
   useEffect(() => {
     const flags = gameState.worldFlags || [];
 
+    // Mega Evolution — mostrar intro se tem bug_badge mas nunca viu o modal
+    if ((gameState.badges || []).includes('bug_badge') && !flags.includes('mega_evolution_unlocked') && !flags.includes('mega_intro_shown')) {
+      setShowMegaIntroModal(true);
+    }
+
     // Kanto → Johto
     if (flags.includes('kanto_champion_modal_pending')) setShowKantoChampionModal(true);
 
@@ -5003,6 +5009,12 @@ export default function App() {
         if (newBadges.length === 1 && !prev.worldFlags?.includes('house_owned') && !prev.worldFlags?.includes('oak_house_shown')) {
           setTimeout(() => setShowOakHouseModal(true), 2000);
           tempWorldFlags.push('oak_house_shown');
+        }
+
+        // Mega Evolution intro after first Kalos gym (bug_badge)
+        if (currentEnemy.badgeToGive === 'bug_badge' && !tempWorldFlags.includes('mega_evolution_unlocked') && !prev.worldFlags?.includes('mega_evolution_unlocked')) {
+          tempWorldFlags.push('mega_evolution_unlocked');
+          setTimeout(() => setShowMegaIntroModal(true), 2500);
         }
       }
 
@@ -6893,9 +6905,22 @@ export default function App() {
                  </div>
               </div>
 
+              {!(gameState.worldFlags || []).includes('mega_evolution_unlocked') && (
+                <div className="mb-3 rounded-2xl bg-blue-50 border border-blue-200 px-4 py-3 flex items-center gap-3">
+                  <span className="text-xl">💎</span>
+                  <p className="text-[10px] font-black text-blue-700 uppercase tracking-widest leading-tight">
+                    Mega Pedras desbloqueadas após o 1º Ginásio de Kalos.<br/>
+                    <span className="font-normal normal-case text-blue-500">Derrote Viola para desbloquear Mega Evolução!</span>
+                  </p>
+                </div>
+              )}
               <Suspense fallback={<div className="p-10 text-center font-black text-slate-400">Carregando Forja...</div>}>
                 <CraftingStation
-                  recipes={CRAFTING_RECIPES}
+                  recipes={
+                    (gameState.worldFlags || []).includes('mega_evolution_unlocked')
+                      ? CRAFTING_RECIPES
+                      : Object.fromEntries(Object.entries(CRAFTING_RECIPES).filter(([cat]) => cat !== 'mega_stones'))
+                  }
                   inventory={gameState.inventory}
                   currency={gameState.currency}
                   onCraft={handleCraft}
@@ -7544,6 +7569,57 @@ export default function App() {
             </div>
           </div>
         ) : null
+      )}
+
+      {/* MEGA EVOLUTION INTRO — Prof. Sycamore após 1º ginásio de Kalos */}
+      {showMegaIntroModal && (
+        <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-bounceIn" style={{ borderBottom: '10px solid #3b82f6' }}>
+            <div className="px-6 py-5 flex items-center gap-4" style={{ backgroundColor: '#3b82f6' }}>
+              <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
+                <img
+                  src="https://play.pokemonshowdown.com/sprites/trainers/professorsycamore.png"
+                  onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }}
+                  className="w-12 h-12 object-contain" alt="Prof. Sycamore"
+                />
+              </div>
+              <div>
+                <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.25em]">Prof. Sycamore</p>
+                <h2 className="text-white text-xl font-black uppercase italic tracking-tighter leading-none">Mega Evolução!</h2>
+              </div>
+            </div>
+            <div className="p-6">
+              <p className="text-sm font-bold text-slate-600 leading-relaxed italic mb-3">
+                "Felicidades por derrotar Viola! Em Kalos descobrimos algo extraordinário: a Mega Evolução — uma transformação temporária que leva os Pokémon além dos seus limites!"
+              </p>
+              <div className="rounded-3xl p-4 mb-3 border-2" style={{ backgroundColor: '#dbeafe', borderColor: '#93c5fd' }}>
+                <p className="text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: '#2563eb' }}>
+                  💎 Sistema Desbloqueado — Mega Pedras
+                </p>
+                <p className="text-xs font-bold text-slate-700 leading-relaxed">
+                  Ao batalhar em Kalos, Pokémon capazes de Mega Evoluir podem dropar <strong>Fragmentos de Mega Pedra</strong>. Combine-os na Forja para criar as Mega Pedras e transformar seus parceiros em batalha!
+                </p>
+              </div>
+              <div className="rounded-2xl p-3 mb-5 bg-amber-50 border border-amber-200">
+                <p className="text-[9px] font-black text-amber-700 uppercase tracking-widest">
+                  💡 As receitas de Mega Pedras agora estão disponíveis na Forja!
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowMegaIntroModal(false);
+                  setGameState(prev => ({
+                    ...prev,
+                    worldFlags: [...new Set([...(prev.worldFlags || []), 'mega_evolution_unlocked', 'mega_intro_shown'])],
+                  }));
+                }}
+                className="w-full min-h-[54px] rounded-2xl text-white font-black uppercase tracking-widest text-xs transition-all shadow-lg bg-blue-600 hover:bg-blue-700 active:scale-95"
+              >
+                Entendido! Vamos explorar Kalos!
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Paldea = região final */}
