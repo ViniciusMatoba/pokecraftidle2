@@ -1,8 +1,8 @@
 export const APP_VERSION = '1.80.1';
 export const VERSION = '1.80.1';
-export const APP_VERSION_DATE = '13/05/2026 23:59';
+export const APP_VERSION_DATE = '13/05/2026 19:23';
 export const CHANGELOG = [
-  '## [V1.80.1] - 13/05/2026 23:59',
+  '## [V1.80.1] - 13/05/2026 19:23',
   '### Corrigido',
   '- **Raids (Bug Crítico)**: raids agora usam corretamente a região ativa do jogador (`activeRegion`) — antes usavam sempre Kanto por referir `currentRegion` (campo inexistente).',
   '- **Raids**: estrelas máximas calculadas pelo número de insígnias da região atual do jogador.',
