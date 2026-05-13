@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [V1.77.7] - 13/05/2026 09:23
+### Corrigido
+- **Forja & Navegação**:
+    - Resolvido problema de notificações redundantes de novas receitas de forja (correção de sincronização de estado do inventário).
+    - Corrigido erro de navegação no botão "CIDADE" que levava incorretamente ao menu de Rotas/Mapa.
+
 ## [V1.77.6] - 13/05/2026 09:00
 ### Corrigido
 - **Balanceamento Global de Spawns**:

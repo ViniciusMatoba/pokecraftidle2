@@ -1,7 +1,9 @@
-export const APP_VERSION = '1.77.6';
-export const VERSION = '1.77.6';
-export const APP_VERSION_DATE = '13/05/2026 09:00';
+export const APP_VERSION = '1.77.7';
+export const VERSION = '1.77.7';
+export const APP_VERSION_DATE = '13/05/2026 09:23';
 export const CHANGELOG = [
+  'Fix: Notificações redundantes de receitas de forja resolvidas (correção de dependências de estado)',
+  'Fix: Navegação do botão "CIDADE" corrigida para levar à Cidade em vez do Mapa',
   'Fix: Padronização total da taxa de spawn de todos os 27 Pokémon iniciais (Starters) para spawnWeight 10 (~1% chance)',
   'Fix: Implementação de trava de progresso para todos os starters: spawns agora exigem derrota do primeiro rival de sua região',
   'Fix: Iniciais de todas as 9 gerações — spawnWeight padronizado em 10 para ~1% de chance',

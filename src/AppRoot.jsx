@@ -1059,7 +1059,7 @@ export default function App() {
       }));
       setCurrentEnemy(null);
       resetSession();
-      setCurrentView('routes'); // Retorna ao menu de escolha de rota
+      setCurrentView('city'); // Retorna ao menu da cidade
     };
 
     if (isKeyBattle) {
@@ -1817,7 +1817,7 @@ export default function App() {
     }
 
     return { drops, messages, foundRecipes };
-  }, []);
+  }, [gameState, activeMemberIndex]);
 
   // SPAWN
   const handleAcceptQuest = useCallback((quest) => {
@@ -3292,7 +3292,7 @@ export default function App() {
 
     setMoveIndex(m => m + 1);
     return nextDelay;
-  }, [currentEnemy, activeMemberIndex, moveIndex, calcDamage, addFloat, setCurrentEnemy, gameState.team, gameState.stamina, gameState.settings, isStoryVsEnemy, openStoryBattleResult]);
+  }, [currentEnemy, activeMemberIndex, moveIndex, calcDamage, addFloat, setCurrentEnemy, gameState.team, gameState.stamina, gameState.settings, isStoryVsEnemy, openStoryBattleResult, processDrops, spawnEnemy, handleGoToCity]);
 
   useAutoFarm(gameState.team[activeMemberIndex], gameState.currentRoute, handleBattleTick, battleReady);
 
