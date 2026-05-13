@@ -1,7 +1,11 @@
-export const APP_VERSION = '1.80.6';
-export const VERSION = '1.80.6';
-export const APP_VERSION_DATE = '13/05/2026 23:56';
+export const APP_VERSION = '1.80.7';
+export const VERSION = '1.80.7';
+export const APP_VERSION_DATE = '13/05/2026 23:57';
 export const CHANGELOG = [
+  '## [V1.80.7] - 13/05/2026 23:57',
+  '### Corrigido',
+  '- **Evoluções por Troca**: 8 Pokémon (Boldore, Gurdurr, Phantump, etc.) agora evoluem via `link_cable` em vez de nível.',
+  '- **Clobbopus**: Nível de evolução corrigido de 20 para 35.',
   '## [V1.80.6] - 13/05/2026 23:56',
   '### Corrigido',
   '- **Evoluções (Correção)**: Atualizadas 18 linhas evolutivas (Lampent, Tadbulb, Floette, etc.) para usarem pedras evolutivas em vez de nível, respeitando a mecânica oficial.',
