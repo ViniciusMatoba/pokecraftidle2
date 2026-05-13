@@ -1,107 +1,47 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// SISTEMA DE RAIDS
-// Eventos pontuais com Pokémon raros e fortes na região atual do jogador
-// ─────────────────────────────────────────────────────────────────────────────
+import { RAID_HP_MULTIPLIER, RAID_CATCH_ATTEMPTS, RAID_DURATION_MS } from './constants/raids_config';
 
-// Tempo entre spawns automáticos de raid
-export const RAID_SPAWN_INTERVAL_MS = 1 * 60 * 60 * 1000; // 1 hora
-
-// Raids também disparam a cada X batalhas ganhas
-export const RAID_BATTLE_TRIGGER = 50;
-
-// Duração máxima de uma raid ativa (janela para participar)
-export const RAID_DURATION_MS = 30 * 60 * 1000; // 30 minutos
-
-// Duração do combate de raid
-export const RAID_FIGHT_SECONDS = 300; // 5 minutos
-
-// ── Multiplicadores de HP por estrelas ───────────────────────────────────────
-export const RAID_BALANCE_VERSION = 2;
-
-export const RAID_HP_MULTIPLIER = {
-  1: 3.5,
-  2: 6,
-  3: 10,
-  4: 15,
-  5: 22,
-};
-
-// Tentativas de captura por estrelas
-export const RAID_CATCH_ATTEMPTS = {
-  1: 3,
-  2: 3,
-  3: 2,
-  4: 2,
-  5: 1,
-};
-
-// Taxa de captura base
-export const RAID_CATCH_RATE_MULT = {
-  1: 0.55,
-  2: 0.45,
-  3: 0.35,
-  4: 0.22,
-  5: 0.12,
-};
-
-// ── EXP Candies — definição centralizada ─────────────────────────────────────
-// Armazenadas em inventory.items (mochila). XP ganho por nível do Pokémon.
-export const EXP_CANDIES = {
-  exp_candy_xs: { id: 'exp_candy_xs', name: 'EXP Candy XS', size: 'XS', xp: 100,   color: '#86efac', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-xs.png'  },
-  exp_candy_s:  { id: 'exp_candy_s',  name: 'EXP Candy S',  size: 'S',  xp: 800,   color: '#4ade80', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-s.png'   },
-  exp_candy_m:  { id: 'exp_candy_m',  name: 'EXP Candy M',  size: 'M',  xp: 3000,  color: '#f59e0b', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-m.png'   },
-  exp_candy_l:  { id: 'exp_candy_l',  name: 'EXP Candy L',  size: 'L',  xp: 10000, color: '#f97316', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-l.png'   },
-  exp_candy_xl: { id: 'exp_candy_xl', name: 'EXP Candy XL', size: 'XL', xp: 30000, color: '#ef4444', sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-xl.png'  },
-};
-
-// ── Tabela de recompensas por estrelas ───────────────────────────────────────
+// ── Tabelas de Recompensas por Estrela ──────────────────────────────────────
 export const RAID_REWARDS_TABLE = {
   1: [
-    { type: 'item',     id: 'exp_candy_xs',      quantity: 1,    chance: 1.0 },
-    { type: 'candy',    id: 'rare_candy',         quantity: 1,    chance: 0.5 },
-    { type: 'currency', id: 'currency',           quantity: 200,  chance: 1.0 },
-    { type: 'item',     id: 'great_ball',         quantity: 2,    chance: 0.4 },
-    { type: 'material', id: 'stardust',           quantity: 2,    chance: 0.3 },
+    { type: 'item',     id: 'exp_candy_xs',      quantity: 5,    chance: 1.0 },
+    { type: 'item',     id: 'exp_candy_s',       quantity: 2,    chance: 0.5 },
+    { type: 'currency', id: 'currency',           quantity: 500,  chance: 1.0 },
+    { type: 'item',     id: 'pokeball',           quantity: 5,    chance: 1.0 },
   ],
   2: [
-    { type: 'item',     id: 'exp_candy_xs',      quantity: 2,    chance: 1.0 },
-    { type: 'item',     id: 'exp_candy_s',       quantity: 1,    chance: 0.5 },
-    { type: 'candy',    id: 'rare_candy',         quantity: 1,    chance: 0.7 },
-    { type: 'currency', id: 'currency',           quantity: 500,  chance: 1.0 },
-    { type: 'item',     id: 'ultra_ball',         quantity: 2,    chance: 0.5 },
-    { type: 'item',     id: 'fire_stone',         quantity: 1,    chance: 0.15 },
-    { type: 'item',     id: 'water_stone',        quantity: 1,    chance: 0.15 },
-    { type: 'item',     id: 'thunder_stone',      quantity: 1,    chance: 0.15 },
-    { type: 'material', id: 'stardust',           quantity: 5,    chance: 0.5 },
+    { type: 'item',     id: 'exp_candy_s',       quantity: 5,    chance: 1.0 },
+    { type: 'item',     id: 'exp_candy_m',       quantity: 2,    chance: 0.5 },
+    { type: 'currency', id: 'currency',           quantity: 1200, chance: 1.0 },
+    { type: 'item',     id: 'great_ball',         quantity: 5,    chance: 1.0 },
+    { type: 'item',     id: 'fire_stone',         quantity: 1,    chance: 0.2 },
+    { type: 'item',     id: 'water_stone',        quantity: 1,    chance: 0.2 },
+    { type: 'item',     id: 'thunder_stone',      quantity: 1,    chance: 0.2 },
   ],
   3: [
-    { type: 'item',     id: 'exp_candy_s',       quantity: 1,    chance: 1.0 },
-    { type: 'item',     id: 'exp_candy_m',       quantity: 1,    chance: 0.5 },
-    { type: 'candy',    id: 'rare_candy',         quantity: 2,    chance: 0.8 },
-    { type: 'currency', id: 'currency',           quantity: 1500, chance: 1.0 },
-    { type: 'item',     id: 'ultra_ball',         quantity: 3,    chance: 0.6 },
+    { type: 'item',     id: 'exp_candy_m',       quantity: 6,    chance: 1.0 },
+    { type: 'item',     id: 'exp_candy_l',       quantity: 2,    chance: 0.4 },
+    { type: 'candy',    id: 'rare_candy',         quantity: 1,    chance: 0.3 },
+    { type: 'currency', id: 'currency',           quantity: 3000, chance: 1.0 },
+    { type: 'item',     id: 'ultra_ball',         quantity: 5,    chance: 1.0 },
     { type: 'item',     id: 'tm_flamethrower',    quantity: 1,    chance: 0.15 },
     { type: 'item',     id: 'tm_thunderbolt',     quantity: 1,    chance: 0.15 },
     { type: 'item',     id: 'tm_ice_beam',        quantity: 1,    chance: 0.15 },
-    { type: 'material', id: 'dragon_scale',       quantity: 1,    chance: 0.20 },
-    { type: 'material', id: 'stardust',           quantity: 10,   chance: 0.8 },
+    { type: 'material', id: 'stardust',           quantity: 15,   chance: 1.0 },
   ],
   4: [
-    { type: 'item',     id: 'exp_candy_m',       quantity: 1,    chance: 1.0 },
-    { type: 'item',     id: 'exp_candy_l',       quantity: 1,    chance: 0.5 },
-    { type: 'candy',    id: 'rare_candy',         quantity: 3,    chance: 1.0 },
-    { type: 'currency', id: 'currency',           quantity: 4000, chance: 1.0 },
-    { type: 'item',     id: 'ultra_ball',         quantity: 5,    chance: 0.8 },
+    { type: 'item',     id: 'exp_candy_l',       quantity: 5,    chance: 1.0 },
+    { type: 'item',     id: 'exp_candy_xl',      quantity: 2,    chance: 0.4 },
+    { type: 'candy',    id: 'rare_candy',         quantity: 2,    chance: 0.6 },
+    { type: 'currency', id: 'currency',           quantity: 6000, chance: 1.0 },
+    { type: 'item',     id: 'ultra_ball',         quantity: 10,   chance: 1.0 },
     { type: 'item',     id: 'tm_flamethrower',    quantity: 1,    chance: 0.25 },
     { type: 'item',     id: 'tm_thunderbolt',     quantity: 1,    chance: 0.25 },
     { type: 'item',     id: 'tm_ice_beam',        quantity: 1,    chance: 0.25 },
-    { type: 'item',     id: 'moon_stone',         quantity: 1,    chance: 0.20 },
-    { type: 'item',     id: 'sun_stone',          quantity: 1,    chance: 0.20 },
-    { type: 'material', id: 'dragon_scale',       quantity: 1,    chance: 0.40 },
-    { type: 'material', id: 'stardust',           quantity: 20,   chance: 1.0 },
+    { type: 'material', id: 'stardust',           quantity: 25,   chance: 1.0 },
+    { type: 'material', id: 'armor_fragment',     quantity: 1,    chance: 0.20 },
   ],
   5: [
-    { type: 'item',     id: 'exp_candy_l',       quantity: 1,    chance: 1.0 },
+    { type: 'item',     id: 'exp_candy_l',       quantity: 10,   chance: 1.0 },
     { type: 'item',     id: 'exp_candy_xl',      quantity: 1,    chance: 0.5 },
     { type: 'candy',    id: 'rare_candy',         quantity: 5,    chance: 1.0 },
     { type: 'currency', id: 'currency',           quantity: 10000,chance: 1.0 },
@@ -124,22 +64,29 @@ export const RAID_REWARDS_TABLE = {
 export const RAID_POKEMON_POOL = {
   kanto: [
     { id: 16,  stars: 1, level: 18, name: 'Pidgeot'    },
-    { id: 19,  stars: 1, level: 18, name: 'Ratticate'  },
+    { id: 19,  stars: 1, level: 18, name: 'Raticate'   },
     { id: 37,  stars: 1, level: 20, name: 'Vulpix'     },
     { id: 56,  stars: 1, level: 20, name: 'Mankey'     },
+    { id: 34,  stars: 2, level: 35, name: 'Nidoking'   },
+    { id: 31,  stars: 2, level: 35, name: 'Nidoqueen'  },
     { id: 59,  stars: 2, level: 35, name: 'Arcanine'   },
     { id: 62,  stars: 2, level: 35, name: 'Poliwrath'  },
+    { id: 65,  stars: 3, level: 42, name: 'Alakazam'   },
     { id: 68,  stars: 3, level: 40, name: 'Machamp'    },
     { id: 76,  stars: 3, level: 38, name: 'Golem'      },
     { id: 94,  stars: 3, level: 42, name: 'Gengar'     },
     { id: 103, stars: 3, level: 40, name: 'Exeggutor'  },
+    { id: 112, stars: 3, level: 42, name: 'Rhydon'     },
+    { id: 123, stars: 3, level: 40, name: 'Scyther'    },
+    { id: 127, stars: 3, level: 40, name: 'Pinsir'     },
+    { id: 143, stars: 3, level: 40, name: 'Snorlax'    },
     { id: 130, stars: 4, level: 45, name: 'Gyarados'   },
     { id: 131, stars: 4, level: 48, name: 'Lapras'     },
-    { id: 143, stars: 3, level: 40, name: 'Snorlax'    },
-    { id: 149, stars: 5, level: 55, name: 'Dragonite'  },
+    { id: 142, stars: 4, level: 50, name: 'Aerodactyl' },
     { id: 6,   stars: 4, level: 50, name: 'Charizard',  isShinyLocked: false },
     { id: 9,   stars: 4, level: 50, name: 'Blastoise',  isShinyLocked: false },
     { id: 3,   stars: 4, level: 50, name: 'Venusaur',   isShinyLocked: false },
+    { id: 149, stars: 5, level: 55, name: 'Dragonite'  },
   ],
   johto: [
     { id: 162, stars: 1, level: 20, name: 'Furret'     },
@@ -151,6 +98,8 @@ export const RAID_POKEMON_POOL = {
     { id: 160, stars: 3, level: 42, name: 'Feraligatr' },
     { id: 154, stars: 3, level: 42, name: 'Meganium'   },
     { id: 181, stars: 3, level: 40, name: 'Ampharos'   },
+    { id: 169, stars: 3, level: 44, name: 'Crobat'     },
+    { id: 208, stars: 3, level: 44, name: 'Steelix'    },
     { id: 197, stars: 4, level: 45, name: 'Umbreon'    },
     { id: 196, stars: 4, level: 45, name: 'Espeon'     },
     { id: 212, stars: 4, level: 48, name: 'Scizor'     },
@@ -160,6 +109,7 @@ export const RAID_POKEMON_POOL = {
   ],
   hoenn: [
     { id: 264, stars: 1, level: 22, name: 'Linoone'    },
+    { id: 310, stars: 2, level: 32, name: 'Manectric'  },
     { id: 271, stars: 2, level: 28, name: 'Lombre'     },
     { id: 295, stars: 2, level: 30, name: 'Exploud'    },
     { id: 303, stars: 2, level: 30, name: 'Mawile'     },
@@ -168,7 +118,7 @@ export const RAID_POKEMON_POOL = {
     { id: 254, stars: 3, level: 45, name: 'Sceptile'   },
     { id: 282, stars: 3, level: 45, name: 'Gardevoir'  },
     { id: 306, stars: 4, level: 50, name: 'Aggron'     },
-    { id: 330, stars: 4, level: 50, name: 'Flygon'     },
+    { id: 330, stars: 4, level: 52, name: 'Flygon'     },
     { id: 334, stars: 4, level: 52, name: 'Altaria'    },
     { id: 373, stars: 5, level: 60, name: 'Salamence'  },
     { id: 376, stars: 5, level: 62, name: 'Metagross'  },
@@ -279,6 +229,7 @@ export const pickRaidPokemon = (region = 'kanto', maxStars = 5) => {
   const weights = getRaidStarWeights(maxStars);
   const totalWeight = weights.reduce((sum, w) => sum + w.w, 0);
   let rand = Math.random() * totalWeight;
+
   let chosenStars = weights[weights.length - 1].stars;
   for (const entry of weights) {
     rand -= entry.w;
@@ -298,7 +249,8 @@ export const createRaid = (region = 'kanto', pokedex = {}, badgeCount = 0) => {
   if (!template) return null;
 
   const base = pokedex[template.id] || {};
-  const level  = template.level;
+  // Variância de nível: +/- 1 nível para maior aleatoriedade dentro da categoria
+  const level = template.level + (Math.floor(Math.random() * 3) - 1);
   const maxHp  = calculateRaidMaxHp(base, level, template.stars);
   const isShiny = !template.isShinyLocked && Math.random() < 0.01;
 
@@ -324,3 +276,13 @@ export const createRaid = (region = 'kanto', pokedex = {}, badgeCount = 0) => {
     fightEndsAt: null,
   };
 };
+
+export const EXP_CANDIES = {
+  exp_candy_xs: { name: 'EXP Candy XS', xp: 100,  img: '/items/exp_candy_xs.png' },
+  exp_candy_s:  { name: 'EXP Candy S',  xp: 800,  img: '/items/exp_candy_s.png'  },
+  exp_candy_m:  { name: 'EXP Candy M',  xp: 3000, img: '/items/exp_candy_m.png'  },
+  exp_candy_l:  { name: 'EXP Candy L',  xp: 10000,img: '/items/exp_candy_l.png'  },
+  exp_candy_xl: { name: 'EXP Candy XL', xp: 30000,img: '/items/exp_candy_xl.png' },
+};
+
+export const RAID_BALANCE_VERSION = '1.2';

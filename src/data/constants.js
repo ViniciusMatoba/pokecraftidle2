@@ -262,13 +262,13 @@ export const ITEM_LABELS = {
   gold_nugget: { icon: '🪙', name: 'Pepita de Ouro' },
   iron_ore: { icon: '⛏️', name: 'Minério de Ferro' },
   mystic_dust: { icon: '✨', name: 'Pó Místico' },
-  mega_stone_shard: { icon: '💎', name: 'Fragmento de Mega Pedra' },
+  mega_stone_shard: { icon: '/items/mega_stone_shard.png', name: 'Fragmento de Mega Pedra' },
   
   // Materiais de Boss
-  armor_fragment: { icon: '🛡️', name: 'Fragmento de Armadura' },
+  armor_fragment: { icon: '/items/armor_fragment.png', name: 'Fragmento de Armadura' },
   fury_essence: { icon: '💢', name: 'Essência de Fúria' },
   dragon_scale: { icon: '🦎', name: 'Escama de Dragão' },
-  stardust: { icon: '✨', name: 'Poeira Estelar' },
+  stardust: { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/stardust.png', name: 'Poeira Estelar' },
 
   // Materiais Específicos de Pokémon
   sharp_claw: { icon: '💅', name: 'Garra Afiada' },

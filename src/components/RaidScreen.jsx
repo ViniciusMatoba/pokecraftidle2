@@ -26,18 +26,23 @@ const REWARD_ICONS = {
   moon_stone:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png',
   sun_stone:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sun-stone.png',
   dawn_stone:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dawn-stone.png',
-  tm_flamethrower: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-fire.png',
-  tm_thunderbolt:  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-electric.png',
-  tm_ice_beam:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-ice.png',
+  
+  // Custom High-Quality Local Assets
+  tm_flamethrower: `${import.meta.env.BASE_URL}items/tm_fire.png`,
+  tm_thunderbolt:  `${import.meta.env.BASE_URL}items/tm_electric.png`,
+  tm_ice_beam:     `${import.meta.env.BASE_URL}items/tm_ice.png`,
   stardust:        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/stardust.png',
   dragon_scale:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dragon-scale.png',
-  armor_fragment:  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png',
-  mega_stone_shard:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/red-shard.png',
-  exp_candy_xs:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-xs.png',
-  exp_candy_s:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-s.png',
-  exp_candy_m:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-m.png',
-  exp_candy_l:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-l.png',
-  exp_candy_xl:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-xl.png',
+  armor_fragment:  `${import.meta.env.BASE_URL}items/armor_fragment.png`,
+  mega_stone_shard:`${import.meta.env.BASE_URL}items/mega_stone_shard.png`,
+  
+  // EXP Candies (Local Premium Assets)
+  exp_candy_xs:    `${import.meta.env.BASE_URL}items/exp_candy_xs.png`,
+  exp_candy_s:     `${import.meta.env.BASE_URL}items/exp_candy_s.png`,
+  exp_candy_m:     `${import.meta.env.BASE_URL}items/exp_candy_m.png`,
+  exp_candy_l:     `${import.meta.env.BASE_URL}items/exp_candy_l.png`,
+  exp_candy_xl:    `${import.meta.env.BASE_URL}items/exp_candy_xl.png`,
+  
   currency:        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/relic-gold-coin.png',
 };
 

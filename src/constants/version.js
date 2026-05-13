@@ -1,7 +1,20 @@
-export const APP_VERSION = '1.80.1';
-export const VERSION = '1.80.1';
-export const APP_VERSION_DATE = '13/05/2026 19:23';
+export const APP_VERSION = '1.80.4';
+export const VERSION = '1.80.4';
+export const APP_VERSION_DATE = '13/05/2026 20:30';
 export const CHANGELOG = [
+  '## [V1.80.4] - 13/05/2026 20:30',
+  '### Melhorado',
+  '- **Forja (Crafting)**: Introduzido seletor de quantidade (x1, x10, Max) e exibição da quantidade de itens já possuídos.',
+  '- **TMs (Interface)**: Adicionado sistema de filtragem por tipo elemental para facilitar a escolha de golpes.',
+  '- **Forja (Correção)**: Custos em Pokédollars agora são corretamente deduzidos ao fabricar itens.',
+  '## [V1.80.3] - 13/05/2026 20:25',
+  '### Melhorado',
+  '- **Raids (Variedade)**: Pool de Pokémon expandida em todas as regiões (adicionados Nidoking, Rhydon, Scizor, Alakazam, etc).',
+  '- **Raids (Aleatoriedade)**: Introduzida variância de nível (+/- 1) para que cada encontro seja único dentro da sua categoria.',
+  '## [V1.80.2] - 13/05/2026 19:56',
+  '### Corrigido',
+  '- **Raids (Visual)**: Sprites de recompensa (TMs, EXP Candies, Shards) agora usam artes customizadas em pixel-art de alta fidelidade e são servidos localmente, eliminando imagens quebradas.',
+  '- **Mochila/Inventário**: Ícones de materiais raros (Armor Fragment, Mega Stone Shard) atualizados para artes premium em vez de emojis.',
   '## [V1.80.1] - 13/05/2026 19:23',
   '### Corrigido',
   '- **Raids (Bug Crítico)**: raids agora usam corretamente a região ativa do jogador (`activeRegion`) — antes usavam sempre Kanto por referir `currentRegion` (campo inexistente).',
@@ -16,7 +29,7 @@ export const CHANGELOG = [
   '- **Forja**: separação por categoria reformulada — bolsos visuais com emoji, caption e contador de desbloqueadas/total.',
   '## [V1.79.9] - 13/05/2026 21:30',
   '### Adicionado',
-  '- **Sprites de Treinadores (Equipes)**: villains.js corrigido — Aqua/Magma/Galáctica agora usam sprites corretos; 6 novas equipes adicionadas (Plasma, Flare, Skull, Rainbow Rocket, Yell, Star).',
+  '- **Sprites de Treinadores (Equipes)**: villains.js corrigido — Aqua/Magma/Galáctica agora usam sprites corrigidos; 6 novas equipes adicionadas (Plasma, Flare, Skull, Rainbow Rocket, Yell, Star).',
   '- **Avatares da Loja de Prestígio**: ~40 novos avatares adicionados cobrindo todos os rivais, líderes e personagens icônicos de todas as 9 regiões.',
   '- **Treinadores Gen9 em Paldea**: tipos exclusivos de Paldea (Estudante, Delinquente, Operário, Entregador, Cozinheiro) agora aparecem nas rotas regionais.',
   '### Corrigido',

@@ -3895,49 +3895,62 @@ export default function App() {
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS, gameState]);
 
-  const handleCraft = (recipe) => {
-    const materialCost = Object.fromEntries(Object.entries(recipe.cost || {}).filter(([material]) => material !== 'currency'));
+  const handleCraft = (recipe, quantity = 1) => {
+    const qty = Math.max(1, Math.floor(Number(quantity) || 1));
+    const currencyCost = (recipe.cost?.currency || 0) * qty;
+    const materialCost = Object.fromEntries(
+      Object.entries(recipe.cost || {})
+        .filter(([material]) => material !== 'currency')
+        .map(([material, amount]) => [material, amount * qty])
+    );
+
     showConfirm({
       type: 'confirm',
       title: 'Confirmar Forja',
-      message: `Deseja forjar 1x ${recipe.name} usando apenas materiais?`,
+      message: `Deseja forjar ${qty}x ${recipe.name}?`,
       confirmLabel: 'Forjar',
       cancelLabel: 'Cancelar',
       onConfirm: () => {
         closeConfirm();
         setGameState(prev => {
-      // 1. Verificar se tem todos os materiais
-      const hasMaterials = Object.entries(materialCost).every(([material, amount]) => {
-        return (prev.inventory.materials[material] || 0) >= amount;
-      });
+          // 1. Verificar Moedas
+          if (prev.currency < currencyCost) {
+            addLog("Saldo insuficiente para a forja!", 'system');
+            return prev;
+          }
 
-      if (!hasMaterials) {
-        addLog("Materiais insuficientes para a forja!", 'system');
-        return prev;
-      }
+          // 2. Verificar se tem todos os materiais
+          const hasMaterials = Object.entries(materialCost).every(([material, amount]) => {
+            return (prev.inventory.materials[material] || 0) >= amount;
+          });
 
-      // 2. Deduzir os custos
-      const newMaterials = { ...prev.inventory.materials };
+          if (!hasMaterials) {
+            addLog("Materiais insuficientes para a forja!", 'system');
+            return prev;
+          }
 
-      Object.entries(materialCost).forEach(([material, amount]) => {
-        newMaterials[material] -= amount;
-      });
+          // 3. Deduzir os custos
+          const newMaterials = { ...prev.inventory.materials };
+          Object.entries(materialCost).forEach(([material, amount]) => {
+            newMaterials[material] -= amount;
+          });
 
-      // 3. Adicionar o item ao inventário e atualizar contador de forja
-      const newItems = { ...prev.inventory.items };
-      newItems[recipe.id] = (newItems[recipe.id] || 0) + 1;
+          // 4. Adicionar o item ao inventário e atualizar contador de forja
+          const newItems = { ...prev.inventory.items };
+          newItems[recipe.id] = (newItems[recipe.id] || 0) + qty;
 
-      addLog(`✨ Você fabricou: ${recipe.name}!`, 'drop');
+          addLog(`✨ Você fabricou: ${qty}x ${recipe.name}!`, 'drop');
 
-      return {
-        ...prev,
-        forgedItemsCount: (prev.forgedItemsCount || 0) + 1,
-        inventory: {
-          ...prev.inventory,
-          materials: newMaterials,
-          items: newItems
-        }
-      };
+          return {
+            ...prev,
+            currency: prev.currency - currencyCost,
+            forgedItemsCount: (prev.forgedItemsCount || 0) + qty,
+            inventory: {
+              ...prev.inventory,
+              materials: newMaterials,
+              items: newItems
+            }
+          };
         });
       },
       onCancel: closeConfirm

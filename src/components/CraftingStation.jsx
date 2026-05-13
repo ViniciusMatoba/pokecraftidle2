@@ -26,11 +26,14 @@ const CraftingStation = ({
   const [activeCategory, setActiveCategory] = useState(initialCategory || categories[0] || '');
   const [showLocked, setShowLocked] = useState(true);
   const [highlightedItem, setHighlightedItem] = useState(initialItem);
+  const [tmTypeFilter, setTmTypeFilter] = useState('All');
 
+  // Quantidade selecionada por item (opcional, para persistir se o usuário trocar de aba)
+  // Mas vamos simplificar e usar botões diretos x1, x10, Max
+  
   React.useEffect(() => {
     if (initialItem) {
       setHighlightedItem(initialItem);
-      // Encontrar a categoria do item se não foi passada
       if (!initialCategory) {
         for (const [cat, items] of Object.entries(recipes)) {
           if (items.some(it => it.id === initialItem)) {
@@ -40,7 +43,6 @@ const CraftingStation = ({
         }
       }
       
-      // Pequeno delay para garantir que o DOM renderizou após a troca de categoria
       setTimeout(() => {
         const el = document.getElementById(`recipe-item-${initialItem}`);
         if (el) {
@@ -48,7 +50,6 @@ const CraftingStation = ({
         }
       }, 300);
       
-      // Limpa o highlight após um tempo
       const timer = setTimeout(() => setHighlightedItem(null), 3000);
       return () => clearTimeout(timer);
     }
@@ -59,6 +60,46 @@ const CraftingStation = ({
 
   const getAvail = (mat) =>
     (inventory?.materials?.[mat] || 0) + (inventory?.items?.[mat] || 0);
+
+  const getOwnedQty = (itemId) => (inventory?.items?.[itemId] || 0);
+
+  const calculateMaxCraft = (item) => {
+    const materialCost = getMaterialCost(item);
+    const currencyCost = item.cost?.currency || 0;
+    
+    let maxByMaterials = Infinity;
+    Object.entries(materialCost).forEach(([mat, amount]) => {
+      const avail = getAvail(mat);
+      maxByMaterials = Math.min(maxByMaterials, Math.floor(avail / amount));
+    });
+    
+    let maxByCurrency = Infinity;
+    if (currencyCost > 0) {
+      maxByCurrency = Math.floor(currency / currencyCost);
+    }
+    
+    const possible = Math.min(maxByMaterials, maxByCurrency);
+    return possible === Infinity ? 0 : possible;
+  };
+
+  const tmTypes = useMemo(() => {
+    if (activeCategory !== 'tms') return [];
+    const types = new Set(['All']);
+    (recipes.tms || []).forEach(tm => {
+      // Extrair tipo do efeito "Physical - Fire / Poder 75"
+      const parts = tm.effect?.split(' - ')[1]?.split(' / ')[0];
+      if (parts) types.add(parts);
+    });
+    return Array.from(types);
+  }, [activeCategory, recipes.tms]);
+
+  const filteredItems = useMemo(() => {
+    let items = recipes[activeCategory] || [];
+    if (activeCategory === 'tms' && tmTypeFilter !== 'All') {
+      items = items.filter(tm => tm.effect?.includes(`- ${tmTypeFilter}`));
+    }
+    return items;
+  }, [activeCategory, recipes, tmTypeFilter]);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col text-left">
@@ -73,7 +114,10 @@ const CraftingStation = ({
           return (
             <button
               key={cat}
-              onClick={() => setActiveCategory(cat)}
+              onClick={() => {
+                setActiveCategory(cat);
+                setTmTypeFilter('All');
+              }}
               className={`min-h-[68px] rounded-2xl border-2 p-2.5 text-left transition-all active:scale-95 ${
                 isActive
                   ? 'bg-slate-800 border-slate-900 text-white shadow-lg'
@@ -102,6 +146,25 @@ const CraftingStation = ({
         })}
       </div>
 
+      {/* Filtro de TMs */}
+      {activeCategory === 'tms' && (
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-2 custom-scrollbar shrink-0">
+          {tmTypes.map(type => (
+            <button
+              key={type}
+              onClick={() => setTmTypeFilter(type)}
+              className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
+                tmTypeFilter === type
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'bg-white border border-slate-200 text-slate-500 hover:border-slate-400'
+              }`}
+            >
+              {type === 'All' ? 'Todos' : type}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Toggle mostrar/ocultar bloqueados */}
       <div className="flex items-center gap-2 mb-3 px-1">
         <button
@@ -121,13 +184,16 @@ const CraftingStation = ({
 
       {/* Lista de itens */}
       <div className="space-y-3 overflow-y-auto pr-1 scrollbar-hide flex-1">
-        {(recipes[activeCategory] || []).map(item => {
+        {filteredItems.map(item => {
           const unlocked = hasRecipe(item.id);
           const guide    = recipeGuides[item.id];
           const materialCost = getMaterialCost(item);
-          const canCraft = unlocked && Object.entries(materialCost).every(
-            ([mat, amt]) => getAvail(mat) >= amt
-          );
+          const currencyCost = item.cost?.currency || 0;
+          const maxCraft = calculateMaxCraft(item);
+          const ownedQty = getOwnedQty(item.id);
+          
+          const canCraftX1 = unlocked && maxCraft >= 1;
+          const canCraftX10 = unlocked && maxCraft >= 10;
 
           if (!unlocked && !showLocked) return null;
 
@@ -140,91 +206,117 @@ const CraftingStation = ({
                   ? 'border-f59e0b ring-2 ring-f59e0b/50 shadow-[0_0_20px_rgba(245,158,11,0.3)] bg-amber-50/30'
                   : !unlocked
                   ? 'border-dashed border-slate-200 bg-slate-50 opacity-80'
-                  : canCraft
+                  : canCraftX1
                   ? 'border-emerald-200 bg-white shadow-md hover:border-emerald-400'
                   : 'border-slate-100 bg-white opacity-70'
               }`}
             >
-              <div className="flex items-start gap-4">
-                {/* Ícone */}
-                <div className={`rounded-2xl p-3 shrink-0 ${
-                  !unlocked ? 'bg-slate-100' : 'bg-slate-50'
-                }`}>
-                  {unlocked ? (
-                    <img src={item.img} className="w-10 h-10 object-contain drop-shadow" alt={item.name}
-                      onError={e => { e.target.style.display = 'none'; }} />
-                  ) : (
-                    <div className="w-10 h-10 flex items-center justify-center text-2xl">🔒</div>
-                  )}
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h4 className={`font-black uppercase italic tracking-tight text-sm leading-none ${
-                      unlocked ? 'text-slate-800' : 'text-slate-400'
-                    }`}>
-                      {item.name}
-                    </h4>
-                    {unlocked && (
-                      <span className="text-[8px] bg-emerald-100 text-emerald-700 font-black px-2 py-0.5 rounded-full uppercase">
-                        📜 Receita encontrada
-                      </span>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-start gap-4">
+                  {/* Ícone */}
+                  <div className={`rounded-2xl p-3 shrink-0 ${
+                    !unlocked ? 'bg-slate-100' : 'bg-slate-50'
+                  }`}>
+                    {unlocked ? (
+                      <img src={item.img} className="w-10 h-10 object-contain drop-shadow" alt={item.name}
+                        onError={e => { e.target.style.display = 'none'; }} />
+                    ) : (
+                      <div className="w-10 h-10 flex items-center justify-center text-2xl">🔒</div>
                     )}
                   </div>
 
-                  {/* Efeito se houver */}
-                  {item.effect && typeof item.effect === 'string' && (
-                    <p className="text-[9px] text-slate-400 mt-0.5 italic">{item.effect}</p>
-                  )}
-
-                  {unlocked ? (
-                    /* Custo de materiais */
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {Object.entries(materialCost).map(([mat, amount]) => {
-                        const avail = getAvail(mat);
-                        const ok = avail >= amount;
-                        return (
-                          <span key={mat}
-                            className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase ${
-                              ok ? 'bg-slate-100 text-slate-500' : 'bg-red-50 text-red-500'
-                            }`}>
-                            {mat.replace(/_/g, ' ')}: {avail}/{amount}
-                          </span>
-                        );
-                      })}
-                      {item.cost?.currency > 0 && (
-                        <span className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase ${
-                          currency >= item.cost.currency ? 'bg-yellow-50 text-yellow-600' : 'bg-red-50 text-red-500'
-                        }`}>
-                          💰 {currency.toLocaleString()}/{item.cost.currency.toLocaleString()}
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className={`font-black uppercase italic tracking-tight text-sm leading-none ${
+                        unlocked ? 'text-slate-800' : 'text-slate-400'
+                      }`}>
+                        {item.name}
+                      </h4>
+                      {unlocked && (
+                        <span className="text-[8px] bg-blue-100 text-blue-700 font-black px-2 py-0.5 rounded-full uppercase">
+                          Mochila: {ownedQty.toLocaleString()}
                         </span>
                       )}
                     </div>
-                  ) : (
-                    /* Dica de onde dropar */
-                    <div className="mt-2 flex items-start gap-1.5">
-                      <span className="text-sm shrink-0">📍</span>
-                      <p className="text-[9px] text-amber-700 font-bold leading-tight">
-                        {guide?.label || 'Derrote Pokémon nas rotas para encontrar esta receita.'}
-                      </p>
-                    </div>
-                  )}
+
+                    {/* Efeito se houver */}
+                    {item.effect && typeof item.effect === 'string' && (
+                      <p className="text-[9px] text-slate-400 mt-0.5 italic">{item.effect}</p>
+                    )}
+
+                    {unlocked ? (
+                      /* Custo de materiais */
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {Object.entries(materialCost).map(([mat, amount]) => {
+                          const avail = getAvail(mat);
+                          const ok = avail >= amount;
+                          return (
+                            <span key={mat}
+                              className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase ${
+                                ok ? 'bg-slate-100 text-slate-500' : 'bg-red-50 text-red-500'
+                              }`}>
+                              {mat.replace(/_/g, ' ')}: {avail}/{amount}
+                            </span>
+                          );
+                        })}
+                        {currencyCost > 0 && (
+                          <span className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase ${
+                            currency >= currencyCost ? 'bg-yellow-50 text-yellow-600' : 'bg-red-50 text-red-500'
+                          }`}>
+                            💰 {currency.toLocaleString()}/{currencyCost.toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      /* Dica de onde dropar */
+                      <div className="mt-2 flex items-start gap-1.5">
+                        <span className="text-sm shrink-0">📍</span>
+                        <p className="text-[9px] text-amber-700 font-bold leading-tight">
+                          {guide?.label || 'Derrote Pokémon nas rotas para encontrar esta receita.'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                {/* Botão */}
+                {/* Controles de Forja */}
                 {unlocked && (
-                  <button
-                    disabled={!canCraft}
-                    onClick={() => onCraft(item)}
-                    className={`shrink-0 px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
-                      canCraft
-                        ? 'bg-slate-800 text-white hover:bg-emerald-600 hover:shadow-lg active:scale-95'
-                        : 'bg-slate-100 text-slate-300 cursor-not-allowed'
-                    }`}
-                  >
-                    Forjar
-                  </button>
+                  <div className="grid grid-cols-3 gap-2 mt-1">
+                    <button
+                      disabled={!canCraftX1}
+                      onClick={() => onCraft(item, 1)}
+                      className={`py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
+                        canCraftX1
+                          ? 'bg-slate-800 text-white hover:bg-slate-700 active:scale-95'
+                          : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                      }`}
+                    >
+                      x1
+                    </button>
+                    <button
+                      disabled={!canCraftX10}
+                      onClick={() => onCraft(item, 10)}
+                      className={`py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
+                        canCraftX10
+                          ? 'bg-slate-800 text-white hover:bg-slate-700 active:scale-95'
+                          : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                      }`}
+                    >
+                      x10
+                    </button>
+                    <button
+                      disabled={maxCraft <= 0}
+                      onClick={() => onCraft(item, maxCraft)}
+                      className={`py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
+                        maxCraft > 0
+                          ? 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-md active:scale-95'
+                          : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                      }`}
+                    >
+                      Max ({maxCraft})
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -232,7 +324,7 @@ const CraftingStation = ({
         })}
 
         {/* Vazio */}
-        {(recipes[activeCategory] || []).filter(item => showLocked || hasRecipe(item.id)).length === 0 && (
+        {filteredItems.filter(item => showLocked || hasRecipe(item.id)).length === 0 && (
           <div className="flex flex-col items-center justify-center h-40 gap-3">
             <span className="text-4xl">📜</span>
             <p className="text-slate-400 text-xs font-bold text-center">
