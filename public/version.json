@@ -1,5 +1,5 @@
 {
-  "version": "1.84.1",
-  "date": "14/05/2026 09:37",
-  "notes": "Correção de erro crítico de inicialização e restauração de dados de Raids."
+  "version": "1.84.2",
+  "date": "14/05/2026 09:55",
+  "notes": "Correção definitiva do erro de inicialização e otimização de exports de Raids."
 }

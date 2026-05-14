@@ -1,13 +1,15 @@
 # Changelog - PokeCraft
 
+## [v1.84.2] - 14/05/2026 09:55
+### Corrigido
+- **Correção Definitiva de Inicialização**: Movido o bloco de dados `EXP_CANDIES` e `REGION_ORDER` para o topo de `raids.js` para garantir inicialização antes do uso e remover dependências circulares ocultas.
+
 ## [v1.84.1] - 14/05/2026 09:37
 ### Corrigido
 - **Hotfix de Inicialização**: Corrigido `ReferenceError` causado pela remoção acidental de `EXP_CANDIES` em `raids.js`.
 - **Arquitetura de Dados**: `REGION_ORDER` agora é importado centralmente, evitando duplicação e conflitos de carregamento.
 
 ## [v1.84.0] - 14/05/2026 09:12
-### Adicionado
-- **Pool Aleatória de Pokémon (Cross-Region)**: Implementada lógica de 65% região atual e 35% regiões anteriores para raids.
 - **Suporte a Sprites Shiny**: Raids de Pokémon shiny agora exibem corretamente a sprite brilhante.
 ### Corrigido
 - **Sincronização de Recompensas**: Corrigido ID de Pokébola (`pokeballs`) para evitar falha no inventário.

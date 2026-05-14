@@ -1,7 +1,10 @@
-export const APP_VERSION = '1.84.1';
-export const VERSION = '1.84.1';
-export const APP_VERSION_DATE = '14/05/2026 09:37';
+export const APP_VERSION = '1.84.2';
+export const VERSION = '1.84.2';
+export const APP_VERSION_DATE = '14/05/2026 09:55';
 export const CHANGELOG = [
+  '## [V1.84.2] - 14/05/2026 09:55',
+  '### Corrigido',
+  '- **Critical Init Fix**: Resolvido erro de inicialização (ReferenceError) movendo constantes para o topo e desacoplando REGION_ORDER para evitar ciclos de importação.',
   '## [V1.84.1] - 14/05/2026 09:37',
   '### Corrigido',
   '- **Initialization Fix**: Restaurado o export `EXP_CANDIES` e corrigida a importação de `REGION_ORDER` para evitar erros de inicialização (ReferenceError).',
