@@ -28,8 +28,8 @@ const RankingModal = ({ onClose }) => {
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[20000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fadeIn">
-      <div className="bg-[#1a1a1a] w-full max-w-2xl rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col overflow-hidden animate-bounceIn" style={{ maxHeight: '90vh' }}>
+    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fadeIn" onClick={onClose}>
+      <div className="bg-[#1a1a1a] w-full max-w-2xl rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col overflow-hidden animate-bounceIn" style={{ maxHeight: '90vh' }} onClick={e => e.stopPropagation()}>
         
         {/* Header RPG Style */}
         <div className="p-6 bg-gradient-to-b from-[#2a2a2a] to-[#1a1a1a] border-b-4 border-slate-800 flex justify-between items-center">

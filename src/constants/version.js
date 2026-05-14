@@ -1,7 +1,13 @@
-export const APP_VERSION = '1.83.5';
-export const VERSION = '1.83.5';
-export const APP_VERSION_DATE = '14/05/2026 08:48';
+export const APP_VERSION = '1.83.6';
+export const VERSION = '1.83.6';
+export const APP_VERSION_DATE = '14/05/2026 09:04';
 export const CHANGELOG = [
+  '## [V1.83.6] - 14/05/2026 09:04',
+  '### Corrigido',
+  '- **Estabilização de Interatividade UI**: Finalizada a arquitetura de modais para eliminar vazamentos de eventos.',
+  '- **Sincronização de Estado**: Estados de modais (Títulos, Power Rank, Forja e Confirmação) consolidados no AppRoot.',
+  '- **Bloqueio de Fundo**: Implementado bloqueio físico via `pointer-events: none` na CityScreen e CraftingStation sempre que um modal estiver ativo.',
+  '- **Landing Screen Fix**: Restaurada a integridade visual da tela inicial e corrigida a duplicação do Ranking Global.',
   '## [V1.83.5] - 14/05/2026 08:48',
   '### Corrigido',
   '- **Standard Confirmation Flow**: Revertida paleta para Dark/Pokémon (Slate/Blue) e removido stopPropagation de botões internos.',

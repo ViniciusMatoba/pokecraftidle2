@@ -20,6 +20,10 @@ const CityScreen = ({
   onSelectTitle,
   isAnyModalOpen,
   setIsAnyModalOpen,
+  isTitleModalOpen,
+  setIsTitleModalOpen,
+  isPowerRankModalOpen,
+  setIsPowerRankModalOpen,
   powerScore = 0
 }) => {
   const [activeOakModal, setActiveOakModal] = useState(false);
@@ -212,6 +216,10 @@ const CityScreen = ({
           selectedTitle={gameState.selectedTitle}
           onSelectTitle={onSelectTitle}
           setIsAnyModalOpen={setIsAnyModalOpen}
+          isTitleModalOpen={isTitleModalOpen}
+          setIsTitleModalOpen={setIsTitleModalOpen}
+          isPowerRankModalOpen={isPowerRankModalOpen}
+          setIsPowerRankModalOpen={setIsPowerRankModalOpen}
         />
         
         {/* Camada de Bloqueio Físico - Desativa interações com o fundo se um modal estiver aberto */}

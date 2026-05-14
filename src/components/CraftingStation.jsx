@@ -27,6 +27,8 @@ const CraftingStation = ({
   recipeGuides = {},          // { [id]: { label, routeId } } — onde dropar
   initialCategory = null,
   initialItem = null,
+  isAnyModalOpen = false,
+  isForgeConfirmOpen = false,
 }) => {
   const categories = useMemo(() => Object.keys(recipes || {}), [recipes]);
   const [activeCategory, setActiveCategory] = useState(initialCategory || categories[0] || '');
@@ -108,7 +110,7 @@ const CraftingStation = ({
   }, [activeCategory, recipes, tmTypeFilter]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col text-left">
+    <div className="flex min-h-0 flex-1 flex-col text-left" style={{ pointerEvents: isAnyModalOpen ? 'none' : 'auto' }}>
 
       {/* Bolsos por categoria — estilo mochila */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3 shrink-0">

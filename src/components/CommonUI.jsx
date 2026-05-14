@@ -307,7 +307,13 @@ export const TrainerCard = ({
     if (setIsAnyModalOpen) {
       setIsAnyModalOpen(showTitlePicker || showPsInfo || !!pendingTitle);
     }
-  }, [showTitlePicker, showPsInfo, pendingTitle, setIsAnyModalOpen]);
+    if (setIsTitleModalOpen) {
+      setIsTitleModalOpen(showTitlePicker);
+    }
+    if (setIsPowerRankModalOpen) {
+      setIsPowerRankModalOpen(showPsInfo);
+    }
+  }, [showTitlePicker, showPsInfo, pendingTitle, setIsAnyModalOpen, setIsTitleModalOpen, setIsPowerRankModalOpen]);
   if (!trainer) return null;
 
   const equippedSprite = AVATAR_SPRITES[appearance.spriteId] || AVATAR_SPRITES.red;
@@ -459,7 +465,7 @@ export const TrainerCard = ({
       {showTitlePicker && (
         <>
           <div 
-            className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn cursor-default" 
+            className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn cursor-default" 
             onClick={() => setShowTitlePicker(false)}
           >
             <div 
@@ -468,7 +474,7 @@ export const TrainerCard = ({
             >
               <div className="bg-slate-800/50 px-6 py-5 flex items-center justify-between border-b border-white/5">
                 <h3 className="text-white text-xl font-black uppercase italic">Seus Titulos</h3>
-                <button type="button" onClick={(e) => { e.stopPropagation(); setShowTitlePicker(false); }} className="w-8 h-8 rounded-full bg-white/10 text-white font-black">X</button>
+                <button type="button" onClick={() => setShowTitlePicker(false)} className="w-8 h-8 rounded-full bg-white/10 text-white font-black hover:bg-red-500 transition-colors">X</button>
               </div>
               <div 
                 className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2" 
@@ -504,7 +510,7 @@ export const TrainerCard = ({
           {/* Modal de Confirmação (v1.83.5) */}
           {pendingTitle && (
             <div 
-              className="fixed inset-0 w-screen h-screen z-[1000000] flex items-center justify-center p-6 bg-black/90 backdrop-blur-2xl animate-fadeIn"
+              className="fixed inset-0 w-screen h-screen z-[200000] flex items-center justify-center p-6 bg-black/90 backdrop-blur-2xl animate-fadeIn"
               onClick={() => setPendingTitle(null)}
             >
               <div 
@@ -553,26 +559,12 @@ export const TrainerCard = ({
 
       {showPsInfo && (
         <div 
-          className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn cursor-default pointer-events-auto" 
-          onClick={(e) => { 
-            e.preventDefault(); 
-            e.stopPropagation(); 
-            setShowPsInfo(false); 
-          }}
-          onPointerDown={(e) => {
-            e.stopPropagation();
-          }}
-          onMouseDown={(e) => {
-            e.stopPropagation();
-          }}
-          onTouchStart={(e) => e.stopPropagation()}
+          className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn cursor-default pointer-events-auto" 
+          onClick={() => setShowPsInfo(false)}
         >
           <div 
             className="w-full max-w-sm bg-slate-900 rounded-[2.5rem] border-4 border-slate-700 overflow-hidden flex flex-col animate-bounceIn" 
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-            onPointerDown={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
              <div className="bg-red-600 p-6 text-center">
                 <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${psRank.item}.png`} className="w-16 h-16 mx-auto mb-2 drop-shadow-lg" alt="" />

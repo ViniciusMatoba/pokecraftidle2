@@ -510,6 +510,18 @@ export default function App() {
   } = useSound();
   
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
+  const [isTitleModalOpen, setIsTitleModalOpen] = useState(false);
+  const [isForgeConfirmOpen, setIsForgeConfirmOpen] = useState(false);
+  const [isPowerRankModalOpen, setIsPowerRankModalOpen] = useState(false);
+
+  // Sync isAnyModalOpen with individual states
+  useEffect(() => {
+    setIsAnyModalOpen(isTitleModalOpen || isForgeConfirmOpen || isPowerRankModalOpen || !!confirmModal);
+  }, [isTitleModalOpen, isForgeConfirmOpen, isPowerRankModalOpen, confirmModal]);
+
+  useEffect(() => {
+    setIsPowerRankModalOpen(showRanking);
+  }, [showRanking]);
 
   const [gameState, setGameState] = useState(() => {
     try {
@@ -3950,6 +3962,7 @@ export default function App() {
         .map(([material, amount]) => [material, amount * qty])
     );
 
+    setIsForgeConfirmOpen(true);
     showConfirm({
       type: 'confirm',
       title: 'Confirmar Forja',
@@ -3957,6 +3970,7 @@ export default function App() {
       confirmLabel: 'Forjar',
       cancelLabel: 'Cancelar',
       onConfirm: () => {
+        setIsForgeConfirmOpen(false);
         closeConfirm();
 
         // Guarda o resultado da verificação FORA do setGameState
@@ -4009,7 +4023,10 @@ export default function App() {
         // addLog chamado FORA do setGameState — nenhum side effect aninhado
         if (resultLog) addLog(resultLog.msg, resultLog.type);
       },
-      onCancel: closeConfirm,
+      onCancel: () => {
+        setIsForgeConfirmOpen(false);
+        closeConfirm();
+      },
     });
   };
 
@@ -5584,7 +5601,7 @@ export default function App() {
                   <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/143.png" className="w-24 h-24 mt-2 animate-float-slow drop-shadow-xl" alt="Snorlax" />
                 </div>
                 
-                {/* ⛔ PROTECTED: Botões Landing — NíO ALTERAR TAMANHO, PADDING OU ESTILO SEM AUTORIZAÇíO */}
+                {/* ⛔ PROTECTED: Botões Landing — NÃO ALTERAR TAMANHO, PADDING OU ESTILO SEM AUTORIZAÇÃO */}
                 <div style={{width:'100%', display:'flex', flexDirection:'column', gap:'16px', padding:'0'}}>
                   {/* ⛔ PROTECTED: Botão CONTINUAR JORNADA */}
                   <button 
@@ -5594,7 +5611,6 @@ export default function App() {
                     {hasSave ? 'CONTINUAR JORNADA' : 'INICIAR NOVA JORNADA'}
                   </button>
                    {/* ⛔ END PROTECTED: Botões Landing */}
-
                    {/* Botão de Instalação PWA na Landing (Sempre visível se não for standalone) */}
                    {!isStandalone && (
                      <button
@@ -5646,7 +5662,7 @@ export default function App() {
                      🏆 Ranking Global
                    </button>
 
-                   {showRanking && <RankingModal onClose={() => setShowRanking(false)} />}
+
 
                    {/* ⛔ PROTECTED: Botão REINICIAR JORNADA */}
                    <button
@@ -6547,6 +6563,10 @@ export default function App() {
             onBuyHouse={handleBuyHouse}
             isAnyModalOpen={isAnyModalOpen}
             setIsAnyModalOpen={setIsAnyModalOpen}
+            isTitleModalOpen={isTitleModalOpen}
+            setIsTitleModalOpen={setIsTitleModalOpen}
+            isPowerRankModalOpen={isPowerRankModalOpen}
+            setIsPowerRankModalOpen={setIsPowerRankModalOpen}
           />
 
           {/* Modal do Prof. Carvalho sobre a Casa */}
@@ -8374,6 +8394,8 @@ export default function App() {
                       onCraft={handleCraft}
                       hasRecipe={(id) => hasForgeRecipe(gameState, id)}
                       recipeGuides={FORGE_RECIPE_DROP_GUIDE}
+                      isAnyModalOpen={isAnyModalOpen}
+                      isForgeConfirmOpen={isForgeConfirmOpen}
                     />
                   </Suspense>
                 </div>
