@@ -458,43 +458,13 @@ export const TrainerCard = ({
 
       {showTitlePicker && (
         <>
-          {/* Shield Atômico - Bloqueia qualquer vazamento para a CityScreen */}
           <div 
-            className="fixed inset-0 w-screen h-screen z-[999998] bg-transparent pointer-events-auto"
-            onClick={(e) => { 
-              e.preventDefault(); 
-              e.stopPropagation(); 
-            }}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-            }}
-            onMouseDown={(e) => {
-              e.stopPropagation();
-            }}
-            onTouchStart={(e) => e.stopPropagation()}
-          />
-          <div 
-            className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn cursor-default pointer-events-auto" 
-            onClick={(e) => { 
-              e.preventDefault(); 
-              e.stopPropagation(); 
-              console.log('-> Comando de fechar modal disparado (Backdrop)');
-              setShowTitlePicker(false); 
-            }}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-            }}
-            onMouseDown={(e) => {
-              e.stopPropagation();
-            }}
-            onTouchStart={(e) => e.stopPropagation()}
+            className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn cursor-default" 
+            onClick={() => setShowTitlePicker(false)}
           >
             <div 
-              className="w-full max-w-[400px] bg-[#0f172a] rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col animate-bounceIn overflow-hidden pointer-events-auto" 
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-              onPointerDown={(e) => e.stopPropagation()}
-              onMouseDown={(e) => e.stopPropagation()}
-              onTouchStart={(e) => e.stopPropagation()}
+              className="w-full max-w-[400px] bg-[#0f172a] rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col animate-bounceIn overflow-hidden" 
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="bg-slate-800/50 px-6 py-5 flex items-center justify-between border-b border-white/5">
                 <h3 className="text-white text-xl font-black uppercase italic">Seus Titulos</h3>
@@ -511,14 +481,10 @@ export const TrainerCard = ({
                     <button
                       type="button"
                       key={title.id}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log('-> Abrindo prévia para:', title.id);
+                      onClick={() => {
+                        console.log('-> Clique detectado no título:', title.label);
                         if (canEditTitle) setPendingTitle(title);
                       }}
-                      onPointerDown={(e) => e.stopPropagation()}
-                      onMouseDown={(e) => e.stopPropagation()}
                       className={`w-full p-4 rounded-3xl border-2 transition-all flex items-center gap-4 text-left ${isSelected ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'border-white/5 bg-white/5 hover:border-white/10'}`}
                     >
                       <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border" style={{ background: title.bg, borderColor: title.color }}>

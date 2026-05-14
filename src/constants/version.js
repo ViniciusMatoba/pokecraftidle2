@@ -1,7 +1,11 @@
-export const APP_VERSION = '1.83.3';
-export const VERSION = '1.83.3';
-export const APP_VERSION_DATE = '14/05/2026 08:39';
+export const APP_VERSION = '1.83.4';
+export const VERSION = '1.83.4';
+export const APP_VERSION_DATE = '14/05/2026 08:44';
 export const CHANGELOG = [
+  '## [V1.83.4] - 14/05/2026 08:44',
+  '### Corrigido',
+  '- **Simplified Event Isolation**: Removido bloqueio agressivo de propagação e "Escudo Atômico" para restaurar a interatividade natural dos botões.',
+  '- **Pointer-Events Strategy**: Migrada toda a lógica de bloqueio de fundo para `pointer-events` via inline style na `CityScreen`.',
   '## [V1.83.3] - 14/05/2026 08:39',
   '### Adicionado',
   '- **Title Selection Preview**: Adicionado modal de confirmação com prévia visual antes de aplicar um novo título.',

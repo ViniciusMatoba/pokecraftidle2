@@ -215,7 +215,7 @@ const CityScreen = ({
         />
         
         {/* Camada de Bloqueio Físico - Desativa interações com o fundo se um modal estiver aberto */}
-        <div className={isAnyModalOpen ? 'pointer-events-none' : ''}>
+        <div style={{ pointerEvents: isAnyModalOpen ? 'none' : 'auto' }}>
         
         {(gameState.worldFlags || []).includes('quest_capture_active') && (
           <button 

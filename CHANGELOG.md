@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [v1.83.4] - 14/05/2026 08:44
+### Corrigido
+- **Isolamento de Eventos Simplificado**: Removidas camadas de bloqueio agressivas (divs transparentes e `stopPropagation` em botões) para permitir que o React processe eventos internos normalmente.
+- **Estratégia de Pointer-Events**: A interatividade com a cidade ao fundo agora é controlada exclusivamente via `pointer-events: none` dinâmico no container da `CityScreen`.
+- **Logs de Diagnóstico**: Adicionado log de clique para confirmar a restauração da interatividade dos botões de título.
+
 ## [v1.83.3] - 14/05/2026 08:39
 ### Adicionado
 - **Modal de Confirmação de Título**: Introduzido um fluxo de dois passos para a troca de títulos, exibindo uma prévia visual do badge antes da aplicação definitiva.
