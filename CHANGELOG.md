@@ -1,5 +1,14 @@
 # Changelog - PokeCraft
 
+## [v1.88.0] - 14/05/2026 18:48
+### Adicionado
+- **Raid — Opções na Fase de Captura**: botões "Continuar e tentar derrotar" (volta à fase de luta) e "Sair sem capturar" (encerra a raid sem captura) agora disponíveis na tela de Raid.
+- **Clima por Golpe**: Sunny Day, Rain Dance, Sandstorm e Hail ativam o clima correspondente por 5 turnos; ao fim, o clima volta ao natural da rota.
+### Corrigido
+- **Banner de Raid (Mobile)**: notificação de Raid reestruturada em bloco — título não é mais cortado, botão OK virou faixa larga (44px) para facilitar toque no celular.
+### Alterado
+- **Sistema de Clima**: rotas comuns não geram mais clima aleatório; apenas biomas especiais mantêm clima fixo (Deserto → Sandstorm, Neve/Gelo → Hail).
+
 ## [v1.87.0] - 14/05/2026 18:27
 ### Adicionado
 - **Safari Zone Interativa**: nova tela dedicada com captura sem batalha, Safari Balls por sessao e Pokemon exclusivos.

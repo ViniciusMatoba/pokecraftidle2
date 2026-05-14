@@ -14,7 +14,7 @@ import { MOVES } from './data/moves';
 import { MOVE_TRANSLATIONS } from './data/translations';
 import { POKEDEX } from './data/pokedex';
 import { VILLAIN_TEAMS } from './data/villains';
-import { WEATHER_TYPE_MULT, WEATHER_PASSIVE_DAMAGE, WEATHER_IMMUNE_TYPES, generateWeatherForRoute } from './data/weather';
+import { WEATHER_TYPE_MULT, WEATHER_PASSIVE_DAMAGE, WEATHER_IMMUNE_TYPES, generateWeatherForRoute, getWeatherFromMove } from './data/weather';
 import { getCompatibleMegaStones } from './data/megaEvolutions';
 import AuthScreen from './components/AuthScreen';
 import MenuScreen from './components/MenuScreen';
@@ -719,6 +719,7 @@ export default function App() {
   const [currentEnemy, setCurrentEnemy] = useState(null);
   const [floatingTexts, setFloatingTexts] = useState([]);
   const [weather, setWeather] = useState('none');
+  const [weatherTurns, setWeatherTurns] = useState(0);
   const [isHealing, setIsHealing] = useState(false);
   const [activeTab, setActiveTab] = useState('team');
   const [showExpeditions, setShowExpeditions] = useState(false);
@@ -1141,7 +1142,25 @@ export default function App() {
     const route = processedRoutes[gameState.currentRoute];
     const newWeather = generateWeatherForRoute(route);
     setWeather(newWeather);
+    setWeatherTurns(0);
   }, [gameState.currentRoute, processedRoutes]);
+
+  const activateWeatherFromMove = useCallback((move, userName = 'Pokemon') => {
+    const nextWeather = getWeatherFromMove(move);
+    if (!nextWeather) return false;
+
+    const weatherText = {
+      sun: 'Sol intenso',
+      rain: 'Chuva',
+      sandstorm: 'Tempestade de areia',
+      hail: 'Granizo',
+    }[nextWeather] || 'Clima';
+
+    setWeather(nextWeather);
+    setWeatherTurns(5);
+    addLog(`${userName} mudou o clima: ${weatherText}!`, 'system');
+    return true;
+  }, [addLog]);
 
   // ── Intercepta entrada na Safari Zone ────────────────────────────────────
   // Quando o jogador navega para 'battles' em uma rota do tipo 'safari',
@@ -2644,6 +2663,40 @@ export default function App() {
     });
   }, []);
 
+  const handleContinueRaidFight = useCallback(() => {
+    setGameState(prev => {
+      const raid = prev.activeRaid;
+      if (!raid || raid.phase !== 'capture') return prev;
+      const now = Date.now();
+      addLog(`${raid.name} voltou ao combate! Continue nas rotas para finalizar a raid.`, 'system');
+      return {
+        ...prev,
+        activeRaid: {
+          ...raid,
+          phase: 'fighting',
+          fightStartedAt: now,
+          fightEndsAt: now + RAID_FIGHT_SECONDS * 1000,
+        },
+      };
+    });
+    setShowRaidScreen(false);
+  }, [addLog]);
+
+  const handleForfeitRaidCapture = useCallback(() => {
+    setGameState(prev => {
+      const raid = prev.activeRaid;
+      if (!raid || raid.phase !== 'capture') return prev;
+      addLog(`${raid.name} foi liberado sem captura. A raid foi encerrada.`, 'system');
+      showRaidRouteNotice(raid, 'failed');
+      localStorage.setItem(RAID_SPAWN_STORAGE_KEY, String(Date.now() + RAID_SPAWN_INTERVAL_MS));
+      return {
+        ...prev,
+        activeRaid: { ...raid, phase: 'ended', catchAttemptsLeft: 0 },
+      };
+    });
+    setShowRaidScreen(false);
+  }, [addLog, showRaidRouteNotice]);
+
   const handleCatchRoll = useCallback((ballType) => {
     const raid = gameState.activeRaid;
     if (!raid || raid.phase !== 'capture') return false;
@@ -2988,15 +3041,18 @@ export default function App() {
       let updatedEnemyFinal = { ...updatedEnemy };
       let raidDmgToApply = 0;
       let playerDmg = 0;
+      let weatherChangedThisTick = false;
 
       if (move.category === 'Status' || move.power === 0) {
         nextDelay = 600;
         window.dispatchEvent(new CustomEvent('pokemove', {
           detail: { name: move.name, type: move.type, direction: 'player-to-enemy', moveKey: move.moveId || move.key }
         }));
+        const playerWeatherChanged = activateWeatherFromMove(move, myPoke.name);
+        if (playerWeatherChanged) weatherChangedThisTick = true;
         const fx = interpretMoveEffect(move);
 
-        if (fx.noEffect) {
+        if (fx.noEffect && !playerWeatherChanged) {
           addLog(`${myPoke.name} usou ${move.name}... sem efeito aqui.`, 'system');
 
         } else if (fx.ohko) {
@@ -3083,7 +3139,7 @@ export default function App() {
             }
           }
 
-          if (fx.statChanges.length === 0 && !fx.accuracy_change && !fx.statusEffect && !fx.evasion_change) {
+          if (!playerWeatherChanged && fx.statChanges.length === 0 && !fx.accuracy_change && !fx.statusEffect && !fx.evasion_change) {
             addLog(`${myPoke.name} usou ${move.name}!`, 'system');
           }
         }
@@ -3361,6 +3417,8 @@ export default function App() {
               window.dispatchEvent(new CustomEvent('pokemove', {
                 detail: { name: enemyMove.name, type: enemyMove.type, direction: 'enemy-to-player', moveKey: enemyMove.moveId || enemyMove.key }
               }));
+              const enemyWeatherChanged = activateWeatherFromMove(enemyMove, updatedEnemyFinal.name);
+              if (enemyWeatherChanged) weatherChangedThisTick = true;
               const fxE = interpretMoveEffect(enemyMove);
 
               if (fxE.noEffect || fxE.heal) {
@@ -3368,6 +3426,8 @@ export default function App() {
                   const healed = Math.floor((updatedEnemyFinal.maxHp || 30) * 0.5);
                   updatedEnemyFinal.hp = Math.min(updatedEnemyFinal.maxHp, updatedEnemyFinal.hp + healed);
                   addLog(`💚 ${updatedEnemyFinal.name} usou ${enemyMove.name}! Recuperou ${healed} HP!`, 'enemy');
+                } else if (!enemyWeatherChanged) {
+                  addLog(`${updatedEnemyFinal.name} usou ${enemyMove.name}... sem efeito aqui.`, 'enemy');
                 }
               } else if (fxE.ohko) {
                 updatedTeamFinal[activeMemberIndex].hp = 0;
@@ -3466,6 +3526,18 @@ export default function App() {
         }
       }
       // ─────────────────────────────────────────────────────────────────────
+
+      if (weatherTurns > 0 && !weatherChangedThisTick) {
+        setWeatherTurns(prevTurns => {
+          const nextTurns = Math.max(0, prevTurns - 1);
+          if (nextTurns === 0) {
+            const routeWeather = generateWeatherForRoute(processedRoutes[prev.currentRoute]);
+            setWeather(routeWeather);
+            addLog(routeWeather === 'none' ? 'O clima voltou ao normal.' : 'O clima natural da rota voltou.', 'system');
+          }
+          return nextTurns;
+        });
+      }
 
       // Leftovers: recupera 5% HP por turno
       if (focusPoke?.heldItem === 'leftovers' && focusPoke.hp > 0) {
@@ -3618,7 +3690,7 @@ export default function App() {
 
     setMoveIndex(m => m + 1);
     return nextDelay;
-  }, [currentEnemy, activeMemberIndex, moveIndex, calcDamage, addFloat, setCurrentEnemy, gameState.team, gameState.stamina, gameState.settings, isStoryVsEnemy, openStoryBattleResult, processDrops, spawnEnemy, handleGoToCity, showRaidRouteNotice]);
+  }, [currentEnemy, activeMemberIndex, moveIndex, calcDamage, addFloat, setCurrentEnemy, gameState.team, gameState.stamina, gameState.settings, isStoryVsEnemy, openStoryBattleResult, processDrops, spawnEnemy, handleGoToCity, showRaidRouteNotice, weather, weatherTurns, processedRoutes, activateWeatherFromMove]);
 
   useAutoFarm(gameState.team[activeMemberIndex], gameState.currentRoute, handleBattleTick, battleReady);
 
@@ -8815,21 +8887,23 @@ export default function App() {
             className="mx-auto max-w-md rounded-3xl border-2 bg-slate-950/95 p-3 shadow-2xl backdrop-blur-xl"
             style={{ borderColor: `${raidRouteNotice.tone}88`, boxShadow: `0 18px 40px ${raidRouteNotice.tone}33` }}
           >
-            <div className="flex items-center gap-3">
-              <div className="h-14 w-14 shrink-0 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
-                <img
-                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${raidRouteNotice.pokemonId}.png`}
-                  alt={raidRouteNotice.raidName}
-                  className="h-12 w-12 object-contain"
-                  style={{ imageRendering: 'pixelated' }}
-                />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <p className="text-white text-sm font-black uppercase italic tracking-wide truncate">{raidRouteNotice.title}</p>
-                  <span className="text-[10px] font-black text-amber-300 whitespace-nowrap">RAID {raidRouteNotice.stars || 1}</span>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <div className="h-14 w-14 shrink-0 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
+                  <img
+                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${raidRouteNotice.pokemonId}.png`}
+                    alt={raidRouteNotice.raidName}
+                    className="h-12 w-12 object-contain"
+                    style={{ imageRendering: 'pixelated' }}
+                  />
                 </div>
-                <p className="text-slate-300 text-[11px] font-bold leading-snug mt-1">{raidRouteNotice.message}</p>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="min-w-0 text-white text-sm font-black uppercase italic tracking-wide leading-tight">{raidRouteNotice.title}</p>
+                    <span className="rounded-full bg-amber-400/15 px-2 py-1 text-[10px] font-black text-amber-300 whitespace-nowrap">RAID {raidRouteNotice.stars || 1}</span>
+                  </div>
+                  <p className="text-slate-300 text-[11px] font-bold leading-snug mt-1">{raidRouteNotice.message}</p>
+                </div>
               </div>
               <button
                 type="button"
@@ -8839,9 +8913,9 @@ export default function App() {
                     setGameState(prev => ({ ...prev, activeRaid: null }));
                   }
                 }}
-                className="shrink-0 rounded-2xl bg-white px-3 py-2 text-[10px] font-black uppercase text-slate-900 shadow-lg active:scale-95"
+                className="min-h-[44px] w-full rounded-2xl bg-white px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-900 shadow-lg transition-all active:scale-95"
               >
-                Ok
+                OK
               </button>
             </div>
           </div>
@@ -8897,6 +8971,8 @@ export default function App() {
               gameState={gameState}
               onStart={handleStartRaid}
               onDismiss={() => setShowRaidScreen(false)}
+              onContinueFight={handleContinueRaidFight}
+              onForfeitCapture={handleForfeitRaidCapture}
               onCatchAttempt={handleRaidCatchAttempt}
               onCatchRoll={handleCatchRoll}
               onClaimRewards={handleClaimRaidRewards}

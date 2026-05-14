@@ -32,23 +32,28 @@ export const WEATHER_IMMUNE_TYPES = {
   hail:      ['Ice'],
 };
 
-// Biomas com clima fixo
+// Biomas com clima fixo. Rotas comuns ficam neutras; clima de batalha vem de golpes.
 export const BIOME_WEATHER = {
   desert: 'sandstorm',
   snow:   'hail',
   ice:    'hail',
-  beach:  'rain',
-  ocean:  'rain',
 };
 
-// Pool ponderado: none aparece mais (clima normal é mais frequente)
-export const RANDOM_WEATHER_POOL = [
-  'none', 'none', 'none', 'none',
-  'sun', 'rain', 'sandstorm', 'hail',
-];
+export const WEATHER_MOVE_MAP = {
+  'sunny-day': 'sun',
+  'rain-dance': 'rain',
+  sandstorm: 'sandstorm',
+  hail: 'hail',
+  'shadow-sky': 'hail',
+};
 
-// Chance de gerar clima aleatório em biomas sem clima fixo
-export const RANDOM_WEATHER_CHANCE = 0.20;
+export const getWeatherFromMove = (move) => {
+  const moveKey = String(move?.moveId || move?.key || move?.name || '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-');
+  return WEATHER_MOVE_MAP[moveKey] || null;
+};
 
 /**
  * Determina o clima para uma rota.
@@ -57,16 +62,8 @@ export const RANDOM_WEATHER_CHANCE = 0.20;
  */
 export const generateWeatherForRoute = (route) => {
   if (!route) return 'none';
-  // Clima fixo por bioma
   if (route.biome && BIOME_WEATHER[route.biome]) {
     return BIOME_WEATHER[route.biome];
-  }
-  // Sem clima em cidades/gyms/boss
-  if (route.type === 'city' || route.type === 'gym') return 'none';
-  // Clima aleatório com 20% de chance
-  if (Math.random() < RANDOM_WEATHER_CHANCE) {
-    const pool = RANDOM_WEATHER_POOL.filter(w => w !== 'none');
-    return pool[Math.floor(Math.random() * pool.length)];
   }
   return 'none';
 };

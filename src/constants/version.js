@@ -1,7 +1,15 @@
-export const APP_VERSION = '1.87.0';
-export const VERSION = '1.87.0';
-export const APP_VERSION_DATE = '14/05/2026 18:27';
+export const APP_VERSION = '1.88.0';
+export const VERSION = '1.88.0';
+export const APP_VERSION_DATE = '14/05/2026 18:48';
 export const CHANGELOG = [
+  '## [V1.88.0] - 14/05/2026 18:48',
+  '### Adicionado',
+  '- **Raid — Opções na Fase de Captura**: botões "Continuar e tentar derrotar" (volta à fase de luta) e "Sair sem capturar" (encerra a raid sem captura) agora disponíveis na tela de Raid.',
+  '- **Clima por Golpe**: Sunny Day, Rain Dance, Sandstorm e Hail ativam o clima correspondente por 5 turnos; ao fim, o clima volta ao natural da rota.',
+  '### Corrigido',
+  '- **Banner de Raid (Mobile)**: notificação de Raid restruturada em bloco — título não é mais cortado, botão OK virou faixa larga (44px) para facilitar toque no celular.',
+  '### Alterado',
+  '- **Sistema de Clima**: rotas comuns não geram mais clima aleatório; apenas biomas especiais mantêm clima fixo (Deserto → Sandstorm, Neve/Gelo → Hail).',
   '## [V1.87.0] - 14/05/2026 18:27',
   '### Adicionado',
   '- **Safari Zone Interativa**: Nova tela dedicada com captura sem batalha, 30 Safari Balls por sessão, Pokémon exclusivos (Exeggcute, Lickitung, Chansey, Tangela, Kangaskhan, Scyther, Pinsir, Tauros).',

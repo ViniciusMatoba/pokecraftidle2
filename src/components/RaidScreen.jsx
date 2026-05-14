@@ -63,7 +63,7 @@ const formatTime = (ms) => {
 };
 
 const RaidScreen = ({
-  raid, gameState, onStart, onDismiss, onCatchAttempt, onCatchRoll, onClaimRewards, POKEDEX,
+  raid, gameState, onStart, onDismiss, onContinueFight, onForfeitCapture, onCatchAttempt, onCatchRoll, onClaimRewards, POKEDEX,
 }) => {
   const [now, setNow] = useState(Date.now());
 
@@ -409,6 +409,17 @@ const RaidScreen = ({
           {/* ── CAPTURE ── */}
           {raid.phase === 'capture' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.82)',
+                border: '1px solid rgba(148, 163, 184, 0.22)',
+                borderRadius: 18,
+                padding: 14,
+                textAlign: 'center',
+              }}>
+                <p style={{ color: '#e2e8f0', fontSize: 11, fontWeight: 800, lineHeight: 1.35, margin: 0 }}>
+                  Tente capturar agora, continue lutando para derrotar a raid ou saia sem capturar.
+                </p>
+              </div>
               <div style={{ textAlign: 'center', marginBottom: 5 }}>
                 <p style={{ color: '#22c55e', fontWeight: 900, fontSize: 13, textTransform: 'uppercase', margin: 0 }}>
                    Tentativas: {raid.catchAttemptsLeft}
@@ -434,6 +445,50 @@ const RaidScreen = ({
                   <span style={{ marginLeft: 'auto', fontSize: 11, opacity: 0.7 }}>x{ball.count}</span>
                 </button>
               ))}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10, marginTop: 6 }}>
+                <button
+                  type="button"
+                  disabled={catchAnim.active}
+                  onClick={onContinueFight}
+                  style={{
+                    width: '100%',
+                    minHeight: 52,
+                    borderRadius: 18,
+                    border: `2px solid ${starColor}66`,
+                    background: `linear-gradient(135deg, ${starColor}33, rgba(15,23,42,0.92))`,
+                    color: '#fff',
+                    fontWeight: 900,
+                    fontSize: 12,
+                    textTransform: 'uppercase',
+                    letterSpacing: 1,
+                    cursor: catchAnim.active ? 'not-allowed' : 'pointer',
+                    opacity: catchAnim.active ? 0.45 : 1,
+                  }}
+                >
+                  Continuar e tentar derrotar
+                </button>
+                <button
+                  type="button"
+                  disabled={catchAnim.active}
+                  onClick={onForfeitCapture}
+                  style={{
+                    width: '100%',
+                    minHeight: 48,
+                    borderRadius: 18,
+                    border: '1px solid rgba(248, 113, 113, 0.35)',
+                    background: 'rgba(127, 29, 29, 0.72)',
+                    color: '#fecaca',
+                    fontWeight: 900,
+                    fontSize: 11,
+                    textTransform: 'uppercase',
+                    letterSpacing: 1,
+                    cursor: catchAnim.active ? 'not-allowed' : 'pointer',
+                    opacity: catchAnim.active ? 0.45 : 1,
+                  }}
+                >
+                  Sair sem capturar
+                </button>
+              </div>
             </div>
           )}
 
