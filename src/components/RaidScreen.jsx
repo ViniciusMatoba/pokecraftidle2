@@ -53,7 +53,7 @@ const REWARD_ICONS = {
   exp_candy_xl: `${POKEAPI_ITEMS}rare-candy.png`, // ✅ placeholder
 
   // ── Moeda ─────────────────────────────────────────────────────────────────
-  currency: `${POKEAPI_ITEMS}relic-gold-coin.png`,
+  currency: `${POKEAPI_ITEMS}nugget.png`,
 };
 
 const formatTime = (ms) => {

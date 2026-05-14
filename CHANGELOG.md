@@ -1,11 +1,10 @@
 # Changelog - PokeCraft
 
-## [v1.85.2] - 14/05/2026 15:20
-### Balanceamento
-- **Raids**: Padronizado para 5 tentativas de captura em todas as estrelas (anteriormente variava de 1 a 10).
-- **Dificuldade de Captura**: A dificuldade agora é controlada pela probabilidade por arremesso, escalando de 1.5x (fácil) em 1★ até 0.15x (extremamente difícil) em 5★.
+## [v1.85.3] - 14/05/2026 15:32
+### Corrigido
+- **Ícone de Recompensa de Raid**: Corrigido ícone de moedas (`currency`) que estava quebrado, utilizando agora o sprite oficial de `nugget` da PokeAPI.
 
-## [v1.85.1] - 14/05/2026 11:08
+## [v1.85.2] - 14/05/2026 15:20
 ### Corrigido
 - **Hotfix de Inicialização**: Corrigido `ReferenceError` causado pela remoção acidental de `EXP_CANDIES` em `raids.js`.
 - **Arquitetura de Dados**: `REGION_ORDER` agora é importado centralmente, evitando duplicação e conflitos de carregamento.

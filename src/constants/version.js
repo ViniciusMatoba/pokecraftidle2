@@ -1,7 +1,10 @@
-export const APP_VERSION = '1.85.2';
-export const VERSION = '1.85.2';
-export const APP_VERSION_DATE = '14/05/2026 15:20';
+export const APP_VERSION = '1.85.3';
+export const VERSION = '1.85.3';
+export const APP_VERSION_DATE = '14/05/2026 15:32';
 export const CHANGELOG = [
+  '## [V1.85.3] - 14/05/2026 15:32',
+  '### Corrigido',
+  '- **Fix de Ícone de Recompensa**: Ícone de moeda nas recompensas de Raid corrigido (relic-gold-coin → nugget).',
   '## [V1.85.2] - 14/05/2026 15:20',
   '### Balanceamento',
   '- **Raids**: Padronizado para 5 tentativas de captura em todas as estrelas.',
