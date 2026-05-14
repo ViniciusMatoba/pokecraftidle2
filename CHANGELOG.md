@@ -1,9 +1,16 @@
 # Changelog - PokeCraft
  
-## [V1.83.0] - 14/05/2026 06:42
+## [V1.82.5] - 14/05/2026 06:56
+### Adicionado
+- **Animação de Captura (Raids)**: Implementação de sistema visual completo com lançamento de pokébola, absorção do pokémon, tremores de captura e efeitos de resultado (CSS Keyframes).
 ### Corrigido
-- **Blindagem de UI (Global)**: Interceptação robusta de eventos em todos os modais (Trainer Card, Cidade, Oak, Forja, etc.) para evitar cliques indesejados no fundo (UI Leakage).
-- **Consistência de Interface**: Reforço de dimensões de overlay e bloqueio de propagação em múltiplos eventos de ponteiro (Pointer Events).
+- **Sincronização de Captura**: Cálculo de sucesso pré-computado para garantir que o resultado visual da animação corresponda exatamente ao commit no estado do jogo.
+ 
+## [V1.82.4] - 14/05/2026 06:47
+### Corrigido
+- **Refatoração da Forja (handleCraft)**: Lógica de estado isolada de side-effects (addLog), garantindo transições de estado puras e maior estabilidade.
+- **Blindagem de UI (Global)**: Interceptação robusta de eventos em todos os modais para evitar cliques vazados (UI Leakage).
+- **Labels da Forja**: Categorias atualizadas com novos ícones e descrições na Crafting Station.
 
 ## [V1.82.3] - 13/05/2026 22:49
 ### Adicionado

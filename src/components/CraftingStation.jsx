@@ -5,12 +5,17 @@ const assetPath = (path) => `${(import.meta.env.BASE_URL || '/').replace(/\/$/, 
 
 // Labels amigáveis para as categorias
 const CATEGORY_LABELS = {
-  consumables:  { label: 'Consumíveis', img: `${POKEAPI}potion.png`,           caption: 'Poções/Bolas' },
-  hold_items:   { label: 'Hold Items',  img: `${POKEAPI}charcoal.png`,         caption: 'Equipamentos' },
-  elite_relics: { label: 'Relíquias',   img: `${POKEAPI}dragon-fang.png`,      caption: 'Boss Drops'   },
-  tms:          { label: 'TMs',         img: assetPath('/items/tm_fire.png'),  caption: 'Golpes'       },
-  mega_stones:  { label: 'Mega Stones', img: assetPath('/items/mega_stone_shard.png'),   caption: 'Mega Evol.'  },
-  fishing_rods: { label: 'Varas',       img: `${POKEAPI}old-rod.png`,          caption: 'Pesca'        },
+  consumables:    { label: 'Consumíveis',  img: `${POKEAPI}potion.png`,                    caption: 'Pokébolas/Pedras' },
+  hold_items:     { label: 'Hold Items',   img: `${POKEAPI}charcoal.png`,                   caption: 'Equipamentos'     },
+  elite_relics:   { label: 'Relíquias',    img: `${POKEAPI}dragon-fang.png`,                caption: 'Boss Drops'       },
+  tms:            { label: 'TMs',          img: assetPath('/items/tm_fire.png'),            caption: 'Golpes'           },
+  mega_stones:    { label: 'Mega Stones',  img: assetPath('/items/mega_stone_shard.png'),   caption: 'Mega Evol.'       },
+  fishing_rods:   { label: 'Varas',        img: `${POKEAPI}old-rod.png`,                    caption: 'Pesca'            },
+  repels:         { label: 'Repéis',       img: `${POKEAPI}repel.png`,                      caption: 'Afastadores'      },
+  incenses:       { label: 'Iscas',        img: `${POKEAPI}honey.png`,                      caption: 'Atrativo'         },
+  food:           { label: 'Ração',        img: `${POKEAPI}oran-berry.png`,                 caption: 'Energia'          },
+  apricorn_balls: { label: 'Bolas Kurt',   img: `${POKEAPI}lure-ball.png`,                  caption: 'Apricorn'         },
+  trainer_card:   { label: 'Cartão',       img: `${POKEAPI}master-ball.png`,                caption: 'Personalização'   },
 };
 
 const CraftingStation = ({

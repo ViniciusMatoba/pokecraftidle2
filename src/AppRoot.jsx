@@ -2558,14 +2558,22 @@ export default function App() {
     });
   }, []);
 
-  const handleRaidCatchAttempt = useCallback((ballType = 'poke_ball') => {
+  const handleCatchRoll = useCallback((ballType) => {
+    const raid = gameState.activeRaid;
+    if (!raid || raid.phase !== 'capture') return false;
+    const baseRate = RAID_CATCH_RATE_MULT[raid.stars] || 0.1;
+    const ballMult = ballType === 'ultra_ball' ? 2.0 : ballType === 'great_ball' ? 1.5 : 1.0;
+    return Math.random() < (baseRate * ballMult);
+  }, [gameState.activeRaid]);
+
+  const handleRaidCatchAttempt = useCallback((ballType = 'poke_ball', forceCaught = null) => {
     setGameState(prev => {
       const raid = prev.activeRaid;
       if (!raid || raid.phase !== 'capture') return prev;
       const attemptsLeft = (raid.catchAttemptsLeft || 1) - 1;
       const baseRate = RAID_CATCH_RATE_MULT[raid.stars] || 0.1;
       const ballMult = ballType === 'ultra_ball' ? 2.0 : ballType === 'great_ball' ? 1.5 : 1.0;
-      const caught = Math.random() < (baseRate * ballMult);
+      const caught = (forceCaught !== null) ? forceCaught : Math.random() < (baseRate * ballMult);
 
       // Consome a pokebola usada
       const ballKey = ballType === 'ultra_ball' ? 'ultra_ball' : ballType === 'great_ball' ? 'great_ball' : 'pokeballs';
@@ -3931,34 +3939,41 @@ export default function App() {
       cancelLabel: 'Cancelar',
       onConfirm: () => {
         closeConfirm();
+
+        // Guarda o resultado da verificação FORA do setGameState
+        let resultLog = null;
+
         setGameState(prev => {
+          // Guarda defensiva — evita crash se inventory estiver malformado
+          const materials = prev.inventory?.materials || {};
+          const items     = prev.inventory?.items     || {};
+
           // 1. Verificar Moedas
           if (prev.currency < currencyCost) {
-            addLog("Saldo insuficiente para a forja!", 'system');
+            resultLog = { msg: "Saldo insuficiente para a forja!", type: 'system' };
             return prev;
           }
 
-          // 2. Verificar se tem todos os materiais
-          const hasMaterials = Object.entries(materialCost).every(([material, amount]) => {
-            return (prev.inventory.materials[material] || 0) >= amount;
-          });
-
+          // 2. Verificar Materiais
+          const hasMaterials = Object.entries(materialCost).every(
+            ([material, amount]) => (materials[material] || 0) >= amount
+          );
           if (!hasMaterials) {
-            addLog("Materiais insuficientes para a forja!", 'system');
+            resultLog = { msg: "Materiais insuficientes para a forja!", type: 'system' };
             return prev;
           }
 
-          // 3. Deduzir os custos
-          const newMaterials = { ...prev.inventory.materials };
+          // 3. Deduzir custos (puro — sem side effects)
+          const newMaterials = { ...materials };
           Object.entries(materialCost).forEach(([material, amount]) => {
             newMaterials[material] -= amount;
           });
 
-          // 4. Adicionar o item ao inventário e atualizar contador de forja
-          const newItems = { ...prev.inventory.items };
+          // 4. Adicionar item ao inventário
+          const newItems = { ...items };
           newItems[recipe.id] = (newItems[recipe.id] || 0) + qty;
 
-          addLog(`✨ Você fabricou: ${qty}x ${recipe.name}!`, 'drop');
+          resultLog = { msg: `✨ Você fabricou: ${qty}x ${recipe.name}!`, type: 'drop' };
 
           return {
             ...prev,
@@ -3967,12 +3982,15 @@ export default function App() {
             inventory: {
               ...prev.inventory,
               materials: newMaterials,
-              items: newItems
-            }
+              items: newItems,
+            },
           };
         });
+
+        // addLog chamado FORA do setGameState — nenhum side effect aninhado
+        if (resultLog) addLog(resultLog.msg, resultLog.type);
       },
-      onCancel: closeConfirm
+      onCancel: closeConfirm,
     });
   };
 
@@ -8716,6 +8734,7 @@ export default function App() {
               onStart={handleStartRaid}
               onDismiss={() => setShowRaidScreen(false)}
               onCatchAttempt={handleRaidCatchAttempt}
+              onCatchRoll={handleCatchRoll}
               onClaimRewards={handleClaimRaidRewards}
               POKEDEX={POKEDEX}
             />

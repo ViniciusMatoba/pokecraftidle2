@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const STAR_COLOR = {
   1: '#94a3b8',
@@ -54,13 +54,7 @@ const formatTime = (ms) => {
 };
 
 const RaidScreen = ({
-  raid,
-  gameState,
-  onStart,
-  onDismiss,
-  onCatchAttempt,
-  onClaimRewards,
-  POKEDEX,
+  raid, gameState, onStart, onDismiss, onCatchAttempt, onCatchRoll, onClaimRewards, POKEDEX,
 }) => {
   const [now, setNow] = useState(Date.now());
 
@@ -68,6 +62,15 @@ const RaidScreen = ({
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
+
+  const [catchAnim, setCatchAnim] = useState({
+    active: false,   // animação em progresso?
+    phase: null,     // 'throwing' | 'absorbing' | 'shaking' | 'result'
+    caught: false,   // resultado pré-computado
+    ballImg: null,   // URL da sprite da bola usada
+    ballId: null,    // 'pokeballs' | 'great_ball' | 'ultra_ball'
+    shakes: 0,       // contador de tremidas (0-3)
+  });
 
   if (!raid) return null;
 
@@ -86,6 +89,44 @@ const RaidScreen = ({
       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png' },
   ];
 
+  const handleBallClick = useCallback((ball) => {
+    if (catchAnim.active) return;           // bloqueia clique durante animação
+    if (ball.count <= 0) return;
+    if (raid.catchAttemptsLeft <= 0) return;
+
+    // Pré-computa resultado ANTES da animação iniciar
+    const caught = onCatchRoll(ball.id);
+
+    setCatchAnim({ active: true, phase: 'throwing', caught, ballImg: ball.img, ballId: ball.id, shakes: 0 });
+
+    // --- Timeline da animação ---
+    // Fase 1: lançamento (0 → 500ms)
+    // Fase 2: absorção (500 → 900ms)
+    setTimeout(() => setCatchAnim(a => ({ ...a, phase: 'absorbing' })), 500);
+
+    // Fase 3: tremida 1 (900ms)
+    setTimeout(() => setCatchAnim(a => ({ ...a, phase: 'shaking', shakes: 1 })), 900);
+
+    // Fase 4: tremida 2 (1300ms)
+    setTimeout(() => setCatchAnim(a => ({ ...a, phase: 'shaking', shakes: 2 })), 1300);
+
+    // Fase 5: tremida 3 — apenas se capturou (1700ms)
+    if (caught) {
+      setTimeout(() => setCatchAnim(a => ({ ...a, phase: 'shaking', shakes: 3 })), 1700);
+    }
+
+    // Fase 6: resultado (2100ms se capturou com 3 tremidas | 1700ms se falhou)
+    const resultDelay = caught ? 2100 : 1700;
+    setTimeout(() => setCatchAnim(a => ({ ...a, phase: 'result' })), resultDelay);
+
+    // Fase 7: commit no gameState após mostrar resultado
+    const commitDelay = resultDelay + 900;
+    setTimeout(() => {
+      onCatchAttempt(ball.id, caught);  // passa resultado pré-computado
+      setCatchAnim({ active: false, phase: null, caught: false, ballImg: null, ballId: null, shakes: 0 });
+    }, commitDelay);
+  }, [catchAnim.active, raid, onCatchRoll, onCatchAttempt]);
+
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 9990,
@@ -93,6 +134,57 @@ const RaidScreen = ({
       padding: 16, background: `rgba(2,6,23,0.85) url('${import.meta.env.BASE_URL}raid_bg.png') center/cover no-repeat`,
       backdropFilter: 'blur(20px)',
     }}>
+      <style>{`
+        @keyframes ball-throw {
+          0%   { transform: translateY(0px) scale(0.7); opacity: 0.6; }
+          60%  { transform: translateY(-170px) scale(1.15); opacity: 1; }
+          100% { transform: translateY(-160px) scale(1); opacity: 1; }
+        }
+        @keyframes ball-shake-1 {
+          0%, 100% { transform: translateY(-160px) rotate(0deg); }
+          25%       { transform: translateY(-160px) rotate(-18deg); }
+          75%       { transform: translateY(-160px) rotate(18deg); }
+        }
+        @keyframes ball-shake-2 {
+          0%, 100% { transform: translateY(-160px) rotate(0deg); }
+          25%       { transform: translateY(-160px) rotate(-12deg); }
+          75%       { transform: translateY(-160px) rotate(12deg); }
+        }
+        @keyframes ball-shake-3 {
+          0%, 100% { transform: translateY(-160px) rotate(0deg); }
+          25%       { transform: translateY(-160px) rotate(-8deg); }
+          75%       { transform: translateY(-160px) rotate(8deg); }
+        }
+        @keyframes ball-caught-glow {
+          0%, 100% { filter: drop-shadow(0 0 6px #fbbf24); transform: translateY(-160px) scale(1); }
+          50%       { filter: drop-shadow(0 0 25px #fbbf24) brightness(1.4); transform: translateY(-160px) scale(1.15); }
+        }
+        @keyframes ball-escape-pop {
+          0%   { transform: translateY(-160px) scale(1); opacity: 1; }
+          40%  { transform: translateY(-160px) scale(1.4); opacity: 0.8; }
+          100% { transform: translateY(-180px) scale(0.3); opacity: 0; }
+        }
+        @keyframes pokemon-absorb {
+          0%   { opacity: 1; transform: scale(1); filter: brightness(1); }
+          30%  { opacity: 0.8; transform: scale(0.9); filter: brightness(3); }
+          70%  { opacity: 0.2; transform: scale(0.4); filter: brightness(5); }
+          100% { opacity: 0; transform: scale(0.1); filter: brightness(10); }
+        }
+        @keyframes pokemon-reappear {
+          0%   { opacity: 0; transform: scale(0.1); filter: brightness(5); }
+          60%  { opacity: 0.8; transform: scale(1.05); filter: brightness(1.5); }
+          100% { opacity: 1; transform: scale(1); filter: brightness(1); }
+        }
+        @keyframes result-text-in {
+          0%   { opacity: 0; transform: scale(0.5) translateY(10px); }
+          100% { opacity: 1; transform: scale(1) translateY(0px); }
+        }
+        @keyframes stars-burst {
+          0%   { opacity: 1; transform: scale(0); }
+          60%  { opacity: 1; transform: scale(1.4); }
+          100% { opacity: 0; transform: scale(1.8); }
+        }
+      `}</style>
       {/* Brilho de fundo colorido pela estrela */}
       <div style={{
         position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -100,6 +192,65 @@ const RaidScreen = ({
       }} />
 
       <div style={{ maxWidth: 420, width: '100%', position: 'relative', zIndex: 10, maxHeight: '95vh', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        
+        {/* ── OVERLAY DE ANIMAÇÃO ── */}
+        {catchAnim.active && (
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 50,
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            pointerEvents: 'none',
+          }}>
+            {/* Pokébola animada */}
+            {catchAnim.ballImg && (
+              <img
+                src={catchAnim.ballImg}
+                alt=""
+                style={{
+                  width: 52, height: 52,
+                  position: 'absolute',
+                  bottom: '38%',
+                  imageRendering: 'pixelated',
+                  animation:
+                    catchAnim.phase === 'throwing'  ? 'ball-throw 0.5s cubic-bezier(0.2,0.8,0.4,1) forwards' :
+                    catchAnim.phase === 'absorbing' ? 'none' :
+                    catchAnim.phase === 'shaking' && catchAnim.shakes === 1 ? 'ball-shake-1 0.4s ease-in-out' :
+                    catchAnim.phase === 'shaking' && catchAnim.shakes === 2 ? 'ball-shake-2 0.4s ease-in-out' :
+                    catchAnim.phase === 'shaking' && catchAnim.shakes === 3 ? 'ball-shake-3 0.4s ease-in-out' :
+                    catchAnim.phase === 'result' && catchAnim.caught  ? 'ball-caught-glow 0.6s ease-in-out infinite' :
+                    catchAnim.phase === 'result' && !catchAnim.caught ? 'ball-escape-pop 0.5s ease-in forwards' :
+                    'none',
+                  transform: (catchAnim.phase !== 'throwing') ? 'translateY(-160px)' : undefined,
+                }}
+              />
+            )}
+
+            {/* Texto de resultado */}
+            {catchAnim.phase === 'result' && (
+              <div style={{
+                position: 'absolute', bottom: '18%',
+                animation: 'result-text-in 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards',
+                textAlign: 'center',
+              }}>
+                {catchAnim.caught ? (
+                  <>
+                    <p style={{ color: '#4ade80', fontWeight: 900, fontSize: 22, textTransform: 'uppercase',
+                      textShadow: '0 0 20px #4ade8066', margin: 0 }}>
+                      ✨ Capturado!
+                    </p>
+                    <div style={{ animation: 'stars-burst 0.6s ease-out 0.2s forwards', opacity: 0,
+                      fontSize: 28, marginTop: 4 }}>⭐</div>
+                  </>
+                ) : (
+                  <p style={{ color: '#f87171', fontWeight: 900, fontSize: 20, textTransform: 'uppercase',
+                    textShadow: '0 0 15px #f8717166', margin: 0 }}>
+                    💨 Escapou!
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
         
         {/* ── NOVO CABEÇALHO (TOPO) ── */}
         <div style={{
@@ -142,10 +293,18 @@ const RaidScreen = ({
             src={pokemonSprite}
             style={{
               width: 160, height: 160, objectFit: 'contain',
-              filter: raid.isShiny ? 'drop-shadow(0 0 15px #fbbf24)' : `drop-shadow(0 0 10px ${starColor}66)`,
               imageRendering: 'pixelated',
               position: 'relative', zIndex: 2,
-              animation: 'float 3s infinite ease-in-out'
+              // Controle de animação por fase:
+              animation:
+                catchAnim.phase === 'absorbing' ? 'pokemon-absorb 0.4s ease-in forwards' :
+                catchAnim.phase === 'result' && !catchAnim.caught ? 'pokemon-reappear 0.5s ease-out forwards' :
+                (catchAnim.phase === 'shaking' || (catchAnim.phase === 'result' && catchAnim.caught)) ? 'none' :
+                'float 3s infinite ease-in-out',
+              opacity:
+                (catchAnim.phase === 'shaking' || (catchAnim.phase === 'result' && catchAnim.caught)) ? 0 : 1,
+              filter: raid.isShiny ? 'drop-shadow(0 0 15px #fbbf24)' : `drop-shadow(0 0 10px ${starColor}66)`,
+              transition: 'opacity 0.1s',
             }}
             alt={raid.name}
           />
@@ -247,8 +406,8 @@ const RaidScreen = ({
               {balls.map(ball => (
                 <button
                   key={ball.id}
-                  disabled={ball.count === 0 || raid.catchAttemptsLeft === 0}
-                  onClick={() => onCatchAttempt(ball.id)}
+                  disabled={ball.count === 0 || raid.catchAttemptsLeft === 0 || catchAnim.active}
+                  onClick={() => handleBallClick(ball)}
                   style={{
                     padding: '12px 16px', borderRadius: 16,
                     background: ball.count > 0 ? 'rgba(30, 41, 59, 0.8)' : 'rgba(15, 23, 42, 0.4)',

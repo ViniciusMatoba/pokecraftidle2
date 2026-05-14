@@ -1,5 +1,5 @@
 {
-  "version": "1.83.0",
-  "date": "14/05/2026 06:42",
-  "notes": "Blindagem global de UI contra cliques vazados em modais (Trainer Card, Oak, Forja, etc)."
+  "version": "1.82.5",
+  "date": "14/05/2026 06:56",
+  "notes": "Sistema de animacao de captura em Raids (CSS puro) e sincronizacao deterministica de resultados."
 }
