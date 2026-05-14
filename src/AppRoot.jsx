@@ -14,6 +14,7 @@ import { MOVES } from './data/moves';
 import { MOVE_TRANSLATIONS } from './data/translations';
 import { POKEDEX } from './data/pokedex';
 import { VILLAIN_TEAMS } from './data/villains';
+import { WEATHER_TYPE_MULT, WEATHER_PASSIVE_DAMAGE, WEATHER_IMMUNE_TYPES, generateWeatherForRoute } from './data/weather';
 import AuthScreen from './components/AuthScreen';
 import MenuScreen from './components/MenuScreen';
 import TravelScreen from './components/TravelScreen';
@@ -710,7 +711,7 @@ export default function App() {
   const [battleLog, setBattleLog] = useState([]);
   const [currentEnemy, setCurrentEnemy] = useState(null);
   const [floatingTexts, setFloatingTexts] = useState([]);
-  const [weather, setWeather] = useState('clear');
+  const [weather, setWeather] = useState('none');
   const [isHealing, setIsHealing] = useState(false);
   const [activeTab, setActiveTab] = useState('team');
   const [showExpeditions, setShowExpeditions] = useState(false);
@@ -1127,6 +1128,13 @@ export default function App() {
     });
   }, [gameState.currentRoute, gameState.team, processedRoutes]);
 
+
+  // ── Gera clima ao mudar de rota ───────────────────────────────────────────
+  useEffect(() => {
+    const route = processedRoutes[gameState.currentRoute];
+    const newWeather = generateWeatherForRoute(route);
+    setWeather(newWeather);
+  }, [gameState.currentRoute, processedRoutes]);
 
   // 🛡️ PROTECTED: handleSafeNavigation — Gerenciamento centralizado de transições de tela
   const handleSafeNavigation = useCallback((targetView, extraAction = null) => {
@@ -1706,7 +1714,13 @@ export default function App() {
     let base = ((((2 * level) / 5 + 2) * power * (atk / def)) / 50 + 2) * stab * effectiveness;
     if (isNaN(base)) base = 1;
     const roll = 0.85 + Math.random() * 0.15;
-    
+
+    // ── Multiplicador de Clima ────────────────────────────────────────────────
+    const currentWeatherMults = WEATHER_TYPE_MULT[weather] || {};
+    const weatherMult = currentWeatherMults[move.type] || 1.0;
+    base *= weatherMult;
+    // ─────────────────────────────────────────────────────────────────────────
+
     // Efeitos Passivos de Itens de Boss
     if (attacker.isWorldBoss || defender.isWorldBoss) {
       const playerPokemon = attacker.isWorldBoss ? defender : attacker;
@@ -3400,6 +3414,21 @@ export default function App() {
         updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - dot);
         addLog(`☠️ ${myPoke.name} sofreu dano por status!`, 'system');
       }
+
+      // ── Dano Passivo de Clima ─────────────────────────────────────────────
+      const passiveWeatherDmg = WEATHER_PASSIVE_DAMAGE[weather] || 0;
+      if (passiveWeatherDmg > 0 && updatedTeamFinal[activeMemberIndex].hp > 0) {
+        const immuneTypes = WEATHER_IMMUNE_TYPES[weather] || [];
+        const pokeTypes = updatedTeamFinal[activeMemberIndex].types || [updatedTeamFinal[activeMemberIndex].type];
+        const isWeatherImmune = pokeTypes.some(t => immuneTypes.includes(t));
+        if (!isWeatherImmune) {
+          const weatherDot = Math.max(1, Math.floor(updatedTeamFinal[activeMemberIndex].maxHp * passiveWeatherDmg));
+          updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - weatherDot);
+          const weatherEmoji = weather === 'sandstorm' ? '🌪️' : '🌨️';
+          addLog(`${weatherEmoji} ${updatedTeamFinal[activeMemberIndex].name} sofreu dano do clima!`, 'system');
+        }
+      }
+      // ─────────────────────────────────────────────────────────────────────
 
       // Leftovers: recupera 5% HP por turno
       if (focusPoke?.heldItem === 'leftovers' && focusPoke.hp > 0) {

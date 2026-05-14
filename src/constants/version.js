@@ -1,7 +1,15 @@
-export const APP_VERSION = '1.85.3';
-export const VERSION = '1.85.3';
-export const APP_VERSION_DATE = '14/05/2026 15:32';
+export const APP_VERSION = '1.86.0';
+export const VERSION = '1.86.0';
+export const APP_VERSION_DATE = '14/05/2026 16:30';
 export const CHANGELOG = [
+  '## [V1.86.0] - 14/05/2026 16:30',
+  '### Adicionado',
+  '- **Sistema de Clima**: Sol, Chuva, Tempestade de Areia e Granizo gerados automaticamente ao entrar em rotas.',
+  '- **Multiplicadores de Clima**: Fogo +50% no Sol, Água +50% na Chuva, Rock/Ground/Steel +20% na Tempestade de Areia, Gelo +20% no Granizo.',
+  '- **Dano Passivo de Clima**: Sandstorm e Hail causam 1/16 HP por turno (imunes: tipos Rock/Ground/Steel e Ice respectivamente).',
+  '- **Indicador Visual**: Ícone e nome do clima exibidos no campo de batalha.',
+  '- **Biomas com Clima Fixo**: Deserto → Tempestade de Areia, Neve → Granizo, Praia → Chuva.',
+  '- **Receitas Safari Zone**: Safari Ball, Isca Pokémon e Bola de Lama agora craftáveis na Forja.',
   '## [V1.85.3] - 14/05/2026 15:32',
   '### Corrigido',
   '- **Fix de Ícone de Recompensa**: Ícone de moeda nas recompensas de Raid corrigido (relic-gold-coin → nugget).',

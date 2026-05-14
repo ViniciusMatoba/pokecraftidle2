@@ -6,6 +6,7 @@ import ActiveEffectsBar from './ActiveEffectsBar';
 import { MOVES } from '../data/moves';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { TIME_CONFIG } from '../utils/timeSystem';
+import { WEATHER_TYPES } from '../data/weather';
 
 const ShinySparkles = () => (
   <div className="absolute inset-0 pointer-events-none z-30">
@@ -169,7 +170,20 @@ const BattleScreen = ({
         />
 
         {shinyFlash && !showTrainer && <ShinySparkles />}
-        
+
+        {/* ── Indicador de Clima ── */}
+        {weather && weather !== 'none' && WEATHER_TYPES[weather] && (
+          <div
+            className="absolute top-2 left-2 z-[15] flex items-center gap-1.5 rounded-full px-2.5 py-1 pointer-events-none animate-fadeIn"
+            style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)', border: `1px solid ${WEATHER_TYPES[weather].color}55` }}
+          >
+            <span style={{ fontSize: 14 }}>{WEATHER_TYPES[weather].icon}</span>
+            <span style={{ color: WEATHER_TYPES[weather].color, fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+              {WEATHER_TYPES[weather].label}
+            </span>
+          </div>
+        )}
+
         {/* WORLD BOSS HUD - GIGANTE NO TOPO */}
         {currentEnemy.isWorldBoss && (
           <div className="absolute top-4 left-4 right-4 z-[15] animate-fadeIn">
