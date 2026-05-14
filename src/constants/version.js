@@ -1,7 +1,11 @@
-export const APP_VERSION = '1.85.1';
-export const VERSION = '1.85.1';
-export const APP_VERSION_DATE = '14/05/2026 11:08';
+export const APP_VERSION = '1.85.2';
+export const VERSION = '1.85.2';
+export const APP_VERSION_DATE = '14/05/2026 11:15';
 export const CHANGELOG = [
+  '## [V1.85.2] - 14/05/2026 11:15',
+  '### Balanceamento',
+  '- **Raids**: Padronizado para 5 tentativas de captura em todas as estrelas.',
+  '- **Dificuldade de Captura**: A dificuldade agora escala pela probabilidade por arremesso (1★=1.5x até 5★=0.15x).',
   '## [V1.85.1] - 14/05/2026 11:08',
   '### Corrigido',
   '- **Fix de Seleção de Títulos**: Modais agora utilizam `createPortal` para evitar conflitos de z-index no TrainerCard.',

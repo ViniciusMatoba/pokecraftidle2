@@ -18,18 +18,18 @@ export const RAID_HP_MULTIPLIER = {
   5: 150
 };
 export const RAID_CATCH_ATTEMPTS = {
-  1: 10, 2: 8, 3: 5, 4: 3, 5: 1
+  1: 5, 2: 5, 3: 5, 4: 5, 5: 5
 };
 export const RAID_DURATION_MS = 3600000; // 1 hora (conforme changelog V1.78.0)
 export const RAID_FIGHT_SECONDS = 60;
 export const RAID_BATTLE_TRIGGER = 100; // Conforme changelog V1.80.3/V1.78.0
 export const RAID_SPAWN_INTERVAL_MS = 3600000; // 1 hora
 export const RAID_CATCH_RATE_MULT = {
-  1: 1.5,   // 1 estrela — mais fácil de capturar
-  2: 1.2,   // 2 estrelas
-  3: 1.0,   // 3 estrelas — base
-  4: 0.7,   // 4 estrelas — difícil
-  5: 0.45,  // 5 estrelas — muito difícil
+  1: 1.5,   // 1★ — fácil, alta chance por arremesso
+  2: 1.0,   // 2★ — normal
+  3: 0.65,  // 3★ — difícil
+  4: 0.35,  // 4★ — muito difícil
+  5: 0.15,  // 5★ — raridade máxima, chance muito baixa por bola
 };
 export const RAID_BALANCE_VERSION = '1.80.4';
 

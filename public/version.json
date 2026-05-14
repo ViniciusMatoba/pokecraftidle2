@@ -1,5 +1,5 @@
 {
-  "version": "1.85.1",
-  "date": "14/05/2026 11:08",
-  "notes": "Correção definitiva da seleção de títulos e balanceamento de captura de Raids."
+  "version": "1.85.2",
+  "date": "14/05/2026 11:15",
+  "notes": "Novo balanceamento de Raids: 5 tentativas para todos e dificuldade via catch rate."
 }
