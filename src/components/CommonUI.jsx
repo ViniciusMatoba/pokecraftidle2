@@ -295,10 +295,17 @@ export const TrainerCard = ({
   onSelectTitle = null,
   playerStats = {},
   prestige = {},
+  setIsAnyModalOpen,
 }) => {
   const [expanded, setExpanded] = React.useState(!compactExpandable);
   const [showPsInfo, setShowPsInfo] = React.useState(false);
   const [showTitlePicker, setShowTitlePicker] = React.useState(false);
+
+  React.useEffect(() => {
+    if (setIsAnyModalOpen) {
+      setIsAnyModalOpen(showTitlePicker || showPsInfo);
+    }
+  }, [showTitlePicker, showPsInfo, setIsAnyModalOpen]);
   if (!trainer) return null;
 
   const equippedSprite = AVATAR_SPRITES[appearance.spriteId] || AVATAR_SPRITES.red;
@@ -385,7 +392,13 @@ export const TrainerCard = ({
           <h3 className="font-black text-2xl text-white uppercase italic tracking-tighter">{trainer.name || 'Treinador'}</h3>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); if (canEditTitle) setShowTitlePicker(true); }}
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              if (canEditTitle) {
+                console.log('-> Abrindo Seletor de Títulos');
+                setShowTitlePicker(true);
+              }
+            }}
             className={`mt-2 inline-flex items-center gap-2 rounded-xl border px-3 py-1 text-[9px] font-black uppercase text-white ${canEditTitle ? 'active:scale-95' : ''}`}
             style={{ borderColor: activeTitle ? `${activeTitle.color}88` : 'rgba(255,255,255,.18)', background: activeTitle ? activeTitle.bg : 'rgba(0,0,0,0.2)' }}
           >
@@ -444,17 +457,38 @@ export const TrainerCard = ({
         <>
           {/* Shield Atômico - Bloqueia qualquer vazamento para a CityScreen */}
           <div 
-            className="fixed inset-0 w-screen h-screen z-[100004] bg-transparent pointer-events-auto"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-            onPointerDown={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
+            className="fixed inset-0 w-screen h-screen z-[999998] bg-transparent pointer-events-auto"
+            onClick={(e) => { 
+              e.nativeEvent.stopImmediatePropagation();
+              e.preventDefault(); 
+              e.stopPropagation(); 
+            }}
+            onPointerDown={(e) => {
+              e.nativeEvent.stopImmediatePropagation();
+              e.stopPropagation();
+            }}
+            onMouseDown={(e) => {
+              e.nativeEvent.stopImmediatePropagation();
+              e.stopPropagation();
+            }}
             onTouchStart={(e) => e.stopPropagation()}
           />
           <div 
-            className="fixed inset-0 w-screen h-screen z-[100005] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn cursor-default" 
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTitlePicker(false); }}
-            onPointerDown={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
+            className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn cursor-default" 
+            onClick={(e) => { 
+              e.nativeEvent.stopImmediatePropagation();
+              e.preventDefault(); 
+              e.stopPropagation(); 
+              setShowTitlePicker(false); 
+            }}
+            onPointerDown={(e) => {
+              e.nativeEvent.stopImmediatePropagation();
+              e.stopPropagation();
+            }}
+            onMouseDown={(e) => {
+              e.nativeEvent.stopImmediatePropagation();
+              e.stopPropagation();
+            }}
             onTouchStart={(e) => e.stopPropagation()}
           >
             <div 
@@ -480,8 +514,10 @@ export const TrainerCard = ({
                       type="button"
                       key={title.id}
                       onClick={(e) => {
+                        e.nativeEvent.stopImmediatePropagation();
                         e.preventDefault();
                         e.stopPropagation();
+                        console.log(`-> Título clicado: ${title.label}`);
                         if (canEditTitle) onSelectTitle(title.id);
                         // Técnica do Escudo Duplo: Pequeno delay para garantir que o evento foi travado
                         setTimeout(() => setShowTitlePicker(false), 100);
@@ -508,10 +544,21 @@ export const TrainerCard = ({
 
       {showPsInfo && (
         <div 
-          className="fixed inset-0 w-screen h-screen z-[100005] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn cursor-default" 
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowPsInfo(false); }}
-          onPointerDown={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
+          className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn cursor-default" 
+          onClick={(e) => { 
+            e.nativeEvent.stopImmediatePropagation();
+            e.preventDefault(); 
+            e.stopPropagation(); 
+            setShowPsInfo(false); 
+          }}
+          onPointerDown={(e) => {
+            e.nativeEvent.stopImmediatePropagation();
+            e.stopPropagation();
+          }}
+          onMouseDown={(e) => {
+            e.nativeEvent.stopImmediatePropagation();
+            e.stopPropagation();
+          }}
           onTouchStart={(e) => e.stopPropagation()}
         >
           <div 

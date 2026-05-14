@@ -17,6 +17,8 @@ const CityScreen = ({
   onOpenExpeditions,
   onOpenHouse,
   onBuyHouse,
+  isAnyModalOpen,
+  setIsAnyModalOpen,
   powerScore = 0
 }) => {
   const [activeOakModal, setActiveOakModal] = useState(false);
@@ -217,7 +219,11 @@ const CityScreen = ({
               activeTitle: titleId,
             },
           }))}
+          setIsAnyModalOpen={setIsAnyModalOpen}
         />
+        
+        {/* Camada de Bloqueio Físico - Desativa interações com o fundo se um modal estiver aberto */}
+        <div className={isAnyModalOpen ? 'pointer-events-none' : ''}>
         
         {(gameState.worldFlags || []).includes('quest_capture_active') && (
           <button 
@@ -325,7 +331,13 @@ const CityScreen = ({
           {cityBuildings.map(b => (
             <button 
               key={b.id}
-              onClick={b.action}
+              onClick={() => {
+                if (isAnyModalOpen) {
+                  console.error(`-> ERRO: ${b.name} clicado através do modal!`);
+                  return;
+                }
+                b.action();
+              }}
               disabled={b.disabled}
               className={`p-6 rounded-[2.5rem] border-4 ${b.color} shadow-xl transition-all flex items-center gap-6 text-left group relative overflow-hidden ${
                 b.disabled ? 'opacity-70 cursor-not-allowed grayscale' : 'hover:-translate-y-1 active:scale-95'
@@ -363,6 +375,7 @@ const CityScreen = ({
             Voltar para Treino
           </button>
         )}
+        </div>
       </div>
 
     </div>

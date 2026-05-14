@@ -1,7 +1,11 @@
-export const APP_VERSION = '1.82.10';
-export const VERSION = '1.82.10';
-export const APP_VERSION_DATE = '14/05/2026 08:02';
+export const APP_VERSION = '1.83.0';
+export const VERSION = '1.83.0';
+export const APP_VERSION_DATE = '14/05/2026 08:18';
 export const CHANGELOG = [
+  '## [V1.83.0] - 14/05/2026 08:18',
+  '### Corrigido',
+  '- **Definitive Pointer Block**: Implementação de estado global `isAnyModalOpen` para desativar fisicamente a `CityScreen` via CSS (`pointer-events: none`).',
+  '- **Low-Level Isolation**: Utilização de `stopImmediatePropagation` e logs de depuração para garantir isolamento total nos modais do Trainer Card.',
   '## [V1.82.10] - 14/05/2026 08:02',
   '### Corrigido',
   '- **Técnica do Escudo Duplo**: Bloqueio de propagação no wrapper da lista e delay de 100ms no fechamento do modal para isolamento total contra a CityScreen.',

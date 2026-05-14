@@ -1,5 +1,10 @@
 # Changelog - PokeCraft
 
+## [v1.83.0] - 14/05/2026 08:18
+### Corrigido
+- **Bloqueio Físico de Pointer-Events**: Implementada desativação total de interações na `CityScreen` via CSS (`pointer-events: none`) sempre que um modal de interface estiver ativo.
+- **Isolamento de Baixo Nível**: Adicionado `stopImmediatePropagation` nos eventos de clique dos modais e logs de auditoria para rastrear vazamentos de eventos.
+
 ## [v1.82.10] - 14/05/2026 08:02
 ### Corrigido
 - **Técnica do Escudo Duplo**: Implementada propagação bloqueada no container de lista de títulos e delay de 100ms no fechamento do modal para garantir que o clique não "vaze" para o Centro Pokémon ao fundo.

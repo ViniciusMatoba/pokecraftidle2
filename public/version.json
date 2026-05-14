@@ -1,5 +1,5 @@
 {
-  "version": "1.82.10",
-  "date": "14/05/2026 08:02",
-  "notes": "Técnica do Escudo Duplo aplicada no Title Picker para isolamento total de eventos."
+  "version": "1.83.0",
+  "date": "14/05/2026 08:18",
+  "notes": "Bloqueio definitivo de pointer-events na CityScreen durante a exibição de modais."
 }

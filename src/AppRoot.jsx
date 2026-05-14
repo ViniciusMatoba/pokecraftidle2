@@ -489,6 +489,8 @@ export default function App() {
     playBGM, stopBGM, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxGym, stopSFX,
     toggleMute, isMuted, muted 
   } = useSound();
+  
+  const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
 
   const [gameState, setGameState] = useState(() => {
     try {
@@ -6523,6 +6525,8 @@ export default function App() {
             onOpenExpeditions={() => setShowExpeditions(true)}
             onOpenHouse={() => setShowHouse(true)}
             onBuyHouse={handleBuyHouse}
+            isAnyModalOpen={isAnyModalOpen}
+            setIsAnyModalOpen={setIsAnyModalOpen}
           />
 
           {/* Modal do Prof. Carvalho sobre a Casa */}
