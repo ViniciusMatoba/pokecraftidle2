@@ -420,7 +420,7 @@ export const TrainerCard = ({
                 setShowTitlePicker(true);
               }
             }}
-            className={`mt-2 inline-flex min-h-[42px] max-w-full items-center gap-2 rounded-xl border px-2.5 py-2 text-left text-[8px] font-black uppercase leading-tight tracking-wider text-white ${canEditTitle ? 'active:scale-95' : ''}`}
+            className={`mt-3 inline-flex min-h-[44px] max-w-full items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-[10px] font-black uppercase leading-tight tracking-wider text-white ${canEditTitle ? 'active:scale-95' : ''}`}
             style={{ borderColor: activeTitle ? `${activeTitle.color}88` : 'rgba(255,255,255,.18)', background: activeTitle ? activeTitle.bg : 'rgba(0,0,0,0.2)' }}
           >
              {activeTitle?.icon && <img src={activeTitle.icon} className="h-6 w-6 shrink-0 object-contain" alt="" />}
@@ -615,15 +615,19 @@ const StatSmall = ({ label, value }) => (
 );
 
 const BadgeRow = ({ label, ids, earnedSet, champion }) => (
-  <div className="flex items-center gap-2.5">
-    <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest w-12 shrink-0">{label}</span>
+  <div className="flex items-center gap-2 pl-1">
+    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest w-14 shrink-0">{label}</span>
     <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5 py-1">
       {ids.map((id) => (
         <BadgeSVG key={id} badgeId={id} earned={earnedSet?.has(id)} size={16} />
       ))}
     </div>
     <div className="w-7 flex justify-center shrink-0">
-      {champion && <img src={POKEAPI_ITEM_URL + 'kings-rock.png'} className="h-6 w-6 object-contain drop-shadow-[0_0_8px_rgba(251,191,36,0.45)]" title={'Campeao de ' + label} alt="" />}
+      {champion && (
+        <svg viewBox="0 0 24 24" width="22" height="22" style={{ filter: 'drop-shadow(0 0 6px rgba(251,191,36,0.7))' }} title={'Campeão de ' + label}>
+          <path fill="#fbbf24" d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0011 15.9V18H9v2h6v-2h-2v-2.1a5.01 5.01 0 003.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.86 10.4 5 9.3 5 8zm14 0c0 1.3-.86 2.4-2 2.82V7h2v1z"/>
+        </svg>
+      )}
     </div>
   </div>
 );
