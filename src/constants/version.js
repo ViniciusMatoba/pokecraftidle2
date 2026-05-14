@@ -1,7 +1,16 @@
-export const APP_VERSION = '1.88.0';
-export const VERSION = '1.88.0';
-export const APP_VERSION_DATE = '14/05/2026 18:48';
+export const APP_VERSION = '1.88.3';
+export const VERSION = '1.88.3';
+export const APP_VERSION_DATE = '14/05/2026 19:07';
 export const CHANGELOG = [
+  '## [V1.88.3] - 14/05/2026 19:07',
+  '### Corrigido',
+  '- **Forja (Bug Crítico)**: itens não eram fabricados mesmo após confirmação. Validação agora soma materials + items (igual à UI), deduzi materials primeiro e items depois.',
+  '## [V1.88.2] - 14/05/2026 18:55',
+  '### Corrigido',
+  '- **Trainer Card**: mais espaço para o título abaixo do nome, label de região sem corte, ícone de campeão trocado por troféu SVG dourado.',
+  '## [V1.88.1] - 14/05/2026 18:52',
+  '### Corrigido',
+  '- **Barra Superior**: botão de som agora exibe ícone SVG de alto-falante; botão Home exibe ícone SVG de casa.',
   '## [V1.88.0] - 14/05/2026 18:48',
   '### Adicionado',
   '- **Raid — Opções na Fase de Captura**: botões "Continuar e tentar derrotar" (volta à fase de luta) e "Sair sem capturar" (encerra a raid sem captura) agora disponíveis na tela de Raid.',

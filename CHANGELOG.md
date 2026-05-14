@@ -1,5 +1,20 @@
 # Changelog - PokeCraft
 
+## [v1.88.3] - 14/05/2026 19:07
+### Corrigido
+- **Forja (Bug Crítico)**: itens não eram fabricados mesmo após confirmação. Causa: validação de materiais ignorava `inventory.items`, causando falha silenciosa quando parte dos recursos estava nessa sub-chave. Dedução agora drena `materials` primeiro e `items` depois, espelhando o cálculo da UI.
+
+## [v1.88.2] - 14/05/2026 18:55
+### Corrigido
+- **Trainer Card — Título**: mais espaço abaixo do nome (`mt-3`, `text-[10px]`, `py-2.5`) para melhor legibilidade.
+- **Trainer Card — Regiões**: label da região com largura maior (`w-14`) e padding esquerdo (`pl-1`) para evitar texto cortado na borda.
+- **Trainer Card — Ícone de Campeão**: substituído `kings-rock.png` por troféu SVG dourado com brilho âmbar.
+
+## [v1.88.1] - 14/05/2026 18:52
+### Corrigido
+- **Barra Superior — Botão de Som**: substituído sprite de item por ícone SVG de alto-falante (ativado = ondas, mutado = cortado com X).
+- **Barra Superior — Botão Home**: substituído sprite de item por ícone SVG de casa.
+
 ## [v1.88.0] - 14/05/2026 18:48
 ### Adicionado
 - **Raid — Opções na Fase de Captura**: botões "Continuar e tentar derrotar" (volta à fase de luta) e "Sair sem capturar" (encerra a raid sem captura) agora disponíveis na tela de Raid.
