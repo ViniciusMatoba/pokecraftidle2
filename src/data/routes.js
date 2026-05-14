@@ -662,7 +662,7 @@ const buildRegionalDexCoverageRoutes = ({
   return {
     [`${region}_dex_field_1`]: {
       id: `${region}_dex_field_1`, name: `Habitat Regional ${label} I`, type: 'farm', group: `${label} Pokedex`,
-      unlockLevel: 12, requirements: [startRequirement], unlocks: field1,
+      unlockLevel: 12, requirements: [startRequirement, championRequirement], unlocks: field1,
       biome: 'grass',
       enemies: withDrops([...early, ...legacyEncounters(regionIndex, 0)], 12, drops, 90),
       trainerChance: 0.07,
@@ -674,7 +674,7 @@ const buildRegionalDexCoverageRoutes = ({
     },
     [`${region}_dex_field_2`]: {
       id: `${region}_dex_field_2`, name: `Habitat Regional ${label} II`, type: 'farm', group: `${label} Pokedex`,
-      unlockLevel: 34, requirements: [field1], unlocks: field2,
+      unlockLevel: 34, requirements: [field1, championRequirement], unlocks: field2,
       biome: 'forest',
       enemies: withDrops([...middle, ...legacyEncounters(regionIndex, 1)], 36, drops, 70),
       trainerChance: 0.08,
@@ -686,7 +686,7 @@ const buildRegionalDexCoverageRoutes = ({
     },
     [`${region}_dex_field_3`]: {
       id: `${region}_dex_field_3`, name: `Habitat Regional ${label} III`, type: 'farm', group: `${label} Pokedex`,
-      unlockLevel: 62, requirements: [field2], unlocks: field3,
+      unlockLevel: 62, requirements: [field2, championRequirement], unlocks: field3,
       biome: 'mountain',
       enemies: withDrops([...advanced, ...legacyEncounters(regionIndex, 2)], 66, rareDrops, 48),
       trainerChance: 0.1,
