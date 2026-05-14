@@ -1,5 +1,12 @@
 # Changelog - PokeCraft
 
+## [V1.82.1] - 13/05/2026 22:18
+### Adicionado
+- **Menu Missoes**: nova area no MENU com login diario, streak, melhor sequencia e recompensas em ciclos de 7 dias.
+- **Missoes Recorrentes**: objetivos diarios e semanais para derrotar Pokemon, capturar, vencer treinadores, capturar shiny e concluir raids.
+### Corrigido
+- **Forja (Mega Pedras)**: receitas e fragmentos de Mega Stone agora ficam bloqueados ate Kalos e exigem Mega Evolucao desbloqueada.
+
 ## [V1.82.0] - 13/05/2026 22:03
 ### Adicionado
 - **Treinador (Interface)**: redesign completo do Trainer Card com visual premium, glassmorphism e PS detalhado.

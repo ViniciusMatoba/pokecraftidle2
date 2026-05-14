@@ -1,7 +1,13 @@
-export const APP_VERSION = '1.82.0';
-export const VERSION = '1.82.0';
-export const APP_VERSION_DATE = '13/05/2026 22:03';
+export const APP_VERSION = '1.82.1';
+export const VERSION = '1.82.1';
+export const APP_VERSION_DATE = '13/05/2026 22:18';
 export const CHANGELOG = [
+  '## [V1.82.1] - 13/05/2026 22:18',
+  '### Adicionado',
+  '- **Retencao Diaria**: Nova area de Missoes no MENU com recompensa de login diario, streak, melhor sequencia e ciclos de 7 dias.',
+  '- **Missoes Recorrentes**: Inclusas missoes diarias e semanais para derrotas, capturas, treinadores, shinies e raids, usando os contadores persistentes do jogador.',
+  '### Corrigido',
+  '- **Forja (Mega Pedras)**: Receitas de Mega Stone e fragmentos de Mega Pedra agora so dropam em Kalos apos desbloquear Mega Evolucao.',
   '## [V1.82.0] - 13/05/2026 22:03',
   '### Adicionado',
   '- **Treinador (Interface)**: Redesign completo do TrainerCard com visual premium, glassmorphism e PS (Power Score) detalhado.',

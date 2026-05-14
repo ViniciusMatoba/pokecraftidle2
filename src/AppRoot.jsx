@@ -61,6 +61,7 @@ import { getCaptureRate, pickWeightedEncounter } from './utils/pokemonDifficulty
 import { preloadAssets } from './utils/preloader';
 import { calculatePowerScore, getBadgeCount } from './utils/progress';
 import { migrateGameState } from './utils/saveMigration';
+import { ensureRetentionState } from './data/retention';
 import { 
   TROPHIES, SHOP_TITLES, POKEDEX_FRAMES, UI_THEMES, 
   ALLIES, MINE_LEVELS, FISHING_RODS, POKECENTER_DONATIONS, GYM_BANNERS 
@@ -509,6 +510,14 @@ export default function App() {
     }
     return DEFAULT_GAME_STATE;
   });
+
+  useEffect(() => {
+    setGameState(prev => {
+      const retention = ensureRetentionState(prev);
+      if (JSON.stringify(prev.retention || {}) === JSON.stringify(retention)) return prev;
+      return { ...prev, retention };
+    });
+  }, []);
 
   const loadGameState = async (uid) => {
     try {
@@ -1830,6 +1839,8 @@ export default function App() {
 
     // Global Pokémon-specific material drops based on FORGE_MATERIAL_DROP_GUIDE
     Object.entries(FORGE_MATERIAL_DROP_GUIDE).forEach(([matId, guide]) => {
+      if (guide.requiredRegion && gameState.activeRegion !== guide.requiredRegion) return;
+      if (guide.requiredFlag && !(gameState.worldFlags || []).includes(guide.requiredFlag)) return;
       if (guide.pokemonIds && guide.pokemonIds.includes(Number(enemy.id))) {
         const dropChance = enemy.isShiny ? 0.35 : 0.12;
         if (Math.random() < dropChance) {
@@ -1842,7 +1853,7 @@ export default function App() {
     });
 
     // MEGA STONE SHARDS - KALOS ONLY + MEGA SPECIES
-    if (gameState.activeRegion === 'kalos' && MEGA_CAPABLE_SPECIES.includes(Number(enemy.id))) {
+    if (gameState.activeRegion === 'kalos' && (gameState.worldFlags || []).includes('mega_evolution_unlocked') && MEGA_CAPABLE_SPECIES.includes(Number(enemy.id))) {
       const megaChance = enemy.isShiny ? 0.40 : 0.15;
       if (Math.random() < megaChance) {
         const qty = enemy.isWildBoss ? 2 : 1;
@@ -1861,7 +1872,14 @@ export default function App() {
       const dropRate = enemy.isShiny ? 0.25 : baseRate;
       if (Math.random() < dropRate) {
         // Filtra receitas já descobertas para não duplicar
-        const undiscovered = recipeDropList.filter(r => !(gameState.inventory?.materials?.[r] > 0));
+        const undiscovered = recipeDropList.filter(r => {
+          if (gameState.inventory?.materials?.[r] > 0) return false;
+          const recipeId = String(r).replace('recipe_', '');
+          const guide = FORGE_RECIPE_DROP_GUIDE[recipeId];
+          if (guide?.requiredRegion && gameState.activeRegion !== guide.requiredRegion) return false;
+          if (guide?.requiredFlag && !(gameState.worldFlags || []).includes(guide.requiredFlag)) return false;
+          return true;
+        });
         if (undiscovered.length > 0) {
           const recipeDrop = undiscovered[Math.floor(Math.random() * undiscovered.length)];
           drops.materials[recipeDrop] = (drops.materials[recipeDrop] || 0) + 1;

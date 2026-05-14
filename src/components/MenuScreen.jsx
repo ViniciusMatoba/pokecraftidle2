@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { APP_VERSION, APP_VERSION_DATE, ITEM_LABELS } from '../data/constants';
 import { CANDY_FAMILIES, getCandyIconUrl } from '../data/candies';
 import { EXP_CANDIES } from '../data/raids';
+import { claimLoginReward, claimMissionReward, formatRewardSummary, getRetentionViewModel } from '../data/retention';
 
 const CURRENT_VERSION = APP_VERSION || '1.4';
 const VERSION_DATE = APP_VERSION_DATE || '2026-04-23';
@@ -297,6 +298,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
   const menuItems = [
     { id: 'pokedex',  name: 'Pokedex',       icon: '📕',                                   desc: 'Registro de especies',    color: 'bg-red-50 border-red-200 text-red-600' },
     { id: 'backpack', name: 'Mochila',        icon: '🎒',                                   desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
+    { id: 'missions', name: 'Missoes',        icon: '/assets/icons/quests.png',             desc: 'Login diario e metas',    color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
     { id: 'stats',    name: 'Estatisticas',   icon: `${POKEAPI_ITEM}data-card-01.png`,      desc: 'Dados da Jornada',        color: 'bg-cyan-50 border-cyan-200 text-cyan-700' },
     { id: 'settings', name: 'Configuracoes',  icon: `${POKEAPI_ITEM}vs-seeker.png`,         desc: 'Ajustes do sistema',      color: 'bg-indigo-50 border-indigo-200 text-indigo-600' },
     { id: 'save',     name: 'Salvar Jogo',    icon: '💾',                                   desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
@@ -335,6 +337,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
             else if (item.id === 'settings') setSubView('settings');
             else if (item.id === 'backpack') setSubView('backpack');
             else if (item.id === 'stats') setSubView('stats');
+            else if (item.id === 'missions') setSubView('missions');
             else {
               showConfirm({
                 title: 'Em Breve',
@@ -740,6 +743,126 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
     );
   };
 
+  const renderMissions = () => {
+    const model = getRetentionViewModel(gameState);
+    const itemIcon = (name) => `${POKEAPI_ITEM}${name}`;
+    const claimLogin = () => {
+      setGameState(prev => {
+        const result = claimLoginReward(prev);
+        if (result.claimed) {
+          showConfirm?.({
+            title: 'Recompensa Diaria',
+            message: formatRewardSummary(result.reward),
+            onConfirm: closeConfirm
+          });
+        }
+        return result.state;
+      });
+    };
+    const claimMission = (period, missionId) => {
+      setGameState(prev => {
+        const result = claimMissionReward(prev, period, missionId);
+        if (result.claimed) {
+          showConfirm?.({
+            title: period === 'weekly' ? 'Missao Semanal' : 'Missao Diaria',
+            message: formatRewardSummary(result.reward),
+            onConfirm: closeConfirm
+          });
+        }
+        return result.state;
+      });
+    };
+
+    const MissionCard = ({ mission, period }) => (
+      <div className={`rounded-2xl border-2 p-4 shadow-sm ${mission.claimed ? 'bg-emerald-50 border-emerald-200' : mission.complete ? 'bg-yellow-50 border-yellow-300' : 'bg-white border-slate-200'}`}>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-white shadow-inner flex items-center justify-center shrink-0">
+            <img src={itemIcon(mission.icon)} alt="" className="w-9 h-9 object-contain" onError={e => { e.target.style.display = 'none'; }} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-black uppercase italic text-slate-800 leading-none">{mission.title}</p>
+            <p className="text-[10px] font-bold text-slate-500 mt-1 leading-tight">{mission.description}</p>
+          </div>
+        </div>
+        <div className="mt-3">
+          <div className="flex justify-between text-[10px] font-black uppercase text-slate-500 mb-1">
+            <span>Progresso</span>
+            <span>{fmtNumber(Math.min(mission.progress, mission.target))}/{fmtNumber(mission.target)}</span>
+          </div>
+          <div className="h-3 rounded-full bg-slate-200 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${mission.claimed ? 'bg-emerald-500' : mission.complete ? 'bg-yellow-500' : 'bg-blue-500'}`}
+              style={{ width: `${mission.pct}%` }}
+            />
+          </div>
+        </div>
+        <div className="mt-3 flex items-center gap-2">
+          <p className="flex-1 text-[9px] font-black uppercase text-slate-400 leading-tight">
+            {formatRewardSummary(mission.reward)}
+          </p>
+          <button
+            onClick={() => claimMission(period, mission.id)}
+            disabled={!mission.complete || mission.claimed}
+            className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${
+              mission.claimed
+                ? 'bg-emerald-100 text-emerald-600'
+                : mission.complete
+                  ? 'bg-pokeRed text-white shadow-md active:scale-95'
+                  : 'bg-slate-100 text-slate-400'
+            }`}
+          >
+            {mission.claimed ? 'Coletado' : mission.complete ? 'Coletar' : 'Em progresso'}
+          </button>
+        </div>
+      </div>
+    );
+
+    return (
+      <div className="animate-slideUp flex flex-col gap-4">
+        <div className="rounded-[2rem] p-5 shadow-xl border-b-8 border-yellow-600 bg-gradient-to-br from-yellow-400 to-orange-500 text-white relative overflow-hidden">
+          <img src={assetPath('/assets/icons/quests.png')} alt="" className="absolute -right-4 -top-5 w-28 h-28 opacity-20 rotate-12" />
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-yellow-100">Jornada diaria</p>
+          <h3 className="text-2xl font-black uppercase italic leading-none mt-1">Streak {model.retention.login.streak} dias</h3>
+          <p className="text-xs font-bold text-white/85 mt-2">Melhor sequencia: {model.retention.login.bestStreak} dias. Entre todo dia para acumular recursos e manter o ritmo de progresso.</p>
+          <button
+            onClick={claimLogin}
+            disabled={!model.canClaimLogin}
+            className={`mt-4 w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs border-b-4 transition-all ${
+              model.canClaimLogin
+                ? 'bg-white text-orange-600 border-yellow-100 active:scale-95 shadow-lg'
+                : 'bg-white/25 text-white/70 border-white/10'
+            }`}
+          >
+            {model.canClaimLogin ? `Coletar Dia ${model.loginReward.cycleDay}` : 'Recompensa ja coletada'}
+          </button>
+          <p className="mt-2 text-[10px] font-black uppercase text-white/80">{formatRewardSummary(model.loginReward.reward)}</p>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 mb-2 px-1">Missoes Diarias</p>
+            <div className="flex flex-col gap-3">
+              {model.dailyMissions.map(mission => <MissionCard key={mission.id} mission={mission} period="daily" />)}
+            </div>
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 mb-2 px-1">Missoes Semanais</p>
+            <div className="flex flex-col gap-3">
+              {model.weeklyMissions.map(mission => <MissionCard key={mission.id} mission={mission} period="weekly" />)}
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setSubView('main')}
+          className="w-full bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg border-b-8 border-slate-900"
+        >
+          Voltar ao Menu
+        </button>
+      </div>
+    );
+  };
+
   const renderSettings = () => (
     <div className="animate-slideUp flex flex-col gap-6">
       <div className="bg-white p-6 rounded-[2.5rem] shadow-xl border-b-8 border-indigo-200">
@@ -835,14 +958,18 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
       ? 'Mochila'
       : subView === 'stats'
         ? 'Estatisticas'
-        : 'Menu Principal';
+        : subView === 'missions'
+          ? 'Missoes'
+          : 'Menu Principal';
   const screenIcon = subView === 'settings'
     ? `${POKEAPI_ITEM}vs-seeker.png`
     : subView === 'stats'
       ? `${POKEAPI_ITEM}data-card-01.png`
       : subView === 'backpack'
         ? `${POKEAPI_ITEM}bag.png`
-        : `${POKEAPI_ITEM}poke-doll.png`;
+        : subView === 'missions'
+          ? assetPath('/assets/icons/quests.png')
+          : `${POKEAPI_ITEM}poke-doll.png`;
 
   return (
     <div className="h-full bg-slate-100 animate-fadeIn relative overflow-y-auto custom-scrollbar pt-12 pb-24">
@@ -860,7 +987,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
           </h2>
         </div>
 
-        {subView === 'main' ? renderMain() : subView === 'settings' ? renderSettings() : subView === 'stats' ? renderStats() : renderBackpack()}
+        {subView === 'main' ? renderMain() : subView === 'settings' ? renderSettings() : subView === 'stats' ? renderStats() : subView === 'missions' ? renderMissions() : renderBackpack()}
 
         {subView === 'main' && (
           <button 

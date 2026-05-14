@@ -182,6 +182,23 @@ export const DEFAULT_GAME_STATE = {
     raidsFled: 0,
     lastSeenAt: null,
   },
+  retention: {
+    login: {
+      streak: 0,
+      bestStreak: 0,
+      lastClaimDate: null,
+    },
+    daily: {
+      dateKey: null,
+      baselines: {},
+      claimed: [],
+    },
+    weekly: {
+      weekKey: null,
+      baselines: {},
+      claimed: [],
+    },
+  },
 
   // Prestígio e Reputação
   prestige: {

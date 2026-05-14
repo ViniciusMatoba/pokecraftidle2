@@ -1054,12 +1054,17 @@ export const FORGE_MATERIAL_DROP_GUIDE = {
       812, 815, 818, 908, 911, 914, 330, 405, 612, 635, 706, 784, 887, 998, 768, 485, 491, 
       807, 358, 71, 121, 689, 668, 36, 545, 12, 68
     ], 
-    routeId: 'kalos_route_1', 
-    label: 'Pokemon capazes de Mega Evoluir em Kalos dropam fragmentos de Mega Pedra.' 
+    routeId: 'kalos_route_1',
+    label: 'Pokemon capazes de Mega Evoluir em Kalos dropam fragmentos de Mega Pedra.',
+    requiredRegion: 'kalos',
+    requiredFlag: 'mega_evolution_unlocked',
   },
 };
 
-const ALL_FORGE_RECIPES = Object.values(CRAFTING_RECIPES).flat();
+const ALL_FORGE_RECIPES_WITH_CATEGORY = Object.entries(CRAFTING_RECIPES).flatMap(([category, recipes]) =>
+  (recipes || []).map(recipe => ({ ...recipe, category }))
+);
+const ALL_FORGE_RECIPES = ALL_FORGE_RECIPES_WITH_CATEGORY;
 export const FORGE_RECIPE_IDS = [...new Set(ALL_FORGE_RECIPES.map(recipe => recipe.id))];
 export const RECIPE_GATED_FORGE_IDS = new Set(FORGE_RECIPE_IDS);
 
@@ -1403,12 +1408,16 @@ export const FORGE_RECIPE_DROP_GUIDE = Object.fromEntries(ALL_FORGE_RECIPES.map(
   const sourceMaterial = getRecipeSourceMaterial(recipe);
   const guide = FORGE_MATERIAL_DROP_GUIDE[sourceMaterial] || FORGE_MATERIAL_DROP_GUIDE.normal_essence;
   const label = RECIPE_LABEL_OVERRIDES[recipe.id] || `Receita ${recipe.name}: ${guide.label}`;
+  const isMegaStoneRecipe = recipe.category === 'mega_stones';
   return [recipe.id, {
     recipeItemId: `recipe_${recipe.id}`,
     sourceMaterial,
     pokemonIds: guide.pokemonIds,
     routeId: guide.routeId,
     label,
+    category: recipe.category,
+    requiredRegion: isMegaStoneRecipe ? 'kalos' : undefined,
+    requiredFlag: isMegaStoneRecipe ? 'mega_evolution_unlocked' : undefined,
   }];
 }));
 
