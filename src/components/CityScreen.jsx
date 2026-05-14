@@ -117,11 +117,36 @@ const CityScreen = ({
     || (gameState.worldFlags || []).includes('oak_house_shown');
   const canBuyHouse = (gameState.currency || 0) >= HOUSE_PURCHASE_COST;
 
+  const houseSvg = (
+    <svg viewBox="0 0 64 64" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+      {/* telhado */}
+      <polygon points="32,6 58,30 6,30" fill="#e74c3c" stroke="#c0392b" strokeWidth="2" strokeLinejoin="round"/>
+      {/* chaminé */}
+      <rect x="42" y="12" width="7" height="14" rx="1" fill="#95a5a6" stroke="#7f8c8d" strokeWidth="1.5"/>
+      {/* fumaça */}
+      <circle cx="44" cy="9" r="2.5" fill="rgba(200,200,200,0.7)"/>
+      <circle cx="47" cy="7" r="2" fill="rgba(200,200,200,0.5)"/>
+      {/* paredes */}
+      <rect x="10" y="28" width="44" height="28" rx="2" fill="#f5e6c8" stroke="#d4a853" strokeWidth="2"/>
+      {/* janela esquerda */}
+      <rect x="14" y="35" width="12" height="10" rx="2" fill="#aed6f1" stroke="#5dade2" strokeWidth="1.5"/>
+      <line x1="20" y1="35" x2="20" y2="45" stroke="#5dade2" strokeWidth="1"/>
+      <line x1="14" y1="40" x2="26" y2="40" stroke="#5dade2" strokeWidth="1"/>
+      {/* janela direita */}
+      <rect x="38" y="35" width="12" height="10" rx="2" fill="#aed6f1" stroke="#5dade2" strokeWidth="1.5"/>
+      <line x1="44" y1="35" x2="44" y2="45" stroke="#5dade2" strokeWidth="1"/>
+      <line x1="38" y1="40" x2="50" y2="40" stroke="#5dade2" strokeWidth="1"/>
+      {/* porta */}
+      <rect x="25" y="42" width="14" height="14" rx="2" fill="#8b5e3c" stroke="#6b3f1e" strokeWidth="1.5"/>
+      <circle cx="36" cy="49" r="1.5" fill="#f1c40f"/>
+    </svg>
+  );
+
   if (gameState.house?.owned) {
     cityBuildings.push({
       id: 'house',
       name: 'Minha Casa',
-      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/berry-pots.png',
+      svgIcon: houseSvg,
       desc: 'Cultive Berries e Apricorns no seu jardim.',
       action: () => onOpenHouse && onOpenHouse(),
       color: 'border-amber-500 bg-amber-50',
@@ -130,7 +155,7 @@ const CityScreen = ({
     cityBuildings.push({
       id: 'house_purchase',
       name: 'Comprar Casa',
-      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/berry-pots.png',
+      svgIcon: houseSvg,
       desc: canBuyHouse
         ? `${HOUSE_PURCHASE_COST.toLocaleString()} coins - liberar jardim e cuidadores.`
         : `Faltam ${(HOUSE_PURCHASE_COST - (gameState.currency || 0)).toLocaleString()} coins para comprar.`,
@@ -335,14 +360,16 @@ const CityScreen = ({
             >
               <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12"></div>
               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-inner border-2 border-white group-hover:rotate-6 transition-transform overflow-hidden">
-                 <img 
-                   src={b.icon || 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'} 
-                   className="w-10 h-10 object-contain" 
-                   alt={b.name} 
-                   onError={(e) => {
-                     e.currentTarget.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png';
-                   }}
-                 />
+                {b.svgIcon ? b.svgIcon : (
+                  <img
+                    src={b.icon || 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'}
+                    className="w-10 h-10 object-contain"
+                    alt={b.name}
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png';
+                    }}
+                  />
+                )}
               </div>
               <div className="flex-1">
                  <h3 className="text-xl font-black text-slate-800 uppercase italic leading-none">{b.name}</h3>

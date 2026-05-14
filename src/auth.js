@@ -1,5 +1,5 @@
 import { auth } from './firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 
 export const loginUser = async (email, password) => {
   try {
@@ -19,6 +19,10 @@ export const registerUser = async (email, password) => {
     console.error("Registration error:", error);
     throw error;
   }
+};
+
+export const logoutUser = async () => {
+  await signOut(auth);
 };
 
 export const monitorAuthState = (callback) => {

@@ -39,7 +39,7 @@ const ExpeditionsScreen = lazy(() => import('./components/ExpeditionsScreen'));
 import { MoveCategoryIcon, StatusBadges, QuickInventory, TrainerCard, BadgeSVG } from './components/CommonUI';
 import { GYMS, ELITE_FOUR } from './data/gyms';
 import { auth, db } from './firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { 
   APP_VERSION, APP_VERSION_DATE, DEFAULT_GAME_STATE, GYM_LEVEL_CAPS, 
@@ -5821,6 +5821,38 @@ export default function App() {
                    >
                      REINICIAR JORNADA
                    </button>
+                   {user && (
+                     <button
+                       onClick={() => {
+                         firebaseSignOut(auth).then(() => {
+                           setUser(null);
+                           setCurrentView('landing');
+                         });
+                       }}
+                       style={{
+                         width: '100%',
+                         padding: '14px',
+                         borderRadius: '24px',
+                         fontWeight: '900',
+                         fontSize: '13px',
+                         textTransform: 'uppercase',
+                         letterSpacing: '1.5px',
+                         background: 'rgba(239,68,68,0.15)',
+                         color: 'rgba(252,165,165,0.9)',
+                         border: '1.5px solid rgba(239,68,68,0.35)',
+                         cursor: 'pointer',
+                         display: 'flex',
+                         alignItems: 'center',
+                         justifyContent: 'center',
+                         gap: '8px',
+                       }}
+                     >
+                       <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                         <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                       </svg>
+                       Sair da Conta
+                     </button>
+                   )}
                    <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest text-center mt-4">
                      POKÉCRAFT IDLE {APP_VERSION} • {APP_VERSION_DATE}
                    </p>
