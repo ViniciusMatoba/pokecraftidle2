@@ -1,8 +1,8 @@
 export const APP_VERSION = '1.80.8';
 export const VERSION = '1.80.8';
-export const APP_VERSION_DATE = '14/05/2026 00:04';
+export const APP_VERSION_DATE = '13/05/2026 21:04';
 export const CHANGELOG = [
-  '## [V1.80.8] - 14/05/2026 00:04',
+  '## [V1.80.8] - 13/05/2026 21:04',
   '### Adicionado',
   '- **Imagens Premium**: Adicionadas novas artes em pixel-art de alta fidelidade para itens chave: Fire Stone, Water Stone, Link Cable e Rare Candy.',
   '### Corrigido',
