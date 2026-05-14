@@ -1,7 +1,14 @@
-export const APP_VERSION = '1.83.6';
-export const VERSION = '1.83.6';
-export const APP_VERSION_DATE = '14/05/2026 09:04';
+export const APP_VERSION = '1.84.0';
+export const VERSION = '1.84.0';
+export const APP_VERSION_DATE = '14/05/2026 09:12';
 export const CHANGELOG = [
+  '## [V1.84.0] - 14/05/2026 09:12',
+  '### Adicionado',
+  '- **Pool Cross-Region**: Raids agora podem sortear Pokémon de regiões anteriores (35% de chance).',
+  '- **Sprites Shiny**: Pokémon shiny em raids agora exibem corretamente sua sprite brilhante.',
+  '### Corrigido',
+  '- **Ícones de Recompensa**: Todos os ícones de recompensa de raids foram corrigidos e agora utilizam o PokeAPI com fallbacks seguros.',
+  '- **Sincronização de Itens**: Corrigido ID de Pokébola nas recompensas de raid para compatibilidade com o inventário.',
   '## [V1.83.6] - 14/05/2026 09:04',
   '### Corrigido',
   '- **Estabilização de Interatividade UI**: Finalizada a arquitetura de modais para eliminar vazamentos de eventos.',

@@ -22,7 +22,7 @@ export const RAID_REWARDS_TABLE = {
     { type: 'item',     id: 'exp_candy_xs',      quantity: 5,    chance: 1.0 },
     { type: 'item',     id: 'exp_candy_s',       quantity: 2,    chance: 0.5 },
     { type: 'currency', id: 'currency',           quantity: 500,  chance: 1.0 },
-    { type: 'item',     id: 'pokeball',           quantity: 5,    chance: 1.0 },
+    { type: 'item',     id: 'pokeballs',          quantity: 5,    chance: 1.0 },
   ],
   2: [
     { type: 'item',     id: 'exp_candy_s',       quantity: 5,    chance: 1.0 },
@@ -199,6 +199,11 @@ export const RAID_POKEMON_POOL = {
   ],
 };
 
+// Ordem cronológica das regiões — usada para calcular regiões anteriores
+export const REGION_ORDER = [
+  'kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea'
+];
+
 // ── Funções utilitárias ───────────────────────────────────────────────────────
 
 export const calculateRaidMaxHp = (base = {}, level = 1, stars = 1) => {
@@ -233,15 +238,25 @@ export const getRaidStarWeights = (maxStars) => {
   return table[maxStars] || table[5];
 };
 
-export const pickRaidPokemon = (region = 'kanto', maxStars = 5) => {
-  const pool = RAID_POKEMON_POOL[region] || RAID_POKEMON_POOL.kanto;
-  if (!pool.length) return null;
+export const pickRaidPokemon = (region = 'kanto', maxStars = 5, previousRegions = []) => {
+  // Decide a pool: 65% região atual, 35% regiões anteriores combinadas
+  const hasPrevious = previousRegions.length > 0;
+  const usePreviousPool = hasPrevious && Math.random() < 0.35;
 
-  // Filtra Pokémon disponíveis até o maxStars permitido
+  let pool;
+  if (usePreviousPool) {
+    pool = previousRegions.flatMap(r => RAID_POKEMON_POOL[r] || []);
+  } else {
+    pool = RAID_POKEMON_POOL[region] || RAID_POKEMON_POOL.kanto;
+  }
+
+  if (!pool.length) pool = RAID_POKEMON_POOL[region] || RAID_POKEMON_POOL.kanto;
+
+  // Filtra pelo maxStars permitido pelas insígnias
   const eligible = pool.filter(p => p.stars <= maxStars);
-  if (!eligible.length) return pool[0]; // fallback: menor estrela disponível
+  if (!eligible.length) return pool[0] || null;
 
-  // Seleciona tier por peso
+  // Sorteia tier de estrelas por peso (raridade maior = menos chance)
   const weights = getRaidStarWeights(maxStars);
   const totalWeight = weights.reduce((sum, w) => sum + w.w, 0);
   let rand = Math.random() * totalWeight;
@@ -252,7 +267,7 @@ export const pickRaidPokemon = (region = 'kanto', maxStars = 5) => {
     if (rand <= 0) { chosenStars = entry.stars; break; }
   }
 
-  // Filtra pool pelo tier sorteado; se vazio, usa o tier mais próximo disponível
+  // Filtra pool pelo tier sorteado
   let tierPool = eligible.filter(p => p.stars === chosenStars);
   if (!tierPool.length) tierPool = eligible;
 
@@ -260,8 +275,12 @@ export const pickRaidPokemon = (region = 'kanto', maxStars = 5) => {
 };
 
 export const createRaid = (region = 'kanto', pokedex = {}, badgeCount = 0) => {
+  // Calcula quais regiões o jogador já percorreu (para pool 35%)
+  const regionIndex = REGION_ORDER.indexOf(region);
+  const previousRegions = regionIndex > 0 ? REGION_ORDER.slice(0, regionIndex) : [];
+
   const maxStars = RAID_MAX_STARS_BY_BADGES(badgeCount);
-  const template = pickRaidPokemon(region, maxStars);
+  const template = pickRaidPokemon(region, maxStars, previousRegions);
   if (!template) return null;
 
   const base = pokedex[template.id] || {};

@@ -1,5 +1,13 @@
 # Changelog - PokeCraft
 
+## [v1.84.0] - 14/05/2026 09:12
+### Adicionado
+- **Pool Aleatória de Pokémon (Cross-Region)**: Implementada lógica de 65% região atual e 35% regiões anteriores para raids.
+- **Suporte a Sprites Shiny**: Raids de Pokémon shiny agora exibem corretamente a sprite brilhante.
+### Corrigido
+- **Sincronização de Recompensas**: Corrigido ID de Pokébola (`pokeballs`) para evitar falha no inventário.
+- **Ícones de Recompensa**: Overhaul completo do objeto `REWARD_ICONS` usando PokeAPI e placeholders de segurança (Rare Candy, Hard Stone, Up-grade).
+
 ## [v1.83.6] - 14/05/2026 09:04
 ### Corrigido
 - **Estabilização de Interatividade UI**: Consolidação da arquitetura de modais no `AppRoot` para eliminar vazamentos de eventos entre camadas.

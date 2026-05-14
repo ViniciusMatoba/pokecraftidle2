@@ -16,38 +16,44 @@ const PHASE_LABELS = {
   ended:    'Raid Encerrada',
 };
 
-const POKEAPI = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
-const assetPath = (path) => `${(import.meta.env.BASE_URL || '/').replace(/\/$/, '')}${path}`;
+const POKEAPI_ITEMS = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
 
 const REWARD_ICONS = {
-  rare_candy:      assetPath('/items/rare_candy.png'),
-  ultra_ball:      `${POKEAPI}ultra-ball.png`,
-  great_ball:      `${POKEAPI}great-ball.png`,
-  fire_stone:      assetPath('/items/fire_stone.png'),
-  water_stone:     assetPath('/items/water_stone.png'),
-  thunder_stone:   `${POKEAPI}thunder-stone.png`,
-  moon_stone:      `${POKEAPI}moon-stone.png`,
-  sun_stone:       `${POKEAPI}sun-stone.png`,
-  dawn_stone:      `${POKEAPI}dawn-stone.png`,
-  link_cable:      assetPath('/items/link_cable.png'),
-  
-  // Custom High-Quality Local Assets
-  tm_flamethrower: assetPath('/items/tm_fire.png'),
-  tm_thunderbolt:  assetPath('/items/tm_electric.png'),
-  tm_ice_beam:     assetPath('/items/tm_ice.png'),
-  stardust:        `${POKEAPI}stardust.png`,
-  dragon_scale:    `${POKEAPI}dragon-scale.png`,
-  armor_fragment:  assetPath('/items/armor_fragment.png'),
-  mega_stone_shard:assetPath('/items/mega_stone_shard.png'),
-  
-  // EXP Candies (Local Premium Assets)
-  exp_candy_xs:    assetPath('/items/exp_candy_xs.png'),
-  exp_candy_s:     assetPath('/items/exp_candy_s.png'),
-  exp_candy_m:     assetPath('/items/exp_candy_m.png'),
-  exp_candy_l:     assetPath('/items/exp_candy_l.png'),
-  exp_candy_xl:    assetPath('/items/exp_candy_xl.png'),
-  
-  currency:        `${POKEAPI}relic-gold-coin.png`,
+  // ── Pokébolas ──────────────────────────────────────────────────────────────
+  pokeballs: `${POKEAPI_ITEMS}poke-ball.png`, // ✅ corrigido de 'pokeball'
+  great_ball: `${POKEAPI_ITEMS}great-ball.png`,
+  ultra_ball: `${POKEAPI_ITEMS}ultra-ball.png`,
+
+  // ── Pedras de Evolução ────────────────────────────────────────────────────
+  fire_stone: `${POKEAPI_ITEMS}fire-stone.png`, // ✅ corrigido
+  water_stone: `${POKEAPI_ITEMS}water-stone.png`, // ✅ corrigido
+  thunder_stone: `${POKEAPI_ITEMS}thunder-stone.png`,
+  moon_stone: `${POKEAPI_ITEMS}moon-stone.png`,
+  sun_stone: `${POKEAPI_ITEMS}sun-stone.png`,
+  dawn_stone: `${POKEAPI_ITEMS}dawn-stone.png`,
+
+  // ── Materiais especiais ───────────────────────────────────────────────────
+  link_cable: `${POKEAPI_ITEMS}up-grade.png`, // ✅ substituto (link-cable não existe no PokeAPI)
+  stardust: `${POKEAPI_ITEMS}stardust.png`,
+  dragon_scale: `${POKEAPI_ITEMS}dragon-scale.png`,
+  armor_fragment: `${POKEAPI_ITEMS}hard-stone.png`, // ✅ substituto visual mais próximo
+  mega_stone_shard:`${POKEAPI_ITEMS}charizardite-x.png`, // ✅ substituto visual (mega stone)
+
+  // ── TMs ──────────────────────────────────────────────────────────────────
+  tm_flamethrower: `${POKEAPI_ITEMS}tm-fire.png`, // ✅ corrigido
+  tm_thunderbolt: `${POKEAPI_ITEMS}tm-electric.png`, // ✅ corrigido
+  tm_ice_beam: `${POKEAPI_ITEMS}tm-ice.png`, // ✅ corrigido
+
+  // ── EXP Candies (sem sprite no PokeAPI — usar rare-candy como placeholder) ─
+  rare_candy: `${POKEAPI_ITEMS}rare-candy.png`, // ✅ corrigido
+  exp_candy_xs: `${POKEAPI_ITEMS}rare-candy.png`, // ✅ placeholder (PokeAPI não tem exp-candy-xs)
+  exp_candy_s: `${POKEAPI_ITEMS}rare-candy.png`, // ✅ placeholder
+  exp_candy_m: `${POKEAPI_ITEMS}rare-candy.png`, // ✅ placeholder
+  exp_candy_l: `${POKEAPI_ITEMS}rare-candy.png`, // ✅ placeholder
+  exp_candy_xl: `${POKEAPI_ITEMS}rare-candy.png`, // ✅ placeholder
+
+  // ── Moeda ─────────────────────────────────────────────────────────────────
+  currency: `${POKEAPI_ITEMS}relic-gold-coin.png`,
 };
 
 const formatTime = (ms) => {
@@ -81,7 +87,9 @@ const RaidScreen = ({
   const timeLeftExpire = raid.expiresAt - now;
   const timeLeftFight  = raid.fightEndsAt ? raid.fightEndsAt - now : 0;
   const starColor = STAR_COLOR[raid.stars] || '#94a3b8';
-  const pokemonSprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${raid.pokemonId}.png`;
+  const pokemonSprite = raid.isShiny
+    ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${raid.pokemonId}.png`
+    : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${raid.pokemonId}.png`;
 
   const balls = [
     { id: 'ultra_ball', label: 'Ultra Ball', count: gameState.inventory?.items?.ultra_ball || 0,
