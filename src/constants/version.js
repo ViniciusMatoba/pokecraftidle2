@@ -1,7 +1,10 @@
-export const APP_VERSION = '1.80.8';
-export const VERSION = '1.80.8';
-export const APP_VERSION_DATE = '13/05/2026 21:04';
+export const APP_VERSION = '1.80.9';
+export const VERSION = '1.80.9';
+export const APP_VERSION_DATE = '13/05/2026 21:09';
 export const CHANGELOG = [
+  '## [V1.80.9] - 13/05/2026 21:09',
+  '### Alterado',
+  '- **Economia**: Redução do multiplicador de recompensa de treinadores de 0.20 para 0.08 (redução de ~60%) para equilibrar a progressão.',
   '## [V1.80.8] - 13/05/2026 21:04',
   '### Adicionado',
   '- **Imagens Premium**: Adicionadas novas artes em pixel-art de alta fidelidade para itens chave: Fire Stone, Water Stone, Link Cable e Rare Candy.',
