@@ -1,4 +1,9 @@
 # Changelog - PokeCraft
+ 
+## [V1.83.0] - 14/05/2026 06:42
+### Corrigido
+- **Blindagem de UI (Global)**: Interceptação robusta de eventos em todos os modais (Trainer Card, Cidade, Oak, Forja, etc.) para evitar cliques indesejados no fundo (UI Leakage).
+- **Consistência de Interface**: Reforço de dimensões de overlay e bloqueio de propagação em múltiplos eventos de ponteiro (Pointer Events).
 
 ## [V1.82.3] - 13/05/2026 22:49
 ### Adicionado

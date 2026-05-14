@@ -1,5 +1,5 @@
 {
-  "version": "1.82.3",
-  "date": "13/05/2026 22:49",
-  "notes": "Guia da Jornada adicionado ao MENU com objetivo principal, rota recomendada e diario de drops com atalhos para rotas."
+  "version": "1.83.0",
+  "date": "14/05/2026 06:42",
+  "notes": "Blindagem global de UI contra cliques vazados em modais (Trainer Card, Oak, Forja, etc)."
 }
