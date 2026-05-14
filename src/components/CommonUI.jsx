@@ -441,8 +441,20 @@ export const TrainerCard = ({
       )}
 
       {showTitlePicker && (
-        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn" onClick={(e) => { e.stopPropagation(); setShowTitlePicker(false); }}>
-          <div className="w-full max-w-[400px] bg-[#0f172a] rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col animate-bounceIn overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div 
+          className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn cursor-default" 
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTitlePicker(false); }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+        >
+          <div 
+            className="w-full max-w-[400px] bg-[#0f172a] rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col animate-bounceIn overflow-hidden" 
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
             <div className="bg-slate-800/50 px-6 py-5 flex items-center justify-between border-b border-white/5">
                <h3 className="text-white text-xl font-black uppercase italic">Seus Titulos</h3>
                <button type="button" onClick={(e) => { e.stopPropagation(); setShowTitlePicker(false); }} className="w-8 h-8 rounded-full bg-white/10 text-white font-black">X</button>
@@ -455,6 +467,7 @@ export const TrainerCard = ({
                      type="button"
                      key={title.id}
                      onClick={(e) => {
+                       e.preventDefault();
                        e.stopPropagation();
                        if (canEditTitle) onSelectTitle(title.id);
                        setShowTitlePicker(false);
@@ -477,8 +490,20 @@ export const TrainerCard = ({
       )}
 
       {showPsInfo && (
-        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn" onClick={(e) => { e.stopPropagation(); setShowPsInfo(false); }}>
-          <div className="w-full max-w-sm bg-slate-900 rounded-[2.5rem] border-4 border-slate-700 overflow-hidden flex flex-col animate-bounceIn" onClick={e => e.stopPropagation()}>
+        <div 
+          className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn cursor-default" 
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowPsInfo(false); }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+        >
+          <div 
+            className="w-full max-w-sm bg-slate-900 rounded-[2.5rem] border-4 border-slate-700 overflow-hidden flex flex-col animate-bounceIn" 
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
              <div className="bg-red-600 p-6 text-center">
                 <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${psRank.item}.png`} className="w-16 h-16 mx-auto mb-2 drop-shadow-lg" alt="" />
                 <h3 className="text-white text-2xl font-black uppercase italic leading-none">Poder PS</h3>
@@ -530,7 +555,13 @@ const BadgeRow = ({ label, ids, earnedList, champion, offset = 0 }) => (
 export const TrainerCardModal = ({ userData, onClose }) => {
   if (!userData) return null;
   return (
-    <div className="fixed inset-0 z-[30000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn">
+    <div 
+      className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn cursor-default"
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose && onClose(); }}
+      onPointerDown={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+    >
       <div className="w-full max-w-sm relative animate-bounceIn">
         <button onClick={onClose} className="absolute -top-12 right-0 w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-black border-2 border-red-400 shadow-lg active:scale-95 z-10">X</button>
         <TrainerCard

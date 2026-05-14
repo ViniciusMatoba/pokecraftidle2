@@ -5817,7 +5817,7 @@ export default function App() {
                       }}>
                         {starter.type}
                       </span>
-                      <span style={{fontSize:'11px', color:'#94a3b8', fontWeight:700}}>
+                      <span className="text-[11px] text-[#94a3b8] font-bold">
                         VER DETALHES
                       </span>
                     </div>
@@ -6511,8 +6511,20 @@ export default function App() {
 
           {/* Modal do Prof. Carvalho sobre a Casa */}
           {showOakHouseModal && (
-            <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
-              <div className="w-full max-w-[440px] bg-white rounded-[2.5rem] overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] flex flex-col animate-bounceIn">
+            <div 
+              className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-fadeIn cursor-default"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowOakHouseModal(false); }}
+              onPointerDown={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >
+              <div 
+                className="w-full max-w-[440px] bg-white rounded-[2.5rem] overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] flex flex-col animate-bounceIn"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                onPointerDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+              >
                 
                 {/* Header Superior - Padrão Premium */}
                 <div className="bg-emerald-600 px-6 py-5 flex items-center justify-between shadow-xl shrink-0 z-20 border-b border-white/10">
@@ -8145,8 +8157,21 @@ export default function App() {
       )}
 
       {activeBuildingModal && activeBuildingModal !== 'pokecenter' && activeBuildingModal !== 'prestige_shop' && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
-           <div className="modal-panel-mobile shadow-2xl flex flex-col relative border-b-[8px] border-slate-800 overflow-hidden" style={{ backgroundColor: '#ffffff', opacity: 1 }}>
+        <div 
+          className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md cursor-default"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveBuildingModal(null); }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+        >
+           <div 
+             className="modal-panel-mobile shadow-2xl flex flex-col relative border-b-[8px] border-slate-800 overflow-hidden" 
+             style={{ backgroundColor: '#ffffff', opacity: 1 }}
+             onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+             onPointerDown={(e) => e.stopPropagation()}
+             onMouseDown={(e) => e.stopPropagation()}
+             onTouchStart={(e) => e.stopPropagation()}
+           >
               <div
                 className="px-5 py-4 flex items-center justify-between gap-3 shrink-0"
                 style={{
@@ -8317,8 +8342,20 @@ export default function App() {
        </div>
       )}
       {activeMaterialModal && (
-        <div className="fixed inset-0 z-[60000] flex items-center justify-center p-4 bg-slate-900/85 backdrop-blur-md animate-fadeIn">
-           <div className="modal-panel-mobile bg-white shadow-2xl border-b-[8px] border-slate-800 animate-bounceIn overflow-hidden flex flex-col relative z-[60001]">
+        <div 
+          className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 bg-slate-900/85 backdrop-blur-md animate-fadeIn cursor-default"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveMaterialModal(null); }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+        >
+           <div 
+             className="modal-panel-mobile bg-white shadow-2xl border-b-[8px] border-slate-800 animate-bounceIn overflow-hidden flex flex-col relative z-[60001]"
+             onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+             onPointerDown={(e) => e.stopPropagation()}
+             onMouseDown={(e) => e.stopPropagation()}
+             onTouchStart={(e) => e.stopPropagation()}
+           >
               <div className="bg-slate-700 px-5 py-4 flex items-center justify-between gap-3 shrink-0">
                  <div className="flex items-center gap-3 min-w-0">
                     <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
@@ -8689,9 +8726,12 @@ export default function App() {
       {/* ── MODAL: Receita Encontrada ──────────────────────────────────────── */}
       {recipeFoundModal && (
         <div
-          className="fixed inset-0 z-[99990] flex items-center justify-center p-4"
+          className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 cursor-default"
           style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)' }}
-          onClick={() => setRecipeFoundModal(null)}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setRecipeFoundModal(null); }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
         >
           <div
             className="relative w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl"

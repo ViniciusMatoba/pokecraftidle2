@@ -254,10 +254,19 @@ const CityScreen = ({
         )}
 
         {activeOakModal && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-fadeIn" onClick={() => setActiveOakModal(false)}>
+          <div 
+            className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-fadeIn cursor-default" 
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveOakModal(false); }}
+            onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
              <div
                className="w-full max-w-[420px] bg-white rounded-[2.5rem] shadow-2xl animate-bounceIn overflow-hidden flex flex-col"
-               onClick={e => e.stopPropagation()}
+               onClick={e => { e.preventDefault(); e.stopPropagation(); }}
+               onPointerDown={(e) => e.stopPropagation()}
+               onMouseDown={(e) => e.stopPropagation()}
+               onTouchStart={(e) => e.stopPropagation()}
              >
                 {/* Header Novo - Estilo Esmeralda */}
                 <div className="bg-emerald-600 px-6 py-5 flex items-center justify-between shadow-xl shrink-0 z-20 border-b border-white/10">
