@@ -1,10 +1,14 @@
 # Changelog - PokeCraft
 
-## [v1.84.4] - 14/05/2026 10:27
+## [v1.85.0] - 14/05/2026 10:45
+### Adicionado
+- **Confirmar Forja**: Implementado modal de confirmação ao fabricar itens, prevenindo gastos acidentais de recursos.
 ### Corrigido
-- **Desestruturação de Props no TrainerCard**: Resolvido `ReferenceError` causado pela falta de `setIsTitleModalOpen` e `setIsPowerRankModalOpen` nos argumentos do componente.
+- **Correção de Ícones do Trainer Card**: Substituídos os URLs de ícones quebrados (Johto, Hoenn, Alola, Paldea e Rival Breaker) por sprites de alta disponibilidade da PokeAPI.
+- **UX de Seleção de Título**: Introduzido um delay de 200ms ao fechar o seletor de títulos para permitir que o jogador visualize a alteração de status para "Ativo".
+- **Refatoração handleCraft**: Melhorada a robustez do processamento de custos de forja no `AppRoot.jsx`.
 
-## [v1.84.3] - 14/05/2026 10:10
+## [v1.84.4] - 14/05/2026 10:27
 ### Corrigido
 - **Hotfix de Inicialização**: Corrigido `ReferenceError` causado pela remoção acidental de `EXP_CANDIES` em `raids.js`.
 - **Arquitetura de Dados**: `REGION_ORDER` agora é importado centralmente, evitando duplicação e conflitos de carregamento.

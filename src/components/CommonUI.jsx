@@ -540,7 +540,7 @@ export const TrainerCard = ({
                         console.log("Título selecionado:", pendingTitle.id);
                         onSelectTitle(pendingTitle.id);
                         setPendingTitle(null);
-                        setShowTitlePicker(false);
+                        setTimeout(() => setShowTitlePicker(false), 200);
                       }}
                       className="w-full h-14 bg-blue-600 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-blue-500 active:scale-95 transition-all shadow-lg shadow-blue-900/20"
                     >

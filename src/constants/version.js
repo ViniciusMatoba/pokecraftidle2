@@ -1,7 +1,14 @@
-export const APP_VERSION = '1.84.4';
-export const VERSION = '1.84.4';
-export const APP_VERSION_DATE = '14/05/2026 10:27';
+export const APP_VERSION = '1.85.0';
+export const VERSION = '1.85.0';
+export const APP_VERSION_DATE = '14/05/2026 10:45';
 export const CHANGELOG = [
+  '## [V1.85.0] - 14/05/2026 10:45',
+  '### Adicionado',
+  '- **Confirmar Forja**: Adicionado modal de confirmação ao fabricar itens para evitar gastos acidentais.',
+  '### Corrigido',
+  '- **Fix de Imagens do Trainer Card**: Atualizados os ícones de campeão regional (Johto, Hoenn, Alola, Paldea) para sprites oficiais da PokeAPI.',
+  '- **UX de Seleção de Título**: Adicionado delay suave ao fechar o seletor de títulos para melhor feedback visual.',
+  '- **Lógica da Forja**: Refatorada a função `handleCraft` para processar custos de forma atômica e robusta.',
   '## [V1.84.4] - 14/05/2026 10:27',
   '### Corrigido',
   '- **Prop Destructuring Fix**: Corrigido ReferenceError no TrainerCard ao acessar funções de estado de modal não desestruturadas.',

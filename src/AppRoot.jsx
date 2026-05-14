@@ -3966,7 +3966,6 @@ export default function App() {
         .map(([material, amount]) => [material, amount * qty])
     );
 
-    setIsForgeConfirmOpen(true);
     showConfirm({
       type: 'confirm',
       title: 'Confirmar Forja',
@@ -3974,24 +3973,19 @@ export default function App() {
       confirmLabel: 'Forjar',
       cancelLabel: 'Cancelar',
       onConfirm: () => {
-        setIsForgeConfirmOpen(false);
         closeConfirm();
 
-        // Guarda o resultado da verificação FORA do setGameState
         let resultLog = null;
 
         setGameState(prev => {
-          // Guarda defensiva — evita crash se inventory estiver malformado
           const materials = prev.inventory?.materials || {};
           const items     = prev.inventory?.items     || {};
 
-          // 1. Verificar Moedas
           if (prev.currency < currencyCost) {
             resultLog = { msg: "Saldo insuficiente para a forja!", type: 'system' };
             return prev;
           }
 
-          // 2. Verificar Materiais
           const hasMaterials = Object.entries(materialCost).every(
             ([material, amount]) => (materials[material] || 0) >= amount
           );

@@ -1,5 +1,5 @@
 {
-  "version": "1.84.4",
-  "date": "14/05/2026 10:27",
-  "notes": "Correção de ReferenceError no TrainerCard e otimização de props."
+  "version": "1.85.0",
+  "date": "14/05/2026 10:45",
+  "notes": "Fix da Forja com confirmação, correção de imagens do Trainer Card e melhorias de UX."
 }
