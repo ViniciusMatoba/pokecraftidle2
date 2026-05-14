@@ -17,6 +17,7 @@ const CityScreen = ({
   onOpenExpeditions,
   onOpenHouse,
   onBuyHouse,
+  onSelectTitle,
   isAnyModalOpen,
   setIsAnyModalOpen,
   powerScore = 0
@@ -208,17 +209,9 @@ const CityScreen = ({
           inventoryItems={gameState.inventory?.items || {}}
           compactExpandable={true}
           appearance={gameState.appearance || {}}
-          onSelectTitle={(titleId) => setGameState(prev => ({
-            ...prev,
-            trainer: {
-              ...(prev.trainer || {}),
-              titleId,
-            },
-            prestige: {
-              ...(prev.prestige || {}),
-              activeTitle: titleId,
-            },
-          }))}
+          appearance={gameState.appearance || {}}
+          selectedTitle={gameState.selectedTitle}
+          onSelectTitle={onSelectTitle}
           setIsAnyModalOpen={setIsAnyModalOpen}
         />
         

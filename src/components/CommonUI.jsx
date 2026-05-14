@@ -296,6 +296,7 @@ export const TrainerCard = ({
   playerStats = {},
   prestige = {},
   setIsAnyModalOpen,
+  selectedTitle, // v1.83.2
 }) => {
   const [expanded, setExpanded] = React.useState(!compactExpandable);
   const [showPsInfo, setShowPsInfo] = React.useState(false);
@@ -320,8 +321,8 @@ export const TrainerCard = ({
     shinyCount, trainerBattleWins, playerStats, badges, 
     purchasedTitles: prestige?.purchasedTitles || [] 
   };
-  const unlockedTitles = getUnlockedTrainerTitles(titleContext);
-  const activeTitleId = trainer.titleId || prestige?.activeTitle || null;
+   const unlockedTitles = getUnlockedTrainerTitles(titleContext);
+  const activeTitleId = selectedTitle || trainer.titleId || prestige?.activeTitle || null;
   const activeTitle = unlockedTitles.find(title => title.id === activeTitleId) || getPrimaryTrainerTitle(titleContext);
   const canEditTitle = typeof onSelectTitle === 'function';
 
@@ -392,6 +393,7 @@ export const TrainerCard = ({
           <h3 className="font-black text-2xl text-white uppercase italic tracking-tighter">{trainer.name || 'Treinador'}</h3>
           <button
             type="button"
+            key={activeTitleId}
             onClick={(e) => { 
               e.stopPropagation(); 
               if (canEditTitle) {
@@ -522,7 +524,7 @@ export const TrainerCard = ({
                       }}
                       onPointerDown={(e) => e.stopPropagation()}
                       onMouseDown={(e) => e.stopPropagation()}
-                      className={`w-full p-4 rounded-3xl border-2 transition-all flex items-center gap-4 text-left ${isSelected ? 'border-blue-500 bg-blue-500/10' : 'border-white/5 bg-white/5 hover:border-white/10'}`}
+                      className={`w-full p-4 rounded-3xl border-2 transition-all flex items-center gap-4 text-left ${isSelected ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'border-white/5 bg-white/5 hover:border-white/10'}`}
                     >
                       <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border" style={{ background: title.bg, borderColor: title.color }}>
                         {title.icon && <img src={title.icon} className="w-8 h-8 object-contain" alt="" />}

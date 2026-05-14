@@ -1,7 +1,11 @@
-export const APP_VERSION = '1.83.1';
-export const VERSION = '1.83.1';
-export const APP_VERSION_DATE = '14/05/2026 08:26';
+export const APP_VERSION = '1.83.2';
+export const VERSION = '1.83.2';
+export const APP_VERSION_DATE = '14/05/2026 08:32';
 export const CHANGELOG = [
+  '## [V1.83.2] - 14/05/2026 08:32',
+  '### Corrigido',
+  '- **Reactive Title Selection**: Implementada função `handleSelectTitleInApp` com logs de auditoria e persistência explícita no campo `selectedTitle`.',
+  '- **Force Re-render**: Adicionada `key` dinâmica ao display de títulos e feedback visual (borda esmeralda) no seletor para confirmação imediata.',
   '## [V1.83.1] - 14/05/2026 08:26',
   '### Corrigido',
   '- **Modal Interactivity**: Restaurada a interatividade dos modais removendo `stopImmediatePropagation` que bloqueava o React.',

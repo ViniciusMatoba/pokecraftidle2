@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [v1.83.2] - 14/05/2026 08:32
+### Corrigido
+- **Seleção Reativa de Títulos**: Implementado o campo `selectedTitle` no estado global e logs de auditoria para rastrear mudanças de estado em tempo real.
+- **Forçar Re-renderização**: Adicionada uma `key` baseada no ID do título para forçar o React a redesenhar o componente do Trainer Card instantaneamente.
+- **Feedback Visual**: O seletor de títulos agora exibe uma borda esmeralda e brilho no título selecionado para confirmação visual imediata antes do fechamento.
+
 ## [v1.83.1] - 14/05/2026 08:26
 ### Corrigido
 - **Restauração de Interatividade**: Removido o uso de `stopImmediatePropagation` que causava o "congelamento" dos modais, permitindo que o React processe eventos internos normalmente.

@@ -478,6 +478,25 @@ const RegionIntroScreen = ({
   </div>
 );
 
+const handleSelectTitleInApp = (newTitleId, setGameState) => {
+  console.log('-> handleSelectTitle disparado:', newTitleId);
+  setGameState(prev => {
+    console.log('Estado anterior:', prev.selectedTitle, 'Novo estado:', newTitleId);
+    return { 
+      ...prev, 
+      selectedTitle: newTitleId,
+      trainer: {
+        ...(prev.trainer || {}),
+        titleId: newTitleId
+      },
+      prestige: {
+        ...(prev.prestige || {}),
+        activeTitle: newTitleId
+      }
+    };
+  });
+};
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -6513,6 +6532,7 @@ export default function App() {
             setCurrentView={setCurrentView}
             setCurrentEnemy={setCurrentEnemy}
             onChallengeRival={startBattleAgainstRival}
+            onSelectTitle={(id) => handleSelectTitleInApp(id, setGameState)}
             onBackToBattle={() => {
               if (gameState.lastFarmingRoute) {
                 setGameState(prev => ({ ...prev, currentRoute: prev.lastFarmingRoute }));
