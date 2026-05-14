@@ -1,5 +1,10 @@
 # Changelog - PokeCraft
 
+## [v1.84.1] - 14/05/2026 09:37
+### Corrigido
+- **Hotfix de Inicialização**: Corrigido `ReferenceError` causado pela remoção acidental de `EXP_CANDIES` em `raids.js`.
+- **Arquitetura de Dados**: `REGION_ORDER` agora é importado centralmente, evitando duplicação e conflitos de carregamento.
+
 ## [v1.84.0] - 14/05/2026 09:12
 ### Adicionado
 - **Pool Aleatória de Pokémon (Cross-Region)**: Implementada lógica de 65% região atual e 35% regiões anteriores para raids.
@@ -9,8 +14,6 @@
 - **Ícones de Recompensa**: Overhaul completo do objeto `REWARD_ICONS` usando PokeAPI e placeholders de segurança (Rare Candy, Hard Stone, Up-grade).
 
 ## [v1.83.6] - 14/05/2026 09:04
-### Corrigido
-- **Estabilização de Interatividade UI**: Consolidação da arquitetura de modais no `AppRoot` para eliminar vazamentos de eventos entre camadas.
 - **Bloqueio de Camadas**: Implementado bloqueio via `pointer-events: none` na `CityScreen` e `CraftingStation` (Forja) sempre que um modal (Títulos, Power Rank ou Confirmação) estiver aberto.
 - **Landing Screen UI**: Restaurada a integridade visual da tela inicial, eliminando corrupções de código e duplicatas do Ranking Global.
 

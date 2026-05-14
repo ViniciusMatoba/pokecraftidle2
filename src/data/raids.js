@@ -1,3 +1,5 @@
+import { REGION_ORDER } from './regionStandards';
+
 // ── Configurações de Raid ──────────────────────────────────────────────────
 export const RAID_HP_MULTIPLIER = {
   1: 3,
@@ -199,10 +201,6 @@ export const RAID_POKEMON_POOL = {
   ],
 };
 
-// Ordem cronológica das regiões — usada para calcular regiões anteriores
-export const REGION_ORDER = [
-  'kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea'
-];
 
 // ── Funções utilitárias ───────────────────────────────────────────────────────
 
@@ -237,6 +235,8 @@ export const getRaidStarWeights = (maxStars) => {
   };
   return table[maxStars] || table[5];
 };
+
+export const EXP_CANDIES = ['exp_candy_xs', 'exp_candy_s', 'exp_candy_m', 'exp_candy_l', 'exp_candy_xl'];
 
 export const pickRaidPokemon = (region = 'kanto', maxStars = 5, previousRegions = []) => {
   // Decide a pool: 65% região atual, 35% regiões anteriores combinadas
