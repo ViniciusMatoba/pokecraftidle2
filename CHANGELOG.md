@@ -1,5 +1,10 @@
 # Changelog - PokeCraft
 
+## [v1.83.5] - 14/05/2026 08:48
+### Corrigido
+- **Fluxo de Confirmação Padronizado**: Revertida a paleta de cores para o padrão Dark/Pokémon (Slate/Blue) e removidos bloqueios de eventos redundantes em botões internos.
+- **Isolamento Independente**: A CityScreen agora depende puramente de `pointer-events: none` para evitar interações enquanto modais estão ativos, garantindo que a lógica interna do modal permaneça intacta.
+
 ## [v1.83.4] - 14/05/2026 08:44
 ### Corrigido
 - **Isolamento de Eventos Simplificado**: Removidas camadas de bloqueio agressivas (divs transparentes e `stopPropagation` em botões) para permitir que o React processe eventos internos normalmente.

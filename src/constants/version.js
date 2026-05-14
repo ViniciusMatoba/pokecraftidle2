@@ -1,7 +1,11 @@
-export const APP_VERSION = '1.83.4';
-export const VERSION = '1.83.4';
-export const APP_VERSION_DATE = '14/05/2026 08:44';
+export const APP_VERSION = '1.83.5';
+export const VERSION = '1.83.5';
+export const APP_VERSION_DATE = '14/05/2026 08:48';
 export const CHANGELOG = [
+  '## [V1.83.5] - 14/05/2026 08:48',
+  '### Corrigido',
+  '- **Standard Confirmation Flow**: Revertida paleta para Dark/Pokémon (Slate/Blue) e removido stopPropagation de botões internos.',
+  '- **Independent Interaction**: O isolamento da CityScreen agora depende exclusivamente do `pointer-events: none` no container de fundo.',
   '## [V1.83.4] - 14/05/2026 08:44',
   '### Corrigido',
   '- **Simplified Event Isolation**: Removido bloqueio agressivo de propagação e "Escudo Atômico" para restaurar a interatividade natural dos botões.',

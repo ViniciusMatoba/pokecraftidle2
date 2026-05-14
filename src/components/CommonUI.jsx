@@ -501,14 +501,14 @@ export const TrainerCard = ({
             </div>
           </div>
 
-          {/* Modal de Confirmação e Prévia (v1.83.3) */}
+          {/* Modal de Confirmação (v1.83.5) */}
           {pendingTitle && (
             <div 
-              className="fixed inset-0 w-screen h-screen z-[1000000] flex items-center justify-center p-6 bg-black/90 backdrop-blur-2xl animate-fadeIn pointer-events-auto"
-              onClick={(e) => e.stopPropagation()}
+              className="fixed inset-0 w-screen h-screen z-[1000000] flex items-center justify-center p-6 bg-black/90 backdrop-blur-2xl animate-fadeIn"
+              onClick={() => setPendingTitle(null)}
             >
               <div 
-                className="w-full max-w-[360px] bg-[#0F2D3A] rounded-[2.5rem] border-4 border-[#1DB954]/30 shadow-[0_0_50px_rgba(29,185,84,0.1)] flex flex-col overflow-hidden animate-bounceIn"
+                className="w-full max-w-[360px] bg-[#0f172a] rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col overflow-hidden animate-bounceIn"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="p-8 flex flex-col items-center text-center">
@@ -517,7 +517,7 @@ export const TrainerCard = ({
                     {pendingTitle.icon && <img src={pendingTitle.icon} className="w-12 h-12 object-contain" alt="" />}
                   </div>
                   
-                  <h4 className="text-[#1DB954] text-[10px] font-black uppercase tracking-[0.3em] mb-2">Novo Título</h4>
+                  <h4 className="text-blue-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Confirmar Título</h4>
                   <h3 className="text-white text-2xl font-black uppercase italic leading-none mb-4">{pendingTitle.label}</h3>
                   <p className="text-slate-400 text-sm font-bold mb-8 leading-relaxed">
                     Deseja aplicar este título ao seu perfil de treinador?
@@ -526,24 +526,20 @@ export const TrainerCard = ({
                   <div className="flex flex-col w-full gap-3">
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        console.log('-> Título confirmado:', pendingTitle.id);
+                      onClick={() => {
+                        console.log("Título selecionado:", pendingTitle.id);
                         onSelectTitle(pendingTitle.id);
                         setPendingTitle(null);
                         setShowTitlePicker(false);
                       }}
-                      className="w-full h-14 bg-[#1DB954] text-white font-black uppercase tracking-widest rounded-2xl hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-[#1DB954]/20"
+                      className="w-full h-14 bg-blue-600 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-blue-500 active:scale-95 transition-all shadow-lg shadow-blue-900/20"
                     >
                       Confirmar
                     </button>
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setPendingTitle(null);
-                      }}
-                      className="w-full h-12 bg-white/5 text-slate-400 font-black uppercase tracking-widest rounded-2xl hover:bg-white/10 active:scale-95 transition-all"
+                      onClick={() => setPendingTitle(null)}
+                      className="w-full h-12 bg-slate-800 text-slate-400 font-black uppercase tracking-widest rounded-2xl hover:bg-slate-700 active:scale-95 transition-all"
                     >
                       Cancelar
                     </button>
