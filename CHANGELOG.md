@@ -1,10 +1,10 @@
 # Changelog - PokeCraft
 
-## [v1.84.3] - 14/05/2026 10:10
+## [v1.84.4] - 14/05/2026 10:27
 ### Corrigido
-- **Hoisting de Estados no AppRoot**: Resolvido `ReferenceError` (Temporal Dead Zone) movendo as declarações de `confirmModal` e `showRanking` para o topo da função App.
+- **Desestruturação de Props no TrainerCard**: Resolvido `ReferenceError` causado pela falta de `setIsTitleModalOpen` e `setIsPowerRankModalOpen` nos argumentos do componente.
 
-## [v1.84.2] - 14/05/2026 09:55
+## [v1.84.3] - 14/05/2026 10:10
 ### Corrigido
 - **Hotfix de Inicialização**: Corrigido `ReferenceError` causado pela remoção acidental de `EXP_CANDIES` em `raids.js`.
 - **Arquitetura de Dados**: `REGION_ORDER` agora é importado centralmente, evitando duplicação e conflitos de carregamento.

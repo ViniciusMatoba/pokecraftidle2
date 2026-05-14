@@ -295,7 +295,11 @@ export const TrainerCard = ({
   onSelectTitle = null,
   playerStats = {},
   prestige = {},
-  setIsAnyModalOpen,
+   setIsAnyModalOpen,
+  isTitleModalOpen,
+  setIsTitleModalOpen,
+  isPowerRankModalOpen,
+  setIsPowerRankModalOpen,
   selectedTitle, // v1.83.2
 }) => {
   const [expanded, setExpanded] = React.useState(!compactExpandable);

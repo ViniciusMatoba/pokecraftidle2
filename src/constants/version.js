@@ -1,7 +1,10 @@
-export const APP_VERSION = '1.84.3';
-export const VERSION = '1.84.3';
-export const APP_VERSION_DATE = '14/05/2026 10:10';
+export const APP_VERSION = '1.84.4';
+export const VERSION = '1.84.4';
+export const APP_VERSION_DATE = '14/05/2026 10:27';
 export const CHANGELOG = [
+  '## [V1.84.4] - 14/05/2026 10:27',
+  '### Corrigido',
+  '- **Prop Destructuring Fix**: Corrigido ReferenceError no TrainerCard ao acessar funções de estado de modal não desestruturadas.',
   '## [V1.84.3] - 14/05/2026 10:10',
   '### Corrigido',
   '- **Critical State Fix**: Corrigido erro de Temporal Dead Zone (ReferenceError) no AppRoot ao inicializar modais.',
