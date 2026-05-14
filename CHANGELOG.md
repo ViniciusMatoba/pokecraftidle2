@@ -1,5 +1,9 @@
 # Changelog - PokeCraft
 
+## [v1.88.5] - 14/05/2026 19:23
+### Alterado
+- **Habitats Regionais**: áreas Habitat I, II e III agora exigem ser Campeão da região para serem liberadas — válido para todas as 9 regiões. Facilita completar a Pokédex de forma organizada após terminar a liga.
+
 ## [v1.88.4] - 14/05/2026 19:19
 ### Adicionado
 - **Botão Sair**: botão "Sair da Conta" na tela inicial (visível apenas quando logado) — desloga via Firebase e retorna à tela de login.
