@@ -4,6 +4,8 @@ import { getGlobalRanking, getUserProfile } from '../services/ranking';
 import { auth } from '../firebase';
 import { TrainerCardModal } from './CommonUI';
 
+const POKEAPI_ITEM_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
+
 const RankingModal = ({ onClose }) => {
   const [ranking, setRanking] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +37,7 @@ const RankingModal = ({ onClose }) => {
         <div className="p-6 bg-gradient-to-b from-[#2a2a2a] to-[#1a1a1a] border-b-4 border-slate-800 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-amber-500/20 rounded-2xl flex items-center justify-center shadow-inner border border-amber-500/30">
-              <span className="text-2xl">🏆</span>
+              <img src={POKEAPI_ITEM_URL + 'kings-rock.png'} className="h-9 w-9 object-contain" alt="" />
             </div>
             <div>
               <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">Ranking Global</h2>

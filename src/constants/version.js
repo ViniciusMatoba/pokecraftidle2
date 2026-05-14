@@ -1,8 +1,8 @@
 export const APP_VERSION = '1.87.0';
 export const VERSION = '1.87.0';
-export const APP_VERSION_DATE = '14/05/2026 18:00';
+export const APP_VERSION_DATE = '14/05/2026 18:27';
 export const CHANGELOG = [
-  '## [V1.87.0] - 14/05/2026 18:00',
+  '## [V1.87.0] - 14/05/2026 18:27',
   '### Adicionado',
   '- **Safari Zone Interativa**: Nova tela dedicada com captura sem batalha, 30 Safari Balls por sessão, Pokémon exclusivos (Exeggcute, Lickitung, Chansey, Tangela, Kangaskhan, Scyther, Pinsir, Tauros).',
   '- **Mecânicas da Safari Zone**: Sistema de Isca (-40% fuga, +30% captura) e Lama (+50% captura, +50% fuga). Diferentes estratégias de captura!',

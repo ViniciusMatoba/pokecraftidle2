@@ -75,7 +75,6 @@ const CityScreen = ({
       id: 'pokecenter', 
       name: 'Centro Pokémon', 
       icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/full-restore.png',
-      emoji: '🏥',
       desc: 'Cure sua equipe gratuitamente.',
       action: () => setActiveBuildingModal('pokecenter'),
       color: 'border-red-500 bg-red-50'
@@ -84,7 +83,6 @@ const CityScreen = ({
       id: 'mart', 
       name: 'Poké Mart', 
       icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
-      emoji: '🏪',
       desc: 'Compre itens e suprimentos.',
       action: () => setActiveBuildingModal('mart'),
       color: 'border-blue-500 bg-blue-50'
@@ -93,7 +91,6 @@ const CityScreen = ({
       id: 'forge', 
       name: 'Forja Pokémon', 
       icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/metal-coat.png',
-      emoji: '🔨',
       desc: 'Crie itens raros com materiais.',
       action: () => setActiveBuildingModal('forge'),
       color: 'border-slate-500 bg-slate-50'
@@ -102,7 +99,6 @@ const CityScreen = ({
       id: 'expeditions',
       name: 'Expedições',
       icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/explorer-kit.png',
-      emoji: '🧭',
       desc: 'Envie Pokémon do PC para coletar recursos em biomas.',
       action: () => onOpenExpeditions && onOpenExpeditions(),
       color: 'border-purple-500 bg-purple-50',
@@ -111,7 +107,6 @@ const CityScreen = ({
       id: 'prestige_shop',
       name: 'Loja de Prestígio',
       icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png',
-      emoji: '🏆',
       desc: 'Troque conquistas por recompensas exclusivas.',
       action: () => setActiveBuildingModal('prestige_shop'),
       color: 'border-amber-500 bg-amber-50',
@@ -126,8 +121,7 @@ const CityScreen = ({
     cityBuildings.push({
       id: 'house',
       name: 'Minha Casa',
-      icon: null,
-      emoji: '🏠',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/berry-pots.png',
       desc: 'Cultive Berries e Apricorns no seu jardim.',
       action: () => onOpenHouse && onOpenHouse(),
       color: 'border-amber-500 bg-amber-50',
@@ -137,7 +131,6 @@ const CityScreen = ({
       id: 'house_purchase',
       name: 'Comprar Casa',
       icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/berry-pots.png',
-      emoji: '🏡',
       desc: canBuyHouse
         ? `${HOUSE_PURCHASE_COST.toLocaleString()} coins - liberar jardim e cuidadores.`
         : `Faltam ${(HOUSE_PURCHASE_COST - (gameState.currency || 0)).toLocaleString()} coins para comprar.`,
@@ -152,7 +145,6 @@ const CityScreen = ({
       id: 'johto_start',
       name: 'Iniciar Johto',
       icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/gb-sounds.png',
-      emoji: 'J',
       desc: 'Fale com o professor de Johto e comece uma nova jornada regional.',
       action: () => setCurrentView && setCurrentView('johto_intro'),
       color: 'border-emerald-500 bg-emerald-50',
@@ -164,7 +156,6 @@ const CityScreen = ({
       id: 'hoenn_start',
       name: 'Iniciar Hoenn',
       icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/eon-ticket.png',
-      emoji: 'H',
       desc: 'Fale com o Prof. Birch e comece uma nova jornada regional.',
       action: () => setCurrentView && setCurrentView('hoenn_intro'),
       color: 'border-orange-500 bg-orange-50',
@@ -176,7 +167,6 @@ const CityScreen = ({
       id: 'sinnoh_start',
       name: 'Iniciar Sinnoh',
       icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/explorer-kit.png',
-      emoji: 'S',
       desc: 'Fale com o Prof. Rowan e escolha seu inicial de Sinnoh.',
       action: () => setCurrentView && setCurrentView('sinnoh_intro'),
       color: 'border-sky-500 bg-sky-50',
@@ -345,18 +335,14 @@ const CityScreen = ({
             >
               <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12"></div>
               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-inner border-2 border-white group-hover:rotate-6 transition-transform overflow-hidden">
-                 {b.icon ? (
-                   <img 
-                     src={b.icon} 
-                     className="w-10 h-10 object-contain" 
-                     alt={b.name} 
-                     onError={(e) => {
-                       e.target.style.display = 'none';
-                       e.target.nextSibling.style.display = 'flex';
-                     }}
-                   />
-                 ) : null}
-                 <span className={`${b.icon ? 'hidden' : 'flex'} text-3xl items-center justify-center w-full h-full`}>{b.emoji}</span>
+                 <img 
+                   src={b.icon || 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'} 
+                   className="w-10 h-10 object-contain" 
+                   alt={b.name} 
+                   onError={(e) => {
+                     e.currentTarget.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png';
+                   }}
+                 />
               </div>
               <div className="flex-1">
                  <h3 className="text-xl font-black text-slate-800 uppercase italic leading-none">{b.name}</h3>
@@ -371,7 +357,11 @@ const CityScreen = ({
             onClick={() => onBackToBattle && onBackToBattle()}
             className="w-full mt-4 bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg border-b-8 border-slate-900 flex items-center justify-center gap-3 active:scale-95"
           >
-            <span className="text-xl">⚔️</span>
+            <img
+              src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png"
+              className="h-6 w-6 object-contain"
+              alt=""
+            />
             Voltar para Treino
           </button>
         )}

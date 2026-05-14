@@ -1,6 +1,6 @@
 # Changelog - PokeCraft
 
-## [v1.87.0] - 14/05/2026 18:00
+## [v1.87.0] - 14/05/2026 18:27
 ### Adicionado
 - **Safari Zone Interativa**: nova tela dedicada com captura sem batalha, Safari Balls por sessao e Pokemon exclusivos.
 - **Mecanicas da Safari Zone**: sistema de Isca e Lama para variar risco de fuga e chance de captura.

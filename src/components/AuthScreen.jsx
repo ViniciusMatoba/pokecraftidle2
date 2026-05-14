@@ -4,6 +4,8 @@ import { setPersistence, browserLocalPersistence, browserSessionPersistence, get
 import { APP_VERSION, APP_VERSION_DATE } from '../data/constants';
 import RankingModal from './RankingModal';
 
+const POKEAPI_ITEM_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
+
 const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isStandalone }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -329,7 +331,7 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
             ) : updateStatus === 'updated' ? (
               <>✅ Versão Atualizada!</>
             ) : (
-              <>🔄 Verificar Atualizações</>
+              <>Verificar Atualizacoes</>
             )}
           </button>
 
@@ -340,7 +342,8 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
               className="w-full mt-4 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg border-b-4 border-amber-700 animate-bounce"
               style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'white' }}
             >
-              📥 {isIOS ? 'Como Instalar (iOS)' : (installPrompt ? 'Instalar Aplicativo (PWA)' : 'Preparando instalação...')}
+              <img src={POKEAPI_ITEM_URL + 'up-grade.png'} className="h-5 w-5 object-contain" alt="" />
+              {isIOS ? 'Como Instalar (iOS)' : (installPrompt ? 'Instalar Aplicativo (PWA)' : 'Preparando instalacao...')}
             </button>
           )}
 

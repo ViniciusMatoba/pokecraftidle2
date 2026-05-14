@@ -23,6 +23,8 @@ import PokemonManagement from './components/PokemonManagement';
 import BattleScreen from './components/BattleScreen';
 import CityScreen from './components/CityScreen';
 
+const POKEAPI_ITEM_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
+
 // Lazy loaded components for better performance
 const CraftingStation = lazy(() => import('./components/CraftingStation'));
 const EvolutionScreen = lazy(() => import('./components/EvolutionScreen'));
@@ -5693,10 +5695,15 @@ export default function App() {
                          border: 'none',
                          boxShadow: '0 4px 15px rgba(217, 119, 6, 0.4)',
                          cursor: 'pointer',
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       gap: '10px',
                        }}
                        className="animate-bounce"
                      >
-                       📥 {isIOS ? 'Como Instalar (iOS)' : (installPrompt ? 'Instalar Aplicativo (PWA)' : 'Preparando instalação...')}
+                       <img src={POKEAPI_ITEM_URL + 'up-grade.png'} className="h-6 w-6 object-contain" alt="" />
+                       {isIOS ? 'Como Instalar (iOS)' : (installPrompt ? 'Instalar Aplicativo (PWA)' : 'Preparando instala??o...')}
                      </button>
                    )}
 
@@ -5721,9 +5728,14 @@ export default function App() {
                        border: '2px solid rgba(255,255,255,0.2)',
                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
                        cursor: 'pointer',
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       gap: '10px',
                      }}
                    >
-                     🏆 Ranking Global
+                     <img src={POKEAPI_ITEM_URL + 'kings-rock.png'} className="h-6 w-6 object-contain" alt="" />
+                     Ranking Global
                    </button>
 
 
@@ -7402,9 +7414,14 @@ export default function App() {
               <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
                 <button
                   onClick={() => toggleMute()}
-                  style={{background:'rgba(255,255,255,0.2)', border:'none', borderRadius:'12px', padding:'6px', cursor:'pointer', color:'white', fontSize:'16px'}}
+                  style={{background:'rgba(255,255,255,0.2)', border:'none', borderRadius:'12px', padding:'6px', cursor:'pointer', color:'white', fontSize:'16px', width:'40px', height:'40px', display:'flex', alignItems:'center', justifyContent:'center'}}
+                  aria-label={muted ? 'Ativar musica' : 'Desativar musica'}
                 >
-                  {muted ? '🔇' : '🎵'}
+                  <img
+                    src={POKEAPI_ITEM_URL + (muted ? 'silph-scope.png' : 'gb-sounds.png')}
+                    className="h-7 w-7 object-contain"
+                    alt=""
+                  />
                 </button>
                 <button
                   onClick={() => showConfirm({
@@ -7416,9 +7433,14 @@ export default function App() {
                     onConfirm:() => { closeConfirm(); setCurrentView('landing'); },
                     onCancel: closeConfirm,
                   })}
-                  style={{background:'rgba(255,255,255,0.2)', border:'none', borderRadius:'12px', padding:'6px', cursor:'pointer', color:'white', fontSize:'16px'}}
+                  style={{background:'rgba(255,255,255,0.2)', border:'none', borderRadius:'12px', padding:'6px', cursor:'pointer', color:'white', fontSize:'16px', width:'40px', height:'40px', display:'flex', alignItems:'center', justifyContent:'center'}}
+                  aria-label="Voltar ao inicio"
                 >
-                  🏠
+                  <img
+                    src={POKEAPI_ITEM_URL + 'town-map.png'}
+                    className="h-7 w-7 object-contain"
+                    alt=""
+                  />
                 </button>
               </div>
             )}
@@ -7427,12 +7449,12 @@ export default function App() {
           {showStatusStrip && (
             <div className="game-status-strip">
               {isInRoute && (
-                <button
+                                <button
                   type="button"
                   className={`status-auto-button ${autoEnabled ? 'is-on' : ''}`}
                   onClick={() => setShowBattleAutoPanel(true)}
                 >
-                  ⚙️ AUTO {autoEnabled ? 'ON' : 'OFF'}
+                  AUTO {autoEnabled ? 'ON' : 'OFF'}
                 </button>
               )}
 

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { getPrimaryTrainerTitle, getUnlockedTrainerTitles } from '../data/trainerTitles';
 import { AVATAR_SPRITES, AVATAR_TINTS, CARD_FRAMES, CARD_BACKGROUNDS, getTintFilter } from '../data/cosmetics';
 
+const POKEAPI_ITEM_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
 const BADGE_IDS = ['boulder_badge', 'cascade_badge', 'thunder_badge', 'rainbow_badge', 'soul_badge', 'marsh_badge', 'volcano_badge', 'earth_badge'];
 const JOHTO_BADGE_IDS = ['zephyr_badge', 'hive_badge', 'plain_badge', 'fog_badge', 'storm_badge', 'mineral_badge', 'glacier_badge', 'rising_badge'];
 const HOENN_BADGE_IDS = ['stone_badge', 'knuckle_badge', 'dynamo_badge', 'heat_badge', 'balance_badge', 'feather_badge', 'mind_badge', 'rain_badge'];
@@ -204,11 +205,10 @@ export const BadgeSVG = ({ badgeId, earned, size = 20 }) => {
 };
 
 export const MoveCategoryIcon = ({ category }) => {
-  if (category === 'Physical') return <span className="bg-red-600 text-[8px] px-1.5 py-0.5 rounded-md font-black text-white shadow-sm" title="Physical">⚔️</span>;
-  if (category === 'Special') return <span className="bg-indigo-600 text-[8px] px-1.5 py-0.5 rounded-md font-black text-white shadow-sm" title="Special">🟡</span>;
-  return <span className="bg-slate-400 text-[8px] px-1.5 py-0.5 rounded-md font-black text-white shadow-sm" title="Status">🛡️</span>;
+  if (category === 'Physical') return <span className="bg-red-600 text-[8px] px-1.5 py-0.5 rounded-md font-black text-white shadow-sm" title="Physical">ATK</span>;
+  if (category === 'Special') return <span className="bg-indigo-600 text-[8px] px-1.5 py-0.5 rounded-md font-black text-white shadow-sm" title="Special">SP</span>;
+  return <span className="bg-slate-500 text-[8px] px-1.5 py-0.5 rounded-md font-black text-white shadow-sm" title="Status">STS</span>;
 };
-
 export const StatusBadges = ({ status = [], stages = {} }) => {
   const safeStatus = Array.isArray(status) ? status : [];
   const safeStages = stages || {};
@@ -338,17 +338,18 @@ export const TrainerCard = ({
   const activeTitle = unlockedTitles.find(title => title.id === activeTitleId) || getPrimaryTrainerTitle(titleContext);
   const canEditTitle = typeof onSelectTitle === 'function';
 
-  const isKantoChampion = worldFlags.includes('champion');
-  const isJohtoChampion = worldFlags.includes('johto_champion');
-  const isHoennChampion = worldFlags.includes('hoenn_champion');
-  const isSinnohChampion = worldFlags.includes('sinnoh_champion');
+  const progressTokens = new Set([...(badges || []).map(String), ...(worldFlags || []).map(String)]);
+  const hasProgressToken = (tokens = []) => tokens.some(token => progressTokens.has(token));
+  const isKantoChampion = hasProgressToken(['champion', 'kanto_champion', 'region_champion_kanto']);
+  const isJohtoChampion = hasProgressToken(['johto_champion', 'region_champion_johto']);
+  const isHoennChampion = hasProgressToken(['hoenn_champion', 'region_champion_hoenn']);
+  const isSinnohChampion = hasProgressToken(['sinnoh_champion', 'region_champion_sinnoh']);
 
   const achievements = [
-    { id: 'pokedex', icon: '📖', label: 'Pokédex', active: caughtCount >= 50, title: '50+ Capturas' },
-    { id: 'crafting', icon: '🔨', label: 'Crafting', active: forgedItems >= 1, title: 'Primeira Forja' },
-    { id: 'slayer', icon: '💀', label: 'Boss Slayer', active: bossDamage >= 100000, title: '100k+ Dano Boss' }
+    { id: 'pokedex', icon: POKEAPI_ITEM_URL + 'pokedex.png', label: 'Pokedex', active: caughtCount >= 50, title: '50+ Capturas' },
+    { id: 'crafting', icon: POKEAPI_ITEM_URL + 'metal-coat.png', label: 'Crafting', active: forgedItems >= 1, title: 'Primeira Forja' },
+    { id: 'slayer', icon: POKEAPI_ITEM_URL + 'mega-stone.png', label: 'Boss Slayer', active: bossDamage >= 100000, title: '100k+ Dano Boss' }
   ];
-
   const psRanks = [
     { min: 0, label: 'Poké Ball', item: 'poke-ball' },
     { min: 150000, label: 'Great Ball', item: 'great-ball' },
@@ -379,29 +380,35 @@ export const TrainerCard = ({
   });
 
   const regionBadgeGroups = [
-    { label: 'Kanto', ids: BADGE_IDS },
-    { label: 'Johto', ids: JOHTO_BADGE_IDS },
-    { label: 'Hoenn', ids: HOENN_BADGE_IDS },
-    { label: 'Sinnoh', ids: SINNOH_BADGE_IDS },
-    ...FUTURE_REGION_BADGES.map(region => ({ label: region.label, ids: region.badges })),
-  ].map(region => ({
-    ...region,
-    count: region.ids.filter(id => badgeSources.has(id)).length,
-  }));
-
+    { id: 'kanto', label: 'Kanto', ids: BADGE_IDS, champion: isKantoChampion, startFlags: ['has_starter', 'starter_event', 'champion', 'kanto_champion', 'region_champion_kanto'] },
+    { id: 'johto', label: 'Johto', ids: JOHTO_BADGE_IDS, champion: isJohtoChampion, startFlags: ['johto_started', 'johto_champion', 'region_champion_johto'] },
+    { id: 'hoenn', label: 'Hoenn', ids: HOENN_BADGE_IDS, champion: isHoennChampion, startFlags: ['hoenn_started', 'hoenn_champion', 'region_champion_hoenn'] },
+    { id: 'sinnoh', label: 'Sinnoh', ids: SINNOH_BADGE_IDS, champion: isSinnohChampion, startFlags: ['sinnoh_started', 'sinnoh_champion', 'region_champion_sinnoh'] },
+    ...FUTURE_REGION_BADGES.map(region => ({
+      id: region.id,
+      label: region.label,
+      ids: region.badges,
+      champion: hasProgressToken([region.champion, 'region_champion_' + region.id]),
+      startFlags: [region.started, region.champion, 'region_champion_' + region.id],
+    })),
+  ].map(region => {
+    const count = region.ids.filter(id => badgeSources.has(id)).length;
+    const unlocked = region.id === 'kanto' || count > 0 || hasProgressToken(region.startFlags);
+    return { ...region, count, unlocked };
+  }).filter(region => region.unlocked);
   const badgeCountTotal = regionBadgeGroups.reduce((sum, region) => sum + region.count, 0);
 
   return (
     <div
-      className={`relative p-5 rounded-[2.5rem] border-4 shadow-2xl flex flex-col gap-5 text-left overflow-hidden transition-all bg-gradient-to-b ${equippedBg.gradient} ${compactExpandable ? 'cursor-pointer active:scale-[0.99]' : ''}`}
+      className={`relative p-4 rounded-[2rem] border-4 shadow-2xl flex flex-col gap-4 text-left overflow-visible transition-all bg-gradient-to-b ${equippedBg.gradient} ${compactExpandable ? 'cursor-pointer active:scale-[0.99]' : ''}`}
       style={{ borderColor: equippedFrame.preview }}
       onClick={compactExpandable && !showTitlePicker && !showPsInfo ? () => setExpanded(prev => !prev) : undefined}
     >
-      <div className="flex items-center gap-3">
-        <div className="rounded-3xl p-3 border-2 shadow-inner shrink-0 bg-black/30" style={{ borderColor: equippedFrame.preview }}>
-          <img src={avatarSrc} alt="Avatar" className="w-20 h-20 object-contain drop-shadow-lg" style={{ imageRendering: 'pixelated', filter: tintFilter !== 'none' ? tintFilter : undefined }} />
+      <div className="flex items-start gap-3">
+        <div className="rounded-3xl p-2.5 border-2 shadow-inner shrink-0 bg-black/30" style={{ borderColor: equippedFrame.preview }}>
+          <img src={avatarSrc} alt="Avatar" className="w-16 h-16 object-contain drop-shadow-lg" style={{ imageRendering: 'pixelated', filter: tintFilter !== 'none' ? tintFilter : undefined }} />
         </div>
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <h3 className="font-black text-2xl text-white uppercase italic tracking-tighter">{trainer.name || 'Treinador'}</h3>
           <button
             type="button"
@@ -413,10 +420,11 @@ export const TrainerCard = ({
                 setShowTitlePicker(true);
               }
             }}
-            className={`mt-2 inline-flex items-center gap-2 rounded-xl border px-3 py-1 text-[9px] font-black uppercase text-white ${canEditTitle ? 'active:scale-95' : ''}`}
+            className={`mt-2 inline-flex min-h-[42px] max-w-full items-center gap-2 rounded-xl border px-2.5 py-2 text-left text-[8px] font-black uppercase leading-tight tracking-wider text-white ${canEditTitle ? 'active:scale-95' : ''}`}
             style={{ borderColor: activeTitle ? `${activeTitle.color}88` : 'rgba(255,255,255,.18)', background: activeTitle ? activeTitle.bg : 'rgba(0,0,0,0.2)' }}
           >
-             {activeTitle?.label || 'Iniciante'}
+             {activeTitle?.icon && <img src={activeTitle.icon} className="h-6 w-6 shrink-0 object-contain" alt="" />}
+             <span className="min-w-0 whitespace-normal break-words">{activeTitle?.label || 'Iniciante'}</span>
           </button>
         </div>
         {compactExpandable && (
@@ -453,16 +461,13 @@ export const TrainerCard = ({
             <StatSmall label="Wins" value={trainerBattleWins} />
           </div>
 
-          <div className="space-y-3 bg-black/20 p-4 rounded-2xl border border-white/5 shadow-inner">
-            <BadgeRow label="Kanto" ids={BADGE_IDS} earnedList={badges} champion={isKantoChampion} />
-            <div className="h-px bg-white/5 w-full"></div>
-            <BadgeRow label="Johto" ids={JOHTO_BADGE_IDS} earnedList={badges} champion={isJohtoChampion} offset={9} />
-            {isJohtoChampion && (
-              <>
-                <div className="h-px bg-white/5 w-full"></div>
-                <BadgeRow label="Hoenn" ids={HOENN_BADGE_IDS} earnedList={worldFlags} champion={isHoennChampion} />
-              </>
-            )}
+          <div className="space-y-2 bg-black/20 p-3 rounded-2xl border border-white/5 shadow-inner">
+            {regionBadgeGroups.map((region, index) => (
+              <React.Fragment key={region.id}>
+                {index > 0 && <div className="h-px bg-white/5 w-full"></div>}
+                <BadgeRow label={region.label} ids={region.ids} earnedSet={badgeSources} champion={region.champion} />
+              </React.Fragment>
+            ))}
           </div>
         </div>
       )}
@@ -609,18 +614,19 @@ const StatSmall = ({ label, value }) => (
   </div>
 );
 
-const BadgeRow = ({ label, ids, earnedList, champion, offset = 0 }) => (
-  <div className="flex items-center gap-3">
-    <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest w-10 shrink-0">{label}</span>
-    <div className="flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-      {ids.map((id, i) => (
-        <BadgeSVG key={id} badgeId={id} earned={earnedList.includes(id) || earnedList.includes(i + 1 + offset)} size={16} />
+const BadgeRow = ({ label, ids, earnedSet, champion }) => (
+  <div className="flex items-center gap-2.5">
+    <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest w-12 shrink-0">{label}</span>
+    <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5 py-1">
+      {ids.map((id) => (
+        <BadgeSVG key={id} badgeId={id} earned={earnedSet?.has(id)} size={16} />
       ))}
     </div>
-    {champion && <span className="text-lg">👑</span>}
+    <div className="w-7 flex justify-center shrink-0">
+      {champion && <img src={POKEAPI_ITEM_URL + 'kings-rock.png'} className="h-6 w-6 object-contain drop-shadow-[0_0_8px_rgba(251,191,36,0.45)]" title={'Campeao de ' + label} alt="" />}
+    </div>
   </div>
 );
-
 export const TrainerCardModal = ({ userData, onClose }) => {
   if (!userData) return null;
   return (
