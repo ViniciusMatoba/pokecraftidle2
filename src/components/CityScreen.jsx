@@ -209,7 +209,6 @@ const CityScreen = ({
           inventoryItems={gameState.inventory?.items || {}}
           compactExpandable={true}
           appearance={gameState.appearance || {}}
-          appearance={gameState.appearance || {}}
           selectedTitle={gameState.selectedTitle}
           onSelectTitle={onSelectTitle}
           setIsAnyModalOpen={setIsAnyModalOpen}
