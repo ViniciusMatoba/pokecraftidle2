@@ -1,7 +1,11 @@
-export const APP_VERSION = '1.80.9';
-export const VERSION = '1.80.9';
-export const APP_VERSION_DATE = '13/05/2026 21:09';
+export const APP_VERSION = '1.81.0';
+export const VERSION = '1.81.0';
+export const APP_VERSION_DATE = '13/05/2026 21:10';
 export const CHANGELOG = [
+  '## [V1.81.0] - 13/05/2026 21:10',
+  '### Concluído',
+  '- **Sincronização de Milestone**: Consolidação de melhorias visuais, correções de evolução e rebalanceamento econômico.',
+  '- **Deploy Final**: Sincronização completa de ativos e lógica de recompensa.',
   '## [V1.80.9] - 13/05/2026 21:09',
   '### Alterado',
   '- **Economia**: Redução do multiplicador de recompensa de treinadores de 0.20 para 0.08 (redução de ~60%) para equilibrar a progressão.',
