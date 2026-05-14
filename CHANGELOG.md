@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
- 
+
+## [v1.82.7] - 14/05/2026 07:20
+### Corrigido
+- **Sincronização de Versão**: Corrigido bug de cache no `AuthScreen` que impedia a detecção da versão mais recente.
+- **Cache-Buster**: Implementada estratégia agressiva de bypass de cache (`?v=timestamp`) na verificação de atualizações.
+- **Forced Reload**: Adicionado `window.location.reload(true)` para garantir a limpeza de scripts em cache após atualização.
+
 ## [v1.82.6] - 14/05/2026 07:13
 ### Refactor & Cleanup
 - Auditoria de Limpeza: Remoção de ativos obsoletos (`vite.svg`, `react.svg`).

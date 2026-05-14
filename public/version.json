@@ -1,5 +1,5 @@
 {
-  "version": "1.82.6",
-  "date": "14/05/2026 07:12",
-  "notes": "Auditoria de Limpeza: Remoção de código morto, ativos obsoletos e refatoração de links de recompensas."
+  "version": "1.82.7",
+  "date": "14/05/2026 07:20",
+  "notes": "Correção de sincronismo de versão e bypass de cache."
 }

@@ -33,13 +33,14 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
     }
 
     window.location.replace(`${window.location.pathname}?v=${Date.now()}`);
+    window.location.reload(true);
   };
 
   const handleCheckUpdate = async () => {
     setUpdateStatus('checking');
     try {
-      // Forçamos o browser a buscar a versão mais recente ignorando cache do manifest/json se possível
-      const response = await fetch('./version.json?t=' + Date.now(), {
+      // Forçamos o browser a buscar a versão mais recente ignorando cache
+      const response = await fetch('./version.json?v=' + Date.now(), {
         cache: 'no-store',
         headers: { 'Cache-Control': 'no-cache' }
       });

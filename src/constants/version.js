@@ -1,7 +1,18 @@
-export const APP_VERSION = '1.82.3';
-export const VERSION = '1.82.3';
-export const APP_VERSION_DATE = '13/05/2026 22:49';
+export const APP_VERSION = '1.82.7';
+export const VERSION = '1.82.7';
+export const APP_VERSION_DATE = '14/05/2026 07:20';
 export const CHANGELOG = [
+  '## [V1.82.7] - 14/05/2026 07:20',
+  '### Corrigido',
+  '- **Sincronização de Versão**: Corrigido bug de cache que impedia a exibição da versão correta no Menu.',
+  '- **Cache-Buster**: Implementada verificação de versão com bypass de cache agressivo (`?v=timestamp`).',
+  '## [V1.82.6] - 14/05/2026 07:13',
+  '### Refatoração',
+  '- **Auditoria de Limpeza**: Remoção de ativos obsoletos e código morto.',
+  '- **Padronização**: Refatoração de links de recompensas no RaidScreen.',
+  '## [V1.82.5] - 14/05/2026 06:56',
+  '### Adicionado',
+  '- **Animação de Captura (Raids)**: Lançamento de pokébola e efeitos visuais.',
   '## [V1.82.3] - 13/05/2026 22:49',
   '### Adicionado',
   '- **Guia da Jornada**: nova area no MENU com objetivo principal, rota recomendada, proxima rota bloqueada e atalhos para MODO VS ou treino.',
