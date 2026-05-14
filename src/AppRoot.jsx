@@ -513,6 +513,10 @@ export default function App() {
   const [isTitleModalOpen, setIsTitleModalOpen] = useState(false);
   const [isForgeConfirmOpen, setIsForgeConfirmOpen] = useState(false);
   const [isPowerRankModalOpen, setIsPowerRankModalOpen] = useState(false);
+  const [confirmModal, setConfirmModal] = useState(null);
+  const [showRanking, setShowRanking] = useState(false);
+  const showConfirm = (config) => setConfirmModal(config);
+  const closeConfirm = () => setConfirmModal(null);
 
   // Sync isAnyModalOpen with individual states
   useEffect(() => {
@@ -697,9 +701,9 @@ export default function App() {
   const [travelTab, setTravelTab] = useState('routes');
   const [showAutoCaptureModal, setShowAutoCaptureModal] = useState(false);
   const [showBattleAutoPanel, setShowBattleAutoPanel] = useState(false);
-  const [confirmModal, setConfirmModal] = useState(null);
-  const showConfirm = (config) => setConfirmModal(config);
-  const closeConfirm = () => setConfirmModal(null);
+
+
+
   const [introStep, setIntroStep] = useState(0);
   const [activeMemberIndex, setActiveMemberIndex] = useState(0);
   const [moveIndex, setMoveIndex] = useState(0);
@@ -768,7 +772,7 @@ export default function App() {
   const lastSyncRef = useRef(0);
   const saveTimeoutRef = useRef(null);
   const bossSaveTimeoutRef = useRef(null);
-  const [showRanking, setShowRanking] = useState(false);
+
   const [bossDamage, setBossDamage] = useState(0);
   const [bossTimer, setBossTimer] = useState(null);
   const [bossLoot, setBossLoot] = useState(null);

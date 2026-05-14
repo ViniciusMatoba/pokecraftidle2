@@ -1,10 +1,10 @@
 # Changelog - PokeCraft
 
-## [v1.84.2] - 14/05/2026 09:55
+## [v1.84.3] - 14/05/2026 10:10
 ### Corrigido
-- **Correção Definitiva de Inicialização**: Movido o bloco de dados `EXP_CANDIES` e `REGION_ORDER` para o topo de `raids.js` para garantir inicialização antes do uso e remover dependências circulares ocultas.
+- **Hoisting de Estados no AppRoot**: Resolvido `ReferenceError` (Temporal Dead Zone) movendo as declarações de `confirmModal` e `showRanking` para o topo da função App.
 
-## [v1.84.1] - 14/05/2026 09:37
+## [v1.84.2] - 14/05/2026 09:55
 ### Corrigido
 - **Hotfix de Inicialização**: Corrigido `ReferenceError` causado pela remoção acidental de `EXP_CANDIES` em `raids.js`.
 - **Arquitetura de Dados**: `REGION_ORDER` agora é importado centralmente, evitando duplicação e conflitos de carregamento.

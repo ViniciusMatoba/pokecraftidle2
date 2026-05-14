@@ -1,7 +1,10 @@
-export const APP_VERSION = '1.84.2';
-export const VERSION = '1.84.2';
-export const APP_VERSION_DATE = '14/05/2026 09:55';
+export const APP_VERSION = '1.84.3';
+export const VERSION = '1.84.3';
+export const APP_VERSION_DATE = '14/05/2026 10:10';
 export const CHANGELOG = [
+  '## [V1.84.3] - 14/05/2026 10:10',
+  '### Corrigido',
+  '- **Critical State Fix**: Corrigido erro de Temporal Dead Zone (ReferenceError) no AppRoot ao inicializar modais.',
   '## [V1.84.2] - 14/05/2026 09:55',
   '### Corrigido',
   '- **Critical Init Fix**: Resolvido erro de inicialização (ReferenceError) movendo constantes para o topo e desacoplando REGION_ORDER para evitar ciclos de importação.',
