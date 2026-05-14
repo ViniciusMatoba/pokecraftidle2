@@ -1,7 +1,16 @@
-export const APP_VERSION = '1.86.0';
-export const VERSION = '1.86.0';
-export const APP_VERSION_DATE = '14/05/2026 16:30';
+export const APP_VERSION = '1.87.0';
+export const VERSION = '1.87.0';
+export const APP_VERSION_DATE = '14/05/2026 18:00';
 export const CHANGELOG = [
+  '## [V1.87.0] - 14/05/2026 18:00',
+  '### Adicionado',
+  '- **Safari Zone Interativa**: Nova tela dedicada com captura sem batalha, 30 Safari Balls por sessão, Pokémon exclusivos (Exeggcute, Lickitung, Chansey, Tangela, Kangaskhan, Scyther, Pinsir, Tauros).',
+  '- **Mecânicas da Safari Zone**: Sistema de Isca (-40% fuga, +30% captura) e Lama (+50% captura, +50% fuga). Diferentes estratégias de captura!',
+  '- **Mega Evolução Permanente**: Sistema completo de Mega Evolução definitiva. Uma vez realizada, o Pokémon não retorna à forma normal.',
+  '- **25+ Mega Evoluções**: Charizard X/Y, Blastoise, Venusaur, Alakazam, Gengar, Gyarados, Kangaskhan, Pinsir, Aerodactyl, Ampharos, Scizor, Heracross, Houndoom, Tyranitar, Blaziken, Gardevoir, Mawile, Aggron, Medicham, Manectric, Banette, Absol, Salamence, Metagross, Lucario, Abomasnow.',
+  '- **Bônus de Stats Permanentes**: Cada Mega Evolução aumenta permanentemente ataque, defesa, velocidade e tipos do Pokémon.',
+  '- **Tela Mega Evolução**: Interface dedicada com comparação visual antes/depois, bônus detalhados e animação épica.',
+  '- **Indicador Mega no Time**: Pokémon Mega evoluídos exibem o sprite da forma Mega e a tag visual no gerenciamento.',
   '## [V1.86.0] - 14/05/2026 16:30',
   '### Adicionado',
   '- **Sistema de Clima**: Sol, Chuva, Tempestade de Areia e Granizo gerados automaticamente ao entrar em rotas.',

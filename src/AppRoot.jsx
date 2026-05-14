@@ -15,6 +15,7 @@ import { MOVE_TRANSLATIONS } from './data/translations';
 import { POKEDEX } from './data/pokedex';
 import { VILLAIN_TEAMS } from './data/villains';
 import { WEATHER_TYPE_MULT, WEATHER_PASSIVE_DAMAGE, WEATHER_IMMUNE_TYPES, generateWeatherForRoute } from './data/weather';
+import { getCompatibleMegaStones } from './data/megaEvolutions';
 import AuthScreen from './components/AuthScreen';
 import MenuScreen from './components/MenuScreen';
 import TravelScreen from './components/TravelScreen';
@@ -25,6 +26,8 @@ import CityScreen from './components/CityScreen';
 // Lazy loaded components for better performance
 const CraftingStation = lazy(() => import('./components/CraftingStation'));
 const EvolutionScreen = lazy(() => import('./components/EvolutionScreen'));
+const SafariZoneScreen = lazy(() => import('./components/SafariZoneScreen'));
+const MegaEvolutionScreen = lazy(() => import('./components/MegaEvolutionScreen'));
 const PokedexScreen = lazy(() => import('./components/PokedexScreen'));
 const VsScreen = lazy(() => import('./components/VsScreen'));
 const GymScreen = lazy(() => import('./components/GymScreen'));
@@ -695,6 +698,8 @@ export default function App() {
 
   const [activeMaterialModal, setActiveMaterialModal] = useState(null);
   const [evolutionPending, setEvolutionPending] = useState(null);
+  const [megaEvolutionPending, setMegaEvolutionPending] = useState(false); // abre tela de Mega Evolução
+  const [safariSession, setSafariSession] = useState(null); // { ballsLeft } quando dentro da Safari Zone
   const [masteryNotification, setMasteryNotification] = useState(null);
   const [activePokemonDetails, setActivePokemonDetails] = useState(null);
   const [currentView, setCurrentView] = useState('landing');
@@ -1135,6 +1140,36 @@ export default function App() {
     const newWeather = generateWeatherForRoute(route);
     setWeather(newWeather);
   }, [gameState.currentRoute, processedRoutes]);
+
+  // ── Intercepta entrada na Safari Zone ────────────────────────────────────
+  // Quando o jogador navega para 'battles' em uma rota do tipo 'safari',
+  // redireciona para a tela interativa da Safari Zone.
+  useEffect(() => {
+    if (currentView === 'battles') {
+      const route = processedRoutes[gameState.currentRoute];
+      if (route?.type === 'safari') {
+        const entryCost = route.safariEntryCost || 500;
+        const coins = gameState.inventory?.currency || gameState.inventory?.coins || 0;
+        if (coins < entryCost) {
+          addLog(`❌ Você precisa de ${entryCost} Pokédollars para entrar na Safari Zone!`, 'system');
+          setCurrentView('routes');
+          return;
+        }
+        // Deduz moedas de entrada
+        setGameState(prev => ({
+          ...prev,
+          inventory: {
+            ...prev.inventory,
+            currency: Math.max(0, (prev.inventory?.currency || 0) - entryCost),
+            coins:    Math.max(0, (prev.inventory?.coins    || 0) - entryCost),
+          },
+        }));
+        addLog(`🌿 Você pagou ${entryCost} Pokédollars e entrou na Safari Zone!`, 'success');
+        setSafariSession({ ballsLeft: 30 });
+        setCurrentView('safari');
+      }
+    }
+  }, [currentView, gameState.currentRoute, processedRoutes]);
 
   // 🛡️ PROTECTED: handleSafeNavigation — Gerenciamento centralizado de transições de tela
   const handleSafeNavigation = useCallback((targetView, extraAction = null) => {
@@ -6924,6 +6959,25 @@ export default function App() {
         </div>
       );
 
+      case 'safari': return (
+        <div className="pt-14 pb-20 h-full overflow-hidden flex flex-col">
+          <Suspense fallback={<div className="h-full flex items-center justify-center text-white font-black">Carregando...</div>}>
+            <SafariZoneScreen
+              gameState={gameState}
+              setGameState={setGameState}
+              safariSession={safariSession}
+              setSafariSession={setSafariSession}
+              addLog={addLog}
+              POKEDEX={POKEDEX}
+              onExit={() => {
+                setSafariSession(null);
+                setCurrentView('routes');
+              }}
+            />
+          </Suspense>
+        </div>
+      );
+
       case 'battles': return (
         <div className="pt-14 pb-20 h-full overflow-y-auto">
           <BattleScreen 
@@ -6992,6 +7046,7 @@ export default function App() {
           getMasteryPath={getMasteryPath}
           addLog={addLog}
           setEvolutionPending={setEvolutionPending}
+          setMegaEvolutionPending={setMegaEvolutionPending}
           handleUseCandy={handleUseCandy}
           setCurrentView={setCurrentView}
           setVsInitialTab={setVsInitialTab}
@@ -8515,17 +8570,31 @@ export default function App() {
            </div>
         </div>
       )}
-      <EvolutionScreen 
-        evolutionPending={evolutionPending} 
-        POKEDEX={POKEDEX} 
-        setGameState={setGameState} 
-        addLog={addLog} 
-        setEvolutionPending={setEvolutionPending} 
-        activeRegion={gameState.activeRegion}
-        isEvolutionAllowedForRegion={isEvolutionAllowedForRegion}
-        getEvolutionRegionLockMessage={getEvolutionRegionLockMessage}
-        gameState={gameState}
-      />
+      <Suspense fallback={null}>
+        <EvolutionScreen
+          evolutionPending={evolutionPending}
+          POKEDEX={POKEDEX}
+          setGameState={setGameState}
+          addLog={addLog}
+          setEvolutionPending={setEvolutionPending}
+          activeRegion={gameState.activeRegion}
+          isEvolutionAllowedForRegion={isEvolutionAllowedForRegion}
+          getEvolutionRegionLockMessage={getEvolutionRegionLockMessage}
+          gameState={gameState}
+        />
+      </Suspense>
+      {megaEvolutionPending && (
+        <Suspense fallback={null}>
+          <MegaEvolutionScreen
+            megaEvolutionPending={megaEvolutionPending}
+            setMegaEvolutionPending={setMegaEvolutionPending}
+            gameState={gameState}
+            setGameState={setGameState}
+            addLog={addLog}
+            POKEDEX={POKEDEX}
+          />
+        </Suspense>
+      )}
 
       {/* NOTIFICAÇíO DE MESTRIA */}
       {masteryNotification && (

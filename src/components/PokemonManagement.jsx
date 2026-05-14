@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '../data/candies';
 import { getTimeOfDay } from '../utils/timeSystem';
+import { getCompatibleMegaStones, MEGA_STONE_ICONS, getMegaSprite } from '../data/megaEvolutions';
 
 import { GYM_LEVEL_CAPS } from '../data/constants';
 import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER } from '../data/regionStandards';
@@ -29,7 +30,8 @@ const PokemonManagement = ({
   activeRegion,
   isEvolutionAllowedForRegion,
   getEvolutionRegionLockMessage,
-  CRAFTING_RECIPES
+  CRAFTING_RECIPES,
+  setMegaEvolutionPending,
 }) => {
   const [candyExpanded, setCandyExpanded] = useState(false);
   const [dragTeamIndex, setDragTeamIndex] = useState(null);
@@ -1098,6 +1100,88 @@ const PokemonManagement = ({
                               </div>
                             );
                           })}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* ── MEGA EVOLUÇÃO ──────────────────────────────────────────── */}
+                  {(() => {
+                    const poke = activePokemonDetails.pokemon;
+                    if (poke.isMega) {
+                      return (
+                        <div className="mt-6 border-t-2 border-slate-100 pt-6">
+                          <h4 className="font-black uppercase text-[10px] text-slate-800 mb-3 flex items-center gap-2">
+                            <span className="bg-purple-600 text-white w-5 h-5 rounded-lg flex items-center justify-center text-[8px]">⚡</span>
+                            Mega Evolução
+                          </h4>
+                          <div style={{ background: 'linear-gradient(135deg, #7c3aed15, #4f46e515)', borderRadius: 16, padding: 14, border: '1px solid #7c3aed30', display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <img src={getMegaSprite(poke.megaFormId)} style={{ width: 48, height: 48, objectFit: 'contain' }} alt={poke.megaName} />
+                            <div>
+                              <p style={{ fontWeight: 900, fontSize: 13, color: '#7c3aed', textTransform: 'uppercase', fontStyle: 'italic' }}>
+                                {poke.megaName}
+                              </p>
+                              <p style={{ fontSize: 10, color: '#6d28d9', fontWeight: 700, marginTop: 2 }}>
+                                ✅ Mega Evolução Permanente Ativa
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    const poke2 = activePokemonDetails.pokemon;
+                    const compatibles = getCompatibleMegaStones(poke2.id);
+                    if (compatibles.length === 0) return null;
+
+                    const inventory = gameState?.inventory?.items || {};
+                    const hasAnyStone = compatibles.some(m => (inventory[m.stoneId] || 0) > 0);
+
+                    return (
+                      <div className="mt-6 border-t-2 border-slate-100 pt-6">
+                        <h4 className="font-black uppercase text-[10px] text-slate-800 mb-3 flex items-center gap-2">
+                          <span className="bg-purple-600 text-white w-5 h-5 rounded-lg flex items-center justify-center text-[8px]">⚡</span>
+                          Mega Evolução Disponível!
+                        </h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          {compatibles.map(({ stoneId, name, megaFormId, types }) => {
+                            const stoneCount = inventory[stoneId] || 0;
+                            return (
+                              <div key={stoneId} style={{
+                                background: stoneCount > 0 ? 'linear-gradient(135deg, #7c3aed15, #4f46e510)' : '#f8fafc',
+                                borderRadius: 14, padding: '10px 14px', border: stoneCount > 0 ? '1px solid #7c3aed30' : '1px solid #e2e8f0',
+                                display: 'flex', alignItems: 'center', gap: 10,
+                              }}>
+                                <img src={getMegaSprite(megaFormId)} style={{ width: 36, height: 36, objectFit: 'contain', opacity: stoneCount > 0 ? 1 : 0.3 }} alt={name} />
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <p style={{ fontWeight: 900, fontSize: 11, color: stoneCount > 0 ? '#7c3aed' : '#94a3b8', textTransform: 'uppercase', fontStyle: 'italic' }}>{name}</p>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                                    {MEGA_STONE_ICONS[stoneId] && <img src={MEGA_STONE_ICONS[stoneId]} style={{ width: 12, height: 12 }} alt="" />}
+                                    <span style={{ fontSize: 9, fontWeight: 700, color: stoneCount > 0 ? '#d97706' : '#94a3b8' }}>
+                                      {stoneCount > 0 ? `Pedra disponível (${stoneCount}x)` : 'Pedra necessária'}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                          <button
+                            onClick={() => {
+                              if (setMegaEvolutionPending) setMegaEvolutionPending(true);
+                              setActivePokemonDetails(null);
+                            }}
+                            disabled={!hasAnyStone}
+                            style={{
+                              background: hasAnyStone ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' : '#e2e8f0',
+                              color: hasAnyStone ? '#fff' : '#94a3b8',
+                              border: 'none', borderRadius: 12, padding: '12px 0',
+                              fontWeight: 900, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em',
+                              cursor: hasAnyStone ? 'pointer' : 'not-allowed',
+                              boxShadow: hasAnyStone ? '0 4px 16px rgba(124,58,237,0.35)' : 'none',
+                            }}
+                          >
+                            ⚡ {hasAnyStone ? 'Abrir Tela de Mega Evolução' : 'Pedra Necessária'}
+                          </button>
                         </div>
                       </div>
                     );

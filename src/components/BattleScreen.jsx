@@ -399,8 +399,19 @@ const BattleScreen = ({
               </div>
               {playerShinyFlash && <ShinySparkles />}
               <img
-                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.gif`}
-                className={`w-full h-full object-contain drop-shadow-xl ${activePoke.isShiny ? 'drop-shadow-[0_0_10px_rgba(234,179,8,0.9)]' : ''}`}
+                src={
+                  activePoke.isMega && activePoke.megaFormId
+                    ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/${activePoke.megaFormId}.gif`
+                    : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.gif`
+                }
+                onError={e => {
+                  // Fallback para sprite estático se GIF mega não existir
+                  if (activePoke.isMega && activePoke.megaFormId && !e.target.dataset.fallback) {
+                    e.target.dataset.fallback = '1';
+                    e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${activePoke.megaFormId}.png`;
+                  }
+                }}
+                className={`w-full h-full object-contain drop-shadow-xl ${activePoke.isShiny ? 'drop-shadow-[0_0_10px_rgba(234,179,8,0.9)]' : ''} ${activePoke.isMega ? 'drop-shadow-[0_0_14px_rgba(124,58,237,0.7)]' : ''}`}
                 alt="Player"
               />
             </div>

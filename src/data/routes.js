@@ -1091,13 +1091,14 @@ const RAW_ROUTES = {
   },
 
   safari_zone: {
-    id: 'safari_zone', name: 'Zona Safari', type: 'farm', group: 'Fuchsia City',
+    id: 'safari_zone', name: 'Zona Safari', type: 'safari', group: 'Fuchsia City',
     unlockLevel: 38, requirements: ['rainbow_badge'],
     biome: 'grass',
     enemies: pk([102, 108, 113, 114, 115, 123, 127, 128], 35),
     trainerChance: 0, trainers: [],
     background: '/battle_bg_grass_1776863779024.png',
-    description: 'Reserva com Pokemon raros.',
+    description: 'Reserva exclusiva com Pokémon raros — captura especial sem batalha!',
+    safariEntryCost: 500,
   },
 
   fuchsia_city: {
