@@ -1,7 +1,10 @@
-export const APP_VERSION = '1.82.9';
-export const VERSION = '1.82.9';
-export const APP_VERSION_DATE = '14/05/2026 07:46';
+export const APP_VERSION = '1.82.10';
+export const VERSION = '1.82.10';
+export const APP_VERSION_DATE = '14/05/2026 08:02';
 export const CHANGELOG = [
+  '## [V1.82.10] - 14/05/2026 08:02',
+  '### Corrigido',
+  '- **Técnica do Escudo Duplo**: Bloqueio de propagação no wrapper da lista e delay de 100ms no fechamento do modal para isolamento total contra a CityScreen.',
   '## [V1.82.9] - 14/05/2026 07:46',
   '### Corrigido',
   '- **Atomic Event Shielding**: Introduzido overlay de bloqueio absoluto (z-100004) atrás do Title Picker.',

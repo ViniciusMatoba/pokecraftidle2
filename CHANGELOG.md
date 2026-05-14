@@ -1,5 +1,9 @@
 # Changelog - PokeCraft
 
+## [v1.82.10] - 14/05/2026 08:02
+### Corrigido
+- **Técnica do Escudo Duplo**: Implementada propagação bloqueada no container de lista de títulos e delay de 100ms no fechamento do modal para garantir que o clique não "vaze" para o Centro Pokémon ao fundo.
+
 ## [v1.82.9] - 14/05/2026 07:46
 ### Corrigido
 - **Escudo Atômico de Eventos**: Adicionado overlay transparente (`z-100004`) dedicado ao bloqueio de interações com o fundo durante a seleção de títulos.

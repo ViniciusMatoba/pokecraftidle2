@@ -468,7 +468,11 @@ export const TrainerCard = ({
                 <h3 className="text-white text-xl font-black uppercase italic">Seus Titulos</h3>
                 <button type="button" onClick={(e) => { e.stopPropagation(); setShowTitlePicker(false); }} className="w-8 h-8 rounded-full bg-white/10 text-white font-black">X</button>
               </div>
-              <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2" style={{ maxHeight: '60vh' }}>
+              <div 
+                className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2" 
+                style={{ maxHeight: '60vh' }}
+                onClick={(e) => e.stopPropagation()}
+              >
                 {unlockedTitles.map(title => {
                   const isSelected = activeTitleId === title.id;
                   return (
@@ -479,7 +483,8 @@ export const TrainerCard = ({
                         e.preventDefault();
                         e.stopPropagation();
                         if (canEditTitle) onSelectTitle(title.id);
-                        setShowTitlePicker(false);
+                        // Técnica do Escudo Duplo: Pequeno delay para garantir que o evento foi travado
+                        setTimeout(() => setShowTitlePicker(false), 100);
                       }}
                       onPointerDown={(e) => e.stopPropagation()}
                       onMouseDown={(e) => e.stopPropagation()}
