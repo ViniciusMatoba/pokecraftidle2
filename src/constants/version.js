@@ -1,7 +1,11 @@
-export const APP_VERSION = '1.81.1';
-export const VERSION = '1.81.1';
-export const APP_VERSION_DATE = '13/05/2026 21:23';
+export const APP_VERSION = '1.81.2';
+export const VERSION = '1.81.2';
+export const APP_VERSION_DATE = '13/05/2026 21:42';
 export const CHANGELOG = [
+  '## [V1.81.2] - 13/05/2026 21:42',
+  '### Alterado',
+  '- **Raids (Balanceamento)**: Redução drástica do HP dos Pokémon de Raid (multiplicadores reduzidos em ~60%).',
+  '- **Raids (Dano)**: Aumento da contribuição de dano do jogador em rotas para a Raid de 50% para 80%.',
   '## [V1.81.1] - 13/05/2026 21:23',
   '### Corrigido',
   '- **Raids (HP)**: Corrigido bug que causava HP inválido (NaN) em Pokémon de Raid ao converter o multiplicador de HP para um sistema de escala por estrelas.',

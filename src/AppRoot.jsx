@@ -3005,8 +3005,8 @@ export default function App() {
             });
           }
 
-          // Raid: 50% do dano do jogador vai para o Raid Boss (se ativo)
-          raidDmgToApply = Math.floor(playerDmg * 0.5);
+          // Raid: 80% do dano do jogador vai para o Raid Boss (se ativo)
+          raidDmgToApply = Math.floor(playerDmg * 0.8);
 
           addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
           if (eff > 1) addLog("💥 É super efetivo!", 'system');

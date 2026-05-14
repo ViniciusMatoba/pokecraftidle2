@@ -1,10 +1,10 @@
 // ── Configurações de Raid ──────────────────────────────────────────────────
 export const RAID_HP_MULTIPLIER = {
-  1: 10,
-  2: 25,
-  3: 70,
-  4: 150,
-  5: 350
+  1: 3,
+  2: 8,
+  3: 20,
+  4: 50,
+  5: 150
 };
 export const RAID_CATCH_ATTEMPTS = {
   1: 10, 2: 8, 3: 5, 4: 3, 5: 1
