@@ -1,7 +1,10 @@
-export const APP_VERSION = '1.81.0';
-export const VERSION = '1.81.0';
-export const APP_VERSION_DATE = '13/05/2026 21:10';
+export const APP_VERSION = '1.81.1';
+export const VERSION = '1.81.1';
+export const APP_VERSION_DATE = '13/05/2026 21:23';
 export const CHANGELOG = [
+  '## [V1.81.1] - 13/05/2026 21:23',
+  '### Corrigido',
+  '- **Raids (HP)**: Corrigido bug que causava HP inválido (NaN) em Pokémon de Raid ao converter o multiplicador de HP para um sistema de escala por estrelas.',
   '## [V1.81.0] - 13/05/2026 21:10',
   '### Concluído',
   '- **Sincronização de Milestone**: Consolidação de melhorias visuais, correções de evolução e rebalanceamento econômico.',
