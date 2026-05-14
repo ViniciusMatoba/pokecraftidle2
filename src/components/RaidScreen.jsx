@@ -16,35 +16,38 @@ const PHASE_LABELS = {
   ended:    'Raid Encerrada',
 };
 
+const POKEAPI = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
+const assetPath = (path) => `${(import.meta.env.BASE_URL || '/').replace(/\/$/, '')}${path}`;
+
 const REWARD_ICONS = {
-  rare_candy:      `${import.meta.env.BASE_URL}items/rare_candy.png`,
-  ultra_ball:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png',
-  great_ball:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png',
-  fire_stone:      `${import.meta.env.BASE_URL}items/fire_stone.png`,
-  water_stone:     `${import.meta.env.BASE_URL}items/water_stone.png`,
-  thunder_stone:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
-  moon_stone:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png',
-  sun_stone:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sun-stone.png',
-  dawn_stone:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dawn-stone.png',
-  link_cable:      `${import.meta.env.BASE_URL}items/link_cable.png`,
+  rare_candy:      assetPath('/items/rare_candy.png'),
+  ultra_ball:      `${POKEAPI}ultra-ball.png`,
+  great_ball:      `${POKEAPI}great-ball.png`,
+  fire_stone:      assetPath('/items/fire_stone.png'),
+  water_stone:     assetPath('/items/water_stone.png'),
+  thunder_stone:   `${POKEAPI}thunder-stone.png`,
+  moon_stone:      `${POKEAPI}moon-stone.png`,
+  sun_stone:       `${POKEAPI}sun-stone.png`,
+  dawn_stone:      `${POKEAPI}dawn-stone.png`,
+  link_cable:      assetPath('/items/link_cable.png'),
   
   // Custom High-Quality Local Assets
-  tm_flamethrower: `${import.meta.env.BASE_URL}items/tm_fire.png`,
-  tm_thunderbolt:  `${import.meta.env.BASE_URL}items/tm_electric.png`,
-  tm_ice_beam:     `${import.meta.env.BASE_URL}items/tm_ice.png`,
-  stardust:        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/stardust.png',
-  dragon_scale:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dragon-scale.png',
-  armor_fragment:  `${import.meta.env.BASE_URL}items/armor_fragment.png`,
-  mega_stone_shard:`${import.meta.env.BASE_URL}items/mega_stone_shard.png`,
+  tm_flamethrower: assetPath('/items/tm_fire.png'),
+  tm_thunderbolt:  assetPath('/items/tm_electric.png'),
+  tm_ice_beam:     assetPath('/items/tm_ice.png'),
+  stardust:        `${POKEAPI}stardust.png`,
+  dragon_scale:    `${POKEAPI}dragon-scale.png`,
+  armor_fragment:  assetPath('/items/armor_fragment.png'),
+  mega_stone_shard:assetPath('/items/mega_stone_shard.png'),
   
   // EXP Candies (Local Premium Assets)
-  exp_candy_xs:    `${import.meta.env.BASE_URL}items/exp_candy_xs.png`,
-  exp_candy_s:     `${import.meta.env.BASE_URL}items/exp_candy_s.png`,
-  exp_candy_m:     `${import.meta.env.BASE_URL}items/exp_candy_m.png`,
-  exp_candy_l:     `${import.meta.env.BASE_URL}items/exp_candy_l.png`,
-  exp_candy_xl:    `${import.meta.env.BASE_URL}items/exp_candy_xl.png`,
+  exp_candy_xs:    assetPath('/items/exp_candy_xs.png'),
+  exp_candy_s:     assetPath('/items/exp_candy_s.png'),
+  exp_candy_m:     assetPath('/items/exp_candy_m.png'),
+  exp_candy_l:     assetPath('/items/exp_candy_l.png'),
+  exp_candy_xl:    assetPath('/items/exp_candy_xl.png'),
   
-  currency:        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/relic-gold-coin.png',
+  currency:        `${POKEAPI}relic-gold-coin.png`,
 };
 
 const formatTime = (ms) => {

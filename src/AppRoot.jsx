@@ -50,8 +50,6 @@ import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
 import { calcExpeditionDuration, calcExpeditionDrops, calcExpeditionXP, EXPEDITION_BIOMES } from './data/expeditions';
 import { calcHarvestDrops, calcGrowthTime, calcCombinedCaretakerBonus, PLANTABLE_ITEMS, HOUSE_PURCHASE_COST } from './data/house';
 import { getTimeOfDay, TIME_CONFIG, getTimeAdjustedEnemyPool } from './utils/timeSystem';
-// import HouseScreen from './components/HouseScreen';
-// import ExpeditionsScreen from './components/ExpeditionsScreen';
 import AutoCaptureModal from './components/AutoCaptureModal';
 import ConfirmModal from './components/ConfirmModal';
 import RankingModal from './components/RankingModal';

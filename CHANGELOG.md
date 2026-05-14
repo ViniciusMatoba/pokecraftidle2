@@ -1,5 +1,12 @@
 # Changelog - PokeCraft
  
+## [v1.82.6] - 14/05/2026 07:13
+### Refactor & Cleanup
+- Auditoria de Limpeza: Remoção de ativos obsoletos (`vite.svg`, `react.svg`).
+- Limpeza de débitos técnicos: Remoção de imports comentados e código morto no `AppRoot.jsx`.
+- Padronização de ativos: Implementação de `assetPath` e `POKEAPI` no `RaidScreen.jsx` para links de recompensas.
+- Criação de Tag de segurança `v1.82.5-stable-backup` pré-limpeza.
+
 ## [V1.82.5] - 14/05/2026 06:56
 ### Adicionado
 - **Animação de Captura (Raids)**: Implementação de sistema visual completo com lançamento de pokébola, absorção do pokémon, tremores de captura e efeitos de resultado (CSS Keyframes).

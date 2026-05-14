@@ -1,5 +1,5 @@
 {
-  "version": "1.82.5",
-  "date": "14/05/2026 06:56",
-  "notes": "Sistema de animacao de captura em Raids (CSS puro) e sincronizacao deterministica de resultados."
+  "version": "1.82.6",
+  "date": "14/05/2026 07:12",
+  "notes": "Auditoria de Limpeza: Remoção de código morto, ativos obsoletos e refatoração de links de recompensas."
 }
