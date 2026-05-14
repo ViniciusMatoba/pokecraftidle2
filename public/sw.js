@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pokecraft-cache-v1.85.3';
+const CACHE_NAME = 'pokecraft-cache-v1.87.0';
 const STATIC_ASSETS = [
   './',
   './index.html',

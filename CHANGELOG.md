@@ -1,5 +1,13 @@
 # Changelog - PokeCraft
 
+## [v1.87.0] - 14/05/2026 18:00
+### Adicionado
+- **Safari Zone Interativa**: nova tela dedicada com captura sem batalha, Safari Balls por sessao e Pokemon exclusivos.
+- **Mecanicas da Safari Zone**: sistema de Isca e Lama para variar risco de fuga e chance de captura.
+- **Mega Evolucao Permanente**: sistema completo com tela dedicada, comparacao antes/depois e bonus permanentes de stats.
+- **Sistema de Clima**: Sol, Chuva, Tempestade de Areia e Granizo com multiplicadores e efeitos em batalha.
+- **Receitas Safari Zone**: Safari Ball, Isca Pokemon e Bola de Lama fabricaveis na Forja.
+
 ## [v1.85.3] - 14/05/2026 15:32
 ### Corrigido
 - **Ícone de Recompensa de Raid**: Corrigido ícone de moedas (`currency`) que estava quebrado, utilizando agora o sprite oficial de `nugget` da PokeAPI.
