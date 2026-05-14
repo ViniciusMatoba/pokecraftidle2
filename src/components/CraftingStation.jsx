@@ -1,14 +1,15 @@
 import React, { useMemo, useState } from 'react';
 
 const POKEAPI = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
+const assetPath = (path) => `${(import.meta.env.BASE_URL || '/').replace(/\/$/, '')}${path}`;
 
 // Labels amigáveis para as categorias
 const CATEGORY_LABELS = {
   consumables:  { label: 'Consumíveis', img: `${POKEAPI}potion.png`,           caption: 'Poções/Bolas' },
   hold_items:   { label: 'Hold Items',  img: `${POKEAPI}charcoal.png`,         caption: 'Equipamentos' },
   elite_relics: { label: 'Relíquias',   img: `${POKEAPI}dragon-fang.png`,      caption: 'Boss Drops'   },
-  tms:          { label: 'TMs',         img: `${POKEAPI}tm-normal.png`,        caption: 'Golpes'       },
-  mega_stones:  { label: 'Mega Stones', img: `${POKEAPI}charizardite-x.png`,   caption: 'Mega Evol.'  },
+  tms:          { label: 'TMs',         img: assetPath('/items/tm_fire.png'),  caption: 'Golpes'       },
+  mega_stones:  { label: 'Mega Stones', img: assetPath('/items/mega_stone_shard.png'),   caption: 'Mega Evol.'  },
   fishing_rods: { label: 'Varas',       img: `${POKEAPI}old-rod.png`,          caption: 'Pesca'        },
 };
 
@@ -218,7 +219,7 @@ const CraftingStation = ({
                     !unlocked ? 'bg-slate-100' : 'bg-slate-50'
                   }`}>
                     {unlocked ? (
-                      <img src={item.img} className="w-10 h-10 object-contain drop-shadow" alt={item.name}
+                      <img src={item.img.startsWith('/') ? assetPath(item.img) : item.img} className="w-10 h-10 object-contain drop-shadow" alt={item.name}
                         onError={e => { e.target.style.display = 'none'; }} />
                     ) : (
                       <div className="w-10 h-10 flex items-center justify-center text-2xl">🔒</div>

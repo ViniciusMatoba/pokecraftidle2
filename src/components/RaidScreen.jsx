@@ -17,15 +17,16 @@ const PHASE_LABELS = {
 };
 
 const REWARD_ICONS = {
-  rare_candy:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png',
+  rare_candy:      `${import.meta.env.BASE_URL}items/rare_candy.png`,
   ultra_ball:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png',
   great_ball:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png',
-  fire_stone:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png',
-  water_stone:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png',
+  fire_stone:      `${import.meta.env.BASE_URL}items/fire_stone.png`,
+  water_stone:     `${import.meta.env.BASE_URL}items/water_stone.png`,
   thunder_stone:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
   moon_stone:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png',
   sun_stone:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sun-stone.png',
   dawn_stone:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dawn-stone.png',
+  link_cable:      `${import.meta.env.BASE_URL}items/link_cable.png`,
   
   // Custom High-Quality Local Assets
   tm_flamethrower: `${import.meta.env.BASE_URL}items/tm_fire.png`,

@@ -348,7 +348,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
           <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12"></div>
           <div className="w-16 h-16 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-inner border-2 border-white group-hover:rotate-6 transition-transform">
             {item.icon.startsWith('http') || item.icon.startsWith('/') ? (
-              <img src={item.icon} className="w-10 h-10 object-contain drop-shadow-md" alt={item.name}
+              <img src={item.icon.startsWith('/') ? assetPath(item.icon) : item.icon} className="w-10 h-10 object-contain drop-shadow-md" alt={item.name}
                 onError={e => { e.target.style.display = 'none'; }} />
             ) : (
               <span className="text-3xl leading-none select-none">{item.icon}</span>
@@ -497,7 +497,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
           .map(c => ({
             key: c.id,
             label: c.name,
-            img: c.sprite,
+            img: c.img || c.sprite,
             color: c.color,
             qty: items[c.id] || 0,
             isExpCandy: true,
@@ -582,7 +582,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
               <div className="flex items-center gap-2">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${activeTab === cat.id ? 'bg-white/25' : 'bg-slate-100'}`}>
                   {cat.img ? (
-                    <img src={cat.img} alt={cat.label} className="w-8 h-8 object-contain" onError={e => { e.target.style.display = 'none'; }} />
+                    <img src={cat.img.startsWith('/') ? assetPath(cat.img) : cat.img} alt={cat.label} className="w-8 h-8 object-contain" onError={e => { e.target.style.display = 'none'; }} />
                   ) : (
                     <span className="text-xl">{cat.emoji}</span>
                   )}

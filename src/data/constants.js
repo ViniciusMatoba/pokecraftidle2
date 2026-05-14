@@ -310,11 +310,11 @@ export const ITEM_LABELS = {
   poke_food_premium: { icon: '🥩', name: 'Ração Premium' },
 
   // Pedras de Evolução
-  fire_stone: { icon: '🔥', name: 'Pedra do Fogo' },
-  water_stone: { icon: '💧', name: 'Pedra da Água' },
-  leaf_stone: { icon: '🍃', name: 'Pedra da Folha' },
-  thunder_stone: { icon: '⚡', name: 'Pedra do Trovão' },
-  moon_stone: { icon: '🌙', name: 'Pedra da Lua' },
+  fire_stone: { icon: '/items/fire_stone.png', name: 'Pedra do Fogo' },
+  water_stone: { icon: '/items/water_stone.png', name: 'Pedra da Água' },
+  leaf_stone: { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png', name: 'Pedra da Folha' },
+  thunder_stone: { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png', name: 'Pedra do Trovão' },
+  moon_stone: { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png', name: 'Pedra da Lua' },
   
   // Mega Stones
   charizardite_x: { icon: '🔥', name: 'Charizardite X' },
@@ -391,10 +391,15 @@ export const ITEM_LABELS = {
 
   // Itens de Batalha
   potion:            { icon: '🧪', name: 'Poção' },
-  link_cable:        { icon: '🔌', name: 'Link Cable' },
+  link_cable:        { icon: '/items/link_cable.png', name: 'Link Cable' },
 
   // Pedra de Evolução extra
-  sun_stone:         { icon: '☀️', name: 'Pedra do Sol' },
+  sun_stone:         { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sun-stone.png', name: 'Pedra do Sol' },
+  ice_stone:         { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ice-stone.png', name: 'Pedra do Gelo' },
+  shiny_stone:       { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/shiny-stone.png', name: 'Pedra do Brilho' },
+  dawn_stone:        { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dawn-stone.png', name: 'Pedra da Alvorada' },
+  dusk_stone:        { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dusk-stone.png', name: 'Pedra do Crepúsculo' },
+  rare_candy:        { icon: '/items/rare_candy.png', name: 'Rare Candy' },
 
   // Drops de Expedição — Kanto
   pearl:             { icon: '🔮', name: 'Pérola' },

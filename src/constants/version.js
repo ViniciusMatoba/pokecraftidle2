@@ -1,7 +1,13 @@
-export const APP_VERSION = '1.80.7';
-export const VERSION = '1.80.7';
-export const APP_VERSION_DATE = '13/05/2026 23:57';
+export const APP_VERSION = '1.80.8';
+export const VERSION = '1.80.8';
+export const APP_VERSION_DATE = '14/05/2026 00:04';
 export const CHANGELOG = [
+  '## [V1.80.8] - 14/05/2026 00:04',
+  '### Adicionado',
+  '- **Imagens Premium**: Adicionadas novas artes em pixel-art de alta fidelidade para itens chave: Fire Stone, Water Stone, Link Cable e Rare Candy.',
+  '### Corrigido',
+  '- **Mochila (Visual)**: Corrigido bug de caminhos de imagem que impedia a exibição de ícones locais no GitHub Pages (implementação de `assetPath`).',
+  '- **Menu**: Corrigida a exibição de EXP Candies que estava com a propriedade de imagem incorreta.',
   '## [V1.80.7] - 13/05/2026 23:57',
   '### Corrigido',
   '- **Evoluções por Troca**: 8 Pokémon (Boldore, Gurdurr, Phantump, etc.) agora evoluem via `link_cable` em vez de nível.',
