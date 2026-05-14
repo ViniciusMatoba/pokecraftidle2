@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [v1.88.4] - 14/05/2026 19:19
+### Adicionado
+- **Botão Sair**: botão "Sair da Conta" na tela inicial (visível apenas quando logado) — desloga via Firebase e retorna à tela de login.
+### Corrigido
+- **Ícone Minha Casa**: substituído por casinha SVG com temática cartoon/Pokémon (telhado vermelho, janelas azuis, porta de madeira e chaminé).
+
 ## [v1.88.3] - 14/05/2026 19:07
 ### Corrigido
 - **Forja (Bug Crítico)**: itens não eram fabricados mesmo após confirmação. Causa: validação de materiais ignorava `inventory.items`, causando falha silenciosa quando parte dos recursos estava nessa sub-chave. Dedução agora drena `materials` primeiro e `items` depois, espelhando o cálculo da UI.

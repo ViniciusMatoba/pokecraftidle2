@@ -1,7 +1,12 @@
-export const APP_VERSION = '1.88.3';
-export const VERSION = '1.88.3';
-export const APP_VERSION_DATE = '14/05/2026 19:07';
+export const APP_VERSION = '1.88.4';
+export const VERSION = '1.88.4';
+export const APP_VERSION_DATE = '14/05/2026 19:19';
 export const CHANGELOG = [
+  '## [V1.88.4] - 14/05/2026 19:19',
+  '### Adicionado',
+  '- **Botão Sair**: botão "Sair da Conta" na tela inicial para deslogar e retornar à tela de login.',
+  '### Corrigido',
+  '- **Ícone Minha Casa**: substituído por casinha em SVG com temática cartoon/Pokémon (telhado vermelho, janelas, porta e chaminé).',
   '## [V1.88.3] - 14/05/2026 19:07',
   '### Corrigido',
   '- **Forja (Bug Crítico)**: itens não eram fabricados mesmo após confirmação. Validação agora soma materials + items (igual à UI), deduzi materials primeiro e items depois.',
