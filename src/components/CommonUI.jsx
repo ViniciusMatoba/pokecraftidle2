@@ -202,7 +202,6 @@ export const BadgeSVG = ({ badgeId, earned, size = 20 }) => {
   );
 };
 
-
 export const MoveCategoryIcon = ({ category }) => {
   if (category === 'Physical') return <span className="bg-red-600 text-[8px] px-1.5 py-0.5 rounded-md font-black text-white shadow-sm" title="Physical">⚔️</span>;
   if (category === 'Special') return <span className="bg-indigo-600 text-[8px] px-1.5 py-0.5 rounded-md font-black text-white shadow-sm" title="Special">🟡</span>;
@@ -226,7 +225,6 @@ export const StatusBadges = ({ status = [], stages = {} }) => {
 
   return (
     <div className="flex flex-wrap gap-1 mt-1 justify-start items-center">
-      {/* Condiçíµes de Status */}
       {safeStatus.map((s, i) => {
         const config = statusConfig[s] || { label: s.toUpperCase(), color: 'bg-slate-400', icon: 'S' };
         return (
@@ -238,8 +236,6 @@ export const StatusBadges = ({ status = [], stages = {} }) => {
           </span>
         );
       })}
-
-      {/* Buffs/Debuffs (Stages) */}
       {Object.entries(safeStages).map(([stat, val]) => {
         if (val === 0 || val === undefined) return null;
         const isPos = val > 0;
@@ -294,24 +290,29 @@ export const TrainerCard = ({
   bossDamage = 0,
   shinyCount = 0,
   trainerBattleWins = 0,
-  inventoryItems = {},
+  appearance = {},
   compactExpandable = false,
   onSelectTitle = null,
-  appearance = {},
+  playerStats = {},
+  prestige = {},
 }) => {
   const [expanded, setExpanded] = React.useState(!compactExpandable);
   const [showPsInfo, setShowPsInfo] = React.useState(false);
   const [showTitlePicker, setShowTitlePicker] = React.useState(false);
   if (!trainer) return null;
 
-  // ── Resolve cosméticos equipados ────────────────────────────────────────
   const equippedSprite = AVATAR_SPRITES[appearance.spriteId] || AVATAR_SPRITES.red;
   const equippedFrame  = CARD_FRAMES[appearance.frameId]     || CARD_FRAMES.default;
   const equippedBg     = CARD_BACKGROUNDS[appearance.bgId]   || CARD_BACKGROUNDS.slate;
   const tintFilter     = getTintFilter(appearance.tintId || 'none');
   const avatarSrc      = equippedSprite.sprite || trainer.avatarImg || 'https://play.pokemonshowdown.com/sprites/trainers/red.png';
   const showDetails = !compactExpandable || expanded;
-  const titleContext = { caughtData, caughtCount, worldFlags, forgedItems, bossDamage, shinyCount, trainerBattleWins };
+  
+  const titleContext = { 
+    caughtData, caughtCount, worldFlags, forgedItems, bossDamage, 
+    shinyCount, trainerBattleWins, playerStats, badges, 
+    purchasedTitles: prestige?.purchasedTitles || [] 
+  };
   const unlockedTitles = getUnlockedTrainerTitles(titleContext);
   const activeTitle = unlockedTitles.find(title => title.id === trainer.titleId) || getPrimaryTrainerTitle(titleContext);
   const canEditTitle = typeof onSelectTitle === 'function';
@@ -326,18 +327,21 @@ export const TrainerCard = ({
     { id: 'crafting', icon: '🔨', label: 'Crafting', active: forgedItems >= 1, title: 'Primeira Forja' },
     { id: 'slayer', icon: '💀', label: 'Boss Slayer', active: bossDamage >= 100000, title: '100k+ Dano Boss' }
   ];
+
   const psRanks = [
-    { min: 0, label: 'Poké Ball', item: 'poke-ball', colors: ['#ef4444', '#ffffff', '#1f2937'] },
-    { min: 150000, label: 'Great Ball', item: 'great-ball', colors: ['#2563eb', '#ef4444', '#f8fafc'] },
-    { min: 350000, label: 'Ultra Ball', item: 'ultra-ball', colors: ['#facc15', '#111827', '#f97316'] },
-    { min: 750000, label: 'Master Ball', item: 'master-ball', colors: ['#a855f7', '#ec4899', '#f8fafc'] },
+    { min: 0, label: 'Poké Ball', item: 'poke-ball' },
+    { min: 150000, label: 'Great Ball', item: 'great-ball' },
+    { min: 350000, label: 'Ultra Ball', item: 'ultra-ball' },
+    { min: 750000, label: 'Master Ball', item: 'master-ball' },
   ];
+
   const psRankIndex = psRanks.reduce((current, rank, index) => (powerScore >= rank.min ? index : current), 0);
   const psRank = psRanks[psRankIndex];
   const nextPsRank = psRanks[psRankIndex + 1];
   const psRankProgress = nextPsRank
     ? Math.min(100, Math.max(8, ((powerScore - psRank.min) / (nextPsRank.min - psRank.min)) * 100))
     : 100;
+
   const badgeSources = new Set([...(badges || []).map(String), ...(worldFlags || []).map(String)]);
   const allBadgeIds = [
     ...BADGE_IDS,
@@ -346,11 +350,13 @@ export const TrainerCard = ({
     ...SINNOH_BADGE_IDS,
     ...FUTURE_REGION_BADGES.flatMap(region => region.badges),
   ];
+
   (badges || []).forEach(badge => {
     if (typeof badge !== 'number') return;
     const legacyId = allBadgeIds[badge - 1];
     if (legacyId) badgeSources.add(legacyId);
   });
+
   const regionBadgeGroups = [
     { label: 'Kanto', ids: BADGE_IDS },
     { label: 'Johto', ids: JOHTO_BADGE_IDS },
@@ -361,450 +367,171 @@ export const TrainerCard = ({
     ...region,
     count: region.ids.filter(id => badgeSources.has(id)).length,
   }));
-  const badgeCount = regionBadgeGroups.reduce((sum, region) => sum + region.count, 0);
+
+  const badgeCountTotal = regionBadgeGroups.reduce((sum, region) => sum + region.count, 0);
 
   return (
     <div
-      className={`relative p-5 rounded-[2rem] border-4 shadow-2xl flex flex-col gap-5 text-left overflow-hidden transition-all bg-gradient-to-b ${equippedBg.gradient} ${compactExpandable ? 'cursor-pointer active:scale-[0.99]' : ''}`}
+      className={`relative p-5 rounded-[2.5rem] border-4 shadow-2xl flex flex-col gap-5 text-left overflow-hidden transition-all bg-gradient-to-b ${equippedBg.gradient} ${compactExpandable ? 'cursor-pointer active:scale-[0.99]' : ''}`}
       style={{ borderColor: equippedFrame.preview }}
       onClick={compactExpandable ? () => setExpanded(prev => !prev) : undefined}
-      role={compactExpandable ? 'button' : undefined}
-      tabIndex={compactExpandable ? 0 : undefined}
-      onKeyDown={compactExpandable ? (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          setExpanded(prev => !prev);
-        }
-      } : undefined}
-      aria-expanded={compactExpandable ? expanded : undefined}
     >
-      <style>{`
-        @keyframes glow {
-          0%, 100% { filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.5)); transform: scale(1); }
-          50% { filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.8)); transform: scale(1.1); }
-        }
-        .animate-glow { animation: glow 2s ease-in-out infinite; }
-        @keyframes psPulse {
-          0%, 100% { box-shadow: 0 0 0 1px rgba(239,68,68,.24), 0 0 18px rgba(239,68,68,.14); }
-          50% { box-shadow: 0 0 0 1px rgba(250,204,21,.26), 0 0 22px rgba(250,204,21,.12); }
-        }
-        .trainer-ps-panel { animation: psPulse 2.4s ease-in-out infinite; }
-        @keyframes neonSweep {
-          0% { transform: translateX(-120%); opacity: .15; }
-          45% { opacity: .75; }
-          100% { transform: translateX(140%); opacity: .08; }
-        }
-      `}</style>
-
-      {/* Topo: Sprite + Nome/PS */}
       <div className="flex items-center gap-3">
-        <div className="rounded-3xl p-3 border-2 shadow-inner shrink-0 bg-black/30"
-          style={{ borderColor: equippedFrame.preview }}>
-          <img
-            src={avatarSrc}
-            onError={(e) => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }}
-            alt="Avatar"
-            className="w-20 h-20 object-contain drop-shadow-lg"
-            style={{ imageRendering: 'pixelated', filter: tintFilter !== 'none' ? tintFilter : undefined }}
-          />
+        <div className="rounded-3xl p-3 border-2 shadow-inner shrink-0 bg-black/30" style={{ borderColor: equippedFrame.preview }}>
+          <img src={avatarSrc} alt="Avatar" className="w-20 h-20 object-contain drop-shadow-lg" style={{ imageRendering: 'pixelated', filter: tintFilter !== 'none' ? tintFilter : undefined }} />
         </div>
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          <div className="min-w-0 flex-1">
-           <div className="flex min-w-0 flex-wrap items-center gap-2">
-             <h3 className="min-w-0 max-w-full truncate font-black text-2xl text-white uppercase italic tracking-tighter leading-none">
-               {trainer.name || 'Treinador'}
-             </h3>
-             {(activeTitle || canEditTitle) && (
-               <button
-                 type="button"
-                 onClick={(e) => {
-                   e.stopPropagation();
-                   setShowTitlePicker(true);
-                 }}
-                 className="inline-flex min-h-[30px] max-w-full items-center gap-2 rounded-xl border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-white shadow-inner transition-transform active:scale-95"
-                 style={{
-                   borderColor: activeTitle ? `${activeTitle.color}88` : 'rgba(255,255,255,.18)',
-                   background: activeTitle ? activeTitle.bg : 'linear-gradient(135deg, rgba(255,255,255,.08), rgba(15,23,42,.55))',
-                   color: '#fff',
-                 }}
-                 title={activeTitle?.description || 'Escolher titulo do Trainer Card'}
-               >
-                 {activeTitle ? (
-                   <img src={activeTitle.icon} className="h-5 w-5 shrink-0 object-contain" alt="" />
-                 ) : (
-                   <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs leading-none">+</span>
-                 )}
-                 <span className="truncate">{activeTitle?.label || 'Adicionar titulo'}</span>
-               </button>
-             )}
-           </div>
-           <div className="mt-2 flex flex-wrap items-center gap-2">
-             {!compactExpandable && (
-                <span className="bg-slate-700 text-slate-300 text-[10px] px-3 py-1 rounded-full font-black border border-slate-600">
-                  Nv. {trainer.level || 1}
-               </span>
-             )}
-            </div>
-          </div>
+        <div className="flex-1">
+          <h3 className="font-black text-2xl text-white uppercase italic tracking-tighter">{trainer.name || 'Treinador'}</h3>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); if (canEditTitle) setShowTitlePicker(true); }}
+            className={`mt-2 inline-flex items-center gap-2 rounded-xl border px-3 py-1 text-[9px] font-black uppercase text-white ${canEditTitle ? 'active:scale-95' : ''}`}
+            style={{ borderColor: activeTitle ? `${activeTitle.color}88` : 'rgba(255,255,255,.18)', background: activeTitle ? activeTitle.bg : 'rgba(0,0,0,0.2)' }}
+          >
+             {activeTitle?.label || 'Iniciante'}
+          </button>
         </div>
         {compactExpandable && (
-          <div className="shrink-0 w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white/60 font-black">
-            {expanded ? 'x' : '+'}
+          <div className="shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/50">
+            {expanded ? '▲' : '▼'}
           </div>
         )}
       </div>
+
+      {showDetails && (
+        <div className="grid gap-4 animate-fadeIn">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setShowPsInfo(true); }}
+            className="trainer-ps-panel relative overflow-hidden rounded-2xl border border-slate-600/70 border-l-red-500 bg-gradient-to-br from-[#202033] to-[#111827] p-4 text-left shadow-lg"
+            style={{ borderLeftWidth: 5 }}
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <span className="text-[8px] font-black uppercase text-amber-200/80">Poder PS</span>
+                <p className="text-xl font-black text-white">{powerScore.toLocaleString()}</p>
+              </div>
+              <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${psRank.item}.png`} className="h-10 w-10 object-contain" alt="" />
+            </div>
+            <div className="mt-2 h-1.5 rounded-full bg-black/40 overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-red-500 to-amber-300" style={{ width: `${psRankProgress}%` }} />
+            </div>
+          </button>
+
+          <div className="grid grid-cols-4 gap-2">
+            <StatSmall label="Dex" value={caughtCount} />
+            <StatSmall label="Shiny" value={shinyCount} />
+            <StatSmall label="Badges" value={badgeCountTotal} />
+            <StatSmall label="Wins" value={trainerBattleWins} />
+          </div>
+
+          <div className="space-y-3 bg-black/20 p-4 rounded-2xl border border-white/5 shadow-inner">
+            <BadgeRow label="Kanto" ids={BADGE_IDS} earnedList={badges} champion={isKantoChampion} />
+            <div className="h-px bg-white/5 w-full"></div>
+            <BadgeRow label="Johto" ids={JOHTO_BADGE_IDS} earnedList={badges} champion={isJohtoChampion} offset={9} />
+            {isJohtoChampion && (
+              <>
+                <div className="h-px bg-white/5 w-full"></div>
+                <BadgeRow label="Hoenn" ids={HOENN_BADGE_IDS} earnedList={worldFlags} champion={isHoennChampion} />
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {showTitlePicker && (
-        <div
-          className="fixed inset-0 z-[60000] flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-md animate-fadeIn"
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowTitlePicker(false);
-          }}
-        >
-          <div
-            className="w-full max-w-[420px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#171a2d] shadow-2xl animate-bounceIn"
-            style={{ maxHeight: '88dvh' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-slate-800 to-slate-900 px-5 py-4">
-              <div>
-                <p className="text-[9px] font-black uppercase tracking-[0.24em] text-amber-100/70">Trainer Card</p>
-                <h3 className="text-xl font-black uppercase italic leading-none text-white">Titulos desbloqueados</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowTitlePicker(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-sm font-black text-white"
-              >
-                x
-              </button>
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn" onClick={() => setShowTitlePicker(false)}>
+          <div className="w-full max-w-[400px] bg-[#0f172a] rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col animate-bounceIn overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="bg-slate-800/50 px-6 py-5 flex items-center justify-between border-b border-white/5">
+               <h3 className="text-white text-xl font-black uppercase italic">Seus Titulos</h3>
+               <button onClick={() => setShowTitlePicker(false)} className="w-8 h-8 rounded-full bg-white/10 text-white font-black">✕</button>
             </div>
-            <div className="custom-scrollbar grid gap-3 overflow-y-auto p-5" style={{ maxHeight: 'calc(88dvh - 82px)' }}>
-              {unlockedTitles.map(title => {
-                const selected = activeTitle?.id === title.id;
-                return (
-                <button
-                  type="button"
-                  key={title.id}
-                  disabled={!canEditTitle}
-                  onClick={() => {
-                    if (!canEditTitle) return;
-                    onSelectTitle(title.id);
-                    // Pequeno delay para o usuário ver o highlight "Ativo" antes de fechar
-                    setTimeout(() => setShowTitlePicker(false), 200);
-                  }}
-                  className={`rounded-2xl border p-3 text-left shadow-inner transition-all ${canEditTitle ? 'active:scale-[0.99] hover:brightness-110' : ''} ${selected ? 'ring-2 ring-white/60' : ''}`}
-                  style={{ borderColor: selected ? title.color : `${title.color}66`, background: title.bg }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-black/20 ring-1 ring-white/10">
-                      <img src={title.icon} className="h-9 w-9 object-contain" alt="" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-black uppercase italic text-white">{title.label}</p>
-                      <p className="mt-1 text-[10px] font-bold leading-snug text-white/55">{title.description}</p>
-                    </div>
-                    {selected && (
-                      <span className="rounded-full bg-white/15 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-white">
-                        Ativo
-                      </span>
-                    )}
-                  </div>
-                </button>
-              );
-              })}
-              {unlockedTitles.length === 0 && (
-                <p className="rounded-2xl bg-white/[0.04] p-5 text-center text-xs font-bold italic text-white/40">
-                  Capture Pokemon, vença ligas e evolua sua jornada para liberar titulos.
-                </p>
-              )}
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2" style={{ maxHeight: '60vh' }}>
+               {unlockedTitles.map(title => {
+                 const isSelected = trainer.titleId === title.id;
+                 return (
+                   <button
+                     key={title.id}
+                     onClick={() => {
+                       if (canEditTitle) onSelectTitle(title.id);
+                       setShowTitlePicker(false);
+                     }}
+                     className={`w-full p-4 rounded-3xl border-2 transition-all flex items-center gap-4 text-left ${isSelected ? 'border-blue-500 bg-blue-500/10' : 'border-white/5 bg-white/5 hover:border-white/10'}`}
+                   >
+                     <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border" style={{ background: title.bg, borderColor: title.color }}>
+                       {title.icon && <img src={title.icon} className="w-8 h-8 object-contain" alt="" />}
+                     </div>
+                     <div className="flex-1 min-w-0">
+                        <p className={`font-black uppercase text-xs leading-none mb-1 ${isSelected ? 'text-blue-400' : 'text-white'}`}>{title.label}</p>
+                        <p className="text-[9px] text-white/40 line-clamp-1">{title.description}</p>
+                     </div>
+                   </button>
+                 );
+               })}
             </div>
           </div>
         </div>
       )}
-
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          setShowPsInfo(true);
-        }}
-        className="trainer-ps-panel relative overflow-hidden rounded-2xl border border-slate-600/70 border-l-red-500 bg-gradient-to-br from-[#202033] via-[#171a2d] to-[#111827] text-left shadow-[0_10px_22px_rgba(0,0,0,0.22)] transition-transform active:scale-[0.99]"
-        style={{ borderLeftWidth: 5, padding: '18px 16px 14px 28px' }}
-        aria-label="Explicar Poder PS"
-      >
-        <div className="absolute -right-10 -top-12 h-28 w-28 rounded-full bg-red-500/8 blur-2xl"></div>
-        <div className="absolute -left-8 bottom-0 h-20 w-20 rounded-full bg-amber-300/6 blur-2xl"></div>
-        <div className="relative flex items-center gap-4">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <span className="text-[9px] font-black uppercase tracking-[0.18em] text-amber-200/80">Poder PS</span>
-              <span className="rounded-md border border-white/10 bg-black/20 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-white/65">
-                {psRank.label}
-              </span>
-              <span className="rounded-md border border-amber-200/15 bg-white/[0.06] px-2 py-1 text-[8px] font-black uppercase tracking-widest text-amber-100/70">Info</span>
-            </div>
-            <div className="mt-2 flex items-end gap-2">
-              <span className="text-[2.2rem] font-black leading-none text-white tabular-nums tracking-tight drop-shadow-[0_3px_8px_rgba(0,0,0,0.45)]">
-                {powerScore.toLocaleString()}
-              </span>
-            </div>
-          </div>
-          <div
-            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/[0.06] shadow-inner"
-            title={`Rank ${psRank.label}`}
-          >
-            <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${psRank.item}.png`} className="h-12 w-12 object-contain drop-shadow-[0_5px_9px_rgba(0,0,0,0.55)]" alt={psRank.label} />
-          </div>
-        </div>
-        <div className="relative mt-3 h-2 overflow-hidden rounded-full bg-black/40 ring-1 ring-white/10">
-          <div className="h-full rounded-full bg-gradient-to-r from-red-500 to-amber-300" style={{ width: `${psRankProgress}%` }}></div>
-        </div>
-      </button>
 
       {showPsInfo && (
-        <div
-          className="fixed inset-0 z-[60000] flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-md animate-fadeIn"
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowPsInfo(false);
-          }}
-        >
-          <div
-            className="w-full max-w-[400px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#171a2d] shadow-2xl animate-bounceIn"
-            style={{ maxHeight: '88dvh' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-red-600 to-red-700 px-5 py-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15">
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${psRank.item}.png`} className="h-9 w-9 object-contain" alt="" />
-                </div>
-                <div>
-                  <p className="text-[9px] font-black uppercase tracking-[0.24em] text-amber-100/85">Poder do Treinador</p>
-                  <h3 className="text-xl font-black uppercase italic leading-none text-white">PODER PS</h3>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowPsInfo(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-sm font-black text-white"
-              >
-                x
-              </button>
-            </div>
-
-            <div className="custom-scrollbar space-y-4 overflow-y-auto p-5" style={{ maxHeight: 'calc(88dvh - 80px)' }}>
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                <p className="text-[9px] font-black uppercase tracking-[0.22em] text-slate-400">PS atual</p>
-                <div className="mt-2 flex items-center justify-between gap-3">
-                  <span className="text-3xl font-black leading-none text-white tabular-nums">{powerScore.toLocaleString()}</span>
-                  <span className="rounded-xl border border-amber-200/20 bg-black/20 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-amber-100">
-                    {psRank.label}
-                  </span>
-                </div>
-              </div>
-
-              <div className="rounded-2xl bg-slate-950/45 p-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">Como é composto</p>
-                <p className="mt-2 text-[11px] font-bold leading-relaxed text-slate-400">
-                  O PS soma Pokémon de todas as regiões, PC, equipes regionais, expedições, casa e Pokédex capturada.
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn" onClick={() => setShowPsInfo(false)}>
+          <div className="w-full max-w-sm bg-slate-900 rounded-[2.5rem] border-4 border-slate-700 overflow-hidden flex flex-col animate-bounceIn" onClick={e => e.stopPropagation()}>
+             <div className="bg-red-600 p-6 text-center">
+                <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${psRank.item}.png`} className="w-16 h-16 mx-auto mb-2 drop-shadow-lg" alt="" />
+                <h3 className="text-white text-2xl font-black uppercase italic leading-none">Poder PS</h3>
+                <p className="text-white/70 text-[10px] font-black uppercase mt-1 tracking-widest">{psRank.label} Rank</p>
+             </div>
+             <div className="p-6 space-y-4">
+                <p className="text-white/60 text-xs font-medium leading-relaxed text-center">
+                  O Power Score representa sua força total somando Pokémon, Pokédex, Insígnias e feitos heroicos.
                 </p>
-                <div className="mt-3 grid grid-cols-1 gap-2 text-xs font-bold text-slate-200">
-                  <div className="flex min-h-[38px] items-center justify-between gap-3 rounded-xl bg-white/[0.04] px-3 py-2">
-                    <span>Atributos dos Pokémon de todas as regiões</span>
-                    <span className="text-amber-100">base</span>
-                  </div>
-                  <div className="flex min-h-[38px] items-center justify-between gap-3 rounded-xl bg-white/[0.04] px-3 py-2">
-                    <span>Nível de cada Pokémon</span>
-                    <span className="text-amber-100">nível x10</span>
-                  </div>
-                  <div className="flex min-h-[38px] items-center justify-between gap-3 rounded-xl bg-white/[0.04] px-3 py-2">
-                    <span>Insígnias por região</span>
-                    <span className="text-amber-100">{badgeCount} x 1.000</span>
-                  </div>
-                  <div className="flex min-h-[38px] items-center justify-between gap-3 rounded-xl bg-white/[0.04] px-3 py-2">
-                    <span>Bônus de Pokémon shiny</span>
-                    <span className="text-amber-100">+35% ou 500</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-2xl bg-slate-950/45 p-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">Insígnias somadas</p>
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  {regionBadgeGroups.filter(region => region.count > 0 || ['Kanto', 'Johto', 'Hoenn', 'Sinnoh'].includes(region.label)).map(region => (
-                    <div key={region.label} className="rounded-xl border border-white/10 bg-white/[0.035] px-3 py-2">
-                      <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">{region.label}</p>
-                      <p className="mt-1 text-sm font-black text-white">{region.count}/8</p>
+                <div className="space-y-2">
+                  {psRanks.map(rank => (
+                    <div key={rank.label} className={`flex items-center justify-between p-3 rounded-xl border ${psRank.label === rank.label ? 'border-amber-400 bg-amber-400/10' : 'border-white/5 bg-white/5'}`}>
+                      <div className="flex items-center gap-2">
+                         <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${rank.item}.png`} className="w-6 h-6" alt="" />
+                         <span className="text-xs font-black text-white uppercase">{rank.label}</span>
+                      </div>
+                      <span className="text-xs font-black text-slate-400">{rank.min.toLocaleString()}</span>
                     </div>
                   ))}
                 </div>
-              </div>
-
-              <div className="rounded-2xl bg-slate-950/45 p-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">Régua de rank</p>
-                <div className="mt-3 space-y-2">
-                  {psRanks.map(rank => {
-                    const active = psRank.label === rank.label;
-                    return (
-                      <div key={rank.label} className={`flex min-h-[48px] items-center gap-3 rounded-xl border px-3 py-2 ${active ? 'border-amber-300/45 bg-amber-300/10' : 'border-white/8 bg-white/[0.035]'}`}>
-                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${rank.item}.png`} className="h-7 w-7 object-contain" alt="" />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-black uppercase text-white">{rank.label}</p>
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                            {rank.min.toLocaleString()} PS+
-                          </p>
-                        </div>
-                        {active && <span className="text-[9px] font-black uppercase text-amber-100">Atual</span>}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
+                <button onClick={() => setShowPsInfo(false)} className="w-full bg-white text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg">Entendido</button>
+             </div>
           </div>
         </div>
-      )}
-
-      {/* Seção de Regiões */}
-      {showDetails && (
-      <div className="space-y-3 bg-black/20 p-4 rounded-2xl border border-white/5 shadow-inner">
-        {/* Kanto */}
-        <div className="flex items-center gap-3">
-          <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest w-12 shrink-0">Kanto</span>
-          <div className="flex-1 flex items-center gap-1.5 overflow-x-auto custom-scrollbar no-scrollbar py-1">
-            {BADGE_IDS.map((id, i) => (
-              <BadgeSVG key={id} badgeId={id} earned={badges.includes(id) || badges.includes(i + 1)} size={18} />
-            ))}
-          </div>
-          <div className="w-8 flex justify-center shrink-0">
-            {isKantoChampion && (
-              <span className="text-xl animate-glow" title="Campeão de Kanto">👑</span>
-            )}
-          </div>
-        </div>
-
-        <div className="h-px bg-white/5 w-full"></div>
-
-        {/* Johto */}
-        <div className="flex items-center gap-3">
-          <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest w-12 shrink-0">Johto</span>
-          <div className="flex-1 flex items-center gap-1.5 overflow-x-auto custom-scrollbar no-scrollbar py-1">
-            {JOHTO_BADGE_IDS.map((id, i) => (
-              <BadgeSVG key={id} badgeId={id} earned={badges.includes(id) || badges.includes(i + 9) || worldFlags.includes(id)} size={18} />
-            ))}
-          </div>
-          <div className="w-8 flex justify-center shrink-0">
-            {isJohtoChampion && (
-              <span className="text-xl animate-glow" title="Campeão de Johto">👑</span>
-            )}
-          </div>
-        </div>
-
-        {worldFlags.includes('johto_champion') && (
-          <>
-            <div className="h-px bg-white/5 w-full"></div>
-            {/* Hoenn */}
-            <div className="flex items-center gap-3">
-              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest w-12 shrink-0">Hoenn</span>
-              <div className="flex-1 flex items-center gap-1.5 overflow-x-auto custom-scrollbar no-scrollbar py-1">
-                {HOENN_BADGE_IDS.map((id, i) => (
-                  <BadgeSVG key={id} badgeId={id} earned={badges.includes(id) || worldFlags.includes(id)} size={18} />
-                ))}
-              </div>
-              <div className="w-8 flex justify-center shrink-0">
-                {isHoennChampion && (
-                  <span className="text-xl animate-glow" title="Campeão de Hoenn">👑</span>
-                )}
-              </div>
-            </div>
-          </>
-        )}
-        {(worldFlags.includes('hoenn_champion') || worldFlags.includes('sinnoh_started')) && (
-          <>
-            <div className="h-px bg-white/5 w-full"></div>
-            <div className="flex items-center gap-3">
-              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest w-12 shrink-0">Sinnoh</span>
-              <div className="flex-1 flex items-center gap-1.5 overflow-x-auto custom-scrollbar no-scrollbar py-1">
-                {SINNOH_BADGE_IDS.map((id, i) => (
-                  <BadgeSVG key={id} badgeId={id} earned={badges.includes(id) || worldFlags.includes(id)} size={18} />
-                ))}
-              </div>
-              <div className="w-8 flex justify-center shrink-0">
-                {isSinnohChampion && (
-                  <span className="text-xl animate-glow" title="Campeao de Sinnoh">👑</span>
-                )}
-              </div>
-            </div>
-          </>
-        )}
-        {FUTURE_REGION_BADGES
-          .filter(region => worldFlags.includes(region.started) || worldFlags.includes(region.champion) || worldFlags.includes(`region_champion_${region.id}`))
-          .map(region => (
-            <React.Fragment key={region.id}>
-              <div className="h-px bg-white/5 w-full"></div>
-              <div className="flex items-center gap-3">
-                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest w-12 shrink-0">{region.label}</span>
-                <div className="flex-1 flex items-center gap-1.5 overflow-x-auto custom-scrollbar no-scrollbar py-1">
-                  {region.badges.map((id) => (
-                    <BadgeSVG key={id} badgeId={id} earned={badges.includes(id) || worldFlags.includes(id)} size={18} />
-                  ))}
-                </div>
-                <div className="w-8 flex justify-center shrink-0">
-                  {(worldFlags.includes(region.champion) || worldFlags.includes(`region_champion_${region.id}`)) && (
-                    <span className="text-xl animate-glow" title={`Campeao de ${region.label}`}>ðŸ‘‘</span>
-                  )}
-                </div>
-              </div>
-            </React.Fragment>
-          ))}
-      </div>
-      )}
-
-      {/* Sistema de Medalhas (Rodapé) */}
-      {!compactExpandable && (
-      <div className="bg-slate-800/40 rounded-2xl p-4 border border-white/5">
-        <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em] mb-3 text-center">Conquistas de Elite</p>
-        <div className="flex justify-around items-center">
-          {achievements.map(ach => (
-            <div 
-              key={ach.id} 
-              className={`flex flex-col items-center gap-1 transition-all duration-500 ${ach.active ? 'scale-110' : 'grayscale opacity-30'}`}
-              title={ach.title}
-            >
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center bg-slate-900 border-2 ${ach.active ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.4)]' : 'border-slate-700'}`}>
-                <span className={`text-2xl ${ach.active ? 'animate-glow' : ''}`}>{ach.icon}</span>
-              </div>
-              <span className="text-[8px] font-black text-white uppercase tracking-tighter">{ach.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
       )}
     </div>
   );
 };
 
+const StatSmall = ({ label, value }) => (
+  <div className="bg-black/20 p-2 rounded-xl border border-white/5 text-center">
+    <p className="text-[7px] text-white/30 uppercase font-black">{label}</p>
+    <p className="text-white font-black text-xs">{value}</p>
+  </div>
+);
+
+const BadgeRow = ({ label, ids, earnedList, champion, offset = 0 }) => (
+  <div className="flex items-center gap-3">
+    <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest w-10 shrink-0">{label}</span>
+    <div className="flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+      {ids.map((id, i) => (
+        <BadgeSVG key={id} badgeId={id} earned={earnedList.includes(id) || earnedList.includes(i + 1 + offset)} size={16} />
+      ))}
+    </div>
+    {champion && <span className="text-lg">👑</span>}
+  </div>
+);
+
 export const TrainerCardModal = ({ userData, onClose }) => {
   if (!userData) return null;
-
   return (
     <div className="fixed inset-0 z-[30000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn">
       <div className="w-full max-w-sm relative animate-bounceIn">
-        <button 
-          onClick={onClose}
-          className="absolute -top-12 right-0 w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-black border-2 border-red-400 shadow-lg active:scale-95 z-10"
-        >X</button>
-        
+        <button onClick={onClose} className="absolute -top-12 right-0 w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-black border-2 border-red-400 shadow-lg active:scale-95 z-10">X</button>
         <TrainerCard
-          trainer={{
-            name: userData.name,
-            avatarImg: `https://play.pokemonshowdown.com/sprites/trainers/red.png`,
-            level: userData.level || 1,
-            titleId: userData.titleId
-          }}
+          trainer={{ name: userData.name, avatarImg: `https://play.pokemonshowdown.com/sprites/trainers/red.png`, titleId: userData.titleId }}
           badges={userData.badgesList || []}
           caughtCount={userData.caughtCount || 0}
           caughtData={userData.caughtData || {}}
@@ -814,13 +541,9 @@ export const TrainerCardModal = ({ userData, onClose }) => {
           bossDamage={userData.bossTotalDamage || 0}
           shinyCount={userData.shinyCapturedCount || 0}
           trainerBattleWins={userData.trainerBattleWins || 0}
-          inventoryItems={userData.inventory?.items || {}}
           appearance={userData.appearance || {}}
         />
-
-        <div className="mt-6 text-center">
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest animate-pulse">Inspecionando Perfil Global</p>
-        </div>
+        <p className="mt-6 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest animate-pulse">Perfil Global</p>
       </div>
     </div>
   );

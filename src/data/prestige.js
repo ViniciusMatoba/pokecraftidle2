@@ -43,8 +43,8 @@ export const TROPHIES = {
   },
 };
 
-// ── TÍTULOS DE TREINADOR ─────────────────────────────────────────────────────
-export const TRAINER_TITLES = {
+// ── TÍTULOS DE TREINADOR (SHOP) ──────────────────────────────────────────────
+export const SHOP_TITLES = {
   youngster: {
     id: 'youngster',
     label: 'Youngster',
@@ -56,35 +56,50 @@ export const TRAINER_TITLES = {
     id: 'bug_catcher',
     label: 'Bug Catcher',
     sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/net-ball.png',
-    cost: 1000,
+    cost: 1500,
     minBadges: 1,
   },
   ace_trainer: {
     id: 'ace_trainer',
     label: 'Ace Trainer',
     sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png',
-    cost: 8000,
+    cost: 12000,
     minBadges: 4,
   },
   pokemon_ranger: {
     id: 'pokemon_ranger',
     label: 'Pokémon Ranger',
     sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/friend-ball.png',
-    cost: 12000,
+    cost: 18000,
     minBadges: 5,
+  },
+  elite_collector: {
+    id: 'elite_collector',
+    label: 'Elite Collector',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/luxury-ball.png',
+    cost: 45000,
+    minBadges: 7,
   },
   elite_four: {
     id: 'elite_four',
-    label: 'Elite Four',
+    label: 'Elite Four Member',
     sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dusk-ball.png',
-    cost: 30000,
+    cost: 60000,
     minBadges: 8,
+  },
+  champion_of_people: {
+    id: 'champion_of_people',
+    label: 'Champion of the People',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/premier-ball.png',
+    cost: 95000,
+    minBadges: 8,
+    requireChampion: true,
   },
   pokemon_master: {
     id: 'pokemon_master',
     label: 'Pokémon Master',
     sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png',
-    cost: 80000,
+    cost: 150000,
     minBadges: 8,
     requireChampion: true,
   },

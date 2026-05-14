@@ -62,7 +62,7 @@ import { preloadAssets } from './utils/preloader';
 import { calculatePowerScore, getBadgeCount } from './utils/progress';
 import { migrateGameState } from './utils/saveMigration';
 import { 
-  TROPHIES, TRAINER_TITLES, POKEDEX_FRAMES, UI_THEMES, 
+  TROPHIES, SHOP_TITLES, POKEDEX_FRAMES, UI_THEMES, 
   ALLIES, MINE_LEVELS, FISHING_RODS, POKECENTER_DONATIONS, GYM_BANNERS 
 } from './data/prestige';
 import {
@@ -5217,8 +5217,8 @@ export default function App() {
 
       return {
         ...prev,
-        // trainerReward reduzido para 8% para tornar a economia mais desafiadora
-        currency: (prev.currency || 0) + (drops.currency || 0) + Math.floor((currentEnemy.trainerReward || 0) * 0.08),
+        // trainerReward reduzido para 3% para tornar a economia mais desafiadora
+        currency: (prev.currency || 0) + (drops.currency || 0) + Math.floor((currentEnemy.trainerReward || 0) * 0.03),
         inventory: newInventory,
         team: newTeam,
         worldFlags: [...newFlags, ...tempWorldFlags].filter((v, i, a) => a.indexOf(v) === i),
@@ -5246,13 +5246,13 @@ export default function App() {
       setTimeout(() => setRecipeFoundModal(newRecipes[0]), 400);
     }
     if (currentEnemy.isTrainer && currentEnemy.trainerReward) {
-      const actualReward = Math.floor((currentEnemy.trainerReward || 0) * 0.08);
+      const actualReward = Math.floor((currentEnemy.trainerReward || 0) * 0.03);
       addLog(` 🏆 ${currentEnemy.trainerName} derrotado! +${actualReward} coins`, 'system');
     }
     if (currentEnemy.isRocket) addLog('🚀 Grunt da Equipe Rocket derrotado!', 'system');
     if (currentEnemy.isShiny) addLog('✨ Pokémon shiny derrotado!', 'system');
 
-    const actualTrainerReward = Math.floor((currentEnemy.trainerReward || 0) * 0.08);
+    const actualTrainerReward = Math.floor((currentEnemy.trainerReward || 0) * 0.03);
     sessionRef.current.kills += 1;
     sessionRef.current.coins += (drops.currency || 0) + actualTrainerReward;
     if (currentEnemy.isTrainer) sessionRef.current.trainers += 1;

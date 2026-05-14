@@ -218,7 +218,62 @@ export const TRAINER_TITLES = [
     description: 'Cause 100.000 de dano em Boss.',
     unlocked: ({ bossDamage }) => bossDamage >= 100000,
   },
+  {
+    id: 'shiny_master',
+    label: 'Mestre dos Shinies',
+    shortLabel: '50 Shinies',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/comet-shard.png',
+    color: '#facc15',
+    bg: 'linear-gradient(135deg, rgba(250,204,21,.35), rgba(15,23,42,.70))',
+    description: 'Capture 50 Pokemon shiny.',
+    unlocked: ({ shinyCount }) => shinyCount >= 50,
+  },
+  {
+    id: 'raid_conqueror',
+    label: 'Conquistador de Raids',
+    shortLabel: 'Raids',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png',
+    color: '#ef4444',
+    bg: 'linear-gradient(135deg, rgba(239,68,68,.30), rgba(15,23,42,.70))',
+    description: 'Venca 25 Raids.',
+    unlocked: ({ playerStats }) => (playerStats?.raidsWon || 0) >= 25,
+  },
+  {
+    id: 'battle_expert',
+    label: 'Especialista em Batalha',
+    shortLabel: '5000 Kills',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/focus-band.png',
+    color: '#94a3b8',
+    bg: 'linear-gradient(135deg, rgba(148,163,184,.30), rgba(15,23,42,.70))',
+    description: 'Derrote 5.000 Pokemon selvagens.',
+    unlocked: ({ playerStats }) => (playerStats?.pokemonDefeated || 0) >= 5000,
+  },
+  {
+    id: 'legendary_collector',
+    label: 'Colecionador Lendário',
+    shortLabel: 'Lendários',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png',
+    color: '#a855f7',
+    bg: 'linear-gradient(135deg, rgba(168,85,247,.35), rgba(15,23,42,.75))',
+    description: 'Capture 5 Pokemon lendários.',
+    unlocked: ({ caughtIds }) => {
+      const legends = [144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 251, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386];
+      return caughtIds.filter(id => legends.includes(id)).length >= 5;
+    },
+  },
+  {
+    id: 'badge_collector',
+    label: 'Colecionador de Insígnias',
+    shortLabel: '40 Badges',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rainbow-badge.png',
+    color: '#f59e0b',
+    bg: 'linear-gradient(135deg, rgba(245,158,11,.35), rgba(15,23,42,.75))',
+    description: 'Consiga 40 insignias totais.',
+    unlocked: ({ badges }) => (badges || []).length >= 40,
+  },
 ];
+
+import { SHOP_TITLES } from './prestige';
 
 export const getUnlockedTrainerTitles = ({
   caughtData = {},
@@ -228,12 +283,37 @@ export const getUnlockedTrainerTitles = ({
   bossDamage = 0,
   shinyCount = 0,
   trainerBattleWins = 0,
+  playerStats = {},
+  badges = [],
+  purchasedTitles = [],
 } = {}) => {
   const caughtIds = getCaughtIds(caughtData);
   const safeCaughtCount = Math.max(caughtCount || 0, caughtIds.length);
-  const context = { caughtIds, caughtCount: safeCaughtCount, worldFlags, forgedItems, bossDamage, shinyCount, trainerBattleWins };
-  return TRAINER_TITLES.filter(title => title.unlocked(context));
+  const context = { caughtIds, caughtCount: safeCaughtCount, worldFlags, forgedItems, bossDamage, shinyCount, trainerBattleWins, playerStats, badges };
+  
+  // Achievement titles
+  const unlocked = TRAINER_TITLES.filter(title => title.unlocked(context));
+  
+  // Merge with purchased titles from Prestige Shop
+  const shopTitles = (purchasedTitles || []).map(id => {
+    const shopInfo = SHOP_TITLES[id];
+    if (!shopInfo) return null;
+    return {
+      id: shopInfo.id,
+      label: shopInfo.label,
+      shortLabel: shopInfo.label,
+      icon: shopInfo.sprite,
+      color: '#3b82f6', // Default color for shop titles
+      bg: 'linear-gradient(135deg, rgba(59,130,246,.25), rgba(15,23,42,.65))',
+      description: 'Adquirido na Loja de Prestígio.',
+      isShopTitle: true
+    };
+  }).filter(Boolean);
+
+  return [...unlocked, ...shopTitles];
 };
 
-export const getPrimaryTrainerTitle = (context = {}) =>
-  getUnlockedTrainerTitles(context).at(-1) || null;
+export const getPrimaryTrainerTitle = (context = {}) => {
+  const unlocked = getUnlockedTrainerTitles(context);
+  return unlocked.at(-1) || null;
+};

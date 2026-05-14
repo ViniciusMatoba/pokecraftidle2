@@ -1,7 +1,17 @@
-export const APP_VERSION = '1.81.2';
-export const VERSION = '1.81.2';
-export const APP_VERSION_DATE = '13/05/2026 21:42';
+export const APP_VERSION = '1.82.0';
+export const VERSION = '1.82.0';
+export const APP_VERSION_DATE = '14/05/2026 01:00';
 export const CHANGELOG = [
+  '## [V1.82.0] - 14/05/2026 01:00',
+  '### Adicionado',
+  '- **Treinador (Interface)**: Redesign completo do TrainerCard com visual premium, glassmorphism e PS (Power Score) detalhado.',
+  '- **Sistema de Títulos (Overhaul)**: Novo modal unificado para seleção de títulos (Conquistas + Loja de Prestígio).',
+  '- **Títulos (Novos)**: 15+ novos títulos desbloqueáveis (Campeão de Hoenn/Sinnoh, Mestre de Forja, Caçador de Lendas, etc).',
+  '### Alterado',
+  '- **Economia (Rebalanceamento)**: Redução do multiplicador de moedas em batalhas de treinadores de 0.08 para 0.03 para mitigar a inflação.',
+  '### Corrigido',
+  '- **Loja de Prestígio**: Corrigido bug de cobrança dupla e garantida a persistência de títulos adquiridos no estado global.',
+  '- **Visual (TrainerCard)**: Corrigidos erros de renderização e ícones de insígnias regionais.',
   '## [V1.81.2] - 13/05/2026 21:42',
   '### Alterado',
   '- **Raids (Balanceamento)**: Redução drástica do HP dos Pokémon de Raid (multiplicadores reduzidos em ~60%).',

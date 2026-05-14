@@ -186,6 +186,7 @@ export const DEFAULT_GAME_STATE = {
   // Prestígio e Reputação
   prestige: {
     trophies: [],           // IDs de troféus comprados
+    purchasedTitles: [],    // IDs de títulos comprados (Loja de Prestígio)
     activeTitle: null,      // ID do título ativo
     pokedexFrame: 'default', // ID da moldura ativa
     uiTheme: 'default',     // ID do tema visual ativo

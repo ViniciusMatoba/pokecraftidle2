@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  TROPHIES, TRAINER_TITLES, POKEDEX_FRAMES, UI_THEMES,
+  TROPHIES, SHOP_TITLES, POKEDEX_FRAMES, UI_THEMES,
   ALLIES, MINE_LEVELS, FISHING_RODS, GYM_BANNERS
 } from '../data/prestige';
 import {
@@ -452,7 +452,18 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
     setGameState(prev => {
       const newState = { ...prev, currency: prev.currency - item.cost };
       if (type === 'trophy')  newState.prestige = { ...prev.prestige, trophies: [...(prev.prestige?.trophies || []), item.id] };
-      if (type === 'title')   newState.prestige = { ...prev.prestige, activeTitle: item.id };
+      if (type === 'title')   {
+        const alreadyPurchased = (prev.prestige?.purchasedTitles || []).includes(item.id);
+        newState.prestige = { 
+          ...prev.prestige, 
+          activeTitle: item.id,
+          purchasedTitles: alreadyPurchased 
+            ? (prev.prestige?.purchasedTitles || []) 
+            : [...(prev.prestige?.purchasedTitles || []), item.id]
+        };
+        // If already purchased, don't subtract currency
+        if (alreadyPurchased) newState.currency = prev.currency;
+      }
       if (type === 'frame')   newState.prestige = { ...prev.prestige, pokedexFrame: item.id };
       if (type === 'theme')   newState.prestige = { ...prev.prestige, uiTheme: item.id };
       if (type === 'rod')     newState.fishing  = { ...prev.fishing,  rod: item.id };
@@ -694,27 +705,34 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
             <p className="text-[9px] text-white/30 uppercase font-mono tracking-widest mb-2 border-b border-[#333] pb-2">
               ▶ Selecione seu título de treinador
             </p>
-            {Object.values(TRAINER_TITLES).map(item => {
+            {Object.values(SHOP_TITLES).map(item => {
               const isActive  = prestige.activeTitle === item.id;
+              const isOwned   = (prestige.purchasedTitles || []).includes(item.id);
               const canAfford = currency >= item.cost;
               const hasBadges = badges >= (item.minBadges || 0);
+              
+              const canInteract = isOwned || (canAfford && hasBadges);
+
               return (
                 <div key={item.id}
-                  onClick={() => canAfford && hasBadges && handleBuy('title', item)}
+                  onClick={() => canInteract && handleBuy('title', item)}
                   className={`flex items-center gap-4 px-4 py-3 border-2 cursor-pointer transition-all
                     ${isActive
                       ? 'bg-[#1a237e] border-[#3949ab] text-white shadow-[0_0_12px_rgba(57,73,171,0.5)]'
+                      : isOwned 
+                      ? 'bg-[#0a0a0a] border-[#2e7d32] text-white/80 hover:border-[#2e7d32]/70'
                       : 'bg-[#111] border-[#333] text-white/60 hover:border-[#555] hover:text-white/80'}`}>
                   <div className={`w-4 h-4 border-2 shrink-0 flex items-center justify-center
-                    ${isActive ? 'border-white bg-white' : 'border-[#555]'}`}>
+                    ${isActive ? 'border-white bg-white' : isOwned ? 'border-[#2e7d32] bg-[#2e7d32]/20' : 'border-[#555]'}`}>
                     {isActive && <div className="w-2 h-2 bg-[#1a237e]" />}
                   </div>
                   <ItemSprite src={item.sprite} size="w-8 h-8" />
                   <span className={`flex-1 text-sm font-black uppercase ${isActive ? 'text-white' : ''}`}>{item.label}</span>
                   <div className="text-right shrink-0">
-                    <BadgeTag required={item.minBadges || 0} current={badges} />
-                    {!isActive && <p className="text-[10px] font-mono text-yellow-400 mt-1">{item.cost.toLocaleString()} C</p>}
+                    {!isOwned && <BadgeTag required={item.minBadges || 0} current={badges} />}
+                    {!isOwned && !isActive && <p className="text-[10px] font-mono text-yellow-400 mt-1">{item.cost.toLocaleString()} C</p>}
                     {isActive  && <StatusPill active>ATIVO</StatusPill>}
+                    {isOwned && !isActive && <span className="text-[9px] text-[#2e7d32] font-mono font-bold">ADQUIRIDO</span>}
                   </div>
                 </div>
               );
