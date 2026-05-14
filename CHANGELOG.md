@@ -1,5 +1,15 @@
 # Changelog - PokeCraft
 
+## [V1.82.0] - 14/05/2026 01:00
+### Adicionado
+- **Treinador (Interface)**: redesign completo do Trainer Card com visual premium, glassmorphism e PS detalhado.
+- **Sistema de Titulos**: novo modal unificado para titulos de conquistas e Loja de Prestigio.
+- **Titulos Novos**: novas conquistas desbloqueaveis, incluindo campeoes regionais, Mestre de Forja e Cacador de Lendas.
+### Alterado
+- **Economia**: recompensa de moedas em batalhas de treinadores reduzida para controlar inflacao.
+### Corrigido
+- **Versao Publica**: `package.json`, `package-lock.json`, `public/version.json` e service worker alinhados em `1.82.0`.
+
 ## [V1.79.7] - 13/05/2026 17:38
 ### Adicionado
 - **Menu Estatisticas**: nova area dentro do MENU para exibir tempo de jogo, especies registradas, capturas, derrotas, shinies, treinadores, equipe vila, boss de area, raids e dano em boss.
