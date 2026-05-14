@@ -1,7 +1,11 @@
-export const APP_VERSION = '1.82.8';
-export const VERSION = '1.82.8';
-export const APP_VERSION_DATE = '14/05/2026 07:35';
+export const APP_VERSION = '1.82.9';
+export const VERSION = '1.82.9';
+export const APP_VERSION_DATE = '14/05/2026 07:46';
 export const CHANGELOG = [
+  '## [V1.82.9] - 14/05/2026 07:46',
+  '### Corrigido',
+  '- **Atomic Event Shielding**: Introduzido overlay de bloqueio absoluto (z-100004) atrás do Title Picker.',
+  '- **Reinforced Selectors**: Botões de seleção de título agora possuem isolamento de eventos em pointerdown/mousedown/click.',
   '## [V1.82.8] - 14/05/2026 07:35',
   '### Corrigido',
   '- **Event Isolation**: Bloqueio total de propagação de cliques no Title Picker e PS Info para evitar interação com a CityScreen ao fundo.',

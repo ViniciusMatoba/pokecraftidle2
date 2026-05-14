@@ -441,52 +441,64 @@ export const TrainerCard = ({
       )}
 
       {showTitlePicker && (
-        <div 
-          className="fixed inset-0 w-screen h-screen z-[100005] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn cursor-default" 
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTitlePicker(false); }}
-          onPointerDown={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
-        >
+        <>
+          {/* Shield Atômico - Bloqueia qualquer vazamento para a CityScreen */}
           <div 
-            className="w-full max-w-[400px] bg-[#0f172a] rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col animate-bounceIn overflow-hidden" 
+            className="fixed inset-0 w-screen h-screen z-[100004] bg-transparent pointer-events-auto"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
             onPointerDown={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
+          />
+          <div 
+            className="fixed inset-0 w-screen h-screen z-[100005] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn cursor-default" 
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTitlePicker(false); }}
+            onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
           >
-            <div className="bg-slate-800/50 px-6 py-5 flex items-center justify-between border-b border-white/5">
-               <h3 className="text-white text-xl font-black uppercase italic">Seus Titulos</h3>
-               <button type="button" onClick={(e) => { e.stopPropagation(); setShowTitlePicker(false); }} className="w-8 h-8 rounded-full bg-white/10 text-white font-black">X</button>
-            </div>
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2" style={{ maxHeight: '60vh' }}>
-               {unlockedTitles.map(title => {
-                 const isSelected = activeTitleId === title.id;
-                 return (
-                   <button
-                     type="button"
-                     key={title.id}
-                     onClick={(e) => {
-                       e.preventDefault();
-                       e.stopPropagation();
-                       if (canEditTitle) onSelectTitle(title.id);
-                       setShowTitlePicker(false);
-                     }}
-                     className={`w-full p-4 rounded-3xl border-2 transition-all flex items-center gap-4 text-left ${isSelected ? 'border-blue-500 bg-blue-500/10' : 'border-white/5 bg-white/5 hover:border-white/10'}`}
-                   >
-                     <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border" style={{ background: title.bg, borderColor: title.color }}>
-                       {title.icon && <img src={title.icon} className="w-8 h-8 object-contain" alt="" />}
-                     </div>
-                     <div className="flex-1 min-w-0">
+            <div 
+              className="w-full max-w-[400px] bg-[#0f172a] rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col animate-bounceIn overflow-hidden" 
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onPointerDown={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >
+              <div className="bg-slate-800/50 px-6 py-5 flex items-center justify-between border-b border-white/5">
+                <h3 className="text-white text-xl font-black uppercase italic">Seus Titulos</h3>
+                <button type="button" onClick={(e) => { e.stopPropagation(); setShowTitlePicker(false); }} className="w-8 h-8 rounded-full bg-white/10 text-white font-black">X</button>
+              </div>
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2" style={{ maxHeight: '60vh' }}>
+                {unlockedTitles.map(title => {
+                  const isSelected = activeTitleId === title.id;
+                  return (
+                    <button
+                      type="button"
+                      key={title.id}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (canEditTitle) onSelectTitle(title.id);
+                        setShowTitlePicker(false);
+                      }}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      className={`w-full p-4 rounded-3xl border-2 transition-all flex items-center gap-4 text-left ${isSelected ? 'border-blue-500 bg-blue-500/10' : 'border-white/5 bg-white/5 hover:border-white/10'}`}
+                    >
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border" style={{ background: title.bg, borderColor: title.color }}>
+                        {title.icon && <img src={title.icon} className="w-8 h-8 object-contain" alt="" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
                         <p className={`font-black uppercase text-xs leading-none mb-1 ${isSelected ? 'text-blue-400' : 'text-white'}`}>{title.label}</p>
                         <p className="text-[9px] text-white/40 line-clamp-1">{title.description}</p>
-                     </div>
-                   </button>
-                 );
-               })}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {showPsInfo && (

@@ -1,5 +1,5 @@
 {
-  "version": "1.82.8",
-  "date": "14/05/2026 07:35",
-  "notes": "Correção de vazamento de cliques (click-through) no Trainer Card e isolamento de eventos."
+  "version": "1.82.9",
+  "date": "14/05/2026 07:46",
+  "notes": "Escudo Atômico de eventos (z-100004) e reforço nos seletores de título para isolamento total."
 }

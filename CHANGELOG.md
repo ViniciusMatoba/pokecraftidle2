@@ -1,5 +1,10 @@
 # Changelog - PokeCraft
 
+## [v1.82.9] - 14/05/2026 07:46
+### Corrigido
+- **Escudo Atômico de Eventos**: Adicionado overlay transparente (`z-100004`) dedicado ao bloqueio de interações com o fundo durante a seleção de títulos.
+- **Reforço de Seletores**: Implementação de bloqueio de propagação em `pointerdown` e `mousedown` nos botões da lista de títulos.
+
 ## [v1.82.8] - 14/05/2026 07:35
 ### Corrigido
 - **Isolamento de Eventos**: Implementado bloqueio absoluto de propagação de cliques (`stopPropagation`) nos modais do Trainer Card.
