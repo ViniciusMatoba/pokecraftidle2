@@ -1,8 +1,8 @@
 export const APP_VERSION = '1.85.2';
 export const VERSION = '1.85.2';
-export const APP_VERSION_DATE = '14/05/2026 11:15';
+export const APP_VERSION_DATE = '14/05/2026 15:20';
 export const CHANGELOG = [
-  '## [V1.85.2] - 14/05/2026 11:15',
+  '## [V1.85.2] - 14/05/2026 15:20',
   '### Balanceamento',
   '- **Raids**: Padronizado para 5 tentativas de captura em todas as estrelas.',
   '- **Dificuldade de Captura**: A dificuldade agora escala pela probabilidade por arremesso (1★=1.5x até 5★=0.15x).',

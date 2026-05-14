@@ -1,6 +1,6 @@
 # Changelog - PokeCraft
 
-## [v1.85.2] - 14/05/2026 11:15
+## [v1.85.2] - 14/05/2026 15:20
 ### Balanceamento
 - **Raids**: Padronizado para 5 tentativas de captura em todas as estrelas (anteriormente variava de 1 a 10).
 - **Dificuldade de Captura**: A dificuldade agora é controlada pela probabilidade por arremesso, escalando de 1.5x (fácil) em 1★ até 0.15x (extremamente difícil) em 5★.
