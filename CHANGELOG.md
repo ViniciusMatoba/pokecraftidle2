@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [V1.82.2] - 13/05/2026 22:32
+### Corrigido
+- **Modais de Vitoria**: recompensas de lideres, rivais, equipe vila e Elite agora exibem exatamente as moedas recebidas apos o rebalanceamento economico.
+- **MODO VS/Ginasios**: cards de recompensa passam a mostrar o valor real aplicado no save.
+- **Titulos do Trainer Card**: selecao de titulos sincronizada com a Loja de Prestigio e cliques do modal nao vazam mais para outras telas ou para o card expansivel.
+
 ## [V1.82.1] - 13/05/2026 22:18
 ### Adicionado
 - **Menu Missoes**: nova area no MENU com login diario, streak, melhor sequencia e recompensas em ciclos de 7 dias.

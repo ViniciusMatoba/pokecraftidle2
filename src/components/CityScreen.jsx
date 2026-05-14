@@ -201,6 +201,8 @@ const CityScreen = ({
           bossDamage={gameState.bossTotalDamage || 0}
           shinyCount={shinyCountForTitles}
           trainerBattleWins={gameState.trainerBattleWins || 0}
+          playerStats={gameState.playerStats || {}}
+          prestige={gameState.prestige || {}}
           inventoryItems={gameState.inventory?.items || {}}
           compactExpandable={true}
           appearance={gameState.appearance || {}}
@@ -209,6 +211,10 @@ const CityScreen = ({
             trainer: {
               ...(prev.trainer || {}),
               titleId,
+            },
+            prestige: {
+              ...(prev.prestige || {}),
+              activeTitle: titleId,
             },
           }))}
         />

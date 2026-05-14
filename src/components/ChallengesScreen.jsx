@@ -3,6 +3,7 @@ import { hasProgressRequirement } from '../utils/progress';
 import { TYPE_COLOR_HEX } from '../data/gyms';
 import { BadgeSVG } from './CommonUI';
 import { getUnlockedRegions, REGION_LABELS } from '../data/regionStandards';
+import { getTrainerCurrencyReward } from '../utils/economy';
 
 const psTrainer = (name) => `https://play.pokemonshowdown.com/sprites/trainers/${name}.png`;
 const trainerSlug = (name) => ({
@@ -2219,7 +2220,7 @@ const ChallengesScreen = ({
                     <div className="flex items-center gap-2 mt-1.5">
                       <span className="text-[9px] font-black text-amber-300 uppercase flex items-center gap-1">
                         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-3 h-3 object-contain" alt="" />
-                        {challenge.reward.toLocaleString()}
+                        {getTrainerCurrencyReward(challenge.reward).toLocaleString()}
                       </span>
                       <span className="text-white/30">|</span>
                       <span className="text-[9px] font-black text-white/55 uppercase">{challenge.team.length} Pokemons</span>

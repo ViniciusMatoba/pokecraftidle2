@@ -314,7 +314,8 @@ export const TrainerCard = ({
     purchasedTitles: prestige?.purchasedTitles || [] 
   };
   const unlockedTitles = getUnlockedTrainerTitles(titleContext);
-  const activeTitle = unlockedTitles.find(title => title.id === trainer.titleId) || getPrimaryTrainerTitle(titleContext);
+  const activeTitleId = trainer.titleId || prestige?.activeTitle || null;
+  const activeTitle = unlockedTitles.find(title => title.id === activeTitleId) || getPrimaryTrainerTitle(titleContext);
   const canEditTitle = typeof onSelectTitle === 'function';
 
   const isKantoChampion = worldFlags.includes('champion');
@@ -374,7 +375,7 @@ export const TrainerCard = ({
     <div
       className={`relative p-5 rounded-[2.5rem] border-4 shadow-2xl flex flex-col gap-5 text-left overflow-hidden transition-all bg-gradient-to-b ${equippedBg.gradient} ${compactExpandable ? 'cursor-pointer active:scale-[0.99]' : ''}`}
       style={{ borderColor: equippedFrame.preview }}
-      onClick={compactExpandable ? () => setExpanded(prev => !prev) : undefined}
+      onClick={compactExpandable && !showTitlePicker && !showPsInfo ? () => setExpanded(prev => !prev) : undefined}
     >
       <div className="flex items-center gap-3">
         <div className="rounded-3xl p-3 border-2 shadow-inner shrink-0 bg-black/30" style={{ borderColor: equippedFrame.preview }}>
@@ -440,19 +441,21 @@ export const TrainerCard = ({
       )}
 
       {showTitlePicker && (
-        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn" onClick={() => setShowTitlePicker(false)}>
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn" onClick={(e) => { e.stopPropagation(); setShowTitlePicker(false); }}>
           <div className="w-full max-w-[400px] bg-[#0f172a] rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col animate-bounceIn overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="bg-slate-800/50 px-6 py-5 flex items-center justify-between border-b border-white/5">
                <h3 className="text-white text-xl font-black uppercase italic">Seus Titulos</h3>
-               <button onClick={() => setShowTitlePicker(false)} className="w-8 h-8 rounded-full bg-white/10 text-white font-black">✕</button>
+               <button type="button" onClick={(e) => { e.stopPropagation(); setShowTitlePicker(false); }} className="w-8 h-8 rounded-full bg-white/10 text-white font-black">X</button>
             </div>
             <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2" style={{ maxHeight: '60vh' }}>
                {unlockedTitles.map(title => {
-                 const isSelected = trainer.titleId === title.id;
+                 const isSelected = activeTitleId === title.id;
                  return (
                    <button
+                     type="button"
                      key={title.id}
-                     onClick={() => {
+                     onClick={(e) => {
+                       e.stopPropagation();
                        if (canEditTitle) onSelectTitle(title.id);
                        setShowTitlePicker(false);
                      }}
@@ -474,7 +477,7 @@ export const TrainerCard = ({
       )}
 
       {showPsInfo && (
-        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn" onClick={() => setShowPsInfo(false)}>
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn" onClick={(e) => { e.stopPropagation(); setShowPsInfo(false); }}>
           <div className="w-full max-w-sm bg-slate-900 rounded-[2.5rem] border-4 border-slate-700 overflow-hidden flex flex-col animate-bounceIn" onClick={e => e.stopPropagation()}>
              <div className="bg-red-600 p-6 text-center">
                 <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${psRank.item}.png`} className="w-16 h-16 mx-auto mb-2 drop-shadow-lg" alt="" />

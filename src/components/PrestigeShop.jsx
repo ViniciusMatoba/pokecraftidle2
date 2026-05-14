@@ -461,6 +461,10 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
             ? (prev.prestige?.purchasedTitles || []) 
             : [...(prev.prestige?.purchasedTitles || []), item.id]
         };
+        newState.trainer = {
+          ...(prev.trainer || {}),
+          titleId: item.id,
+        };
         // If already purchased, don't subtract currency
         if (alreadyPurchased) newState.currency = prev.currency;
       }

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { GYMS, ELITE_FOUR, TYPE_COLOR_HEX } from '../data/gyms';
 import { BadgeSVG } from './CommonUI';
 import { getBadgeCount, hasBadge as hasProgressBadge, hasProgressRequirement } from '../utils/progress';
+import { getTrainerCurrencyReward } from '../utils/economy';
 import ChallengesScreen from './ChallengesScreen';
 import { getUnlockedRegions, REGION_LABELS, REGION_BADGE_IDS } from '../data/regionStandards';
 
@@ -321,7 +322,7 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
               <p className="text-indigo-300 text-[9px] font-black uppercase tracking-widest">Recompensa da Vitoria</p>
               <p className="text-white font-black text-base flex items-center gap-2">
                 <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-5 h-5 object-contain" alt="" />
-                {gym.reward} Coins
+                {getTrainerCurrencyReward(gym.reward).toLocaleString()} Coins
               </p>
             </div>
             {gym.badgeImg && (

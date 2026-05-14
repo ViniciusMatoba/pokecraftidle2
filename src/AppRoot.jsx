@@ -44,6 +44,7 @@ import {
 } from './data/constants';
 import { REGION_ORDER, REGION_CHAMPION_FLAGS, REGION_BADGE_IDS, getPokemonRegion, getUnlockedDexLimit as getRegionalDexLimit, isPokemonAllowedInRegion } from './data/regionStandards';
 import { getMasteryPath, getEffectiveStat, getShinyMult } from './utils/gameHelpers';
+import { getTrainerCurrencyReward } from './utils/economy';
 import { getTypeEffectiveness } from './data/typeChart';
 import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
 import { calcExpeditionDuration, calcExpeditionDrops, calcExpeditionXP, EXPEDITION_BIOMES } from './data/expeditions';
@@ -5031,7 +5032,7 @@ export default function App() {
             leaderName: currentEnemy.trainerName || "Líder de Ginásio",
             leaderSprite: currentEnemy.trainerSprite,
             badge: currentEnemy.badgeToGive,
-            reward: currentEnemy.trainerReward || 1000,
+            reward: getTrainerCurrencyReward(currentEnemy.trainerReward || 1000),
             expShare: newShare
           });
         }, 800);
@@ -5235,8 +5236,7 @@ export default function App() {
 
       return {
         ...prev,
-        // trainerReward reduzido para 3% para tornar a economia mais desafiadora
-        currency: (prev.currency || 0) + (drops.currency || 0) + Math.floor((currentEnemy.trainerReward || 0) * 0.03),
+        currency: (prev.currency || 0) + (drops.currency || 0) + getTrainerCurrencyReward(currentEnemy.trainerReward || 0),
         inventory: newInventory,
         team: newTeam,
         worldFlags: [...newFlags, ...tempWorldFlags].filter((v, i, a) => a.indexOf(v) === i),
@@ -5264,13 +5264,13 @@ export default function App() {
       setTimeout(() => setRecipeFoundModal(newRecipes[0]), 400);
     }
     if (currentEnemy.isTrainer && currentEnemy.trainerReward) {
-      const actualReward = Math.floor((currentEnemy.trainerReward || 0) * 0.03);
+      const actualReward = getTrainerCurrencyReward(currentEnemy.trainerReward || 0);
       addLog(` 🏆 ${currentEnemy.trainerName} derrotado! +${actualReward} coins`, 'system');
     }
     if (currentEnemy.isRocket) addLog('🚀 Grunt da Equipe Rocket derrotado!', 'system');
     if (currentEnemy.isShiny) addLog('✨ Pokémon shiny derrotado!', 'system');
 
-    const actualTrainerReward = Math.floor((currentEnemy.trainerReward || 0) * 0.03);
+    const actualTrainerReward = getTrainerCurrencyReward(currentEnemy.trainerReward || 0);
     sessionRef.current.kills += 1;
     sessionRef.current.coins += (drops.currency || 0) + actualTrainerReward;
     if (currentEnemy.isTrainer) sessionRef.current.trainers += 1;
@@ -5434,7 +5434,7 @@ export default function App() {
           leaderSprite: currentEnemy.trainerSprite,
           badge: null,
           category: currentEnemy.challengeCategory || 'rival',
-          reward: currentEnemy.trainerReward || 500,
+          reward: getTrainerCurrencyReward(currentEnemy.trainerReward || 500),
           expShare: null,
           nextView: 'battles',
         });
@@ -5446,7 +5446,7 @@ export default function App() {
             leaderSprite: currentEnemy.trainerSprite,
             badge: null,
             category: currentEnemy.challengeCategory || 'elite',
-            reward: currentEnemy.trainerReward || 2000,
+            reward: getTrainerCurrencyReward(currentEnemy.trainerReward || 2000),
             expShare: null,
             nextView: 'city',
           });
@@ -7810,7 +7810,7 @@ export default function App() {
                 <div className={`grid ${showGymVictoryModal.expShare != null ? 'grid-cols-2' : 'grid-cols-1'} gap-4 w-full mb-8`}>
                   <div className="bg-slate-50 border-2 border-slate-100 rounded-[2rem] p-4 flex flex-col items-center text-center hover:border-amber-200 hover:bg-amber-50 transition-all">
                     <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-8 h-8 mb-2 drop-shadow-sm" alt="" />
-                    <span className="text-xl font-black text-slate-800 leading-none">+{showGymVictoryModal.reward}</span>
+                    <span className="text-xl font-black text-slate-800 leading-none">+{Number(showGymVictoryModal.reward || 0).toLocaleString()}</span>
                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Coins</span>
                   </div>
                   {showGymVictoryModal.expShare != null && (

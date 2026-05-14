@@ -1,7 +1,12 @@
-export const APP_VERSION = '1.82.1';
-export const VERSION = '1.82.1';
-export const APP_VERSION_DATE = '13/05/2026 22:18';
+export const APP_VERSION = '1.82.2';
+export const VERSION = '1.82.2';
+export const APP_VERSION_DATE = '13/05/2026 22:32';
 export const CHANGELOG = [
+  '## [V1.82.2] - 13/05/2026 22:32',
+  '### Corrigido',
+  '- **Modais de Vitoria**: recompensas de lideres, rivais, equipe vila e Elite agora exibem exatamente as moedas recebidas apos o rebalanceamento economico.',
+  '- **MODO VS/Ginasios**: cards de recompensa passam a mostrar o valor real aplicado no save.',
+  '- **Titulos do Trainer Card**: selecao de titulos sincronizada com a Loja de Prestigio e cliques do modal nao vazam mais para outras telas ou para o card expansivel.',
   '## [V1.82.1] - 13/05/2026 22:18',
   '### Adicionado',
   '- **Retencao Diaria**: Nova area de Missoes no MENU com recompensa de login diario, streak, melhor sequencia e ciclos de 7 dias.',
