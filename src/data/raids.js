@@ -236,7 +236,6 @@ export const getRaidStarWeights = (maxStars) => {
   return table[maxStars] || table[5];
 };
 
-export const EXP_CANDIES = ['exp_candy_xs', 'exp_candy_s', 'exp_candy_m', 'exp_candy_l', 'exp_candy_xl'];
 
 export const pickRaidPokemon = (region = 'kanto', maxStars = 5, previousRegions = []) => {
   // Decide a pool: 65% região atual, 35% regiões anteriores combinadas
