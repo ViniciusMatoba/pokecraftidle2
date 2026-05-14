@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [v1.83.1] - 14/05/2026 08:26
+### Corrigido
+- **Restauração de Interatividade**: Removido o uso de `stopImmediatePropagation` que causava o "congelamento" dos modais, permitindo que o React processe eventos internos normalmente.
+- **Sincronização de Títulos**: Implementado delay de 50ms na seleção de títulos para garantir a persistência do estado antes do fechamento do modal.
+- **Pointer-Events Recovery**: Forçado `pointer-events: auto` nos containers de modais para garantir clique interno.
+
 ## [v1.83.0] - 14/05/2026 08:18
 ### Corrigido
 - **Bloqueio Físico de Pointer-Events**: Implementada desativação total de interações na `CityScreen` via CSS (`pointer-events: none`) sempre que um modal de interface estiver ativo.

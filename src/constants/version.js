@@ -1,7 +1,11 @@
-export const APP_VERSION = '1.83.0';
-export const VERSION = '1.83.0';
-export const APP_VERSION_DATE = '14/05/2026 08:18';
+export const APP_VERSION = '1.83.1';
+export const VERSION = '1.83.1';
+export const APP_VERSION_DATE = '14/05/2026 08:26';
 export const CHANGELOG = [
+  '## [V1.83.1] - 14/05/2026 08:26',
+  '### Corrigido',
+  '- **Modal Interactivity**: Restaurada a interatividade dos modais removendo `stopImmediatePropagation` que bloqueava o React.',
+  '- **Selection Sync**: Adicionado delay de 50ms na seleção de títulos e logs de diagnóstico para garantir persistência do estado.',
   '## [V1.83.0] - 14/05/2026 08:18',
   '### Corrigido',
   '- **Definitive Pointer Block**: Implementação de estado global `isAnyModalOpen` para desativar fisicamente a `CityScreen` via CSS (`pointer-events: none`).',

@@ -1,5 +1,5 @@
 {
-  "version": "1.83.0",
-  "date": "14/05/2026 08:18",
-  "notes": "Bloqueio definitivo de pointer-events na CityScreen durante a exibição de modais."
+  "version": "1.83.1",
+  "date": "14/05/2026 08:26",
+  "notes": "Restauração da interatividade dos modais e sincronização de seleção de títulos."
 }

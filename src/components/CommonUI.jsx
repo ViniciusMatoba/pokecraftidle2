@@ -459,40 +459,35 @@ export const TrainerCard = ({
           <div 
             className="fixed inset-0 w-screen h-screen z-[999998] bg-transparent pointer-events-auto"
             onClick={(e) => { 
-              e.nativeEvent.stopImmediatePropagation();
               e.preventDefault(); 
               e.stopPropagation(); 
             }}
             onPointerDown={(e) => {
-              e.nativeEvent.stopImmediatePropagation();
               e.stopPropagation();
             }}
             onMouseDown={(e) => {
-              e.nativeEvent.stopImmediatePropagation();
               e.stopPropagation();
             }}
             onTouchStart={(e) => e.stopPropagation()}
           />
           <div 
-            className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn cursor-default" 
+            className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn cursor-default pointer-events-auto" 
             onClick={(e) => { 
-              e.nativeEvent.stopImmediatePropagation();
               e.preventDefault(); 
               e.stopPropagation(); 
+              console.log('-> Comando de fechar modal disparado (Backdrop)');
               setShowTitlePicker(false); 
             }}
             onPointerDown={(e) => {
-              e.nativeEvent.stopImmediatePropagation();
               e.stopPropagation();
             }}
             onMouseDown={(e) => {
-              e.nativeEvent.stopImmediatePropagation();
               e.stopPropagation();
             }}
             onTouchStart={(e) => e.stopPropagation()}
           >
             <div 
-              className="w-full max-w-[400px] bg-[#0f172a] rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col animate-bounceIn overflow-hidden" 
+              className="w-full max-w-[400px] bg-[#0f172a] rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col animate-bounceIn overflow-hidden pointer-events-auto" 
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
               onPointerDown={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
@@ -514,13 +509,16 @@ export const TrainerCard = ({
                       type="button"
                       key={title.id}
                       onClick={(e) => {
-                        e.nativeEvent.stopImmediatePropagation();
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log(`-> Título clicado: ${title.label}`);
+                        console.log('-> Tentando selecionar título:', title.id);
                         if (canEditTitle) onSelectTitle(title.id);
-                        // Técnica do Escudo Duplo: Pequeno delay para garantir que o evento foi travado
-                        setTimeout(() => setShowTitlePicker(false), 100);
+                        
+                        // v1.83.1: Delay de 50ms para garantir processamento do estado
+                        setTimeout(() => {
+                          console.log('-> Comando de fechar modal disparado (Seleção)');
+                          setShowTitlePicker(false);
+                        }, 50);
                       }}
                       onPointerDown={(e) => e.stopPropagation()}
                       onMouseDown={(e) => e.stopPropagation()}
@@ -544,19 +542,16 @@ export const TrainerCard = ({
 
       {showPsInfo && (
         <div 
-          className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn cursor-default" 
+          className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn cursor-default pointer-events-auto" 
           onClick={(e) => { 
-            e.nativeEvent.stopImmediatePropagation();
             e.preventDefault(); 
             e.stopPropagation(); 
             setShowPsInfo(false); 
           }}
           onPointerDown={(e) => {
-            e.nativeEvent.stopImmediatePropagation();
             e.stopPropagation();
           }}
           onMouseDown={(e) => {
-            e.nativeEvent.stopImmediatePropagation();
             e.stopPropagation();
           }}
           onTouchStart={(e) => e.stopPropagation()}
