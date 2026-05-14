@@ -2596,7 +2596,8 @@ export default function App() {
   const handleCatchRoll = useCallback((ballType) => {
     const raid = gameState.activeRaid;
     if (!raid || raid.phase !== 'capture') return false;
-    const baseRate = RAID_CATCH_RATE_MULT[raid.stars] || 0.1;
+    const catchMult = RAID_CATCH_RATE_MULT[raid.stars] ?? 1.0;
+    const baseRate = 0.1 * catchMult;
     const ballMult = ballType === 'ultra_ball' ? 2.0 : ballType === 'great_ball' ? 1.5 : 1.0;
     return Math.random() < (baseRate * ballMult);
   }, [gameState.activeRaid]);
@@ -2606,7 +2607,8 @@ export default function App() {
       const raid = prev.activeRaid;
       if (!raid || raid.phase !== 'capture') return prev;
       const attemptsLeft = (raid.catchAttemptsLeft || 1) - 1;
-      const baseRate = RAID_CATCH_RATE_MULT[raid.stars] || 0.1;
+      const catchMult = RAID_CATCH_RATE_MULT[raid.stars] ?? 1.0;
+      const baseRate = 0.1 * catchMult;
       const ballMult = ballType === 'ultra_ball' ? 2.0 : ballType === 'great_ball' ? 1.5 : 1.0;
       const caught = (forceCaught !== null) ? forceCaught : Math.random() < (baseRate * ballMult);
 

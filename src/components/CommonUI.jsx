@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { getPrimaryTrainerTitle, getUnlockedTrainerTitles } from '../data/trainerTitles';
 import { AVATAR_SPRITES, AVATAR_TINTS, CARD_FRAMES, CARD_BACKGROUNDS, getTintFilter } from '../data/cosmetics';
 
@@ -466,7 +467,7 @@ export const TrainerCard = ({
         </div>
       )}
 
-      {showTitlePicker && (
+      {showTitlePicker && ReactDOM.createPortal(
         <>
           <div 
             className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn cursor-default" 
@@ -558,10 +559,11 @@ export const TrainerCard = ({
               </div>
             </div>
           )}
-        </>
+        </>,
+        document.body
       )}
 
-      {showPsInfo && (
+      {showPsInfo && ReactDOM.createPortal(
         <div 
           className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn cursor-default pointer-events-auto" 
           onClick={() => setShowPsInfo(false)}
@@ -593,7 +595,8 @@ export const TrainerCard = ({
                 <button onClick={() => setShowPsInfo(false)} className="w-full bg-white text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg">Entendido</button>
              </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

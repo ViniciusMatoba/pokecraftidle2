@@ -1,7 +1,12 @@
-export const APP_VERSION = '1.85.0';
-export const VERSION = '1.85.0';
-export const APP_VERSION_DATE = '14/05/2026 10:45';
+export const APP_VERSION = '1.85.1';
+export const VERSION = '1.85.1';
+export const APP_VERSION_DATE = '14/05/2026 11:08';
 export const CHANGELOG = [
+  '## [V1.85.1] - 14/05/2026 11:08',
+  '### Corrigido',
+  '- **Fix de Seleção de Títulos**: Modais agora utilizam `createPortal` para evitar conflitos de z-index no TrainerCard.',
+  '- **Fix de Taxa de Captura de Raids**: `RAID_CATCH_RATE_MULT` corrigido para objeto, permitindo que a dificuldade escale por estrelas (1★-5★).',
+  '- **Power Score Modal**: Atualizado para o padrão de Portal, resolvendo problemas de clique.',
   '## [V1.85.0] - 14/05/2026 10:45',
   '### Adicionado',
   '- **Confirmar Forja**: Adicionado modal de confirmação ao fabricar itens para evitar gastos acidentais.',

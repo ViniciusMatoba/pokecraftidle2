@@ -24,7 +24,13 @@ export const RAID_DURATION_MS = 3600000; // 1 hora (conforme changelog V1.78.0)
 export const RAID_FIGHT_SECONDS = 60;
 export const RAID_BATTLE_TRIGGER = 100; // Conforme changelog V1.80.3/V1.78.0
 export const RAID_SPAWN_INTERVAL_MS = 3600000; // 1 hora
-export const RAID_CATCH_RATE_MULT = 1.0;
+export const RAID_CATCH_RATE_MULT = {
+  1: 1.5,   // 1 estrela — mais fácil de capturar
+  2: 1.2,   // 2 estrelas
+  3: 1.0,   // 3 estrelas — base
+  4: 0.7,   // 4 estrelas — difícil
+  5: 0.45,  // 5 estrelas — muito difícil
+};
 export const RAID_BALANCE_VERSION = '1.80.4';
 
 // ── Tabelas de Recompensas por Estrela ──────────────────────────────────────
