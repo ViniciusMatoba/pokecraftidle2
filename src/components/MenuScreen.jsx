@@ -3,6 +3,7 @@ import { APP_VERSION, APP_VERSION_DATE, ITEM_LABELS } from '../data/constants';
 import { CANDY_FAMILIES, getCandyIconUrl } from '../data/candies';
 import { EXP_CANDIES } from '../data/raids';
 import { claimLoginReward, claimMissionReward, formatRewardSummary, getRetentionViewModel } from '../data/retention';
+import { getJourneyGuide } from '../data/journeyGuide';
 
 const CURRENT_VERSION = APP_VERSION || '1.4';
 const VERSION_DATE = APP_VERSION_DATE || '2026-04-23';
@@ -296,6 +297,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
   };
 
   const menuItems = [
+    { id: 'guide',    name: 'Guia da Jornada', icon: `${POKEAPI_ITEM}town-map.png`,       desc: 'Proximo passo e drops',    color: 'bg-blue-50 border-blue-200 text-blue-700' },
     { id: 'pokedex',  name: 'Pokedex',       icon: '📕',                                   desc: 'Registro de especies',    color: 'bg-red-50 border-red-200 text-red-600' },
     { id: 'backpack', name: 'Mochila',        icon: '🎒',                                   desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
     { id: 'missions', name: 'Missoes',        icon: '/assets/icons/quests.png',             desc: 'Login diario e metas',    color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
@@ -338,6 +340,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
             else if (item.id === 'backpack') setSubView('backpack');
             else if (item.id === 'stats') setSubView('stats');
             else if (item.id === 'missions') setSubView('missions');
+            else if (item.id === 'guide') setSubView('guide');
             else {
               showConfirm({
                 title: 'Em Breve',
@@ -743,6 +746,110 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
     );
   };
 
+  const renderGuide = () => {
+    const guide = getJourneyGuide(gameState);
+    const goToRoute = (routeId) => {
+      if (!routeId) return;
+      setGameState(prev => ({ ...prev, currentRoute: routeId }));
+      setCurrentView('battles');
+    };
+    const goToVs = () => setCurrentView('vs');
+    const DropCard = ({ target }) => (
+      <div className="bg-white border-2 border-slate-100 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+        <div className="flex items-start gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+            <img src={`${POKEAPI_ITEM}${target.type === 'Receita' ? 'tm-case.png' : 'hard-stone.png'}`} alt="" className="w-8 h-8 object-contain" onError={e => { e.target.style.display = 'none'; }} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[9px] font-black uppercase tracking-widest text-blue-500">{target.type}</p>
+            <h4 className="font-black uppercase italic text-slate-800 leading-tight text-sm">{target.title}</h4>
+            <p className="text-[10px] font-bold text-slate-500 mt-1 leading-tight line-clamp-2">{target.label}</p>
+          </div>
+        </div>
+        <button
+          onClick={() => goToRoute(target.routeId)}
+          className="w-full rounded-xl bg-slate-900 text-white py-3 text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all"
+        >
+          Ir para {target.routeName}
+        </button>
+      </div>
+    );
+
+    return (
+      <div className="animate-slideUp flex flex-col gap-4">
+        <div className="rounded-[2rem] p-5 shadow-xl border-b-8 border-blue-900 bg-gradient-to-br from-blue-600 to-slate-900 text-white relative overflow-hidden">
+          <img src={`${POKEAPI_ITEM}town-map.png`} alt="" className="absolute -right-4 -top-5 w-28 h-28 opacity-20 rotate-12" />
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-200">Central da Jornada</p>
+          <h3 className="text-2xl font-black uppercase italic leading-none mt-1">{guide.regionLabel}</h3>
+          <p className="text-xs font-bold text-white/80 mt-2">
+            Proximo passo, rota de treino e drops importantes reunidos para voce nao perder ritmo.
+          </p>
+        </div>
+
+        <div className="grid gap-3">
+          <div className="bg-white rounded-2xl border-2 border-blue-100 p-4 shadow-sm">
+            <p className="text-[9px] font-black uppercase tracking-widest text-blue-500">Objetivo principal</p>
+            <h4 className="font-black uppercase italic text-slate-800 text-lg leading-tight mt-1">
+              {guide.storyStep?.label || 'Regiao atual completa'}
+            </h4>
+            <p className="text-[10px] font-bold text-slate-500 mt-1">
+              {guide.storyStep ? 'Siga pelo MODO VS quando for batalha de historia, rival, equipe vila, ginasio ou liga.' : 'Use as rotas avancadas para treinar ate o nivel 100 e completar drops pendentes.'}
+            </p>
+            {guide.storyStep && (
+              <button onClick={goToVs} className="mt-3 w-full rounded-xl bg-pokeRed text-white py-3 text-[10px] font-black uppercase tracking-widest active:scale-95">
+                Abrir Modo VS
+              </button>
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl border-2 border-emerald-100 p-4 shadow-sm">
+            <p className="text-[9px] font-black uppercase tracking-widest text-emerald-600">Treino recomendado</p>
+            <h4 className="font-black uppercase italic text-slate-800 text-lg leading-tight mt-1">
+              {guide.nextRoute?.name || 'Nenhuma rota liberada'}
+            </h4>
+            <p className="text-[10px] font-bold text-slate-500 mt-1">
+              {guide.nextRoute ? `Level recomendado: ${guide.nextRoute.unlockLevel || 1}. Continue aqui para liberar a proxima etapa.` : 'Avance na historia para liberar rotas de treino.'}
+            </p>
+            {guide.nextRoute && (
+              <button onClick={() => goToRoute(guide.nextRoute.id)} className="mt-3 w-full rounded-xl bg-emerald-600 text-white py-3 text-[10px] font-black uppercase tracking-widest active:scale-95">
+                Treinar nesta rota
+              </button>
+            )}
+          </div>
+
+          {guide.nextLockedRoute && (
+            <div className="bg-slate-50 rounded-2xl border-2 border-slate-200 p-4">
+              <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Proxima rota bloqueada</p>
+              <h4 className="font-black uppercase italic text-slate-700 leading-tight mt-1">{guide.nextLockedRoute.name}</h4>
+              <p className="text-[10px] font-bold text-slate-500 mt-1">
+                Falta: {(guide.nextLockedRoute.missingRequirements || []).join(', ') || 'progresso anterior'}.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 mb-2 px-1">Drops e receitas uteis</p>
+          <div className="grid gap-3">
+            {[...guide.recipeTargets, ...guide.materialTargets].slice(0, 8).map(target => <DropCard key={target.id} target={target} />)}
+            {[...guide.recipeTargets, ...guide.materialTargets].length === 0 && (
+              <div className="bg-white rounded-2xl border-2 border-slate-100 p-5 text-center">
+                <p className="text-slate-400 text-xs font-bold">Nenhum drop prioritario disponivel nesta etapa. Continue avancando rotas e MODO VS.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <button
+          onClick={() => setSubView('main')}
+          className="w-full bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg border-b-8 border-slate-900"
+        >
+          Voltar ao Menu
+        </button>
+      </div>
+    );
+  };
+
   const renderMissions = () => {
     const model = getRetentionViewModel(gameState);
     const itemIcon = (name) => `${POKEAPI_ITEM}${name}`;
@@ -960,7 +1067,9 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         ? 'Estatisticas'
         : subView === 'missions'
           ? 'Missoes'
-          : 'Menu Principal';
+          : subView === 'guide'
+            ? 'Guia'
+            : 'Menu Principal';
   const screenIcon = subView === 'settings'
     ? `${POKEAPI_ITEM}vs-seeker.png`
     : subView === 'stats'
@@ -969,7 +1078,9 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         ? `${POKEAPI_ITEM}bag.png`
         : subView === 'missions'
           ? assetPath('/assets/icons/quests.png')
-          : `${POKEAPI_ITEM}poke-doll.png`;
+          : subView === 'guide'
+            ? `${POKEAPI_ITEM}town-map.png`
+            : `${POKEAPI_ITEM}poke-doll.png`;
 
   return (
     <div className="h-full bg-slate-100 animate-fadeIn relative overflow-y-auto custom-scrollbar pt-12 pb-24">
@@ -987,7 +1098,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
           </h2>
         </div>
 
-        {subView === 'main' ? renderMain() : subView === 'settings' ? renderSettings() : subView === 'stats' ? renderStats() : subView === 'missions' ? renderMissions() : renderBackpack()}
+        {subView === 'main' ? renderMain() : subView === 'settings' ? renderSettings() : subView === 'stats' ? renderStats() : subView === 'missions' ? renderMissions() : subView === 'guide' ? renderGuide() : renderBackpack()}
 
         {subView === 'main' && (
           <button 

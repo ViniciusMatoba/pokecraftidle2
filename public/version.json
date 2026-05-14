@@ -1,5 +1,5 @@
 {
-  "version": "1.82.2",
-  "date": "13/05/2026 22:32",
-  "notes": "Modais e cards de vitoria mostram moedas reais apos rebalanceamento, e selecao de titulos do Trainer Card foi corrigida."
+  "version": "1.82.3",
+  "date": "13/05/2026 22:49",
+  "notes": "Guia da Jornada adicionado ao MENU com objetivo principal, rota recomendada e diario de drops com atalhos para rotas."
 }

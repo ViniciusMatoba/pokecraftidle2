@@ -1,5 +1,10 @@
 # Changelog - PokeCraft
 
+## [V1.82.3] - 13/05/2026 22:49
+### Adicionado
+- **Guia da Jornada**: nova area no MENU com objetivo principal, rota recomendada, proxima rota bloqueada e atalhos para MODO VS ou treino.
+- **Diario de Drops**: receitas e materiais uteis agora aparecem no Guia com botao para ir diretamente para a rota de drop quando ela estiver liberada.
+
 ## [V1.82.2] - 13/05/2026 22:32
 ### Corrigido
 - **Modais de Vitoria**: recompensas de lideres, rivais, equipe vila e Elite agora exibem exatamente as moedas recebidas apos o rebalanceamento economico.
