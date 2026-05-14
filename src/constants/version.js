@@ -1,7 +1,11 @@
-export const APP_VERSION = '1.83.2';
-export const VERSION = '1.83.2';
-export const APP_VERSION_DATE = '14/05/2026 08:32';
+export const APP_VERSION = '1.83.3';
+export const VERSION = '1.83.3';
+export const APP_VERSION_DATE = '14/05/2026 08:39';
 export const CHANGELOG = [
+  '## [V1.83.3] - 14/05/2026 08:39',
+  '### Adicionado',
+  '- **Title Selection Preview**: Adicionado modal de confirmação com prévia visual antes de aplicar um novo título.',
+  '- **UX Refinement**: Implementado fluxo de dois passos para evitar trocas acidentais, com design system Navy & Green.',
   '## [V1.83.2] - 14/05/2026 08:32',
   '### Corrigido',
   '- **Reactive Title Selection**: Implementada função `handleSelectTitleInApp` com logs de auditoria e persistência explícita no campo `selectedTitle`.',

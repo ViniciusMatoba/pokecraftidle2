@@ -301,12 +301,13 @@ export const TrainerCard = ({
   const [expanded, setExpanded] = React.useState(!compactExpandable);
   const [showPsInfo, setShowPsInfo] = React.useState(false);
   const [showTitlePicker, setShowTitlePicker] = React.useState(false);
+  const [pendingTitle, setPendingTitle] = React.useState(null); // v1.83.3
 
   React.useEffect(() => {
     if (setIsAnyModalOpen) {
-      setIsAnyModalOpen(showTitlePicker || showPsInfo);
+      setIsAnyModalOpen(showTitlePicker || showPsInfo || !!pendingTitle);
     }
-  }, [showTitlePicker, showPsInfo, setIsAnyModalOpen]);
+  }, [showTitlePicker, showPsInfo, pendingTitle, setIsAnyModalOpen]);
   if (!trainer) return null;
 
   const equippedSprite = AVATAR_SPRITES[appearance.spriteId] || AVATAR_SPRITES.red;
@@ -513,14 +514,8 @@ export const TrainerCard = ({
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('-> Tentando selecionar título:', title.id);
-                        if (canEditTitle) onSelectTitle(title.id);
-                        
-                        // v1.83.1: Delay de 50ms para garantir processamento do estado
-                        setTimeout(() => {
-                          console.log('-> Comando de fechar modal disparado (Seleção)');
-                          setShowTitlePicker(false);
-                        }, 50);
+                        console.log('-> Abrindo prévia para:', title.id);
+                        if (canEditTitle) setPendingTitle(title);
                       }}
                       onPointerDown={(e) => e.stopPropagation()}
                       onMouseDown={(e) => e.stopPropagation()}
@@ -539,6 +534,58 @@ export const TrainerCard = ({
               </div>
             </div>
           </div>
+
+          {/* Modal de Confirmação e Prévia (v1.83.3) */}
+          {pendingTitle && (
+            <div 
+              className="fixed inset-0 w-screen h-screen z-[1000000] flex items-center justify-center p-6 bg-black/90 backdrop-blur-2xl animate-fadeIn pointer-events-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div 
+                className="w-full max-w-[360px] bg-[#0F2D3A] rounded-[2.5rem] border-4 border-[#1DB954]/30 shadow-[0_0_50px_rgba(29,185,84,0.1)] flex flex-col overflow-hidden animate-bounceIn"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="p-8 flex flex-col items-center text-center">
+                  <div className="w-20 h-20 rounded-3xl mb-6 flex items-center justify-center border-2 shadow-lg" 
+                       style={{ background: pendingTitle.bg, borderColor: pendingTitle.color }}>
+                    {pendingTitle.icon && <img src={pendingTitle.icon} className="w-12 h-12 object-contain" alt="" />}
+                  </div>
+                  
+                  <h4 className="text-[#1DB954] text-[10px] font-black uppercase tracking-[0.3em] mb-2">Novo Título</h4>
+                  <h3 className="text-white text-2xl font-black uppercase italic leading-none mb-4">{pendingTitle.label}</h3>
+                  <p className="text-slate-400 text-sm font-bold mb-8 leading-relaxed">
+                    Deseja aplicar este título ao seu perfil de treinador?
+                  </p>
+
+                  <div className="flex flex-col w-full gap-3">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        console.log('-> Título confirmado:', pendingTitle.id);
+                        onSelectTitle(pendingTitle.id);
+                        setPendingTitle(null);
+                        setShowTitlePicker(false);
+                      }}
+                      className="w-full h-14 bg-[#1DB954] text-white font-black uppercase tracking-widest rounded-2xl hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-[#1DB954]/20"
+                    >
+                      Confirmar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPendingTitle(null);
+                      }}
+                      className="w-full h-12 bg-white/5 text-slate-400 font-black uppercase tracking-widest rounded-2xl hover:bg-white/10 active:scale-95 transition-all"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
 

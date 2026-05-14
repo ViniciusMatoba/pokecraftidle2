@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [v1.83.3] - 14/05/2026 08:39
+### Adicionado
+- **Modal de Confirmação de Título**: Introduzido um fluxo de dois passos para a troca de títulos, exibindo uma prévia visual do badge antes da aplicação definitiva.
+- **Design System Navy & Green**: Interface do modal de confirmação estilizada com a paleta da Agência VM (#0F2D3A e #1DB954).
+- **Isolamento de Eventos**: O novo modal de confirmação mantém o bloqueio de cliques (pointer-events) para evitar interações indesejadas com a CityScreen.
+
 ## [v1.83.2] - 14/05/2026 08:32
 ### Corrigido
 - **Seleção Reativa de Títulos**: Implementado o campo `selectedTitle` no estado global e logs de auditoria para rastrear mudanças de estado em tempo real.

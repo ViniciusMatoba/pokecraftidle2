@@ -1,5 +1,5 @@
 {
-  "version": "1.83.2",
-  "date": "14/05/2026 08:32",
-  "notes": "Correção da persistência reativa na seleção de títulos do treinador."
+  "version": "1.83.3",
+  "date": "14/05/2026 08:39",
+  "notes": "Refinamento de UX: Adicionado modal de confirmação e prévia para seleção de títulos."
 }
