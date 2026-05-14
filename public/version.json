@@ -1,5 +1,5 @@
 {
-  "version": "1.82.7",
-  "date": "14/05/2026 07:20",
-  "notes": "Correção de sincronismo de versão e bypass de cache."
+  "version": "1.82.8",
+  "date": "14/05/2026 07:35",
+  "notes": "Correção de vazamento de cliques (click-through) no Trainer Card e isolamento de eventos."
 }

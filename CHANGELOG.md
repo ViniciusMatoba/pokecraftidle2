@@ -1,5 +1,10 @@
 # Changelog - PokeCraft
 
+## [v1.82.8] - 14/05/2026 07:35
+### Corrigido
+- **Isolamento de Eventos**: Implementado bloqueio absoluto de propagação de cliques (`stopPropagation`) nos modais do Trainer Card.
+- **Z-Index**: Elevado para `z-100005` para garantir que os seletores de título e info fiquem sempre acima da CityScreen.
+
 ## [v1.82.7] - 14/05/2026 07:20
 ### Corrigido
 - **Sincronização de Versão**: Corrigido bug de cache no `AuthScreen` que impedia a detecção da versão mais recente.

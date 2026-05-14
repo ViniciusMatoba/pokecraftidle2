@@ -1,7 +1,11 @@
-export const APP_VERSION = '1.82.7';
-export const VERSION = '1.82.7';
-export const APP_VERSION_DATE = '14/05/2026 07:20';
+export const APP_VERSION = '1.82.8';
+export const VERSION = '1.82.8';
+export const APP_VERSION_DATE = '14/05/2026 07:35';
 export const CHANGELOG = [
+  '## [V1.82.8] - 14/05/2026 07:35',
+  '### Corrigido',
+  '- **Event Isolation**: Bloqueio total de propagação de cliques no Title Picker e PS Info para evitar interação com a CityScreen ao fundo.',
+  '- **Z-Index**: Prioridade absoluta (z-100005) para modais do Trainer Card.',
   '## [V1.82.7] - 14/05/2026 07:20',
   '### Corrigido',
   '- **Sincronização de Versão**: Corrigido bug de cache que impedia a exibição da versão correta no Menu.',
