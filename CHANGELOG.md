@@ -1,6 +1,6 @@
 # Changelog - PokeCraft
 
-## [V1.82.0] - 14/05/2026 01:00
+## [V1.82.0] - 13/05/2026 22:03
 ### Adicionado
 - **Treinador (Interface)**: redesign completo do Trainer Card com visual premium, glassmorphism e PS detalhado.
 - **Sistema de Titulos**: novo modal unificado para titulos de conquistas e Loja de Prestigio.

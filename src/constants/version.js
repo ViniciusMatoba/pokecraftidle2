@@ -1,8 +1,8 @@
 export const APP_VERSION = '1.82.0';
 export const VERSION = '1.82.0';
-export const APP_VERSION_DATE = '14/05/2026 01:00';
+export const APP_VERSION_DATE = '13/05/2026 22:03';
 export const CHANGELOG = [
-  '## [V1.82.0] - 14/05/2026 01:00',
+  '## [V1.82.0] - 13/05/2026 22:03',
   '### Adicionado',
   '- **Treinador (Interface)**: Redesign completo do TrainerCard com visual premium, glassmorphism e PS (Power Score) detalhado.',
   '- **Sistema de Títulos (Overhaul)**: Novo modal unificado para seleção de títulos (Conquistas + Loja de Prestígio).',
