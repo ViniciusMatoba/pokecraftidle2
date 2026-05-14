@@ -4115,36 +4115,35 @@ export default function App() {
       onConfirm: () => {
         closeConfirm();
 
-        let resultLog = null;
+        let crafted = false;
 
         setGameState(prev => {
           const materials = prev.inventory?.materials || {};
           const items     = prev.inventory?.items     || {};
 
-          if (prev.currency < currencyCost) {
-            resultLog = { msg: "Saldo insuficiente para a forja!", type: 'system' };
-            return prev;
-          }
+          if (prev.currency < currencyCost) return prev;
 
+          // Verifica disponibilidade em materials + items (igual ao getAvail da CraftingStation)
           const hasMaterials = Object.entries(materialCost).every(
-            ([material, amount]) => (materials[material] || 0) >= amount
+            ([material, amount]) => (materials[material] || 0) + (items[material] || 0) >= amount
           );
-          if (!hasMaterials) {
-            resultLog = { msg: "Materiais insuficientes para a forja!", type: 'system' };
-            return prev;
-          }
+          if (!hasMaterials) return prev;
 
-          // 3. Deduzir custos (puro — sem side effects)
+          // Deduz de materials primeiro, depois de items se necessário
           const newMaterials = { ...materials };
+          const newItems = { ...items };
           Object.entries(materialCost).forEach(([material, amount]) => {
-            newMaterials[material] -= amount;
+            let remaining = amount;
+            const fromMat = Math.min(remaining, newMaterials[material] || 0);
+            newMaterials[material] = (newMaterials[material] || 0) - fromMat;
+            remaining -= fromMat;
+            if (remaining > 0) {
+              newItems[material] = (newItems[material] || 0) - remaining;
+            }
           });
 
-          // 4. Adicionar item ao inventário
-          const newItems = { ...items };
           newItems[recipe.id] = (newItems[recipe.id] || 0) + qty;
-
-          resultLog = { msg: `✨ Você fabricou: ${qty}x ${recipe.name}!`, type: 'drop' };
+          crafted = true;
 
           return {
             ...prev,
@@ -4158,8 +4157,11 @@ export default function App() {
           };
         });
 
-        // addLog chamado FORA do setGameState — nenhum side effect aninhado
-        if (resultLog) addLog(resultLog.msg, resultLog.type);
+        if (crafted) {
+          addLog(`✨ Você fabricou: ${qty}x ${recipe.name}!`, 'drop');
+        } else {
+          addLog('Recursos insuficientes para a forja!', 'system');
+        }
       },
       onCancel: () => {
         setIsForgeConfirmOpen(false);
