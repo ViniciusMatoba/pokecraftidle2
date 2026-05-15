@@ -16,7 +16,18 @@ const team = (ids, level) => ids.map(id => ({ id, level }));
 
 const FUTURE_REGION_CHALLENGE_DATA = {
   unova: {
-    label: 'Unova', start: 'unova_started', champion: 'unova_champion', villain: 'Team Plasma', villainSprite: psTrainer('plasmagrunt'), rivalSprite: psTrainer('cheren'), bg: "url('/bg_unova_elite.webp') center/cover no-repeat",
+    label: 'Unova', start: 'unova_started', champion: 'unova_champion', villain: 'Team Plasma', villainSprite: psTrainer('plasmagrunt'), rivalSprite: psTrainer('cheren'), bg: "url('/bg_unova_route.webp') center/cover no-repeat",
+    leagueBg: "url('/bg_unova_elite.webp') center/cover no-repeat",
+    gymBgs: [
+      "url('/bg_unova_gym_striaton.png') center/cover no-repeat", // Cilan (Striaton)
+      "url('/bg_unova_gym_nacrene.png') center/cover no-repeat",  // Lenora (Nacrene)
+      "url('/bg_unova_gym_castelia.png') center/cover no-repeat", // Burgh (Castelia)
+      "url('/bg_unova_gym_nimbasa.png') center/cover no-repeat",  // Elesa (Nimbasa)
+      "url('/battle_bg_gym_rock.webp') center/cover no-repeat",    // Clay (Driftveil)
+      "url('/bg_unova_city.webp') center/cover no-repeat",        // Skyla (Mistralton)
+      "url('/bg_unova_ice.webp') center/cover no-repeat",         // Brycen (Icirrus)
+      "url('/bg_unova_elite.webp') center/cover no-repeat"       // Drayden (Opelucid)
+    ],
     badges: ['trio_badge', 'basic_badge', 'insect_badge', 'bolt_badge', 'quake_badge', 'jet_badge', 'freeze_badge', 'legend_badge'],
     leaders: [['Cilan', 'Grass', 14, [511, 512]], ['Lenora', 'Normal', 20, [507, 505]], ['Burgh', 'Bug', 26, [541, 542, 544]], ['Elesa', 'Electric', 32, [587, 522, 523]], ['Clay', 'Ground', 39, [529, 536, 530]], ['Skyla', 'Flying', 45, [528, 521, 581]], ['Brycen', 'Ice', 52, [614, 615, 583]], ['Drayden', 'Dragon', 60, [611, 621, 612]]],
     league: [['Shauntal', 'Ghost', 72, [609, 623, 593]], ['Grimsley', 'Dark', 74, [560, 625, 635]], ['Caitlin', 'Psychic', 76, [518, 579, 576]], ['Marshal', 'Fighting', 78, [534, 538, 539]], ['Alder', 'Bug', 82, [617, 589, 637]]],
@@ -268,7 +279,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
       badgeToGive: badge,
       requiresFlag: index === 0 ? (villainBattles[0]?.unlockFlag || cfg.start) : prevBadge,
       badge, badgeOrder: badgeIndex + 1, type, typeIcon: typeIconUrl(type),
-      team: team(ids, level), background: cfg.bg, location: `${cfg.label} - ${subtitle}`,
+      team: team(ids, level), background: (cfg.gymBgs && cfg.gymBgs[index]) ? cfg.gymBgs[index] : cfg.bg, location: `${cfg.label} - ${subtitle}`,
     };
   });
 
@@ -284,7 +295,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
     reward: level * 1600,
     unlockFlag: index === cfg.league.length - 1 ? cfg.champion : `${region}_elite_${index + 1}_defeated`,
     requiresFlag: index === 0 ? rivalVictoryUnlock : `${region}_elite_${index}_defeated`,
-    type, typeIcon: typeIconUrl(type), team: team(ids, level), background: "url('/battle_bg_elite_four.webp') center/cover no-repeat",
+    type, typeIcon: typeIconUrl(type), team: team(ids, level), background: cfg.leagueBg || "url('/battle_bg_elite_four.webp') center/cover no-repeat",
     location: `${cfg.label} Pokemon League`,
   }));
 

@@ -1,7 +1,13 @@
-export const APP_VERSION = '1.96.0';
-export const VERSION = '1.96.0';
-export const APP_VERSION_DATE = '16/05/2026 03:30';
+export const APP_VERSION = '1.97.0';
+export const VERSION = '1.97.0';
+export const APP_VERSION_DATE = '16/05/2026 00:00';
 export const CHANGELOG = [
+  '## [V1.97.0] - 16/05/2026 00:00',
+  '### Adicionado — Overhaul Visual de Batalha (Fase 2)',
+  '- **Golpes Compostos**: Mordidas, Socos e Chutes agora possuem efeitos elementais sobrepostos (Ex: Thunder Fang exibe mordida + raios).',
+  '- **Backgrounds Únicos**: Iniciada a implementação de cenários únicos para cada ginásio de Unova e Kalos, respeitando a temática individual de cada líder.',
+  '- **Arena de Liga Premium**: Nova arena oficial para batalhas de campeonato, substituindo placeholders genéricos.',
+  '',
   '## [V1.96.0] - 16/05/2026 03:30',
   '### Corrigido',
   '- **ReferenceError: customLevel** no RegionBuilderScreen corrigido (variável renomeada para `defaultLevel`).',

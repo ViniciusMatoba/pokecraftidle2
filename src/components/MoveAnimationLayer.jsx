@@ -131,6 +131,29 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
     if (onAttack) onAttack();
     const triggerHit = (delay = 0) => { if (onHit) setTimeout(onHit, delay); };
 
+    // Efeito Overlay (Elemental) para Golpes Compostos
+    const playOverlay = (type, target) => {
+      const effectMap = {
+        fire:     { sprite: 'fireball', count: 4, scale: 1.4 },
+        water:    { sprite: 'waterwisp', count: 4, scale: 1.4 },
+        electric: { sprite: 'lightning', count: 3, scale: 1.2 },
+        ice:      { sprite: 'icecrystal', count: 4, scale: 1.2 },
+        poison:   { sprite: 'poisoncloud', count: 3, scale: 1.5 },
+        dark:     { sprite: 'shadowball', count: 3, scale: 1.3 },
+      };
+      const effect = effectMap[type];
+      if (!effect) return;
+      
+      for (let i = 0; i < effect.count; i++) {
+        const offset = (Math.random() - 0.5) * 20;
+        spawnSprite(effect.sprite, { x: target.x + offset, y: target.y + offset }, target, { 
+          duration: 350, delay: i * 80, startScale: 0.1, endScale: effect.scale 
+        });
+      }
+    };
+
+    if (def?.overlay) playOverlay(def.overlay, to);
+
     switch (animType) {
       case 'projectile':
         for (let i = 0; i < Math.min(count, 5); i++) {

@@ -80,19 +80,43 @@ export const resolveMoveAnimation = (moveName, moveData) => {
   const isPhysical = moveData?.category === 'Physical';
   const isStatus = moveData?.category === 'Status';
 
-  // Mordidas / Presas
+  // Mordidas / Presas (COMPOSTAS)
   if (name.includes('bite') || name.includes('crunch') || name.includes('fang')) {
-    return { type: 'dual_impact', sprite: 'topbite', color, count: 2, duration: 300 };
+    return { 
+      type: 'dual_impact', 
+      sprite: 'topbite', 
+      color, 
+      count: 2, 
+      duration: 300,
+      isComposite: true,
+      overlay: (name.includes('fire') || name.includes('ice') || name.includes('thunder') || name.includes('poison')) ? type.toLowerCase() : null
+    };
   }
 
-  // Socos
+  // Socos (COMPOSTOS)
   if (name.includes('punch') || name.includes('jab') || name.includes('strike') || name.includes('hammer')) {
-    return { type: 'impact_flash', sprite: 'fist', color, count: 3, duration: 320 };
+    return { 
+      type: 'impact_flash', 
+      sprite: 'fist', 
+      color, 
+      count: 3, 
+      duration: 320,
+      isComposite: true,
+      overlay: (name.includes('fire') || name.includes('ice') || name.includes('thunder')) ? type.toLowerCase() : null
+    };
   }
 
-  // Chutes
+  // Chutes (COMPOSTOS)
   if (name.includes('kick') || name.includes('stomp') || name.includes('jump')) {
-    return { type: 'impact_flash', sprite: 'foot', color, count: 3, duration: 320 };
+    return { 
+      type: 'impact_flash', 
+      sprite: 'foot', 
+      color, 
+      count: 3, 
+      duration: 320,
+      isComposite: true,
+      overlay: (name.includes('blaze') || name.includes('thunder') || name.includes('triple')) ? type.toLowerCase() : null
+    };
   }
 
   // Cortes / Lâminas
