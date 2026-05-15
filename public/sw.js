@@ -1,12 +1,28 @@
-const CACHE_NAME = 'pokecraft-cache-v1.87.0';
+// Service Worker — versão lida dinamicamente do version.json
+// Ao mudar a versão do app, o cache é invalidado automaticamente.
+let CACHE_NAME = 'pokecraft-cache-v1.90.4';
+
+// Busca versão atual para manter cache sincronizado
+async function getCacheName() {
+  try {
+    const res = await fetch('./version.json?_sw=1');
+    if (res.ok) {
+      const data = await res.json();
+      return `pokecraft-cache-v${data.version}`;
+    }
+  } catch (_) {}
+  return CACHE_NAME;
+}
+
 const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './favicon.svg'
+  './favicon.svg',
+  './version.json',
 ];
 
-// Instalação: Cacheia ativos estáticos iniciais
+// Instalação: cacheia ativos estáticos iniciais
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
@@ -16,18 +32,18 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Ativação: Limpa TODOS os caches antigos
+// Ativação: limpa TODOS os caches antigos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('[SW] Deletando cache antigo:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
+    getCacheName().then((currentCache) => {
+      CACHE_NAME = currentCache;
+      return caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames
+            .filter((name) => name.startsWith('pokecraft-cache-') && name !== currentCache)
+            .map((name) => caches.delete(name))
+        );
+      });
     }).then(() => self.clients.claim())
   );
 });
@@ -36,61 +52,85 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // 1. DESATIVAR INTERCEPÇÃO EM LOCALHOST COMPLETAMENTE
-  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+  // 1. Ignorar localhost completamente
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') return;
+
+  // 2. Ignorar Firebase / Google APIs
+  if (
+    url.hostname.includes('firestore.googleapis.com') ||
+    url.hostname.includes('firebase') ||
+    url.hostname.includes('googleapis.com') ||
+    url.hostname.includes('pokemonshowdown.com') ||
+    url.hostname.includes('play.pokemonshowdown') ||
+    url.hostname.includes('fonts.googleapis.com') ||
+    url.hostname.includes('fonts.gstatic.com')
+  ) {
     return;
   }
 
-  // 2. Ignorar Firebase
-  if (url.hostname.includes('firestore.googleapis.com') || url.hostname.includes('firebase')) {
-    return;
-  }
-
-  // 3. Network-First para index.html (sempre pega versão mais recente)
-  if (url.pathname.endsWith('/') || url.pathname.endsWith('index.html')) {
+  // 3. Network-First para index.html e version.json (sempre atualizado)
+  if (
+    url.pathname.endsWith('/') ||
+    url.pathname.endsWith('index.html') ||
+    url.pathname.endsWith('version.json')
+  ) {
     event.respondWith(
-      fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200) {
-          return caches.match(event.request).then(cached => cached || networkResponse);
-        }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-        return networkResponse;
-      }).catch(async () => {
-        const cached = await caches.match(event.request);
-        return cached || new Response('Offline', { status: 503 });
-      })
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (!networkResponse || networkResponse.status !== 200) {
+            return caches.match(event.request).then((cached) => cached || networkResponse);
+          }
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return networkResponse;
+        })
+        .catch(async () => {
+          const cached = await caches.match(event.request);
+          return cached || new Response('Offline', { status: 503 });
+        })
     );
     return;
   }
 
-  // 4. Cache-First para assets com hash (imutáveis por definição)
-  const isHashedAsset =
-    url.origin === self.location.origin &&
-    url.pathname.includes('/assets/');
-
-  if (isHashedAsset) {
+  // 4. Cache-First para assets com hash (JS/CSS de build — imutáveis)
+  if (url.origin === self.location.origin && url.pathname.includes('/assets/')) {
     event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) return cachedResponse;
+      caches.match(event.request).then((cached) => {
+        if (cached) return cached;
         return fetch(event.request).then((networkResponse) => {
           if (!networkResponse || networkResponse.status !== 200) return networkResponse;
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
           return networkResponse;
-        }).catch(() => {
-          return new Response('Offline', { status: 503 });
-        });
+        }).catch(() => new Response('Offline', { status: 503 }));
       })
     );
     return;
   }
 
-  // 5. Network-First para o resto
+  // 5. Cache-First para imagens locais (backgrounds, icons — mudam raramente)
+  if (
+    url.origin === self.location.origin &&
+    (url.pathname.endsWith('.webp') ||
+      url.pathname.endsWith('.png') ||
+      url.pathname.endsWith('.svg') ||
+      url.pathname.endsWith('.mp3'))
+  ) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        if (cached) return cached;
+        return fetch(event.request).then((networkResponse) => {
+          if (!networkResponse || networkResponse.status !== 200) return networkResponse;
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return networkResponse;
+        }).catch(() => new Response('Not found', { status: 404 }));
+      })
+    );
+    return;
+  }
+
+  // 6. Network-First para o resto
   event.respondWith(
     fetch(event.request).catch(async () => {
       const cached = await caches.match(event.request);
