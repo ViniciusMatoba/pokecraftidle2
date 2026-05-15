@@ -1108,10 +1108,6 @@ const FUTURE_REGION_ROUTES = {
     description: 'O segredo mais profundo de Paldea. Pokémon do passado e futuro.',
   },
 
-};d: '/bg_paldea_cave.webp',
-    description: 'O cume nevado de Glaseado — o teste final da Liga Paldea.',
-  },
-
   paldea_area_zero: {
     id: 'paldea_area_zero', name: 'Area Zero', type: 'farm', group: 'Paldea Elite',
     unlockLevel: 75, requirements: ['paldea_glaseado_cleared'], unlocks: 'paldea_champion',
