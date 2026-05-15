@@ -11,11 +11,11 @@ export const REGION_ORDER = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalo
 
 // ── Configurações de Raid ──────────────────────────────────────────────────
 export const RAID_HP_MULTIPLIER = {
-  1: 3,
-  2: 8,
-  3: 20,
-  4: 50,
-  5: 150
+  1: 2,   // 1★ — fácil, derrota rápida
+  2: 4,   // 2★ — moderado
+  3: 9,   // 3★ — desafiador
+  4: 18,  // 4★ — difícil mas possível (era 50)
+  5: 40,  // 5★ — muito difícil, requer time forte (era 150)
 };
 export const RAID_CATCH_ATTEMPTS = {
   1: 5, 2: 5, 3: 5, 4: 5, 5: 5
