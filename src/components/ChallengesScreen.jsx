@@ -20,88 +20,262 @@ const FUTURE_REGION_CHALLENGE_DATA = {
     badges: ['trio_badge', 'basic_badge', 'insect_badge', 'bolt_badge', 'quake_badge', 'jet_badge', 'freeze_badge', 'legend_badge'],
     leaders: [['Cilan', 'Grass', 14, [511, 512]], ['Lenora', 'Normal', 20, [507, 505]], ['Burgh', 'Bug', 26, [541, 542, 544]], ['Elesa', 'Electric', 32, [587, 522, 523]], ['Clay', 'Ground', 39, [529, 536, 530]], ['Skyla', 'Flying', 45, [528, 521, 581]], ['Brycen', 'Ice', 52, [614, 615, 583]], ['Drayden', 'Dragon', 60, [611, 621, 612]]],
     league: [['Shauntal', 'Ghost', 72, [609, 623, 593]], ['Grimsley', 'Dark', 74, [560, 625, 635]], ['Caitlin', 'Psychic', 76, [518, 579, 576]], ['Marshal', 'Fighting', 78, [534, 538, 539]], ['Alder', 'Bug', 82, [617, 589, 637]]],
+    rivals: [
+      { suffix: 'rival_1', name: 'Cheren - Nuvema I', level: 12, req: 'unova_started', ids: [495, 498] },
+      { suffix: 'rival_2', name: 'Cheren - Striaton', level: 20, req: 'trio_badge', ids: [497, 496, 501] },
+      { suffix: 'rival_3', name: 'Cheren - Castelia', level: 28, req: 'insect_badge', ids: [500, 505, 523] },
+      { suffix: 'rival_4', name: 'Cheren - Nimbasa', level: 35, req: 'bolt_badge', ids: [505, 523, 544] },
+      { suffix: 'rival_5', name: 'Cheren - Mistralton', level: 42, req: 'quake_badge', ids: [508, 530, 581] },
+      { suffix: 'rival_6', name: 'Cheren - Icirrus', level: 52, req: 'jet_badge', ids: [612, 581, 523, 530] },
+      { suffix: 'rival_victory', name: 'Cheren - Victory Road Unova', level: 65, req: 'legend_badge', ids: [612, 545, 581, 530, 508] },
+    ],
+    villains: [
+      { suffix: 'villain_1', name: 'Recruta Plasma', sprite: psTrainer('plasmagrunt'), level: 16, req: 'unova_started', ids: [504, 519], subtitle: 'Patrulha Plasma', quote: '"Nos libertamos Pokemon! Entregue o seu!"' },
+      { suffix: 'villain_2', name: 'Recruta Plasma', sprite: psTrainer('plasmagrunt'), level: 24, req: 'insect_badge', ids: [519, 543, 527], subtitle: 'Bloco Plasma', quote: '"A Team Plasma nunca para!"' },
+      { suffix: 'villain_3', name: 'Executivo Plasma', sprite: psTrainer('plasmagrunt'), level: 32, req: 'bolt_badge', ids: [542, 560, 529], subtitle: 'Caverna Plasma', quote: '"Em nome de Ghetsis, nos devemos vencer!"' },
+      { suffix: 'villain_4', name: 'N - Primeiro Encontro', sprite: psTrainer('n'), level: 38, req: 'quake_badge', ids: [612, 571, 579], subtitle: 'Rival da Plasma', quote: '"Pokemon e pessoas devem se separar para serem livres."' },
+      { suffix: 'villain_5', name: 'N - Castelo Plasma', sprite: psTrainer('n'), level: 52, req: 'freeze_badge', ids: [644, 612, 545, 571], subtitle: 'Confronto com N', quote: '"Reshiram/Zekrom escolheu voce... Entao lutem!"' },
+      { suffix: 'villain_boss', name: 'Ghetsis', sprite: psTrainer('ghetsis'), level: 62, req: 'legend_badge', ids: [625, 635, 579, 560, 571, 612], subtitle: 'Lider da Team Plasma', quote: '"Voce e um incomodo. Prepare-se para ser destruido!"' },
+      { suffix: 'villain_final', name: 'N - Revanche Final', sprite: psTrainer('n'), level: 68, req: 'unova_champion', ids: [643, 612, 545, 571, 579, 625], subtitle: 'Epilogo de Unova', quote: '"Minha jornada ainda nao acabou. Vamos batalhar de novo!"' },
+    ],
   },
   kalos: {
     label: 'Kalos', start: 'kalos_started', champion: 'kalos_champion', villain: 'Team Flare', villainSprite: psTrainer('flaregrunt'), rivalSprite: psTrainer('shauna'), bg: "url('/battle_bg_route24_25_1776993592209.webp') center/cover no-repeat",
     badges: ['bug_badge', 'cliff_badge', 'rumble_badge', 'plant_badge', 'voltage_badge', 'fairy_badge', 'psychic_badge', 'iceberg_badge'],
     leaders: [['Viola', 'Bug', 12, [283, 666]], ['Grant', 'Rock', 25, [696, 698]], ['Korrina', 'Fighting', 32, [619, 701]], ['Ramos', 'Grass', 34, [189, 71, 673]], ['Clemont', 'Electric', 40, [587, 82, 695]], ['Valerie', 'Fairy', 48, [303, 439, 700]], ['Olympia', 'Psychic', 59, [678, 199, 561]], ['Wulfric', 'Ice', 65, [460, 713, 712]]],
     league: [['Malva', 'Fire', 74, [668, 663, 609]], ['Siebold', 'Water', 76, [689, 693, 130]], ['Wikstrom', 'Steel', 78, [681, 476, 212]], ['Drasna', 'Dragon', 80, [691, 621, 706]], ['Diantha', 'Fairy', 86, [701, 697, 700, 282]]],
+    rivals: [
+      { suffix: 'rival_1', name: 'Calem - Vaniville', level: 12, req: 'kalos_started', ids: [650, 665] },
+      { suffix: 'rival_2', name: 'Calem - Santalune', level: 20, req: 'bug_badge', ids: [652, 667, 296] },
+      { suffix: 'rival_3', name: 'Calem - Camphrier', level: 28, req: 'rumble_badge', ids: [655, 667, 619] },
+      { suffix: 'rival_4', name: 'Calem - Coumarine', level: 35, req: 'plant_badge', ids: [658, 671, 701] },
+      { suffix: 'rival_5', name: 'Calem - Lumiose II', level: 42, req: 'voltage_badge', ids: [658, 695, 673, 701] },
+      { suffix: 'rival_6', name: 'Calem - Anistar', level: 52, req: 'psychic_badge', ids: [658, 706, 695, 701, 673] },
+      { suffix: 'rival_victory', name: 'Calem - Victory Road Kalos', level: 65, req: 'iceberg_badge', ids: [658, 706, 695, 701, 673, 671] },
+    ],
+    villains: [
+      { suffix: 'villain_1', name: 'Recruta Flare', sprite: psTrainer('flaregrunt'), level: 16, req: 'kalos_started', ids: [667, 686], subtitle: 'Patrulha Flare', quote: '"Apenas os belos merecem viver neste mundo!"' },
+      { suffix: 'villain_2', name: 'Recruta Flare', sprite: psTrainer('flaregrunt'), level: 28, req: 'rumble_badge', ids: [686, 667, 291], subtitle: 'Operacao Flare', quote: '"A Team Flare vai transformar o mundo!"' },
+      { suffix: 'villain_3', name: 'Cientista Flare', sprite: psTrainer('flaregrunt'), level: 38, req: 'voltage_badge', ids: [668, 609, 695], subtitle: 'Lab Flare', quote: '"Nossa pesquisa para a arma definitiva progride!"' },
+      { suffix: 'villain_4', name: 'Admin Flare', sprite: psTrainer('flaregrunt'), level: 46, req: 'fairy_badge', ids: [668, 706, 609], subtitle: 'Escalada Flare', quote: '"Voce nao pode impedir Lysandre!"' },
+      { suffix: 'villain_boss', name: 'Lysandre', sprite: psTrainer('lysandre'), level: 62, req: 'iceberg_badge', ids: [645, 668, 706, 695, 609], subtitle: 'Lider da Team Flare', quote: '"Este mundo e belo. Preciso preserva-lo eliminando a feiura!"' },
+      { suffix: 'villain_6', name: 'Lysandre - Arma Suprema', sprite: psTrainer('lysandre'), level: 68, req: 'kalos_champion', ids: [645, 695, 706, 668, 609, 701], subtitle: 'Confronto Final Kalos', quote: '"Mesmo derrotado... a arma ainda pode ser ativada!"' },
+      { suffix: 'villain_final', name: 'Admin Flare Revanche', sprite: psTrainer('flaregrunt'), level: 72, req: 'kalos_champion', ids: [706, 668, 609, 695, 667], subtitle: 'Pos-Kalos', quote: '"Nos continuamos acreditando em Lysandre!"' },
+    ],
   },
   alola: {
     label: 'Alola', start: 'alola_started', champion: 'alola_champion', villain: 'Team Skull', villainSprite: psTrainer('skullgrunt'), rivalSprite: psTrainer('hau'), bg: "url('/battle_bg_route19_20.webp') center/cover no-repeat",
     badges: ['melemele_stamp', 'akala_stamp', 'ulaula_stamp', 'poni_stamp', 'alola_elite_stamp', 'alola_champion_stamp', 'ultra_stamp', 'battle_tree_stamp'],
-    leaders: [['Ilima', 'Normal', 16, [735, 20]], ['Lana', 'Water', 22, [751, 746]], ['Kiawe', 'Fire', 26, [776, 757]], ['Mallow', 'Grass', 30, [761, 754]], ['Sophocles', 'Electric', 38, [737, 777]], ['Mina', 'Fairy', 52, [742, 700]], ['Hapu', 'Ground', 58, [51, 750]], ['Molayne', 'Steel', 64, [227, 801]]],
-    league: [['Hala', 'Fighting', 82, [297, 739, 740]], ['Olivia', 'Rock', 84, [476, 703, 745]], ['Acerola', 'Ghost', 86, [478, 426, 778]], ['Kahili', 'Flying', 88, [628, 741, 733]], ['Kukui', 'Mixed', 92, [745, 727, 724, 730]]],
+    leaders: [
+      ['Ilima', 'Normal', 16, [676, 735], 'Capitao de Prova - Melemele'],
+      ['Hala', 'Fighting', 18, [66, 297, 739], 'Grande Julgamento - Kahuna Melemele'],
+      ['Lana', 'Water', 22, [746, 751, 690], 'Capitao de Prova - Akala'],
+      ['Kiawe', 'Fire', 26, [757, 758, 609], 'Capitao de Prova - Akala'],
+      ['Mallow', 'Grass', 30, [754, 761, 764], 'Capitao de Prova - Akala'],
+      ['Olivia', 'Rock', 32, [703, 744, 745], 'Grande Julgamento - Kahuna Akala'],
+      ['Sophocles', 'Electric', 38, [737, 777, 703], 'Capitao de Prova - Ulaula'],
+      ['Nanu', 'Dark', 48, [302, 675, 730], 'Grande Julgamento - Kahuna Ulaula'],
+      ['Mina', 'Fairy', 52, [742, 700, 303], 'Capitao de Prova - Poni'],
+      ['Hapu', 'Ground', 58, [750, 330, 450], 'Grande Julgamento - Kahuna Poni'],
+    ],
+    leaderSubtitleOverride: true,
+    league: [['Hala', 'Fighting', 82, [297, 739, 740]], ['Olivia Elite', 'Rock', 84, [476, 703, 745]], ['Acerola', 'Ghost', 86, [478, 426, 778]], ['Kahili', 'Flying', 88, [628, 741, 733]], ['Kukui', 'Mixed', 92, [745, 727, 724, 730]]],
+    rivals: [
+      { suffix: 'rival_1', name: 'Hau - Melemele I', level: 12, req: 'alola_started', ids: [722, 728] },
+      { suffix: 'rival_2', name: 'Hau - Melemele II', level: 20, req: 'melemele_stamp', ids: [724, 728, 702] },
+      { suffix: 'rival_3', name: 'Hau - Akala', level: 28, req: 'akala_stamp', ids: [726, 730, 702, 738] },
+      { suffix: 'rival_4', name: 'Hau - Ulaula I', level: 35, req: 'ulaula_stamp', ids: [726, 730, 738, 745] },
+      { suffix: 'rival_5', name: 'Hau - Ulaula II', level: 42, req: 'alola_elite_stamp', ids: [726, 730, 738, 741, 745] },
+      { suffix: 'rival_6', name: 'Hau - Poni', level: 52, req: 'alola_champion_stamp', ids: [727, 730, 738, 741, 745] },
+      { suffix: 'rival_victory', name: 'Hau - Mount Lanakila', level: 65, req: 'ultra_stamp', ids: [727, 730, 738, 741, 745, 702] },
+    ],
+    villains: [
+      { suffix: 'villain_1', name: 'Recruta Skull', sprite: psTrainer('skullgrunt'), level: 18, req: 'alola_started', ids: [509, 728], subtitle: 'Patrulha Skull', quote: '"Nós somos a Team Skull! Yeahhh!"' },
+      { suffix: 'villain_2', name: 'Recruta Skull', sprite: psTrainer('skullgrunt'), level: 28, req: 'melemele_stamp', ids: [571, 509, 728], subtitle: 'Bloqueio Skull', quote: '"Não vai passar sem enfrentar a Skull!"' },
+      { suffix: 'villain_3', name: 'Admin Plumeria', sprite: psTrainer('skullgrunt'), level: 36, req: 'akala_stamp', ids: [571, 452, 435], subtitle: 'Admin da Team Skull', quote: '"Voce tocou nos meus garotos. Hora de pagar!"' },
+      { suffix: 'villain_4', name: 'Recruta Skull II', sprite: psTrainer('skullgrunt'), level: 44, req: 'ulaula_stamp', ids: [452, 571, 758, 509], subtitle: 'Po Town Skull', quote: '"Esta cidade e nossa! Fora daqui!"' },
+      { suffix: 'villain_boss', name: 'Guzma', sprite: psTrainer('guzma'), level: 52, req: 'alola_champion_stamp', ids: [754, 571, 452, 738, 697], subtitle: 'Lider da Team Skull', quote: '"Guzma vai te destruir! Thats what Guzma do!"' },
+      { suffix: 'villain_6', name: 'Plumeria - Revanche', sprite: psTrainer('skullgrunt'), level: 62, req: 'ultra_stamp', ids: [571, 452, 435, 169, 454], subtitle: 'Epilogo Skull', quote: '"Juro que vou proteger meu bando!"' },
+      { suffix: 'villain_final', name: 'Guzma - Aether', sprite: psTrainer('guzma'), level: 68, req: 'alola_champion', ids: [754, 571, 452, 738, 697, 130], subtitle: 'Confronto Final Alola', quote: '"Voce ainda me desafia? Guzma vai destruir tudo!"' },
+    ],
   },
   galar: {
     label: 'Galar', start: 'galar_started', champion: 'galar_champion', villain: 'Team Yell', villainSprite: psTrainer('yellgrunt'), rivalSprite: psTrainer('hop'), bg: "url('/battle_bg_route16_17_18.webp') center/cover no-repeat",
     badges: ['grass_badge_galar', 'water_badge_galar', 'fire_badge_galar', 'fighting_badge_galar', 'fairy_badge_galar', 'rock_badge_galar', 'dark_badge_galar', 'dragon_badge_galar'],
     leaders: [['Milo', 'Grass', 20, [829, 830]], ['Nessa', 'Water', 24, [833, 834]], ['Kabu', 'Fire', 27, [851, 59]], ['Bea', 'Fighting', 36, [865, 68]], ['Opal', 'Fairy', 38, [110, 868, 869]], ['Gordie', 'Rock', 42, [839, 874]], ['Piers', 'Dark', 46, [560, 862, 861]], ['Raihan', 'Dragon', 55, [844, 884, 330]]],
     league: [['Marnie', 'Dark', 74, [861, 452, 877]], ['Bede', 'Fairy', 78, [858, 869, 282]], ['Raihan', 'Dragon', 82, [884, 330, 706]], ['Leon', 'Fire', 90, [6, 887, 812, 815, 818]]],
+    rivals: [
+      { suffix: 'rival_1', name: 'Hop - Postwick', level: 12, req: 'galar_started', ids: [810, 816] },
+      { suffix: 'rival_2', name: 'Hop - Wedgehurst', level: 20, req: 'grass_badge_galar', ids: [812, 816, 818] },
+      { suffix: 'rival_3', name: 'Hop - Motostoke', level: 28, req: 'fire_badge_galar', ids: [812, 816, 818, 831] },
+      { suffix: 'rival_4', name: 'Bede - Ballonlea', level: 35, req: 'fairy_badge_galar', ids: [858, 869, 282, 439] },
+      { suffix: 'rival_5', name: 'Hop - Hammerlocke', level: 42, req: 'rock_badge_galar', ids: [815, 818, 831, 869] },
+      { suffix: 'rival_6', name: 'Bede - Circhester', level: 52, req: 'dark_badge_galar', ids: [858, 869, 282, 701, 439] },
+      { suffix: 'rival_victory', name: 'Hop - Victory Road Galar', level: 65, req: 'dragon_badge_galar', ids: [815, 818, 831, 869, 706] },
+    ],
+    villains: [
+      { suffix: 'villain_1', name: 'Recruta Yell', sprite: psTrainer('yellgrunt'), level: 22, req: 'galar_started', ids: [877, 861], subtitle: 'Torcida Yell', quote: '"Ninguem para Marnie exceto a Team Yell!"' },
+      { suffix: 'villain_2', name: 'Recruta Yell', sprite: psTrainer('yellgrunt'), level: 30, req: 'fire_badge_galar', ids: [877, 861, 452], subtitle: 'Bloqueio Yell', quote: '"A Team Yell nao deixa voce passar!"' },
+      { suffix: 'villain_3', name: 'Executivo Macro Cosmos', sprite: psTrainer('yellgrunt'), level: 40, req: 'fairy_badge_galar', ids: [862, 861, 560, 877], subtitle: 'Macro Cosmos Inc.', quote: '"A Macro Cosmos controla Galar. Fique do lado certo!"' },
+      { suffix: 'villain_4', name: 'Admin Oleana', sprite: psTrainer('yellgrunt'), level: 50, req: 'rock_badge_galar', ids: [334, 879, 861, 876], subtitle: 'Secretaria de Rose', quote: '"Sr. Rose nao pode ser perturbado. Eu cuido de voce!"' },
+      { suffix: 'villain_boss', name: 'Rose', sprite: psTrainer('rose'), level: 60, req: 'dragon_badge_galar', ids: [879, 884, 873, 861, 876], subtitle: 'CEO da Macro Cosmos', quote: '"Estou tentando salvar Galar! Voce nao entende!"' },
+      { suffix: 'villain_6', name: 'Oleana - Revanche', sprite: psTrainer('yellgrunt'), level: 68, req: 'galar_champion', ids: [879, 861, 876, 334, 869], subtitle: 'Pos-Galar', quote: '"Estarei sempre ao lado de Rose-sama."' },
+      { suffix: 'villain_final', name: 'Rose - Eternatus', sprite: psTrainer('rose'), level: 75, req: 'galar_champion', ids: [890, 884, 879, 861], subtitle: 'Confronto Final Galar', quote: '"Eternatus e a fonte de energia de Galar... e eu o libertei!"' },
+    ],
   },
   paldea: {
     label: 'Paldea', start: 'paldea_started', champion: 'paldea_champion', villain: 'Team Star', villainSprite: psTrainer('giacomo'), rivalSprite: psTrainer('schoolkidf'), bg: "url('/battle_bg_route3_1776993578907.webp') center/cover no-repeat",
     badges: ['bug_badge_paldea', 'grass_badge_paldea', 'electric_badge_paldea', 'water_badge_paldea', 'normal_badge_paldea', 'ghost_badge_paldea', 'psychic_badge_paldea', 'ice_badge_paldea'],
     leaders: [['Katy', 'Bug', 15, [917, 919]], ['Brassius', 'Grass', 20, [949, 753]], ['Iono', 'Electric', 28, [940, 941]], ['Kofu', 'Water', 35, [961, 950]], ['Larry', 'Normal', 42, [931, 924, 925]], ['Ryme', 'Ghost', 48, [972, 937]], ['Tulip', 'Psychic', 55, [956, 981]], ['Grusha', 'Ice', 60, [974, 975]]],
     league: [['Rika', 'Ground', 72, [980, 982, 968]], ['Poppy', 'Steel', 75, [879, 959, 1000]], ['Larry Elite', 'Flying', 78, [931, 973, 701]], ['Hassel', 'Dragon', 82, [998, 887, 1008]], ['Geeta', 'Rock', 88, [970, 983, 1008]]],
+    rivals: [
+      { suffix: 'rival_1', name: 'Nemona - Mesagoza I', level: 12, req: 'paldea_started', ids: [906, 909] },
+      { suffix: 'rival_2', name: 'Nemona - Sul de Paldea', level: 20, req: 'bug_badge_paldea', ids: [908, 909, 912] },
+      { suffix: 'rival_3', name: 'Nemona - Porto Marinada', level: 28, req: 'electric_badge_paldea', ids: [908, 912, 936] },
+      { suffix: 'rival_4', name: 'Nemona - Medali', level: 35, req: 'water_badge_paldea', ids: [911, 914, 936, 978] },
+      { suffix: 'rival_5', name: 'Nemona - Levincia', level: 42, req: 'normal_badge_paldea', ids: [911, 914, 936, 940, 978] },
+      { suffix: 'rival_6', name: 'Nemona - Glaseado', level: 52, req: 'ghost_badge_paldea', ids: [914, 936, 940, 975, 978] },
+      { suffix: 'rival_victory', name: 'Nemona - Academia Uva/Naranja', level: 65, req: 'ice_badge_paldea', ids: [914, 936, 940, 975, 978, 1008] },
+    ],
+    villains: [
+      { suffix: 'villain_1', name: 'Giacomo - Base Dark', sprite: psTrainer('giacomo'), level: 21, req: 'paldea_started', ids: [861, 877], subtitle: 'Base Star Sombria', quote: '"Intrusos na base? Hora de ensinar uma licao!"' },
+      { suffix: 'villain_2', name: 'Mela - Base Fire', sprite: psTrainer('mela'), level: 27, req: 'grass_badge_paldea', ids: [963, 851, 59], subtitle: 'Base Star Ardente', quote: '"Meu fogo nao vai se apagar!"' },
+      { suffix: 'villain_3', name: 'Atticus - Base Poison', sprite: psTrainer('atticus'), level: 34, req: 'electric_badge_paldea', ids: [945, 952, 317], subtitle: 'Base Star Toxica', quote: '"Arte e veneno sao a mesma coisa!"' },
+      { suffix: 'villain_4', name: 'Ortega - Base Fairy', sprite: psTrainer('ortega'), level: 45, req: 'normal_badge_paldea', ids: [868, 869, 282, 282], subtitle: 'Base Star Fantasiosa', quote: '"Voce e corajoso por desafiar a minha base!"' },
+      { suffix: 'villain_boss', name: 'Eri - Base Fighting', sprite: psTrainer('eri'), level: 50, req: 'ghost_badge_paldea', ids: [973, 68, 534, 448, 297], subtitle: 'Base Star Combatente', quote: '"Esta e minha batalha mais séria!"' },
+      { suffix: 'villain_6', name: 'Cassiopeia/Penny', sprite: psTrainer('penny'), level: 60, req: 'psychic_badge_paldea', ids: [1009, 1006, 861, 963, 945], subtitle: 'Lider da Team Star', quote: '"Sou eu, Penny... Cassiopeia. Preciso proteger meus amigos!"' },
+      { suffix: 'villain_final', name: 'Penny - Confronto Final', sprite: psTrainer('penny'), level: 68, req: 'paldea_champion', ids: [1009, 1006, 861, 963, 973, 945], subtitle: 'Epilogo de Paldea', quote: '"A Team Star existiu para proteger quem precisava. Valeu a pena!"' },
+    ],
+    titans: [
+      { suffix: 'titan_klawf', name: 'Klawf - Titã de Rocha', sprite: psTrainer('giacomo'), level: 16, req: 'paldea_started', ids: [950], subtitle: 'Tita de Rocha - Klawf', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
+      { suffix: 'titan_bombirdier', name: 'Bombirdier - Titã Voador', sprite: psTrainer('giacomo'), level: 20, req: 'bug_badge_paldea', ids: [962], subtitle: 'Tita Voador - Bombirdier', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
+      { suffix: 'titan_orthworm', name: 'Orthworm - Titã de Aço', sprite: psTrainer('giacomo'), level: 28, req: 'grass_badge_paldea', ids: [968], subtitle: 'Tita de Aco - Orthworm', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
+      { suffix: 'titan_greattusk', name: 'Presas Gigantes - Titã Terrestre', sprite: psTrainer('giacomo'), level: 35, req: 'electric_badge_paldea', ids: [984], subtitle: 'Tita Terrestre - Presas Gigantes', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
+      { suffix: 'titan_dondozo', name: 'Dondozo - Titã Aquático', sprite: psTrainer('giacomo'), level: 42, req: 'water_badge_paldea', ids: [977, 978], subtitle: 'Tita Aquatico - Dondozo', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
+      { suffix: 'titan_falsedra', name: 'Falso Dragão - Titã Final', sprite: psTrainer('giacomo'), level: 55, req: 'ghost_badge_paldea', ids: [1006, 978], subtitle: 'Tita Falso Dragao', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
+    ],
   },
 };
 
-const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE_DATA).flatMap(([region, cfg]) => {
-  const rivalBattles = [
-    { suffix: 'rival_start', name: `Rival - ${cfg.label} I`, level: 12, req: cfg.start, unlock: `${region}_rival_1_defeated`, ids: [cfg.leaders[0][3][0], cfg.leaders[1][3][0]] },
-    { suffix: 'rival_mid', name: `Rival - ${cfg.label} II`, level: 38, req: cfg.badges[2], unlock: `${region}_rival_2_defeated`, ids: [cfg.leaders[2][3][0], cfg.leaders[3][3][0], cfg.leaders[4][3][0]] },
-    { suffix: 'rival_victory', name: `Rival - Victory Road ${cfg.label}`, level: 70, req: cfg.badges[7], unlock: `${region}_rival_victory_defeated`, ids: [cfg.leaders[5][3][0], cfg.leaders[6][3][0], cfg.leaders[7][3][0]] },
-  ].map(entry => ({
-    region, id: `${region}_${entry.suffix}`, category: 'rival', name: entry.name, subtitle: 'Rivalidade Regional',
-    sprite: cfg.rivalSprite, quote: '"Vamos testar se voce esta pronto para o proximo passo."',
-    reward: entry.level * 900, unlockFlag: entry.unlock, requiresFlag: entry.req, team: team(entry.ids, entry.level),
-    background: cfg.bg, location: `${cfg.label} - Jornada`,
-  }));
+// Per-region villain team Pokémon (used by generic villain builder for regions without custom villain arrays)
+const VILLAIN_POKEMON = {
+  unova:  [[504, 519], [519, 543, 527], [542, 560, 529], [529, 571, 579], [612, 571, 545], [625, 635, 579, 612], [643, 625, 579]],
+  kalos:  [[667, 686], [686, 667, 291], [668, 609, 695], [668, 706, 609], [645, 668, 706, 695, 609], [695, 706, 668, 609, 701], [706, 668, 609, 695, 667]],
+  alola:  [[509, 728], [571, 509, 728], [571, 452, 435], [452, 571, 758, 509], [754, 571, 452, 738, 697], [571, 452, 435, 169, 454], [754, 571, 452, 738, 697, 130]],
+  galar:  [[877, 861], [877, 861, 452], [862, 861, 560, 877], [334, 879, 861, 876], [879, 884, 873, 861, 876], [879, 861, 876, 334, 869], [890, 884, 879, 861]],
+  paldea: [[861, 877], [963, 851, 59], [945, 952, 317], [868, 869, 282], [973, 68, 534, 448, 297], [1009, 1006, 861, 963, 945], [1009, 1006, 861, 963, 973, 945]],
+};
 
-  const villainBattles = [
-    { suffix: 'villain_1', level: 24, req: `${region}_rival_1_defeated`, unlock: `${region}_villain_1_cleared` },
-    { suffix: 'villain_2', level: 50, req: cfg.badges[4], unlock: `${region}_villain_2_cleared` },
-    { suffix: 'villain_final', level: 66, req: cfg.badges[6], unlock: `${region}_villain_final_cleared` },
+const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE_DATA).flatMap(([region, cfg]) => {
+  // ── Rivals (7 battles) ──────────────────────────────────────────────────────
+  const rivalEntries = cfg.rivals || [
+    { suffix: 'rival_start', name: `Rival - ${cfg.label} I`, level: 12, req: cfg.start, ids: [cfg.leaders[0][3][0], cfg.leaders[1][3][0]] },
+    { suffix: 'rival_mid', name: `Rival - ${cfg.label} II`, level: 38, req: cfg.badges[2], ids: [cfg.leaders[2][3][0], cfg.leaders[3][3][0], cfg.leaders[4][3][0]] },
+    { suffix: 'rival_victory', name: `Rival - Victory Road ${cfg.label}`, level: 70, req: cfg.badges[7], ids: [cfg.leaders[5][3][0], cfg.leaders[6][3][0], cfg.leaders[7][3][0]] },
+  ];
+  const rivalBattles = rivalEntries.map((entry, i) => {
+    const unlockFlag = entry.unlock || `${region}_${entry.suffix}_defeated`;
+    const prevUnlock = i === 0 ? null : (rivalEntries[i - 1].unlock || `${region}_${rivalEntries[i - 1].suffix}_defeated`);
+    return {
+      region, id: `${region}_${entry.suffix}`, category: 'rival', name: entry.name || `Rival - ${cfg.label} ${i + 1}`,
+      subtitle: 'Rivalidade Regional', sprite: cfg.rivalSprite,
+      quote: '"Vamos testar se voce esta pronto para o proximo passo."',
+      reward: entry.level * 900, unlockFlag, requiresFlag: i === 0 ? entry.req : (entry.req || prevUnlock),
+      team: team(entry.ids, entry.level), background: cfg.bg, location: `${cfg.label} - Jornada`,
+    };
+  });
+
+  // ── Villains (7 battles) ────────────────────────────────────────────────────
+  const villainEntries = cfg.villains || [];
+  const villainBattles = villainEntries.length > 0 ? villainEntries.map((entry, i) => {
+    const unlockFlag = entry.unlock || `${region}_${entry.suffix}_cleared`;
+    const prevUnlock = i === 0 ? null : (villainEntries[i - 1].unlock || `${region}_${villainEntries[i - 1].suffix}_cleared`);
+    return {
+      region, id: `${region}_${entry.suffix}`, category: 'rocket',
+      name: entry.name, subtitle: entry.subtitle || 'Equipe Vila Regional',
+      sprite: entry.sprite || cfg.villainSprite, quote: entry.quote || '"Nosso plano nao sera interrompido por voce."',
+      reward: entry.level * 1000, unlockFlag,
+      requiresFlag: i === 0 ? entry.req : (entry.req || prevUnlock),
+      team: team(entry.ids, entry.level), background: cfg.bg, location: `${cfg.label} - Operacao da Equipe Vila`,
+    };
+  }) : [
+    { suffix: 'villain_1', level: 24, req: rivalEntries[0]?.unlock || `${region}_${rivalEntries[0]?.suffix}_defeated` },
+    { suffix: 'villain_2', level: 50, req: cfg.badges[4] },
+    { suffix: 'villain_final', level: 66, req: cfg.badges[6] },
   ].map((entry, i) => ({
     region, id: `${region}_${entry.suffix}`, category: 'rocket', name: `${cfg.villain} ${i === 2 ? 'Boss' : 'Grunt'}`, subtitle: 'Equipe Vila Regional',
     sprite: cfg.villainSprite, quote: '"Nosso plano nao sera interrompido por voce."',
-    reward: entry.level * 1000, unlockFlag: entry.unlock, requiresFlag: entry.req,
+    reward: entry.level * 1000, unlockFlag: `${region}_${entry.suffix}_cleared`, requiresFlag: entry.req,
     team: team([cfg.leaders[i + 1][3][0], cfg.leaders[i + 3][3][0], cfg.leaders[i + 5]?.[3]?.[0] || cfg.leaders[7][3][0]], entry.level),
     background: cfg.bg, location: `${cfg.label} - Operacao da Equipe Vila`,
   }));
 
-  const gymBattles = cfg.leaders.map(([name, type, level, ids], index) => ({
-    region, id: `${region}_gym_${index + 1}`, category: region, name, subtitle: `Ginasio #${index + 1}`,
-    sprite: trainerSprite(name),
-    quote: `"Meu tipo ${type} vai definir esta batalha."`,
-    reward: level * 1200, unlockFlag: cfg.badges[index], badgeToGive: cfg.badges[index],
-    requiresFlag: index === 0 ? `${region}_villain_1_cleared` : cfg.badges[index - 1],
-    badge: cfg.badges[index], badgeOrder: index + 1, type, typeIcon: typeIconUrl(type),
-    team: team(ids, level), background: cfg.bg, location: `${cfg.label} - Ginasio #${index + 1}`,
-  }));
+  // ── Gym Leaders ─────────────────────────────────────────────────────────────
+  // For Alola, leaders array has 10 entries (trials + kahunas mapped to 8 stamps via stamp index override)
+  const alolaStampMap = region === 'alola' ? [0, 0, 1, 1, 1, 1, 2, 2, 3, 3] : null;
+  const gymBattles = cfg.leaders.map((leaderData, index) => {
+    const [name, type, level, ids, customSubtitle] = leaderData;
+    const badgeIndex = alolaStampMap ? alolaStampMap[index] : Math.min(index, cfg.badges.length - 1);
+    const badge = cfg.badges[badgeIndex];
+    const subtitle = cfg.leaderSubtitleOverride && customSubtitle ? customSubtitle : `Ginasio #${index + 1}`;
+    const prevBadge = index === 0 ? (villainBattles[0]?.unlockFlag || cfg.start) : cfg.badges[alolaStampMap ? alolaStampMap[index - 1] : Math.min(index - 1, cfg.badges.length - 1)];
+    return {
+      region, id: `${region}_gym_${index + 1}`, category: region, name, subtitle,
+      sprite: trainerSprite(name),
+      quote: `"Meu tipo ${type} vai definir esta batalha."`,
+      reward: level * 1200,
+      unlockFlag: region === 'alola' ? `${region}_trial_${index + 1}_cleared` : badge,
+      badgeToGive: badge,
+      requiresFlag: index === 0 ? (villainBattles[0]?.unlockFlag || cfg.start) : prevBadge,
+      badge, badgeOrder: badgeIndex + 1, type, typeIcon: typeIconUrl(type),
+      team: team(ids, level), background: cfg.bg, location: `${cfg.label} - ${subtitle}`,
+    };
+  });
 
+  // ── League / Elite Four ──────────────────────────────────────────────────────
+  // For Alola the last gym leader unlocks rival_victory, which then unlocks league
+  const lastGymUnlock = region === 'alola' ? `${region}_trial_${cfg.leaders.length}_cleared` : cfg.badges[cfg.badges.length - 1];
+  const rivalVictoryUnlock = rivalEntries.at(-1)?.unlock || `${region}_${rivalEntries.at(-1)?.suffix}_defeated`;
   const leagueBattles = cfg.league.map(([name, type, level, ids], index) => ({
     region, id: index === cfg.league.length - 1 ? `${region}_champion` : `${region}_elite_${index + 1}`,
     category: region, name, subtitle: index === cfg.league.length - 1 ? `Campeao de ${cfg.label}` : `Elite Four #${index + 1}`,
     sprite: trainerSprite(name),
     quote: '"A Liga reconhece apenas quem vence no limite."',
-    reward: level * 1600, unlockFlag: index === cfg.league.length - 1 ? cfg.champion : `${region}_elite_${index + 1}_defeated`,
-    requiresFlag: index === 0 ? `${region}_rival_victory_defeated` : (index === cfg.league.length - 1 ? `${region}_elite_${index}_defeated` : `${region}_elite_${index}_defeated`),
+    reward: level * 1600,
+    unlockFlag: index === cfg.league.length - 1 ? cfg.champion : `${region}_elite_${index + 1}_defeated`,
+    requiresFlag: index === 0 ? rivalVictoryUnlock : `${region}_elite_${index}_defeated`,
     type, typeIcon: typeIconUrl(type), team: team(ids, level), background: "url('/battle_bg_elite_four.webp') center/cover no-repeat",
     location: `${cfg.label} Pokemon League`,
   }));
 
-  const rematches = cfg.leaders.map(([name, type, , ids], index) => ({
-    region, id: `${region}_rematch_${index + 1}`, category: 'rematch', name: `Revanche ${name}`, subtitle: `${cfg.label} Rematch`,
-    sprite: trainerSprite(name),
-    quote: '"Agora sem limite de campanha. Mostre seu time de elite."',
-    reward: 90000 + index * 5000, unlockFlag: `${region}_rematch_${index + 1}_defeated`, requiresFlag: cfg.champion,
-    type, typeIcon: typeIconUrl(type), team: team([...ids, cfg.league.at(-1)[3][0]].slice(0, 4), 100), background: cfg.bg,
-    location: `${cfg.label} - Revanche`,
-  }));
+  // ── Rematches ────────────────────────────────────────────────────────────────
+  const rematches = cfg.leaders.map((leaderData, index) => {
+    const [name, type, , ids] = leaderData;
+    return {
+      region, id: `${region}_rematch_${index + 1}`, category: 'rematch', name: `Revanche ${name}`, subtitle: `${cfg.label} Rematch`,
+      sprite: trainerSprite(name),
+      quote: '"Agora sem limite de campanha. Mostre seu time de elite."',
+      reward: 90000 + index * 5000, unlockFlag: `${region}_rematch_${index + 1}_defeated`, requiresFlag: cfg.champion,
+      type, typeIcon: typeIconUrl(type), team: team([...ids, cfg.league.at(-1)[3][0]].slice(0, 4), 100), background: cfg.bg,
+      location: `${cfg.label} - Revanche`,
+    };
+  });
 
-  return [...rivalBattles, ...villainBattles, ...gymBattles, ...leagueBattles, ...rematches];
+  // ── Titans (Paldea only) ─────────────────────────────────────────────────────
+  const titanBattles = (cfg.titans || []).map((entry, i) => {
+    const unlockFlag = `${region}_${entry.suffix}_cleared`;
+    const prevUnlock = i === 0 ? entry.req : (`${region}_${(cfg.titans[i - 1]).suffix}_cleared`);
+    return {
+      region, id: `${region}_${entry.suffix}`, category: 'titan',
+      name: entry.name, subtitle: entry.subtitle,
+      sprite: entry.sprite, quote: entry.quote,
+      reward: entry.level * 1100, unlockFlag,
+      requiresFlag: i === 0 ? entry.req : prevUnlock,
+      team: team(entry.ids, entry.level), background: cfg.bg, location: `${cfg.label} - Caminho das Lendas`,
+    };
+  });
+
+  return [...rivalBattles, ...villainBattles, ...gymBattles, ...leagueBattles, ...rematches, ...titanBattles];
 });
 
 const FUTURE_REGION_CHALLENGES = buildFutureRegionChallenges();

@@ -98,11 +98,8 @@ const TravelScreen = ({
 
   const visibleRouteEntries = React.useMemo(() => {
     return sortedRoutes.filter(route => {
-      // Filtrar apenas rotas da região ativa (Kanto, Johto, Hoenn)
-      if (routeRegionTab === 'kanto' && route._region.id !== 'kanto') return false;
-      if (routeRegionTab === 'johto' && route._region.id !== 'johto') return false;
-      if (routeRegionTab === 'hoenn' && route._region.id !== 'hoenn') return false;
-      if (routeRegionTab === 'sinnoh' && route._region.id !== 'sinnoh') return false;
+      // Filtrar apenas rotas da região ativa
+      if (route._region.id !== routeRegionTab) return false;
 
       // Ocultar rotas "Habitat Regional" (I, II e III) até o jogador ser Campeão da liga
       const isHabitatRoute = /_(dex_field_1|dex_field_2|dex_field_3)$/.test(route.id);
@@ -126,9 +123,10 @@ const TravelScreen = ({
     if (johtoStarted && kantoChampion && gameState.currentRoute) {
       const current = sortedRoutes.find(r => r.id === gameState.currentRoute);
       if (current) {
-        if (current._region.id === 'johto') setRouteRegionTab('johto');
-        if (current._region.id === 'hoenn') setRouteRegionTab('hoenn');
-        if (current._region.id === 'sinnoh') setRouteRegionTab('sinnoh');
+        const rid = current._region.id;
+        if (['johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea'].includes(rid)) {
+          setRouteRegionTab(rid);
+        }
       }
     }
   }, [kantoChampion, johtoStarted, gameState.currentRoute, sortedRoutes]);

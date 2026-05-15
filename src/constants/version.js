@@ -1,7 +1,14 @@
-export const APP_VERSION = '1.90.5';
-export const VERSION = '1.90.5';
-export const APP_VERSION_DATE = '15/05/2026 18:00';
+export const APP_VERSION = '1.90.6';
+export const VERSION = '1.90.6';
+export const APP_VERSION_DATE = '15/05/2026 19:00';
 export const CHANGELOG = [
+  '## [V1.90.6] - 15/05/2026 19:00',
+  '### Adicionado',
+  '- **Rivais e Vilões expandidos (7 cada)**: todas as 5 regiões futuras (Unova, Kalos, Alola, Galar, Paldea) agora têm 7 batalhas de rival e 7 encontros de equipe vilã com equipes temáticas e progressão adequada.',
+  '- **Alola — Capitães de Prova e Kahunas**: líderes de Alola agora são corretamente rotulados como Capitão de Prova (Ilima, Lana, Kiawe, Mallow, Sophocles, Mina) e Grande Julgamento Kahuna (Hala, Olivia, Nanu, Hapu).',
+  '- **Paldea — Titãs (Caminho das Lendas)**: 6 titãs adicionados (Klawf, Bombirdier, Orthworm, Presas Gigantes, Dondozo, Falso Dragão) com categoria "titan" e equipes únicas.',
+  '- **Paldea — Team Star (Rua Estelar)**: 7 batalhas da Team Star incluindo Giacomo, Mela, Atticus, Ortega, Eri e Penny/Cassiopeia como chefe final.',
+  '- **Rotas — Filtro por região expandido**: TravelScreen agora filtra rotas por região ativa para todas as 9 regiões (antes limitado a Kanto/Johto/Hoenn/Sinnoh).',
   '## [V1.90.5] - 15/05/2026 18:00',
   '### Performance',
   '- **Imagens WebP**: 221 backgrounds e ícones convertidos de PNG para WebP (qualidade 82) — 760 MB de assets eliminados.',
