@@ -1,5 +1,5 @@
 {
-  "version": "1.92.4",
-  "date": "15/05/2026 22:00",
-  "notes": "Corrigido: Iniciais de Unova (Snivy, Tepig, Oshawott) agora aparecem nas rotas 1 e 2 de Unova após derrotar o rival Cheren. A Profa. Juniper exibe anúncio seguindo o padrão do Prof. Carvalho de Kanto."
+  "version": "1.92.5",
+  "date": "15/05/2026 22:30",
+  "notes": "Fix: botão RAID, aviso de RAID e todos os overlays/modais agora ficam dentro da janela de jogo (position absolute em vez de fixed). Nenhum elemento escapa do container de 430px."
 }

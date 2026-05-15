@@ -6355,7 +6355,7 @@ export default function App() {
              const starterBg   = TYPE_BG_COLORS[starterType] || TYPE_BG_COLORS.Normal;
 
              return (
-               <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
+               <div className="absolute inset-0 z-[9999] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
                    <div className="bg-white w-full max-w-xl rounded-[4rem] shadow-2xl border-b-[16px] border-slate-200 overflow-hidden relative animate-bounceIn">
                       <button
                         onClick={() => setPreviewStarter(null)}
@@ -7017,7 +7017,7 @@ export default function App() {
           {/* Modal do Prof. Carvalho sobre a Casa */}
           {showOakHouseModal && (
             <div 
-              className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-fadeIn cursor-default"
+              className="absolute inset-0 z-[100000] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-fadeIn cursor-default"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowOakHouseModal(false); }}
               onPointerDown={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
@@ -8803,7 +8803,7 @@ export default function App() {
       )}
 
       {activeBuildingModal === 'friends' && (
-        <Suspense fallback={<div className="fixed inset-0 z-[100000] bg-slate-50 flex items-center justify-center text-blue-600 font-black text-sm animate-pulse" style={{ top: '56px' }}>Carregando...</div>}>
+        <Suspense fallback={<div className="absolute inset-0 z-[100000] bg-slate-50 flex items-center justify-center text-blue-600 font-black text-sm animate-pulse" style={{ top: '56px' }}>Carregando...</div>}>
           <FriendsScreen
             currentUserUid={auth.currentUser?.uid}
             currentUserProfile={{
@@ -8832,7 +8832,7 @@ export default function App() {
       )}
 
       {showRegionBuilder && (
-        <Suspense fallback={<div className="fixed inset-0 z-[100000] bg-slate-900 flex items-center justify-center text-yellow-400 font-black animate-pulse" style={{ top: '56px' }}>Carregando Construtor de Região...</div>}>
+        <Suspense fallback={<div className="absolute inset-0 z-[100000] bg-slate-900 flex items-center justify-center text-yellow-400 font-black animate-pulse" style={{ top: '56px' }}>Carregando Construtor de Região...</div>}>
           <RegionBuilderScreen
             gameState={gameState}
             setGameState={setGameState}
@@ -8843,7 +8843,7 @@ export default function App() {
       )}
 
       {challengeRegion && (
-        <Suspense fallback={<div className="fixed inset-0 z-[110000] bg-slate-900 flex items-center justify-center text-yellow-400 font-black animate-pulse">Carregando Desafio de Região...</div>}>
+        <Suspense fallback={<div className="absolute inset-0 z-[110000] bg-slate-900 flex items-center justify-center text-yellow-400 font-black animate-pulse">Carregando Desafio de Região...</div>}>
           <RegionChallengeScreen
             region={challengeRegion.region}
             ownerProfile={challengeRegion.ownerProfile}
@@ -8857,7 +8857,7 @@ export default function App() {
 
       {activeBuildingModal && activeBuildingModal !== 'pokecenter' && activeBuildingModal !== 'prestige_shop' && activeBuildingModal !== 'friends' && (
         <div 
-          className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md cursor-default"
+          className="absolute inset-0 z-[100000] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md cursor-default"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveBuildingModal(null); }}
           onPointerDown={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
@@ -9044,7 +9044,7 @@ export default function App() {
       )}
       {activeMaterialModal && (
         <div 
-          className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 bg-slate-900/85 backdrop-blur-md animate-fadeIn cursor-default"
+          className="absolute inset-0 z-[100000] flex items-center justify-center p-4 bg-slate-900/85 backdrop-blur-md animate-fadeIn cursor-default"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveMaterialModal(null); }}
           onPointerDown={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
@@ -9513,7 +9513,7 @@ export default function App() {
       {/* ── RAID: Botão flutuante ─────────────────────────────────────────── */}
       {raidRouteNotice && ['routes', 'battles'].includes(currentView) && (
         <div
-          className="fixed left-1/2 z-[8100] w-[min(calc(100vw-24px),430px)] -translate-x-1/2 animate-bounceIn px-3"
+          className="absolute left-1/2 z-[8100] w-[min(calc(100%-24px),430px)] -translate-x-1/2 animate-bounceIn px-3"
           style={{ bottom: gameState.activeRaid && gameState.activeRaid.phase !== 'ended' && !showRaidScreen ? 146 : 88 }}
         >
           <div
@@ -9560,7 +9560,7 @@ export default function App() {
           type="button"
           onClick={() => setShowRaidScreen(true)}
           style={{
-            position: 'fixed',
+            position: 'absolute',
             bottom: '88px',
             right: '16px',
             zIndex: 8000,
@@ -9618,7 +9618,7 @@ export default function App() {
       {/* ── MODAL: Alpha capturado — substituir shiny? ─────────────────────── */}
       {pendingAlphaCapture && (
         <div
-          className="fixed inset-0 w-screen h-screen z-[110000] flex items-center justify-center p-4"
+          className="absolute inset-0 z-[110000] flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(10px)' }}
         >
           <div
@@ -9748,7 +9748,7 @@ export default function App() {
       {/* ── MODAL: Receita Encontrada ──────────────────────────────────────── */}
       {recipeFoundModal && (
         <div
-          className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 cursor-default"
+          className="absolute inset-0 z-[100000] flex items-center justify-center p-4 cursor-default"
           style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)' }}
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); setRecipeFoundModal(null); }}
           onPointerDown={(e) => e.stopPropagation()}

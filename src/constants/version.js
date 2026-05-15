@@ -1,7 +1,12 @@
-export const APP_VERSION = '1.92.4';
-export const VERSION = '1.92.4';
-export const APP_VERSION_DATE = '15/05/2026 22:00';
+export const APP_VERSION = '1.92.5';
+export const VERSION = '1.92.5';
+export const APP_VERSION_DATE = '15/05/2026 22:30';
 export const CHANGELOG = [
+  '## [V1.92.5] - 15/05/2026 22:30',
+  '### Corrigido',
+  '- **Elementos fora da janela de jogo**: botão de RAID, aviso de RAID, modais de Alfa, Receita, edifícios e overlays de carregamento agora usam `position: absolute` em vez de `fixed`, ficando sempre dentro da janela do jogo (max-width 430px).',
+  '- **`position: fixed` removido do AppRoot**: todos os elementos flutuantes do jogo passaram de `fixed` para `absolute`, respeitando o container `.app-shell` como âncora de posicionamento.',
+  '',
   '## [V1.92.4] - 15/05/2026 22:00',
   '### Corrigido',
   '- **Iniciais de Unova — Anúncio da Prof. Juniper**: após derrotar o rival Cheren na Nuvema Town, a Profa. Juniper aparece com uma tela de anúncio (idêntica ao padrão do Prof. Carvalho em Kanto) informando que Snivy, Tepig e Oshawott foram avistados nas rotas iniciais de Unova.',
