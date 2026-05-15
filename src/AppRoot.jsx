@@ -976,10 +976,15 @@ export default function App() {
     // 2. Trava de Nível (Cap)
     const badges = gameState.badges || [];
     let regionBadges = [];
-    if (targetRegion === 'kanto') regionBadges = badges.filter(b => BADGE_IDS.includes(b));
-    if (targetRegion === 'johto') regionBadges = badges.filter(b => JOHTO_BADGE_IDS.includes(b));
-    if (targetRegion === 'hoenn') regionBadges = badges.filter(b => HOENN_BADGE_IDS.includes(b));
-    if (targetRegion === 'sinnoh') regionBadges = badges.filter(b => SINNOH_BADGE_IDS.includes(b));
+    if (targetRegion === 'kanto')  regionBadges = badges.filter(b => BADGE_IDS.includes(b));
+    else if (targetRegion === 'johto')  regionBadges = badges.filter(b => JOHTO_BADGE_IDS.includes(b));
+    else if (targetRegion === 'hoenn')  regionBadges = badges.filter(b => HOENN_BADGE_IDS.includes(b));
+    else if (targetRegion === 'sinnoh') regionBadges = badges.filter(b => SINNOH_BADGE_IDS.includes(b));
+    else if (targetRegion === 'unova')  regionBadges = badges.filter(b => UNOVA_BADGE_IDS.includes(b));
+    else if (targetRegion === 'kalos')  regionBadges = badges.filter(b => KALOS_BADGE_IDS.includes(b));
+    else if (targetRegion === 'alola')  regionBadges = badges.filter(b => ALOLA_BADGE_IDS.includes(b));
+    else if (targetRegion === 'galar')  regionBadges = badges.filter(b => GALAR_BADGE_IDS.includes(b));
+    else if (targetRegion === 'paldea') regionBadges = badges.filter(b => PALDEA_BADGE_IDS.includes(b));
     
     const caps = GYM_LEVEL_CAPS[targetRegion] || {};
     const capValues = Object.values(caps);

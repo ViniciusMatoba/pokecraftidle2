@@ -1,5 +1,5 @@
 {
-  "version": "1.90.2",
-  "date": "15/05/2026 12:00",
-  "notes": "Progressão de Sinnoh corrigida, filtro de evolução automático em rotas de alto nível."
+  "version": "1.90.3",
+  "date": "15/05/2026 14:00",
+  "notes": "Bug crítico de cap de nível corrigido para Unova/Kalos/Alola/Galar/Paldea. GYM_LEVEL_CAPS de todas as regiões pós-Sinnoh ajustados para corresponder aos campeões reais."
 }

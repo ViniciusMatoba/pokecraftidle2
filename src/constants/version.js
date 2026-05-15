@@ -1,7 +1,19 @@
-export const APP_VERSION = '1.90.2';
-export const VERSION = '1.90.2';
-export const APP_VERSION_DATE = '15/05/2026 12:00';
+export const APP_VERSION = '1.90.3';
+export const VERSION = '1.90.3';
+export const APP_VERSION_DATE = '15/05/2026 14:00';
 export const CHANGELOG = [
+  '## [V1.90.3] - 15/05/2026 14:00',
+  '### Corrigido (Crítico)',
+  '- **Bug de cap de nível em Unova/Kalos/Alola/Galar/Paldea**: validateTeamAccess não contabilizava insígnias dessas regiões, travando o nível máximo em 14 para jogadores ainda não Campeões. Corrigido adicionando filtragem correta de insígnias para todas as 9 regiões.',
+  '### Balanceamento',
+  '- **GYM_LEVEL_CAPS — Regiões pós-Sinnoh corrigidas**: campeões estavam todos com cap 100, permitindo times muito superiores aos campeões.',
+  '  - Hoenn champion: 70 → 62 (Steven máx. 62)',
+  '  - Unova último ginásio: 60 → 64 | champion: 100 → 84 (Alder máx. 82)',
+  '  - Kalos último ginásio: 65 → 68 | champion: 100 → 88 (Diantha máx. 86)',
+  '  - Alola elite_stamp: 65 → 76 | champion_stamp: 75 → 90 | ultra: 85 → 95 | champion: 100 → 100',
+  '  - Galar último ginásio: 55 → 60 | champion: 100 → 92 (Leon máx. 90)',
+  '  - Paldea último ginásio: 60 → 62 | champion: 100 → 90 (Geeta máx. 88)',
+  '- **Hoenn — Steven (Campeão) nivelado**: equipe elevada de 55–58 para 57–62 para ser compatível com o novo cap de 62.',
   '## [V1.90.2] - 15/05/2026 12:00',
   '### Balanceamento',
   '- **Sinnoh — Progressão corrigida**: níveis de todos os ginásios e Elite Four drasticamente reduzidos para serem coerentes com os jogos originais e com outras regiões.',

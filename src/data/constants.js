@@ -48,7 +48,7 @@ export const GYM_LEVEL_CAPS = {
   },
   hoenn: {
     stone_badge: 15, knuckle_badge: 19, dynamo_badge: 24, heat_badge: 29,
-    balance_badge: 31, feather_badge: 33, mind_badge: 42, rain_badge: 55, hoenn_champion: 70
+    balance_badge: 31, feather_badge: 33, mind_badge: 42, rain_badge: 55, hoenn_champion: 62
   },
   sinnoh: {
     coal_badge: 14, forest_badge: 22, cobble_badge: 28, fen_badge: 33,
@@ -56,23 +56,23 @@ export const GYM_LEVEL_CAPS = {
   },
   unova: {
     trio_badge: 14, basic_badge: 20, insect_badge: 26, bolt_badge: 32,
-    quake_badge: 39, jet_badge: 45, freeze_badge: 52, legend_badge: 60, unova_champion: 100
+    quake_badge: 39, jet_badge: 45, freeze_badge: 52, legend_badge: 64, unova_champion: 84
   },
   kalos: {
     bug_badge: 12, cliff_badge: 25, rumble_badge: 32, plant_badge: 34,
-    voltage_badge: 40, fairy_badge: 48, psychic_badge: 59, iceberg_badge: 65, kalos_champion: 100
+    voltage_badge: 40, fairy_badge: 48, psychic_badge: 59, iceberg_badge: 68, kalos_champion: 88
   },
   alola: {
-    melemele_stamp: 16, akala_stamp: 28, ulaula_stamp: 44, poni_stamp: 55,
-    alola_elite_stamp: 65, alola_champion_stamp: 75, ultra_stamp: 85, battle_tree_stamp: 100, alola_champion: 100
+    melemele_stamp: 18, akala_stamp: 32, ulaula_stamp: 48, poni_stamp: 58,
+    alola_elite_stamp: 76, alola_champion_stamp: 90, ultra_stamp: 95, battle_tree_stamp: 100, alola_champion: 100
   },
   galar: {
     grass_badge_galar: 20, water_badge_galar: 24, fire_badge_galar: 27, fighting_badge_galar: 36,
-    fairy_badge_galar: 38, rock_badge_galar: 42, dark_badge_galar: 46, dragon_badge_galar: 55, galar_champion: 100
+    fairy_badge_galar: 38, rock_badge_galar: 42, dark_badge_galar: 46, dragon_badge_galar: 60, galar_champion: 92
   },
   paldea: {
     bug_badge_paldea: 15, grass_badge_paldea: 20, electric_badge_paldea: 28, water_badge_paldea: 35,
-    normal_badge_paldea: 42, ghost_badge_paldea: 48, psychic_badge_paldea: 55, ice_badge_paldea: 60, paldea_champion: 100
+    normal_badge_paldea: 42, ghost_badge_paldea: 48, psychic_badge_paldea: 55, ice_badge_paldea: 62, paldea_champion: 90
   }
 };
 

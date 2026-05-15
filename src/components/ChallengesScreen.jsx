@@ -840,7 +840,7 @@ const CHALLENGES = [
     reward: 65000,
     unlockFlag: 'hoenn_champion',
     requiresFlag: 'hoenn_drake_defeated',
-    team: [{ id: 227, level: 57 }, { id: 344, level: 55 }, { id: 306, level: 56 }, { id: 348, level: 56 }, { id: 346, level: 56 }, { id: 376, level: 58 }],
+    team: [{ id: 227, level: 59 }, { id: 344, level: 57 }, { id: 306, level: 58 }, { id: 348, level: 58 }, { id: 346, level: 58 }, { id: 376, level: 62 }],
     background: "url('/bg_elite_four_hoenn.png') center/cover no-repeat",
     location: 'Sala do Campeao - Hoenn',
   },
