@@ -1,8 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { TYPE_COLOR_HEX } from '../data/gyms';
+import { isRouteUnlocked } from '../data/routes';
 
-const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 151, onBack }) => {
+const REGION_LABEL = {
+  kanto: 'Kanto', johto: 'Johto', hoenn: 'Hoenn', sinnoh: 'Sinnoh',
+  unova: 'Unova', kalos: 'Kalos', alola: 'Alola', galar: 'Galar',
+  hisui: 'Hisui', paldea: 'Paldea',
+};
+
+const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 151, routes = {}, gameState = {}, onGoToRoute, onBack }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPoke, setSelectedPoke] = useState(null);
 
@@ -27,6 +34,29 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 15
   }, [pokedexList, searchTerm]);
 
   const caughtCount = possessedIds.size;
+
+  // Mapa pokemonId → lista de rotas onde aquele pokémon aparece como inimigo selvagem
+  const pokemonRouteMap = useMemo(() => {
+    const map = {};
+    Object.values(routes).forEach(route => {
+      if (!Array.isArray(route.enemies) || route.enemies.length === 0) return;
+      route.enemies.forEach(enemy => {
+        const id = Number(enemy.id);
+        if (!id) return;
+        if (!map[id]) map[id] = [];
+        if (!map[id].find(r => r.id === route.id)) {
+          map[id].push({
+            id: route.id,
+            name: route.name || route.id,
+            level: enemy.level,
+            group: route.group || '',
+            unlocked: isRouteUnlocked(route, gameState),
+          });
+        }
+      });
+    });
+    return map;
+  }, [routes, gameState]);
 
   return (
     <div className="h-full bg-slate-100 flex flex-col animate-fadeIn overflow-hidden">
@@ -190,6 +220,45 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 15
                     <p className="text-[10px] text-slate-300 font-bold uppercase mt-1">Capture este Pokemon para ver detalhes</p>
                   </div>
                 )}
+
+                {/* ── Onde Encontrar ── */}
+                {(() => {
+                  const pokeRoutes = pokemonRouteMap[poke.id] || [];
+                  if (pokeRoutes.length === 0) return null;
+                  return (
+                    <div className="bg-slate-50 rounded-3xl border border-slate-100 overflow-hidden mb-2">
+                      <div className="px-4 pt-4 pb-2">
+                        <h4 className="font-black uppercase text-[9px] text-slate-400 tracking-widest text-center mb-3">
+                          📍 Onde Encontrar
+                        </h4>
+                      </div>
+                      <div className="flex flex-col divide-y divide-slate-100 max-h-52 overflow-y-auto custom-scrollbar">
+                        {pokeRoutes.map(route => (
+                          <div key={route.id} className="flex items-center justify-between gap-2 px-4 py-2.5">
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-[10px] font-black text-slate-700 truncate leading-tight">{route.name}</span>
+                              <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">
+                                Nv. {route.level} · {route.group}
+                              </span>
+                            </div>
+                            {route.unlocked ? (
+                              <button
+                                onClick={() => { onGoToRoute && onGoToRoute(route.id); setSelectedPoke(null); }}
+                                className="shrink-0 bg-pokeBlue text-white text-[9px] font-black uppercase tracking-wider px-3 py-1.5 rounded-xl hover:bg-blue-600 active:scale-95 transition-all shadow-sm"
+                              >
+                                Ir à rota
+                              </button>
+                            ) : (
+                              <span className="shrink-0 text-[8px] font-black text-slate-300 uppercase tracking-wider bg-slate-100 px-2 py-1 rounded-xl">
+                                🔒 Bloqueada
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>

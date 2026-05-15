@@ -9,6 +9,118 @@ import { ABILITY_ITEM_ID, getPokemonAbilityPool, setPokemonAbility } from '../da
 import { GYM_LEVEL_CAPS } from '../data/constants';
 import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER, isPokemonLegal } from '../data/regionStandards';
 
+const STAT_LABELS = {
+  attack: 'Ataque',
+  spAtk: 'Atk. Esp.',
+  defense: 'Defesa',
+  spDef: 'Def. Esp.',
+  speed: 'Velocidade',
+};
+
+const ABILITY_DESCRIPTIONS = {
+  'Overgrow':        'Aumenta o poder dos golpes Planta em 50% quando o HP está abaixo de 1/3.',
+  'Blaze':           'Aumenta o poder dos golpes Fogo em 50% quando o HP está abaixo de 1/3.',
+  'Torrent':         'Aumenta o poder dos golpes Água em 50% quando o HP está abaixo de 1/3.',
+  'Swarm':           'Aumenta o poder dos golpes Inseto em 50% quando o HP está abaixo de 1/3.',
+  'Guts':            'Aumenta o Ataque em 50% quando o Pokémon está com alguma condição de status.',
+  'Static':          'Tem 30% de chance de paralisar o inimigo que usar golpes físicos.',
+  'Levitate':        'Imune a golpes do tipo Terra.',
+  'Intimidate':      'Reduz o Ataque do inimigo em 1 estágio ao entrar em batalha.',
+  'Synchronize':     'Passa condições de status (queimadura, paralisia, envenenamento) ao inimigo.',
+  'Natural Cure':    'Cura qualquer condição de status ao sair de batalha.',
+  'Serene Grace':    'Dobra a chance de efeitos secundários dos golpes.',
+  'Swift Swim':      'Dobra a Velocidade durante chuva.',
+  'Chlorophyll':     'Dobra a Velocidade durante sol forte.',
+  'Flash Fire':      'Imune a golpes Fogo; absorve-os para aumentar o poder dos próprios golpes Fogo.',
+  'Water Absorb':    'Imune a golpes Água; recupera 1/4 do HP máximo ao ser atingido por eles.',
+  'Volt Absorb':     'Imune a golpes Elétrico; recupera 1/4 do HP máximo ao ser atingido por eles.',
+  'Pressure':        'Faz o inimigo gastar PP extra em cada golpe usado.',
+  'Thick Fat':       'Reduz o dano recebido de golpes Fogo e Gelo à metade.',
+  'Hustle':          'Aumenta o Ataque em 50%, mas reduz a precisão dos golpes físicos em 20%.',
+  'Compound Eyes':   'Aumenta a precisão dos golpes em 30%.',
+  'Speed Boost':     'Aumenta a Velocidade em 1 estágio no final de cada turno.',
+  'Sturdy':          'Sobrevive com 1 HP a qualquer golpe que causaria nocaute.',
+  'Shed Skin':       'Tem 33% de chance de curar condições de status no final de cada turno.',
+  'Adaptability':    'Aumenta o bônus STAB (tipo igual ao golpe) de 1.5× para 2.0×.',
+  'Download':        'Analisa o inimigo e aumenta Atk. Esp. ou Ataque com base na defesa mais baixa do oponente.',
+  'Trace':           'Copia a habilidade do inimigo ao entrar em batalha.',
+  'Magnet Pull':     'Impede Pokémon do tipo Aço de fugirem.',
+  'Drizzle':         'Invoca chuva automaticamente ao entrar em batalha (5 turnos).',
+  'Drought':         'Invoca sol forte automaticamente ao entrar em batalha (5 turnos).',
+  'Sand Stream':     'Invoca tempestade de areia automaticamente ao entrar em batalha (5 turnos).',
+  'Snow Warning':    'Invoca granizo automaticamente ao entrar em batalha (5 turnos).',
+  'Rock Head':       'Não recebe dano de recuo por golpes como Investida e Double-Edge.',
+  'Rough Skin':      'Causa dano (1/8 do HP máximo do inimigo) a quem usar golpes físicos.',
+  'Iron Barbs':      'Causa dano (1/8 do HP máximo do inimigo) a quem usar golpes físicos.',
+  'Wonder Guard':    'Imune a golpes que não sejam super-efetivos.',
+  'Marvel Scale':    'Aumenta a Defesa em 50% quando o Pokémon está com alguma condição de status.',
+  'Lightning Rod':   'Atrai golpes Elétrico; imune a eles e eleva o Atk. Esp. em 1 estágio.',
+  'Motor Drive':     'Imune a golpes Elétrico; ser atingido por eles aumenta a Velocidade.',
+  'Rivalry':         'Golpes causam 25% mais dano contra Pokémon do mesmo sexo e 25% menos contra de sexo oposto.',
+  'Defiant':         'Aumenta o Ataque em 2 estágios quando qualquer stat é reduzido pelo inimigo.',
+  'Justified':       'Aumenta o Ataque em 1 estágio ao receber um golpe Sombrio.',
+  'Multiscale':      'Recebe apenas metade do dano quando o HP está cheio.',
+  'Regenerator':     'Recupera 1/3 do HP ao sair de batalha.',
+  'Contrary':        'Inverte as mudanças de estatísticas — reduções viram aumentos e vice-versa.',
+  'Gale Wings':      'Golpes do tipo Voador ganham prioridade +1 quando o HP estiver cheio.',
+  'Strong Jaw':      'Aumenta o poder de golpes de mordida (Bite, Crunch, etc.) em 50%.',
+  'Refrigerate':     'Golpes Normais tornam-se do tipo Gelo e ganham 20% de poder.',
+  'Pixilate':        'Golpes Normais tornam-se do tipo Fada e ganham 20% de poder.',
+  'Aerilate':        'Golpes Normais tornam-se do tipo Voador e ganham 20% de poder.',
+  'Normalize':       'Todos os golpes tornam-se do tipo Normal.',
+  'Huge Power':      'Dobra o Ataque do Pokémon.',
+  'Pure Power':      'Dobra o Ataque do Pokémon.',
+  'Unburden':        'Dobra a Velocidade quando o item segurado é consumido ou retirado.',
+  'Dry Skin':        'Recupera HP na chuva e perde HP no sol; imune a Água, vulnerável a Fogo.',
+  'Sand Force':      'Golpes Pedra, Aço e Terra ganham 30% de poder durante tempestade de areia.',
+  'Heatproof':       'Reduz à metade o dano recebido de golpes Fogo e queimadura.',
+  'Simple':          'Dobra o efeito de todas as mudanças de estatísticas (bônus e penalidades).',
+  'Moxie':           'Aumenta o Ataque em 1 estágio ao nocautear um inimigo.',
+  'Anger Point':     'Aumenta o Ataque ao máximo ao ser atingido por um acerto crítico.',
+  'Sheer Force':     'Remove efeitos secundários dos golpes para ganhar 30% de poder.',
+  'Technician':      'Aumenta o poder de golpes com força base ≤ 60 em 50%.',
+  'Tinted Lens':     'Golpes não muito efetivos causam dano dobrado.',
+  'Super Luck':      'Aumenta a taxa de acerto crítico do Pokémon.',
+  'Keen Eye':        'A precisão não pode ser reduzida pelo inimigo.',
+  'Tangled Feet':    'Aumenta a esquiva em 1 estágio quando confuso.',
+  'Pickup':          'Pode coletar itens deixados pelo inimigo após a batalha.',
+  'Poison Point':    'Tem 30% de chance de envenenar o inimigo que usar golpes físicos.',
+  'Flame Body':      'Tem 30% de chance de queimar o inimigo que usar golpes físicos.',
+  'Effect Spore':    'Tem 30% de chance de paralisar, envenenar ou adormecer o inimigo em golpes físicos.',
+  'Water Veil':      'Imune a queimadura.',
+  'Oblivious':       'Imune a atração (infatuação) e à habilidade Intimidate.',
+  'Own Tempo':       'Imune a confusão.',
+  'Inner Focus':     'Imune a tremor e não pode ser assustad durante concentração.',
+  'Limber':          'Imune a paralisia.',
+  'Immunity':        'Imune a envenenamento.',
+  'Insomnia':        'Imune a sono.',
+  'Vital Spirit':    'Imune a sono.',
+  'Damp':            'Impede o uso de Selfdestruct e Explosion por qualquer Pokémon em campo.',
+  'Cloud Nine':      'Anula todos os efeitos do clima enquanto estiver em batalha.',
+  'Sand Veil':       'Aumenta a esquiva em 20% durante tempestade de areia.',
+  'Snow Cloak':      'Aumenta a esquiva em 20% durante granizo.',
+  'Magic Guard':     'Recebe dano apenas de golpes diretos; sem dano de clima, recuo, veneno, etc.',
+  'Battle Armor':    'Imune a acertos críticos.',
+  'Shell Armor':     'Imune a acertos críticos.',
+  'Arena Trap':      'Impede Pokémon terrestres de fugirem.',
+  'Shadow Tag':      'Impede todos os Pokémon de fugirem.',
+  'Prankster':       'Golpes de status ganham prioridade +1.',
+  'Infiltrator':     'Golpes ignoram barreiras como Reflect e Light Screen.',
+  'Teravolt':        'Os golpes ignoram as habilidades do inimigo.',
+  'Turboblaze':      'Os golpes ignoram as habilidades do inimigo.',
+  'Mold Breaker':    'Os golpes ignoram as habilidades do inimigo.',
+  'Magic Bounce':    'Reflete golpes de status de volta ao usuário.',
+  'Fur Coat':        'Reduz o dano de golpes físicos à metade.',
+  'Protean':         'Muda o tipo do Pokémon para o tipo do golpe que está prestes a usar.',
+  'Stance Change':   'Alterna entre Blade Forme (Ataque) e Shield Forme (Defesa) conforme o golpe escolhido.',
+  'Steelworker':     'Aumenta o poder dos golpes Aço em 50%.',
+  'Power of Alchemy':'Copia a habilidade de um aliado ao ser nocauteado.',
+  'Beast Boost':     'Aumenta em 1 estágio a estatística mais alta ao nocautear um inimigo.',
+  'Soul-Heart':      'Aumenta o Atk. Esp. em 1 estágio sempre que um Pokémon é nocauteado em batalha.',
+  'Intrepid Sword':  'Aumenta o Ataque em 1 estágio ao entrar em batalha.',
+  'Dauntless Shield':'Aumenta a Defesa em 1 estágio ao entrar em batalha.',
+};
+
 const PokemonManagement = ({
   gameState,
   setGameState,
@@ -43,6 +155,8 @@ const PokemonManagement = ({
   const [pcRegion, setPcRegion] = useState(activeRegion || 'all');
   const [showTeamReorder, setShowTeamReorder] = useState(false);
   const [moveSwapMode, setMoveSwapMode] = useState(null); // { activeIdx, currentMove }
+  const [showNatureModal, setShowNatureModal] = useState(false);
+  const [showAbilityModal, setShowAbilityModal] = useState(false);
   const activePokemonKey = activePokemonDetails
     ? `${activePokemonDetails.pokemon?.instanceId ?? activePokemonDetails.pokemon?.id ?? 'x'}_${activePokemonDetails.location}_${activePokemonDetails.index}`
     : null;
@@ -729,52 +843,66 @@ const PokemonManagement = ({
                     <h4 className="font-black uppercase text-[9px] text-slate-400 text-center tracking-widest mb-1">Treinamento Avançado</h4>
 
                     {/* NATUREZAS */}
-                    <div className={`p-4 rounded-2xl border-2 transition-all shadow-sm ${masteryCount >= 5 ? 'border-pokeBlue bg-blue-50/70' : 'border-blue-100 bg-blue-50/40 opacity-80'}`}>
+                    <button
+                      onClick={() => setShowNatureModal(true)}
+                      className={`w-full p-4 rounded-2xl border-2 transition-all shadow-sm text-left active:scale-[0.98]
+                        ${masteryCount >= 5 ? 'border-pokeBlue bg-blue-50/70 hover:bg-blue-100/60' : 'border-blue-100 bg-blue-50/40 opacity-80'}`}
+                    >
                       <div className="flex justify-between items-center mb-2">
                         <div>
                           <h3 className="text-[11px] font-black uppercase text-slate-800">Natureza</h3>
-                          <p className="text-[8px] font-black uppercase tracking-widest text-pokeBlue">Toque para alterar</p>
+                          <p className="text-[8px] font-black uppercase tracking-widest text-pokeBlue">Toque para ver detalhes</p>
                         </div>
-                        {masteryCount < 5 && <span className="text-[8px] font-bold text-red-500 uppercase">Faltam {5 - masteryCount} capturas</span>}
+                        <span className="text-lg">ℹ️</span>
                       </div>
-                      <select
-                        value={activePokemonDetails.pokemon.equippedNature || ''}
-                        onChange={(e) => equipNature(e.target.value)}
-                        className="min-h-[44px] w-full bg-white border-2 border-pokeBlue/40 rounded-xl px-3 text-[11px] font-black text-slate-700 outline-none focus:border-pokeBlue shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={masteryCount < 5 || activePokemonDetails.pokemon.onExpedition}
-                      >
-                        <option value="">Padrão (Neutro)</option>
-                        {NATURE_LIST.slice(0, Math.floor(masteryCount / 5)).map((name) => {
-                          const mods = NATURES[name];
-                          return (
-                            <option key={name} value={name}>{name} (+{mods.plus.toUpperCase()}, -{mods.minus.toUpperCase()})</option>
-                          );
-                        })}
-                      </select>
-                    </div>
+                      {(() => {
+                        const nat = activePokemonDetails.pokemon.equippedNature;
+                        const mods = nat ? NATURES[nat] : null;
+                        return (
+                          <div className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 border border-blue-100 shadow-sm">
+                            <span className="text-sm font-black text-slate-700 flex-1">{nat || 'Padrão (Neutro)'}</span>
+                            {mods ? (
+                              <div className="flex gap-2">
+                                <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">+{STAT_LABELS[mods.plus]}</span>
+                                <span className="text-[9px] font-black text-red-500 bg-red-50 px-1.5 py-0.5 rounded">-{STAT_LABELS[mods.minus]}</span>
+                              </div>
+                            ) : (
+                              <span className="text-[9px] font-bold text-slate-400">Sem bônus</span>
+                            )}
+                          </div>
+                        );
+                      })()}
+                      {masteryCount < 5 && (
+                        <p className="text-[8px] font-bold text-red-500 uppercase mt-2">🔒 Faltam {5 - masteryCount} capturas para desbloquear</p>
+                      )}
+                    </button>
 
                     {/* HABILIDADES */}
-                    <div className="p-4 rounded-2xl border-2 border-violet-100 bg-violet-50/40 shadow-sm">
+                    <button
+                      onClick={() => setShowAbilityModal(true)}
+                      className="w-full p-4 rounded-2xl border-2 border-violet-100 bg-violet-50/40 shadow-sm text-left hover:bg-violet-100/50 active:scale-[0.98] transition-all"
+                    >
                       <div className="flex justify-between items-center mb-2">
                         <div>
                           <h3 className="text-[11px] font-black uppercase text-slate-800">Habilidade</h3>
-                          <p className="text-[8px] font-black uppercase tracking-widest text-violet-600">Aleatoria na captura</p>
+                          <p className="text-[8px] font-black uppercase tracking-widest text-violet-600">Toque para ver detalhes</p>
                         </div>
-                        <span className="text-[8px] font-black text-violet-700 bg-white px-2 py-1 rounded-lg">
-                          {(gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0)} capsulas
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] font-black text-violet-700 bg-white px-2 py-1 rounded-lg border border-violet-100">
+                            {(gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0)} cápsulas
+                          </span>
+                          <span className="text-lg">ℹ️</span>
+                        </div>
                       </div>
-                      <select
-                        value={activePokemonDetails.pokemon.ability || getPokemonAbilityPool(POKEDEX[activePokemonDetails.pokemon.id] || activePokemonDetails.pokemon)[0] || ''}
-                        onChange={(e) => changeAbility(e.target.value)}
-                        className="min-h-[44px] w-full bg-white border-2 border-violet-300 rounded-xl px-3 text-[11px] font-black text-slate-700 outline-none focus:border-violet-500 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={(gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0) <= 0 || activePokemonDetails.pokemon.onExpedition}
-                      >
-                        {getPokemonAbilityPool(POKEDEX[activePokemonDetails.pokemon.id] || activePokemonDetails.pokemon).map((ability) => (
-                          <option key={ability} value={ability}>{ability}</option>
-                        ))}
-                      </select>
-                    </div>
+                      <div className="bg-white rounded-xl px-3 py-2 border border-violet-100 shadow-sm">
+                        <p className="text-sm font-black text-slate-700">
+                          {activePokemonDetails.pokemon.ability || getPokemonAbilityPool(POKEDEX[activePokemonDetails.pokemon.id] || activePokemonDetails.pokemon)[0] || '—'}
+                        </p>
+                        <p className="text-[9px] font-bold text-slate-400 mt-0.5 leading-relaxed">
+                          {ABILITY_DESCRIPTIONS[activePokemonDetails.pokemon.ability] || 'Toque para ver todas as habilidades disponíveis.'}
+                        </p>
+                      </div>
+                    </button>
                     
                     {/* HELD ITEMS */}
                     <div className="p-4 rounded-2xl border-2 border-amber-100 bg-amber-50/30 shadow-sm mt-2">
@@ -1325,6 +1453,175 @@ const PokemonManagement = ({
             </div>
          </div>
       ), document.body)}
+
+      {/* ── Modal de Natureza ─────────────────────────────────── */}
+      {showNatureModal && activePokemonDetails && createPortal(
+        <div className="fixed inset-0 z-[999999] flex items-end justify-center bg-black/70 backdrop-blur-sm p-2"
+          onClick={() => setShowNatureModal(false)}>
+          <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[88dvh] flex flex-col"
+            onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center gap-3 px-5 py-4 shrink-0"
+              style={{ background: 'linear-gradient(135deg,#1d4ed8,#3b82f6)' }}>
+              <div className="flex-1">
+                <p className="text-white/70 text-[9px] font-black uppercase tracking-widest">Treinamento Avançado</p>
+                <h2 className="text-white text-lg font-black uppercase">Natureza</h2>
+              </div>
+              <button onClick={() => setShowNatureModal(false)}
+                className="w-8 h-8 rounded-full bg-white/20 text-white font-black flex items-center justify-center">✕</button>
+            </div>
+
+            {/* Info box */}
+            <div className="px-5 pt-4 pb-2 shrink-0 bg-blue-50 border-b border-blue-100">
+              <p className="text-[11px] font-bold text-slate-600 leading-relaxed">
+                A <strong>Natureza</strong> define bônus e penalidade de uma estatística. Cada natureza aumenta um stat em <strong className="text-emerald-600">+10%</strong> e reduz outro em <strong className="text-red-500">-10%</strong>. Novas naturezas são desbloqueadas a cada 5 capturas desta espécie.
+              </p>
+              {(() => {
+                const nat = activePokemonDetails.pokemon.equippedNature;
+                if (!nat) return null;
+                const mods = NATURES[nat];
+                if (!mods) return null;
+                return (
+                  <div className="mt-2 flex items-center gap-2 bg-white rounded-xl p-2 border border-blue-200">
+                    <span className="text-[10px] font-black text-slate-500 uppercase">Atual:</span>
+                    <span className="font-black text-slate-800 text-sm">{nat}</span>
+                    <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">+{STAT_LABELS[mods.plus]}</span>
+                    <span className="text-[9px] font-black text-red-500 bg-red-50 px-2 py-0.5 rounded-full">-{STAT_LABELS[mods.minus]}</span>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Lista de naturezas */}
+            <div className="overflow-y-auto flex-1 px-4 py-3 flex flex-col gap-2">
+              {/* Neutro */}
+              <button
+                onClick={() => { equipNature(''); setShowNatureModal(false); }}
+                disabled={activePokemonDetails.pokemon.onExpedition}
+                className={`w-full flex items-center gap-3 p-3 rounded-2xl border-2 transition-all active:scale-[0.98] text-left
+                  ${!activePokemonDetails.pokemon.equippedNature ? 'border-blue-500 bg-blue-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+                <div className="flex-1">
+                  <p className="font-black text-slate-800 text-sm">Padrão (Neutro)</p>
+                  <p className="text-[9px] font-bold text-slate-400">Sem bônus ou penalidades</p>
+                </div>
+                {!activePokemonDetails.pokemon.equippedNature && (
+                  <span className="text-[9px] font-black text-blue-600 bg-blue-100 px-2 py-1 rounded-full">✓ Ativo</span>
+                )}
+              </button>
+
+              {NATURE_LIST.map((name, i) => {
+                const mods = NATURES[name];
+                const unlocked = masteryCount >= (i + 1) * 5;
+                const isActive = activePokemonDetails.pokemon.equippedNature === name;
+                return (
+                  <button
+                    key={name}
+                    onClick={() => { if (unlocked && !activePokemonDetails.pokemon.onExpedition) { equipNature(name); setShowNatureModal(false); } }}
+                    disabled={!unlocked || activePokemonDetails.pokemon.onExpedition}
+                    className={`w-full flex items-center gap-3 p-3 rounded-2xl border-2 transition-all text-left
+                      ${isActive ? 'border-blue-500 bg-blue-50' : unlocked ? 'border-slate-200 bg-white hover:border-blue-300 active:scale-[0.98]' : 'border-slate-100 bg-slate-50 opacity-50 cursor-not-allowed'}`}>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className={`font-black text-sm ${unlocked ? 'text-slate-800' : 'text-slate-400'}`}>{name}</p>
+                        {unlocked ? (
+                          <>
+                            <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">+{STAT_LABELS[mods.plus]}</span>
+                            <span className="text-[9px] font-black text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full">-{STAT_LABELS[mods.minus]}</span>
+                          </>
+                        ) : (
+                          <span className="text-[9px] font-bold text-slate-400">🔒 Desbloqueia com {(i + 1) * 5} capturas</span>
+                        )}
+                      </div>
+                    </div>
+                    {isActive && <span className="text-[9px] font-black text-blue-600 bg-blue-100 px-2 py-1 rounded-full shrink-0">✓ Ativo</span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="px-5 py-4 border-t border-slate-100 shrink-0">
+              <p className="text-[10px] font-bold text-slate-400 text-center">
+                {Math.floor(masteryCount / 5)} de {NATURE_LIST.length} naturezas desbloqueadas ({masteryCount} capturas)
+              </p>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ── Modal de Habilidade ───────────────────────────────── */}
+      {showAbilityModal && activePokemonDetails && createPortal(
+        <div className="fixed inset-0 z-[999999] flex items-end justify-center bg-black/70 backdrop-blur-sm p-2"
+          onClick={() => setShowAbilityModal(false)}>
+          <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[88dvh] flex flex-col"
+            onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center gap-3 px-5 py-4 shrink-0"
+              style={{ background: 'linear-gradient(135deg,#6d28d9,#8b5cf6)' }}>
+              <div className="flex-1">
+                <p className="text-white/70 text-[9px] font-black uppercase tracking-widest">Treinamento Avançado</p>
+                <h2 className="text-white text-lg font-black uppercase">Habilidade</h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="bg-white/20 rounded-xl px-3 py-1.5">
+                  <p className="text-white text-[10px] font-black">{(gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0)} cápsulas</p>
+                </div>
+                <button onClick={() => setShowAbilityModal(false)}
+                  className="w-8 h-8 rounded-full bg-white/20 text-white font-black flex items-center justify-center">✕</button>
+              </div>
+            </div>
+
+            {/* Info box */}
+            <div className="px-5 pt-4 pb-2 shrink-0 bg-violet-50 border-b border-violet-100">
+              <p className="text-[11px] font-bold text-slate-600 leading-relaxed">
+                A <strong>Habilidade</strong> define um efeito passivo único em batalha. Para trocar, você precisa de <strong>1 Cápsula de Habilidade</strong>. A habilidade é atribuída aleatoriamente na captura.
+              </p>
+            </div>
+
+            {/* Lista de habilidades */}
+            <div className="overflow-y-auto flex-1 px-4 py-3 flex flex-col gap-2">
+              {getPokemonAbilityPool(POKEDEX[activePokemonDetails.pokemon.id] || activePokemonDetails.pokemon).map((ability) => {
+                const isActive = (activePokemonDetails.pokemon.ability || '') === ability;
+                const canSwitch = !isActive && (gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0) > 0 && !activePokemonDetails.pokemon.onExpedition;
+                const desc = ABILITY_DESCRIPTIONS[ability];
+                return (
+                  <button
+                    key={ability}
+                    onClick={() => { if (canSwitch) { changeAbility(ability); setShowAbilityModal(false); } }}
+                    disabled={isActive || (!canSwitch)}
+                    className={`w-full flex items-start gap-3 p-4 rounded-2xl border-2 transition-all text-left
+                      ${isActive ? 'border-violet-500 bg-violet-50' : canSwitch ? 'border-slate-200 bg-white hover:border-violet-300 active:scale-[0.98]' : 'border-slate-100 bg-slate-50 opacity-60 cursor-not-allowed'}`}>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <p className="font-black text-slate-800 text-sm">{ability}</p>
+                        {isActive && <span className="text-[9px] font-black text-violet-600 bg-violet-100 px-2 py-0.5 rounded-full">✓ Ativa</span>}
+                      </div>
+                      <p className="text-[10px] font-bold text-slate-500 leading-relaxed">
+                        {desc || 'Habilidade especial deste Pokémon.'}
+                      </p>
+                    </div>
+                    {!isActive && canSwitch && (
+                      <div className="shrink-0 bg-violet-600 text-white text-[9px] font-black px-2 py-1 rounded-lg mt-0.5">
+                        1 💊
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {(gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0) === 0 && (
+              <div className="px-5 py-3 bg-amber-50 border-t border-amber-100 shrink-0">
+                <p className="text-[10px] font-bold text-amber-700 text-center">
+                  ⚠️ Você não tem Cápsulas de Habilidade. Encontre-as em Raids!
+                </p>
+              </div>
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
+
     </div>
   );
 };

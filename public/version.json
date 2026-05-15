@@ -1,5 +1,5 @@
 {
-  "version": "1.92.5",
-  "date": "15/05/2026 22:30",
-  "notes": "Fix: botão RAID, aviso de RAID e todos os overlays/modais agora ficam dentro da janela de jogo (position absolute em vez de fixed). Nenhum elemento escapa do container de 430px."
+  "version": "1.94.0",
+  "date": "16/05/2026 00:30",
+  "notes": "Pokédex mostra rotas de cada Pokémon com botão 'Ir à rota'. Fantasmas acumulam a cada derrota diária (reset no dia seguinte). Auditoria completa de rotas: pré-evoluções e lendários corrigidos. 13 novos backgrounds regionais."
 }

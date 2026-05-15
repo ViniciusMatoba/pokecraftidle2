@@ -1,7 +1,35 @@
-export const APP_VERSION = '1.92.5';
-export const VERSION = '1.92.5';
-export const APP_VERSION_DATE = '15/05/2026 22:30';
+export const APP_VERSION = '1.94.0';
+export const VERSION = '1.94.0';
+export const APP_VERSION_DATE = '16/05/2026 00:30';
 export const CHANGELOG = [
+  '## [V1.94.0] - 16/05/2026 00:30',
+  '### Adicionado',
+  '- **Pokédex — Onde Encontrar**: ao clicar em qualquer Pokémon na Pokédex, o modal exibe a lista de todas as rotas onde aquele Pokémon pode ser encontrado como inimigo selvagem, com nível e região de cada rota.',
+  '- **Pokédex — Ir à Rota**: rotas desbloqueadas têm o botão "Ir à rota" que fecha o modal e navega diretamente para a rota na tela de batalha. Rotas bloqueadas exibem badge "🔒 Bloqueada".',
+  '- **Fantasmas acumulam a cada derrota**: a tela de derrota agora mostra 1 fantasma a mais a cada vez que o time todo desmaia no mesmo dia (começa em 2: Gastly + Haunter; vai adicionando Gengar, Misdreavus, Shuppet, Banette, Duskull, Sableye, Litwick, Chandelure). Reseta automaticamente no dia seguinte.',
+  '- **Contador de derrotas diárias**: a partir da 2ª derrota do dia, aparece um badge discreto "Xª derrota hoje" no canto da tela de derrota.',
+  '',
+  '## [V1.93.1] - 15/05/2026 23:59',
+  '### Corrigido — Auditoria de Rotas',
+  '- **Pré-evoluções adicionadas**: Trubbish (#568) em Unova Rota 3; Tynamo (#601) em Chargestone Cave; Golett (#622) e Larvesta (#636) em Unova Rota 9; Aron (#304) em Glittering Cave; Timburr (#532), Deino (#633) e Goomy (#704) em Frost Cavern; Zigzagoon-G (#263) na Wild Area de Galar; Finneon (#456) na Costa Cobalto de Hisui.',
+  '- **Lendários gateados**: Cobalion/Terrakion/Virizion (Unova League), Xerneas/Yveltal/Zygarde (Kalos League), Calyrex/Glastrier/Spectrier/Regieleki/Regidrago (Crown Tundra), Koraidon/Miraidon/Terapagos (Paldea Pós-Liga), Uxie/Mesprit/Azelf/Giratina/Arceus (Praça Sagrada Hisui) e Heatran (Stark Mountain) agora exigem flag de progresso para aparecer.',
+  '- **Kyurem gateado**: Kyurem (#646) no Giant Chasm agora requer `unova_champion`.',
+  '- **Sprite Colress corrigido**: substituído `S.scientist` (indefinido) por `S.gentleman`.',
+  '- **Duplicate paldea_area_zero removido**: segunda definição conflitante eliminada; rota unificada com requisito correto (`paldea_champion`) e drops detalhados.',
+  '- **Backgrounds atualizados**: Pinwheel Forest, Desert Resort, Chargestone Cave, Twist Mountain (Unova); Santalune Forest, Azure Bay, Frost Cavern, Snowbelle (Kalos); Wela Volcano, Aether Paradise (Alola); Glimwood Tangle, Crown Tundra (Galar); Asado Desert (Paldea); Praça Sagrada (Hisui) — todos com imagens dedicadas.',
+  '',
+  '## [V1.93.0] - 15/05/2026 23:30',
+  '### Adicionado — Região Hisui (10ª região)',
+  '- **Hisui desbloqueado**: ao conquistar Paldea, o Prof. Laventon convida o jogador para a terra ancestral de Sinnoh.',
+  '- **Iniciais de Hisui**: escolha entre Rowlet (#722), Cyndaquil (#155) ou Oshawott (#501) na tela de intro.',
+  '- **8 Rotas de Hisui**: Jubilife (cidade), Campos Obsidiana (×2), Pântano Crimsonite, Litoral das Coberturas, Highlands Coronet, Terras de Gelo, Praça Sagrada.',
+  '- **8 Nobres Frenéticos como Líderes**: Mai (Bug), Lian (Grass), Iscan (Fire), Ingo (Electric), Gaeric (Ice), Irida (Water), Volo (Ghost), Kamado (Normal).',
+  '- **Liga Hisui**: 5 membros — Cogita, Cyllene, Adaman, Sabi e Kamado (Campeão).',
+  '- **Rivais Akari**: 7 batalhas ao longo da jornada em Hisui.',
+  '- **Vilões — Recrutas Galácticos e Volo**: 7 batalhas culminando em Volo na Praça Sagrada.',
+  '- **Stamps de Hisui**: 8 insígnias únicas (stamps) no painel de Ginásios.',
+  '- **Modal de recuperação**: jogadores com Paldea já conquistada veem o convite do Prof. Laventon ao abrir o jogo.',
+  '',
   '## [V1.92.5] - 15/05/2026 22:30',
   '### Corrigido',
   '- **Elementos fora da janela de jogo**: botão de RAID, aviso de RAID, modais de Alfa, Receita, edifícios e overlays de carregamento agora usam `position: absolute` em vez de `fixed`, ficando sempre dentro da janela do jogo (max-width 430px).',

@@ -49,6 +49,7 @@ const badgeRowsByRegion = {
   alola: (REGION_BADGE_IDS.alola || []).map((badge, i) => ({ id: badge, badge, badgeOrder: i + 1 })),
   galar: (REGION_BADGE_IDS.galar || []).map((badge, i) => ({ id: badge, badge, badgeOrder: i + 1 })),
   paldea: (REGION_BADGE_IDS.paldea || []).map((badge, i) => ({ id: badge, badge, badgeOrder: i + 1 })),
+  hisui:  (REGION_BADGE_IDS.hisui  || []).map((badge, i) => ({ id: badge, badge, badgeOrder: i + 1 })),
 };
 
 const typeIconUrl = (t) =>

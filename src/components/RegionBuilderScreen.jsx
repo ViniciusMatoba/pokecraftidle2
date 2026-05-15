@@ -8,6 +8,12 @@ import {
 } from '../data/myRegion';
 import { AVATAR_SPRITES } from '../data/cosmetics';
 
+const fixPath = (path) => {
+  if (!path || typeof path !== 'string' || path.startsWith('http')) return path;
+  const base = (import.meta.env.BASE_URL || './').replace(/\/$/, '');
+  return `${base}${path.startsWith('/') ? path : `/${path}`}`;
+};
+
 const SLOT_POKEMON_LIMIT = 6;
 
 const BADGE_MAP = [
@@ -59,20 +65,31 @@ const SlotHeader = ({ label, level, color, configured }) => (
 /* ─── TypeSelector ──────────────────────────────────────────────────────────── */
 const TypeSelector = ({ value, onChange }) => (
   <div>
-    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Tipo do Ginásio</p>
-    <div className="grid grid-cols-4 gap-1.5">
+    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Tipo do Ginásio</p>
+    <div className="grid grid-cols-4 gap-2">
       {TYPE_ORDER.map(tid => {
         const t = REGION_GYM_TYPES[tid];
         const active = value === tid;
         return (
-          <button key={tid} onClick={() => onChange(tid)}
-            className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all text-[9px] font-black uppercase
-              ${active ? 'border-current shadow-md scale-105' : 'border-slate-200 hover:border-slate-300 bg-white'}`}
-            style={active ? { borderColor: t.color, background: `${t.color}18`, color: t.color } : {}}>
-            <img src={t.icon} className="w-6 h-6 object-contain" alt={t.name}
-              style={{ imageRendering: 'pixelated' }}
-              onError={e => { e.target.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'; }} />
-            <span className={active ? 'text-current' : 'text-slate-500'}>{t.name}</span>
+          <button
+            key={tid}
+            onClick={() => onChange(tid)}
+            className={`flex flex-col items-center gap-1.5 py-3 px-1 rounded-xl border-2 transition-all active:scale-95
+              ${active ? 'shadow-lg scale-[1.06]' : 'hover:scale-[1.03] hover:shadow-md'}`}
+            style={{
+              background:   active ? t.color : `${t.color}22`,
+              borderColor:  active ? t.color : `${t.color}66`,
+              color:        active ? '#fff'  : t.color,
+            }}
+          >
+            <img
+              src={t.icon}
+              className="w-7 h-7 object-contain"
+              alt={t.name}
+              style={{ imageRendering: 'pixelated', filter: active ? 'brightness(0) invert(1)' : 'none' }}
+              onError={e => { e.target.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'; }}
+            />
+            <span className="text-[9px] font-black uppercase leading-none">{t.name}</span>
           </button>
         );
       })}
@@ -237,30 +254,26 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
     ? ELITE_SLOT_LEVELS[slotIndex]
     : CHAMPION_LEVEL;
 
-  const [bannerId,     setBannerId]     = useState(slot.bannerId     || 'normal');
-  const [leaderName,   setLeaderName]   = useState(slot.leaderName   || '');
-  const [leaderSprite, setLeaderSprite] = useState(slot.leaderSprite || 'red');
-  const [team,         setTeam]         = useState(slot.team         || []);
-  const [customLevel,  setCustomLevel]  = useState(slot.customLevel  || defaultLevel);
-  const [cardStyle, setCardStyle] = useState(slot.cardStyle || 'classic');
+  const [bannerId,         setBannerId]         = useState(slot.bannerId         || 'normal');
+  const [leaderName,       setLeaderName]       = useState(slot.leaderName       || '');
+  const [leaderSprite,     setLeaderSprite]     = useState(slot.leaderSprite     || 'red');
+  const [team,             setTeam]             = useState(slot.team             || []);
+  const [cardStyle,        setCardStyle]        = useState(slot.cardStyle        || 'classic');
   const [battleBackground, setBattleBackground] = useState(slot.battleBackground || '/battle_bg_gym_1776863824590.webp');
 
   const handleSave = () => {
     onSave({
       ...slot,
       bannerId,
-      leaderName: leaderName.trim(),
+      leaderName:      leaderName.trim(),
       leaderSprite,
       team,
-      customLevel,
+      customLevel:     defaultLevel,
       cardStyle,
       battleBackground,
-      configured: team.length > 0,
+      configured:      team.length > 0,
     });
   };
-
-  const minLvl = Math.max(5, defaultLevel - 15);
-  const maxLvl = Math.min(100, defaultLevel + 15);
 
   return (
     <div className="fixed inset-0 z-[200000] flex items-center justify-center bg-black/70 p-3"
@@ -274,7 +287,12 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
             <p className="font-black text-slate-800 text-sm">
               {slotType === 'gym' ? `Ginásio ${slot.slot}` : slotType === 'elite' ? `Elite ${slot.slot}` : 'Campeão'}
             </p>
-            <p className="text-[10px] font-bold text-slate-400">Nível do desafio: {customLevel}</p>
+            <p className="text-[10px] font-bold text-slate-400">
+              {slotType === 'gym' ? `Ginásio ${slot.slot} de 8` : slotType === 'elite' ? `Elite ${slot.slot} de 4` : 'Campeão da Região'}
+            </p>
+          </div>
+          <div className="bg-blue-600 text-white px-3 py-1.5 rounded-xl font-black text-sm shadow">
+            Nv. {defaultLevel}
           </div>
           <button onClick={handleSave}
             type="button"
@@ -337,7 +355,12 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
                       onClick={() => setBattleBackground(bg.id)}
                       className={`flex items-center gap-2 rounded-2xl border-2 p-2 text-left transition-all ${battleBackground === bg.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200 bg-white'}`}
                     >
-                      <img src={bg.id} alt="" className="w-14 h-10 rounded-xl object-cover bg-slate-100" />
+                      <img
+                        src={fixPath(bg.id)}
+                        alt=""
+                        className="w-14 h-10 rounded-xl object-cover bg-slate-100"
+                        onError={e => { e.target.style.display = 'none'; }}
+                      />
                       <span className="text-[10px] font-black uppercase text-slate-700">{bg.name}</span>
                     </button>
                   ))}
@@ -346,8 +369,22 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
             </div>
           )}
 
-          {/* Slider de Nível */}
-          <LevelSlider value={customLevel} min={minLvl} max={maxLvl} onChange={setCustomLevel} />
+          {/* Nível pré-determinado */}
+          <div className="bg-slate-50 p-4 rounded-2xl border-2 border-slate-100 flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Nível do Desafio</p>
+              <p className="text-xs text-slate-400 font-bold mt-0.5">
+                {slotType === 'gym'
+                  ? `Definido para o Ginásio ${slot.slot} de 8`
+                  : slotType === 'elite'
+                  ? `Definido para a Elite ${slot.slot} de 4`
+                  : 'Nível do Campeão da Região'}
+              </p>
+            </div>
+            <div className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-black text-2xl shadow-md">
+              Nv. {defaultLevel}
+            </div>
+          </div>
 
           {/* Equipe */}
           <PokemonPicker

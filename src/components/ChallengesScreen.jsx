@@ -16,7 +16,7 @@ const team = (ids, level) => ids.map(id => ({ id, level }));
 
 const FUTURE_REGION_CHALLENGE_DATA = {
   unova: {
-    label: 'Unova', start: 'unova_started', champion: 'unova_champion', villain: 'Team Plasma', villainSprite: psTrainer('plasmagrunt'), rivalSprite: psTrainer('cheren'), bg: "url('/battle_bg_forest_1776863795763.webp') center/cover no-repeat",
+    label: 'Unova', start: 'unova_started', champion: 'unova_champion', villain: 'Team Plasma', villainSprite: psTrainer('plasmagrunt'), rivalSprite: psTrainer('cheren'), bg: "url('/bg_unova_elite.webp') center/cover no-repeat",
     badges: ['trio_badge', 'basic_badge', 'insect_badge', 'bolt_badge', 'quake_badge', 'jet_badge', 'freeze_badge', 'legend_badge'],
     leaders: [['Cilan', 'Grass', 14, [511, 512]], ['Lenora', 'Normal', 20, [507, 505]], ['Burgh', 'Bug', 26, [541, 542, 544]], ['Elesa', 'Electric', 32, [587, 522, 523]], ['Clay', 'Ground', 39, [529, 536, 530]], ['Skyla', 'Flying', 45, [528, 521, 581]], ['Brycen', 'Ice', 52, [614, 615, 583]], ['Drayden', 'Dragon', 60, [611, 621, 612]]],
     league: [['Shauntal', 'Ghost', 72, [609, 623, 593]], ['Grimsley', 'Dark', 74, [560, 625, 635]], ['Caitlin', 'Psychic', 76, [518, 579, 576]], ['Marshal', 'Fighting', 78, [534, 538, 539]], ['Alder', 'Bug', 82, [617, 589, 637]]],
@@ -40,7 +40,7 @@ const FUTURE_REGION_CHALLENGE_DATA = {
     ],
   },
   kalos: {
-    label: 'Kalos', start: 'kalos_started', champion: 'kalos_champion', villain: 'Team Flare', villainSprite: psTrainer('flaregrunt'), rivalSprite: psTrainer('shauna'), bg: "url('/battle_bg_route24_25_1776993592209.webp') center/cover no-repeat",
+    label: 'Kalos', start: 'kalos_started', champion: 'kalos_champion', villain: 'Team Flare', villainSprite: psTrainer('flaregrunt'), rivalSprite: psTrainer('shauna'), bg: "url('/bg_kalos_elite.webp') center/cover no-repeat",
     badges: ['bug_badge', 'cliff_badge', 'rumble_badge', 'plant_badge', 'voltage_badge', 'fairy_badge', 'psychic_badge', 'iceberg_badge'],
     leaders: [['Viola', 'Bug', 12, [283, 666]], ['Grant', 'Rock', 25, [696, 698]], ['Korrina', 'Fighting', 32, [619, 701]], ['Ramos', 'Grass', 34, [189, 71, 673]], ['Clemont', 'Electric', 40, [587, 82, 695]], ['Valerie', 'Fairy', 48, [303, 439, 700]], ['Olympia', 'Psychic', 59, [678, 199, 561]], ['Wulfric', 'Ice', 65, [460, 713, 712]]],
     league: [['Malva', 'Fire', 74, [668, 663, 609]], ['Siebold', 'Water', 76, [689, 693, 130]], ['Wikstrom', 'Steel', 78, [681, 476, 212]], ['Drasna', 'Dragon', 80, [691, 621, 706]], ['Diantha', 'Fairy', 86, [701, 697, 700, 282]]],
@@ -64,7 +64,7 @@ const FUTURE_REGION_CHALLENGE_DATA = {
     ],
   },
   alola: {
-    label: 'Alola', start: 'alola_started', champion: 'alola_champion', villain: 'Team Skull', villainSprite: psTrainer('skullgrunt'), rivalSprite: psTrainer('hau'), bg: "url('/battle_bg_route19_20.webp') center/cover no-repeat",
+    label: 'Alola', start: 'alola_started', champion: 'alola_champion', villain: 'Team Skull', villainSprite: psTrainer('skullgrunt'), rivalSprite: psTrainer('hau'), bg: "url('/bg_alola_elite.webp') center/cover no-repeat",
     badges: ['melemele_stamp', 'akala_stamp', 'ulaula_stamp', 'poni_stamp', 'alola_elite_stamp', 'alola_champion_stamp', 'ultra_stamp', 'battle_tree_stamp'],
     leaders: [
       ['Ilima', 'Normal', 16, [676, 735], 'Capitao de Prova - Melemele'],
@@ -100,7 +100,7 @@ const FUTURE_REGION_CHALLENGE_DATA = {
     ],
   },
   galar: {
-    label: 'Galar', start: 'galar_started', champion: 'galar_champion', villain: 'Team Yell', villainSprite: psTrainer('yellgrunt'), rivalSprite: psTrainer('hop'), bg: "url('/battle_bg_route16_17_18.webp') center/cover no-repeat",
+    label: 'Galar', start: 'galar_started', champion: 'galar_champion', villain: 'Team Yell', villainSprite: psTrainer('yellgrunt'), rivalSprite: psTrainer('hop'), bg: "url('/bg_galar_elite.webp') center/cover no-repeat",
     badges: ['grass_badge_galar', 'water_badge_galar', 'fire_badge_galar', 'fighting_badge_galar', 'fairy_badge_galar', 'rock_badge_galar', 'dark_badge_galar', 'dragon_badge_galar'],
     leaders: [['Milo', 'Grass', 20, [829, 830]], ['Nessa', 'Water', 24, [833, 834]], ['Kabu', 'Fire', 27, [851, 59]], ['Bea', 'Fighting', 36, [865, 68]], ['Opal', 'Fairy', 38, [110, 868, 869]], ['Gordie', 'Rock', 42, [839, 874]], ['Piers', 'Dark', 46, [560, 862, 861]], ['Raihan', 'Dragon', 55, [844, 884, 330]]],
     league: [['Marnie', 'Dark', 74, [861, 452, 877]], ['Bede', 'Fairy', 78, [858, 869, 282]], ['Raihan', 'Dragon', 82, [884, 330, 706]], ['Leon', 'Fire', 90, [6, 887, 812, 815, 818]]],
@@ -123,8 +123,48 @@ const FUTURE_REGION_CHALLENGE_DATA = {
       { suffix: 'villain_final', name: 'Rose - Eternatus', sprite: psTrainer('rose'), level: 75, req: 'galar_champion', ids: [890, 884, 879, 861], subtitle: 'Confronto Final Galar', quote: '"Eternatus e a fonte de energia de Galar... e eu o libertei!"' },
     ],
   },
+  hisui: {
+    label: 'Hisui', start: 'hisui_started', champion: 'hisui_champion', villain: 'Galaxy Team', villainSprite: psTrainer('galacticgrunt'), rivalSprite: psTrainer('dawn'), bg: "url('/battle_bg_hisui_fieldlands.webp') center/cover no-repeat",
+    badges: ['fieldlands_stamp', 'mirelands_stamp', 'coastlands_stamp', 'highlands_stamp', 'icelands_stamp', 'lake_stamp', 'volo_stamp', 'arceus_stamp'],
+    leaderSubtitleOverride: true,
+    leaders: [
+      ['Mai',    'Bug',     30, [900, 127],        'Nobre Frenético — Campos Obsidiana'],
+      ['Lian',   'Grass',   40, [549, 193],        'Nobre Frenético — Pântanos Carmesim'],
+      ['Iscan',  'Fire',    50, [59,  226],        'Nobre Frenético — Costa Cobalto'],
+      ['Ingo',   'Electric',58, [101, 215, 443],   'Nobre Frenético — Terras Altas'],
+      ['Gaeric', 'Ice',     65, [713, 220, 362],   'Nobre Frenético — Gelos Alabastro'],
+      ['Irida',  'Water',   73, [484, 223, 457],   'Guardiã do Clã Perla'],
+      ['Volo',   'Ghost',   82, [487, 437, 282, 571], 'O Traidor de Hisui'],
+      ['Kamado', 'Normal',  92, [493, 487, 483, 484], 'Comandante Supremo — Arceus'],
+    ],
+    league: [
+      ['Cogita',  'Psychic',  82, [426, 561, 442]],
+      ['Cyllene', 'Ice',      84, [461, 459, 477]],
+      ['Adaman',  'Fighting', 86, [392, 398, 395, 483]],
+      ['Sabi',    'Grass',    88, [549, 470, 182, 465]],
+      ['Kamado',  'Normal',   94, [493, 487, 483, 484, 445]],
+    ],
+    rivals: [
+      { suffix: 'rival_1', name: 'Akari — Aldeia Jubilife', level: 15, req: 'hisui_started', ids: [722, 399] },
+      { suffix: 'rival_2', name: 'Akari — Campos Obsidiana', level: 28, req: 'fieldlands_stamp', ids: [724, 403, 418] },
+      { suffix: 'rival_3', name: 'Akari — Pântanos Carmesim', level: 40, req: 'mirelands_stamp', ids: [726, 403, 418, 123] },
+      { suffix: 'rival_4', name: 'Akari — Costa Cobalto', level: 50, req: 'coastlands_stamp', ids: [727, 403, 418, 123, 100] },
+      { suffix: 'rival_5', name: 'Akari — Terras Altas', level: 58, req: 'highlands_stamp', ids: [727, 418, 123, 100, 713] },
+      { suffix: 'rival_6', name: 'Akari — Gelos Alabastro', level: 65, req: 'icelands_stamp', ids: [727, 418, 123, 100, 713, 487] },
+      { suffix: 'rival_victory', name: 'Akari — Praça Sagrada', level: 78, req: 'volo_stamp', ids: [724, 418, 123, 100, 713, 487] },
+    ],
+    villains: [
+      { suffix: 'villain_1',    name: 'Recruta Galactica',   sprite: psTrainer('galacticgrunt'), level: 18, req: 'hisui_started',     ids: [396, 399],           subtitle: 'Patrulha Galactica',       quote: '"Esta área é propriedade da Expedição Galática!"' },
+      { suffix: 'villain_2',    name: 'Recruta Galactica',   sprite: psTrainer('galacticgrunt'), level: 28, req: 'fieldlands_stamp',  ids: [403, 399, 418],      subtitle: 'Bloqueio Galactica',       quote: '"Nenhum membro renegado passa por aqui!"' },
+      { suffix: 'villain_3',    name: 'Capitão Zisu',        sprite: psTrainer('acetrainerf'),   level: 38, req: 'mirelands_stamp',   ids: [100, 127, 123],      subtitle: 'Guardião Obstrutivo',      quote: '"Prove que você merece avançar em nossa missão!"' },
+      { suffix: 'villain_4',    name: 'Volo — Primeiros Sinais', sprite: psTrainer('looker'),   level: 48, req: 'coastlands_stamp',  ids: [437, 282, 571],      subtitle: 'Pesquisador Suspeito',     quote: '"Você é admirável... mas há coisas que não deve saber."' },
+      { suffix: 'villain_5',    name: 'Volo — Revelação',    sprite: psTrainer('looker'),        level: 60, req: 'highlands_stamp',   ids: [437, 282, 571, 487], subtitle: 'A Traição de Volo',        quote: '"Eu nunca quis a paz. Quero o poder do Deus Pokémon!"' },
+      { suffix: 'villain_boss', name: 'Volo + Giratina',     sprite: psTrainer('looker'),        level: 75, req: 'lake_stamp',        ids: [487, 437, 282, 571, 359], subtitle: 'Confronto com o Traidor', quote: '"Giratina! Destrua quem se opõe a mim!"' },
+      { suffix: 'villain_final', name: 'Volo — Revanche',    sprite: psTrainer('looker'),        level: 85, req: 'hisui_champion',    ids: [487, 437, 282, 571, 384, 445], subtitle: 'Epílogo de Hisui', quote: '"Mesmo derrotado... o Pokémon Deus pertence a mim!"' },
+    ],
+  },
   paldea: {
-    label: 'Paldea', start: 'paldea_started', champion: 'paldea_champion', villain: 'Team Star', villainSprite: psTrainer('giacomo'), rivalSprite: psTrainer('schoolkidf'), bg: "url('/battle_bg_route3_1776993578907.webp') center/cover no-repeat",
+    label: 'Paldea', start: 'paldea_started', champion: 'paldea_champion', villain: 'Team Star', villainSprite: psTrainer('giacomo'), rivalSprite: psTrainer('schoolkidf'), bg: "url('/bg_paldea_elite.webp') center/cover no-repeat",
     badges: ['bug_badge_paldea', 'grass_badge_paldea', 'electric_badge_paldea', 'water_badge_paldea', 'normal_badge_paldea', 'ghost_badge_paldea', 'psychic_badge_paldea', 'ice_badge_paldea'],
     leaders: [['Katy', 'Bug', 15, [917, 919]], ['Brassius', 'Grass', 20, [949, 753]], ['Iono', 'Electric', 28, [940, 941]], ['Kofu', 'Water', 35, [961, 950]], ['Larry', 'Normal', 42, [931, 924, 925]], ['Ryme', 'Ghost', 48, [972, 937]], ['Tulip', 'Psychic', 55, [956, 981]], ['Grusha', 'Ice', 60, [974, 975]]],
     league: [['Rika', 'Ground', 72, [980, 982, 968]], ['Poppy', 'Steel', 75, [879, 959, 1000]], ['Larry Elite', 'Flying', 78, [931, 973, 701]], ['Hassel', 'Dragon', 82, [998, 887, 1008]], ['Geeta', 'Rock', 88, [970, 983, 1008]]],

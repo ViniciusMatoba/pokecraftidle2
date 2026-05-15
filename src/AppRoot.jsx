@@ -778,7 +778,10 @@ export default function App() {
   const [showKalosChampionModal,  setShowKalosChampionModal]  = useState(false); // Kalos → Alola
   const [showAlolaChampionModal,  setShowAlolaChampionModal]  = useState(false); // Alola → Galar
   const [showGalarChampionModal,  setShowGalarChampionModal]  = useState(false); // Galar → Paldea
+  const [showArceusCallModal,     setShowArceusCallModal]     = useState(false); // Arceus convida para Hisui
+  const [showHisuiChampionModal,  setShowHisuiChampionModal]  = useState(false); // Hisui → Paldea
   const [showPaldeaChampionModal, setShowPaldeaChampionModal] = useState(false); // Paldea = Final
+  const [showHisuiInviteModal,    setShowHisuiInviteModal]    = useState(false); // Hisui (recovery para quem já tem galar)
   const [showMegaIntroModal, setShowMegaIntroModal] = useState(false); // Sycamore mega evolution intro
   const [showGymVictoryModal, setShowGymVictoryModal] = useState(null); // { leaderName, badge, badgeImg, reward }
   const [previewStarter, setPreviewStarter] = useState(null);
@@ -794,6 +797,23 @@ export default function App() {
 
   const [sessionStats, setSessionStats] = useState(null);
   const sessionRef = useRef({ kills: 0, coins: 0, trainers: 0, shinyKills: 0, drops: {}, captures: [] });
+
+  // ── Derrotas diárias (fantasmas acumulam, resetam no dia seguinte) ──────────
+  const [dailyDefeats, setDailyDefeats] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('pkcraft_daily_defeats') || '{}');
+      const today = new Date().toDateString();
+      return saved.date === today ? (saved.count || 0) : 0;
+    } catch { return 0; }
+  });
+
+  const registerDefeat = () => {
+    const today = new Date().toDateString();
+    const newCount = dailyDefeats + 1;
+    setDailyDefeats(newCount);
+    try { localStorage.setItem('pkcraft_daily_defeats', JSON.stringify({ count: newCount, date: today })); } catch {}
+    setCurrentView('defeat_screen');
+  };
 
 
 
@@ -3097,7 +3117,7 @@ export default function App() {
         );
         setTimeout(() => {
           isProcessingVictory.current = false;
-          setCurrentView('defeat_screen');
+          registerDefeat();
         }, 300);
       }
       return 1200 * speedMultiplier;
@@ -3161,7 +3181,7 @@ export default function App() {
           } else {
             stopBGM(300);
             sfxDefeat();
-            setCurrentView('defeat_screen');
+            registerDefeat();
           }
         }
         return prev;
@@ -4824,15 +4844,25 @@ export default function App() {
        (flags.includes('alola_champion') && !flags.includes('galar_started') && !flags.includes('alola_champion_modal_shown')))
       setShowAlolaChampionModal(true);
 
-    // Galar → Paldea
+    // Galar → Hisui
     if (flags.includes('galar_champion_modal_pending') ||
-       (flags.includes('galar_champion') && !flags.includes('paldea_started') && !flags.includes('galar_champion_modal_shown')))
+       (flags.includes('galar_champion') && !flags.includes('hisui_started') && !flags.includes('galar_champion_modal_shown')))
       setShowGalarChampionModal(true);
+
+    // Hisui → Paldea
+    if (flags.includes('hisui_champion_modal_pending') ||
+       (flags.includes('hisui_champion') && !flags.includes('paldea_started') && !flags.includes('hisui_champion_modal_shown')))
+      setShowHisuiChampionModal(true);
 
     // Paldea = Final
     if (flags.includes('paldea_champion_modal_pending') ||
        (flags.includes('paldea_champion') && !flags.includes('paldea_champion_modal_shown')))
       setShowPaldeaChampionModal(true);
+
+    // Hisui (recovery: Galar já mostrado mas Hisui ainda não iniciado)
+    if (flags.includes('galar_champion') && flags.includes('galar_champion_modal_shown') &&
+        !flags.includes('hisui_started') && !flags.includes('hisui_invite_shown'))
+      setShowHisuiInviteModal(true);
 
   }, [gameState.worldFlags]);
   // ————————————————————————————————————————————————————————————
@@ -5068,7 +5098,7 @@ export default function App() {
     const starter = createRegionStarter(starterId, 5, 'paldea');
     if (!starter) return;
     setGameState(prev => {
-      const updated_regional_teams = { ...(prev.regional_teams || {}), [prev.activeRegion || 'galar']: [...prev.team] };
+      const updated_regional_teams = { ...(prev.regional_teams || {}), [prev.activeRegion || 'hisui']: [...prev.team] };
       return {
         ...prev, activeRegion: 'paldea',
         regional_teams: updated_regional_teams,
@@ -5080,6 +5110,24 @@ export default function App() {
     });
     setActiveMemberIndex(0); setCurrentEnemy(null); setCurrentView('city');
     addLog(`🌍 Bem-vindo a Paldea! Sua jornada com ${starter.name} começa agora!`, 'system');
+  }, [createRegionStarter, addLog]);
+
+  const handleStartHisui = useCallback((starterId) => {
+    const starter = createRegionStarter(starterId, 5, 'hisui');
+    if (!starter) return;
+    setGameState(prev => {
+      const updated_regional_teams = { ...(prev.regional_teams || {}), [prev.activeRegion || 'galar']: [...prev.team] };
+      return {
+        ...prev, activeRegion: 'hisui',
+        regional_teams: updated_regional_teams,
+        selectedStarters: { ...(prev.selectedStarters || {}), hisui: starterId },
+        team: [starter], currentRoute: 'hisui_jubilife',
+        caughtData: { ...(prev.caughtData || {}), [starter.id]: true },
+        worldFlags: [...new Set([...(prev.worldFlags || []), 'hisui_started'])],
+      };
+    });
+    setActiveMemberIndex(0); setCurrentEnemy(null); setCurrentView('city');
+    addLog(`🌍 Bem-vindo a Hisui! Sua jornada com ${starter.name} na terra antiga começa agora!`, 'system');
   }, [createRegionStarter, addLog]);
 
   // Plantar
@@ -5486,16 +5534,17 @@ export default function App() {
         newFlags.push('kanto_champion_modal_pending');
         setTimeout(() => setShowKantoChampionModal(true), 1200);
       }
-      // ── CHAMPION MODALS — todos os 9 pares de região ─────────────────────────
+      // ── CHAMPION MODALS — todos os 10 pares de região ─────────────────────────
       const CHAMPION_MODAL_MAP = {
-        hoenn_champion:  { pendingFlag: 'hoenn_champion_modal_pending', regionFlag: 'region_champion_hoenn',  setter: () => setTimeout(() => setShowSinnohIntroModal(true),   1200) },
-        johto_champion:  { pendingFlag: 'johto_champion_modal_pending',  regionFlag: 'region_champion_johto',  setter: () => setTimeout(() => setShowJohtoChampionModal(true),  1200) },
-        sinnoh_champion: { pendingFlag: 'sinnoh_champion_modal_pending', regionFlag: 'region_champion_sinnoh', setter: () => setTimeout(() => setShowSinnohChampionModal(true), 1200) },
-        unova_champion:  { pendingFlag: 'unova_champion_modal_pending',  regionFlag: 'region_champion_unova',  setter: () => setTimeout(() => setShowUnovaChampionModal(true),  1200) },
-        kalos_champion:  { pendingFlag: 'kalos_champion_modal_pending',  regionFlag: 'region_champion_kalos',  setter: () => setTimeout(() => setShowKalosChampionModal(true),  1200) },
-        alola_champion:  { pendingFlag: 'alola_champion_modal_pending',  regionFlag: 'region_champion_alola',  setter: () => setTimeout(() => setShowAlolaChampionModal(true),  1200) },
-        galar_champion:  { pendingFlag: 'galar_champion_modal_pending',  regionFlag: 'region_champion_galar',  setter: () => setTimeout(() => setShowGalarChampionModal(true),  1200) },
-        paldea_champion: { pendingFlag: 'paldea_champion_modal_pending', regionFlag: 'region_champion_paldea', setter: () => setTimeout(() => setShowPaldeaChampionModal(true), 1200) },
+        hoenn_champion:  { pendingFlag: 'hoenn_champion_modal_pending',  regionFlag: 'region_champion_hoenn',  setter: () => setTimeout(() => setShowSinnohIntroModal(true),    1200) },
+        johto_champion:  { pendingFlag: 'johto_champion_modal_pending',  regionFlag: 'region_champion_johto',  setter: () => setTimeout(() => setShowJohtoChampionModal(true),   1200) },
+        sinnoh_champion: { pendingFlag: 'sinnoh_champion_modal_pending', regionFlag: 'region_champion_sinnoh', setter: () => setTimeout(() => setShowSinnohChampionModal(true),  1200) },
+        unova_champion:  { pendingFlag: 'unova_champion_modal_pending',  regionFlag: 'region_champion_unova',  setter: () => setTimeout(() => setShowUnovaChampionModal(true),   1200) },
+        kalos_champion:  { pendingFlag: 'kalos_champion_modal_pending',  regionFlag: 'region_champion_kalos',  setter: () => setTimeout(() => setShowKalosChampionModal(true),   1200) },
+        alola_champion:  { pendingFlag: 'alola_champion_modal_pending',  regionFlag: 'region_champion_alola',  setter: () => setTimeout(() => setShowAlolaChampionModal(true),   1200) },
+        galar_champion:  { pendingFlag: 'galar_champion_modal_pending',  regionFlag: 'region_champion_galar',  setter: () => setTimeout(() => setShowGalarChampionModal(true),   1200) },
+        hisui_champion:  { pendingFlag: 'hisui_champion_modal_pending',  regionFlag: 'region_champion_hisui',  setter: () => setTimeout(() => setShowHisuiChampionModal(true),   1200) },
+        paldea_champion: { pendingFlag: 'paldea_champion_modal_pending', regionFlag: 'region_champion_paldea', setter: () => setTimeout(() => setShowPaldeaChampionModal(true),  1200) },
       };
 
       const unlockFlag = currentEnemy.unlockFlag;
@@ -6926,8 +6975,20 @@ export default function App() {
           regionName="Paldea" accentColor="#ef4444" bgColor="bg-red-950"
           starters={starters} onSelectStarter={handleStartPaldea}
           onBack={() => setCurrentView('city')}
-          ruleText="Paldea é a região final. Escolha Sprigatito, Fuecoco ou Quaxly para a última jornada."
+          ruleText="Paldea é a região final da Liga. Escolha Sprigatito, Fuecoco ou Quaxly para a jornada."
           inviteText="Sou a Profa. Sada. Paldea guarda mistérios que vão além do tempo — venha descobrir!"
+        />;
+      }
+      case 'hisui_intro': {
+        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/laventon.png';
+        const starters = [722, 155, 501].map(id => POKEDEX[id]).filter(Boolean);
+        return <RegionIntroScreen
+          professorSprite={sprite} professorName="Prof. Laventon"
+          regionName="Hisui" accentColor="#d97706" bgColor="bg-amber-950"
+          starters={starters} onSelectStarter={handleStartHisui}
+          onBack={() => setCurrentView('city')}
+          ruleText="Hisui é a versão ancestral de Sinnoh. Escolha Rowlet, Cyndaquil ou Oshawott para explorar essa terra selvagem."
+          inviteText="Sou o Prof. Laventon da Equipe Galaxy. Hisui guarda Pokémon nunca antes catalogados — precisamos de você!"
         />;
       }
       case 'navigation_hub': return (
@@ -7646,41 +7707,74 @@ export default function App() {
           </div>
         );
       }
-      case 'defeat_screen': return (
-        <div className="h-full flex flex-col items-center justify-center bg-slate-900 p-8 relative overflow-hidden animate-fadeIn">
-           {/* Efeito de Nevoeiro Fantasmagórico */}
-           <div className="absolute inset-0 opacity-30 pointer-events-none bg-gradient-to-t from-purple-900 to-transparent"></div>
-           
-           <div className="relative z-10 flex flex-col items-center max-w-lg w-full text-center">
-              <div className="flex gap-8 mb-12 animate-float">
-                 <img src="https://play.pokemonshowdown.com/sprites/ani/gastly.gif" className="w-24 h-24 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]" alt="Gastly" />
-                 <img src="https://play.pokemonshowdown.com/sprites/ani/haunter.gif" className="w-28 h-28 drop-shadow-[0_0_20px_rgba(168,85,247,0.7)] delay-75" alt="Haunter" />
-              </div>
-
-              <div className="bg-slate-800/80 backdrop-blur-md p-10 rounded-[3rem] border-2 border-purple-500/30 shadow-[0_0_50px_rgba(168,85,247,0.2)]">
-                <h2 className="text-4xl font-black text-purple-400 uppercase italic mb-6 tracking-tighter">Hehehe...</h2>
-                <p className="text-white font-bold text-lg mb-10 italic leading-tight">
-                  "Vimos você cair... Não se preocupe, treinador. Nós o levamos para um lugar seguro."
-                </p>
-                <button 
-                  onClick={() => {
-                    setTimeout(() => setCurrentView('heal_after_defeat'), 800);
-                  }} 
-                  className="w-full bg-purple-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest shadow-xl hover:bg-purple-500 transition-all active:scale-95 border-b-8 border-purple-800"
-                >OK...</button>
-              </div>
-           </div>
-        </div>
-      );
+      case 'defeat_screen': {
+        const GHOST_POOL = [
+          { name: 'gastly',    size: 'w-20 h-20' },
+          { name: 'haunter',   size: 'w-24 h-24' },
+          { name: 'gengar',    size: 'w-22 h-22' },
+          { name: 'misdreavus',size: 'w-20 h-20' },
+          { name: 'shuppet',   size: 'w-18 h-18' },
+          { name: 'banette',   size: 'w-22 h-22' },
+          { name: 'duskull',   size: 'w-20 h-20' },
+          { name: 'sableye',   size: 'w-20 h-20' },
+          { name: 'litwick',   size: 'w-18 h-18' },
+          { name: 'chandelure', size: 'w-24 h-24' },
+        ];
+        const ghostCount = Math.min(dailyDefeats + 1, GHOST_POOL.length);
+        const visibleGhosts = GHOST_POOL.slice(0, Math.max(2, ghostCount));
+        return (
+          <div className="h-full flex flex-col items-center justify-center bg-slate-900 p-8 relative overflow-hidden animate-fadeIn">
+             <div className="absolute inset-0 opacity-30 pointer-events-none bg-gradient-to-t from-purple-900 to-transparent"></div>
+             {dailyDefeats > 1 && (
+               <div className="absolute top-4 right-4 bg-purple-900/60 border border-purple-500/40 rounded-full px-3 py-1 text-purple-300 text-[10px] font-black uppercase tracking-widest">
+                 {dailyDefeats}ª derrota hoje
+               </div>
+             )}
+             <div className="relative z-10 flex flex-col items-center max-w-lg w-full text-center">
+                <div className="flex flex-wrap justify-center gap-4 mb-10 animate-float">
+                  {visibleGhosts.map((g, i) => (
+                    <img
+                      key={g.name}
+                      src={`https://play.pokemonshowdown.com/sprites/ani/${g.name}.gif`}
+                      className={`${g.size} drop-shadow-[0_0_15px_rgba(168,85,247,0.6)] object-contain`}
+                      style={{ animationDelay: `${i * 80}ms` }}
+                      alt={g.name}
+                    />
+                  ))}
+                </div>
+                <div className="bg-slate-800/80 backdrop-blur-md p-10 rounded-[3rem] border-2 border-purple-500/30 shadow-[0_0_50px_rgba(168,85,247,0.2)]">
+                  <h2 className="text-4xl font-black text-purple-400 uppercase italic mb-6 tracking-tighter">Hehehe...</h2>
+                  <p className="text-white font-bold text-lg mb-10 italic leading-tight">
+                    "Vimos você cair... Não se preocupe, treinador. Nós o levamos para um lugar seguro."
+                  </p>
+                  <button
+                    onClick={() => { setTimeout(() => setCurrentView('heal_after_defeat'), 800); }}
+                    className="w-full bg-purple-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest shadow-xl hover:bg-purple-500 transition-all active:scale-95 border-b-8 border-purple-800"
+                  >OK...</button>
+                </div>
+             </div>
+          </div>
+        );
+      }
       case 'pokedex': return (
         <Suspense fallback={<div className="h-full bg-slate-900 flex items-center justify-center text-pokeGold font-black uppercase tracking-[0.5em] animate-pulse">Sincronizando Pokédex...</div>}>
-          <PokedexScreen 
+          <PokedexScreen
             POKEDEX={Object.fromEntries(Object.entries(POKEDEX).filter(([id]) => Number(id) <= getUnlockedDexLimit(gameState)))}
-            caughtData={gameState.caughtData} 
+            caughtData={gameState.caughtData}
             team={gameState.team}
             box={gameState.pc}
             dexLimit={getUnlockedDexLimit(gameState)}
-            onBack={() => setCurrentView(lastNonMenuView.current)} 
+            routes={ROUTES}
+            gameState={gameState}
+            onGoToRoute={(routeId) => {
+              setGameState(prev => ({
+                ...prev,
+                currentRoute: routeId,
+                lastFarmingRoute: ROUTES[routeId]?.type === 'farm' ? routeId : prev.lastFarmingRoute,
+              }));
+              setCurrentView('battles');
+            }}
+            onBack={() => setCurrentView(lastNonMenuView.current)}
           />
         </Suspense>
       );
@@ -8193,13 +8287,24 @@ export default function App() {
         {
           show: showGalarChampionModal, setShow: setShowGalarChampionModal,
           pendingFlag: 'galar_champion_modal_pending', shownFlag: 'galar_champion_modal_shown',
-          nextView: 'paldea_intro', professorSprite: 'professorsada',
-          professorName: 'Prof. Sada', regionWon: 'Galar', nextRegion: 'Paldea',
-          accentColor: '#ef4444', buttonColor: 'bg-red-600 hover:bg-red-700',
-          message: '"Leon foi derrotado! Você é o novo Campeão de Galar. A Profa. Sada de Paldea te espera."',
-          inviteText: '"Paldea é a última grande fronteira. Venha escolher Sprigatito, Fuecoco ou Quaxly!"',
-          buttonLabel: 'Conhecer Paldea com a Prof. Sada',
+          nextView: '__arceus_call__', professorSprite: 'laventon',
+          professorName: 'Prof. Laventon', regionWon: 'Galar', nextRegion: 'Hisui',
+          accentColor: '#d97706', buttonColor: 'bg-amber-600 hover:bg-amber-700',
+          message: '"Leon foi derrotado! Você é o novo Campeão de Galar. Uma força misteriosa parece te chamar para longe…"',
+          inviteText: '"Há relatos de um ser divino que convoca treinadores especiais para uma terra esquecida no passado."',
+          buttonLabel: 'Seguir o chamado misterioso',
           stayLabel: 'Continuar em Galar por ora',
+        },
+        {
+          show: showHisuiChampionModal, setShow: setShowHisuiChampionModal,
+          pendingFlag: 'hisui_champion_modal_pending', shownFlag: 'hisui_champion_modal_shown',
+          nextView: 'paldea_intro', professorSprite: 'professorsada',
+          professorName: 'Profa. Sada', regionWon: 'Hisui', nextRegion: 'Paldea',
+          accentColor: '#ef4444', buttonColor: 'bg-red-600 hover:bg-red-700',
+          message: '"Você derrotou Kamado e trouxe paz a Hisui! A Profa. Sada de Paldea ouviu sobre suas façanhas."',
+          inviteText: '"Paldea é a última grande fronteira. Venha escolher Sprigatito, Fuecoco ou Quaxly para encerrar sua lenda!"',
+          buttonLabel: 'Conhecer Paldea com a Profa. Sada',
+          stayLabel: 'Continuar em Hisui por ora',
         },
       ].map(({ show, setShow, pendingFlag, shownFlag, nextView, professorSprite, professorName, regionWon, nextRegion, accentColor, buttonColor, message, inviteText, buttonLabel, stayLabel }) =>
         show ? (
@@ -8234,7 +8339,8 @@ export default function App() {
                         ...prev,
                         worldFlags: (prev.worldFlags || []).filter(f => f !== pendingFlag).concat([shownFlag]).filter((v,i,a) => a.indexOf(v)===i),
                       }));
-                      setCurrentView(nextView);
+                      if (nextView === '__arceus_call__') setShowArceusCallModal(true);
+                      else setCurrentView(nextView);
                     }}
                     className={`w-full min-h-[54px] rounded-2xl text-white font-black uppercase tracking-widest text-xs transition-all shadow-lg ${buttonColor}`}
                   >
@@ -8310,6 +8416,73 @@ export default function App() {
         </div>
       )}
 
+      {/* Arceus — Chamado para Hisui */}
+      {showArceusCallModal && (
+        <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 animate-fadeIn"
+          style={{ background: 'radial-gradient(ellipse at center, #1a0a3a 0%, #0a0020 60%, #000010 100%)' }}>
+          {/* Estrelas */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {[...Array(18)].map((_, i) => (
+              <div key={i} className="absolute rounded-full bg-white animate-pulse"
+                style={{ width: i % 3 === 0 ? 3 : 2, height: i % 3 === 0 ? 3 : 2, opacity: 0.4 + (i % 4) * 0.15,
+                  top: `${5 + (i * 31 + i * 17) % 88}%`, left: `${3 + (i * 47 + i * 13) % 90}%`,
+                  animationDuration: `${1.5 + (i % 4) * 0.5}s`, animationDelay: `${(i % 6) * 0.3}s` }} />
+            ))}
+          </div>
+          {/* Aura dourada central */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-64 h-64 rounded-full animate-pulse"
+              style={{ background: 'radial-gradient(circle, rgba(251,191,36,0.18) 0%, rgba(251,191,36,0.05) 50%, transparent 70%)',
+                animationDuration: '2s' }} />
+          </div>
+          <div className="w-full max-w-[390px] relative z-10 flex flex-col items-center text-center gap-5 animate-bounceIn">
+            {/* Sprite de Arceus */}
+            <div className="relative">
+              <div className="absolute inset-0 rounded-full blur-2xl animate-pulse"
+                style={{ background: 'radial-gradient(circle, rgba(251,191,36,0.5) 0%, transparent 70%)', animationDuration: '1.8s' }} />
+              <img
+                src="https://play.pokemonshowdown.com/sprites/ani/arceus.gif"
+                onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/gen5ani/arceus.gif'; }}
+                className="relative w-28 h-28 object-contain drop-shadow-2xl"
+                style={{ filter: 'drop-shadow(0 0 16px rgba(251,191,36,0.8))' }}
+                alt="Arceus"
+              />
+            </div>
+            {/* Texto */}
+            <div>
+              <p className="text-amber-300 text-[10px] font-black uppercase tracking-[0.4em] mb-1">— O Deus Pokémon —</p>
+              <h2 className="text-white text-2xl font-black uppercase italic tracking-tighter leading-none mb-1">Arceus</h2>
+            </div>
+            <div className="bg-white/8 border border-amber-400/30 rounded-3xl px-6 py-4 backdrop-blur-sm">
+              <p className="text-amber-100 text-sm font-bold leading-relaxed italic">
+                "Treinador… eu ouvi sobre suas façanhas. Uma terra antiga precisa de alguém com sua força."
+              </p>
+              <p className="text-amber-200/80 text-xs font-bold leading-relaxed mt-2">
+                "Hisui — a versão primordial de Sinnoh — está sendo perturbada. Aceite meu chamado e viaje ao passado. O Prof. Laventon irá te guiar."
+              </p>
+            </div>
+            <div className="w-full grid grid-cols-1 gap-3">
+              <button
+                onClick={() => {
+                  setShowArceusCallModal(false);
+                  setCurrentView('hisui_intro');
+                }}
+                className="w-full min-h-[54px] rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg text-slate-900"
+                style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b, #d97706)' }}
+              >
+                ✨ Aceitar o Chamado de Arceus
+              </button>
+              <button
+                onClick={() => setShowArceusCallModal(false)}
+                className="w-full min-h-[44px] rounded-2xl bg-white/10 text-white/60 font-black uppercase tracking-widest text-xs hover:bg-white/15 transition-all border border-white/10"
+              >
+                Voltar por agora
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Paldea = região final */}
       {showPaldeaChampionModal && (
         <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
@@ -8323,7 +8496,7 @@ export default function App() {
             </div>
             <div className="p-6">
               <p className="text-sm font-bold text-slate-600 leading-relaxed italic mb-3">
-                "Você conquistou as 9 regiões: Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, Galar e Paldea. Sua lenda está gravada na história."
+                "Você conquistou as 10 regiões: Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, Galar, Hisui e Paldea. Sua lenda está gravada na história."
               </p>
               <div className="bg-violet-50 border-2 border-violet-100 rounded-3xl p-4 mb-5">
                 <p className="text-[10px] font-black uppercase tracking-widest text-violet-600 mb-1">🌟 Jornada Completa</p>
@@ -8346,6 +8519,59 @@ export default function App() {
               >
                 ✨ Explorar o Pós-Game
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Hisui invite recovery modal (para campeões de Galar que ainda não foram para Hisui) */}
+      {showHisuiInviteModal && (
+        <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-amber-600 animate-bounceIn">
+            <div className="px-6 py-5 flex items-center gap-4 bg-amber-600">
+              <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
+                <img
+                  src="https://play.pokemonshowdown.com/sprites/trainers/laventon.png"
+                  onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }}
+                  className="w-12 h-12 object-contain" alt="Prof. Laventon"
+                />
+              </div>
+              <div>
+                <p className="text-amber-100 text-[10px] font-black uppercase tracking-[0.25em]">Prof. Laventon</p>
+                <h2 className="text-white text-xl font-black uppercase italic tracking-tighter leading-none">Hisui te espera!</h2>
+              </div>
+            </div>
+            <div className="p-6">
+              <p className="text-sm font-bold text-slate-600 leading-relaxed italic mb-4">
+                "Você é o Campeão de Galar! A terra ancestral de Hisui precisa de um pesquisador corajoso. Escolha seu parceiro e venha conosco!"
+              </p>
+              <div className="grid grid-cols-1 gap-3">
+                <button
+                  onClick={() => {
+                    setShowHisuiInviteModal(false);
+                    setGameState(prev => ({
+                      ...prev,
+                      worldFlags: [...new Set([...(prev.worldFlags || []), 'hisui_invite_shown'])],
+                    }));
+                    setShowArceusCallModal(true);
+                  }}
+                  className="w-full min-h-[54px] rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-black uppercase tracking-widest text-xs transition-all shadow-lg"
+                >
+                  ✨ Responder ao Chamado
+                </button>
+                <button
+                  onClick={() => {
+                    setShowHisuiInviteModal(false);
+                    setGameState(prev => ({
+                      ...prev,
+                      worldFlags: [...new Set([...(prev.worldFlags || []), 'hisui_invite_shown'])],
+                    }));
+                  }}
+                  className="w-full min-h-[48px] rounded-2xl bg-slate-100 text-slate-500 font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-all"
+                >
+                  Continuar explorando por ora
+                </button>
+              </div>
             </div>
           </div>
         </div>
