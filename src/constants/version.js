@@ -1,7 +1,17 @@
-export const APP_VERSION = '1.90.1';
-export const VERSION = '1.90.1';
-export const APP_VERSION_DATE = '15/05/2026 10:30';
+export const APP_VERSION = '1.90.2';
+export const VERSION = '1.90.2';
+export const APP_VERSION_DATE = '15/05/2026 12:00';
 export const CHANGELOG = [
+  '## [V1.90.2] - 15/05/2026 12:00',
+  '### Balanceamento',
+  '- **Sinnoh — Progressão corrigida**: níveis de todos os ginásios e Elite Four drasticamente reduzidos para serem coerentes com os jogos originais e com outras regiões.',
+  '  - Candice (7º): 62-66 → 47-51 | Volkner (8º): 72-76 → 54-58',
+  '  - Aaron (Elite 1): 82-85 → 60-63 | Bertha: 84-87 → 62-65 | Flint: 86-89 → 64-67',
+  '  - Lucian: 88-91 → 66-70 | Cynthia (Campeã): 92-96 → 70-74',
+  '- **Sinnoh — GYM_LEVEL_CAPS ajustados**: caps de treinamento agora escalam suavemente de 14 a 76 (era 16 a 100). Exemplo: após 6 badges cap era 66 → agora 51.',
+  '- **Encontros em rotas — Filtro de evolução automático**: rotas de nível alto agora exibem formas evoluídas dos Pokémon. Caterpie/Weedle/Pidgey/Magikarp e mais de 100 espécies evoluem automaticamente com base no nível da rota.',
+  '  - Ex.: rota normalizada para nível 50 mostra Pidgeot (não Pidgey), Tentacruel (não Tentacool), Luxray (não Shinx).',
+  '  - Pré-evoluções continuam disponíveis nas rotas iniciais de cada região.',
   '## [V1.90.1] - 15/05/2026 10:30',
   '### Adicionado',
   '- **Sistema de Batalha de Região (Fase 3)**: ao clicar em "⚔️ Desafiar Região" na Rede de Amigos, o jogador é levado para a tela de desafio da região do amigo (RegionChallengeScreen). Ginásios, Elite Four e Campeão são desafiados em sequência.',

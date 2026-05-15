@@ -1,5 +1,5 @@
 {
-  "version": "1.90.1",
-  "date": "15/05/2026 10:30",
-  "notes": "Sistema de Batalha de Região completo, verificação de nome único, recompensas por batalha e tela de conclusão de região."
+  "version": "1.90.2",
+  "date": "15/05/2026 12:00",
+  "notes": "Progressão de Sinnoh corrigida, filtro de evolução automático em rotas de alto nível."
 }

@@ -51,8 +51,8 @@ export const GYM_LEVEL_CAPS = {
     balance_badge: 31, feather_badge: 33, mind_badge: 42, rain_badge: 55, hoenn_champion: 70
   },
   sinnoh: {
-    coal_badge: 16, forest_badge: 25, cobble_badge: 33, fen_badge: 39,
-    relic_badge: 45, mine_badge: 53, icicle_badge: 66, beacon_badge: 76, sinnoh_champion: 100
+    coal_badge: 14, forest_badge: 22, cobble_badge: 28, fen_badge: 33,
+    relic_badge: 39, mine_badge: 45, icicle_badge: 51, beacon_badge: 58, sinnoh_champion: 76
   },
   unova: {
     trio_badge: 14, basic_badge: 20, insect_badge: 26, bolt_badge: 32,
