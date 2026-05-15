@@ -4,6 +4,7 @@ import { MOVE_TRANSLATIONS } from '../data/translations';
 import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '../data/candies';
 import { getTimeOfDay } from '../utils/timeSystem';
 import { getCompatibleMegaStones, MEGA_STONE_ICONS, getMegaSprite } from '../data/megaEvolutions';
+import { ABILITY_ITEM_ID, getPokemonAbilityPool, setPokemonAbility } from '../data/abilities';
 
 import { GYM_LEVEL_CAPS } from '../data/constants';
 import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER, isPokemonLegal } from '../data/regionStandards';
@@ -219,6 +220,31 @@ const PokemonManagement = ({
        return { ...prev, [activePokemonDetails.location]: newList };
     });
     setActivePokemonDetails(prev => ({ ...prev, pokemon: { ...prev.pokemon, equippedNature: natureName } }));
+  };
+
+  const changeAbility = (abilityName) => {
+    if (!activePokemonDetails || !abilityName) return;
+    setGameState(prev => {
+      const items = prev.inventory?.items || {};
+      if ((items[ABILITY_ITEM_ID] || 0) <= 0) return prev;
+      const newList = [...prev[activePokemonDetails.location]];
+      const current = newList[activePokemonDetails.index];
+      if (!current || current.ability === abilityName) return prev;
+      newList[activePokemonDetails.index] = setPokemonAbility(current, abilityName);
+      return {
+        ...prev,
+        [activePokemonDetails.location]: newList,
+        inventory: {
+          ...prev.inventory,
+          items: { ...items, [ABILITY_ITEM_ID]: items[ABILITY_ITEM_ID] - 1 },
+        },
+      };
+    });
+    setActivePokemonDetails(prev => prev ? ({
+      ...prev,
+      pokemon: setPokemonAbility(prev.pokemon, abilityName),
+    }) : prev);
+    addLog(`${activePokemonDetails.pokemon.name} alterou a habilidade para ${abilityName}.`, 'system');
   };
 
   const equipRareMove = (moveObj) => {
@@ -724,6 +750,29 @@ const PokemonManagement = ({
                             <option key={name} value={name}>{name} (+{mods.plus.toUpperCase()}, -{mods.minus.toUpperCase()})</option>
                           );
                         })}
+                      </select>
+                    </div>
+
+                    {/* HABILIDADES */}
+                    <div className="p-4 rounded-2xl border-2 border-violet-100 bg-violet-50/40 shadow-sm">
+                      <div className="flex justify-between items-center mb-2">
+                        <div>
+                          <h3 className="text-[11px] font-black uppercase text-slate-800">Habilidade</h3>
+                          <p className="text-[8px] font-black uppercase tracking-widest text-violet-600">Aleatoria na captura</p>
+                        </div>
+                        <span className="text-[8px] font-black text-violet-700 bg-white px-2 py-1 rounded-lg">
+                          {(gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0)} capsulas
+                        </span>
+                      </div>
+                      <select
+                        value={activePokemonDetails.pokemon.ability || getPokemonAbilityPool(POKEDEX[activePokemonDetails.pokemon.id] || activePokemonDetails.pokemon)[0] || ''}
+                        onChange={(e) => changeAbility(e.target.value)}
+                        className="min-h-[44px] w-full bg-white border-2 border-violet-300 rounded-xl px-3 text-[11px] font-black text-slate-700 outline-none focus:border-violet-500 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={(gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0) <= 0 || activePokemonDetails.pokemon.onExpedition}
+                      >
+                        {getPokemonAbilityPool(POKEDEX[activePokemonDetails.pokemon.id] || activePokemonDetails.pokemon).map((ability) => (
+                          <option key={ability} value={ability}>{ability}</option>
+                        ))}
                       </select>
                     </div>
                     

@@ -3,6 +3,7 @@ import { loginUser, registerUser } from '../auth';
 import { setPersistence, browserLocalPersistence, browserSessionPersistence, getAuth } from 'firebase/auth';
 import { APP_VERSION, APP_VERSION_DATE } from '../data/constants';
 import RankingModal from './RankingModal';
+import PrivacyModal from './PrivacyModal';
 
 const POKEAPI_ITEM_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
 
@@ -18,6 +19,8 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
   const [loading, setLoading] = useState(false);
   const [updateStatus, setUpdateStatus] = useState('idle'); // 'idle', 'checking', 'updated'
   const [showRanking, setShowRanking] = useState(false);
+  const [consentGiven, setConsentGiven] = useState(false);
+  const [privacyModalTab, setPrivacyModalTab] = useState(null); // 'privacy' | 'terms' | null
 
   const forceAppRefresh = async () => {
     if ('serviceWorker' in navigator) {
@@ -97,6 +100,10 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    if (!isLogin && !consentGiven) {
+      setError('Você precisa aceitar a Política de Privacidade para criar uma conta.');
+      return;
+    }
     setLoading(true);
     try {
       const auth = getAuth();
@@ -277,6 +284,40 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
               </span>
             </label>
 
+            {/* Consentimento LGPD — só no cadastro */}
+            {!isLogin && (
+              <label className="flex items-start gap-3 cursor-pointer select-none">
+                <div className="relative flex-shrink-0 mt-0.5">
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={consentGiven}
+                    onChange={e => setConsentGiven(e.target.checked)}
+                  />
+                  <div
+                    className="w-5 h-5 rounded border-2 flex items-center justify-center transition-all"
+                    style={{ background: consentGiven ? '#CC0000' : 'white', borderColor: consentGiven ? '#CC0000' : '#cbd5e1' }}
+                  >
+                    {consentGiven && (
+                      <svg viewBox="0 0 12 10" fill="none" width="10" height="10">
+                        <path d="M1 5l3.5 3.5L11 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                <span className="text-[11px] font-bold text-slate-500 leading-relaxed">
+                  Li e aceito a{' '}
+                  <button type="button" onClick={() => setPrivacyModalTab('privacy')} className="text-red-600 underline font-black">
+                    Política de Privacidade
+                  </button>
+                  {' '}e os{' '}
+                  <button type="button" onClick={() => setPrivacyModalTab('terms')} className="text-red-600 underline font-black">
+                    Termos de Uso
+                  </button>
+                </span>
+              </label>
+            )}
+
             {/* Mensagem de erro */}
             {error && (
               <div className="bg-red-50 border-2 border-red-200 rounded-2xl px-4 py-3 text-center">
@@ -287,7 +328,7 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
             {/* Botão de login */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (!isLogin && !consentGiven)}
               className="w-full text-white py-4 rounded-2xl font-black uppercase tracking-widest transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 border-b-4"
               style={{ background: '#CC0000', borderColor: '#7a0000' }}
               onMouseEnter={e => { if (!loading) e.target.style.background = '#aa0000'; }}
@@ -359,8 +400,31 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
           <p className="mt-4 text-[9px] font-bold text-slate-300 uppercase tracking-[0.2em] text-center">
             PokéCraft Idle v{APP_VERSION} • {APP_VERSION_DATE}
           </p>
+          <div className="flex justify-center gap-4 mt-2">
+            <button
+              type="button"
+              onClick={() => setPrivacyModalTab('privacy')}
+              className="text-[9px] font-bold text-slate-300 underline hover:text-slate-500 transition-colors"
+            >
+              Privacidade
+            </button>
+            <button
+              type="button"
+              onClick={() => setPrivacyModalTab('terms')}
+              className="text-[9px] font-bold text-slate-300 underline hover:text-slate-500 transition-colors"
+            >
+              Termos de Uso
+            </button>
+          </div>
         </div>
       </div>
+
+      {privacyModalTab && (
+        <PrivacyModal
+          initialTab={privacyModalTab}
+          onClose={() => setPrivacyModalTab(null)}
+        />
+      )}
     </div>
   );
 };

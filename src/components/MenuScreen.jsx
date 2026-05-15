@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { deleteUserAccount } from '../auth';
+import PrivacyModal from './PrivacyModal';
 import { APP_VERSION, APP_VERSION_DATE, ITEM_LABELS } from '../data/constants';
 import { CANDY_FAMILIES, getCandyIconUrl } from '../data/candies';
 import { EXP_CANDIES } from '../data/raids';
@@ -289,6 +291,11 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
   const [subView, setSubView] = useState('main'); // 'main' ou 'settings'
   const [activeTab, setActiveTab] = useState('balls');
   const [expCandyModal, setExpCandyModal] = useState(null); // candy def ou null
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [privacyModalTab, setPrivacyModalTab] = useState(null);
 
   const handleUpdate = () => {
     setUpdating(true);
@@ -1057,7 +1064,42 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         </div>
       </div>
 
-      <button 
+      {/* Zona de Perigo */}
+      <div className="bg-red-50 p-6 rounded-[2.5rem] shadow-xl border-b-8 border-red-200">
+        <h4 className="text-[10px] font-black text-red-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+          <span className="text-lg">⚠️</span> Zona de Perigo
+        </h4>
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setPrivacyModalTab('privacy')}
+              className="flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-white border-2 border-slate-200 text-slate-600 hover:border-slate-400 transition-all"
+            >
+              Privacidade
+            </button>
+            <button
+              type="button"
+              onClick={() => setPrivacyModalTab('terms')}
+              className="flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-white border-2 border-slate-200 text-slate-600 hover:border-slate-400 transition-all"
+            >
+              Termos de Uso
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => { setShowDeleteModal(true); setDeletePassword(''); setDeleteError(''); }}
+            className="w-full py-4 rounded-xl font-black text-[11px] uppercase tracking-widest bg-red-600 text-white hover:bg-red-700 active:scale-95 transition-all shadow-md"
+          >
+            🗑️ Excluir Minha Conta
+          </button>
+          <p className="text-[9px] text-red-400 font-bold text-center leading-relaxed">
+            Remove permanentemente todos os dados (save, ranking, conta). Ação irreversível.
+          </p>
+        </div>
+      </div>
+
+      <button
         onClick={() => setSubView('main')}
         className="w-full bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg border-b-8 border-slate-900"
       >
@@ -1108,7 +1150,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
         {subView === 'main' ? renderMain() : subView === 'settings' ? renderSettings() : subView === 'stats' ? renderStats() : subView === 'missions' ? renderMissions() : subView === 'guide' ? renderGuide() : renderBackpack()}
 
         {subView === 'main' && (
-          <button 
+          <button
             onClick={() => onBack ? onBack() : setCurrentView('city')}
             className="w-full mt-8 bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg border-b-8 border-slate-900"
           >
@@ -1116,6 +1158,76 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
           </button>
         )}
       </div>
+
+      {/* Modal de confirmação de exclusão de conta */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-sm bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-bounceIn border-b-8 border-red-600">
+            <div className="bg-red-600 px-6 py-5 text-white text-center">
+              <div className="text-4xl mb-2">⚠️</div>
+              <h3 className="font-black uppercase italic text-xl leading-none">Excluir Conta</h3>
+              <p className="text-red-200 text-[10px] font-bold uppercase tracking-widest mt-1">Ação irreversível</p>
+            </div>
+            <div className="p-6 flex flex-col gap-4">
+              <p className="text-slate-600 text-sm font-bold text-center leading-relaxed">
+                Isso irá apagar permanentemente seu save, ranking e conta. Para confirmar, digite sua senha:
+              </p>
+              <input
+                type="password"
+                value={deletePassword}
+                onChange={e => setDeletePassword(e.target.value)}
+                placeholder="Sua senha atual"
+                className="w-full p-4 bg-slate-50 border-2 border-slate-200 rounded-2xl font-medium text-slate-800 outline-none focus:border-red-400 transition-colors"
+                autoComplete="current-password"
+              />
+              {deleteError && (
+                <p className="text-red-600 text-[11px] font-black uppercase tracking-wide text-center bg-red-50 py-2 px-4 rounded-xl">
+                  ⚠️ {deleteError}
+                </p>
+              )}
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => { setShowDeleteModal(false); setDeletePassword(''); setDeleteError(''); }}
+                  className="flex-1 py-4 rounded-2xl font-black uppercase text-sm bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  disabled={deleteLoading || !deletePassword}
+                  onClick={async () => {
+                    setDeleteLoading(true);
+                    setDeleteError('');
+                    try {
+                      await deleteUserAccount(deletePassword);
+                      // Auth state observer vai detectar logout e redirecionar
+                    } catch (err) {
+                      const msgs = {
+                        'auth/wrong-password': 'Senha incorreta.',
+                        'auth/invalid-credential': 'Senha incorreta.',
+                        'auth/too-many-requests': 'Muitas tentativas. Aguarde e tente novamente.',
+                      };
+                      setDeleteError(msgs[err.code] || 'Erro ao excluir. Tente novamente.');
+                      setDeleteLoading(false);
+                    }
+                  }}
+                  className="flex-1 py-4 rounded-2xl font-black uppercase text-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-all active:scale-95"
+                >
+                  {deleteLoading ? 'Excluindo...' : 'Excluir'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {privacyModalTab && (
+        <PrivacyModal
+          initialTab={privacyModalTab}
+          onClose={() => setPrivacyModalTab(null)}
+        />
+      )}
     </div>
   );
 };

@@ -2,8 +2,9 @@ import React, { useState, useMemo, useCallback } from 'react';
 import {
   REGION_GYM_TYPES, GYM_SLOT_LEVELS, ELITE_SLOT_LEVELS, CHAMPION_LEVEL,
   GYM_SLOT_COSTS, ELITE_SLOT_COSTS, CHAMPION_SLOT_COST,
+  REGION_CARD_STYLES, REGION_BATTLE_BACKGROUNDS,
   getGymSlots, getEliteSlots, isRegionReadyToPublish,
-  defaultGymSlot, defaultEliteSlot, defaultChampion,
+  defaultGymSlot, defaultEliteSlot, defaultChampion, getSlotLevel,
 } from '../data/myRegion';
 import { AVATAR_SPRITES } from '../data/cosmetics';
 
@@ -124,7 +125,7 @@ const SpriteSelector = ({ value, onChange }) => {
 };
 
 /* ─── PokemonPicker ──────────────────────────────────────────────────────────── */
-const PokemonPicker = ({ caughtData, selected, level, POKEDEX, onChange }) => {
+const PokemonPicker = ({ caughtData, selected, level, POKEDEX, onChange, gymType = 'mixed' }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const allCaughtIds = useMemo(
@@ -132,13 +133,16 @@ const PokemonPicker = ({ caughtData, selected, level, POKEDEX, onChange }) => {
     [caughtData]
   );
   const filtered = useMemo(() => {
-    if (!search) return allCaughtIds;
     const q = search.toLowerCase();
     return allCaughtIds.filter(id => {
+      const types = (POKEDEX?.[id]?.types || [POKEDEX?.[id]?.type || 'Normal'])
+        .map(type => String(type).toLowerCase());
+      if (gymType !== 'mixed' && !types.includes(gymType)) return false;
+      if (!search) return true;
       const name = POKEDEX?.[id]?.name?.toLowerCase() || `#${id}`;
       return name.includes(q) || String(id).includes(q);
     });
-  }, [allCaughtIds, search, POKEDEX]);
+  }, [allCaughtIds, search, POKEDEX, gymType]);
 
   const toggle = (id) => {
     if (selected.includes(id)) {
@@ -238,6 +242,8 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
   const [leaderSprite, setLeaderSprite] = useState(slot.leaderSprite || 'red');
   const [team,         setTeam]         = useState(slot.team         || []);
   const [customLevel,  setCustomLevel]  = useState(slot.customLevel  || defaultLevel);
+  const [cardStyle, setCardStyle] = useState(slot.cardStyle || 'classic');
+  const [battleBackground, setBattleBackground] = useState(slot.battleBackground || '/battle_bg_gym_1776863824590.webp');
 
   const handleSave = () => {
     onSave({
@@ -247,6 +253,8 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
       leaderSprite,
       team,
       customLevel,
+      cardStyle,
+      battleBackground,
       configured: team.length > 0,
     });
   };
@@ -255,9 +263,9 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
   const maxLvl = Math.min(100, defaultLevel + 15);
 
   return (
-    <div className="fixed inset-0 z-[200000] flex items-end justify-center bg-black/70 pb-2 px-2"
+    <div className="fixed inset-0 z-[200000] flex items-center justify-center bg-black/70 p-3"
       onClick={onCancel}>
-      <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+      <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col"
         onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 shrink-0 bg-slate-50">
@@ -266,9 +274,11 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
             <p className="font-black text-slate-800 text-sm">
               {slotType === 'gym' ? `Ginásio ${slot.slot}` : slotType === 'elite' ? `Elite ${slot.slot}` : 'Campeão'}
             </p>
-            <p className="text-[10px] font-bold text-slate-400">Nível fixo: {level}</p>
+            <p className="text-[10px] font-bold text-slate-400">Nível do desafio: {customLevel}</p>
           </div>
           <button onClick={handleSave}
+            type="button"
+            hidden
             className="bg-blue-600 text-white font-black text-xs px-4 py-2 rounded-xl hover:bg-blue-700 active:scale-95 transition-all">
             Salvar ✓
           </button>
@@ -278,7 +288,15 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
         <div className="overflow-y-auto p-4 flex flex-col gap-5">
           {/* Tipo (apenas para ginásios) */}
           {slotType === 'gym' && (
-            <TypeSelector value={bannerId} onChange={setBannerId} />
+            <TypeSelector value={bannerId} onChange={(nextType) => {
+              setBannerId(nextType);
+              if (nextType !== 'mixed') {
+                setTeam(current => current.filter(id => {
+                  const types = (POKEDEX?.[id]?.types || [POKEDEX?.[id]?.type || 'Normal']).map(type => String(type).toLowerCase());
+                  return types.includes(nextType);
+                }));
+              }
+            }} />
           )}
 
           {/* Nome do líder */}
@@ -293,6 +311,41 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
           {/* Sprite */}
           <SpriteSelector value={leaderSprite} onChange={setLeaderSprite} />
 
+          {slotType === 'gym' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Visual do Card</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {REGION_CARD_STYLES.map(style => (
+                    <button
+                      key={style.id}
+                      onClick={() => setCardStyle(style.id)}
+                      className={`h-16 rounded-2xl border-2 p-2 text-left overflow-hidden transition-all ${cardStyle === style.id ? 'border-blue-500 scale-[1.02]' : 'border-slate-200'}`}
+                      style={{ background: style.preview }}
+                    >
+                      <span className="text-white text-[10px] font-black uppercase drop-shadow">{style.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Background da Batalha</p>
+                <div className="grid grid-cols-1 gap-2 max-h-36 overflow-y-auto pr-1">
+                  {REGION_BATTLE_BACKGROUNDS.map(bg => (
+                    <button
+                      key={bg.id}
+                      onClick={() => setBattleBackground(bg.id)}
+                      className={`flex items-center gap-2 rounded-2xl border-2 p-2 text-left transition-all ${battleBackground === bg.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200 bg-white'}`}
+                    >
+                      <img src={bg.id} alt="" className="w-14 h-10 rounded-xl object-cover bg-slate-100" />
+                      <span className="text-[10px] font-black uppercase text-slate-700">{bg.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Slider de Nível */}
           <LevelSlider value={customLevel} min={minLvl} max={maxLvl} onChange={setCustomLevel} />
 
@@ -302,8 +355,15 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
             selected={team}
             level={customLevel}
             POKEDEX={POKEDEX}
+            gymType={slotType === 'gym' ? bannerId : 'mixed'}
             onChange={setTeam}
           />
+        </div>
+        <div className="shrink-0 border-t border-slate-100 bg-white p-4">
+          <button onClick={handleSave}
+            className="w-full min-h-[56px] bg-blue-600 text-white font-black text-sm uppercase tracking-widest rounded-2xl hover:bg-blue-700 active:scale-95 transition-all shadow-lg">
+            Salvar Configuracao
+          </button>
         </div>
       </div>
     </div>

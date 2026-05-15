@@ -55,27 +55,53 @@ export const getSlotLevel = (slotType, slotIndex = 0, slotData = null) => {
 };
 
 // ── Tipos de ginásio (todos os 18 tipos Pokémon) ─────────────────────────────
+export const TYPE_ICON_URL = (type) =>
+  `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${String(type || 'normal').toLowerCase()}.svg`;
+
 export const REGION_GYM_TYPES = {
-  normal:   { id: 'normal',   name: 'Normal',   color: '#9ea0aa', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/silk-scarf.png' },
-  fire:     { id: 'fire',     name: 'Fogo',     color: '#ef4444', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png' },
+  normal:   { id: 'normal',   name: 'Normal',   color: '#9ea0aa', icon: TYPE_ICON_URL('normal') },
+  fire:     { id: 'fire',     name: 'Fogo',     color: '#ef4444', icon: TYPE_ICON_URL('fire') },
   water:    { id: 'water',    name: 'Água',     color: '#3391d4', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png' },
-  grass:    { id: 'grass',    name: 'Planta',   color: '#38bf4f', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png' },
+  grass:    { id: 'grass',    name: 'Planta',   color: '#38bf4f', icon: TYPE_ICON_URL('grass') },
   electric: { id: 'electric', name: 'Elétrico', color: '#fbd100', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png' },
-  ice:      { id: 'ice',      name: 'Gelo',     color: '#70cbd4', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/never-melt-ice.png' },
-  fighting: { id: 'fighting', name: 'Lutador',  color: '#e0306a', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/black-belt.png' },
-  poison:   { id: 'poison',   name: 'Veneno',   color: '#b567ce', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poison-barb.png' },
-  ground:   { id: 'ground',   name: 'Terra',    color: '#e87236', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/soft-sand.png' },
-  flying:   { id: 'flying',   name: 'Voador',   color: '#89aae3', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sharp-beak.png' },
+  ice:      { id: 'ice',      name: 'Gelo',     color: '#70cbd4', icon: TYPE_ICON_URL('ice') },
+  fighting: { id: 'fighting', name: 'Lutador',  color: '#e0306a', icon: TYPE_ICON_URL('fighting') },
+  poison:   { id: 'poison',   name: 'Veneno',   color: '#b567ce', icon: TYPE_ICON_URL('poison') },
+  ground:   { id: 'ground',   name: 'Terra',    color: '#e87236', icon: TYPE_ICON_URL('ground') },
+  flying:   { id: 'flying',   name: 'Voador',   color: '#89aae3', icon: TYPE_ICON_URL('flying') },
   psychic:  { id: 'psychic',  name: 'Psíquico', color: '#ff6675', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/twisted-spoon.png' },
-  bug:      { id: 'bug',      name: 'Inseto',   color: '#83c300', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/silver-powder.png' },
-  rock:     { id: 'rock',     name: 'Pedra',    color: '#c9bb8a', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png' },
-  ghost:    { id: 'ghost',    name: 'Fantasma', color: '#4c6ab2', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/spell-tag.png' },
+  bug:      { id: 'bug',      name: 'Inseto',   color: '#83c300', icon: TYPE_ICON_URL('bug') },
+  rock:     { id: 'rock',     name: 'Pedra',    color: '#c9bb8a', icon: TYPE_ICON_URL('rock') },
+  ghost:    { id: 'ghost',    name: 'Fantasma', color: '#4c6ab2', icon: TYPE_ICON_URL('ghost') },
   dragon:   { id: 'dragon',   name: 'Dragão',   color: '#006fc9', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dragon-fang.png' },
-  dark:     { id: 'dark',     name: 'Sombrio',  color: '#5b5466', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/black-glasses.png' },
+  dark:     { id: 'dark',     name: 'Sombrio',  color: '#5b5466', icon: TYPE_ICON_URL('dark') },
   steel:    { id: 'steel',    name: 'Aço',      color: '#5a8ea2', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/metal-coat.png' },
-  fairy:    { id: 'fairy',    name: 'Fada',     color: '#fb89eb', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pixie-plate.png' },
+  fairy:    { id: 'fairy',    name: 'Fada',     color: '#fb89eb', icon: TYPE_ICON_URL('fairy') },
   mixed:    { id: 'mixed',    name: 'Misto',    color: '#f59e0b', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-charm.png' },
 };
+
+Object.values(REGION_GYM_TYPES).forEach((type) => {
+  if (type.id !== 'mixed') type.icon = TYPE_ICON_URL(type.id);
+});
+
+export const REGION_CARD_STYLES = [
+  { id: 'classic', name: 'Classico', color: '#2563eb', preview: 'linear-gradient(135deg,#1d4ed8,#0f172a)' },
+  { id: 'league', name: 'Liga', color: '#f59e0b', preview: 'linear-gradient(135deg,#f59e0b,#7c2d12)' },
+  { id: 'gym_dark', name: 'Arena Noturna', color: '#7c3aed', preview: 'linear-gradient(135deg,#312e81,#111827)' },
+  { id: 'nature', name: 'Jardim', color: '#16a34a', preview: 'linear-gradient(135deg,#16a34a,#064e3b)' },
+  { id: 'tech', name: 'Tecnologico', color: '#06b6d4', preview: 'linear-gradient(135deg,#0891b2,#0f172a)' },
+];
+
+export const REGION_BATTLE_BACKGROUNDS = [
+  { id: '/battle_bg_gym_1776863824590.webp', name: 'Ginasio Classico' },
+  { id: '/battle_bg_gym_water.webp', name: 'Arena Aquatica' },
+  { id: '/battle_bg_gym_electric.webp', name: 'Arena Eletrica' },
+  { id: '/battle_bg_sinnoh_gym.webp', name: 'Ginasio Sinnoh' },
+  { id: '/bg_johto_league.webp', name: 'Liga Johto' },
+  { id: '/bg_sinnoh_league.webp', name: 'Liga Sinnoh' },
+  { id: '/battle_bg_elite_four.webp', name: 'Elite Four' },
+  { id: '/bg_mt_coronet.webp', name: 'Montanha' },
+];
 
 // ── Estado padrão de um slot de ginásio ─────────────────────────────────────
 export const defaultGymSlot = (slot) => ({
@@ -86,6 +112,8 @@ export const defaultGymSlot = (slot) => ({
   team:         [],         // array de IDs de Pokémon (max 6)
   configured:   false,
   customLevel:  GYM_SLOT_LEVELS[slot - 1] || 14,
+  cardStyle: 'classic',
+  battleBackground: '/battle_bg_gym_1776863824590.webp',
 });
 
 export const defaultEliteSlot = (slot) => ({

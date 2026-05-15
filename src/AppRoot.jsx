@@ -16,12 +16,15 @@ import { POKEDEX } from './data/pokedex';
 import { VILLAIN_TEAMS } from './data/villains';
 import { WEATHER_TYPE_MULT, WEATHER_PASSIVE_DAMAGE, WEATHER_IMMUNE_TYPES, generateWeatherForRoute, getWeatherFromMove } from './data/weather';
 import { getCompatibleMegaStones } from './data/megaEvolutions';
+import { assignRandomAbility } from './data/abilities';
 import AuthScreen from './components/AuthScreen';
 import MenuScreen from './components/MenuScreen';
 import TravelScreen from './components/TravelScreen';
 import PokemonManagement from './components/PokemonManagement';
 import BattleScreen from './components/BattleScreen';
 import CityScreen from './components/CityScreen';
+import VsScreen from './components/VsScreen';
+import RegionBuilderScreen from './components/RegionBuilderScreen';
 
 const POKEAPI_ITEM_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
 
@@ -30,9 +33,8 @@ const CraftingStation = lazy(() => import('./components/CraftingStation'));
 const EvolutionScreen = lazy(() => import('./components/EvolutionScreen'));
 const SafariZoneScreen = lazy(() => import('./components/SafariZoneScreen'));
 const MegaEvolutionScreen = lazy(() => import('./components/MegaEvolutionScreen'));
-const TutorialModal = lazy(() => import('./components/TutorialModal'));
 const PokedexScreen = lazy(() => import('./components/PokedexScreen'));
-const VsScreen = lazy(() => import('./components/VsScreen'));
+const TutorialModal = lazy(() => import('./components/TutorialModal'));
 const GymScreen = lazy(() => import('./components/GymScreen'));
 const ChallengesScreen = lazy(() => import('./components/ChallengesScreen'));
 const HouseScreen = lazy(() => import('./components/HouseScreen'));
@@ -80,7 +82,6 @@ import {
 import RaidScreen from './components/RaidScreen';
 const PrestigeShop       = lazy(() => import('./components/PrestigeShop'));
 const FriendsScreen      = lazy(() => import('./components/FriendsScreen'));
-const RegionBuilderScreen = lazy(() => import('./components/RegionBuilderScreen'));
 const RegionChallengeScreen = lazy(() => import('./components/RegionChallengeScreen'));
 import { subscribeToFriendRequests } from './services/friends';
 
@@ -1206,6 +1207,7 @@ export default function App() {
     }
   }, [currentView, gameState.currentRoute, processedRoutes]);
 
+  // Tutorial de boas-vindas: dispara uma única vez na primeira entrada na cidade
   // 🛡️ PROTECTED: handleSafeNavigation — Gerenciamento centralizado de transições de tela
   const handleSafeNavigation = useCallback((targetView, extraAction = null) => {
     const isTraining = !currentEnemy?.isTrainer && !currentEnemy?.isWildBoss && !currentEnemy?.isLegendary;
@@ -2826,7 +2828,7 @@ export default function App() {
         }
 
         // Espécie nova (ou shiny): vai para o PC normalmente
-        const newPoke = {
+        const newPoke = assignRandomAbility({
           instanceId: `raid_caught_${Date.now()}`,
           id: raid.pokemonId,
           name: raid.name,
@@ -2846,7 +2848,7 @@ export default function App() {
           status: [],
           stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
           fromRaid: true,
-        };
+        }, pokedexEntry);
         addLog(`🎉 Você capturou ${raid.isShiny ? '✨ ' : ''}${raid.name}!`, 'system');
         showRaidRouteNotice(raid, 'captured');
         return {
@@ -3808,7 +3810,7 @@ export default function App() {
           sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
 
           const newCaughtData = { ...(prev.caughtData || {}), [currentEnemy.id]: true };
-          const newPoke = { 
+          const newPoke = assignRandomAbility({ 
             ...currentEnemy, 
             id: Number(currentEnemy.id), 
             hp: currentEnemy.maxHp, 
@@ -3816,7 +3818,7 @@ export default function App() {
             instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
             capturedRegion: prev.activeRegion || 'kanto',
             stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
-          };
+          }, POKEDEX[Number(currentEnemy.id)]);
           const newMastery = processCaptureMastery({ ...currentEnemy, id: Number(currentEnemy.id) }, prev);
           
           const { questUpdate, log: questLog } = updateQuestProgress(prev, 'capture');
@@ -5657,7 +5659,7 @@ export default function App() {
                   };
                 } else {
                   // Primeira Captura
-                  const newPoke = { ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9), capturedRegion: prev.activeRegion || 'kanto' };
+                  const newPoke = assignRandomAbility({ ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9), capturedRegion: prev.activeRegion || 'kanto' }, POKEDEX[Number(currentEnemy.id)]);
                   const newTeam = [...prev.team];
                   const newPC = [...(prev.pc || [])];
                   if (newTeam.length < 6) newTeam.push(newPoke); else newPC.push(newPoke);
@@ -9079,11 +9081,11 @@ export default function App() {
       {/* ── RAID: Botão flutuante ─────────────────────────────────────────── */}
       {raidRouteNotice && ['routes', 'battles'].includes(currentView) && (
         <div
-          className="fixed left-4 right-4 z-[8100] animate-bounceIn"
+          className="fixed left-1/2 z-[8100] w-[min(calc(100vw-24px),430px)] -translate-x-1/2 animate-bounceIn px-3"
           style={{ bottom: gameState.activeRaid && gameState.activeRaid.phase !== 'ended' && !showRaidScreen ? 146 : 88 }}
         >
           <div
-            className="mx-auto max-w-md rounded-3xl border-2 bg-slate-950/95 p-3 shadow-2xl backdrop-blur-xl"
+            className="mx-auto w-full rounded-3xl border-2 bg-slate-950/95 p-3 shadow-2xl backdrop-blur-xl"
             style={{ borderColor: `${raidRouteNotice.tone}88`, boxShadow: `0 18px 40px ${raidRouteNotice.tone}33` }}
           >
             <div className="flex flex-col gap-3">

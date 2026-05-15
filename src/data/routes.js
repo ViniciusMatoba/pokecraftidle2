@@ -38,9 +38,89 @@ export const inferRouteRegion = (routeId, routeGroup) => {
   return { id: 'kanto', order: 1 };
 };
 
+const ROUTE_GROUP_OVERRIDES = {
+  twinleaf_town: 'Twinleaf Town',
+  sinnoh_route_201: 'Twinleaf Town',
+  sandgem_town: 'Sandgem Town',
+  sinnoh_route_202: 'Sandgem Town',
+  jubilife_city: 'Jubilife City',
+  sinnoh_route_203: 'Jubilife City',
+  sinnoh_route_204: 'Floaroma Town',
+  eterna_forest_sinnoh: 'Eterna City',
+  sinnoh_route_209: 'Hearthome City',
+  valor_lakefront: 'Veilstone City',
+  mt_coronet_sinnoh: 'Mt. Coronet',
+  snowpoint_routes: 'Snowpoint City',
+  sunyshore_routes: 'Sunyshore City',
+  sinnoh_victory_training: 'Sinnoh League',
+  survival_area: 'Battle Zone',
+  stark_mountain: 'Battle Zone',
+
+  nuvema_town: 'Nuvema Town',
+  unova_route_1: 'Nuvema Town',
+  unova_route_2: 'Striaton City',
+  unova_striaton_city: 'Striaton City',
+  unova_route_3: 'Nacrene City',
+  unova_pinwheel_forest: 'Nacrene City',
+  unova_castelia_city: 'Castelia City',
+  unova_route_4: 'Nimbasa City',
+  unova_chargestone_cave: 'Driftveil City',
+  unova_twist_mountain: 'Icirrus City',
+  unova_route_9: 'Opelucid City',
+  unova_victory_road: 'Unova League',
+  unova_league: 'Unova League',
+  unova_giant_chasm: 'Giant Chasm',
+
+  vaniville_town: 'Vaniville Town',
+  kalos_route_2: 'Santalune City',
+  kalos_santalune_city: 'Santalune City',
+  kalos_route_4: 'Lumiose City',
+  kalos_glittering_cave: 'Ambrette Town',
+  kalos_reflection_cave: 'Shalour City',
+  kalos_azure_bay: 'Coumarine City',
+  kalos_frost_cavern: 'Dendemille Town',
+  kalos_route_17: 'Snowbelle City',
+  kalos_victory_road: 'Kalos League',
+  kalos_league: 'Kalos League',
+
+  hauoli_city: 'Melemele Island',
+  alola_route_1: 'Melemele Island',
+  alola_verdant_cavern: 'Melemele Island',
+  alola_akala_island: 'Akala Island',
+  alola_wela_volcano: 'Akala Island',
+  alola_aether_paradise: 'Aether Paradise',
+  alola_ula_ula_island: "Ula'ula Island",
+  alola_vast_poni_canyon: 'Poni Island',
+  alola_mount_lanakila: 'Alola League',
+
+  postwick: 'Postwick',
+  galar_route_1: 'Postwick',
+  galar_wild_area_south: 'Wild Area',
+  galar_mine_1: 'Turffield',
+  galar_route_5: 'Hulbury',
+  galar_glimwood_tangle: 'Ballonlea',
+  galar_route_9: 'Circhester',
+  galar_victory_road: 'Wyndon',
+  galar_crown_tundra: 'Crown Tundra',
+
+  cabo_poco: 'Cabo Poco',
+  poco_path: 'Cabo Poco',
+  paldea_south_province: 'Cortondo',
+  paldea_artazon: 'Artazon',
+  paldea_asado_desert: 'Cascarrafa',
+  paldea_medali: 'Medali',
+  paldea_glaseado_mountain: 'Glaseado Mountain',
+  paldea_league: 'Paldea League',
+  paldea_area_zero: 'Area Zero',
+  paldea_post_league: 'Area Zero',
+};
+
+const getRouteDisplayGroup = (route) => ROUTE_GROUP_OVERRIDES[route.id] || route.group;
+
 export const getSortedRoutes = (routesObj) => {
   const routesArray = Object.values(routesObj).map(route => ({
     ...route,
+    group: getRouteDisplayGroup(route),
     _minLevel: null,
     _region: inferRouteRegion(route.id, route.group),
   }));
@@ -300,6 +380,15 @@ const applyEvolutionFilter = (enemies) => {
 
 const ROUTE_PROGRESS_REGIONS = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea'];
 
+const ROUTE_LEVEL_STEP_LIMIT = {
+  default: 8,
+  unova: 7,
+  galar: 8,
+  paldea: 8,
+};
+
+const isRegionalDexTrainingRoute = (route) => route?.id?.includes('_dex_');
+
 const getRouteMinMaxLevel = (route) => {
   const levels = [];
   (route.enemies || []).forEach(enemy => {
@@ -358,17 +447,21 @@ const normalizeRouteProgression = (routesObj) => {
   ROUTE_PROGRESS_REGIONS.forEach(region => {
     const farmRoutes = getSortedRoutes(normalized)
       .filter(route => route.type === 'farm' && inferRouteRegion(route.id, route.group).id === region)
+      .filter(route => !isRegionalDexTrainingRoute(route))
       .filter(route => getRouteMinMaxLevel(route));
 
     if (farmRoutes.length < 2) return;
-    const firstLevel = Math.min(getRouteMinMaxLevel(farmRoutes[0])?.min || 5, 5);
-    const lastLevel = 100;
-    const span = Math.max(1, farmRoutes.length - 1);
+    const maxStep = ROUTE_LEVEL_STEP_LIMIT[region] || ROUTE_LEVEL_STEP_LIMIT.default;
+    let previousMin = null;
 
     farmRoutes.forEach((route, index) => {
       const currentLevels = getRouteMinMaxLevel(normalized[route.id]);
       if (!currentLevels) return;
-      const desiredMin = Math.round(firstLevel + ((lastLevel - firstLevel) * index) / span);
+      let desiredMin = currentLevels.min;
+      if (previousMin !== null) {
+        const minProgress = currentLevels.min <= previousMin ? previousMin + 1 : currentLevels.min;
+        desiredMin = Math.min(minProgress, previousMin + maxStep);
+      }
       const delta = desiredMin - currentLevels.min;
       const shifted = shiftRouteLevels(normalized[route.id], delta);
       const smoothed = keepRouteTrainersAboveWild(shifted);
@@ -377,6 +470,7 @@ const normalizeRouteProgression = (routesObj) => {
         enemies: applyEvolutionFilter(smoothed.enemies || []),
         unlockLevel: Math.min(100, desiredMin),
       };
+      previousMin = desiredMin;
     });
   });
 

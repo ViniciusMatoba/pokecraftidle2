@@ -1,5 +1,5 @@
 {
-  "version": "1.90.8",
-  "date": "15/05/2026 21:30",
-  "notes": "Implementada a Trava de Transferência Regional: Pokémon estrangeiros agora ficam bloqueados no PC até que o jogador vença a Liga da região atual. Adicionada proteção automática de save ao trocar de região e filtros visuais na interface de equipe."
+  "version": "1.92.0",
+  "date": "15/05/2026 15:02",
+  "notes": "Upgrade visual de Minha Regiao, cards de Ginasio e Elite reformulados, grid dinamico de equipe, slider de nivel e persistencia dos dados customizados via Firebase."
 }

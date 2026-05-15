@@ -13,7 +13,8 @@ import { GYM_SLOT_LEVELS, ELITE_SLOT_LEVELS, CHAMPION_LEVEL } from '../data/myRe
 /**
  * Retorna o nível de batalha correto para um slot.
  */
-export const getSlotLevel = (slotType, slotIndex = 0) => {
+export const getSlotLevel = (slotType, slotIndex = 0, slotData = null) => {
+  if (slotData?.customLevel) return slotData.customLevel;
   if (slotType === 'gym')      return GYM_SLOT_LEVELS[slotIndex] ?? 14;
   if (slotType === 'elite')    return ELITE_SLOT_LEVELS[slotIndex] ?? 88;
   if (slotType === 'champion') return CHAMPION_LEVEL;
@@ -65,7 +66,7 @@ export const buildLeaderPokemon = (pokemonId, level, POKEDEX) => {
  */
 export const buildLeaderTeam = (slot, slotType, slotIndex, POKEDEX) => {
   if (!slot || !slot.team || !Array.isArray(slot.team)) return [];
-  const level = getSlotLevel(slotType, slotIndex);
+  const level = getSlotLevel(slotType, slotIndex, slot);
   return slot.team
     .filter(id => id && POKEDEX[id])
     .map(id => buildLeaderPokemon(id, level, POKEDEX))
@@ -92,9 +93,11 @@ export const buildRegionBattleOrder = (region, POKEDEX) => {
       index:      i,
       slotIndex:  i,
       name:       slot.leaderName || `Líder ${i + 1}`,
-      gymType:    slot.gymType || 'normal',
+      gymType:    slot.bannerId || slot.gymType || 'normal',
+      cardStyle:  slot.cardStyle || 'classic',
+      background: slot.battleBackground ? `url('${slot.battleBackground}') center/cover no-repeat` : undefined,
       team,
-      level:      getSlotLevel('gym', i),
+      level:      getSlotLevel('gym', i, slot),
     });
   }
 
@@ -112,7 +115,7 @@ export const buildRegionBattleOrder = (region, POKEDEX) => {
       name:      slot.leaderName || `Elite ${i + 1}`,
       gymType:   slot.gymType || 'mixed',
       team,
-      level:     getSlotLevel('elite', i),
+      level:     getSlotLevel('elite', i, slot),
     });
   }
 
@@ -129,7 +132,7 @@ export const buildRegionBattleOrder = (region, POKEDEX) => {
           name:      slot.leaderName || 'Campeão',
           gymType:   slot.gymType || 'mixed',
           team,
-          level:     CHAMPION_LEVEL,
+          level:     getSlotLevel('champion', 0, slot),
         });
       }
     }
