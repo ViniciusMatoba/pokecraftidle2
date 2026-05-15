@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [v1.88.8] - 14/05/2026 22:10
+### Adicionado
+- **Tutorial de Boas-Vindas**: Modal de 6 passos (Rotas, Cidade, Rivais, Ginásios, Raids, Boss) exibido na primeira visita à Cidade após o starter.
+- **Barra de Progresso**: Tutorial agora exibe o progresso visual de aprendizado.
+- **Trigger Inteligente**: Tutorial bloqueia interações de fundo e só fecha ao concluir ou pular.
+
 ## [v1.88.5] - 14/05/2026 19:23
 ### Alterado
 - **Habitats Regionais**: áreas Habitat I, II e III agora exigem ser Campeão da região para serem liberadas — válido para todas as 9 regiões. Facilita completar a Pokédex de forma organizada após terminar a liga.

@@ -2577,13 +2577,20 @@ export default function App() {
         const r = prev.activeRaid;
         if (!r || r.phase !== 'fighting') return prev;
         const hpPct = r.currentHp / r.maxHp;
-        // Só entra em captura se HP for <= 30%. Caso contrário, a raid falha (ended).
-        const nextPhase = hpPct <= 0.3 ? 'capture' : 'ended';
-        if (nextPhase === 'ended') {
-           addLog(`⌛ Tempo esgotado! ${r.name} fugiu antes de ser enfraquecido o suficiente.`, 'enemy');
-           showRaidRouteNotice(r, 'failed');
+        // Se o jogador optou por continuar lutando após a fase de captura,
+        // o tempo esgotado encerra a raid sem oferecer captura novamente.
+        let nextPhase;
+        if (r.continuingFromCapture) {
+          nextPhase = 'ended';
+          addLog(`⌛ Tempo esgotado! ${r.name} resistiu e escapou — você não conseguiu derrotá-lo.`, 'enemy');
+          showRaidRouteNotice(r, 'failed');
+        } else if (hpPct <= 0.3) {
+          nextPhase = 'capture';
+          showRaidRouteNotice(r, 'capture');
         } else {
-           showRaidRouteNotice(r, 'capture');
+          nextPhase = 'ended';
+          addLog(`⌛ Tempo esgotado! ${r.name} fugiu antes de ser enfraquecido o suficiente.`, 'enemy');
+          showRaidRouteNotice(r, 'failed');
         }
         return {
           ...prev,
@@ -2678,7 +2685,7 @@ export default function App() {
       const raid = prev.activeRaid;
       if (!raid || raid.phase !== 'capture') return prev;
       const now = Date.now();
-      addLog(`${raid.name} voltou ao combate! Continue nas rotas para finalizar a raid.`, 'system');
+      addLog(`⚔️ ${raid.name} voltou ao combate! Derrote-o antes do tempo acabar!`, 'system');
       return {
         ...prev,
         activeRaid: {
@@ -2686,6 +2693,7 @@ export default function App() {
           phase: 'fighting',
           fightStartedAt: now,
           fightEndsAt: now + RAID_FIGHT_SECONDS * 1000,
+          continuingFromCapture: true,
         },
       };
     });
@@ -3672,7 +3680,9 @@ export default function App() {
           nextPhase = 'rewards';
           addLog(`🏆 ${prev.activeRaid.name} foi TOTALMENTE DERROTADO! Recompensas liberadas.`, 'system');
           showRaidRouteNotice(prev.activeRaid, 'rewards');
-        } else if (raidHpPct <= 0.3) {
+        } else if (raidHpPct <= 0.3 && !prev.activeRaid.continuingFromCapture) {
+          // Só entra em captura na primeira vez — se o jogador optou por continuar lutando,
+          // não volta para captura; a luta segue até HP=0 ou o tempo esgotar.
           nextPhase = 'capture';
           addLog(`🎯 ${prev.activeRaid.name} está enfraquecido! Iniciando fase de captura!`, 'system');
           showRaidRouteNotice(prev.activeRaid, 'capture');

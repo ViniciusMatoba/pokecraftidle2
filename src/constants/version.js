@@ -1,7 +1,10 @@
-export const APP_VERSION = '1.88.8';
-export const VERSION = '1.88.8';
-export const APP_VERSION_DATE = '14/05/2026 22:10';
+export const APP_VERSION = '1.88.9';
+export const VERSION = '1.88.9';
+export const APP_VERSION_DATE = '15/05/2026 00:00';
 export const CHANGELOG = [
+  '## [V1.88.9] - 15/05/2026 00:00',
+  '### Corrigido',
+  '- **Raid — Botão "Continuar e tentar derrotar"**: ao pressionar o botão, a luta agora continua normalmente sem voltar para a fase de captura. O combate prossegue até o HP do Boss chegar a 0 (recompensas) ou o tempo acabar (encerrado). A flag `continuingFromCapture` garante que o limiar de 30% de HP não re-ative a fase de captura.',
   '## [V1.88.8] - 14/05/2026 22:10',
   '### Adicionado',
   '- **Tutorial de Boas-Vindas**: Modal de 6 passos exibido automaticamente na primeira visita à Cidade após capturar o starter.',
