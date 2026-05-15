@@ -51,7 +51,18 @@ const FUTURE_REGION_CHALLENGE_DATA = {
     ],
   },
   kalos: {
-    label: 'Kalos', start: 'kalos_started', champion: 'kalos_champion', villain: 'Team Flare', villainSprite: psTrainer('flaregrunt'), rivalSprite: psTrainer('shauna'), bg: "url('/bg_kalos_elite.webp') center/cover no-repeat",
+    label: 'Kalos', start: 'kalos_started', champion: 'kalos_champion', villain: 'Team Flare', villainSprite: psTrainer('flaregrunt'), rivalSprite: psTrainer('shauna'), bg: "url('/bg_kalos_forest_temp.png') center/cover no-repeat",
+    leagueBg: "url('/bg_kalos_elite.webp') center/cover no-repeat",
+    gymBgs: [
+      "url('/bg_kalos_forest_temp.png') center/cover no-repeat",    // Viola (Bug)
+      "url('/battle_bg_gym_rock.webp') center/cover no-repeat",     // Grant (Rock)
+      "url('/expedition_campo_lutador.webp') center/cover no-repeat", // Korrina (Fighting)
+      "url('/bg_kalos_forest_temp.png') center/cover no-repeat",    // Ramos (Grass)
+      "url('/battle_bg_gym_electric.webp') center/cover no-repeat", // Clemont (Electric)
+      "url('/bg_kalos_forest_temp.png') center/cover no-repeat",    // Valerie (Fairy)
+      "url('/expedition_templo_psiquico.webp') center/cover no-repeat", // Olympia (Psychic)
+      "url('/bg_kalos_snow_temp.png') center/cover no-repeat"       // Wulfric (Ice)
+    ],
     badges: ['bug_badge', 'cliff_badge', 'rumble_badge', 'plant_badge', 'voltage_badge', 'fairy_badge', 'psychic_badge', 'iceberg_badge'],
     leaders: [['Viola', 'Bug', 12, [283, 666]], ['Grant', 'Rock', 25, [696, 698]], ['Korrina', 'Fighting', 32, [619, 701]], ['Ramos', 'Grass', 34, [189, 71, 673]], ['Clemont', 'Electric', 40, [587, 82, 695]], ['Valerie', 'Fairy', 48, [303, 439, 700]], ['Olympia', 'Psychic', 59, [678, 199, 561]], ['Wulfric', 'Ice', 65, [460, 713, 712]]],
     league: [['Malva', 'Fire', 74, [668, 663, 609]], ['Siebold', 'Water', 76, [689, 693, 130]], ['Wikstrom', 'Steel', 78, [681, 476, 212]], ['Drasna', 'Dragon', 80, [691, 621, 706]], ['Diantha', 'Fairy', 86, [701, 697, 700, 282]]],
@@ -111,7 +122,18 @@ const FUTURE_REGION_CHALLENGE_DATA = {
     ],
   },
   galar: {
-    label: 'Galar', start: 'galar_started', champion: 'galar_champion', villain: 'Team Yell', villainSprite: psTrainer('yellgrunt'), rivalSprite: psTrainer('hop'), bg: "url('/bg_galar_elite.webp') center/cover no-repeat",
+    label: 'Galar', start: 'galar_started', champion: 'galar_champion', villain: 'Team Yell', villainSprite: psTrainer('yellgrunt'), rivalSprite: psTrainer('hop'), bg: "url('/bg_galar_forest_temp.png') center/cover no-repeat",
+    leagueBg: "url('/bg_galar_elite.webp') center/cover no-repeat",
+    gymBgs: [
+      "url('/bg_galar_forest_temp.png') center/cover no-repeat",     // Milo (Grass)
+      "url('/battle_bg_gym_water.webp') center/cover no-repeat",     // Nessa (Water)
+      "url('/expedition_vulcao.webp') center/cover no-repeat",       // Kabu (Fire)
+      "url('/expedition_campo_lutador.webp') center/cover no-repeat", // Bea (Fighting)
+      "url('/bg_galar_forest_temp.png') center/cover no-repeat",     // Opal (Fairy)
+      "url('/battle_bg_gym_rock.webp') center/cover no-repeat",      // Gordie (Rock)
+      "url('/bg_galar_forest_temp.png') center/cover no-repeat",     // Piers (Dark)
+      "url('/bg_unova_elite.webp') center/cover no-repeat"           // Raihan (Dragon)
+    ],
     badges: ['grass_badge_galar', 'water_badge_galar', 'fire_badge_galar', 'fighting_badge_galar', 'fairy_badge_galar', 'rock_badge_galar', 'dark_badge_galar', 'dragon_badge_galar'],
     leaders: [['Milo', 'Grass', 20, [829, 830]], ['Nessa', 'Water', 24, [833, 834]], ['Kabu', 'Fire', 27, [851, 59]], ['Bea', 'Fighting', 36, [865, 68]], ['Opal', 'Fairy', 38, [110, 868, 869]], ['Gordie', 'Rock', 42, [839, 874]], ['Piers', 'Dark', 46, [560, 862, 861]], ['Raihan', 'Dragon', 55, [844, 884, 330]]],
     league: [['Marnie', 'Dark', 74, [861, 452, 877]], ['Bede', 'Fairy', 78, [858, 869, 282]], ['Raihan', 'Dragon', 82, [884, 330, 706]], ['Leon', 'Fire', 90, [6, 887, 812, 815, 818]]],
