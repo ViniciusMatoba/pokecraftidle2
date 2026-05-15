@@ -30,6 +30,7 @@ const CraftingStation = lazy(() => import('./components/CraftingStation'));
 const EvolutionScreen = lazy(() => import('./components/EvolutionScreen'));
 const SafariZoneScreen = lazy(() => import('./components/SafariZoneScreen'));
 const MegaEvolutionScreen = lazy(() => import('./components/MegaEvolutionScreen'));
+const TutorialModal = lazy(() => import('./components/TutorialModal'));
 const PokedexScreen = lazy(() => import('./components/PokedexScreen'));
 const VsScreen = lazy(() => import('./components/VsScreen'));
 const GymScreen = lazy(() => import('./components/GymScreen'));
@@ -702,6 +703,7 @@ export default function App() {
   const [evolutionPending, setEvolutionPending] = useState(null);
   const [megaEvolutionPending, setMegaEvolutionPending] = useState(false); // abre tela de Mega Evolução
   const [safariSession, setSafariSession] = useState(null); // { ballsLeft } quando dentro da Safari Zone
+  const [showTutorial, setShowTutorial] = useState(false); // tutorial de boas-vindas
   const [masteryNotification, setMasteryNotification] = useState(null);
   const [activePokemonDetails, setActivePokemonDetails] = useState(null);
   const [currentView, setCurrentView] = useState('landing');
@@ -1161,6 +1163,14 @@ export default function App() {
     addLog(`${userName} mudou o clima: ${weatherText}!`, 'system');
     return true;
   }, [addLog]);
+
+  // ── Exibe tutorial na primeira visita à Cidade ────────────────────────────
+  useEffect(() => {
+    const hasStarter = (gameState.worldFlags || []).includes('has_starter');
+    if (hasStarter && !gameState.gameTutorialShown && currentView === 'city') {
+      setShowTutorial(true);
+    }
+  }, [currentView, gameState.worldFlags, gameState.gameTutorialShown]);
 
   // ── Intercepta entrada na Safari Zone ────────────────────────────────────
   // Quando o jogador navega para 'battles' em uma rota do tipo 'safari',
@@ -8722,6 +8732,18 @@ export default function App() {
             setGameState={setGameState}
             addLog={addLog}
             POKEDEX={POKEDEX}
+          />
+        </Suspense>
+      )}
+
+      {/* TUTORIAL DE BOAS-VINDAS */}
+      {showTutorial && (
+        <Suspense fallback={null}>
+          <TutorialModal
+            onClose={() => {
+              setShowTutorial(false);
+              setGameState(prev => ({ ...prev, gameTutorialShown: true }));
+            }}
           />
         </Suspense>
       )}

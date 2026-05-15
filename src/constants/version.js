@@ -1,7 +1,13 @@
-export const APP_VERSION = '1.88.5';
-export const VERSION = '1.88.5';
-export const APP_VERSION_DATE = '14/05/2026 19:23';
+export const APP_VERSION = '1.88.8';
+export const VERSION = '1.88.8';
+export const APP_VERSION_DATE = '14/05/2026 22:10';
 export const CHANGELOG = [
+  '## [V1.88.8] - 14/05/2026 22:10',
+  '### Adicionado',
+  '- **Tutorial de Boas-Vindas**: Modal de 6 passos exibido automaticamente na primeira visita à Cidade após capturar o starter.',
+  '- **Passo Cidade**: Explica Poke Center, Poke Mart, Forja, Explorações e Casa.',
+  '- **Passos Completos**: Rotas → Cidade → Rivais & Equipe Vilã → Ginásios & Liga → Raids → Boss Mundial.',
+  '- **Progresso Visual**: Barra de progresso no topo com marcadores por passo. Botões Anterior/Próximo e "Começar Aventura!" no último.',
   '## [V1.88.5] - 14/05/2026 19:23',
   '### Alterado',
   '- **Habitats Regionais**: áreas Habitat I, II e III agora exigem ser Campeão da região antes de serem liberadas — válido para todas as 9 regiões (Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, Galar, Paldea).',
