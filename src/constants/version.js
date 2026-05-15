@@ -1,7 +1,12 @@
-export const APP_VERSION = '1.89.0';
-export const VERSION = '1.89.0';
-export const APP_VERSION_DATE = '15/05/2026 01:00';
+export const APP_VERSION = '1.89.1';
+export const VERSION = '1.89.1';
+export const APP_VERSION_DATE = '15/05/2026 02:00';
 export const CHANGELOG = [
+  '## [V1.89.1] - 15/05/2026 02:00',
+  '### Melhorado',
+  '- **Equipe — Botão Contextual**: botão "Voltar ao Treino" renomeado para "🗺️ Voltar para Rota". Durante lutas de Ginásio/Rival/Elite, o botão vira "⚔️ Voltar para Batalha" com destaque em vermelho.',
+  '- **Equipe — Acesso durante batalha VS**: abrir a tela de Equipe durante uma luta de Ginásio agora mantém a batalha em segundo plano, permitindo retorno sem perder o progresso.',
+  '- **Confirmação ao sair durante luta**: tentar ir à Cidade ou Rotas enquanto há uma batalha chave em andamento exibe um aviso de confirmação antes de cancelar a luta.',
   '## [V1.89.0] - 15/05/2026 01:00',
   '### Corrigido',
   '- **Raid — Animação de Pokébola**: a bola agora voa e pousa exatamente sobre o sprite do Pokémon (posição calculada dinamicamente com `getBoundingClientRect`). Mensagens "✨ Capturado!" e "💨 Escapou!" aparecem logo abaixo do sprite.',

@@ -1208,6 +1208,32 @@ export default function App() {
     const isKeyBattle = currentEnemy && !isTraining;
 
     if (isKeyBattle) {
+      // Acessar equipe é seguro — batalha continua em segundo plano, permite retorno
+      if (targetView === 'pokemon_management') {
+        setCurrentView(targetView);
+        return;
+      }
+
+      // Tentar ir para cidade ou rotas durante luta chave → pede confirmação
+      if (targetView === 'city' || targetView === 'routes') {
+        const destLabel = targetView === 'city' ? 'Cidade' : 'Rotas';
+        setConfirmModal({
+          type: 'warning',
+          title: '⚠️ Abandonar Batalha?',
+          message: `Retornar à ${destLabel} irá cancelar a luta atual. Seu progresso nesta batalha será perdido. Deseja confirmar?`,
+          confirmLabel: `Sair para a ${destLabel}`,
+          onConfirm: () => {
+            setConfirmModal(null);
+            setCurrentEnemy(null);
+            if (extraAction) extraAction();
+            setCurrentView(targetView);
+          },
+          onCancel: () => setConfirmModal(null),
+        });
+        return;
+      }
+
+      // Outras navegações
       setCurrentEnemy(null);
       if (extraAction) extraAction();
       setCurrentView(targetView);
@@ -1217,7 +1243,7 @@ export default function App() {
     // Navegacao direta para rotas de treino ou menus
     if (extraAction) extraAction();
     setCurrentView(targetView);
-  }, [currentEnemy, setCurrentView]);
+  }, [currentEnemy, setCurrentView, setConfirmModal]);
 
   // PROTECTED: handleGoToCity - NAO EDITAR SEM AUTORIZACAO EXPLICITA
   const handleGoToCity = useCallback(() => {
@@ -7169,13 +7195,13 @@ export default function App() {
       );
 
       case 'pokemon_management': return (
-        <PokemonManagement 
+        <PokemonManagement
           {...props}
-          gameState={gameState} 
-          setGameState={setGameState} 
-          activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
-          activePokemonDetails={activePokemonDetails} 
+          gameState={gameState}
+          setGameState={setGameState}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          activePokemonDetails={activePokemonDetails}
           setActivePokemonDetails={setActivePokemonDetails}
           POKEDEX={POKEDEX}
           MOVES={MOVES}
@@ -7193,6 +7219,7 @@ export default function App() {
           isEvolutionAllowedForRegion={isEvolutionAllowedForRegion}
           getEvolutionRegionLockMessage={getEvolutionRegionLockMessage}
           CRAFTING_RECIPES={CRAFTING_RECIPES}
+          currentEnemy={currentEnemy}
         />
       );
 

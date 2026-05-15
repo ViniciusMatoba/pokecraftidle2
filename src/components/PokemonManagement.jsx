@@ -32,6 +32,7 @@ const PokemonManagement = ({
   getEvolutionRegionLockMessage,
   CRAFTING_RECIPES,
   setMegaEvolutionPending,
+  currentEnemy,
 }) => {
   const [candyExpanded, setCandyExpanded] = useState(false);
   const [dragTeamIndex, setDragTeamIndex] = useState(null);
@@ -375,12 +376,32 @@ const PokemonManagement = ({
       <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
         {activeTab === 'team' ? (
           <div className="flex flex-col gap-4">
-            <button 
-              onClick={() => setCurrentView('battles')}
-              className="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-md border-b-4 border-slate-900 flex items-center justify-center gap-2 active:scale-95 mb-2"
-            >
-              <span>⚔️</span> Voltar ao Treino
-            </button>
+            {/* ── Botão de retorno contextual ─────────────────────────────── */}
+            {currentEnemy?.isTrainer ? (
+              /* Estava em luta de VS (ginásio, rival, elite…) */
+              <div className="flex flex-col gap-2 mb-2">
+                <button
+                  onClick={() => setCurrentView('battles')}
+                  className="w-full py-4 rounded-2xl font-black uppercase tracking-widest transition-all shadow-md border-b-4 active:scale-95 flex items-center justify-center gap-2"
+                  style={{
+                    background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                    borderBottomColor: '#7f1d1d',
+                    color: '#fff',
+                    boxShadow: '0 4px 16px rgba(220,38,38,0.35)',
+                  }}
+                >
+                  <span>⚔️</span> Voltar para Batalha
+                </button>
+              </div>
+            ) : (
+              /* Estava em treino normal na rota */
+              <button
+                onClick={() => setCurrentView('battles')}
+                className="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-md border-b-4 border-slate-900 flex items-center justify-center gap-2 active:scale-95 mb-2"
+              >
+                <span>🗺️</span> Voltar para Rota
+              </button>
+            )}
 
             <div className="grid grid-cols-1 gap-3">
             {gameState.team.map((p, i) => (
