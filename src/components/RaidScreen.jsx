@@ -93,6 +93,7 @@ const RaidScreen = ({
   const pokemonSprite = raid.isShiny
     ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${raid.pokemonId}.png`
     : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${raid.pokemonId}.png`;
+  const isAlphaShiny = raid.isAlpha && raid.isShiny;
 
   const balls = [
     { id: 'ultra_ball', label: 'Ultra Ball', count: gameState.inventory?.items?.ultra_ball || 0,
@@ -345,6 +346,14 @@ const RaidScreen = ({
             textShadow: `0 0 20px ${starColor}66`,
           }}>
             {raid.isShiny && <span style={{ marginRight: 8 }}>✨</span>}
+            {raid.isAlpha && (
+              <span style={{
+                display: 'inline-block', background: 'linear-gradient(135deg,#dc2626,#ef4444)',
+                color: '#fff', fontSize: 10, fontWeight: 900, borderRadius: 6,
+                padding: '2px 7px', marginRight: 6, verticalAlign: 'middle',
+                letterSpacing: 1, boxShadow: '0 0 8px #ef444488',
+              }}>ALFA</span>
+            )}
             {raid.name}
           </h2>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginTop: 4, alignItems: 'center' }}>
@@ -352,6 +361,9 @@ const RaidScreen = ({
             <span style={{ color: '#94a3b8', fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>
               Nível {raid.level}
             </span>
+            {raid.isAlpha && (
+              <span style={{ color: '#ef4444', fontSize: 11, fontWeight: 800 }}>+30% stats</span>
+            )}
           </div>
         </div>
 
@@ -360,18 +372,36 @@ const RaidScreen = ({
           height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center',
           position: 'relative', margin: '10px 0',
         }}>
-          {/* Brilho pulsante */}
+          {/* Brilho pulsante — vermelho para alfa, cor de estrela para padrão */}
           <div style={{
-            position: 'absolute', width: 140, height: 140,
-            background: `radial-gradient(circle, ${starColor}44 0%, transparent 70%)`,
+            position: 'absolute',
+            width:  raid.isAlpha ? 170 : 140,
+            height: raid.isAlpha ? 170 : 140,
+            background: raid.isAlpha
+              ? `radial-gradient(circle, ${isAlphaShiny ? '#b45309' : '#dc2626'}55 0%, transparent 70%)`
+              : `radial-gradient(circle, ${starColor}44 0%, transparent 70%)`,
             borderRadius: '50%', animation: 'pulse 2s infinite ease-in-out',
           }} />
+
+          {/* Aura vermelha extra para alfa */}
+          {raid.isAlpha && (
+            <div style={{
+              position: 'absolute',
+              width: 155, height: 155, borderRadius: '50%',
+              border: `3px solid ${isAlphaShiny ? '#f59e0b' : '#ef4444'}88`,
+              boxShadow: `0 0 20px ${isAlphaShiny ? '#f59e0b' : '#ef4444'}66, inset 0 0 20px ${isAlphaShiny ? '#f59e0b' : '#ef4444'}22`,
+              animation: 'pulse 1.5s infinite ease-in-out',
+              zIndex: 1,
+            }} />
+          )}
 
           <img
             ref={spriteRef}
             src={pokemonSprite}
             style={{
-              width: 160, height: 160, objectFit: 'contain',
+              width: raid.isAlpha ? 208 : 160,
+              height: raid.isAlpha ? 208 : 160,
+              objectFit: 'contain',
               imageRendering: 'pixelated',
               position: 'relative', zIndex: 2,
               animation:
@@ -381,9 +411,13 @@ const RaidScreen = ({
                 'float 3s infinite ease-in-out',
               opacity:
                 (catchAnim.phase === 'shaking' || (catchAnim.phase === 'result' && catchAnim.caught)) ? 0 : 1,
-              filter: raid.isShiny
-                ? 'drop-shadow(0 0 15px #fbbf24)'
-                : `drop-shadow(0 0 10px ${starColor}66)`,
+              filter: isAlphaShiny
+                ? 'drop-shadow(0 0 18px #fbbf24) drop-shadow(0 0 10px #ef4444)'
+                : raid.isAlpha
+                  ? 'drop-shadow(0 0 16px #ef4444) drop-shadow(0 0 6px #dc2626)'
+                  : raid.isShiny
+                    ? 'drop-shadow(0 0 15px #fbbf24)'
+                    : `drop-shadow(0 0 10px ${starColor}66)`,
               transition: 'opacity 0.1s',
             }}
             alt={raid.name}

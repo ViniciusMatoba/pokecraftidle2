@@ -170,6 +170,27 @@ const applyShinyUpgrade = (pokemon, pokedexData) => {
   };
 };
 
+// Aplica bônus de status para Pokémon Alfa (multiplicador ×1.3, ou ×1.5 se também for shiny)
+const applyAlphaUpgrade = (pokemon, pokedexData, isAlsoShiny = false) => {
+  const base = pokedexData || {};
+  const lv = pokemon.level || 1;
+  const mult = isAlsoShiny ? 1.5 : 1.3;
+  const calcStat = (b) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + 5) * mult));
+  const calcHp   = (b) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + lv + 10) * mult));
+  const newMaxHp = calcHp(base.hp || base.maxHp || 45);
+  return {
+    ...pokemon,
+    isAlpha: true,
+    maxHp:   newMaxHp,
+    hp:      newMaxHp,
+    attack:  calcStat(base.attack  || 45),
+    defense: calcStat(base.defense || 45),
+    spAtk:   calcStat(base.spAtk   || 45),
+    spDef:   calcStat(base.spDef   || 45),
+    speed:   calcStat(base.speed   || 45),
+  };
+};
+
 const EVOLUTION_FRAGMENT_DROPS = {
   4: 'fire_stone_shard', 5: 'fire_stone_shard', 6: 'fire_stone_shard',
   37: 'fire_stone_shard', 58: 'fire_stone_shard', 77: 'fire_stone_shard', 126: 'fire_stone_shard',
@@ -444,7 +465,13 @@ const RegionIntroScreen = ({
     <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-slate-950/80" />
     <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
       <img src={professorSprite}
-        onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }}
+        onError={e => {
+          const base = 'https://play.pokemonshowdown.com/sprites/trainers/';
+          const oak = base + 'oak.png';
+          if (e.currentTarget.src === oak) return;
+          const filename = e.currentTarget.src.split('/').pop();
+          e.currentTarget.src = filename.startsWith('professor') ? oak : base + 'professor' + filename;
+        }}
         className="h-64 object-contain drop-shadow-2xl animate-float" alt={professorName} />
     </div>
     <div className="relative z-10 w-full p-4 pb-6">
@@ -453,7 +480,13 @@ const RegionIntroScreen = ({
           <div className="w-11 h-11 rounded-2xl flex items-center justify-center overflow-hidden border-2"
             style={{ backgroundColor: accentColor + '22', borderColor: accentColor + '55' }}>
             <img src={professorSprite}
-              onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }}
+              onError={e => {
+                const base = 'https://play.pokemonshowdown.com/sprites/trainers/';
+                const oak = base + 'oak.png';
+                if (e.currentTarget.src === oak) return;
+                const filename = e.currentTarget.src.split('/').pop();
+                e.currentTarget.src = filename.startsWith('professor') ? oak : base + 'professor' + filename;
+              }}
               className="w-9 h-9 object-contain" alt="" />
           </div>
           <div>
@@ -751,6 +784,7 @@ export default function App() {
   const [previewStarter, setPreviewStarter] = useState(null);
   const [activeQuestModal, setActiveQuestModal] = useState(null);
   const [pendingQuest, setPendingQuest] = useState(null);
+  const [pendingAlphaCapture, setPendingAlphaCapture] = useState(null); // { newPoke, existingShinyId, raid, newItems }
   const [battleReady, setBattleReady] = useState(false);
   const [timeOfDay, setTimeOfDay] = useState(getTimeOfDay());
   const [showTimeInfoModal, setShowTimeInfoModal] = useState(false);
@@ -1061,6 +1095,14 @@ export default function App() {
       // Floresta de Viridian: Pikachu e Bulbasaur
       addSafe('viridian_forest', 25, 9, 'thunder_stone_shard', 0.08);
       addSafe('viridian_forest', 1, 8, 'leaf_stone_shard', 0.08);
+    }
+
+    if (gameState.worldFlags?.includes('unova_starters_spotted') || gameState.worldFlags?.includes('unova_rival_1_defeated')) {
+      // Rota 1 de Unova: Snivy e Tepig
+      addSafe('unova_route_1', 495, 8);  // Snivy
+      addSafe('unova_route_1', 498, 8);  // Tepig
+      // Rota 2 de Unova: Oshawott
+      addSafe('unova_route_2', 501, 12); // Oshawott
     }
 
     // ── NOVO: mapa de ID máximo permitido por região ──
@@ -2784,114 +2826,184 @@ export default function App() {
   }, [gameState.activeRaid]);
 
   const handleRaidCatchAttempt = useCallback((ballType = 'poke_ball', forceCaught = null) => {
-    setGameState(prev => {
-      const raid = prev.activeRaid;
-      if (!raid || raid.phase !== 'capture') return prev;
-      const attemptsLeft = (raid.catchAttemptsLeft || 1) - 1;
-      const catchMult = RAID_CATCH_RATE_MULT[raid.stars] ?? 1.0;
-      const baseRate = 0.1 * catchMult;
-      const ballMult = ballType === 'ultra_ball' ? 2.0 : ballType === 'great_ball' ? 1.5 : 1.0;
-      const caught = (forceCaught !== null) ? forceCaught : Math.random() < (baseRate * ballMult);
+    // Usamos snapshot direto para poder bifurcar lógica Alpha fora do setGameState
+    const prev = gameState;
+    const raid = prev.activeRaid;
+    if (!raid || raid.phase !== 'capture') return;
 
-      // Consome a pokebola usada
-      const ballKey = ballType === 'ultra_ball' ? 'ultra_ball' : ballType === 'great_ball' ? 'great_ball' : 'pokeballs';
-      const currentBalls = prev.inventory?.items?.[ballKey] || 0;
-      const newItems = currentBalls > 0
-        ? { ...prev.inventory.items, [ballKey]: currentBalls - 1 }
-        : { ...prev.inventory.items };
+    const attemptsLeft = (raid.catchAttemptsLeft || 1) - 1;
+    const catchMult = RAID_CATCH_RATE_MULT[raid.stars] ?? 1.0;
+    const baseRate = 0.1 * catchMult;
+    const ballMult = ballType === 'ultra_ball' ? 2.0 : ballType === 'great_ball' ? 1.5 : 1.0;
+    const caught = (forceCaught !== null) ? forceCaught : Math.random() < (baseRate * ballMult);
 
-      if (caught) {
-        const pokedexEntry = POKEDEX[raid.pokemonId] || {};
+    // Consome a pokebola usada
+    const ballKey = ballType === 'ultra_ball' ? 'ultra_ball' : ballType === 'great_ball' ? 'great_ball' : 'pokeballs';
+    const currentBalls = prev.inventory?.items?.[ballKey] || 0;
+    const newItems = currentBalls > 0
+      ? { ...prev.inventory.items, [ballKey]: currentBalls - 1 }
+      : { ...prev.inventory.items };
 
-        // Verifica se o jogador já tem essa espécie (equipe, PC ou cuidadores da casa)
-        const alreadyOwns = [...(prev.team || []), ...(prev.pc || []), ...(prev.house?.caretakers || [])]
-          .some(p => Number(p.id) === Number(raid.pokemonId));
+    if (caught) {
+      const pokedexEntry = POKEDEX[raid.pokemonId] || {};
+      const allOwned = [...(prev.team || []), ...(prev.pc || []), ...(prev.house?.caretakers || [])];
+      const ownedSameSpecies = allOwned.filter(p => Number(p.id) === Number(raid.pokemonId));
 
-        if (alreadyOwns && !raid.isShiny) {
-          // Duplicata: converte em EXP Candy de acordo com as estrelas da raid
+      // Cria o Pokémon base
+      let newPoke = assignRandomAbility({
+        instanceId: `raid_caught_${Date.now()}`,
+        id: raid.pokemonId,
+        name: raid.name,
+        level: raid.level,
+        isShiny: raid.isShiny,
+        hp: pokedexEntry.hp || 60,
+        maxHp: pokedexEntry.hp || 60,
+        xp: 0,
+        moves: (pokedexEntry.moves || []).slice(0, 4),
+        type: pokedexEntry.type || 'Normal',
+        types: pokedexEntry.types || [pokedexEntry.type || 'Normal'],
+        attack: pokedexEntry.attack || 60,
+        defense: pokedexEntry.defense || 60,
+        spAtk: pokedexEntry.spAtk || 60,
+        spDef: pokedexEntry.spDef || 60,
+        speed: pokedexEntry.speed || 60,
+        status: [],
+        stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
+        fromRaid: true,
+      }, pokedexEntry);
+
+      // Aplica bônus alfa se aplicável
+      if (raid.isAlpha) {
+        newPoke = applyAlphaUpgrade(newPoke, pokedexEntry, raid.isShiny);
+      }
+
+      // ── Lógica de Alpha ──
+      if (raid.isAlpha) {
+        // Já tem um alfa da mesma espécie → converte em candy
+        const alreadyHasAlpha = ownedSameSpecies.some(p => p.isAlpha);
+        if (alreadyHasAlpha) {
           const candyMap = { 1: 'exp_candy_xs', 2: 'exp_candy_s', 3: 'exp_candy_m', 4: 'exp_candy_l', 5: 'exp_candy_xl' };
           const candyId = candyMap[raid.stars] || 'exp_candy_s';
           const candyQty = raid.stars >= 4 ? 2 : 1;
-          const newItemsWithCandy = {
-            ...newItems,
-            [candyId]: (newItems[candyId] || 0) + candyQty,
-          };
-          addLog(`📦 ${raid.name} já está no seu PC! Recebeu ${candyQty}x ${EXP_CANDIES[candyId]?.name} no lugar.`, 'system');
+          addLog(`📦 Você já possui um ${raid.name} Alfa! Recebeu ${candyQty}x EXP Candy no lugar.`, 'system');
           showRaidRouteNotice(raid, 'captured');
-          return {
-            ...prev,
-            inventory: { ...prev.inventory, items: newItemsWithCandy },
+          setGameState(s => ({
+            ...s,
+            inventory: { ...s.inventory, items: { ...newItems, [candyId]: (newItems[candyId] || 0) + candyQty } },
             activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
-            raidStats: { ...(prev.raidStats || {}), captured: (prev.raidStats?.captured || 0) + 1 },
-            playerStats: bumpPlayerStats(prev.playerStats, { raidsCaptured: 1 }),
-          };
+            raidStats: { ...(s.raidStats || {}), captured: (s.raidStats?.captured || 0) + 1 },
+            playerStats: bumpPlayerStats(s.playerStats, { raidsCaptured: 1 }),
+          }));
+          return;
         }
 
-        // Espécie nova (ou shiny): vai para o PC normalmente
-        const newPoke = assignRandomAbility({
-          instanceId: `raid_caught_${Date.now()}`,
-          id: raid.pokemonId,
-          name: raid.name,
-          level: raid.level,
-          isShiny: raid.isShiny,
-          hp: pokedexEntry.hp || 60,
-          maxHp: pokedexEntry.hp || 60,
-          xp: 0,
-          moves: (pokedexEntry.moves || []).slice(0, 4),
-          type: pokedexEntry.type || 'Normal',
-          types: pokedexEntry.types || [pokedexEntry.type || 'Normal'],
-          attack: pokedexEntry.attack || 60,
-          defense: pokedexEntry.defense || 60,
-          spAtk: pokedexEntry.spAtk || 60,
-          spDef: pokedexEntry.spDef || 60,
-          speed: pokedexEntry.speed || 60,
-          status: [],
-          stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
-          fromRaid: true,
-        }, pokedexEntry);
-        addLog(`🎉 Você capturou ${raid.isShiny ? '✨ ' : ''}${raid.name}!`, 'system');
-        showRaidRouteNotice(raid, 'captured');
-        return {
-          ...prev,
-          pc: [...(prev.pc || []), newPoke],
-          inventory: { ...prev.inventory, items: newItems },
-          activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
-          raidStats: {
-            ...(prev.raidStats || {}),
-            captured: (prev.raidStats?.captured || 0) + 1,
-          },
-          playerStats: bumpPlayerStats(prev.playerStats, {
-            pokemonCaptured: 1,
-            shinyCaptured: raid.isShiny ? 1 : 0,
-            raidsCaptured: 1,
-          }),
-        };
-      } else if (attemptsLeft <= 0) {
-        addLog(`💨 ${raid.name} não foi capturado. Tentativas esgotadas.`, 'system');
-        // Recompensas apenas se derrotado (HP=0) ou capturado. 
-        // Como falhou na captura, só ganha se HP já estivesse em 0.
-        const nextPhase = raid.currentHp === 0 ? 'rewards' : 'ended';
-        if (nextPhase === 'ended') {
-          addLog(`💨 ${raid.name} fugiu vitorioso! Você não conseguiu enfraquecê-lo o suficiente.`, 'enemy');
-          showRaidRouteNotice(raid, 'failed');
-        } else {
-          showRaidRouteNotice(raid, 'rewards');
+        // Tem versão normal (não alfa, não shiny) → substitui automaticamente
+        const normalIdx_team = prev.team.findIndex(p => Number(p.id) === Number(raid.pokemonId) && !p.isAlpha && !p.isShiny);
+        const normalIdx_pc   = prev.pc.findIndex(p => Number(p.id) === Number(raid.pokemonId) && !p.isAlpha && !p.isShiny);
+        if (normalIdx_team >= 0 || normalIdx_pc >= 0) {
+          addLog(`🔴 ${raid.name} ALFA capturado! Substituiu a versão normal.`, 'system');
+          showRaidRouteNotice(raid, 'captured');
+          setGameState(s => {
+            const newTeam = normalIdx_team >= 0
+              ? s.team.map((p, i) => i === normalIdx_team ? newPoke : p)
+              : s.team;
+            const newPc = normalIdx_pc >= 0
+              ? s.pc.map((p, i) => i === normalIdx_pc ? newPoke : p)
+              : s.pc;
+            return {
+              ...s,
+              team: newTeam,
+              pc: newPc,
+              inventory: { ...s.inventory, items: newItems },
+              activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
+              raidStats: { ...(s.raidStats || {}), captured: (s.raidStats?.captured || 0) + 1 },
+              playerStats: bumpPlayerStats(s.playerStats, { pokemonCaptured: 1, shinyCaptured: raid.isShiny ? 1 : 0, raidsCaptured: 1 }),
+            };
+          });
+          return;
         }
-        return {
-          ...prev,
-          inventory: { ...prev.inventory, items: newItems },
-          activeRaid: { ...raid, phase: nextPhase, catchAttemptsLeft: 0 }
-        };
-      } else {
-        addLog(`💨 ${raid.name} escapou! ${attemptsLeft} tentativa(s) restante(s).`, 'system');
-        return {
-          ...prev,
-          inventory: { ...prev.inventory, items: newItems },
-          activeRaid: { ...raid, catchAttemptsLeft: attemptsLeft }
-        };
+
+        // Tem apenas versão shiny → perguntar ao jogador
+        const existingShiny = ownedSameSpecies.find(p => p.isShiny && !p.isAlpha);
+        if (existingShiny) {
+          // Guarda em estado pendente; o diálogo de confirmação vai resolver
+          setPendingAlphaCapture({ newPoke, existingShinyInstanceId: existingShiny.instanceId, raid, newItems });
+          // Já consome a pokébola e pausa a raid
+          setGameState(s => ({
+            ...s,
+            inventory: { ...s.inventory, items: newItems },
+            activeRaid: { ...raid, catchAttemptsLeft: 0 },
+          }));
+          return;
+        }
+
+        // Nenhuma versão owned → adiciona normalmente
+        addLog(`🔴 ${raid.name} ALFA${raid.isShiny ? ' ✨' : ''} capturado! Incrível!`, 'system');
+        showRaidRouteNotice(raid, 'captured');
+        setGameState(s => ({
+          ...s,
+          pc: [...(s.pc || []), newPoke],
+          inventory: { ...s.inventory, items: newItems },
+          activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
+          raidStats: { ...(s.raidStats || {}), captured: (s.raidStats?.captured || 0) + 1 },
+          playerStats: bumpPlayerStats(s.playerStats, { pokemonCaptured: 1, shinyCaptured: raid.isShiny ? 1 : 0, raidsCaptured: 1 }),
+        }));
+        return;
       }
-    });
-  }, [showRaidRouteNotice]);
+
+      // ── Lógica normal (não alfa) ──
+      const alreadyOwns = ownedSameSpecies.length > 0;
+      if (alreadyOwns && !raid.isShiny) {
+        // Duplicata: converte em EXP Candy
+        const candyMap = { 1: 'exp_candy_xs', 2: 'exp_candy_s', 3: 'exp_candy_m', 4: 'exp_candy_l', 5: 'exp_candy_xl' };
+        const candyId = candyMap[raid.stars] || 'exp_candy_s';
+        const candyQty = raid.stars >= 4 ? 2 : 1;
+        addLog(`📦 ${raid.name} já está no seu PC! Recebeu ${candyQty}x ${EXP_CANDIES[candyId]?.name} no lugar.`, 'system');
+        showRaidRouteNotice(raid, 'captured');
+        setGameState(s => ({
+          ...s,
+          inventory: { ...s.inventory, items: { ...newItems, [candyId]: (newItems[candyId] || 0) + candyQty } },
+          activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
+          raidStats: { ...(s.raidStats || {}), captured: (s.raidStats?.captured || 0) + 1 },
+          playerStats: bumpPlayerStats(s.playerStats, { raidsCaptured: 1 }),
+        }));
+        return;
+      }
+
+      // Espécie nova ou shiny: vai para o PC
+      addLog(`🎉 Você capturou ${raid.isShiny ? '✨ ' : ''}${raid.name}!`, 'system');
+      showRaidRouteNotice(raid, 'captured');
+      setGameState(s => ({
+        ...s,
+        pc: [...(s.pc || []), newPoke],
+        inventory: { ...s.inventory, items: newItems },
+        activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
+        raidStats: { ...(s.raidStats || {}), captured: (s.raidStats?.captured || 0) + 1 },
+        playerStats: bumpPlayerStats(s.playerStats, { pokemonCaptured: 1, shinyCaptured: raid.isShiny ? 1 : 0, raidsCaptured: 1 }),
+      }));
+    } else if (attemptsLeft <= 0) {
+      addLog(`💨 ${raid.name} não foi capturado. Tentativas esgotadas.`, 'system');
+      const nextPhase = raid.currentHp === 0 ? 'rewards' : 'ended';
+      if (nextPhase === 'ended') {
+        addLog(`💨 ${raid.name} fugiu vitorioso! Você não conseguiu enfraquecê-lo o suficiente.`, 'enemy');
+        showRaidRouteNotice(raid, 'failed');
+      } else {
+        showRaidRouteNotice(raid, 'rewards');
+      }
+      setGameState(s => ({
+        ...s,
+        inventory: { ...s.inventory, items: newItems },
+        activeRaid: { ...raid, phase: nextPhase, catchAttemptsLeft: 0 },
+      }));
+    } else {
+      addLog(`💨 ${raid.name} escapou! ${attemptsLeft} tentativa(s) restante(s).`, 'system');
+      setGameState(s => ({
+        ...s,
+        inventory: { ...s.inventory, items: newItems },
+        activeRaid: { ...raid, catchAttemptsLeft: attemptsLeft },
+      }));
+    }
+  }, [gameState, showRaidRouteNotice, addLog, setPendingAlphaCapture]);
 
   const handleClaimRaidRewards = useCallback(() => {
     setGameState(prev => {
@@ -3940,7 +4052,38 @@ export default function App() {
         }
       }
       
-      // ── 3. EFEITOS TEMPORÁRIOS (TIMED EFFECTS) ──────────────────────────
+      // ── 3. ITENS DE BUFF DE BATALHA ─────────────────────────────────────
+      if (['x_attack', 'x_defense', 'x_speed', 'dire_hit'].includes(itemId)) {
+        const activePoke = prev.team[activeMemberIndex];
+        if (!activePoke) return prev;
+        const BUFF_STAGE_MAP = { x_attack: 'attack', x_defense: 'defense', x_speed: 'speed' };
+        const BUFF_LABELS    = { x_attack: ['⚔️','X-Atk'], x_defense: ['🛡️','X-Def'], x_speed: ['⚡','X-Speed'], dire_hit: ['🎯','Dire Hit'] };
+        const [icon, label] = BUFF_LABELS[itemId];
+        const stat = BUFF_STAGE_MAP[itemId];
+        if (stat) {
+          const cur = activePoke.stages?.[stat] || 0;
+          if (cur >= 6) { addLog(`${icon} ${activePoke.name} já está no máximo de ${label}!`, 'system'); return prev; }
+          const newTeam = prev.team.map((p, i) => i === activeMemberIndex
+            ? { ...p, stages: { ...(p.stages || {}), [stat]: cur + 1 } } : p);
+          addLog(`${icon} ${label}! ${activePoke.name} ficou mais forte! (+${cur + 1})`, 'system');
+          return { ...prev, inventory: newInventory, team: newTeam };
+        } else {
+          // Dire Hit → activeEffect de crit boost (5 minutos)
+          const newEffects = {
+            ...(prev.activeEffects || {}),
+            activeDireHit: {
+              key: 'activeDireHit', endsAt: Date.now() + 300_000,
+              name: 'Dire Hit', durationLabel: '5min',
+              icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dire-hit.png',
+              critBoost: true,
+            }
+          };
+          addLog(`🎯 Dire Hit! Probabilidade de crítico de ${activePoke.name} aumentou!`, 'system');
+          return { ...prev, inventory: newInventory, activeEffects: newEffects };
+        }
+      }
+
+      // ── 4. EFEITOS TEMPORÁRIOS (TIMED EFFECTS) ──────────────────────────
       const allRecipes = Object.values(CRAFTING_RECIPES).flat();
       const recipe = allRecipes.find(r => r.id === itemId);
       
@@ -5698,6 +5841,8 @@ export default function App() {
       isProcessingVictory.current = false;
       if (currentEnemy.unlockFlag === 'rival_1_defeated') {
         setCurrentView('prof_oak_starters_announcement');
+      } else if (currentEnemy.unlockFlag === 'unova_rival_1_defeated') {
+        setCurrentView('prof_juniper_announcement');
       } else if (currentEnemy.isInitialRival) {
         setCurrentView('rival_post_battle');
       } else if (isStoryVsEnemy(currentEnemy)) {
@@ -6100,14 +6245,36 @@ export default function App() {
       }
             case 'starter_selection': return (
         <div style={{position:'relative', height:'100%', width:'100%', overflow:'hidden'}}>
-          <div style={{paddingTop:'24px', display:'flex', flexDirection:'column', alignItems:'center', height:'100%', background:'#f8fafc', overflowY:'auto'}}>
+          <div style={{paddingTop:'16px', display:'flex', flexDirection:'column', alignItems:'center', height:'100%', background:'#f8fafc', overflowY:'auto'}}>
+
+            {/* Professor Oak */}
+            <div style={{display:'flex', flexDirection:'column', alignItems:'center', marginBottom:'8px', padding:'0 16px'}}>
+              <img
+                src="https://play.pokemonshowdown.com/sprites/trainers/oak.png"
+                onError={e => { e.currentTarget.style.display = 'none'; }}
+                style={{height:'110px', objectFit:'contain', filter:'drop-shadow(0 6px 16px rgba(0,0,0,0.18))'}}
+                alt="Prof. Carvalho"
+              />
+              <div style={{
+                background:'white', borderRadius:'16px', padding:'10px 20px',
+                boxShadow:'0 4px 16px rgba(0,0,0,0.08)', marginTop:'-8px',
+                border:'2px solid #e2e8f0', textAlign:'center', maxWidth:'320px'
+              }}>
+                <p style={{fontSize:'9px', fontWeight:900, color:'#16a34a', textTransform:'uppercase', letterSpacing:'2px', margin:0}}>
+                  Prof. Carvalho
+                </p>
+                <p style={{fontSize:'12px', fontWeight:700, color:'#475569', margin:'4px 0 0', lineHeight:1.4}}>
+                  "Sua jornada começa agora — escolha seu Pokémon inicial com sabedoria!"
+                </p>
+              </div>
+            </div>
 
             {/* Título com espaço do header */}
-            <div style={{textAlign:'center', marginBottom:'20px', padding:'0 16px'}}>
+            <div style={{textAlign:'center', marginBottom:'12px', padding:'0 16px'}}>
               <h2 style={{fontSize:'22px', fontWeight:900, textTransform:'uppercase', fontStyle:'italic', color:'#1e293b', lineHeight:1.1, margin:0}}>
                 ESCOLHA SEU PARCEIRO
               </h2>
-              <p style={{fontSize:'11px', color:'#94a3b8', fontWeight:700, textTransform:'uppercase', letterSpacing:'2px', marginTop:'6px', margin:0}}>
+              <p style={{fontSize:'11px', color:'#94a3b8', fontWeight:700, textTransform:'uppercase', letterSpacing:'2px', marginTop:'4px', margin:0}}>
                 Cada jornada começa com um único passo
               </p>
             </div>
@@ -6578,7 +6745,7 @@ export default function App() {
             <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/40 via-emerald-900/30 to-slate-950/80" />
 
             <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
-              <img src={elmSprite} onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="h-64 object-contain drop-shadow-2xl animate-float" alt="Prof. Elm" />
+              <img src={elmSprite} onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="h-64 object-contain drop-shadow-2xl animate-float" alt="Prof. Vidoeiro" />
             </div>
 
             <div className="relative z-10 w-full p-4 pb-6">
@@ -6588,7 +6755,7 @@ export default function App() {
                     <img src={elmSprite} onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-9 h-9 object-contain" alt="" />
                   </div>
                   <div className="text-left">
-                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-600">Prof. Elm</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-600">Prof. Vidoeiro</p>
                     <h2 className="text-xl font-black uppercase italic tracking-tighter text-slate-800 leading-none">Bem-vindo a Johto</h2>
                   </div>
                 </div>
@@ -6639,7 +6806,7 @@ export default function App() {
             <div className="absolute inset-0 bg-gradient-to-b from-orange-950/35 via-emerald-900/20 to-slate-950/80" />
 
             <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
-              <img src={birchSprite} onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="h-64 object-contain drop-shadow-2xl animate-float" alt="Prof. Birch" />
+              <img src={birchSprite} onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="h-64 object-contain drop-shadow-2xl animate-float" alt="Prof. Bétula" />
             </div>
 
             <div className="relative z-10 w-full p-4 pb-6">
@@ -6649,7 +6816,7 @@ export default function App() {
                     <img src={birchSprite} onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-9 h-9 object-contain" alt="" />
                   </div>
                   <div className="text-left">
-                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-orange-600">Prof. Birch</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-orange-600">Prof. Bétula</p>
                     <h2 className="text-xl font-black uppercase italic tracking-tighter text-slate-800 leading-none">Bem-vindo a Hoenn</h2>
                   </div>
                 </div>
@@ -6695,7 +6862,7 @@ export default function App() {
         const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorrowan.png';
         const starters = [387, 390, 393].map(id => POKEDEX[id]).filter(Boolean);
         return <RegionIntroScreen
-          professorSprite={sprite} professorName="Prof. Rowan"
+          professorSprite={sprite} professorName="Prof. Sorbus"
           regionName="Sinnoh" accentColor="#0ea5e9" bgColor="bg-sky-950"
           starters={starters} onSelectStarter={handleStartSinnoh}
           onBack={() => setCurrentView('city')}
@@ -6719,7 +6886,7 @@ export default function App() {
         const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorsycamore.png';
         const starters = [650, 653, 656].map(id => POKEDEX[id]).filter(Boolean);
         return <RegionIntroScreen
-          professorSprite={sprite} professorName="Prof. Sycamore"
+          professorSprite={sprite} professorName="Prof. Plátano"
           regionName="Kalos" accentColor="#3b82f6" bgColor="bg-blue-950"
           starters={starters} onSelectStarter={handleStartKalos}
           onBack={() => setCurrentView('city')}
@@ -6740,22 +6907,22 @@ export default function App() {
         />;
       }
       case 'galar_intro': {
-        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/professormagnolia.png';
+        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/magnolia.png';
         const starters = [810, 813, 816].map(id => POKEDEX[id]).filter(Boolean);
         return <RegionIntroScreen
-          professorSprite={sprite} professorName="Prof. Magnolia"
+          professorSprite={sprite} professorName="Profa. Magnólia"
           regionName="Galar" accentColor="#a855f7" bgColor="bg-purple-950"
           starters={starters} onSelectStarter={handleStartGalar}
           onBack={() => setCurrentView('city')}
           ruleText="Galar tem o Wild Area e a Liga mais famosa do mundo. Escolha Grookey, Scorbunny ou Sobble."
-          inviteText="Bem-vindo a Galar! Sou a Profa. Magnolia. Esta região vai testar tudo o que você aprendeu!"
+          inviteText="Bem-vinda a Galar! Sou a Profa. Magnólia. Esta região vai testar tudo o que você aprendeu!"
         />;
       }
       case 'paldea_intro': {
-        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorsada.png';
+        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/sada.png';
         const starters = [906, 909, 912].map(id => POKEDEX[id]).filter(Boolean);
         return <RegionIntroScreen
-          professorSprite={sprite} professorName="Prof. Sada"
+          professorSprite={sprite} professorName="Profa. Sada"
           regionName="Paldea" accentColor="#ef4444" bgColor="bg-red-950"
           starters={starters} onSelectStarter={handleStartPaldea}
           onBack={() => setCurrentView('city')}
@@ -7173,6 +7340,73 @@ export default function App() {
         </div>
       );
 
+      case 'prof_juniper_announcement': return (
+        <div className="absolute inset-0 z-[9999] flex flex-col bg-[#0F2D3A] overflow-hidden animate-fadeIn">
+          {/* Header */}
+          <div className="bg-green-700 px-6 py-5 flex items-center justify-between shadow-xl shrink-0 z-20 border-b border-white/10">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner">
+                <img src="https://play.pokemonshowdown.com/sprites/trainers/professorjuniper.png" className="w-10 h-10 object-contain drop-shadow-md" alt="Juniper" onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} />
+              </div>
+              <div className="text-left">
+                <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">Mensagem da Professora</p>
+                <h3 className="text-white text-xl font-black uppercase italic leading-none tracking-tighter">Profa. Juniper — Unova</h3>
+              </div>
+            </div>
+          </div>
+
+          {/* Conteúdo */}
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center relative overflow-y-auto">
+            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+            <div className="relative z-10 max-w-sm">
+              <div className="mb-8 transform hover:scale-105 transition-transform duration-500">
+                <div className="w-32 h-32 mx-auto rounded-full bg-white/5 border-2 border-green-500/40 flex items-center justify-center p-4 shadow-[0_0_50px_rgba(34,197,94,0.15)]">
+                  <img src="https://play.pokemonshowdown.com/sprites/trainers/professorjuniper.png" className="w-24 h-24 object-contain drop-shadow-2xl" alt="Juniper" onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} />
+                </div>
+              </div>
+
+              <h2 className="text-white font-black text-2xl uppercase italic tracking-tighter leading-tight mb-6">
+                "Que batalha incrível!"
+              </h2>
+
+              <div className="space-y-4 text-white/90 text-sm font-bold leading-relaxed italic">
+                <p>
+                  "Parabéns por derrotar o Cheren na Nuvema Town! Você mostrou que está pronto para explorar Unova..."
+                </p>
+                <p className="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-inner">
+                  "Os Pokémon iniciais <span className="text-green-400">Snivy</span> e <span className="text-red-400">Tepig</span> foram avistados na Rota 1 de Unova, e o <span className="text-blue-400">Oshawott</span> está aparecendo na Rota 2!"
+                </p>
+                <p>
+                  "Eles estão prontos para acompanhar a sua jornada. Capture-os e forme o time perfeito de Unova!"
+                </p>
+              </div>
+
+              <div className="mt-10 flex justify-center gap-6 opacity-60 animate-pulse">
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/495.png" className="w-14 h-14 object-contain" alt="Snivy" />
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/498.png" className="w-14 h-14 object-contain" alt="Tepig" />
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/501.png" className="w-14 h-14 object-contain" alt="Oshawott" />
+              </div>
+            </div>
+          </div>
+
+          {/* Rodapé */}
+          <div className="p-8 pt-4 bg-black/20 shrink-0 border-t border-white/5">
+            <button
+              onClick={() => {
+                setGameState(prev => ({
+                  ...prev,
+                  worldFlags: [...new Set([...(prev.worldFlags || []), 'unova_starters_spotted'])],
+                }));
+                setCurrentView('city');
+              }}
+              className="w-full bg-white text-slate-900 py-5 rounded-2xl font-black uppercase text-base tracking-widest hover:bg-slate-100 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.3)] active:scale-95"
+            >
+              ENTENDIDO — CAPTURAR OS INICIAIS!
+            </button>
+          </div>
+        </div>
+      );
+
       case 'safari': return (
         <div className="pt-14 pb-20 h-full overflow-hidden flex flex-col">
           <Suspense fallback={<div className="h-full flex items-center justify-center text-white font-black">Carregando...</div>}>
@@ -7520,7 +7754,7 @@ export default function App() {
     evening: 'PM',
     night: 'NIGHT',
   }[timeOfDay] || 'DAY';
-  const autoEnabled = !!(gameState.autoFarm || gameState.autoCapture || gameState.autoCaptureConfig?.autoPotion || gameState.autoCaptureConfig?.autoStamina);
+  const autoEnabled = !!(gameState.autoFarm || gameState.autoCapture || gameState.autoCaptureConfig?.autoPotion || gameState.autoCaptureConfig?.autoStamina || gameState.autoCaptureConfig?.autoBuff);
   const autoCaptureRoute = processedRoutes[gameState.currentRoute];
   const canShowAutoCaptureModal =
     showAutoCaptureModal &&
@@ -7538,6 +7772,28 @@ export default function App() {
       autoCaptureConfig: { ...(prev.autoCaptureConfig || {}), ...patch },
     }));
   };
+
+  // Auto-buff: aplica itens de buff automaticamente no início de cada novo inimigo
+  useEffect(() => {
+    const cfg = gameState.autoCaptureConfig;
+    if (!currentEnemy || !cfg?.autoBuff) return;
+    const buffItems = cfg.autoBuffItems || {};
+    const inv = gameState.inventory?.items || {};
+    const activePoke = gameState.team?.[activeMemberIndex];
+    if (!activePoke) return;
+    const STAGE_MAP = { x_attack: 'attack', x_defense: 'defense', x_speed: 'speed' };
+    ['x_attack', 'x_defense', 'x_speed', 'dire_hit'].forEach(itemId => {
+      if (!buffItems[itemId]) return;
+      if (!inv[itemId] || inv[itemId] <= 0) return;
+      const stat = STAGE_MAP[itemId];
+      // Só aplica stage se ainda estiver em 0 (evita acúmulo indefinido via auto)
+      if (stat && (activePoke.stages?.[stat] || 0) >= 1) return;
+      // Dire Hit: não reaplicar se já ativo
+      if (itemId === 'dire_hit' && gameState.activeEffects?.activeDireHit?.endsAt > Date.now()) return;
+      handleUseItem(itemId, 'items');
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentEnemy?.instanceId]);
 
   if (!isPreloaded) {
     return (
@@ -7655,15 +7911,31 @@ export default function App() {
 
           {showStatusStrip && (
             <div className="game-status-strip">
-              {isInRoute && (
-                                <button
-                  type="button"
-                  className={`status-auto-button ${autoEnabled ? 'is-on' : ''}`}
-                  onClick={() => setShowBattleAutoPanel(true)}
-                >
-                  AUTO {autoEnabled ? 'ON' : 'OFF'}
-                </button>
-              )}
+              {isInRoute && (() => {
+                const cfg = gameState.autoCaptureConfig || {};
+                const activeAutoCount = [gameState.autoCapture, cfg.autoPotion, cfg.autoStamina, cfg.autoBuff].filter(Boolean).length;
+                return (
+                  <button
+                    type="button"
+                    className={`status-auto-button ${autoEnabled ? 'is-on' : ''}`}
+                    onClick={() => setShowBattleAutoPanel(true)}
+                    style={autoEnabled ? { position: 'relative' } : {}}
+                  >
+                    <span>AUTO {autoEnabled ? 'ON' : 'OFF'}</span>
+                    {activeAutoCount > 0 && (
+                      <span style={{
+                        position: 'absolute', top: '-5px', right: '-6px',
+                        background: '#10b981', color: '#fff',
+                        fontSize: '8px', fontWeight: 900,
+                        borderRadius: '99px', minWidth: '14px', height: '14px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        padding: '0 3px', lineHeight: 1,
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
+                      }}>{activeAutoCount}</span>
+                    )}
+                  </button>
+                );
+              })()}
 
               <button
                 type="button"
@@ -8989,94 +9261,254 @@ export default function App() {
       )}
       <NotificationSystem />
 
-      {showBattleAutoPanel && (
-        <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md" onClick={() => setShowBattleAutoPanel(false)}>
-          <div
-            className="modal-panel-mobile bg-white shadow-2xl overflow-hidden flex flex-col border-b-[8px] border-slate-800"
-            style={{ height: 'min(76dvh, 680px)', maxHeight: 'calc(100dvh - 132px)' }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex-shrink-0 px-4 py-4 flex items-center justify-between gap-2 bg-slate-900">
-              <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-500/25 border border-white/10 flex items-center justify-center shrink-0">
-                  <GearIcon />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-white/60 text-[10px] font-black uppercase tracking-[0.18em]">Rotas e batalha</p>
-                  <h3 className="font-black text-white uppercase italic text-base leading-tight">Painel Automatico</h3>
-                </div>
-              </div>
-              <button onClick={() => setShowBattleAutoPanel(false)} className="w-9 h-9 rounded-full bg-white/15 text-white font-black flex items-center justify-center hover:bg-white/25 transition-colors shrink-0" aria-label="Fechar">x</button>
-            </div>
+      {showBattleAutoPanel && (() => {
+        const autoConfig = gameState.autoCaptureConfig || {};
+        const inv = gameState.inventory?.items || {};
+        const mats = gameState.inventory?.materials || {};
+        const hpPct = autoConfig.hpThreshold ?? autoConfig.autoPotionHpPct ?? 30;
+        const stamPct = autoConfig.staminaThreshold ?? autoConfig.autoStaminaThreshold ?? 30;
+        const buffItems = autoConfig.autoBuffItems || {};
 
-            <div className="flex-1 overflow-y-auto custom-scrollbar px-5 py-5 flex flex-col gap-4 bg-slate-50">
-              <div className="rounded-2xl border-2 border-blue-100 bg-white p-4 shadow-sm">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="w-11 h-11 rounded-2xl bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">
-                      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-8 h-8 object-contain" alt="" />
+        // Contagens de itens de cura
+        const potionItems = [
+          { id: 'potions',      label: 'Poção',       color: '#16a34a', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png',       qty: inv.potions || 0 },
+          { id: 'super_potion', label: 'Super',       color: '#0284c7', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-potion.png', qty: inv.super_potion || 0 },
+        ];
+
+        // Contagens de comida (prioridade: maior nutrição primeiro)
+        const foodItems = [
+          { id: 'moomoo_milk',  label: 'MooMoo',  img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moomoo-milk.png',  qty: inv.moomoo_milk  || 0 },
+          { id: 'lemonade',     label: 'Limonada',img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lemonade.png',      qty: inv.lemonade     || 0 },
+          { id: 'soda_pop',     label: 'Soda',    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/soda-pop.png',      qty: inv.soda_pop     || 0 },
+          { id: 'fresh_water',  label: 'Água',    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png',   qty: inv.fresh_water  || 0 },
+          { id: 'oran_berry',   label: 'Oran',    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png',    qty: mats.oran_berry  || 0 },
+          { id: 'sitrus_berry', label: 'Sitrus',  img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sitrus-berry.png',  qty: mats.sitrus_berry|| 0 },
+        ].filter(f => f.qty > 0);
+
+        // Buff items
+        const BUFF_LIST = [
+          { id: 'x_attack',  label: 'X-Ataque',  color: '#ef4444', stat: 'ATK', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png',  desc: '+1 Ataque por batalha' },
+          { id: 'x_defense', label: 'X-Defesa',  color: '#3b82f6', stat: 'DEF', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-defense.png', desc: '+1 Defesa por batalha' },
+          { id: 'x_speed',   label: 'X-Speed',   color: '#f59e0b', stat: 'VEL', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-speed.png',   desc: '+1 Velocidade por batalha' },
+          { id: 'dire_hit',  label: 'Dire Hit',  color: '#8b5cf6', stat: 'CRIT',img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dire-hit.png',  desc: '+Crítico por 5 minutos' },
+        ];
+
+        // Contagem de autos ativos (para badge)
+        const activeCount = [
+          gameState.autoCapture, autoConfig.autoPotion, autoConfig.autoStamina, autoConfig.autoBuff
+        ].filter(Boolean).length;
+
+        const ToggleBtn = ({ active, onClick, colorOn, colorShadow }) => (
+          <button type="button" onClick={onClick}
+            className={`shrink-0 min-h-[38px] w-[62px] rounded-full px-2 text-[10px] font-black uppercase transition-all ${active ? `text-white shadow-md` : 'bg-slate-200 text-slate-500'}`}
+            style={active ? { background: colorOn, boxShadow: `0 4px 12px ${colorShadow}` } : {}}>
+            {active ? 'ON' : 'OFF'}
+          </button>
+        );
+
+        return (
+          <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md" onClick={() => setShowBattleAutoPanel(false)}>
+            <div className="modal-panel-mobile bg-white shadow-2xl overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100dvh - 100px)', borderBottom: '6px solid #0f172a' }} onClick={e => e.stopPropagation()}>
+
+              {/* ── HEADER ── */}
+              <div className="flex-shrink-0 flex items-center justify-between gap-2 px-4 py-3.5" style={{ background: 'linear-gradient(135deg,#0f172a 0%,#1e293b 100%)' }}>
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 relative" style={{ background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 text-emerald-400" fill="none">
+                      <path d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5Z" stroke="currentColor" strokeWidth="2" />
+                      <path d="M19.4 13.5a7.8 7.8 0 0 0 0-3l2-1.35-2-3.46-2.36.98a8 8 0 0 0-2.6-1.5L14.1 2.6h-4l-.35 2.57a8 8 0 0 0-2.6 1.5l-2.36-.98-2 3.46 2 1.35a7.8 7.8 0 0 0 0 3l-2 1.35 2 3.46 2.36-.98a8 8 0 0 0 2.6 1.5l.35 2.57h4l.35-2.57a8 8 0 0 0 2.6-1.5l2.36.98 2-3.46-2-1.35Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                    </svg>
+                    {activeCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 min-w-[18px] min-h-[18px] text-[9px] font-black text-white rounded-full flex items-center justify-center" style={{ background: '#10b981' }}>{activeCount}</span>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white/50 text-[9px] font-black uppercase tracking-[0.2em]">Automação de Batalha</p>
+                    <h3 className="font-black text-white uppercase italic text-[15px] leading-tight tracking-tight">Painel Automático</h3>
+                  </div>
+                </div>
+                <button onClick={() => setShowBattleAutoPanel(false)} className="w-9 h-9 rounded-full flex items-center justify-center font-black text-white text-sm transition-colors hover:bg-white/20" style={{ background: 'rgba(255,255,255,0.1)' }} aria-label="Fechar">✕</button>
+              </div>
+
+              {/* ── BODY ── */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-4 flex flex-col gap-3 bg-slate-50">
+
+                {/* ── AUTO-CAPTURA ── */}
+                <div className="rounded-2xl border-2 bg-white shadow-sm overflow-hidden" style={{ borderColor: gameState.autoCapture ? '#bfdbfe' : '#f1f5f9' }}>
+                  <div className="flex items-center justify-between gap-3 p-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#eff6ff', border: '1.5px solid #bfdbfe' }}>
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-7 h-7 object-contain" alt="" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-slate-800 text-[13px] font-black uppercase leading-none">Auto-Captura</p>
+                        <p className="text-slate-400 text-[10px] font-bold mt-1">Captura automaticamente na rota</p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-slate-800 text-sm font-black uppercase leading-none">Auto-Captura</p>
-                      <p className="text-slate-500 text-[11px] font-bold leading-snug mt-2">Tenta capturar quando as regras da rota permitirem.</p>
+                    <ToggleBtn active={!!gameState.autoCapture} onClick={() => setGameState(prev => ({ ...prev, autoCapture: !prev.autoCapture, autoCaptureConfig: { ...(prev.autoCaptureConfig || {}), enabled: !prev.autoCapture } }))} colorOn="#2563eb" colorShadow="rgba(37,99,235,0.3)" />
+                  </div>
+                  <button type="button" onClick={() => { setShowBattleAutoPanel(false); setShowAutoCaptureModal(true); }} className="w-full py-2.5 text-[11px] font-black uppercase tracking-wider text-blue-600 border-t border-blue-50 hover:bg-blue-50 transition-colors">
+                    ⚙️ Configurar Rota de Captura
+                  </button>
+                </div>
+
+                {/* ── AUTO-POÇÃO ── */}
+                <div className="rounded-2xl border-2 bg-white shadow-sm overflow-hidden" style={{ borderColor: autoConfig.autoPotion ? '#bbf7d0' : '#f1f5f9' }}>
+                  <div className="flex items-center justify-between gap-3 p-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#f0fdf4', border: '1.5px solid #bbf7d0' }}>
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png" className="w-7 h-7 object-contain" alt="" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-slate-800 text-[13px] font-black uppercase leading-none">Auto-Poção</p>
+                        <p className="text-slate-400 text-[10px] font-bold mt-1">Cura HP automaticamente em batalha</p>
+                      </div>
+                    </div>
+                    <ToggleBtn active={!!autoConfig.autoPotion} onClick={() => updateAutoConfig({ autoPotion: !autoConfig.autoPotion })} colorOn="#16a34a" colorShadow="rgba(22,163,74,0.3)" />
+                  </div>
+                  {/* Slider HP */}
+                  <div className="px-4 pb-3">
+                    <div className="rounded-xl p-3" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-black uppercase text-slate-600">HP Mínimo</span>
+                        <span className="text-[12px] font-black text-green-700">{hpPct}%</span>
+                      </div>
+                      <input type="range" min="10" max="80" step="5" value={hpPct} onChange={e => updateAutoConfig({ hpThreshold: Number(e.target.value), autoPotionHpPct: Number(e.target.value) })} className="w-full accent-green-600" />
+                    </div>
+                    {/* Poções disponíveis */}
+                    <div className="mt-2 flex gap-2">
+                      {potionItems.map(p => (
+                        <div key={p.id} className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border" style={{ background: '#f8fafc', borderColor: '#e2e8f0' }}>
+                          <img src={p.img} className="w-5 h-5 object-contain" alt={p.label} />
+                          <span className="text-[10px] font-black text-slate-600">{p.label}</span>
+                          <span className="text-[10px] font-black" style={{ color: p.qty > 0 ? '#16a34a' : '#94a3b8' }}>{p.qty > 0 ? `x${p.qty}` : 'vazio'}</span>
+                        </div>
+                      ))}
+                      {potionItems.every(p => p.qty === 0) && (
+                        <p className="text-[10px] font-bold text-slate-400 italic">Sem poções — compre no Mart</p>
+                      )}
                     </div>
                   </div>
-                  <button type="button" onClick={() => setGameState(prev => ({ ...prev, autoCapture: !prev.autoCapture, autoCaptureConfig: { ...(prev.autoCaptureConfig || {}), enabled: !prev.autoCapture } }))} className={`shrink-0 min-h-[36px] w-16 rounded-full px-2 text-[10px] font-black uppercase ${gameState.autoCapture ? 'bg-blue-600 text-white shadow-md shadow-blue-200' : 'bg-slate-200 text-slate-500'}`}>{gameState.autoCapture ? 'ON' : 'OFF'}</button>
                 </div>
-                <button type="button" onClick={() => { setShowBattleAutoPanel(false); setShowAutoCaptureModal(true); }} className="mt-4 w-full min-h-[46px] rounded-2xl bg-blue-50 border-2 border-blue-100 text-blue-700 text-xs font-black uppercase tracking-wider">Configurar rota</button>
-              </div>
 
-              <div className="rounded-2xl border-2 border-green-100 bg-white p-4 shadow-sm">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="w-11 h-11 rounded-2xl bg-green-50 flex items-center justify-center shrink-0 border border-green-100">
-                      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png" className="w-8 h-8 object-contain" alt="" />
+                {/* ── AUTO-STAMINA ── */}
+                <div className="rounded-2xl border-2 bg-white shadow-sm overflow-hidden" style={{ borderColor: autoConfig.autoStamina ? '#fde68a' : '#f1f5f9' }}>
+                  <div className="flex items-center justify-between gap-3 p-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#fffbeb', border: '1.5px solid #fde68a' }}>
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moomoo-milk.png" className="w-7 h-7 object-contain" alt="" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-slate-800 text-[13px] font-black uppercase leading-none">Auto-Stamina</p>
+                        <p className="text-slate-400 text-[10px] font-bold mt-1">Alimenta Pokémon quando a energia cair</p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-slate-800 text-sm font-black uppercase leading-none">Auto-Pocao</p>
-                      <p className="text-slate-500 text-[11px] font-bold leading-snug mt-2">Usa pocao quando o HP ficar abaixo do limite.</p>
+                    <ToggleBtn active={!!autoConfig.autoStamina} onClick={() => updateAutoConfig({ autoStamina: !autoConfig.autoStamina })} colorOn="#d97706" colorShadow="rgba(217,119,6,0.3)" />
+                  </div>
+                  <div className="px-4 pb-3">
+                    <div className="rounded-xl p-3" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-black uppercase text-slate-600">Energia Mínima</span>
+                        <span className="text-[12px] font-black text-amber-700">{stamPct}%</span>
+                      </div>
+                      <input type="range" min="10" max="80" step="5" value={stamPct} onChange={e => updateAutoConfig({ staminaThreshold: Number(e.target.value), autoStaminaThreshold: Number(e.target.value) })} className="w-full accent-amber-600" />
+                    </div>
+                    {/* Estoque de alimentos */}
+                    <div className="mt-2">
+                      <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider mb-1.5">Estoque disponível (prioridade auto):</p>
+                      {foodItems.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {foodItems.map((f, idx) => (
+                            <div key={f.id} className="flex items-center gap-1 rounded-lg px-2 py-1" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                              {idx === 0 && <span className="text-[8px] font-black text-amber-600">①</span>}
+                              <img src={f.img} className="w-4 h-4 object-contain" alt={f.label} />
+                              <span className="text-[9px] font-black text-slate-600">{f.label}</span>
+                              <span className="text-[9px] font-black text-green-600">x{f.qty}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[10px] font-bold text-slate-400 italic">Sem alimentos — compre no Mart ou use Berries</p>
+                      )}
                     </div>
                   </div>
-                  <button type="button" onClick={() => updateAutoConfig({ autoPotion: !(gameState.autoCaptureConfig?.autoPotion) })} className={`shrink-0 min-h-[36px] w-16 rounded-full px-2 text-[10px] font-black uppercase ${gameState.autoCaptureConfig?.autoPotion ? 'bg-green-600 text-white shadow-md shadow-green-200' : 'bg-slate-200 text-slate-500'}`}>{gameState.autoCaptureConfig?.autoPotion ? 'ON' : 'OFF'}</button>
                 </div>
-                <div className="mt-4 rounded-2xl bg-green-50 border border-green-100 p-3">
-                  <label className="flex items-center justify-between gap-3 text-slate-800 text-xs font-black uppercase">
-                    <span>HP minimo</span>
-                    <span className="text-green-700">{gameState.autoCaptureConfig?.hpThreshold ?? gameState.autoCaptureConfig?.autoPotionHpPct ?? 30}%</span>
-                  </label>
-                  <input type="range" min="10" max="80" step="5" value={gameState.autoCaptureConfig?.hpThreshold ?? gameState.autoCaptureConfig?.autoPotionHpPct ?? 30} onChange={e => updateAutoConfig({ hpThreshold: Number(e.target.value), autoPotionHpPct: Number(e.target.value) })} className="mt-3 w-full accent-green-600" />
-                </div>
-              </div>
 
-              <div className="rounded-2xl border-2 border-amber-100 bg-white p-4 shadow-sm">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="w-11 h-11 rounded-2xl bg-amber-50 flex items-center justify-center shrink-0 border border-amber-100">
-                      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moomoo-milk.png" className="w-8 h-8 object-contain" alt="" />
+                {/* ── AUTO-BUFF ── */}
+                <div className="rounded-2xl border-2 bg-white shadow-sm overflow-hidden" style={{ borderColor: autoConfig.autoBuff ? '#e9d5ff' : '#f1f5f9' }}>
+                  <div className="flex items-center justify-between gap-3 p-4 pb-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#faf5ff', border: '1.5px solid #e9d5ff' }}>
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png" className="w-7 h-7 object-contain" alt="" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-slate-800 text-[13px] font-black uppercase leading-none">Auto-Buff</p>
+                        <p className="text-slate-400 text-[10px] font-bold mt-1">Aplica itens de buff no início de cada batalha</p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-slate-800 text-sm font-black uppercase leading-none">Auto-Stamina</p>
-                      <p className="text-slate-500 text-[11px] font-bold leading-snug mt-2">Alimenta Pokemon quando a energia ficar baixa.</p>
-                    </div>
+                    <ToggleBtn active={!!autoConfig.autoBuff} onClick={() => updateAutoConfig({ autoBuff: !autoConfig.autoBuff })} colorOn="#7c3aed" colorShadow="rgba(124,58,237,0.3)" />
                   </div>
-                  <button type="button" onClick={() => updateAutoConfig({ autoStamina: !(gameState.autoCaptureConfig?.autoStamina) })} className={`shrink-0 min-h-[36px] w-16 rounded-full px-2 text-[10px] font-black uppercase ${gameState.autoCaptureConfig?.autoStamina ? 'bg-amber-600 text-white shadow-md shadow-amber-200' : 'bg-slate-200 text-slate-500'}`}>{gameState.autoCaptureConfig?.autoStamina ? 'ON' : 'OFF'}</button>
-                </div>
-                <div className="mt-4 rounded-2xl bg-amber-50 border border-amber-100 p-3">
-                  <label className="flex items-center justify-between gap-3 text-slate-800 text-xs font-black uppercase">
-                    <span>Energia minima</span>
-                    <span className="text-amber-700">{gameState.autoCaptureConfig?.staminaThreshold ?? gameState.autoCaptureConfig?.autoStaminaThreshold ?? 30}%</span>
-                  </label>
-                  <input type="range" min="10" max="80" step="5" value={gameState.autoCaptureConfig?.staminaThreshold ?? gameState.autoCaptureConfig?.autoStaminaThreshold ?? 30} onChange={e => updateAutoConfig({ staminaThreshold: Number(e.target.value), autoStaminaThreshold: Number(e.target.value) })} className="mt-3 w-full accent-amber-600" />
+                  {/* Grid de buff items */}
+                  <div className="px-4 pb-4">
+                    <div className="grid grid-cols-2 gap-2">
+                      {BUFF_LIST.map(b => {
+                        const qty = inv[b.id] || 0;
+                        const active = !!buffItems[b.id];
+                        return (
+                          <button key={b.id} type="button"
+                            onClick={() => updateAutoConfig({ autoBuffItems: { ...buffItems, [b.id]: !buffItems[b.id] } })}
+                            className="relative flex items-center gap-2.5 p-2.5 rounded-xl border-2 transition-all text-left"
+                            style={{
+                              borderColor: active ? b.color : '#e2e8f0',
+                              background: active ? b.color + '12' : '#f8fafc',
+                              opacity: qty === 0 ? 0.55 : 1,
+                            }}
+                          >
+                            <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: active ? b.color + '22' : '#f1f5f9' }}>
+                              <img src={b.img} className="w-7 h-7 object-contain" alt={b.label} />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-black text-slate-800 leading-none">{b.label}</p>
+                              <p className="text-[9px] font-bold text-slate-400 mt-0.5">{b.desc}</p>
+                              <p className="text-[9px] font-black mt-0.5" style={{ color: qty > 0 ? b.color : '#94a3b8' }}>
+                                {qty > 0 ? `x${qty} disponível` : 'sem estoque'}
+                              </p>
+                            </div>
+                            {active && (
+                              <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center text-white text-[8px] font-black" style={{ background: b.color }}>✓</span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {autoConfig.autoBuff && (
+                      <p className="text-[9px] font-bold text-slate-400 mt-2.5 text-center">
+                        💡 Aplica no início de cada novo inimigo · Stage máximo +1 por batalha
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex-shrink-0 px-5 pt-3 pb-6 border-t border-slate-100 bg-white">
-              <button onClick={() => setShowBattleAutoPanel(false)} className="w-full min-h-[52px] bg-slate-900 text-white rounded-2xl font-black uppercase tracking-[0.12em] shadow-xl hover:bg-slate-700 transition-all">Salvar Ajustes</button>
+              {/* ── FOOTER ── */}
+              <div className="flex-shrink-0 px-4 pt-3 pb-5 border-t border-slate-100 bg-white">
+                {/* Resumo dos autos ativos */}
+                {activeCount > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {gameState.autoCapture && <span className="text-[9px] font-black uppercase px-2 py-1 rounded-full text-white" style={{ background: '#2563eb' }}>● Captura</span>}
+                    {autoConfig.autoPotion  && <span className="text-[9px] font-black uppercase px-2 py-1 rounded-full text-white" style={{ background: '#16a34a' }}>● Poção</span>}
+                    {autoConfig.autoStamina && <span className="text-[9px] font-black uppercase px-2 py-1 rounded-full text-white" style={{ background: '#d97706' }}>● Stamina</span>}
+                    {autoConfig.autoBuff    && <span className="text-[9px] font-black uppercase px-2 py-1 rounded-full text-white" style={{ background: '#7c3aed' }}>● Buff</span>}
+                  </div>
+                )}
+                <button onClick={() => setShowBattleAutoPanel(false)} className="w-full min-h-[50px] text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-lg transition-all hover:opacity-90 active:scale-95" style={{ background: 'linear-gradient(135deg,#0f172a,#1e293b)' }}>
+                  Salvar e Fechar
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ── RAID: Botão flutuante ─────────────────────────────────────────── */}
       {raidRouteNotice && ['routes', 'battles'].includes(currentView) && (
@@ -9179,6 +9611,136 @@ export default function App() {
               onClaimRewards={handleClaimRaidRewards}
               POKEDEX={POKEDEX}
             />
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: Alpha capturado — substituir shiny? ─────────────────────── */}
+      {pendingAlphaCapture && (
+        <div
+          className="fixed inset-0 w-screen h-screen z-[110000] flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(10px)' }}
+        >
+          <div
+            className="relative w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl"
+            style={{ background: 'linear-gradient(160deg,#1a0a0a 0%,#2d1010 100%)', border: '2px solid #ef444488' }}
+          >
+            {/* Barra vermelha topo */}
+            <div style={{ height: 4, background: 'linear-gradient(90deg,transparent,#ef4444,#dc2626,#ef4444,transparent)' }} />
+            <div style={{ padding: '28px 24px 24px' }}>
+              {/* Ícone alfa */}
+              <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  width: 64, height: 64, borderRadius: '50%',
+                  background: 'radial-gradient(circle, #ef444444 0%, transparent 70%)',
+                  border: '2px solid #ef444466', marginBottom: 8,
+                }}>
+                  <span style={{ fontSize: 32 }}>🔴</span>
+                </div>
+                <h2 style={{ color: '#fff', fontWeight: 900, fontSize: 20, margin: 0 }}>
+                  {pendingAlphaCapture.raid.name} ALFA capturado!
+                </h2>
+                <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 6 }}>
+                  Você já possui uma versão <span style={{ color: '#fbbf24', fontWeight: 700 }}>✨ Shiny</span> deste Pokémon.
+                  O que deseja fazer?
+                </p>
+              </div>
+
+              {/* Sprite comparação */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 32, marginBottom: 20 }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{
+                    width: 80, height: 80, borderRadius: 16, overflow: 'hidden',
+                    border: '2px solid #ef444466', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'rgba(239,68,68,0.1)', position: 'relative',
+                  }}>
+                    <img
+                      src={pendingAlphaCapture.raid.isShiny
+                        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pendingAlphaCapture.raid.pokemonId}.png`
+                        : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pendingAlphaCapture.raid.pokemonId}.png`}
+                      alt="alfa"
+                      style={{ width: 70, height: 70, objectFit: 'contain', imageRendering: 'pixelated',
+                        transform: 'scale(1.3)', filter: 'drop-shadow(0 0 6px #ef4444)' }}
+                    />
+                  </div>
+                  <p style={{ color: '#ef4444', fontSize: 11, fontWeight: 800, marginTop: 4 }}>🔴 ALFA (novo)</p>
+                  <p style={{ color: '#64748b', fontSize: 10 }}>+30% stats</p>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{
+                    width: 80, height: 80, borderRadius: 16, overflow: 'hidden',
+                    border: '2px solid #fbbf2466', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'rgba(251,191,36,0.1)',
+                  }}>
+                    <img
+                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pendingAlphaCapture.raid.pokemonId}.png`}
+                      alt="shiny"
+                      style={{ width: 70, height: 70, objectFit: 'contain', imageRendering: 'pixelated',
+                        filter: 'drop-shadow(0 0 6px #fbbf24)' }}
+                    />
+                  </div>
+                  <p style={{ color: '#fbbf24', fontSize: 11, fontWeight: 800, marginTop: 4 }}>✨ SHINY (seu)</p>
+                  <p style={{ color: '#64748b', fontSize: 10 }}>versão atual</p>
+                </div>
+              </div>
+
+              {/* Botões */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <button
+                  onClick={() => {
+                    // Substitui o shiny pelo alfa
+                    const { newPoke, existingShinyInstanceId, raid, newItems } = pendingAlphaCapture;
+                    setGameState(s => {
+                      const replaceInList = (list) => list.map(p => p.instanceId === existingShinyInstanceId ? newPoke : p);
+                      return {
+                        ...s,
+                        team: replaceInList(s.team),
+                        pc:   replaceInList(s.pc),
+                        inventory: { ...s.inventory, items: newItems },
+                        activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
+                        raidStats:   { ...(s.raidStats || {}), captured: (s.raidStats?.captured || 0) + 1 },
+                        playerStats: bumpPlayerStats(s.playerStats, { pokemonCaptured: 1, raidsCaptured: 1 }),
+                      };
+                    });
+                    addLog(`🔴 ${raid.name} ALFA substituiu o Shiny no PC!`, 'system');
+                    showRaidRouteNotice(raid, 'captured');
+                    setPendingAlphaCapture(null);
+                  }}
+                  style={{
+                    padding: '14px', borderRadius: 14, border: '2px solid #ef4444',
+                    background: 'linear-gradient(135deg,#7f1d1d,#991b1b)',
+                    color: '#fff', fontWeight: 800, fontSize: 15, cursor: 'pointer',
+                  }}
+                >
+                  🔴 Substituir Shiny pelo Alfa
+                </button>
+                <button
+                  onClick={() => {
+                    // Mantém os dois — adiciona alfa ao PC
+                    const { newPoke, raid, newItems } = pendingAlphaCapture;
+                    setGameState(s => ({
+                      ...s,
+                      pc: [...(s.pc || []), newPoke],
+                      inventory: { ...s.inventory, items: newItems },
+                      activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
+                      raidStats:   { ...(s.raidStats || {}), captured: (s.raidStats?.captured || 0) + 1 },
+                      playerStats: bumpPlayerStats(s.playerStats, { pokemonCaptured: 1, raidsCaptured: 1 }),
+                    }));
+                    addLog(`🔴 ${raid.name} ALFA foi ao PC! Você manteve os dois.`, 'system');
+                    showRaidRouteNotice(raid, 'captured');
+                    setPendingAlphaCapture(null);
+                  }}
+                  style={{
+                    padding: '14px', borderRadius: 14, border: '2px solid #334155',
+                    background: 'rgba(30,41,59,0.8)',
+                    color: '#94a3b8', fontWeight: 700, fontSize: 14, cursor: 'pointer',
+                  }}
+                >
+                  📦 Manter os dois no PC
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

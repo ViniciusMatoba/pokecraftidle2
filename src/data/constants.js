@@ -36,6 +36,7 @@ export const KALOS_BADGE_IDS = ['bug_badge', 'cliff_badge', 'rumble_badge', 'pla
 export const ALOLA_BADGE_IDS = ['melemele_stamp', 'akala_stamp', 'ulaula_stamp', 'poni_stamp', 'alola_elite_stamp', 'alola_champion_stamp', 'ultra_stamp', 'battle_tree_stamp'];
 export const GALAR_BADGE_IDS = ['grass_badge_galar', 'water_badge_galar', 'fire_badge_galar', 'fighting_badge_galar', 'fairy_badge_galar', 'rock_badge_galar', 'dark_badge_galar', 'dragon_badge_galar'];
 export const PALDEA_BADGE_IDS = ['bug_badge_paldea', 'grass_badge_paldea', 'electric_badge_paldea', 'water_badge_paldea', 'normal_badge_paldea', 'ghost_badge_paldea', 'psychic_badge_paldea', 'ice_badge_paldea'];
+export const HISUI_BADGE_IDS = ['fieldlands_stamp', 'mirelands_stamp', 'coastlands_stamp', 'highlands_stamp', 'icelands_stamp', 'lake_stamp', 'volo_stamp', 'arceus_stamp'];
 
 export const GYM_LEVEL_CAPS = {
   // Regra: após o 8º ginásio (índice 8) o cap é sempre 100.
@@ -75,6 +76,10 @@ export const GYM_LEVEL_CAPS = {
   paldea: {
     bug_badge_paldea: 15, grass_badge_paldea: 20, electric_badge_paldea: 28, water_badge_paldea: 35,
     normal_badge_paldea: 42, ghost_badge_paldea: 48, psychic_badge_paldea: 55, ice_badge_paldea: 62, paldea_champion: 100
+  },
+  hisui: {
+    fieldlands_stamp: 30, mirelands_stamp: 40, coastlands_stamp: 50, highlands_stamp: 58,
+    icelands_stamp: 65, lake_stamp: 73, volo_stamp: 82, arceus_stamp: 92, hisui_champion: 100
   }
 };
 
@@ -121,7 +126,8 @@ export const DEFAULT_GAME_STATE = {
     kalos: [],
     alola: [],
     galar: [],
-    paldea: []
+    paldea: [],
+    hisui: []
   },
   activeRegion: 'kanto',
   currentRoute: 'pallet_town',

@@ -32,6 +32,7 @@ export const inferRouteRegion = (routeId, routeGroup) => {
   if (str.includes('alola') || str.includes('hauoli') || str.includes('akala') || str.includes('poni')) return { id: 'alola', order: 7 };
   if (str.includes('kalos') || str.includes('vaniville') || str.includes('lumiose') || str.includes('victory_road_kalos')) return { id: 'kalos', order: 6 };
   if (str.includes('unova') || str.includes('nuvema') || str.includes('striaton') || str.includes('victory_road_unova')) return { id: 'unova', order: 5 };
+  if (str.includes('hisui') || str.includes('fieldlands') || str.includes('mirelands') || str.includes('coastlands') || str.includes('highlands') || str.includes('icelands') || str.includes('sacred_plaza')) return { id: 'hisui', order: 10 };
   if (str.includes('sinnoh') || str.includes('twinleaf') || str.includes('sandgem') || str.includes('jubilife') || str.includes('survival_area') || str.includes('stark_mountain')) return { id: 'sinnoh', order: 4 };
   if (str.includes('hoenn') || str.includes('littleroot') || str.includes('route_101') || str.includes('route_102') || str.includes('oldale') || str.includes('petalburg') || str.includes('rustboro') || str.includes('dewford') || str.includes('granite_cave') || str.includes('slateport') || str.includes('mauville') || str.includes('route_110') || str.includes('route_111') || str.includes('route_113') || str.includes('fiery_path') || str.includes('fallarbor') || str.includes('meteor_falls') || str.includes('mt_chimney') || str.includes('lavaridge') || str.includes('fortree') || str.includes('lilycove') || str.includes('mt_pyre') || str.includes('ocean_routes') || str.includes('mossdeep') || str.includes('seafloor') || str.includes('sootopolis') || str.includes('cave_of_origin') || str.includes('sky_pillar') || str.includes('pacifidlog') || str.includes('ever_grande') || str.includes('victory_road_hoenn') || str.includes('route_116') || str.includes('rusturf') || str.includes('route_104') || str.includes('route_118') || str.includes('route_120')) return { id: 'hoenn', order: 3 };
   if (str.includes('johto') || str.includes('bark') || str.includes('cherrygrove') || str.includes('violet') || str.includes('azalea') || str.includes('goldenrod') || str.includes('ecruteak') || str.includes('olivine') || str.includes('cianwood') || str.includes('mahogany') || str.includes('blackthorn') || str.includes('mt_silver') || str.includes('silver') || str.includes('sprout') || str.includes('ilex') || str.includes('slowpoke') || str.includes('union_cave') || str.includes('national_park') || str.includes('burned_tower') || str.includes('lake_of_rage') || str.includes('ice_path') || str.includes('dragons_den') || str.includes('johto_victory')) return { id: 'johto', order: 2 };
@@ -113,6 +114,15 @@ const ROUTE_GROUP_OVERRIDES = {
   paldea_league: 'Paldea League',
   paldea_area_zero: 'Area Zero',
   paldea_post_league: 'Area Zero',
+
+  hisui_jubilife: 'Aldeia Jubilife',
+  hisui_fieldlands_1: 'Campos Obsidiana',
+  hisui_fieldlands_2: 'Campos Obsidiana',
+  hisui_mirelands_1: 'Pântanos Carmesim',
+  hisui_coastlands_1: 'Costa Cobalto',
+  hisui_highlands_1: 'Terras Altas Coronet',
+  hisui_icelands_1: 'Gelos Alabastro',
+  hisui_sacred_plaza: 'Praça Sagrada',
 };
 
 const getRouteDisplayGroup = (route) => ROUTE_GROUP_OVERRIDES[route.id] || route.group;
@@ -1239,6 +1249,153 @@ const FUTURE_REGION_ROUTES = {
     ],
     background: '/bg_paldea_elite.webp',
     description: 'O desafio definitivo no fundo da Area Zero contra o lendário Terapagos.',
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  // HISUI (Legends: Arceus) — Sinnoh Antigo
+  // ══════════════════════════════════════════════════════════════
+
+  hisui_jubilife: {
+    id: 'hisui_jubilife', name: 'Aldeia Jubilife', type: 'city', group: 'Hisui Inicio',
+    unlockLevel: 1, requirements: ['hisui_started'],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: '/battle_bg_hisui_fieldlands.webp',
+    description: 'O centro da Expedição Galática — ponto de partida para explorar a Hisui antiga.',
+  },
+
+  hisui_fieldlands_1: {
+    id: 'hisui_fieldlands_1', name: 'Campos Obsidiana — Pradaria', type: 'farm', group: 'Hisui Inicio',
+    unlockLevel: 10, requirements: ['hisui_started'], unlocks: 'hisui_fieldlands_1_cleared',
+    biome: 'grass',
+    enemies: [
+      { id: 399, level: 12, name: 'Bidoof',   rate: 0.30 },
+      { id: 396, level: 13, name: 'Starly',   rate: 0.25 },
+      { id: 403, level: 14, name: 'Shinx',    rate: 0.20 },
+      { id: 401, level: 11, name: 'Kricketot',rate: 0.15 },
+      { id: 418, level: 15, name: 'Buizel',   rate: 0.10 },
+    ],
+    trainerChance: 0.08,
+    trainers: [
+      { name: 'Recruta Jubilife', sprite: S.youngster, team: pk([399, 396], 14), reward: 400 },
+    ],
+    background: '/battle_bg_hisui_fieldlands.webp',
+    description: 'Planícies douradas que se estendem até o horizonte sob um céu pré-histórico.',
+  },
+
+  hisui_fieldlands_2: {
+    id: 'hisui_fieldlands_2', name: 'Campos Obsidiana — Floresta', type: 'farm', group: 'Hisui Inicio',
+    unlockLevel: 22, requirements: ['hisui_fieldlands_1_cleared'], unlocks: 'hisui_fieldlands_2_cleared',
+    biome: 'forest',
+    enemies: [
+      { id: 127, level: 26, name: 'Pinsir',    rate: 0.25 },
+      { id: 123, level: 28, name: 'Scyther',   rate: 0.25 },
+      { id: 111, level: 24, name: 'Rhyhorn',   rate: 0.20 },
+      { id: 179, level: 25, name: 'Mareep',    rate: 0.15 },
+      { id: 900, level: 30, name: 'Kleavor',   rate: 0.15 },
+    ],
+    trainerChance: 0.10,
+    trainers: [
+      { name: 'Caçador Hisui', sprite: S.hiker, team: pk([127, 111], 28), reward: 800 },
+      { name: 'Guerreira Mai', sprite: S.aceF, team: [{ id: 900, level: 30 }], reward: 1500 },
+    ],
+    background: '/battle_bg_hisui_fieldlands.webp',
+    description: 'Florestas antigas onde o majestoso Kleavor frenético reina supremo.',
+  },
+
+  hisui_mirelands_1: {
+    id: 'hisui_mirelands_1', name: 'Pântanos Carmesim', type: 'farm', group: 'Hisui Medio',
+    unlockLevel: 35, requirements: ['hisui_fieldlands_2_cleared'], unlocks: 'hisui_mirelands_1_cleared',
+    biome: 'cave',
+    enemies: [
+      { id: 211, level: 38, name: 'Qwilfish-H', rate: 0.25 },
+      { id: 193, level: 36, name: 'Yanma',      rate: 0.25 },
+      { id: 114, level: 35, name: 'Tangela',    rate: 0.20 },
+      { id: 453, level: 37, name: 'Croagunk',   rate: 0.20 },
+      { id: 355, level: 40, name: 'Duskull',    rate: 0.10 },
+    ],
+    trainerChance: 0.10,
+    trainers: [
+      { name: 'Guardião Lian', sprite: S.aceM, team: pk([211, 193], 38), reward: 2000 },
+    ],
+    background: '/battle_bg_hisui_mirelands.webp',
+    description: 'Charcos vermelhos envoltos em névoa espessa, lar do Qwilfish de Hisui.',
+  },
+
+  hisui_coastlands_1: {
+    id: 'hisui_coastlands_1', name: 'Costa Cobalto', type: 'farm', group: 'Hisui Medio',
+    unlockLevel: 44, requirements: ['hisui_mirelands_1_cleared'], unlocks: 'hisui_coastlands_1_cleared',
+    biome: 'water',
+    enemies: [
+      { id: 58,  level: 46, name: 'Growlithe-H', rate: 0.25 },
+      { id: 458, level: 42, name: 'Mantyke',      rate: 0.25 },
+      { id: 457, level: 43, name: 'Lumineon',     rate: 0.20 },
+      { id: 423, level: 44, name: 'Gastrodon',    rate: 0.20 },
+      { id: 226, level: 48, name: 'Mantine',      rate: 0.10 },
+    ],
+    trainerChance: 0.10,
+    trainers: [
+      { name: 'Guardião Iscan', sprite: S.aceM, team: pk([58, 226], 46), reward: 2500 },
+    ],
+    background: '/battle_bg_hisui_coastlands.webp',
+    description: 'Falésias cobalto banhadas por um oceano intenso, lar do Arcanine de Hisui.',
+  },
+
+  hisui_highlands_1: {
+    id: 'hisui_highlands_1', name: 'Terras Altas Coronet', type: 'farm', group: 'Hisui Avancado',
+    unlockLevel: 52, requirements: ['hisui_coastlands_1_cleared'], unlocks: 'hisui_highlands_1_cleared',
+    biome: 'mountain',
+    enemies: [
+      { id: 100, level: 50, name: 'Voltorb-H', rate: 0.25 },
+      { id: 443, level: 52, name: 'Gible',     rate: 0.20 },
+      { id: 436, level: 51, name: 'Bronzor',   rate: 0.20 },
+      { id: 215, level: 53, name: 'Sneasel-H', rate: 0.20 },
+      { id: 101, level: 56, name: 'Electrode-H',rate: 0.15 },
+    ],
+    trainerChance: 0.12,
+    trainers: [
+      { name: 'Mestre Ingo', sprite: S.aceM, team: pk([100, 215, 443], 55), reward: 3500 },
+    ],
+    background: '/battle_bg_hisui_highlands.webp',
+    description: 'Picos tempestuosos onde o Voltorb de Hisui e o Sneasel de Hisui habitam.',
+  },
+
+  hisui_icelands_1: {
+    id: 'hisui_icelands_1', name: 'Gelos Alabastro', type: 'farm', group: 'Hisui Avancado',
+    unlockLevel: 60, requirements: ['hisui_highlands_1_cleared'], unlocks: 'hisui_icelands_1_cleared',
+    biome: 'mountain',
+    enemies: [
+      { id: 220, level: 58, name: 'Swinub',   rate: 0.25 },
+      { id: 361, level: 60, name: 'Snorunt',  rate: 0.25 },
+      { id: 564, level: 59, name: 'Tirtouga', rate: 0.15 },
+      { id: 712, level: 62, name: 'Bergmite', rate: 0.20 },
+      { id: 713, level: 65, name: 'Avalugg-H',rate: 0.15 },
+    ],
+    trainerChance: 0.12,
+    trainers: [
+      { name: 'Guardião Gaeric', sprite: S.aceM, team: pk([713, 220], 63), reward: 4500 },
+    ],
+    background: '/battle_bg_hisui_icelands.webp',
+    description: 'Campos glaciais iluminados pela aurora boreal, lar do Avalugg de Hisui.',
+  },
+
+  hisui_sacred_plaza: {
+    id: 'hisui_sacred_plaza', name: 'Praça Sagrada / Templo Arceus', type: 'farm', group: 'Hisui Elite',
+    unlockLevel: 72, requirements: ['hisui_icelands_1_cleared'], unlocks: 'hisui_sacred_plaza_cleared',
+    biome: 'cave',
+    enemies: [
+      { id: 480, level: 72, name: 'Uxie',     rate: 0.20 },
+      { id: 481, level: 72, name: 'Mesprit',  rate: 0.20 },
+      { id: 482, level: 72, name: 'Azelf',    rate: 0.20 },
+      { id: 487, level: 78, name: 'Giratina', rate: 0.25 },
+      { id: 493, level: 85, name: 'Arceus',   rate: 0.15 },
+    ],
+    trainerChance: 0.15,
+    trainers: [
+      { name: 'Volo (Traidor)', sprite: S.cooltrainer, team: pk([487, 437, 384, 143, 282, 571], 82), reward: 18000 },
+      { name: 'Comandante Kamado', sprite: S.aceM, team: pk([493, 483, 484, 487], 92), reward: 25000 },
+    ],
+    background: '/battle_bg_hisui_icelands.webp',
+    description: 'O coração sagrado de Hisui, onde Volo e o lendário Arceus aguardam.',
   },
 };
 

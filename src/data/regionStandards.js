@@ -8,9 +8,10 @@ import {
   ALOLA_BADGE_IDS,
   GALAR_BADGE_IDS,
   PALDEA_BADGE_IDS,
+  HISUI_BADGE_IDS,
 } from './constants';
 
-export const REGION_ORDER = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea'];
+export const REGION_ORDER = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea', 'hisui'];
 
 export const REGION_LABELS = {
   kanto: 'Kanto',
@@ -22,6 +23,7 @@ export const REGION_LABELS = {
   alola: 'Alola',
   galar: 'Galar',
   paldea: 'Paldea',
+  hisui: 'Hisui',
 };
 
 export const REGION_START_FLAGS = {
@@ -34,6 +36,7 @@ export const REGION_START_FLAGS = {
   alola: 'alola_started',
   galar: 'galar_started',
   paldea: 'paldea_started',
+  hisui: 'hisui_started',
 };
 
 export const REGION_CHAMPION_FLAGS = {
@@ -46,6 +49,7 @@ export const REGION_CHAMPION_FLAGS = {
   alola: 'alola_champion',
   galar: 'galar_champion',
   paldea: 'paldea_champion',
+  hisui: 'hisui_champion',
 };
 
 export const REGION_DEX_RANGES = {
@@ -58,6 +62,7 @@ export const REGION_DEX_RANGES = {
   alola: { min: 722, max: 809 },
   galar: { min: 810, max: 905 },
   paldea: { min: 906, max: 1025 },
+  hisui: { min: 387, max: 501 }, // Pokémon de Hisui são formas do pool de Sinnoh
 };
 
 export const REGION_BADGE_IDS = {
@@ -70,6 +75,7 @@ export const REGION_BADGE_IDS = {
   alola: ALOLA_BADGE_IDS,
   galar: GALAR_BADGE_IDS,
   paldea: PALDEA_BADGE_IDS,
+  hisui: HISUI_BADGE_IDS,
 };
 
 export const isRegionUnlocked = (gameState = {}, region = 'kanto') => {
@@ -83,15 +89,20 @@ export const getUnlockedRegions = (gameState = {}) =>
 
 export const getPokemonRegion = (pokemonId) => {
   const id = Number(pokemonId);
-  return REGION_ORDER.find(region => {
+  // Hisui compartilha range com Sinnoh — priorizar Sinnoh na busca
+  const searchOrder = REGION_ORDER.filter(r => r !== 'hisui');
+  return searchOrder.find(region => {
     const range = REGION_DEX_RANGES[region];
-    return id >= range.min && id <= range.max;
+    return range && id >= range.min && id <= range.max;
   }) || 'future';
 };
 
 export const getUnlockedDexLimit = (gameState = {}) => {
   const unlocked = getUnlockedRegions(gameState);
-  return unlocked.reduce((limit, region) => Math.max(limit, REGION_DEX_RANGES[region]?.max || 0), 151);
+  return unlocked.reduce((limit, region) => {
+    const range = REGION_DEX_RANGES[region];
+    return range ? Math.max(limit, range.max) : limit;
+  }, 151);
 };
 
 export const isPokemonAllowedInRegion = (pokemonId, activeRegion = 'kanto') => {
@@ -106,19 +117,19 @@ export const isPokemonAllowedInRegion = (pokemonId, activeRegion = 'kanto') => {
  */
 export const isPokemonLegal = (pokemon, activeRegion = 'kanto', worldFlags = []) => {
   if (!pokemon) return false;
-  
-  // Normalize input: allow passing just ID for backward compatibility, 
+
+  // Normalize input: allow passing just ID for backward compatibility,
   // but prioritize the pokemon object's properties.
   const pokemonId = typeof pokemon === 'object' ? pokemon.id : pokemon;
   const capturedRegion = typeof pokemon === 'object' ? pokemon.capturedRegion : null;
-  
+
   // Rule A: Matches current region (Priority: capturedRegion > National Dex Origin)
   const pokemonRegion = capturedRegion || getPokemonRegion(pokemonId);
   if (pokemonRegion === activeRegion) return true;
-  
+
   // Rule B: Player is Champion of the current region
   const championFlag = REGION_CHAMPION_FLAGS[activeRegion];
   if (championFlag && worldFlags.includes(championFlag)) return true;
-  
+
   return false;
 };

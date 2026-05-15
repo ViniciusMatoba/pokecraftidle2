@@ -1,5 +1,5 @@
 {
-  "version": "1.92.0",
-  "date": "15/05/2026 15:02",
-  "notes": "Upgrade visual de Minha Regiao, cards de Ginasio e Elite reformulados, grid dinamico de equipe, slider de nivel e persistencia dos dados customizados via Firebase."
+  "version": "1.92.4",
+  "date": "15/05/2026 22:00",
+  "notes": "Corrigido: Iniciais de Unova (Snivy, Tepig, Oshawott) agora aparecem nas rotas 1 e 2 de Unova após derrotar o rival Cheren. A Profa. Juniper exibe anúncio seguindo o padrão do Prof. Carvalho de Kanto."
 }
