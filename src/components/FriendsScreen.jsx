@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   searchUsersByName,
   sendFriendRequest,
@@ -125,16 +125,19 @@ const FriendsScreen = ({
   onClose,
   onRequestsChanged,    // callback para refresh quando aceitar/recusar
 }) => {
-  const [tab,           setTab]           = useState('friends');
-  const [friends,       setFriends]       = useState([]);
-  const [friendsLoading,setFriendsLoading]= useState(false);
-  const [searchQuery,   setSearchQuery]   = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [searchDone,    setSearchDone]    = useState(false);
-  const [sentRequests,  setSentRequests]  = useState(new Set());
-  const [confirmRemove, setConfirmRemove] = useState(null); // friend a remover
-  const [toast,         setToast]         = useState(null);
+  const [tab,             setTab]             = useState('friends');
+  const [friends,         setFriends]         = useState([]);
+  const [friendsLoading,  setFriendsLoading]  = useState(false);
+  const [searchQuery,     setSearchQuery]      = useState('');
+  const [searchResults,   setSearchResults]   = useState([]);
+  const [searchLoading,   setSearchLoading]   = useState(false);
+  const [searchDone,      setSearchDone]      = useState(false);
+  const [sentRequests,    setSentRequests]    = useState(new Set());
+  const [confirmRemove,   setConfirmRemove]   = useState(null);
+  const [toast,           setToast]           = useState(null);
+  const [loadingChallenge,setLoadingChallenge]= useState({}); // { [uid]: bool }
+  const requestCooldowns  = useRef({});  // { [toUid]: timestamp } — rate limit
+  const searchDebounce    = useRef(null);
 
   /* -- Helpers -- */
   const showToast = (msg, type = 'success') => {
@@ -185,8 +188,15 @@ const FriendsScreen = ({
     setSearchDone(true);
   };
 
-  /* -- Enviar solicitação -- */
+  /* -- Enviar solicitação (com rate limit de 30s por destinatário) -- */
   const handleSendRequest = async (toProfile) => {
+    const now = Date.now();
+    const lastSent = requestCooldowns.current[toProfile.uid] || 0;
+    if (now - lastSent < 30_000) {
+      showToast('Aguarde antes de enviar outra solicitação.', 'warning');
+      return;
+    }
+    requestCooldowns.current[toProfile.uid] = now;
     const { ok } = await sendFriendRequest(currentUserUid, currentUserProfile, toProfile.uid);
     if (ok) {
       setSentRequests(prev => new Set([...prev, toProfile.uid]));
@@ -331,23 +341,32 @@ const FriendsScreen = ({
             {friends.map(friend => {
               const profile = friend.profile || friend;
               const hasRegion = !!(profile.hasRegion);
+              const friendUid = friend.uid || friend.id;
+              const isChallenging = !!loadingChallenge[friendUid];
               return (
-                <FriendCard key={friend.uid || friend.id} profile={profile}>
+                <FriendCard key={friendUid} profile={profile}>
                   <div className="flex gap-2">
                     {hasRegion ? (
                       <button
+                        disabled={isChallenging}
                         onClick={async () => {
-                          showToast('Carregando região...', 'info');
-                          const region = await loadFriendRegion(friend.uid || friend.id);
-                          if (!region) {
-                            showToast('Região não encontrada ou ainda não publicada.', 'error');
-                          } else {
-                            showToast(`Região "${region.regionName || 'Sem nome'}" carregada! (batalhas em breve)`, 'info');
+                          setLoadingChallenge(prev => ({ ...prev, [friendUid]: true }));
+                          try {
+                            const region = await loadFriendRegion(friendUid);
+                            if (!region) {
+                              showToast('Região não encontrada ou ainda não publicada.', 'error');
+                            } else {
+                              // TODO Fase 3: navegar para RegionChallengeScreen com { region, ownerProfile: profile }
+                              showToast(`Região "${region.regionName || 'Sem nome'}" encontrada! Batalhas em breve.`, 'info');
+                            }
+                          } finally {
+                            setLoadingChallenge(prev => ({ ...prev, [friendUid]: false }));
                           }
                         }}
-                        className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-black text-xs py-2.5 rounded-xl active:scale-95 transition-all shadow-sm"
+                        className={`flex-1 font-black text-xs py-2.5 rounded-xl active:scale-95 transition-all shadow-sm
+                          ${isChallenging ? 'bg-amber-300 text-white cursor-wait' : 'bg-amber-500 hover:bg-amber-600 text-white'}`}
                       >
-                        ⚔️ Desafiar Região
+                        {isChallenging ? '⏳ Carregando...' : '⚔️ Desafiar Região'}
                       </button>
                     ) : (
                       <button
@@ -425,8 +444,15 @@ const FriendsScreen = ({
               <input
                 type="text"
                 value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                onChange={e => {
+                  setSearchQuery(e.target.value);
+                  // Debounce: aguarda 800ms sem digitar antes de buscar automaticamente
+                  clearTimeout(searchDebounce.current);
+                  if (e.target.value.trim().length >= 3) {
+                    searchDebounce.current = setTimeout(() => handleSearch(), 800);
+                  }
+                }}
+                onKeyDown={e => { clearTimeout(searchDebounce.current); if (e.key === 'Enter') handleSearch(); }}
                 placeholder="Nome do treinador..."
                 className="flex-1 border-2 border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold bg-white focus:outline-none focus:border-blue-400 transition-colors shadow-sm"
               />

@@ -400,10 +400,14 @@ const RegionBuilderScreen = ({ gameState, setGameState, POKEDEX, onClose }) => {
         if (nextIdx >= 8) return prev;
         cost = GYM_SLOT_COSTS[nextIdx];
       } else if (type === 'elite') {
+        // Requer todos os 8 ginásios primeiro
+        if ((region.gymSlots || 0) < 8) { showToast('Compre todos os 8 ginásios primeiro!', 'error'); return prev; }
         const nextIdx = region.eliteSlots || 0;
         if (nextIdx >= 4) return prev;
         cost = ELITE_SLOT_COSTS[nextIdx];
       } else if (type === 'champion') {
+        // Requer toda a Elite Four primeiro
+        if ((region.eliteSlots || 0) < 4) { showToast('Complete a Elite Four primeiro!', 'error'); return prev; }
         if (region.championSlot) return prev;
         cost = CHAMPION_SLOT_COST;
       }
@@ -446,18 +450,58 @@ const RegionBuilderScreen = ({ gameState, setGameState, POKEDEX, onClose }) => {
   }, [editing, setGameState]);
 
   /* ── Publicar / despublicar ── */
+  const [publishConfirm, setPublishConfirm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
   const handleTogglePublish = () => {
-    const newPublished = !published;
-    setPublished(newPublished);
-    setGameState(prev => ({
-      ...prev,
-      myRegion: {
-        ...(prev.myRegion || {}),
-        regionName: regionName.trim(),
-        published:  newPublished,
-        lastPublishedAt: newPublished ? Date.now() : (prev.myRegion?.lastPublishedAt || null),
+    if (!published) {
+      // Ao publicar: validar região antes de mostrar confirmação
+      const validationErrors = [];
+      if (!regionName.trim()) validationErrors.push('Dê um nome à sua região antes de publicar.');
+      if (!readyToPublish) validationErrors.push('Configure pelo menos 1 ginásio com equipe.');
+      if (validationErrors.length > 0) { showToast(validationErrors[0], 'error'); return; }
+      setPublishConfirm(true);
+    } else {
+      // Despublicar diretamente (sem confirmação)
+      applyPublish(false);
+    }
+  };
+
+  const applyPublish = (newPublished) => {
+    setIsSaving(true);
+    // Validar e limpar Pokémon removidos do caughtData antes de salvar
+    setGameState(prev => {
+      const region = { ...(prev.myRegion || {}) };
+      const caught = prev.caughtData || {};
+
+      // Limpa times com Pokémon que o jogador não tem mais
+      const cleanTeam = (team) => (team || []).filter(id => !!caught[id]);
+      region.gyms = (region.gyms || []).map(g => {
+        const cleanedTeam = cleanTeam(g.team);
+        return { ...g, team: cleanedTeam, configured: cleanedTeam.length > 0 };
+      });
+      region.eliteFour = (region.eliteFour || []).map(e => {
+        const cleanedTeam = cleanTeam(e.team);
+        return { ...e, team: cleanedTeam, configured: cleanedTeam.length > 0 };
+      });
+      if (region.champion) {
+        const cleanedTeam = cleanTeam(region.champion.team);
+        region.champion = { ...region.champion, team: cleanedTeam, configured: cleanedTeam.length > 0 };
       }
-    }));
+
+      return {
+        ...prev,
+        myRegion: {
+          ...region,
+          regionName: regionName.trim(),
+          published:  newPublished,
+          lastPublishedAt: newPublished ? Date.now() : (region.lastPublishedAt || null),
+        }
+      };
+    });
+    setPublished(newPublished);
+    setPublishConfirm(false);
+    setTimeout(() => setIsSaving(false), 1000);
     showToast(newPublished ? '🌐 Região publicada! Amigos podem te desafiar.' : 'Região retirada do ar.');
   };
 
@@ -697,6 +741,37 @@ const RegionBuilderScreen = ({ gameState, setGameState, POKEDEX, onClose }) => {
           onSave={saveSlot}
           onCancel={() => setEditing(null)}
         />
+      )}
+
+      {/* ── Modal: Confirmar publicação ── */}
+      {publishConfirm && (
+        <div className="fixed inset-0 z-[200000] flex items-end justify-center pb-6 px-4"
+          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setPublishConfirm(false)}>
+          <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl border-2 border-emerald-100 overflow-hidden"
+            onClick={e => e.stopPropagation()}>
+            <div className="p-5 text-center">
+              <span className="text-4xl">🌐</span>
+              <p className="font-black text-slate-800 text-lg mt-2">Publicar Região?</p>
+              <p className="text-slate-500 text-sm mt-1 leading-relaxed">
+                Sua região <strong>"{regionName.trim() || 'Sem nome'}"</strong> ficará visível para seus amigos desafiarem.
+                Pokémon inválidos serão removidos automaticamente.
+              </p>
+            </div>
+            <div className="flex border-t border-slate-100">
+              <button onClick={() => setPublishConfirm(false)}
+                className="flex-1 py-4 font-black text-slate-500 hover:bg-slate-50 transition-all">
+                Cancelar
+              </button>
+              <div className="w-px bg-slate-100" />
+              <button onClick={() => applyPublish(true)}
+                disabled={isSaving}
+                className="flex-1 py-4 font-black text-emerald-600 hover:bg-emerald-50 transition-all disabled:opacity-40">
+                {isSaving ? '⏳ Salvando...' : '🌐 Publicar'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,7 +1,20 @@
-export const APP_VERSION = '1.89.9';
-export const VERSION = '1.89.9';
-export const APP_VERSION_DATE = '15/05/2026 08:30';
+export const APP_VERSION = '1.90.0';
+export const VERSION = '1.90.0';
+export const APP_VERSION_DATE = '15/05/2026 09:00';
 export const CHANGELOG = [
+  '## [V1.90.0] - 15/05/2026 09:00',
+  '### Segurança',
+  '- **Firestore Security Rules**: adicionado arquivo `firestore.rules` com regras completas. `saves` privados, `users`/`userRegions`/`bossRankings` públicos para leitura (apenas o dono escreve), `friends/requests` criado só pelo remetente, `friends/list` privado por uid.',
+  '### Corrigido',
+  '- **Gate Elite Four**: compra de slots da Elite Four agora requer todos os 8 ginásios comprados. Compra do Campeão requer Elite Four completa (4 slots). Antes o aviso aparecia mas não bloqueava.',
+  '- **Validação ao publicar região**: antes de publicar, Pokémon que o jogador não possui mais são removidos automaticamente dos times. Times que ficam vazios voltam para estado "não configurado".',
+  '- **Confirmação de publicação**: modal de confirmação exibido antes de publicar região ("Publicar Região?"), com cancelar e confirmar. Despublicar é direto (sem confirmação).',
+  '- **Perfil de amigo atualizado**: ao aceitar solicitação de amizade, busca o perfil fresco do Firestore em vez de usar o snapshot antigo da solicitação.',
+  '### Melhorado',
+  '- **Busca de amigos case-insensitive**: campo `nameLower` adicionado ao doc público do usuário. Busca por "ash" encontra "Ash", "ASH", etc. Compatível com usuários antigos via fallback.',
+  '- **Debounce na busca**: campo de nome aguarda 800ms após o usuário parar de digitar antes de consultar o Firestore (a partir de 3 caracteres). Enter ainda busca imediatamente.',
+  '- **Rate limit em solicitações**: intervalo mínimo de 30s entre solicitações para o mesmo destinatário, prevenindo spam.',
+  '- **Loading state em "Desafiar Região"**: botão fica desabilitado e exibe "⏳ Carregando..." durante a consulta ao Firestore. Evita cliques múltiplos e requisições duplicadas.',
   '## [V1.89.9] - 15/05/2026 08:30',
   '### Reorganização',
   '- **Rede de Amigos → Menu**: o card "Rede de Amigos" foi movido da Cidade para o Menu principal. Badge vermelho de solicitações pendentes aparece no card do Menu.',

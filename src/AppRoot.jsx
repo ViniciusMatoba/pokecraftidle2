@@ -1526,6 +1526,7 @@ export default function App() {
       // 2. Sincroniza dados públicos para o Ranking Global e sistema de amigos
       await setDoc(doc(db, "users", user.uid), {
         name: dataToSave.trainer?.name || "Treinador",
+        nameLower: (dataToSave.trainer?.name || "Treinador").toLowerCase().trim(),
         avatar: dataToSave.trainer?.avatar || 1,
         level: dataToSave.trainer?.level || 1,
         titleId: dataToSave.trainer?.titleId || null,

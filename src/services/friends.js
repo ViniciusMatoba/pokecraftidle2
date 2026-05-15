@@ -25,12 +25,24 @@ import {
  */
 export const searchUsersByName = async (name) => {
   try {
+    const nameLower = name.trim().toLowerCase();
+    // Busca case-insensitive pelo campo nameLower
     const q = query(
       collection(db, 'users'),
-      where('name', '==', name),
+      where('nameLower', '==', nameLower),
       limit(10)
     );
     const snap = await getDocs(q);
+    // Fallback: se nameLower ainda não existe nos docs antigos, tenta pelo campo name exato
+    if (snap.empty) {
+      const fallbackQ = query(
+        collection(db, 'users'),
+        where('name', '==', name.trim()),
+        limit(10)
+      );
+      const fallbackSnap = await getDocs(fallbackQ);
+      return fallbackSnap.docs.map(d => ({ uid: d.id, ...d.data() }));
+    }
     return snap.docs.map(d => ({ uid: d.id, ...d.data() }));
   } catch (e) {
     console.error('friends/searchUsersByName:', e);
@@ -75,7 +87,13 @@ export const hasPendingRequest = async (fromUid, toUid) => {
  */
 export const acceptFriendRequest = async (myUid, myProfile, fromUid, request) => {
   try {
-    const fromProfile = request.profile || { name: request.fromName };
+    // Busca perfil fresco do remetente (ignora snapshot antigo da solicitação)
+    let fromProfile = request.profile || { name: request.fromName };
+    try {
+      const freshSnap = await getDoc(doc(db, 'users', fromUid));
+      if (freshSnap.exists()) fromProfile = { uid: fromUid, ...freshSnap.data() };
+    } catch { /* usa snapshot da request como fallback */ }
+
     // Adiciona o remetente à minha lista
     await setDoc(doc(db, 'friends', myUid, 'list', fromUid), {
       uid:      fromUid,
