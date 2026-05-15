@@ -1,7 +1,13 @@
-export const APP_VERSION = '1.94.0';
-export const VERSION = '1.94.0';
-export const APP_VERSION_DATE = '16/05/2026 00:30';
+export const APP_VERSION = '1.95.0';
+export const VERSION = '1.95.0';
+export const APP_VERSION_DATE = '16/05/2026 02:00';
 export const CHANGELOG = [
+  '## [V1.95.0] - 16/05/2026 02:00',
+  '### Melhorado — Modal do Pokémon da Equipe',
+  '- **Item Segurado redesenhado**: exibe o item equipado (ícone + nome + efeito) ou placeholder "Sem item segurado". Toque abre/fecha o seletor de itens da mochila com quantidade disponível. Após equipar, o picker fecha automaticamente.',
+  '- **Navegação entre membros da equipe**: setas ‹ › no cabeçalho do modal permitem navegar entre os Pokémon da equipe sem fechar o painel. Indicadores de ponto mostram a posição atual.',
+  '- **Sprite mega-evolução corrigido**: cards da equipe e cabeçalho do modal agora exibem o sprite correto do Mega Pokémon (forma alternativa) em vez da forma base.',
+  '',
   '## [V1.94.0] - 16/05/2026 00:30',
   '### Adicionado',
   '- **Pokédex — Onde Encontrar**: ao clicar em qualquer Pokémon na Pokédex, o modal exibe a lista de todas as rotas onde aquele Pokémon pode ser encontrado como inimigo selvagem, com nível e região de cada rota.',

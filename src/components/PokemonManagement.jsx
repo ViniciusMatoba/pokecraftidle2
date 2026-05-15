@@ -157,13 +157,23 @@ const PokemonManagement = ({
   const [moveSwapMode, setMoveSwapMode] = useState(null); // { activeIdx, currentMove }
   const [showNatureModal, setShowNatureModal] = useState(false);
   const [showAbilityModal, setShowAbilityModal] = useState(false);
+  const [showItemPicker, setShowItemPicker] = useState(false);
   const activePokemonKey = activePokemonDetails
     ? `${activePokemonDetails.pokemon?.instanceId ?? activePokemonDetails.pokemon?.id ?? 'x'}_${activePokemonDetails.location}_${activePokemonDetails.index}`
     : null;
 
   useEffect(() => {
     setCandyExpanded(false);
+    setShowItemPicker(false);
   }, [activePokemonKey]);
+
+  const navigateTeam = (direction) => {
+    if (!activePokemonDetails || activePokemonDetails.location !== 'team') return;
+    const team = gameState.team || [];
+    const newIdx = activePokemonDetails.index + direction;
+    if (newIdx < 0 || newIdx >= team.length) return;
+    setActivePokemonDetails({ pokemon: team[newIdx], index: newIdx, location: 'team' });
+  };
 
   const getDexRegion = (id) => {
     return getPokemonRegion(id);
@@ -579,7 +589,7 @@ const PokemonManagement = ({
                 }`}
               >
                 <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center relative">
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className="w-14 h-14 object-contain" alt={p.name} loading="lazy" />
+                  <img src={p.isMega && p.megaFormId ? getMegaSprite(p.megaFormId) : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className="w-14 h-14 object-contain" alt={p.name} loading="lazy" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-start">
@@ -788,11 +798,46 @@ const PokemonManagement = ({
                        ))}
                      </div>
                      <img
-                       src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`}
+                       src={poke.isMega && poke.megaFormId
+                         ? getMegaSprite(poke.megaFormId)
+                         : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`}
                        className={`absolute left-1/2 top-12 z-10 w-28 h-28 -translate-x-1/2 object-contain drop-shadow-2xl ${poke.isShiny ? 'drop-shadow-[0_0_20px_rgba(234,179,8,0.9)]' : ''}`}
                        alt={poke.name}
                        loading="lazy"
                      />
+
+                     {/* Setas de navegação entre membros do time */}
+                     {activePokemonDetails.location === 'team' && (() => {
+                       const team = gameState.team || [];
+                       const idx = activePokemonDetails.index;
+                       return (
+                         <>
+                           {idx > 0 && (
+                             <button
+                               onClick={() => navigateTeam(-1)}
+                               className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/30 hover:bg-black/50 backdrop-blur-sm flex items-center justify-center text-white font-black text-sm transition-all active:scale-90 shadow-lg"
+                               title="Pokémon anterior"
+                             >‹</button>
+                           )}
+                           {idx < team.length - 1 && (
+                             <button
+                               onClick={() => navigateTeam(1)}
+                               className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/30 hover:bg-black/50 backdrop-blur-sm flex items-center justify-center text-white font-black text-sm transition-all active:scale-90 shadow-lg"
+                               title="Próximo Pokémon"
+                             >›</button>
+                           )}
+                           {team.length > 1 && (
+                             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-20">
+                               {team.map((_, i) => (
+                                 <button key={i} onClick={() => setActivePokemonDetails({ pokemon: team[i], index: i, location: 'team' })}
+                                   className={`w-1.5 h-1.5 rounded-full transition-all ${i === idx ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/70'}`}
+                                 />
+                               ))}
+                             </div>
+                           )}
+                         </>
+                       );
+                     })()}
                    </div>
                  );
                })()}
@@ -905,60 +950,86 @@ const PokemonManagement = ({
                     </button>
                     
                     {/* HELD ITEMS */}
-                    <div className="p-4 rounded-2xl border-2 border-amber-100 bg-amber-50/30 shadow-sm mt-2">
-                      <h3 className="text-[11px] font-black uppercase text-slate-800 mb-3 text-center">Item Segurado</h3>
-                      
-                      {activePokemonDetails.pokemon.heldItem ? (
-                        <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-amber-200 shadow-sm mb-3">
-                          <img 
-                            src={Object.values(CRAFTING_RECIPES).flat().find(r => r.id === activePokemonDetails.pokemon.heldItem)?.img} 
-                            className="w-10 h-10 object-contain drop-shadow" 
-                            alt="" 
-                          />
-                          <div className="flex-1">
-                            <p className="text-[10px] font-black uppercase text-slate-800 leading-none">
-                              {Object.values(CRAFTING_RECIPES).flat().find(r => r.id === activePokemonDetails.pokemon.heldItem)?.name || activePokemonDetails.pokemon.heldItem}
-                            </p>
-                            <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase italic">
-                              {Object.values(CRAFTING_RECIPES).flat().find(r => r.id === activePokemonDetails.pokemon.heldItem)?.effect || 'Sem efeito especial'}
-                            </p>
-                          </div>
-                          <button 
-                            onClick={unequipHeldItem}
-                            className="bg-red-50 text-red-500 px-3 py-2 rounded-lg font-black text-[9px] uppercase hover:bg-red-100 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={activePokemonDetails.pokemon.onExpedition}
-                          >Remover</button>
+                    {(() => {
+                      const poke = activePokemonDetails.pokemon;
+                      const allHoldItems = [...(CRAFTING_RECIPES.hold_items || []), ...(CRAFTING_RECIPES.elite_relics || [])];
+                      const equippedItemData = poke.heldItem ? allHoldItems.find(r => r.id === poke.heldItem) : null;
+                      const availableItems = allHoldItems.filter(r => (gameState.inventory?.items?.[r.id] || 0) > 0 && r.id !== poke.heldItem);
+                      return (
+                        <div className="rounded-2xl border-2 border-amber-100 bg-amber-50/30 shadow-sm mt-2 overflow-hidden">
+                          {/* Header row — always visible, tap to toggle picker */}
+                          <button
+                            onClick={() => !poke.onExpedition && setShowItemPicker(v => !v)}
+                            disabled={poke.onExpedition}
+                            className={`w-full flex items-center gap-3 p-4 text-left transition-all active:scale-[0.99] ${poke.onExpedition ? 'opacity-60 cursor-not-allowed' : 'hover:bg-amber-50/60'}`}
+                          >
+                            {equippedItemData ? (
+                              <>
+                                <img src={equippedItemData.img} className="w-10 h-10 object-contain drop-shadow shrink-0" alt="" />
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-[10px] font-black uppercase text-slate-800 leading-none truncate">{equippedItemData.name}</p>
+                                  <p className="text-[8px] font-bold text-amber-600 mt-0.5 uppercase italic leading-tight line-clamp-2">{equippedItemData.effect || 'Sem efeito especial'}</p>
+                                </div>
+                                <div className="flex flex-col items-end gap-1 shrink-0">
+                                  <span className="text-[7px] font-black uppercase text-amber-500 tracking-wider">Item Segurado</span>
+                                  <span className="text-[9px] font-black text-slate-400">{showItemPicker ? '▲' : '▼'}</span>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="w-10 h-10 rounded-xl border-2 border-dashed border-amber-200 bg-amber-50 flex items-center justify-center shrink-0">
+                                  <span className="text-lg text-amber-300">+</span>
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-[10px] font-black uppercase text-slate-500">Sem item segurado</p>
+                                  <p className="text-[8px] font-bold text-amber-400 uppercase italic">Toque para equipar</p>
+                                </div>
+                                <span className="text-[9px] font-black text-slate-400 shrink-0">{showItemPicker ? '▲' : '▼'}</span>
+                              </>
+                            )}
+                          </button>
+
+                          {/* Remove button — only when item equipped */}
+                          {equippedItemData && !poke.onExpedition && (
+                            <div className="px-4 pb-3 -mt-1">
+                              <button
+                                onClick={unequipHeldItem}
+                                className="w-full bg-red-50 text-red-500 py-2 rounded-xl font-black text-[9px] uppercase hover:bg-red-100 transition-all active:scale-95 border border-red-100"
+                              >Remover item</button>
+                            </div>
+                          )}
+
+                          {/* Item picker — toggled */}
+                          {showItemPicker && (
+                            <div className="border-t border-amber-100 px-3 pb-3 pt-2 space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
+                              {availableItems.length === 0 ? (
+                                <p className="text-[8px] text-slate-400 font-bold text-center py-3 bg-white/50 rounded-xl">
+                                  Nenhum item disponível — Forje na Estação de Forja
+                                </p>
+                              ) : (
+                                availableItems.map(item => (
+                                  <button
+                                    key={item.id}
+                                    onClick={() => { equipHeldItem(item.id); setShowItemPicker(false); }}
+                                    className="w-full flex items-center gap-3 bg-white p-2.5 rounded-xl border border-amber-100 hover:border-amber-400 hover:bg-amber-50/40 transition-all text-left active:scale-[0.98] shadow-sm"
+                                  >
+                                    <img src={item.img} className="w-8 h-8 object-contain shrink-0" alt="" />
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-[9px] font-black uppercase text-slate-700 leading-none truncate">{item.name}</p>
+                                      <p className="text-[7px] font-bold text-slate-400 mt-0.5 uppercase leading-tight line-clamp-2">{item.effect || '---'}</p>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-0.5 shrink-0">
+                                      <span className="text-[8px] font-black text-amber-600 bg-amber-50 px-2 py-1 rounded-lg border border-amber-200">Equipar</span>
+                                      <span className="text-[7px] font-bold text-slate-400">x{gameState.inventory?.items?.[item.id] || 0}</span>
+                                    </div>
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                          )}
                         </div>
-                      ) : (
-                        <p className="text-[9px] text-slate-400 font-bold text-center mb-3 italic">Nenhum item equipado</p>
-                      )}
-
-                      <div className="space-y-2 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
-                        {(() => {
-                          const availableItems = [...(CRAFTING_RECIPES.hold_items || []), ...(CRAFTING_RECIPES.elite_relics || [])]
-                            .filter(r => (gameState.inventory?.items?.[r.id] || 0) > 0 && r.id !== activePokemonDetails.pokemon.heldItem);
-
-                          if (availableItems.length === 0) {
-                            return <p className="text-[8px] text-slate-400 font-bold text-center py-2 bg-white/50 rounded-lg">Forje itens na Estação de Forja</p>;
-                          }
-
-                          return availableItems.map(item => (
-                            <button 
-                              key={item.id}
-                              onClick={() => !activePokemonDetails.pokemon.onExpedition && equipHeldItem(item.id)}
-                              className={`w-full flex items-center gap-3 bg-white/70 p-2 rounded-xl border border-slate-100 transition-all text-left ${activePokemonDetails.pokemon.onExpedition ? 'opacity-50 cursor-not-allowed' : 'hover:border-amber-400 hover:bg-white'}`}
-                            >
-                              <img src={item.img} className="w-8 h-8 object-contain" alt="" />
-                              <div className="flex-1">
-                                <p className="text-[9px] font-black uppercase text-slate-700 leading-none">{item.name}</p>
-                                <p className="text-[7px] font-bold text-slate-400 mt-0.5 uppercase">{item.effect || '---'}</p>
-                              </div>
-                              <span className="text-[8px] font-black text-amber-600 bg-amber-50 px-2 py-1 rounded-md">Equipar</span>
-                            </button>
-                          ));
-                        })()}
-                      </div>
-                    </div>
+                      );
+                    })()}
 
                     {/* CANDIES */}
                     {(() => {

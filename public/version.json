@@ -1,5 +1,5 @@
 {
-  "version": "1.94.0",
-  "date": "16/05/2026 00:30",
-  "notes": "Pokédex mostra rotas de cada Pokémon com botão 'Ir à rota'. Fantasmas acumulam a cada derrota diária (reset no dia seguinte). Auditoria completa de rotas: pré-evoluções e lendários corrigidos. 13 novos backgrounds regionais."
+  "version": "1.95.0",
+  "date": "16/05/2026 02:00",
+  "notes": "Modal do Pokémon da equipe melhorado: Item Segurado mostra item atual ou placeholder, toque abre seletor com itens da mochila. Setas de navegação entre membros da equipe. Sprite de mega-evolução corrigido."
 }
