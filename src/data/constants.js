@@ -38,29 +38,31 @@ export const GALAR_BADGE_IDS = ['grass_badge_galar', 'water_badge_galar', 'fire_
 export const PALDEA_BADGE_IDS = ['bug_badge_paldea', 'grass_badge_paldea', 'electric_badge_paldea', 'water_badge_paldea', 'normal_badge_paldea', 'ghost_badge_paldea', 'psychic_badge_paldea', 'ice_badge_paldea'];
 
 export const GYM_LEVEL_CAPS = {
+  // Regra: após o 8º ginásio (índice 8) o cap é sempre 100.
+  // Pós-campeão: sem cap (validTeamAccess retorna true via flag region_champion_X).
   kanto: {
     boulder_badge: 14, cascade_badge: 21, thunder_badge: 24, rainbow_badge: 32,
-    soul_badge: 43, marsh_badge: 43, volcano_badge: 50, earth_badge: 55, champion: 65
+    soul_badge: 43, marsh_badge: 46, volcano_badge: 50, earth_badge: 55, champion: 100
   },
   johto: {
     zephyr_badge: 15, hive_badge: 20, plain_badge: 25, fog_badge: 30,
-    storm_badge: 35, mineral_badge: 40, glacier_badge: 45, rising_badge: 50, johto_champion: 65
+    storm_badge: 35, mineral_badge: 40, glacier_badge: 45, rising_badge: 50, johto_champion: 100
   },
   hoenn: {
     stone_badge: 15, knuckle_badge: 19, dynamo_badge: 24, heat_badge: 29,
-    balance_badge: 31, feather_badge: 33, mind_badge: 42, rain_badge: 55, hoenn_champion: 62
+    balance_badge: 31, feather_badge: 33, mind_badge: 42, rain_badge: 55, hoenn_champion: 100
   },
   sinnoh: {
     coal_badge: 14, forest_badge: 22, cobble_badge: 28, fen_badge: 33,
-    relic_badge: 39, mine_badge: 45, icicle_badge: 51, beacon_badge: 58, sinnoh_champion: 76
+    relic_badge: 39, mine_badge: 45, icicle_badge: 51, beacon_badge: 58, sinnoh_champion: 100
   },
   unova: {
     trio_badge: 14, basic_badge: 20, insect_badge: 26, bolt_badge: 32,
-    quake_badge: 39, jet_badge: 45, freeze_badge: 52, legend_badge: 64, unova_champion: 84
+    quake_badge: 39, jet_badge: 45, freeze_badge: 52, legend_badge: 64, unova_champion: 100
   },
   kalos: {
     bug_badge: 12, cliff_badge: 25, rumble_badge: 32, plant_badge: 34,
-    voltage_badge: 40, fairy_badge: 48, psychic_badge: 59, iceberg_badge: 68, kalos_champion: 88
+    voltage_badge: 40, fairy_badge: 48, psychic_badge: 59, iceberg_badge: 68, kalos_champion: 100
   },
   alola: {
     melemele_stamp: 18, akala_stamp: 32, ulaula_stamp: 48, poni_stamp: 58,
@@ -68,11 +70,11 @@ export const GYM_LEVEL_CAPS = {
   },
   galar: {
     grass_badge_galar: 20, water_badge_galar: 24, fire_badge_galar: 27, fighting_badge_galar: 36,
-    fairy_badge_galar: 38, rock_badge_galar: 42, dark_badge_galar: 46, dragon_badge_galar: 60, galar_champion: 92
+    fairy_badge_galar: 38, rock_badge_galar: 42, dark_badge_galar: 46, dragon_badge_galar: 60, galar_champion: 100
   },
   paldea: {
     bug_badge_paldea: 15, grass_badge_paldea: 20, electric_badge_paldea: 28, water_badge_paldea: 35,
-    normal_badge_paldea: 42, ghost_badge_paldea: 48, psychic_badge_paldea: 55, ice_badge_paldea: 62, paldea_champion: 90
+    normal_badge_paldea: 42, ghost_badge_paldea: 48, psychic_badge_paldea: 55, ice_badge_paldea: 62, paldea_champion: 100
   }
 };
 

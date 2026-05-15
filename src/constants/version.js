@@ -1,7 +1,13 @@
-export const APP_VERSION = '1.90.3';
-export const VERSION = '1.90.3';
-export const APP_VERSION_DATE = '15/05/2026 14:00';
+export const APP_VERSION = '1.90.4';
+export const VERSION = '1.90.4';
+export const APP_VERSION_DATE = '15/05/2026 15:00';
 export const CHANGELOG = [
+  '## [V1.90.4] - 15/05/2026 15:00',
+  '### Balanceamento',
+  '- **GYM_LEVEL_CAPS — cap 100 após o 8º ginásio em todas as regiões**: após obter as 8 insígnias o jogador pode treinar até o nível 100 livremente antes de enfrentar a Liga.',
+  '  - Kanto champion 65→100 | Johto 65→100 | Hoenn 62→100 | Sinnoh 76→100',
+  '  - Unova 84→100 | Kalos 88→100 | Galar 92→100 | Paldea 90→100 | Alola já era 100.',
+  '- **Kanto — Sabrina corrigida**: marsh_badge cap 43→46 para corresponder ao nível 46 da Sabrina (antes o cap ficava preso em 43 ao ter 5 insígnias).',
   '## [V1.90.3] - 15/05/2026 14:00',
   '### Corrigido (Crítico)',
   '- **Bug de cap de nível em Unova/Kalos/Alola/Galar/Paldea**: validateTeamAccess não contabilizava insígnias dessas regiões, travando o nível máximo em 14 para jogadores ainda não Campeões. Corrigido adicionando filtragem correta de insígnias para todas as 9 regiões.',
