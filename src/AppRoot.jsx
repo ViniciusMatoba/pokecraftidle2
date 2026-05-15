@@ -78,7 +78,10 @@ import {
   RAID_BALANCE_VERSION, calculateRaidMaxHp
 } from './data/raids';
 import RaidScreen from './components/RaidScreen';
-const PrestigeShop = lazy(() => import('./components/PrestigeShop'));
+const PrestigeShop       = lazy(() => import('./components/PrestigeShop'));
+const FriendsScreen      = lazy(() => import('./components/FriendsScreen'));
+const RegionBuilderScreen = lazy(() => import('./components/RegionBuilderScreen'));
+import { subscribeToFriendRequests } from './services/friends';
 
 const RAID_SPAWN_STORAGE_KEY = 'pokecraftidle_next_raid_at';
 const RAID_STAR_COLOR = { 1: '#94a3b8', 2: '#22c55e', 3: '#3b82f6', 4: '#a855f7', 5: '#f59e0b' };
@@ -183,7 +186,8 @@ const EVOLUTION_FRAGMENT_DROPS = {
 const ownsSpecies = (gameState = {}, pokemonId) => {
   const id = Number(pokemonId);
   return (gameState.team || []).some(p => Number(p.id) === id)
-    || (gameState.pc || []).some(p => Number(p.id) === id);
+    || (gameState.pc || []).some(p => Number(p.id) === id)
+    || (gameState.house?.caretakers || []).some(p => Number(p.id) === id);
 };
 
 const canCaptureGhostPokemon = (gameState = {}) => {
@@ -698,6 +702,7 @@ export default function App() {
 
   const [activeBuildingModal, setActiveBuildingModal] = useState(null);
   const [forgeCategory, setForgeCategory] = useState('food');
+  const [pendingFriendRequests, setPendingFriendRequests] = useState([]);
 
   const [activeMaterialModal, setActiveMaterialModal] = useState(null);
   const [evolutionPending, setEvolutionPending] = useState(null);
@@ -789,6 +794,7 @@ export default function App() {
   const [bossLoot, setBossLoot] = useState(null);
   const [battleResult, setBattleResult] = useState(null);
   const [showRaidScreen, setShowRaidScreen] = useState(false);
+  const [showRegionBuilder, setShowRegionBuilder] = useState(false);
   const [raidRouteNotice, setRaidRouteNotice] = useState(null);
   const [recipeFoundModal, setRecipeFoundModal] = useState(null); // { name, img, effect }
 
@@ -1517,7 +1523,7 @@ export default function App() {
         updatedAt: serverTimestamp() 
       }, { merge: true });
 
-      // 2. Sincroniza dados públicos para o Ranking Global
+      // 2. Sincroniza dados públicos para o Ranking Global e sistema de amigos
       await setDoc(doc(db, "users", user.uid), {
         name: dataToSave.trainer?.name || "Treinador",
         avatar: dataToSave.trainer?.avatar || 1,
@@ -1535,13 +1541,39 @@ export default function App() {
         shinyCapturedCount: dataToSave.shinyCapturedCount || 0,
         trainerBattleWins: dataToSave.trainerBattleWins || 0,
         playerStats: dataToSave.playerStats || {},
+        // Aparência — necessário para renderizar o Trainer Card nos amigos
+        appearance: dataToSave.appearance || {},
+        selectedTitle: dataToSave.selectedTitle || null,
+        prestige: dataToSave.prestige || {},
+        // Região — indica se o jogador tem região publicada para desafio
+        hasRegion: !!(dataToSave.myRegion?.published),
         updatedAt: serverTimestamp()
       }, { merge: true });
+
+      // 3. Sincroniza região publicada em coleção separada
+      if (dataToSave.myRegion?.published) {
+        await setDoc(doc(db, 'userRegions', user.uid), {
+          ...(dataToSave.myRegion || {}),
+          ownerName: dataToSave.trainer?.name || 'Treinador',
+          ownerUid: user.uid,
+          updatedAt: serverTimestamp(),
+        }, { merge: true });
+      }
 
       console.log("☁️ Progress and Ranking synced to cloud");
     } catch (e) {
       console.error("Cloud Save Fail:", e);
     }
+  }, []);
+
+  // ── Listener em tempo real: solicitações de amizade pendentes ─────────────
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user) return;
+    const unsub = subscribeToFriendRequests(user.uid, (requests) => {
+      setPendingFriendRequests(requests);
+    });
+    return () => unsub();
   }, []);
 
   const saveBossDamage = useCallback(async (damage) => {
@@ -2770,8 +2802,8 @@ export default function App() {
       if (caught) {
         const pokedexEntry = POKEDEX[raid.pokemonId] || {};
 
-        // Verifica se o jogador já tem essa espécie (equipe ou PC)
-        const alreadyOwns = [...(prev.team || []), ...(prev.pc || [])]
+        // Verifica se o jogador já tem essa espécie (equipe, PC ou cuidadores da casa)
+        const alreadyOwns = [...(prev.team || []), ...(prev.pc || []), ...(prev.house?.caretakers || [])]
           .some(p => Number(p.id) === Number(raid.pokemonId));
 
         if (alreadyOwns && !raid.isShiny) {
@@ -6795,6 +6827,7 @@ export default function App() {
             setIsTitleModalOpen={setIsTitleModalOpen}
             isPowerRankModalOpen={isPowerRankModalOpen}
             setIsPowerRankModalOpen={setIsPowerRankModalOpen}
+            onOpenRegionBuilder={() => setShowRegionBuilder(true)}
           />
 
           {/* Modal do Prof. Carvalho sobre a Casa */}
@@ -7303,6 +7336,8 @@ export default function App() {
           MUSIC_LIST={MUSIC_LIST}
           onBack={() => setCurrentView(lastNonMenuView.current)}
           onUseExpCandy={handleUseExpCandy}
+          onOpenFriends={() => setActiveBuildingModal('friends')}
+          pendingFriendRequestsCount={pendingFriendRequests.length}
         />
       );
 
@@ -8466,18 +8501,55 @@ export default function App() {
 
       {activeBuildingModal === 'prestige_shop' && (
         <Suspense fallback={<div className="h-full bg-[#0f172a] flex items-center justify-center text-amber-400 font-black uppercase tracking-[0.5em] animate-pulse">Carregando Loja de Prestígio...</div>}>
-          <PrestigeShop 
+          <PrestigeShop
             gameState={gameState}
             setGameState={setGameState}
             addLog={addLog}
             getBadgeCount={(gs) => (gs.badges || []).length}
             onHireAlly={handleHireAlly}
             onBack={() => setActiveBuildingModal(null)}
+            onOpenRegionBuilder={() => { setActiveBuildingModal(null); setShowRegionBuilder(true); }}
           />
         </Suspense>
       )}
 
-      {activeBuildingModal && activeBuildingModal !== 'pokecenter' && activeBuildingModal !== 'prestige_shop' && (
+      {activeBuildingModal === 'friends' && (
+        <Suspense fallback={<div className="fixed inset-0 z-[100000] bg-slate-50 flex items-center justify-center text-blue-600 font-black text-sm animate-pulse" style={{ top: '56px' }}>Carregando...</div>}>
+          <FriendsScreen
+            currentUserUid={auth.currentUser?.uid}
+            currentUserProfile={{
+              name:               gameState.trainer?.name || 'Treinador',
+              level:              gameState.trainer?.level || 1,
+              powerScore:         powerScore,
+              badges:             (gameState.badges || []).length,
+              caughtCount:        Object.keys(gameState.caughtData || {}).length,
+              shinyCapturedCount: gameState.shinyCapturedCount || 0,
+              worldFlags:         gameState.worldFlags || [],
+              appearance:         gameState.appearance || {},
+              selectedTitle:      gameState.selectedTitle || null,
+              prestige:           gameState.prestige || {},
+            }}
+            pendingRequests={pendingFriendRequests}
+            onClose={() => setActiveBuildingModal(null)}
+            onRequestsChanged={() => {
+              // O listener onSnapshot já atualiza pendingFriendRequests automaticamente
+            }}
+          />
+        </Suspense>
+      )}
+
+      {showRegionBuilder && (
+        <Suspense fallback={<div className="fixed inset-0 z-[100000] bg-slate-900 flex items-center justify-center text-yellow-400 font-black animate-pulse" style={{ top: '56px' }}>Carregando Construtor de Região...</div>}>
+          <RegionBuilderScreen
+            gameState={gameState}
+            setGameState={setGameState}
+            POKEDEX={POKEDEX}
+            onClose={() => setShowRegionBuilder(false)}
+          />
+        </Suspense>
+      )}
+
+      {activeBuildingModal && activeBuildingModal !== 'pokecenter' && activeBuildingModal !== 'prestige_shop' && activeBuildingModal !== 'friends' && (
         <div 
           className="fixed inset-0 w-screen h-screen z-[100000] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md cursor-default"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveBuildingModal(null); }}

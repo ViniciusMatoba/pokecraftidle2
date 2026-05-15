@@ -238,11 +238,24 @@ export const DEFAULT_GAME_STATE = {
     freeHeals: 0,           // curas gratuitas restantes
   },
 
-  // Ginásio próprio
+  // Ginásio próprio (banner visual)
   gymCustom: {
     unlocked: false,
     bannerId: 'default',
     colorId: null,          // cor do ginásio
+  },
+
+  // Região personalizada de desafio
+  myRegion: {
+    regionName:    '',
+    gymSlots:      0,       // slots de ginásio comprados (0-8)
+    eliteSlots:    0,       // slots da elite comprados (0-4)
+    championSlot:  false,
+    gyms:          [],
+    eliteFour:     [],
+    champion:      null,
+    published:     false,
+    lastPublishedAt: null,
   },
 
   // Raid

@@ -82,6 +82,20 @@ const TravelScreen = ({
   const sinnohStarted = (gameState.worldFlags || []).includes('sinnoh_started');
   const sortedRoutes = React.useMemo(() => getSortedRoutes(ROUTES), [ROUTES]);
 
+  // Mapa de flag de campeão por região
+  const CHAMPION_FLAG = {
+    kanto:  'champion',
+    johto:  'johto_champion',
+    hoenn:  'hoenn_champion',
+    sinnoh: 'sinnoh_champion',
+    unova:  'unova_champion',
+    kalos:  'kalos_champion',
+    alola:  'alola_champion',
+    galar:  'galar_champion',
+    paldea: 'paldea_champion',
+  };
+  const worldFlags = gameState.worldFlags || [];
+
   const visibleRouteEntries = React.useMemo(() => {
     return sortedRoutes.filter(route => {
       // Filtrar apenas rotas da região ativa (Kanto, Johto, Hoenn)
@@ -89,9 +103,18 @@ const TravelScreen = ({
       if (routeRegionTab === 'johto' && route._region.id !== 'johto') return false;
       if (routeRegionTab === 'hoenn' && route._region.id !== 'hoenn') return false;
       if (routeRegionTab === 'sinnoh' && route._region.id !== 'sinnoh') return false;
+
+      // Ocultar rotas "Habitat Regional" (I, II e III) até o jogador ser Campeão da liga
+      const isHabitatRoute = /_(dex_field_1|dex_field_2|dex_field_3)$/.test(route.id);
+      if (isHabitatRoute) {
+        const regionId = route._region?.id;
+        const championFlag = CHAMPION_FLAG[regionId];
+        if (!championFlag || !worldFlags.includes(championFlag)) return false;
+      }
+
       return true;
     });
-  }, [sortedRoutes, routeRegionTab]);
+  }, [sortedRoutes, routeRegionTab, worldFlags]);
 
   React.useEffect(() => {
     if (!kantoChampion && routeRegionTab === 'johto') setRouteRegionTab('kanto');

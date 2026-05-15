@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { TrainerCard } from './CommonUI';
 import { HOUSE_PURCHASE_COST } from '../data/house';
 
-const CityScreen = ({ 
-  gameState, 
-  ROUTES, 
-  fixPath, 
-  setActiveBuildingModal, 
-  setActiveQuestModal, 
+const CityScreen = ({
+  gameState,
+  ROUTES,
+  fixPath,
+  setActiveBuildingModal,
+  setActiveQuestModal,
   activeQuestModal,
   setGameState,
   setCurrentView,
@@ -24,7 +24,8 @@ const CityScreen = ({
   setIsTitleModalOpen,
   isPowerRankModalOpen,
   setIsPowerRankModalOpen,
-  powerScore = 0
+  powerScore = 0,
+  onOpenRegionBuilder,
 }) => {
   const [activeOakModal, setActiveOakModal] = useState(false);
   const [oakTipIndex, setOakTipIndex] = useState(0);
@@ -110,7 +111,19 @@ const CityScreen = ({
       desc: 'Troque conquistas por recompensas exclusivas.',
       action: () => setActiveBuildingModal('prestige_shop'),
       color: 'border-amber-500 bg-amber-50',
-    }
+    },
+    {
+      id: 'region_builder',
+      name: 'Minha Região',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/badge.png',
+      desc: gameState.myRegion?.published
+        ? '🌐 Região publicada! Amigos podem te desafiar.'
+        : (gameState.myRegion?.gymSlots || 0) > 0
+          ? 'Configure ginásios, Elite Four e Campeão.'
+          : 'Monte sua própria região na Loja de Prestígio.',
+      action: () => onOpenRegionBuilder && onOpenRegionBuilder(),
+      color: 'border-yellow-500 bg-yellow-50',
+    },
   ];
 
   const hasHouseUnlocked = (gameState.badges || []).includes('boulder_badge')
@@ -375,6 +388,12 @@ const CityScreen = ({
                  <h3 className="text-xl font-black text-slate-800 uppercase italic leading-none">{b.name}</h3>
                  <p className="text-[10px] font-bold text-slate-500 uppercase mt-1 tracking-tighter">{b.desc}</p>
               </div>
+              {/* Badge de notificação (ex: solicitações de amizade) */}
+              {b.badge > 0 && (
+                <span className="shrink-0 bg-red-500 text-white text-xs font-black min-w-[26px] h-7 px-2 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                  {b.badge > 99 ? '99+' : b.badge}
+                </span>
+              )}
             </button>
           ))}
         </div>

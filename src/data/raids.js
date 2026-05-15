@@ -22,7 +22,7 @@ export const RAID_CATCH_ATTEMPTS = {
 };
 export const RAID_DURATION_MS = 3600000; // 1 hora (conforme changelog V1.78.0)
 export const RAID_FIGHT_SECONDS = 60;
-export const RAID_BATTLE_TRIGGER = 100; // Conforme changelog V1.80.3/V1.78.0
+export const RAID_BATTLE_TRIGGER = 200; // Dobrado em V1.89.5 para reduzir frequência de raids
 export const RAID_SPAWN_INTERVAL_MS = 3600000; // 1 hora
 export const RAID_CATCH_RATE_MULT = {
   1: 1.5,   // 1★ — fácil, alta chance por arremesso

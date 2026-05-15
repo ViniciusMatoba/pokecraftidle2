@@ -160,6 +160,24 @@ const SafariZoneScreen = ({
         };
 
         setGameState(prev => {
+          const capturedId = Number(wildPokemon.id);
+          // Verifica se já possui essa espécie (time, PC ou cuidadores da casa)
+          const alreadyOwns = [...(prev.team || []), ...(prev.pc || []), ...(prev.house?.caretakers || [])]
+            .some(p => Number(p.id) === capturedId);
+
+          if (alreadyOwns && !isShiny) {
+            // Duplicata: converte em EXP Candy S
+            addLog?.(`📦 ${wildPokemon.name} já está na sua equipe/PC! Recebeu 1x EXP Candy S no lugar.`, 'system');
+            return {
+              ...prev,
+              inventory: {
+                ...prev.inventory,
+                items: { ...prev.inventory?.items, exp_candy_s: (prev.inventory?.items?.exp_candy_s || 0) + 1 },
+              },
+              caughtData: { ...prev.caughtData, [wildPokemon.id]: true },
+            };
+          }
+
           const teamFull = (prev.team || []).length >= 6;
           return {
             ...prev,

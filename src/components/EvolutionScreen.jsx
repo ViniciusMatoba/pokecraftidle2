@@ -310,6 +310,7 @@ const EvolutionScreen = ({
                             return;
                          }
                          setGameState(prev => {
+                            const evolvedId = Number(evoData.id);
                             const newTeam = prev.team.map((p, i) => {
                                if (i === evolutionPending.teamIndex) {
                                   const shinyMult = p.isShiny ? 1.2 : 1.0;
@@ -346,7 +347,48 @@ const EvolutionScreen = ({
                                }
                                return p;
                             });
-                            return { ...prev, team: newTeam, caughtData: { ...prev.caughtData, [evoData.id]: true } };
+
+                            // Deduplicação: remover cópias da forma evoluída em PC, cuidadores e time (outros slots)
+                            let duplicatesRemoved = 0;
+
+                            // Remover duplicatas do PC
+                            const newPc = (prev.pc || []).filter(p => {
+                               if (Number(p.id) === evolvedId) { duplicatesRemoved++; return false; }
+                               return true;
+                            });
+
+                            // Remover duplicatas dos cuidadores da casa
+                            const newCaretakers = (prev.house?.caretakers || []).filter(p => {
+                               if (Number(p.id) === evolvedId) { duplicatesRemoved++; return false; }
+                               return true;
+                            });
+
+                            // Remover duplicatas em outros slots do time (exceto o que acabou de evoluir)
+                            const finalTeam = newTeam.filter((p, i) => {
+                               if (i !== evolutionPending.teamIndex && Number(p.id) === evolvedId) {
+                                  duplicatesRemoved++;
+                                  return false;
+                               }
+                               return true;
+                            });
+
+                            // Notificar sobre remoções e conceder candies
+                            if (duplicatesRemoved > 0) {
+                               addLog(`🍬 ${duplicatesRemoved} ${nextPoke.name} duplicado(s) convertido(s) em EXP Candy S!`, 'system');
+                            }
+
+                            const prevCandyCount = prev.inventory?.items?.exp_candy_s || 0;
+
+                            return {
+                               ...prev,
+                               team: finalTeam,
+                               pc: newPc,
+                               house: prev.house ? { ...prev.house, caretakers: newCaretakers } : prev.house,
+                               inventory: duplicatesRemoved > 0
+                                  ? { ...prev.inventory, items: { ...prev.inventory?.items, exp_candy_s: prevCandyCount + duplicatesRemoved } }
+                                  : prev.inventory,
+                               caughtData: { ...prev.caughtData, [evoData.id]: true },
+                            };
                          });
                          addLog(`✨ Parabéns! Seu ${evolutionPending.name} evoluiu para ${nextPoke.name}!`, 'system');
                          setEvolutionPending(null);

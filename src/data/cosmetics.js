@@ -1040,23 +1040,39 @@ export const DEFAULT_APPEARANCE = {
  * @param {string[]} purchased - IDs comprados pelo jogador
  * @param {number} totalBadges - Total de insígnias do jogador
  */
+/**
+ * Verifica se o item está desbloqueado (pode ser usado/equipado sem custo).
+ * Itens gratuitos (cost === 0): desbloqueados quando a flag de progresso é atingida (ou sem flag).
+ * Itens pagos (cost > 0): só desbloqueados quando explicitamente comprados (purchasedArray).
+ */
 export const isCosmeticUnlocked = (item, worldFlags = [], purchased = [], totalBadges = 0) => {
-  if (item.cost === 0 && !item.unlockFlag) return true;                  // sempre livre
-  if (item.unlockFlag && worldFlags.includes(item.unlockFlag)) return true; // desbloqueado por progresso
-  if (purchased.includes(item.id)) return true;                          // comprado
-  return false;
+  // Itens gratuitos — auto-desbloqueiam ao atingir o progresso
+  if (item.cost === 0 || item.cost === null || item.cost === undefined) {
+    return !item.unlockFlag || worldFlags.includes(item.unlockFlag);
+  }
+  // Itens pagos — só desbloqueiam se foram explicitamente comprados
+  return purchased.includes(item.id);
 };
 
 /**
- * Verifica se o jogador pode comprar o item (tem coins e badges suficientes,
+ * Verifica se o requisito de progresso para COMPRAR o item foi atingido
+ * (flag de mundo + insígnias mínimas). Não indica posse, só elegibilidade.
+ */
+export const hasProgressForPurchase = (item, worldFlags = [], totalBadges = 0) => {
+  if (item.unlockFlag && !worldFlags.includes(item.unlockFlag)) return false;
+  if (item.minBadges && totalBadges < item.minBadges) return false;
+  return true;
+};
+
+/**
+ * Verifica se o jogador pode comprar o item (progresso atingido + coins suficientes,
  * mas ainda não o possui).
  */
 export const canPurchaseCosmetic = (item, worldFlags = [], purchased = [], totalBadges = 0, currency = 0) => {
   if (isCosmeticUnlocked(item, worldFlags, purchased, totalBadges)) return false; // já tem
-  if (item.cost === null || item.cost === undefined) return false;        // não comprável
-  if (currency < item.cost) return false;
-  if (item.minBadges && totalBadges < item.minBadges) return false;
-  return true;
+  if (!item.cost || item.cost <= 0) return false;                                 // item gratuito
+  if (!hasProgressForPurchase(item, worldFlags, totalBadges)) return false;       // sem progresso
+  return currency >= item.cost;
 };
 
 /**

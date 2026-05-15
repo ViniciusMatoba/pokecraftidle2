@@ -198,6 +198,118 @@ export const TRAINER_TITLES = [
     description: 'Vença uma Liga regional.',
     unlocked: ({ worldFlags }) => (worldFlags || []).some(flag => String(flag).includes('champion')),
   },
+  // ── Títulos de Campeão por Região ──────────────────────────────────────────
+  {
+    id: 'champion_kanto',
+    label: 'Campeão de Kanto',
+    shortLabel: 'Campeão Kanto',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png',
+    color: '#ef4444',
+    bg: 'linear-gradient(135deg, rgba(239,68,68,.28), rgba(245,158,11,.14), rgba(15,23,42,.68))',
+    description: 'Derrote a Elite 4 e o Campeão de Kanto.',
+    unlocked: ({ worldFlags }) => (worldFlags || []).includes('champion'),
+  },
+  {
+    id: 'champion_johto',
+    label: 'Campeão de Johto',
+    shortLabel: 'Campeão Johto',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/249.png',
+    color: '#f59e0b',
+    bg: 'linear-gradient(135deg, rgba(245,158,11,.28), rgba(56,189,248,.14), rgba(15,23,42,.68))',
+    description: 'Derrote a Elite 4 e o Campeão de Johto.',
+    unlocked: ({ worldFlags }) => (worldFlags || []).includes('johto_champion'),
+  },
+  {
+    id: 'champion_hoenn',
+    label: 'Campeão de Hoenn',
+    shortLabel: 'Campeão Hoenn',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/384.png',
+    color: '#22c55e',
+    bg: 'linear-gradient(135deg, rgba(34,197,94,.28), rgba(16,185,129,.14), rgba(15,23,42,.68))',
+    description: 'Derrote a Elite 4 e o Campeão de Hoenn.',
+    unlocked: ({ worldFlags }) => (worldFlags || []).includes('hoenn_champion'),
+  },
+  {
+    id: 'champion_sinnoh',
+    label: 'Campeão de Sinnoh',
+    shortLabel: 'Campeão Sinnoh',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/483.png',
+    color: '#38bdf8',
+    bg: 'linear-gradient(135deg, rgba(56,189,248,.28), rgba(99,102,241,.14), rgba(15,23,42,.68))',
+    description: 'Derrote a Elite 4 e o Campeão de Sinnoh.',
+    unlocked: ({ worldFlags }) => (worldFlags || []).includes('sinnoh_champion'),
+  },
+  {
+    id: 'champion_unova',
+    label: 'Campeão de Unova',
+    shortLabel: 'Campeão Unova',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/644.png',
+    color: '#64748b',
+    bg: 'linear-gradient(135deg, rgba(100,116,139,.28), rgba(239,68,68,.14), rgba(15,23,42,.68))',
+    description: 'Derrote a Liga Pokémon de Unova.',
+    unlocked: ({ worldFlags }) => (worldFlags || []).includes('unova_champion'),
+  },
+  {
+    id: 'champion_kalos',
+    label: 'Campeão de Kalos',
+    shortLabel: 'Campeão Kalos',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/716.png',
+    color: '#ec4899',
+    bg: 'linear-gradient(135deg, rgba(236,72,153,.28), rgba(139,92,246,.14), rgba(15,23,42,.68))',
+    description: 'Derrote a Elite 4 e o Campeão de Kalos.',
+    unlocked: ({ worldFlags }) => (worldFlags || []).includes('kalos_champion'),
+  },
+  {
+    id: 'champion_alola',
+    label: 'Campeão de Alola',
+    shortLabel: 'Campeão Alola',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/791.png',
+    color: '#f97316',
+    bg: 'linear-gradient(135deg, rgba(249,115,22,.28), rgba(251,191,36,.14), rgba(15,23,42,.68))',
+    description: 'Torne-se o Primeiro Campeão de Alola.',
+    unlocked: ({ worldFlags }) => (worldFlags || []).includes('alola_champion'),
+  },
+  {
+    id: 'champion_galar',
+    label: 'Campeão de Galar',
+    shortLabel: 'Campeão Galar',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/890.png',
+    color: '#8b5cf6',
+    bg: 'linear-gradient(135deg, rgba(139,92,246,.28), rgba(236,72,153,.14), rgba(15,23,42,.68))',
+    description: 'Torne-se o Campeão do Torneio de Galar.',
+    unlocked: ({ worldFlags }) => (worldFlags || []).includes('galar_champion'),
+  },
+  {
+    id: 'champion_paldea',
+    label: 'Campeão de Paldea',
+    shortLabel: 'Campeão Paldea',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1007.png',
+    color: '#14b8a6',
+    bg: 'linear-gradient(135deg, rgba(20,184,166,.28), rgba(34,197,94,.14), rgba(15,23,42,.68))',
+    description: 'Conclua o percurso da Vitória em Paldea.',
+    unlocked: ({ worldFlags }) => (worldFlags || []).includes('paldea_champion'),
+  },
+  {
+    id: 'champion_all',
+    label: 'Campeão das 9 Regiões',
+    shortLabel: 'Lenda Mundial',
+    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png',
+    color: '#fde047',
+    bg: 'linear-gradient(135deg, rgba(253,224,71,.35), rgba(168,85,247,.20), rgba(20,184,166,.15), rgba(15,23,42,.70))',
+    description: 'Torne-se Campeão de todas as 9 regiões.',
+    unlocked: ({ worldFlags }) => {
+      const flags = worldFlags || [];
+      return flags.includes('champion') &&
+        flags.includes('johto_champion') &&
+        flags.includes('hoenn_champion') &&
+        flags.includes('sinnoh_champion') &&
+        flags.includes('unova_champion') &&
+        flags.includes('kalos_champion') &&
+        flags.includes('alola_champion') &&
+        flags.includes('galar_champion') &&
+        flags.includes('paldea_champion');
+    },
+  },
   {
     id: 'master_smith',
     label: 'Mestre da Forja',

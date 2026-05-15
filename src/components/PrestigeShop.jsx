@@ -5,8 +5,13 @@ import {
 } from '../data/prestige';
 import {
   AVATAR_SPRITES, AVATAR_TINTS, CARD_FRAMES, CARD_BACKGROUNDS,
-  isCosmeticUnlocked, canPurchaseCosmetic, getTintFilter,
+  isCosmeticUnlocked, canPurchaseCosmetic, hasProgressForPurchase, getTintFilter,
 } from '../data/cosmetics';
+import {
+  GYM_SLOT_COSTS, ELITE_SLOT_COSTS, CHAMPION_SLOT_COST,
+  GYM_SLOT_LEVELS, ELITE_SLOT_LEVELS, CHAMPION_LEVEL,
+  REGION_GYM_TYPES,
+} from '../data/myRegion';
 const itemSprite = (name) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${name}.png`;
 const trainerSprite = (name) => `https://play.pokemonshowdown.com/sprites/trainers/${name}.png`;
 const FALLBACK_ITEM = itemSprite('poke-ball');
@@ -152,7 +157,7 @@ const AvatarPreviewCard = ({ sprite, tintId, frame, bg, name }) => {
   );
 };
 /** Grid de sprites com agrupamento por região */
-const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, onEquip, onBuy }) => {
+const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, onEquip, onBuySprite }) => {
   const REGION_ORDER_LIST = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea', 'special'];
   const REGION_LABELS = {
     kanto: '🔴 Kanto', johto: '🥇 Johto', hoenn: '🌊 Hoenn', sinnoh: '⛰ Sinnoh',
@@ -164,6 +169,7 @@ const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, 
     if (!grouped[s.region]) grouped[s.region] = [];
     grouped[s.region].push(s);
   });
+
   return (
     <div className="flex flex-col gap-5">
       {REGION_ORDER_LIST.map(region => {
@@ -181,66 +187,88 @@ const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, 
             </div>
             <div className="grid grid-cols-3 gap-2">
               {items.map(item => {
-                const unlocked = isCosmeticUnlocked(item, worldFlags, pSprites, totalBadges);
-                const canBuy = canPurchaseCosmetic(item, worldFlags, pSprites, totalBadges, currency);
-                const isEquipped = appearance.spriteId === item.id;
-                const isLocked = !unlocked;
+                const isOwned      = isCosmeticUnlocked(item, worldFlags, pSprites, totalBadges);
+                const progressMet  = hasProgressForPurchase(item, worldFlags, totalBadges);
+                const canAfford    = currency >= (item.cost || 0);
+                const isPaid       = item.cost > 0;
+                const isEquipped   = appearance.spriteId === item.id;
+                const isLocked     = !isOwned && !progressMet;
+                const canBuyNow    = !isOwned && progressMet && isPaid && canAfford;
+                const progressOnly = !isOwned && progressMet && isPaid && !canAfford;
+
+                // Estilos do card por estado
+                let cardBorder, cardBg, cardOpacity, cardShadow, cardCursor;
+                if (isEquipped)      { cardBorder = '#fbbf24'; cardBg = '#1c1500'; cardShadow = '0 0 16px #fbbf2455'; cardOpacity = 1; cardCursor = 'default'; }
+                else if (isOwned)    { cardBorder = '#22c55e'; cardBg = '#071208'; cardShadow = '0 0 8px #22c55e22'; cardOpacity = 1; cardCursor = 'pointer'; }
+                else if (canBuyNow)  { cardBorder = '#3b82f6'; cardBg = '#080f1c'; cardShadow = '0 0 10px #3b82f622'; cardOpacity = 1; cardCursor = 'pointer'; }
+                else if (progressOnly){ cardBorder = '#1e3a5f'; cardBg = '#060c16'; cardShadow = 'none'; cardOpacity = 0.8; cardCursor = 'default'; }
+                else                 { cardBorder = '#222'; cardBg = '#0d0d0d'; cardShadow = 'none'; cardOpacity = 0.45; cardCursor = 'not-allowed'; }
+
+                const handleClick = () => {
+                  if (isEquipped) return;
+                  if (isOwned)   { onEquip('sprite', item.id); return; }
+                  if (canBuyNow) { onBuySprite(item); return; }
+                };
+
                 return (
                   <div key={item.id}
-                    onClick={() => {
-                      if (isEquipped) return;
-                      if (unlocked) onEquip('sprite', item.id);
-                      else if (canBuy) onBuy('sprite', item);
-                    }}
-                    className={`relative flex flex-col items-center gap-1.5 p-2.5 border-2 cursor-pointer transition-all duration-150 select-none
-                      ${isEquipped
-                        ? 'border-[#fbbf24] bg-[#1c1500]'
-                        : isLocked
-                        ? 'border-[#2a2a2a] bg-[#0d0d0d] opacity-55'
-                        : 'border-[#2a2a2a] bg-[#111] hover:border-[#555] hover:bg-[#1a1a1a] active:scale-95'
-                      }`}
-                    style={isEquipped ? { boxShadow: '0 0 12px #fbbf2444' } : {}}>
-                    {/* Brilho no equipped */}
-                    {isEquipped && (
-                      <div className="absolute top-1 right-1 text-[8px] text-yellow-400 font-black">★</div>
-                    )}
+                    onClick={handleClick}
+                    style={{ border: `2px solid ${cardBorder}`, background: cardBg, boxShadow: cardShadow, opacity: cardOpacity, cursor: cardCursor }}
+                    className="relative flex flex-col items-center gap-1.5 p-2.5 transition-all duration-150 select-none active:scale-95">
+
+                    {/* Badge de estado no canto */}
+                    {isEquipped && <div className="absolute top-1 right-1 text-[9px] text-yellow-400 font-black">★</div>}
+                    {isOwned && !isEquipped && <div className="absolute top-1 right-1 text-[8px] text-emerald-400 font-black">✓</div>}
+                    {canBuyNow && <div className="absolute top-1 right-1 text-[8px] text-blue-400 font-black">🛒</div>}
+
                     {/* Sprite */}
                     <div className="relative w-14 h-14 flex items-center justify-center">
                       {isLocked ? (
                         <>
-                          <div className="absolute inset-0 flex items-center justify-center text-xl opacity-50">🔒</div>
+                          <div className="absolute inset-0 flex items-center justify-center text-lg opacity-40">🔒</div>
                           <img src={item.sprite} alt=""
-                            className="w-14 h-14 object-contain opacity-20"
+                            className="w-14 h-14 object-contain opacity-15"
                             style={{ imageRendering: 'pixelated', filter: 'grayscale(1)' }}
                             onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }} />
                         </>
                       ) : (
                         <img src={item.sprite} alt={item.name}
-                          className="w-14 h-14 object-contain"
+                          className={`w-14 h-14 object-contain transition-all ${canBuyNow ? 'hover:scale-110' : ''} ${!isOwned && !isEquipped ? 'opacity-70' : ''}`}
                           style={{ imageRendering: 'pixelated' }}
                           onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }} />
                       )}
                     </div>
+
                     {/* Nome */}
-                    <p className={`text-[9px] font-mono uppercase text-center leading-none
-                      ${isEquipped ? 'text-yellow-300 font-black' : isLocked ? 'text-white/25' : 'text-white/60'}`}>
+                    <p className={`text-[9px] font-mono uppercase text-center leading-none font-bold
+                      ${isEquipped ? 'text-yellow-300' : isOwned ? 'text-emerald-300' : canBuyNow ? 'text-blue-300' : isLocked ? 'text-white/20' : 'text-white/40'}`}>
                       {item.name}
                     </p>
-                    {/* Status / preço */}
+
+                    {/* Status tag */}
                     {isEquipped && (
-                      <span className="text-[7px] font-mono text-yellow-400 uppercase border border-yellow-600/40 px-1.5 py-0.5">
-                        EQUIPADO
+                      <span className="text-[7px] font-mono text-yellow-400 uppercase border border-yellow-600/50 px-1.5 py-0.5 bg-yellow-900/20">
+                        ★ EQUIPADO
                       </span>
                     )}
-                    {!isEquipped && unlocked && (
-                      <span className="text-[7px] font-mono text-emerald-400 uppercase">Equipar</span>
+                    {isOwned && !isEquipped && (
+                      <span className="text-[7px] font-mono text-emerald-400 uppercase border border-emerald-700/50 px-1.5 py-0.5 bg-emerald-900/20">
+                        Equipar →
+                      </span>
                     )}
-                    {isLocked && item.unlockFlag && (
-                      <span className="text-[7px] font-mono text-purple-400 text-center leading-tight">🏆 Progresso</span>
-                    )}
-                    {isLocked && !item.unlockFlag && item.cost > 0 && (
-                      <span className={`text-[8px] font-mono font-bold ${canBuy ? 'text-yellow-300' : 'text-white/25'}`}>
+                    {canBuyNow && (
+                      <span className="text-[8px] font-mono font-bold text-yellow-300 border border-blue-600/50 px-1.5 py-0.5 bg-blue-900/20">
                         {item.cost.toLocaleString()} C
+                      </span>
+                    )}
+                    {progressOnly && (
+                      <span className="text-[7px] font-mono text-red-400/80 border border-red-800/40 px-1.5 py-0.5">
+                        {item.cost.toLocaleString()} C
+                      </span>
+                    )}
+                    {isLocked && (
+                      <span className="text-[7px] font-mono text-purple-400/60 text-center leading-tight px-1">
+                        🏆 Progresso
                       </span>
                     )}
                   </div>
@@ -427,10 +455,11 @@ const BgsGrid = ({ appearance, worldFlags, pBgs, totalBadges, currency, onEquip,
   </div>
 );
 /* ─── COMPONENTE PRINCIPAL ─────────────────────────────────────────────────── */
-const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAlly, onBack }) => {
+const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAlly, onBack, onOpenRegionBuilder }) => {
   // ── State — TODOS os hooks aqui no topo, fora de qualquer condicional ──────
-  const [activeTab,  setActiveTab]  = useState('avatar');
-  const [avatarSub,  setAvatarSub]  = useState('sprites');  // ← FIX: estava dentro de IIFE!
+  const [activeTab,   setActiveTab]   = useState('avatar');
+  const [avatarSub,   setAvatarSub]   = useState('sprites');
+  const [equipPrompt, setEquipPrompt] = useState(null); // sprite recém-comprado aguardando decisão de equipar
   const badges   = getBadgeCount(gameState);
   const currency = gameState.currency || 0;
   const prestige = gameState.prestige || {};
@@ -511,6 +540,20 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
       return { ...prev, appearance: { ...app, [field]: id } };
     });
   };
+  // Compra sprite e exibe prompt de equipar
+  const handleBuySpriteWithPrompt = (item) => {
+    if (currency < item.cost) return;
+    setGameState(prev => {
+      const app = prev.appearance || {};
+      return {
+        ...prev,
+        currency: prev.currency - item.cost,
+        appearance: { ...app, purchasedSprites: [...(app.purchasedSprites || []), item.id] },
+      };
+    });
+    addLog(`✅ ${item.name} desbloqueado!`, 'system');
+    setEquipPrompt(item);
+  };
   // ── Tabs ─────────────────────────────────────────────────────────────────────
   const tabs = [
     { id: 'avatar',    label: 'Avatar',   caption: 'Treinador', icon: trainerSprite('red'), tone: 'red' },
@@ -521,6 +564,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
     { id: 'mine',      label: 'Mina',     caption: 'Drops',      icon: itemSprite('hard-stone'), tone: 'slate' },
     { id: 'fishing',   label: 'Pesca',    caption: 'Rotas',      icon: itemSprite('super-rod'), tone: 'blue' },
     { id: 'gym',       label: 'Ginasio',  caption: 'Estandarte', icon: itemSprite('vs-seeker'), tone: 'red' },
+    { id: 'liga',      label: 'Liga',     caption: 'Minha Regiao', icon: itemSprite('badge'), tone: 'gold' },
   ];
   const avatarSubTabs = [
     { id: 'sprites', label: 'Sprite',  icon: trainerSprite('red') },
@@ -574,7 +618,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
       <div className="relative z-10 shrink-0 flex overflow-x-auto scrollbar-hide border-b-2 border-black/40 shadow-lg"
         style={{ background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(8px)' }}>
         {/* Indicador de rolagem (opcional, sombra sutil) */}
-        <div className="grid min-w-full grid-cols-4 gap-2 px-3 py-3 sm:grid-cols-8">
+        <div className="grid min-w-full grid-cols-4 gap-2 px-3 py-3 sm:grid-cols-9">
           {tabs.map(tab => {
             const isActive = activeTab === tab.id;
             return (
@@ -637,7 +681,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
               <SpritesGrid
                 appearance={appearance} worldFlags={worldFlags} pSprites={pSprites}
                 totalBadges={badges} currency={currency}
-                onEquip={handleEquipCosmetic} onBuy={handleBuyCosmetic}
+                onEquip={handleEquipCosmetic} onBuySprite={handleBuySpriteWithPrompt}
               />
             )}
             {avatarSub === 'tints' && (
@@ -1019,11 +1063,272 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
             </div>
           </div>
         )}
+
+        {/* ── LIGA (Minha Região) ───────────────────────────────────────── */}
+        {activeTab === 'liga' && (() => {
+          const myRegion = gameState.myRegion || {};
+          const gymSlots  = myRegion.gymSlots  || 0;
+          const eliteSlots = myRegion.eliteSlots || 0;
+          const champSlot  = myRegion.championSlot || false;
+          const hasAny = gymSlots > 0 || eliteSlots > 0 || champSlot;
+
+          const handleBuyGymSlot = () => {
+            const idx = gymSlots; // próximo slot (0-based index)
+            if (idx >= 8) return;
+            const cost = GYM_SLOT_COSTS[idx];
+            if (currency < cost) return;
+            setGameState(prev => ({
+              ...prev,
+              currency: prev.currency - cost,
+              myRegion: { ...(prev.myRegion || {}), gymSlots: (prev.myRegion?.gymSlots || 0) + 1 },
+            }));
+            addLog(`🏟️ Ginásio ${idx + 1} desbloqueado!`, 'system');
+          };
+
+          const handleBuyEliteSlot = () => {
+            if (gymSlots < 8) return; // precisa de todos os ginásios
+            const idx = eliteSlots;
+            if (idx >= 4) return;
+            const cost = ELITE_SLOT_COSTS[idx];
+            if (currency < cost) return;
+            setGameState(prev => ({
+              ...prev,
+              currency: prev.currency - cost,
+              myRegion: { ...(prev.myRegion || {}), eliteSlots: (prev.myRegion?.eliteSlots || 0) + 1 },
+            }));
+            addLog(`👑 Elite Four ${idx + 1} desbloqueado!`, 'system');
+          };
+
+          const handleBuyChampSlot = () => {
+            if (eliteSlots < 4) return; // precisa de toda a elite
+            if (champSlot) return;
+            if (currency < CHAMPION_SLOT_COST) return;
+            setGameState(prev => ({
+              ...prev,
+              currency: prev.currency - CHAMPION_SLOT_COST,
+              myRegion: { ...(prev.myRegion || {}), championSlot: true },
+            }));
+            addLog(`🏆 Slot de Campeão desbloqueado!`, 'system');
+          };
+
+          return (
+            <div className="flex flex-col gap-5">
+              {/* Intro */}
+              <div className="border border-[#333] bg-black/30 p-3 text-center">
+                <p className="text-[9px] font-mono text-yellow-300/80 uppercase tracking-widest">MINHA REGIÃO</p>
+                <p className="text-[8px] font-mono text-white/40 mt-1 leading-relaxed">
+                  Monte sua própria região com até 8 ginásios, Elite Four e Campeão.<br/>
+                  Seus amigos poderão desafiá-la!
+                </p>
+              </div>
+
+              {/* ── GINÁSIOS ─────────────────────────────────────────────── */}
+              <div>
+                <p className="text-[9px] font-mono text-white/30 uppercase tracking-widest border-b border-[#333] pb-2 mb-3">
+                  🏟️ Ginásios (0-8)
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {GYM_SLOT_COSTS.map((cost, i) => {
+                    const slotN     = i + 1;
+                    const isPurchased = gymSlots >= slotN;
+                    const isNext    = gymSlots === i;
+                    const isLocked  = gymSlots < i;
+                    const canAfford = currency >= cost;
+                    return (
+                      <div key={i}
+                        onClick={() => isNext && canAfford && handleBuyGymSlot()}
+                        style={{
+                          border: `2px solid ${isPurchased ? '#22c55e' : isNext && canAfford ? '#3b82f6' : '#222'}`,
+                          background: isPurchased ? '#071208' : isNext ? '#080f1c' : '#0a0a0a',
+                          opacity: isLocked ? 0.4 : 1,
+                          cursor: isNext && canAfford ? 'pointer' : 'default',
+                        }}
+                        className="p-3 flex flex-col gap-1.5 transition-all active:scale-95">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] font-mono font-black text-white/60 uppercase">
+                            Ginásio {slotN}
+                          </span>
+                          {isPurchased && <span className="text-[8px] text-emerald-400 font-black">✓</span>}
+                          {isNext && !isPurchased && <span className="text-[8px] text-blue-400 font-black">🛒</span>}
+                          {isLocked && <span className="text-[8px] text-white/20">🔒</span>}
+                        </div>
+                        <span className="text-[8px] font-mono text-white/35">Lv.{GYM_SLOT_LEVELS[i]}</span>
+                        {isPurchased
+                          ? <span className="text-[7px] font-mono text-emerald-400 border border-emerald-800/40 px-1.5 py-0.5">COMPRADO</span>
+                          : <span className={`text-[8px] font-mono font-bold ${isNext && canAfford ? 'text-yellow-300' : 'text-white/30'}`}>
+                              {cost.toLocaleString()} C
+                            </span>
+                        }
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ── ELITE FOUR ───────────────────────────────────────────── */}
+              <div>
+                <div className="flex items-center gap-2 border-b border-[#333] pb-2 mb-3">
+                  <p className="text-[9px] font-mono text-white/30 uppercase tracking-widest flex-1">
+                    👑 Elite Four (0-4)
+                  </p>
+                  {gymSlots < 8 && (
+                    <span className="text-[7px] font-mono text-amber-500/70 border border-amber-900/40 px-1.5 py-0.5">
+                      Requer 8 Ginásios
+                    </span>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {ELITE_SLOT_COSTS.map((cost, i) => {
+                    const slotN      = i + 1;
+                    const isPurchased = eliteSlots >= slotN;
+                    const isNext     = gymSlots >= 8 && eliteSlots === i;
+                    const isLocked   = gymSlots < 8 || eliteSlots < i;
+                    const canAfford  = currency >= cost;
+                    return (
+                      <div key={i}
+                        onClick={() => isNext && canAfford && handleBuyEliteSlot()}
+                        style={{
+                          border: `2px solid ${isPurchased ? '#22c55e' : isNext && canAfford ? '#a855f7' : '#222'}`,
+                          background: isPurchased ? '#071208' : isNext ? '#12060f' : '#0a0a0a',
+                          opacity: isLocked ? 0.35 : 1,
+                          cursor: isNext && canAfford ? 'pointer' : 'default',
+                        }}
+                        className="p-3 flex flex-col gap-1.5 transition-all active:scale-95">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] font-mono font-black text-white/60 uppercase">
+                            Elite {slotN}
+                          </span>
+                          {isPurchased && <span className="text-[8px] text-emerald-400 font-black">✓</span>}
+                          {isNext && !isPurchased && <span className="text-[8px] text-purple-400 font-black">🛒</span>}
+                          {isLocked && <span className="text-[8px] text-white/20">🔒</span>}
+                        </div>
+                        <span className="text-[8px] font-mono text-white/35">Lv.{ELITE_SLOT_LEVELS[i]}</span>
+                        {isPurchased
+                          ? <span className="text-[7px] font-mono text-emerald-400 border border-emerald-800/40 px-1.5 py-0.5">COMPRADO</span>
+                          : <span className={`text-[8px] font-mono font-bold ${isNext && canAfford ? 'text-yellow-300' : 'text-white/30'}`}>
+                              {cost.toLocaleString()} C
+                            </span>
+                        }
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ── CAMPEÃO ──────────────────────────────────────────────── */}
+              <div>
+                <div className="flex items-center gap-2 border-b border-[#333] pb-2 mb-3">
+                  <p className="text-[9px] font-mono text-white/30 uppercase tracking-widest flex-1">
+                    🏆 Campeão
+                  </p>
+                  {eliteSlots < 4 && (
+                    <span className="text-[7px] font-mono text-amber-500/70 border border-amber-900/40 px-1.5 py-0.5">
+                      Requer Elite Four completa
+                    </span>
+                  )}
+                </div>
+                {(() => {
+                  const isAvail  = eliteSlots >= 4 && !champSlot;
+                  const canAfford = currency >= CHAMPION_SLOT_COST;
+                  return (
+                    <div
+                      onClick={() => isAvail && canAfford && handleBuyChampSlot()}
+                      style={{
+                        border: `2px solid ${champSlot ? '#fbbf24' : isAvail && canAfford ? '#f59e0b' : '#222'}`,
+                        background: champSlot ? '#1c1500' : isAvail ? '#150e00' : '#0a0a0a',
+                        opacity: eliteSlots < 4 && !champSlot ? 0.35 : 1,
+                        cursor: isAvail && canAfford ? 'pointer' : 'default',
+                      }}
+                      className="p-4 flex items-center gap-4 transition-all active:scale-95">
+                      <div className="text-3xl">{champSlot ? '🏆' : '🔒'}</div>
+                      <div className="flex-1">
+                        <p className="text-[10px] font-mono font-black text-white/70 uppercase">Campeão da Liga</p>
+                        <p className="text-[8px] font-mono text-white/35 mt-0.5">Lv.{CHAMPION_LEVEL} · Slot único</p>
+                        {champSlot
+                          ? <span className="text-[7px] font-mono text-yellow-400 border border-yellow-700/50 px-1.5 py-0.5 mt-1 inline-block">★ COMPRADO</span>
+                          : <span className={`text-[9px] font-mono font-bold mt-1 inline-block ${isAvail && canAfford ? 'text-yellow-300' : 'text-white/30'}`}>
+                              {CHAMPION_SLOT_COST.toLocaleString()} C
+                            </span>
+                        }
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* ── GERENCIAR REGIÃO ─────────────────────────────────────── */}
+              {hasAny && (
+                <GBAButton variant="gold" className="w-full justify-center"
+                  onClick={() => onOpenRegionBuilder && onOpenRegionBuilder()}>
+                  🗺️ GERENCIAR REGIÃO →
+                </GBAButton>
+              )}
+            </div>
+          );
+        })()}
       </div>
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes gbaBlink { 0%,100%{opacity:1}50%{opacity:0} }
         .gba-blink { animation: gbaBlink 1s step-end infinite; }
+        @keyframes equipSlideIn { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
       `}} />
+
+      {/* ── MODAL: EQUIPAR APÓS COMPRA ─────────────────────────────────────── */}
+      {equipPrompt && (
+        <div className="fixed inset-0 z-[9999] flex items-end justify-center pb-6 px-4"
+          style={{ background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(4px)' }}>
+          <div className="w-full max-w-sm font-mono"
+            style={{ animation: 'equipSlideIn 0.22s ease-out both' }}>
+            {/* Card GBA-style */}
+            <div className="border-4 border-[#fbbf24]" style={{ background: '#0d1117', boxShadow: '0 0 40px #fbbf2444, 0 -8px 0 #b7950b' }}>
+              {/* Header */}
+              <div className="flex items-center gap-3 px-4 py-3 border-b-2 border-[#fbbf24]/30"
+                style={{ background: 'linear-gradient(90deg,#1c1500,#2a1f00,#1c1500)' }}>
+                <div className="text-yellow-400 text-lg font-black">★</div>
+                <div>
+                  <p className="text-[8px] text-yellow-400/60 uppercase tracking-[0.35em]">DESBLOQUEADO</p>
+                  <p className="text-sm font-black text-yellow-300 uppercase leading-none">{equipPrompt.name}</p>
+                </div>
+                <div className="ml-auto w-px h-8 bg-yellow-600/30" />
+                <img src={equipPrompt.sprite} alt={equipPrompt.name}
+                  className="w-12 h-12 object-contain"
+                  style={{ imageRendering: 'pixelated' }}
+                  onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }} />
+              </div>
+              {/* Body */}
+              <div className="px-4 py-4">
+                <p className="text-[11px] text-white/70 font-mono text-center mb-4 leading-relaxed">
+                  Deseja equipar <span className="text-yellow-300 font-black">{equipPrompt.name}</span> como<br />
+                  seu avatar no Trainer Card agora?
+                </p>
+                <div className="flex gap-3">
+                  <GBAButton variant="green" className="flex-1"
+                    onClick={() => {
+                      handleEquipCosmetic('sprite', equipPrompt.id);
+                      setEquipPrompt(null);
+                    }}>
+                    ✓ EQUIPAR
+                  </GBAButton>
+                  <GBAButton variant="grey" className="flex-1"
+                    onClick={() => setEquipPrompt(null)}>
+                    Agora não
+                  </GBAButton>
+                </div>
+              </div>
+              {/* Footer decorativo */}
+              <div className="flex justify-between px-4 py-1.5 border-t border-[#333]">
+                {['#fbbf24', '#fbbf2488', '#fbbf2444'].map((c, i) => (
+                  <div key={i} className="w-2 h-2" style={{ background: c }} />
+                ))}
+                <p className="text-[7px] font-mono text-white/15 uppercase tracking-widest">TRAINER CARD</p>
+                {['#fbbf2444', '#fbbf2488', '#fbbf24'].map((c, i) => (
+                  <div key={i} className="w-2 h-2" style={{ background: c }} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

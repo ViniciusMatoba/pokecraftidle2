@@ -284,7 +284,7 @@ const ExpCandyModal = ({ candy, gameState, onUse, onClose }) => {
   );
 };
 
-const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy }) => {
+const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0 }) => {
   const [updating, setUpdating] = useState(false);
   const [subView, setSubView] = useState('main'); // 'main' ou 'settings'
   const [activeTab, setActiveTab] = useState('balls');
@@ -301,6 +301,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
     { id: 'pokedex',  name: 'Pokedex',       icon: '📕',                                   desc: 'Registro de especies',    color: 'bg-red-50 border-red-200 text-red-600' },
     { id: 'backpack', name: 'Mochila',        icon: '🎒',                                   desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
     { id: 'missions', name: 'Missoes',        icon: '/assets/icons/quests.png',             desc: 'Login diario e metas',    color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
+    { id: 'friends',  name: 'Rede de Amigos', icon: `${POKEAPI_ITEM}vs-seeker.png`,        desc: 'Amigos, batalhas e desafios', color: 'bg-blue-50 border-blue-200 text-blue-700', badge: pendingFriendRequestsCount },
     { id: 'stats',    name: 'Estatisticas',   icon: `${POKEAPI_ITEM}data-card-01.png`,      desc: 'Dados da Jornada',        color: 'bg-cyan-50 border-cyan-200 text-cyan-700' },
     { id: 'settings', name: 'Configuracoes',  icon: `${POKEAPI_ITEM}vs-seeker.png`,         desc: 'Ajustes do sistema',      color: 'bg-indigo-50 border-indigo-200 text-indigo-600' },
     { id: 'save',     name: 'Salvar Jogo',    icon: '💾',                                   desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
@@ -341,6 +342,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
             else if (item.id === 'stats') setSubView('stats');
             else if (item.id === 'missions') setSubView('missions');
             else if (item.id === 'guide') setSubView('guide');
+            else if (item.id === 'friends') { if (onOpenFriends) onOpenFriends(); }
             else {
               showConfirm({
                 title: 'Em Breve',
@@ -364,6 +366,11 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
             <h3 className="text-xl font-black uppercase italic leading-none tracking-tight">{item.name}</h3>
             <p className="text-[10px] font-bold opacity-80 uppercase mt-1 tracking-wide">{item.desc}</p>
           </div>
+          {item.badge > 0 && (
+            <span className="shrink-0 bg-red-500 text-white text-xs font-black min-w-[26px] h-7 px-2 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+              {item.badge > 99 ? '99+' : item.badge}
+            </span>
+          )}
           <div className="text-xl opacity-30 group-hover:opacity-100 group-hover:translate-x-2 transition-all">&gt;</div>
         </button>
       ))}
