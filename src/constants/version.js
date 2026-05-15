@@ -1,7 +1,14 @@
-export const APP_VERSION = '1.90.0';
-export const VERSION = '1.90.0';
-export const APP_VERSION_DATE = '15/05/2026 09:00';
+export const APP_VERSION = '1.90.1';
+export const VERSION = '1.90.1';
+export const APP_VERSION_DATE = '15/05/2026 10:30';
 export const CHANGELOG = [
+  '## [V1.90.1] - 15/05/2026 10:30',
+  '### Adicionado',
+  '- **Sistema de Batalha de Região (Fase 3)**: ao clicar em "⚔️ Desafiar Região" na Rede de Amigos, o jogador é levado para a tela de desafio da região do amigo (RegionChallengeScreen). Ginásios, Elite Four e Campeão são desafiados em sequência.',
+  '- **Simulação de batalha**: batalhas calculadas com base no poder da equipe do jogador vs. o poder total dos inimigos, com fator aleatório de ±20% para variação.',
+  '- **Recompensas por batalha**: vitórias rendem PokéCoins e EXP (100-500 moedas por batalha dependendo do tipo de adversário).',
+  '- **Tela de conclusão**: ao vencer o Campeão, exibe tela de comemoração com total de recompensas ganhas.',
+  '- **Verificação de nome único**: ao criar personagem, o nome do treinador é verificado no Firestore para garantir que não está em uso por outro jogador.',
   '## [V1.90.0] - 15/05/2026 09:00',
   '### Segurança',
   '- **Firestore Security Rules**: adicionado arquivo `firestore.rules` com regras completas. `saves` privados, `users`/`userRegions`/`bossRankings` públicos para leitura (apenas o dono escreve), `friends/requests` criado só pelo remetente, `friends/list` privado por uid.',

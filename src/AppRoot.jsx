@@ -41,7 +41,7 @@ import { MoveCategoryIcon, StatusBadges, QuickInventory, TrainerCard, BadgeSVG }
 import { GYMS, ELITE_FOUR } from './data/gyms';
 import { auth, db } from './firebase';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
 import { 
   APP_VERSION, APP_VERSION_DATE, DEFAULT_GAME_STATE, GYM_LEVEL_CAPS, 
   NATURE_LIST, NATURES, TYPE_COLORS, trainerAvatars, ITEM_LABELS,
@@ -81,6 +81,7 @@ import RaidScreen from './components/RaidScreen';
 const PrestigeShop       = lazy(() => import('./components/PrestigeShop'));
 const FriendsScreen      = lazy(() => import('./components/FriendsScreen'));
 const RegionBuilderScreen = lazy(() => import('./components/RegionBuilderScreen'));
+const RegionChallengeScreen = lazy(() => import('./components/RegionChallengeScreen'));
 import { subscribeToFriendRequests } from './services/friends';
 
 const RAID_SPAWN_STORAGE_KEY = 'pokecraftidle_next_raid_at';
@@ -795,6 +796,8 @@ export default function App() {
   const [battleResult, setBattleResult] = useState(null);
   const [showRaidScreen, setShowRaidScreen] = useState(false);
   const [showRegionBuilder, setShowRegionBuilder] = useState(false);
+  const [challengeRegion, setChallengeRegion] = useState(null); // { region, ownerProfile }
+  const [checkingName, setCheckingName] = useState(false);
   const [raidRouteNotice, setRaidRouteNotice] = useState(null);
   const [recipeFoundModal, setRecipeFoundModal] = useState(null); // { name, img, effect }
 
@@ -6022,17 +6025,33 @@ export default function App() {
                 </div>
               )}
 
-              <button onClick={() => {
+              <button onClick={async () => {
                 if (isLastStep) {
                   if (!gameState.trainer?.name || gameState.trainer.name.length < 2) {
                     showConfirm({ title: 'Nome Inválido', message: 'Diga-me seu nome para continuarmos!', onConfirm: closeConfirm });
                     return;
                   }
+                  // Verificar unicidade do nome
+                  setCheckingName(true);
+                  try {
+                    const nameLower = gameState.trainer.name.toLowerCase().trim();
+                    const q = query(collection(db, 'users'), where('nameLower', '==', nameLower));
+                    const snap = await getDocs(q);
+                    const takenByOther = snap.docs.some(d => d.id !== auth.currentUser?.uid);
+                    if (takenByOther) {
+                      showConfirm({ title: 'Nome Indisponível', message: 'Este nome já está em uso por outro treinador. Escolha outro!', onConfirm: closeConfirm });
+                      setCheckingName(false);
+                      return;
+                    }
+                  } catch (e) {
+                    console.error('name uniqueness check failed:', e);
+                  }
+                  setCheckingName(false);
                   setCurrentView('trainer_creation');
                 } else {
                   setIntroStep(s => s + 1);
                 }
-              }} style={{
+              }} disabled={checkingName} style={{
                 width: '100%', padding: '18px',
                 borderRadius: '16px',
                 background: '#16a34a',
@@ -6041,7 +6060,7 @@ export default function App() {
                 letterSpacing: '2px', border: 'none', cursor: 'pointer',
                 minHeight: '64px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-              }}>{isLastStep ? 'Tudo Pronto!' : 'PRÓXIMO ▶'}</button>
+              }}>{checkingName ? '⏳ Verificando...' : (isLastStep ? 'Tudo Pronto!' : 'PRÓXIMO ▶')}</button>
             </div>
           </div>
         );
@@ -8532,6 +8551,10 @@ export default function App() {
             }}
             pendingRequests={pendingFriendRequests}
             onClose={() => setActiveBuildingModal(null)}
+            onChallengeRegion={({ region, ownerProfile }) => {
+              setActiveBuildingModal(null);
+              setChallengeRegion({ region, ownerProfile });
+            }}
             onRequestsChanged={() => {
               // O listener onSnapshot já atualiza pendingFriendRequests automaticamente
             }}
@@ -8546,6 +8569,19 @@ export default function App() {
             setGameState={setGameState}
             POKEDEX={POKEDEX}
             onClose={() => setShowRegionBuilder(false)}
+          />
+        </Suspense>
+      )}
+
+      {challengeRegion && (
+        <Suspense fallback={<div className="fixed inset-0 z-[110000] bg-slate-900 flex items-center justify-center text-yellow-400 font-black animate-pulse">Carregando Desafio de Região...</div>}>
+          <RegionChallengeScreen
+            region={challengeRegion.region}
+            ownerProfile={challengeRegion.ownerProfile}
+            gameState={gameState}
+            setGameState={setGameState}
+            POKEDEX={POKEDEX}
+            onClose={() => setChallengeRegion(null)}
           />
         </Suspense>
       )}

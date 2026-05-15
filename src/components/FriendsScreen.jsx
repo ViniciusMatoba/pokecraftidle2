@@ -123,6 +123,7 @@ const FriendsScreen = ({
   currentUserProfile,   // perfil do jogador atual (para enviar junto com solicitação)
   pendingRequests,      // array vindo do listener em AppRoot
   onClose,
+  onChallengeRegion,    // ({ region, ownerProfile }) => void — abre RegionChallengeScreen
   onRequestsChanged,    // callback para refresh quando aceitar/recusar
 }) => {
   const [tab,             setTab]             = useState('friends');
@@ -356,8 +357,8 @@ const FriendsScreen = ({
                             if (!region) {
                               showToast('Região não encontrada ou ainda não publicada.', 'error');
                             } else {
-                              // TODO Fase 3: navegar para RegionChallengeScreen com { region, ownerProfile: profile }
-                              showToast(`Região "${region.regionName || 'Sem nome'}" encontrada! Batalhas em breve.`, 'info');
+                              onChallengeRegion?.({ region, ownerProfile: profile });
+                              onClose?.();
                             }
                           } finally {
                             setLoadingChallenge(prev => ({ ...prev, [friendUid]: false }));
