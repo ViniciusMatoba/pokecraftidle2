@@ -1,6 +1,7 @@
 // src/components/MoveAnimationLayer.jsx
 import React, { useRef, useImperativeHandle, forwardRef, useCallback } from 'react';
-import { FX_BASE, MOVE_ANIMATIONS, TYPE_FX } from '../data/moveAnimations';
+import { FX_BASE, MOVE_ANIMATIONS, resolveMoveAnimation } from '../data/moveAnimations';
+import { MOVES } from '../data/moves';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 
 const normalizeMoveKey = (value) => String(value || '')
@@ -15,19 +16,6 @@ const normalizeMoveKey = (value) => String(value || '')
 const TRANSLATED_MOVE_KEYS = Object.fromEntries(
   Object.entries(MOVE_TRANSLATIONS).map(([moveId, label]) => [normalizeMoveKey(label), moveId])
 );
-
-const resolveMoveKey = (moveName, moveKey) => {
-  const explicit = normalizeMoveKey(moveKey);
-  if (explicit && MOVE_ANIMATIONS[explicit]) return explicit;
-
-  const normalizedName = normalizeMoveKey(moveName);
-  if (MOVE_ANIMATIONS[normalizedName]) return normalizedName;
-
-  const translatedKey = TRANSLATED_MOVE_KEYS[normalizedName];
-  if (translatedKey) return translatedKey;
-
-  return normalizedName;
-};
 
 // Posições dos sprites dentro do container de batalha (em % do container)
 // Confirmado pelo código do BattleScreen.jsx:
@@ -125,257 +113,153 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
   }, []);
 
   // Motor de animação principal
-  const playAnimation = useCallback((moveName, moveType, direction = 'player-to-enemy', moveKey = null) => {
+  const playAnimation = useCallback((moveName, moveType, direction = 'player-to-enemy', moveKey = null, onHit, onAttack) => {
     if (!layerRef.current) return;
 
     const from = direction === 'player-to-enemy' ? POS.player : POS.enemy;
     const to   = direction === 'player-to-enemy' ? POS.enemy  : POS.player;
 
-    // Resolve definição de animação
-    const key    = resolveMoveKey(moveName, moveKey);
-    const def    = MOVE_ANIMATIONS[key];
-    const typeFb = TYPE_FX[moveType] || TYPE_FX['Normal'];
+    const moveData = MOVES[moveKey] || { type: 'Normal', category: 'Physical' };
+    const def = resolveMoveAnimation(moveName, moveData);
 
-    const sprite   = def?.sprite   || typeFb.sprite   || 'impact';
-    const color    = def?.color    || typeFb.color     || '#ffffff';
+    const sprite   = def?.sprite   || 'impact';
+    const color    = def?.color    || '#ffffff';
     const count    = def?.count    || 3;
     const duration = def?.duration || 420;
-    const type     = def?.type     || 'projectile';
+    const animType = def?.type     || 'projectile';
 
-    switch (type) {
+    if (onAttack) onAttack();
+    const triggerHit = (delay = 0) => { if (onHit) setTimeout(onHit, delay); };
 
-      // ── Projétil simples ────────────────────────────────────────────────
+    switch (animType) {
       case 'projectile':
         for (let i = 0; i < Math.min(count, 5); i++) {
-          spawnSprite(sprite, from, to, {
-            duration,
-            delay:      i * 55,
-            startScale: 0.35,
-            endScale:   1.8,
-          });
+          spawnSprite(sprite, from, to, { duration, delay: i * 55, startScale: 0.35, endScale: 1.8 });
         }
         flashOverlay(color, 90);
+        triggerHit(duration * 0.8);
         break;
 
-      // ── Projétil com rastro (vários em sequência) ────────────────────────
       case 'projectile_trail':
         for (let i = 0; i < Math.min(count, 6); i++) {
-          spawnSprite(sprite, from, to, {
-            duration:   duration * 0.8,
-            delay:      i * 50,
-            startScale: 0.3,
-            endScale:   1.6,
-          });
+          spawnSprite(sprite, from, to, { duration: duration * 0.8, delay: i * 50, startScale: 0.3, endScale: 1.6 });
         }
         flashOverlay(color, 100);
+        triggerHit(duration * 0.7);
         break;
 
-      // ── Explosão no alvo (sprites em todas as direções) ──────────────────
+      case 'high_frequency_stream':
+        for (let i = 0; i < Math.min(count * 3, 15); i++) {
+          spawnSprite(sprite, from, to, { duration: duration * 0.6, delay: i * 30, startScale: 0.2, endScale: 1.5, endOpacity: 0 });
+        }
+        flashOverlay(color, 150);
+        triggerHit(100);
+        break;
+
+      case 'dual_impact':
+        // Specifically for Bite/Crunch: Jaws closing
+        spawnSprite('topbite', { x: to.x, y: to.y - 25 }, to, { duration: 250, startScale: 1.5, endScale: 1.5 });
+        spawnSprite('bottombite', { x: to.x, y: to.y + 25 }, to, { duration: 250, startScale: 1.5, endScale: 1.5 });
+        flashOverlay(color, 100);
+        triggerHit(200);
+        break;
+
       case 'burst': {
         const n = Math.min(count, 8);
         for (let i = 0; i < n; i++) {
-          const angle  = (i / n) * 2 * Math.PI;
-          const spread = 18;
-          const target = {
-            x: to.x + Math.cos(angle) * spread,
-            y: to.y + Math.sin(angle) * spread,
-          };
-          spawnSprite(sprite, to, target, {
-            duration:   duration * 0.65,
-            delay:      i * 35,
-            startScale: 0.15,
-            endScale:   1.5,
-          });
+          const angle = (i / n) * 2 * Math.PI;
+          spawnSprite(sprite, to, { x: to.x + Math.cos(angle) * 18, y: to.y + Math.sin(angle) * 18 }, { duration: duration * 0.65, delay: i * 35, startScale: 0.15, endScale: 1.5 });
         }
         flashOverlay(color, 160);
+        triggerHit(50);
         break;
       }
 
-      // ── Raio que cai do céu ──────────────────────────────────────────────
-      case 'lightning_strike': {
-        const skyPos = { x: to.x, y: -15 };
+      case 'lightning_strike':
         for (let i = 0; i < Math.min(count, 4); i++) {
-          const jitter = { x: to.x + (Math.random() - 0.5) * 12, y: -15 };
-          spawnSprite(sprite, jitter, to, {
-            duration:   200,
-            delay:      i * 90,
-            startScale: 0.4,
-            endScale:   1.2,
-            easing:     'linear',
-          });
+          spawnSprite(sprite, { x: to.x + (Math.random() - 0.5) * 12, y: -15 }, to, { duration: 200, delay: i * 90, startScale: 0.4, endScale: 1.2, easing: 'linear' });
         }
         flashOverlay(color, 80);
+        triggerHit(150);
         break;
-      }
 
-      // ── Impacto no alvo com flash ────────────────────────────────────────
       case 'impact_flash':
       case 'impact_multi': {
-        const hits = type === 'impact_multi' ? Math.min(count, 5) : 3;
+        const hits = animType === 'impact_multi' ? Math.min(count, 5) : 3;
         for (let i = 0; i < hits; i++) {
           const jx = to.x + (Math.random() - 0.5) * 16;
           const jy = to.y + (Math.random() - 0.5) * 16;
-          spawnSprite('impact', { x: jx, y: jy }, { x: jx, y: jy }, {
-            duration:    220,
-            delay:       i * 60,
-            startScale:  0.1,
-            endScale:    2.2,
-            endOpacity:  0,
-          });
-          if (sprite !== 'impact' && i === 0) {
-            spawnSprite(sprite, from, to, {
-              duration:    duration * 0.55,
-              startScale:  0.3,
-              endScale:    1.5,
-            });
-          }
+          spawnSprite('impact', { x: jx, y: jy }, { x: jx, y: jy }, { duration: 220, delay: i * 60, startScale: 0.1, endScale: 2.2, endOpacity: 0 });
         }
         flashOverlay(color, 120);
+        triggerHit(50);
         break;
       }
 
-      // ── Corte / slash no alvo ────────────────────────────────────────────
-      case 'slash': {
-        const slashFrom = { x: to.x - 18, y: to.y - 12 };
-        const slashTo   = { x: to.x + 18, y: to.y + 12 };
-        spawnSprite(sprite, slashFrom, slashTo, {
-          duration:   220,
-          startScale: 0.5,
-          endScale:   1.8,
-        });
-        spawnSprite('impact', to, to, {
-          duration:   280,
-          delay:      120,
-          startScale: 0.1,
-          endScale:   2.0,
-          endOpacity: 0,
-        });
+      case 'slash':
+        spawnSprite(sprite, { x: to.x - 18, y: to.y - 12 }, { x: to.x + 18, y: to.y + 12 }, { duration: 220, startScale: 0.5, endScale: 1.8 });
+        spawnSprite('impact', to, to, { duration: 280, delay: 120, startScale: 0.1, endScale: 2.0, endOpacity: 0 });
         flashOverlay(color, 80);
+        triggerHit(120);
         break;
-      }
 
-      // ── Dreno: vai ao alvo e retorna ao usuário ──────────────────────────
       case 'drain': {
         const half = Math.floor(duration * 0.5);
         for (let i = 0; i < Math.min(count, 5); i++) {
-          // Vai até o inimigo
-          spawnSprite(sprite, from, to, {
-            duration:    half,
-            delay:       i * 65,
-            startScale:  0.3,
-            endScale:    1.4,
-          });
-          // Retorna ao jogador (drenando)
-          spawnSprite(sprite, to, from, {
-            duration:    half,
-            delay:       half + i * 65,
-            startScale:  0.9,
-            endScale:    0.2,
-            startOpacity: 0.85,
-            endOpacity:  0,
-          });
+          spawnSprite(sprite, from, to, { duration: half, delay: i * 65, startScale: 0.3, endScale: 1.4 });
+          spawnSprite(sprite, to, from, { duration: half, delay: half + i * 65, startScale: 0.9, endScale: 0.2, startOpacity: 0.85, endOpacity: 0 });
         }
         flashOverlay('#22ff66', 200);
+        triggerHit(half);
         break;
       }
 
-      // ── Terremoto: pedras sobem do chão ─────────────────────────────────
-      case 'quake': {
-        const n = Math.min(count, 7);
-        for (let i = 0; i < n; i++) {
-          const rx  = 10 + Math.random() * 80;
-          const top = { x: rx, y: 55 };
-          const bot = { x: rx, y: 95 };
-          spawnSprite(sprite, bot, top, {
-            duration:   320,
-            delay:      i * 75,
-            startScale: 0.4,
-            endScale:   1.6,
-            endOpacity: 0,
-          });
+      case 'quake':
+        for (let i = 0; i < Math.min(count, 7); i++) {
+          const rx = 10 + Math.random() * 80;
+          spawnSprite(sprite, { x: rx, y: 95 }, { x: rx, y: 55 }, { duration: 320, delay: i * 75, startScale: 0.4, endScale: 1.6, endOpacity: 0 });
         }
         flashOverlay(color, 220);
+        triggerHit(150);
         break;
-      }
 
-      // ── Carrega energia, depois dispara ─────────────────────────────────
-      case 'charge_projectile': {
-        // Fase 1: carrega no atacante
-        spawnSprite(sprite, from, from, {
-          duration:   280,
-          startScale: 0.05,
-          endScale:   1.6,
-          endOpacity: 0.9,
-        });
-        // Fase 2: dispara ao inimigo
+      case 'charge_projectile':
+        spawnSprite(sprite, from, from, { duration: 280, startScale: 0.05, endScale: 1.6, endOpacity: 0.9 });
         for (let i = 0; i < Math.min(count - 1, 4); i++) {
-          spawnSprite(sprite, from, to, {
-            duration:   duration * 0.6,
-            delay:      280 + i * 45,
-            startScale: 0.55,
-            endScale:   2.2,
-          });
+          spawnSprite(sprite, from, to, { duration: duration * 0.6, delay: 280 + i * 45, startScale: 0.55, endScale: 2.2 });
         }
         flashOverlay(color, 160);
+        triggerHit(280 + duration * 0.4);
         break;
-      }
 
-      // ── Feixe contínuo ───────────────────────────────────────────────────
-      case 'beam': {
-        const n = Math.min(count, 6);
-        for (let i = 0; i < n; i++) {
-          const jy = from.y + (Math.random() - 0.5) * 10;
-          spawnSprite(sprite, { x: from.x, y: jy }, to, {
-            duration,
-            delay:      i * 38,
-            startScale: 0.2,
-            endScale:   3.0,
-            size:       56,
-          });
+      case 'beam':
+        for (let i = 0; i < Math.min(count, 6); i++) {
+          spawnSprite(sprite, { x: from.x, y: from.y + (Math.random() - 0.5) * 10 }, to, { duration, delay: i * 38, startScale: 0.2, endScale: 3.0, size: 56 });
         }
         flashOverlay(color, 200);
+        triggerHit(duration * 0.6);
         break;
-      }
 
-      // ── Pulso que expande a partir do alvo ───────────────────────────────
-      case 'pulse': {
+      case 'pulse':
         for (let i = 0; i < Math.min(count, 4); i++) {
-          spawnSprite(sprite, to, to, {
-            duration:    280,
-            delay:       i * 95,
-            startScale:  0.05,
-            endScale:    3.2,
-            startOpacity: 0.85,
-            endOpacity:  0,
-          });
+          spawnSprite(sprite, to, to, { duration: 280, delay: i * 95, startScale: 0.05, endScale: 3.2, startOpacity: 0.85, endOpacity: 0 });
         }
         flashOverlay(color, 200);
+        triggerHit(50);
         break;
-      }
 
-      // ── Onda que avança ──────────────────────────────────────────────────
-      case 'wave': {
-        const n = Math.min(count, 5);
-        for (let i = 0; i < n; i++) {
-          spawnSprite(sprite, { x: from.x + i * 10, y: from.y }, to, {
-            duration,
-            delay:      i * 75,
-            startScale: 0.35,
-            endScale:   2.0,
-          });
+      case 'wave':
+        for (let i = 0; i < Math.min(count, 5); i++) {
+          spawnSprite(sprite, { x: from.x + i * 10, y: from.y }, to, { duration, delay: i * 75, startScale: 0.35, endScale: 2.0 });
         }
         flashOverlay(color, 160);
+        triggerHit(duration * 0.8);
         break;
-      }
 
-      // ── Fallback genérico ────────────────────────────────────────────────
       default:
-        spawnSprite(sprite, from, to, {
-          duration,
-          startScale: 0.35,
-          endScale:   2.0,
-        });
+        spawnSprite(sprite, from, to, { duration, startScale: 0.35, endScale: 2.0 });
         flashOverlay(color, 100);
+        triggerHit(duration * 0.8);
     }
   }, [spawnSprite, flashOverlay]);
 

@@ -43,12 +43,63 @@ const BattleScreen = ({
   const [shinyFlash, setShinyFlash] = useState(false);
   const [itemCategory, setItemCategory] = useState('capture');
   const animLayerRef = useRef(null);
+  const playerSpriteRef = useRef(null);
+  const enemySpriteRef = useRef(null);
+  const [screenShake, setScreenShake] = useState(false);
+  const [statReactions, setStatReactions] = useState([]);
+  const [showVignette, setShowVignette] = useState(false);
 
   // Escuta eventos de golpe disparados pelo AppRoot
   useEffect(() => {
     const onMove = (e) => {
       const { name, type, direction, moveKey } = e.detail;
-      animLayerRef.current?.play(name, type, direction, moveKey);
+      
+      const triggerReaction = (target, type) => {
+        const ref = target === 'player' ? playerSpriteRef : enemySpriteRef;
+        if (!ref.current) return;
+        ref.current.classList.remove('reaction-lunge-p', 'reaction-lunge-e', 'reaction-shake', 'reaction-flicker');
+        void ref.current.offsetWidth; // trigger reflow
+        ref.current.classList.add(type);
+        setTimeout(() => ref.current?.classList.remove(type), 500);
+      };
+
+      const handleAttack = () => {
+        const attacker = direction === 'player-to-enemy' ? 'player' : 'enemy';
+        triggerReaction(attacker, attacker === 'player' ? 'reaction-lunge-p' : 'reaction-lunge-e');
+      };
+
+      const handleHit = () => {
+        const target = direction === 'player-to-enemy' ? 'enemy' : 'player';
+        triggerReaction(target, 'reaction-shake');
+        triggerReaction(target, 'reaction-flicker');
+
+        // Trigger stat arrows if any
+        if (moveData?.statChanges) {
+          const newReactions = moveData.statChanges.map(sc => ({
+            id: Math.random(),
+            target: moveData.target === 'enemy' ? (direction === 'player-to-enemy' ? 'enemy' : 'player') : (direction === 'player-to-enemy' ? 'player' : 'enemy'),
+            stat: sc.stat,
+            change: sc.change > 0 ? 'up' : 'down'
+          }));
+          setStatReactions(prev => [...prev, ...newReactions]);
+          setTimeout(() => {
+            setStatReactions(prev => prev.filter(r => !newReactions.find(nr => nr.id === r.id)));
+          }, 1500);
+        }
+
+        // Screen shake para golpes fortes
+        setScreenShake(true);
+        setTimeout(() => setScreenShake(false), 300);
+
+        // Elite Move Vignette
+        const eliteKeywords = ['pump', 'thrower', 'blast', 'earthquake', 'storm', 'hyper', 'origin', 'meteor', 'v-create'];
+        if (eliteKeywords.some(kw => moveName.toLowerCase().includes(kw))) {
+          setShowVignette(true);
+          setTimeout(() => setShowVignette(false), 800);
+        }
+      };
+
+      animLayerRef.current?.play(name, type, direction, moveKey, handleHit, handleAttack);
     };
     window.addEventListener('pokemove', onMove);
     return () => window.removeEventListener('pokemove', onMove);
@@ -133,7 +184,7 @@ const BattleScreen = ({
   const mainBackground = formatBg(customBg) || bgTheme.sky || 'linear-gradient(180deg, #87ceeb 0%, #b0e0ff 55%, #d4f0a0 55%, #7cb850 100%)';
 
   return (
-    <div className="flex flex-col h-full animate-fadeIn pb-4 gap-2 overflow-y-auto custom-scrollbar" style={{paddingTop: '8px'}}>
+    <div className={`flex flex-col h-full animate-fadeIn pb-4 gap-2 overflow-y-auto custom-scrollbar ${screenShake ? 'battle-screen-shake' : ''}`} style={{paddingTop: '8px'}}>
       {/* Nome da Rota e Botão Sair */}
       <div className="flex items-center justify-between px-2 mb-1 animate-fadeIn">
         <div className="flex items-center gap-2 flex-wrap">
@@ -164,6 +215,9 @@ const BattleScreen = ({
             transition: 'filter 2s ease',
           }}
         />
+        
+        {/* Environmental Vignette */}
+        {showVignette && <div className="screen-vignette" />}
         <div
           className="absolute inset-0 pointer-events-none z-[5]"
           style={{ background: TIME_CONFIG[timeOfDay]?.overlayColor || 'transparent', transition: 'background 2s ease' }}
@@ -293,7 +347,13 @@ const BattleScreen = ({
         )}
 
         {/* SPRITE INIMIGO - Quadrante Superior Direito */}
-        <div className="absolute top-12 right-10 z-10 w-24 h-24 flex items-center justify-center">
+        <div ref={enemySpriteRef} className="absolute top-12 right-10 z-10 w-24 h-24 flex items-center justify-center">
+          {statReactions.filter(r => r.target === 'enemy').map(r => (
+            <div key={r.id} className={`absolute z-30 stat-arrow-${r.change}`}>
+              {r.change === 'up' ? '▲' : '▼'}
+              <span className="text-[8px] ml-0.5">{r.stat.toUpperCase()}</span>
+            </div>
+          ))}
           <div className="relative">
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none z-20 whitespace-nowrap">
               {(floatingTexts || []).filter(f => !f.target || f.target === 'enemy').map(f => <span key={f.id} className="block text-center font-black text-lg animate-floatUp" style={{ color: f.color, textShadow: '2px 2px 0 #000' }}>{f.text}</span>)}
@@ -391,7 +451,13 @@ const BattleScreen = ({
         </div>
 
         {/* SPRITE JOGADOR - Quadrante Inferior Esquerdo */}
-        <div className="absolute bottom-2 left-6 z-10 w-24 h-24 flex items-center justify-center">
+        <div ref={playerSpriteRef} className="absolute bottom-2 left-6 z-10 w-24 h-24 flex items-center justify-center">
+          {statReactions.filter(r => r.target === 'player').map(r => (
+            <div key={r.id} className={`absolute z-30 stat-arrow-${r.change}`}>
+              {r.change === 'up' ? '▲' : '▼'}
+              <span className="text-[8px] ml-0.5">{r.stat.toUpperCase()}</span>
+            </div>
+          ))}
           {activePoke && (
             <div className="relative">
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none z-20 whitespace-nowrap">

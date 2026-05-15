@@ -1,7 +1,15 @@
-export const APP_VERSION = '1.95.0';
-export const VERSION = '1.95.0';
-export const APP_VERSION_DATE = '16/05/2026 02:00';
+export const APP_VERSION = '1.96.0';
+export const VERSION = '1.96.0';
+export const APP_VERSION_DATE = '16/05/2026 03:30';
 export const CHANGELOG = [
+  '## [V1.96.0] - 16/05/2026 03:30',
+  '### Corrigido',
+  '- **ReferenceError: customLevel** no RegionBuilderScreen corrigido (variável renomeada para `defaultLevel`).',
+  '- **Modais de Natureza e Habilidade** agora aparecem centralizados na tela (era `items-end`, corrigido para `items-center`).',
+  '- **Iniciais por região** — Kalos/Alola/Galar/Paldea agora liberam seus iniciais somente após limpar a primeira rota (rival derrotado). Unova revertida para usar o sistema `addSafe` existente.',
+  '- **Modal de recompensas de Raid** — cada item pode ser clicado para abrir detalhes (nome + descrição do item).',
+  '- **MoveAnimationLayer** — brace redundante removido que causava falha no build.',
+  '',
   '## [V1.95.0] - 16/05/2026 02:00',
   '### Melhorado — Modal do Pokémon da Equipe',
   '- **Item Segurado redesenhado**: exibe o item equipado (ícone + nome + efeito) ou placeholder "Sem item segurado". Toque abre/fecha o seletor de itens da mochila com quantidade disponível. Após equipar, o picker fecha automaticamente.',

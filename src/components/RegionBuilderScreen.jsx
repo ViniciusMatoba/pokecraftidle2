@@ -390,7 +390,7 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
           <PokemonPicker
             caughtData={caughtData}
             selected={team}
-            level={customLevel}
+            level={defaultLevel}
             POKEDEX={POKEDEX}
             gymType={slotType === 'gym' ? bannerId : 'mixed'}
             onChange={setTeam}

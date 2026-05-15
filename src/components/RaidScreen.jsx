@@ -51,10 +51,38 @@ const formatTime = (ms) => {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 };
 
+const REWARD_INFO = {
+  pokeballs:        { name: 'Poké Ball',          desc: 'Pokébola básica usada para capturar Pokémon em rotas selvagens.' },
+  great_ball:       { name: 'Great Ball',          desc: 'Pokébola de maior eficácia. Aumenta a taxa de captura em relação à Poké Ball.' },
+  ultra_ball:       { name: 'Ultra Ball',          desc: 'Pokébola de alta performance. Uma das mais eficazes disponíveis.' },
+  fire_stone:       { name: 'Fire Stone',          desc: 'Pedra elementar que provoca a evolução de certos Pokémon do tipo Fogo.' },
+  water_stone:      { name: 'Water Stone',         desc: 'Pedra elementar que provoca a evolução de certos Pokémon do tipo Água.' },
+  thunder_stone:    { name: 'Thunder Stone',       desc: 'Pedra elementar que provoca a evolução de certos Pokémon do tipo Elétrico.' },
+  moon_stone:       { name: 'Moon Stone',          desc: 'Pedra mágica que brilha suavemente. Evolui Pokémon como Clefairy e Jigglypuff.' },
+  sun_stone:        { name: 'Sun Stone',           desc: 'Pedra que irradia calor solar. Evolui Pokémon como Gloom e Sunkern.' },
+  dawn_stone:       { name: 'Dawn Stone',          desc: 'Pedra que faísca como o amanhecer. Evolui Kirlia (macho) e Snorunt (fêmea).' },
+  link_cable:       { name: 'Link Cable',          desc: 'Simula uma conexão entre jogadores. Necessário para evoluir Pokémon que precisam de troca.' },
+  stardust:         { name: 'Stardust',            desc: 'Pó de estrela valioso. Usado como moeda de troca e em algumas receitas de forja.' },
+  dragon_scale:     { name: 'Dragon Scale',        desc: 'Escama de um Pokémon Dragão. Necessária para evoluir Seadra em Kingdra.' },
+  armor_fragment:   { name: 'Armor Fragment',      desc: 'Fragmento de armadura rara. Componente usado na Estação de Forja para criar itens poderosos.' },
+  mega_stone_shard: { name: 'Mega Stone Shard',    desc: 'Fragmento de Mega Pedra. Acumule para sintetizar uma Mega Pedra completa na Forja.' },
+  tm_flamethrower:  { name: 'TM — Lança-Chamas',  desc: 'MT que ensina o golpe Lança-Chamas: ataque Fogo especial de grande poder.' },
+  tm_thunderbolt:   { name: 'TM — Thunderbolt',   desc: 'MT que ensina Thunderbolt: ataque Elétrico especial confiável e preciso.' },
+  tm_ice_beam:      { name: 'TM — Ice Beam',       desc: 'MT que ensina Ice Beam: ataque Gelo especial que pode congelar o alvo.' },
+  rare_candy:       { name: 'Rare Candy',          desc: 'Bala mágica que sobe um nível instantaneamente em qualquer Pokémon.' },
+  exp_candy_xs:     { name: 'Exp. Candy XS',       desc: 'Bala de experiência pequena. Concede uma quantidade mínima de XP ao Pokémon.' },
+  exp_candy_s:      { name: 'Exp. Candy S',        desc: 'Bala de experiência pequena. Concede XP suficiente para ganhos rápidos em níveis baixos.' },
+  exp_candy_m:      { name: 'Exp. Candy M',        desc: 'Bala de experiência média. Boa fonte de XP para Pokémon em treinamento.' },
+  exp_candy_l:      { name: 'Exp. Candy L',        desc: 'Bala de experiência grande. Concede XP elevado — ideal para Pokémon de nível médio-alto.' },
+  exp_candy_xl:     { name: 'Exp. Candy XL',       desc: 'Bala de experiência máxima. Concede enorme quantidade de XP de uma só vez.' },
+  currency:         { name: 'PokéCoins',           desc: 'Moeda principal do jogo. Use na loja para comprar itens, pokébolas e upgrades.' },
+};
+
 const RaidScreen = ({
   raid, gameState, onStart, onDismiss, onContinueFight, onForfeitCapture, onCatchAttempt, onCatchRoll, onClaimRewards, POKEDEX,
 }) => {
   const [now, setNow] = useState(Date.now());
+  const [rewardDetail, setRewardDetail] = useState(null);
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -580,15 +608,25 @@ const RaidScreen = ({
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
                 {raid.rewards.map((r, i) => (
-                  <div key={i} style={{
-                    display: 'flex', flexDirection: 'column', alignItems: 'center',
-                    background: '#1e293b', borderRadius: 12, padding: '8px 12px', minWidth: 60,
-                  }}>
-                    <img src={REWARD_ICONS[r.id] || '💰'} style={{ width: 24, height: 24 }} alt="" />
-                    <span style={{ color: '#fff', fontWeight: 900, fontSize: 12 }}>x{r.quantity}</span>
-                  </div>
+                  <button
+                    key={i}
+                    onClick={() => setRewardDetail({ ...r, icon: REWARD_ICONS[r.id] })}
+                    style={{
+                      display: 'flex', flexDirection: 'column', alignItems: 'center',
+                      background: '#1e293b', borderRadius: 12, padding: '8px 12px', minWidth: 60,
+                      border: '2px solid transparent', cursor: 'pointer', transition: 'border-color 0.15s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.borderColor = '#ffffff44'}
+                    onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}
+                  >
+                    <img src={REWARD_ICONS[r.id] || '💰'} style={{ width: 28, height: 28 }} alt="" />
+                    <span style={{ color: '#fff', fontWeight: 900, fontSize: 12, marginTop: 4 }}>x{r.quantity}</span>
+                  </button>
                 ))}
               </div>
+              <p style={{ color: '#94a3b8', fontSize: 10, fontWeight: 700, textAlign: 'center', marginTop: -4 }}>
+                Toque em um item para ver detalhes
+              </p>
               <button
                 onClick={onClaimRewards}
                 style={{
@@ -601,6 +639,71 @@ const RaidScreen = ({
               >
                 Coletar e Sair
               </button>
+            </div>
+          )}
+
+          {/* MODAL de detalhe de recompensa */}
+          {rewardDetail && (
+            <div
+              onClick={() => setRewardDetail(null)}
+              style={{
+                position: 'fixed', inset: 0, zIndex: 99999,
+                background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
+              }}
+            >
+              <div
+                onClick={e => e.stopPropagation()}
+                style={{
+                  background: '#1e293b', borderRadius: 24, padding: 28,
+                  maxWidth: 320, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
+                }}
+              >
+                <div style={{
+                  width: 72, height: 72, borderRadius: 20,
+                  background: 'rgba(255,255,255,0.08)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <img src={rewardDetail.icon} style={{ width: 48, height: 48, objectFit: 'contain' }} alt="" />
+                </div>
+
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ color: '#94a3b8', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>
+                    Recompensa de Raid
+                  </p>
+                  <h3 style={{ color: '#fff', fontWeight: 900, fontSize: 18, textTransform: 'uppercase', margin: 0 }}>
+                    {REWARD_INFO[rewardDetail.id]?.name || rewardDetail.id}
+                  </h3>
+                  <span style={{
+                    display: 'inline-block', marginTop: 6,
+                    background: 'rgba(251,191,36,0.15)', color: '#fbbf24',
+                    fontSize: 12, fontWeight: 900, padding: '3px 12px', borderRadius: 20,
+                  }}>
+                    x{rewardDetail.quantity} obtido{rewardDetail.quantity > 1 ? 's' : ''}
+                  </span>
+                </div>
+
+                <p style={{
+                  color: '#94a3b8', fontSize: 12, fontWeight: 600, lineHeight: 1.6,
+                  textAlign: 'center', margin: 0,
+                }}>
+                  {REWARD_INFO[rewardDetail.id]?.desc || 'Item obtido como recompensa de Raid.'}
+                </p>
+
+                <button
+                  onClick={() => setRewardDetail(null)}
+                  style={{
+                    marginTop: 4, width: '100%', padding: '12px 0', borderRadius: 14,
+                    background: 'rgba(255,255,255,0.1)', color: '#fff',
+                    fontWeight: 900, fontSize: 12, textTransform: 'uppercase',
+                    border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer',
+                  }}
+                >
+                  Fechar
+                </button>
+              </div>
             </div>
           )}
 
