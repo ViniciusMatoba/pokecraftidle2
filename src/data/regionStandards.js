@@ -98,3 +98,27 @@ export const isPokemonAllowedInRegion = (pokemonId, activeRegion = 'kanto') => {
   const pokemonRegion = getPokemonRegion(pokemonId);
   return REGION_ORDER.indexOf(pokemonRegion) <= REGION_ORDER.indexOf(activeRegion);
 };
+
+/**
+ * Rule: A Pokemon is only legal if:
+ * a) Its originRegion matches currentRegion.
+ * b) OR the player has the champion flag for the currentRegion.
+ */
+export const isPokemonLegal = (pokemon, activeRegion = 'kanto', worldFlags = []) => {
+  if (!pokemon) return false;
+  
+  // Normalize input: allow passing just ID for backward compatibility, 
+  // but prioritize the pokemon object's properties.
+  const pokemonId = typeof pokemon === 'object' ? pokemon.id : pokemon;
+  const capturedRegion = typeof pokemon === 'object' ? pokemon.capturedRegion : null;
+  
+  // Rule A: Matches current region (Priority: capturedRegion > National Dex Origin)
+  const pokemonRegion = capturedRegion || getPokemonRegion(pokemonId);
+  if (pokemonRegion === activeRegion) return true;
+  
+  // Rule B: Player is Champion of the current region
+  const championFlag = REGION_CHAMPION_FLAGS[activeRegion];
+  if (championFlag && worldFlags.includes(championFlag)) return true;
+  
+  return false;
+};

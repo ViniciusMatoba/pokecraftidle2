@@ -545,279 +545,611 @@ const buildRegionRoutes = ({ region, label, startFlag, previousChampion, groups,
 });
 
 const FUTURE_REGION_ROUTES = {
-  ...buildRegionRoutes({
-    region: 'unova', label: 'Unova', startFlag: 'unova_started', previousChampion: 'unova_champion',
-    groups: { home: 'Nuvema Town' }, starters: [497, 500, 503], starterBases: [495, 498, 501], early: [504, 506, 509, 519], mid: [507, 510, 520, 527], late: [530, 534, 553, 567], final: [612, 635, 637, 643],
-    backgrounds: { city: '/bg_unova_city.webp', route: '/bg_unova_route.webp', cave: '/bg_unova_cave.webp', elite: '/bg_unova_elite.webp' },
-    extraRoutes: [
-      {
-        id: 'unova_pinwheel_forest', name: 'Pinwheel Forest', type: 'farm',
-        group: 'Unova Inicio', unlockLevel: 16,
-        requirements: ['unova_route_1_cleared'], unlocks: 'unova_pinwheel_cleared',
-        biome: 'forest',
-        enemies: [
-          ...pk([511, 513, 515, 519, 522, 527], 16),
-          // Snivy (#495) + Tepig (#498) — iniciais base de Unova (~1%) pós derrotar rival
-          { id: 495, level: 16, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'unova_rival_1_defeated' },
-          { id: 498, level: 16, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'unova_rival_1_defeated' },
-        ],
-        trainerChance: 0.07,
-        trainers: [
-          { name: 'Plasma Grunt', sprite: S.plasma, team: pk([509, 527], 19), reward: 1400 },
-          { name: 'Ranger Forrest', sprite: S.aceM, team: pk([511, 515], 20), reward: 1600 },
-        ],
-        background: '/bg_unova_route.webp',
-        description: 'Floresta de Unova com Plasma Grunt.',
-      },
-      {
-        id: 'unova_desert_resort', name: 'Desert Resort', type: 'farm',
-        group: 'Unova Meio', unlockLevel: 40,
-        requirements: ['unova_route_2_cleared'], unlocks: 'unova_desert_cleared',
-        biome: 'mountain',
-        enemies: pk([529, 530, 536, 552, 553, 557], 40),
-        trainerChance: 0.09,
-        trainers: [
-          { name: 'Ace Trainer Unova', sprite: S.aceM, team: pk([530, 536], 44), reward: 3600 },
-          { name: 'Veteran Unova', sprite: S.aceF, team: pk([553, 557], 45), reward: 3800 },
-        ],
-        background: '/bg_unova_cave.webp',
-        description: 'Deserto de Unova com Pokémon Terra e Pedra.',
-      },
-      {
-        id: 'unova_victory_road', name: 'Victory Road Unova', type: 'farm',
-        group: 'Unova Liga', unlockLevel: 70,
-        requirements: ['unova_route_3_cleared'], unlocks: 'unova_victory_road_cleared',
-        biome: 'cave',
-        enemies: pk([553, 567, 612, 620, 625, 630], 68),
-        trainerChance: 0.10,
-        trainers: [
-          { name: 'Dragon Tamer Unova', sprite: S.aceM, team: pk([612, 625], 72), reward: 6500 },
-          { name: 'Elite Unova', sprite: S.aceF, team: pk([567, 630], 71), reward: 6800 },
-        ],
-        background: '/bg_unova_cave.webp',
-        description: 'Victory Road de Unova antes da Liga.',
-      },
+
+  // ══════════════════════════════════════════════════════════════
+  // UNOVA (Gen 5) — Pokémon Black & White
+  // ══════════════════════════════════════════════════════════════
+
+  nuvema_town: {
+    id: 'nuvema_town', name: 'Nuvema Town', type: 'city', group: 'Unova',
+    unlockLevel: 1, requirements: ['unova_started'],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: '/bg_unova_city.webp',
+    description: 'A pequena e pacífica cidade onde sua jornada em Unova começa.',
+  },
+
+  unova_route_1: {
+    id: 'unova_route_1', name: 'Rota 1', type: 'farm', group: 'Unova',
+    unlockLevel: 4, requirements: ['unova_started'], unlocks: 'unova_route_1_cleared',
+    biome: 'grass',
+    enemies: pk([504, 506, 509], 5),
+    trainerChance: 0.05,
+    trainers: [{ name: 'Youngster Yancy', sprite: S.youngster, team: pk([504, 506], 7), reward: 300 }],
+    background: '/bg_unova_route.webp',
+    description: 'Uma rota curta que leva à Accumula Town.',
+  },
+
+  unova_route_2: {
+    id: 'unova_route_2', name: 'Rota 2', type: 'farm', group: 'Unova',
+    unlockLevel: 10, requirements: ['unova_route_1_cleared'], unlocks: 'unova_route_2_cleared',
+    biome: 'grass',
+    enemies: pk([504, 506, 509, 519, 511, 513, 515], 10),
+    trainerChance: 0.06,
+    trainers: [{ name: 'Lass Audrey', sprite: S.lass, team: pk([509, 519], 12), reward: 500 }],
+    background: '/bg_unova_route.webp',
+    description: 'Caminho para Striaton City, onde os primeiros desafios aguardam.',
+  },
+
+  unova_striaton_city: {
+    id: 'unova_striaton_city', name: 'Striaton City', type: 'city', group: 'Unova',
+    unlockLevel: 14, requirements: ['unova_route_2_cleared'],
+    background: '/bg_unova_city.webp',
+    description: 'Cidade famosa por seus três líderes de ginásio e o Jardim dos Sonhos.',
+  },
+
+  unova_route_3: {
+    id: 'unova_route_3', name: 'Rota 3', type: 'farm', group: 'Unova',
+    unlockLevel: 18, requirements: ['unova_route_2_cleared'], unlocks: 'unova_route_3_cleared',
+    biome: 'grass',
+    enemies: pk([519, 520, 522, 524, 517], 16),
+    trainerChance: 0.07,
+    trainers: [{ name: 'Cheren', sprite: S.cooltrainer, team: pk([498, 506, 504], 18), reward: 1000 }],
+    background: '/bg_unova_route.webp',
+    description: 'Uma rota movimentada com uma creche Pokémon.',
+  },
+
+  unova_pinwheel_forest: {
+    id: 'unova_pinwheel_forest', name: 'Pinwheel Forest', type: 'farm', group: 'Unova',
+    unlockLevel: 24, requirements: ['unova_route_3_cleared'], unlocks: 'unova_pinwheel_cleared',
+    biome: 'forest',
+    enemies: pk([540, 543, 546, 548, 532, 535], 22),
+    trainerChance: 0.08,
+    trainers: [{ name: 'Plasma Grunt', sprite: S.plasma, team: pk([509, 527], 24), reward: 1200 }],
+    background: '/bg_unova_route.webp',
+    description: 'Uma vasta floresta densa protegendo o acesso à metrópole de Castelia.',
+  },
+
+  unova_castelia_city: {
+    id: 'unova_castelia_city', name: 'Castelia City', type: 'city', group: 'Unova',
+    unlockLevel: 28, requirements: ['unova_pinwheel_cleared'],
+    background: '/bg_unova_city.webp',
+    description: 'A maior metrópole de Unova, centro de negócios e cultura.',
+  },
+
+  unova_route_4: {
+    id: 'unova_route_4', name: 'Rota 4 / Desert Resort', type: 'farm', group: 'Unova',
+    unlockLevel: 32, requirements: ['unova_pinwheel_cleared'], unlocks: 'unova_desert_cleared',
+    biome: 'mountain',
+    enemies: pk([551, 554, 557, 559, 561, 562], 30),
+    trainerChance: 0.08,
+    trainers: [{ name: 'Colress', sprite: S.scientist, team: pk([599, 602], 34), reward: 2000 }],
+    background: '/bg_unova_route.webp',
+    description: 'Uma rota arenosa que leva ao Nimbasa City.',
+  },
+
+  unova_chargestone_cave: {
+    id: 'unova_chargestone_cave', name: 'Chargestone Cave', type: 'farm', group: 'Unova',
+    unlockLevel: 38, requirements: ['unova_desert_cleared'], unlocks: 'unova_chargestone_cleared',
+    biome: 'cave',
+    enemies: pk([524, 525, 595, 599, 602], 36),
+    trainerChance: 0.09,
+    trainers: [{ name: 'Plasma Grunt', sprite: S.plasma, team: pk([544, 552], 40), reward: 2500 }],
+    background: '/bg_unova_cave.webp',
+    description: 'Uma caverna eletromagnética com pedras flutuantes.',
+  },
+
+  unova_twist_mountain: {
+    id: 'unova_twist_mountain', name: 'Twist Mountain', type: 'farm', group: 'Unova',
+    unlockLevel: 44, requirements: ['unova_chargestone_cleared'], unlocks: 'unova_twist_cleared',
+    biome: 'mountain',
+    enemies: pk([613, 615, 619, 525, 582, 583], 42),
+    trainerChance: 0.09,
+    trainers: [{ name: 'Worker Bryon', sprite: S.worker, team: pk([526, 614], 46), reward: 3000 }],
+    background: '/bg_unova_cave.webp',
+    description: 'Uma montanha em constante mudança devido às estações.',
+  },
+
+  unova_route_9: {
+    id: 'unova_route_9', name: 'Rota 9', type: 'farm', group: 'Unova',
+    unlockLevel: 50, requirements: ['unova_twist_cleared'], unlocks: 'unova_route_9_cleared',
+    biome: 'grass',
+    enemies: pk([610, 624, 569, 626, 629, 633], 48),
+    trainerChance: 0.10,
+    trainers: [{ name: 'Roughneck Biff', sprite: S.youngster, team: pk([560, 625], 52), reward: 4000 }],
+    background: '/bg_unova_route.webp',
+    description: 'Caminho final para a histórica Opelucid City.',
+  },
+
+  unova_victory_road: {
+    id: 'unova_victory_road', name: 'Victory Road Unova', type: 'farm', group: 'Unova',
+    unlockLevel: 58, requirements: ['unova_route_9_cleared'], unlocks: 'unova_victory_road_cleared',
+    biome: 'cave',
+    enemies: pk([611, 612, 623, 625, 634], 56),
+    trainerChance: 0.12,
+    trainers: [{ name: 'Veteran Portia', sprite: S.aceF, team: pk([612, 635], 62), reward: 6000 }],
+    background: '/bg_unova_elite.webp',
+    description: 'O desafio final de Unova antes da Pokémon League.',
+  },
+
+  unova_league: {
+    id: 'unova_league', name: 'Unova Pokémon League', type: 'farm', group: 'Unova',
+    unlockLevel: 65, requirements: ['unova_victory_road_cleared'], unlocks: 'unova_champion',
+    biome: 'cave',
+    enemies: pk([635, 637, 638, 639, 640], 64),
+    trainerChance: 0.15,
+    trainers: [{ name: 'Champion Alder', sprite: S.cooltrainer, team: pk([617, 626, 584, 621, 637], 70), reward: 15000 }],
+    background: '/bg_unova_elite.webp',
+    description: 'Enfrente a Elite dos Quatro e o Campeão de Unova.',
+  },
+
+  unova_giant_chasm: {
+    id: 'unova_giant_chasm', name: 'Giant Chasm', type: 'farm', group: 'Unova',
+    unlockLevel: 75, requirements: ['unova_champion'], unlocks: 'unova_giant_chasm_cleared',
+    biome: 'cave',
+    enemies: pk([646, 221, 375, 473], 72),
+    trainerChance: 0.15,
+    trainers: [{ name: 'N', sprite: S.cooltrainer, team: pk([644, 612, 571, 555, 609, 637], 80), reward: 25000 }],
+    background: '/bg_unova_cave.webp',
+    description: 'Um abismo lendário que dizem ter caído do céu.',
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  // KALOS (Gen 6) — Pokémon X & Y
+  // ══════════════════════════════════════════════════════════════
+
+  vaniville_town: {
+    id: 'vaniville_town', name: 'Vaniville Town', type: 'city', group: 'Kalos',
+    unlockLevel: 1, requirements: ['kalos_started'],
+    enemies: [], trainers: [], trainerChance: 0,
+    background: '/bg_kalos_city.webp',
+    description: 'Sua casa na bela região de Kalos.',
+  },
+
+  kalos_route_2: {
+    id: 'kalos_route_2', name: 'Rota 2 / Santalune Forest', type: 'farm', group: 'Kalos',
+    unlockLevel: 5, requirements: ['kalos_started'], unlocks: 'kalos_route_2_cleared',
+    biome: 'forest',
+    enemies: pk([661, 659, 664, 25, 650, 653, 656], 6),
+    trainerChance: 0.05,
+    trainers: [{ name: 'Youngster Joey', sprite: S.youngster, team: pk([661, 659], 8), reward: 400 }],
+    background: '/bg_kalos_route.webp',
+    description: 'Uma trilha arborizada que leva à floresta de Santalune.',
+  },
+
+  kalos_santalune_city: {
+    id: 'kalos_santalune_city', name: 'Santalune City', type: 'city', group: 'Kalos',
+    unlockLevel: 12, requirements: ['kalos_route_2_cleared'],
+    background: '/bg_kalos_city.webp',
+    description: 'Cidade hospitaleira com o ginásio de Viola.',
+  },
+
+  kalos_route_4: {
+    id: 'kalos_route_4', name: 'Rota 4 / Lumiose Gateway', type: 'farm', group: 'Kalos',
+    unlockLevel: 16, requirements: ['kalos_route_2_cleared'], unlocks: 'kalos_route_5_cleared',
+    biome: 'grass',
+    enemies: pk([667, 669, 672, 674, 677, 680], 14),
+    trainerChance: 0.07,
+    trainers: [{ name: 'Gardener Geoff', sprite: S.worker, team: pk([672, 673], 18), reward: 800 }],
+    background: '/bg_kalos_route.webp',
+    description: 'Jardins elaborados que levam à grande Lumiose City.',
+  },
+
+  kalos_glittering_cave: {
+    id: 'kalos_glittering_cave', name: 'Glittering Cave', type: 'farm', group: 'Kalos',
+    unlockLevel: 24, requirements: ['kalos_route_5_cleared'], unlocks: 'kalos_cave_cleared',
+    biome: 'cave',
+    enemies: pk([696, 698, 66, 111, 303, 597], 22),
+    trainerChance: 0.08,
+    trainers: [{ name: 'Flare Grunt', sprite: S.flare, team: pk([228, 568], 25), reward: 1500 }],
+    background: '/bg_kalos_cave.webp',
+    description: 'Uma caverna reluzente onde o Team Flare opera.',
+  },
+
+  kalos_reflection_cave: {
+    id: 'kalos_reflection_cave', name: 'Reflection Cave', type: 'farm', group: 'Kalos',
+    unlockLevel: 32, requirements: ['kalos_cave_cleared'], unlocks: 'kalos_reflection_cleared',
+    biome: 'cave',
+    enemies: pk([701, 703, 439, 524, 577], 30),
+    trainerChance: 0.08,
+    trainers: [{ name: 'Ace Trainer Hiro', sprite: S.aceM, team: pk([701, 578], 34), reward: 2500 }],
+    background: '/bg_kalos_cave.webp',
+    description: 'Paredes de cristal que refletem os corações dos treinadores.',
+  },
+
+  kalos_azure_bay: {
+    id: 'kalos_azure_bay', name: 'Azure Bay', type: 'farm', group: 'Kalos',
+    unlockLevel: 40, requirements: ['kalos_reflection_cleared'], unlocks: 'kalos_azure_cleared',
+    biome: 'water',
+    enemies: pk([690, 692, 131, 79, 193], 38),
+    trainerChance: 0.09,
+    trainers: [{ name: 'Swimmer Camille', sprite: S.beauty, team: pk([80, 131], 42), reward: 4000 }],
+    background: '/bg_kalos_route.webp',
+    description: 'Uma baía de águas azuis profundas com muitos mistérios.',
+  },
+
+  kalos_frost_cavern: {
+    id: 'kalos_frost_cavern', name: 'Frost Cavern', type: 'farm', group: 'Kalos',
+    unlockLevel: 48, requirements: ['kalos_azure_cleared'], unlocks: 'kalos_frost_cleared',
+    biome: 'cave',
+    enemies: pk([712, 714, 613, 615, 124, 220], 46),
+    trainerChance: 0.09,
+    trainers: [{ name: 'Flare Grunt Ice', sprite: S.flare, team: pk([614, 221], 50), reward: 5000 }],
+    background: '/bg_kalos_cave.webp',
+    description: 'Uma caverna permanentemente congelada.',
+  },
+
+  kalos_route_17: {
+    id: 'kalos_route_17', name: 'Rota 17 / Snowbelle Area', type: 'farm', group: 'Kalos',
+    unlockLevel: 56, requirements: ['kalos_frost_cleared'], unlocks: 'kalos_route_17_cleared',
+    biome: 'mountain',
+    enemies: pk([712, 713, 459, 460, 614, 533], 54),
+    trainerChance: 0.10,
+    trainers: [{ name: 'Skier Yvette', sprite: S.aceF, team: pk([614, 534], 58), reward: 6000 }],
+    background: '/bg_kalos_route.webp',
+    description: 'Rota nevada onde Mamoswine ajuda os viajantes.',
+  },
+
+  kalos_victory_road: {
+    id: 'kalos_victory_road', name: 'Victory Road Kalos', type: 'farm', group: 'Kalos',
+    unlockLevel: 64, requirements: ['kalos_route_17_cleared'], unlocks: 'kalos_victory_road_cleared',
+    biome: 'cave',
+    enemies: pk([715, 621, 635, 306, 75, 22], 62),
+    trainerChance: 0.12,
+    trainers: [{ name: 'Dragon Tamer Kalos', sprite: S.aceM, team: pk([715, 635], 68), reward: 10000 }],
+    background: '/bg_kalos_elite.webp',
+    description: 'O caminho final para provar seu valor na Liga Kalos.',
+  },
+
+  kalos_league: {
+    id: 'kalos_league', name: 'Kalos Pokémon League', type: 'farm', group: 'Kalos',
+    unlockLevel: 70, requirements: ['kalos_victory_road_cleared'], unlocks: 'kalos_champion',
+    biome: 'cave',
+    enemies: pk([706, 697, 699, 701, 716, 717, 718], 68),
+    trainerChance: 0.15,
+    trainers: [{ name: 'Grand Duchess Diantha', sprite: S.cooltrainer, team: pk([701, 697, 699, 706, 711, 282], 75), reward: 30000 }],
+    background: '/bg_kalos_elite.webp',
+    description: 'A glória eterna aguarda o próximo campeão de Kalos.',
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  // ALOLA (Gen 7) — Pokémon Sun & Moon
+  // ══════════════════════════════════════════════════════════════
+
+  hauoli_city: {
+    id: 'hauoli_city', name: 'Hauoli City', type: 'city', group: 'Alola',
+    unlockLevel: 1, requirements: ['alola_started'],
+    background: '/bg_alola_city.webp',
+    description: 'A ensolarada e acolhedora cidade de Alola.',
+  },
+
+  alola_route_1: {
+    id: 'alola_route_1', name: 'Rota 1', type: 'farm', group: 'Alola',
+    unlockLevel: 4, requirements: ['alola_started'], unlocks: 'alola_route_1_cleared',
+    biome: 'grass',
+    enemies: pk([731, 734, 736, 10, 722, 725, 728], 5),
+    trainerChance: 0.05,
+    trainers: [{ name: 'Youngster Shu', sprite: S.youngster, team: pk([731, 734], 7), reward: 300 }],
+    background: '/bg_alola_route.webp',
+    description: 'Um paraíso tropical cheio de novos amigos.',
+  },
+
+  alola_verdant_cavern: {
+    id: 'alola_verdant_cavern', name: 'Verdant Cavern', type: 'farm', group: 'Alola',
+    unlockLevel: 12, requirements: ['alola_route_1_cleared'], unlocks: 'alola_carat_cleared',
+    biome: 'cave',
+    enemies: pk([734, 735, 19, 20, 744, 782], 12),
+    trainerChance: 0.07,
+    trainers: [{ name: 'Trial Captain Ilima', sprite: S.aceM, team: pk([735, 19], 15), reward: 1000 }],
+    background: '/bg_alola_cave.webp',
+    description: 'Onde o primeiro Trial de Alola ocorre.',
+  },
+
+  alola_akala_island: {
+    id: 'alola_akala_island', name: 'Akala Island / Rotas 4-6', type: 'farm', group: 'Alola',
+    unlockLevel: 22, requirements: ['alola_carat_cleared'], unlocks: 'alola_akala_cleared',
+    biome: 'grass',
+    enemies: pk([749, 751, 755, 757, 759, 761, 764], 20),
+    trainerChance: 0.08,
+    trainers: [{ name: 'Team Skull Grunt', sprite: S.skull, team: pk([759, 761], 24), reward: 1500 }],
+    background: '/bg_alola_route.webp',
+    description: 'Uma ilha diversificada com muitos desafios de Trial.',
+  },
+
+  alola_wela_volcano: {
+    id: 'alola_wela_volcano', name: 'Wela Volcano Park', type: 'farm', group: 'Alola',
+    unlockLevel: 30, requirements: ['alola_akala_cleared'], unlocks: 'alola_volcano_cleared',
+    biome: 'mountain',
+    enemies: pk([757, 758, 105, 776, 662, 741], 28),
+    trainerChance: 0.08,
+    trainers: [{ name: 'Ace Trainer Lani', sprite: S.aceF, team: pk([105, 662], 32), reward: 2500 }],
+    background: '/bg_alola_route.webp',
+    description: 'O lar dos rituais de fogo e Pokémon vulcânicos.',
+  },
+
+  alola_aether_paradise: {
+    id: 'alola_aether_paradise', name: 'Aether Paradise', type: 'farm', group: 'Alola',
+    unlockLevel: 38, requirements: ['alola_volcano_cleared'], unlocks: 'alola_aether_cleared',
+    biome: 'cave',
+    enemies: pk([137, 82, 89, 568, 772, 773], 36),
+    trainerChance: 0.09,
+    trainers: [{ name: 'Aether Faba', sprite: S.gentleman, team: pk([475, 80], 42), reward: 5000 }],
+    background: '/bg_alola_city.webp',
+    description: 'Uma ilha artificial de alta tecnologia.',
+  },
+
+  alola_ula_ula_island: {
+    id: 'alola_ula_ula_island', name: "Ula'ula Island / Rotas 10-14", type: 'farm', group: 'Alola',
+    unlockLevel: 46, requirements: ['alola_aether_cleared'], unlocks: 'alola_ula_ula_cleared',
+    biome: 'grass',
+    enemies: pk([766, 765, 769, 770, 778, 435, 675], 44),
+    trainerChance: 0.09,
+    trainers: [{ name: 'Skull Grunt', sprite: S.skull, team: pk([760, 769], 48), reward: 4000 }],
+    background: '/bg_alola_route.webp',
+    description: 'A maior ilha de Alola, com climas variados.',
+  },
+
+  alola_vast_poni_canyon: {
+    id: 'alola_vast_poni_canyon', name: 'Vast Poni Canyon', type: 'farm', group: 'Alola',
+    unlockLevel: 54, requirements: ['alola_ula_ula_cleared'], unlocks: 'alola_lanakila_cleared',
+    biome: 'mountain',
+    enemies: pk([782, 783, 103, 621, 706, 780], 52),
+    trainerChance: 0.10,
+    trainers: [{ name: 'Elite Kahuna Hapu', sprite: S.aceF, team: pk([784, 103, 750], 58), reward: 10000 }],
+    background: '/bg_alola_elite.webp',
+    description: 'Um canyon majestoso onde os dragões residem.',
+  },
+
+  alola_mount_lanakila: {
+    id: 'alola_mount_lanakila', name: 'Mount Lanakila', type: 'farm', group: 'Alola',
+    unlockLevel: 62, requirements: ['alola_lanakila_cleared'], unlocks: 'alola_champion',
+    biome: 'cave',
+    enemies: pk([739, 740, 37, 38, 27, 28], 60),
+    trainerChance: 0.12,
+    trainers: [{ name: 'Professor Kukui', sprite: S.cooltrainer, team: pk([724, 733, 745, 756, 763, 727], 68), reward: 20000 }],
+    background: '/bg_alola_elite.webp',
+    description: 'O ponto mais alto de Alola e sede da nova Liga.',
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  // GALAR (Gen 8) — Pokémon Sword & Shield
+  // ══════════════════════════════════════════════════════════════
+
+  postwick: {
+    id: 'postwick', name: 'Postwick', type: 'city', group: 'Galar',
+    unlockLevel: 1, requirements: ['galar_started'],
+    background: '/bg_galar_city.webp',
+    description: 'Uma pacata vila rural em Galar.',
+  },
+
+  galar_route_1: {
+    id: 'galar_route_1', name: 'Rota 1 / Slumbering Weald', type: 'farm', group: 'Galar',
+    unlockLevel: 4, requirements: ['galar_started'], unlocks: 'galar_route_1_cleared',
+    biome: 'grass',
+    enemies: pk([819, 827, 821, 835, 810, 813, 816], 5),
+    trainerChance: 0.05,
+    trainers: [{ name: 'Hop (Rival)', sprite: S.cooltrainer, team: pk([831, 810], 8), reward: 500 }],
+    background: '/bg_galar_route.webp',
+    description: 'O começo da sua jornada pela região inspirada no Reino Unido.',
+  },
+
+  galar_wild_area_south: {
+    id: 'galar_wild_area_south', name: 'Wild Area (Sul)', type: 'farm', group: 'Galar',
+    unlockLevel: 14, requirements: ['galar_route_1_cleared'], unlocks: 'galar_route_2_cleared',
+    biome: 'grass',
+    enemies: pk([819, 820, 821, 824, 827, 829, 831, 833, 835], 12),
+    trainerChance: 0.07,
+    trainers: [{ name: 'Camper Byron', sprite: S.aceM, team: pk([845, 834], 16), reward: 1200 }],
+    background: '/bg_galar_route.webp',
+    description: 'Um vasto território aberto cheio de Pokémon selvagens.',
+  },
+
+  galar_mine_1: {
+    id: 'galar_mine_1', name: 'Galar Mine No. 1', type: 'farm', group: 'Galar',
+    unlockLevel: 22, requirements: ['galar_route_2_cleared'], unlocks: 'galar_mine_cleared',
+    biome: 'cave',
+    enemies: pk([837, 838, 839, 50, 532], 20),
+    trainerChance: 0.08,
+    trainers: [{ name: 'Bede (Rival)', sprite: S.cooltrainer, team: pk([577, 856, 857], 24), reward: 2000 }],
+    background: '/bg_galar_cave.webp',
+    description: 'Minas profundas guardando caminhos para o norte.',
+  },
+
+  galar_route_5: {
+    id: 'galar_route_5', name: 'Rota 5 / Hulbury Area', type: 'farm', group: 'Galar',
+    unlockLevel: 30, requirements: ['galar_mine_cleared'], unlocks: 'galar_route_5_cleared',
+    biome: 'grass',
+    enemies: pk([832, 843, 841, 856, 857, 870, 83], 28),
+    trainerChance: 0.08,
+    trainers: [{ name: 'Yell Grunt', sprite: S.yell, team: pk([264, 827], 32), reward: 1800 }],
+    background: '/bg_galar_route.webp',
+    description: 'Caminho entre as cidades industriais de Galar.',
+  },
+
+  galar_glimwood_tangle: {
+    id: 'galar_glimwood_tangle', name: 'Glimwood Tangle', type: 'farm', group: 'Galar',
+    unlockLevel: 40, requirements: ['galar_route_5_cleared'], unlocks: 'galar_glimwood_cleared',
+    biome: 'forest',
+    enemies: pk([854, 855, 876, 860, 852, 708], 38),
+    trainerChance: 0.09,
+    trainers: [{ name: 'Marnie (Rival)', sprite: S.cooltrainer, team: pk([859, 860, 264], 42), reward: 4000 }],
+    background: '/bg_galar_route.webp',
+    description: 'Uma floresta mágica e bioluminescente.',
+  },
+
+  galar_route_9: {
+    id: 'galar_route_9', name: 'Rota 9 / Circhester Area', type: 'farm', group: 'Galar',
+    unlockLevel: 50, requirements: ['galar_glimwood_cleared'], unlocks: 'galar_route_9_cleared',
+    biome: 'water',
+    enemies: pk([872, 873, 874, 875, 882, 215], 48),
+    trainerChance: 0.09,
+    trainers: [{ name: 'Ace Trainer Circhester', sprite: S.aceM, team: pk([872, 874], 54), reward: 6000 }],
+    background: '/bg_galar_route.webp',
+    description: 'Costa gelada que leva às montanhas de Circhester.',
+  },
+
+  galar_victory_road: {
+    id: 'galar_victory_road', name: 'Victory Road Galar / Rose Tower', type: 'farm', group: 'Galar',
+    unlockLevel: 60, requirements: ['galar_route_9_cleared'], unlocks: 'galar_champion',
+    biome: 'cave',
+    enemies: pk([884, 862, 853, 612, 68], 58),
+    trainerChance: 0.12,
+    trainers: [{ name: 'Champion Leon', sprite: S.cooltrainer, team: pk([823, 867, 884, 865, 812, 6], 68), reward: 30000 }],
+    background: '/bg_galar_elite.webp',
+    description: 'A torre de poder de Wyndon, o teste final.',
+  },
+
+  galar_crown_tundra: {
+    id: 'galar_crown_tundra', name: 'Crown Tundra', type: 'farm', group: 'Galar',
+    unlockLevel: 75, requirements: ['galar_champion'], unlocks: 'galar_tundra_cleared',
+    biome: 'mountain',
+    enemies: pk([898, 896, 897, 894, 895, 865], 72),
+    trainerChance: 0.15,
+    trainers: [{ name: 'Peony', sprite: S.cooltrainer, team: pk([809, 803, 306, 230, 467, 905], 80), reward: 20000 }],
+    background: '/bg_galar_elite.webp',
+    description: 'Explore as terras geladas e lendas de Galar.',
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  // PALDEA (Gen 9) — Pokémon Scarlet & Violet
+  // ══════════════════════════════════════════════════════════════
+
+  cabo_poco: {
+    id: 'cabo_poco', name: 'Cabo Poco', type: 'city', group: 'Paldea',
+    unlockLevel: 1, requirements: ['paldea_started'],
+    background: '/bg_paldea_city.webp',
+    description: 'Uma vila costeira ensolarada em Paldea.',
+  },
+
+  poco_path: {
+    id: 'poco_path', name: 'Poco Path', type: 'farm', group: 'Paldea',
+    unlockLevel: 4, requirements: ['paldea_started'], unlocks: 'paldea_south_a_cleared',
+    biome: 'grass',
+    enemies: pk([915, 917, 921, 928, 934, 906, 909, 912], 5),
+    trainerChance: 0.05,
+    trainers: [{ name: 'Nemona (Rival)', sprite: S.schoolkidf, team: pk([921, 912], 8), reward: 600 }],
+    background: '/bg_paldea_route.webp',
+    description: 'O caminho que sobe as falésias em direção à academia.',
+  },
+
+  paldea_south_province: {
+    id: 'paldea_south_province', name: 'Província Sul / Cortondo Area', type: 'farm', group: 'Paldea',
+    unlockLevel: 14, requirements: ['paldea_south_a_cleared'], unlocks: 'paldea_south_b_cleared',
+    biome: 'grass',
+    enemies: pk([935, 936, 932, 924, 744, 669, 942], 12),
+    trainerChance: 0.07,
+    trainers: [{ name: 'Katy (Gym Leader)', sprite: S.beauty, team: pk([934, 935, 936], 16), reward: 2000 }],
+    background: '/bg_paldea_route.webp',
+    description: 'Campos férteis lar da famosa padaria de Cortondo.',
+  },
+
+  paldea_artazon: {
+    id: 'paldea_artazon', name: 'East Province / Artazon', type: 'farm', group: 'Paldea',
+    unlockLevel: 22, requirements: ['paldea_south_b_cleared'], unlocks: 'paldea_desert_cleared',
+    biome: 'grass',
+    enemies: pk([948, 951, 946, 953, 938, 939], 20),
+    trainerChance: 0.08,
+    trainers: [{ name: 'Brassius (Gym Leader)', sprite: S.aceM, team: pk([953, 949, 185], 24), reward: 3000 }],
+    background: '/bg_paldea_route.webp',
+    description: 'Cidade da arte cercada por flores e jardins.',
+  },
+
+  paldea_asado_desert: {
+    id: 'paldea_asado_desert', name: 'Asado Desert / Cascarrafa', type: 'farm', group: 'Paldea',
+    unlockLevel: 32, requirements: ['paldea_desert_cleared'], unlocks: 'paldea_west_cleared',
+    biome: 'mountain',
+    enemies: pk([968, 960, 951, 946, 969], 30),
+    trainerChance: 0.08,
+    trainers: [{ name: 'Kofu (Gym Leader)', sprite: S.gentleman, team: pk([973, 673, 939], 34), reward: 5000 }],
+    background: '/bg_paldea_route.webp',
+    description: 'Um deserto árido que leva à cidade das águas.',
+  },
+
+  paldea_medali: {
+    id: 'paldea_medali', name: 'West Province / Medali Area', type: 'farm', group: 'Paldea',
+    unlockLevel: 42, requirements: ['paldea_west_cleared'], unlocks: 'paldea_east_cleared',
+    biome: 'grass',
+    enemies: pk([924, 925, 971, 972, 983, 911], 40),
+    trainerChance: 0.09,
+    trainers: [{ name: 'Larry (Gym Leader)', sprite: S.gentleman, team: pk([911, 858, 967], 44), reward: 8000 }],
+    background: '/bg_paldea_route.webp',
+    description: 'Onde a culinária encontra as batalhas Pokémon.',
+  },
+
+  paldea_glaseado_mountain: {
+    id: 'paldea_glaseado_mountain', name: 'Glaseado Mountain', type: 'farm', group: 'Paldea',
+    unlockLevel: 52, requirements: ['paldea_east_cleared'], unlocks: 'paldea_glaseado_cleared',
+    biome: 'mountain',
+    enemies: pk([974, 975, 998, 943, 633, 714], 50),
+    trainerChance: 0.10,
+    trainers: [{ name: 'Grusha (Gym Leader)', sprite: S.aceM, team: pk([975, 998, 615, 614], 56), reward: 12000 }],
+    background: '/bg_paldea_cave.webp',
+    description: 'O pico mais alto de Paldea, lar dos mestres do gelo.',
+  },
+
+  paldea_league: {
+    id: 'paldea_league', name: 'Paldea Pokémon League', type: 'farm', group: 'Paldea',
+    unlockLevel: 62, requirements: ['paldea_glaseado_cleared'], unlocks: 'paldea_champion',
+    biome: 'cave',
+    enemies: pk([955, 969, 103, 983, 967, 911], 60),
+    trainerChance: 0.12,
+    trainers: [{ name: 'Geeta (Top Champion)', sprite: S.aceF, team: pk([955, 969, 103, 983, 967, 911], 68), reward: 30000 }],
+    background: '/bg_paldea_elite.webp',
+    description: 'Prove que você é digno do Rank Campeão.',
+  },
+
+  paldea_area_zero: {
+    id: 'paldea_area_zero', name: 'Area Zero / Great Crater', type: 'farm', group: 'Paldea',
+    unlockLevel: 75, requirements: ['paldea_champion'],
+    biome: 'cave',
+    enemies: pk([1006, 1005, 987, 984, 995, 991, 1008, 1010], 75),
+    trainerChance: 0.15,
+    trainers: [{ name: 'Sada/Turo AI', sprite: S.aceM, team: pk([984, 987, 989, 991, 993, 1005], 85), reward: 50000 }],
+    background: '/bg_paldea_elite.webp',
+    description: 'O segredo mais profundo de Paldea. Pokémon do passado e futuro.',
+  },
+
+};d: '/bg_paldea_cave.webp',
+    description: 'O cume nevado de Glaseado — o teste final da Liga Paldea.',
+  },
+
+  paldea_area_zero: {
+    id: 'paldea_area_zero', name: 'Area Zero', type: 'farm', group: 'Paldea Elite',
+    unlockLevel: 75, requirements: ['paldea_glaseado_cleared'], unlocks: 'paldea_champion',
+    biome: 'cave',
+    enemies: [
+      { id: 1006, level: 75, drop: 'fairy_essence',    rarity: 'rare' },
+      { id: 1005, level: 75, drop: 'dragon_essence',   rarity: 'rare' },
+      { id: 987,  level: 74, drop: 'ghost_essence' },
+      { id: 984,  level: 74, drop: 'fighting_essence' },
+      { id: 995,  level: 72, drop: 'steel_essence' },
+      { id: 991,  level: 73, drop: 'steel_essence' },
     ],
-  }),
-  ...buildRegionRoutes({
-    region: 'kalos', label: 'Kalos', startFlag: 'kalos_started', previousChampion: 'kalos_champion',
-    groups: { home: 'Vaniville Town' }, starters: [652, 655, 658], starterBases: [650, 653, 656], early: [659, 661, 664, 669], mid: [660, 662, 666, 672], late: [675, 678, 681, 697], final: [700, 706, 715, 716],
-    backgrounds: { city: '/bg_kalos_city.webp', route: '/bg_kalos_route.webp', cave: '/bg_kalos_cave.webp', elite: '/bg_kalos_elite.webp' },
-    extraRoutes: [
-      {
-        id: 'kalos_santalune_forest', name: 'Santalune Forest', type: 'farm',
-        group: 'Kalos Inicio', unlockLevel: 14,
-        requirements: ['kalos_route_1_cleared'], unlocks: 'kalos_santalune_cleared',
-        biome: 'forest',
-        enemies: [
-          ...pk([659, 661, 664, 666, 672, 674], 14),
-          // Chespin (#650) + Fennekin (#653) — iniciais base de Kalos (~1%) pós derrotar rival
-          { id: 650, level: 14, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'kalos_rival_1_defeated' },
-          { id: 653, level: 14, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'kalos_rival_1_defeated' },
-        ],
-        trainerChance: 0.07,
-        trainers: [
-          { name: 'Youngster Kalos', sprite: S.youngster, team: pk([659, 664], 16), reward: 1200 },
-          { name: 'Lass Kalos', sprite: S.lass, team: pk([661, 666], 17), reward: 1300 },
-        ],
-        background: '/bg_kalos_route.webp',
-        description: 'Floresta de Kalos, portal para Santalune City.',
-      },
-      {
-        id: 'kalos_glittering_cave', name: 'Glittering Cave', type: 'farm',
-        group: 'Kalos Meio', unlockLevel: 32,
-        requirements: ['kalos_route_2_cleared'], unlocks: 'kalos_cave_cleared',
-        biome: 'cave',
-        enemies: pk([696, 698, 679, 688, 690, 694], 32),
-        trainerChance: 0.08,
-        trainers: [
-          { name: 'Flare Grunt Kalos', sprite: S.flare, team: pk([696, 679], 36), reward: 3000 },
-          { name: 'Ace Kalos', sprite: S.aceM, team: pk([698, 694], 37), reward: 3200 },
-        ],
-        background: '/bg_kalos_cave.webp',
-        description: 'Caverna fosforescente com fósseis e Pokémon raros.',
-      },
-      {
-        id: 'kalos_victory_road', name: 'Victory Road Kalos', type: 'farm',
-        group: 'Kalos Liga', unlockLevel: 72,
-        requirements: ['kalos_route_3_cleared'], unlocks: 'kalos_victory_road_cleared',
-        biome: 'cave',
-        enemies: pk([675, 678, 681, 700, 706, 715], 70),
-        trainerChance: 0.10,
-        trainers: [
-          { name: 'Dragon Tamer Kalos', sprite: S.aceM, team: pk([706, 715], 74), reward: 6800 },
-          { name: 'Elite Kalos', sprite: S.aceF, team: pk([700, 681], 73), reward: 7000 },
-        ],
-        background: '/bg_kalos_elite.webp',
-        description: 'Victory Road de Kalos antes da Ligue Pokémon.',
-      },
+    trainerChance: 0.15,
+    trainers: [
+      { name: 'Sada/Turo AI', sprite: S.aceM, team: pk([984, 987, 989, 991, 993, 1005], 85), reward: 45000 },
     ],
-  }),
-  ...buildRegionRoutes({
-    region: 'alola', label: 'Alola', startFlag: 'alola_started', previousChampion: 'alola_champion',
-    groups: { home: 'Hauoli Outskirts' }, starters: [724, 727, 730], starterBases: [722, 725, 728], early: [731, 734, 736, 739], mid: [735, 738, 744, 752], late: [758, 760, 768, 776], final: [784, 791, 792, 800],
-    backgrounds: { city: '/bg_alola_city.webp', route: '/bg_alola_route.webp', cave: '/bg_alola_cave.webp', elite: '/bg_alola_elite.webp' },
-    extraRoutes: [
-      {
-        id: 'alola_ten_carat_hill', name: 'Ten Carat Hill', type: 'farm',
-        group: 'Alola Inicio', unlockLevel: 18,
-        requirements: ['alola_route_1_cleared'], unlocks: 'alola_carat_cleared',
-        biome: 'cave',
-        enemies: [
-          ...pk([739, 741, 744, 746, 750, 752], 18),
-          // Rowlet (#722) + Litten (#725) — iniciais base de Alola (~1%) pós derrotar rival
-          { id: 722, level: 18, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'alola_rival_1_defeated' },
-          { id: 725, level: 18, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'alola_rival_1_defeated' },
-        ],
-        trainerChance: 0.07,
-        trainers: [
-          { name: 'Youngster Alola', sprite: S.youngster, team: pk([739, 744], 21), reward: 1500 },
-          { name: 'Lass Alola', sprite: S.lass, team: pk([741, 750], 22), reward: 1600 },
-        ],
-        background: '/bg_alola_cave.webp',
-        description: 'Caverna de rocha preciosa com Pokémon de Alola.',
-      },
-      {
-        id: 'alola_wela_volcano', name: 'Wela Volcano Park', type: 'farm',
-        group: 'Alola Meio', unlockLevel: 38,
-        requirements: ['alola_route_2_cleared'], unlocks: 'alola_volcano_cleared',
-        biome: 'mountain',
-        enemies: pk([757, 758, 760, 764, 765, 776], 38),
-        trainerChance: 0.08,
-        trainers: [
-          { name: 'Skull Grunt Alola', sprite: S.skull, team: pk([757, 760], 42), reward: 3400 },
-          { name: 'Ace Alola', sprite: S.aceM, team: pk([758, 776], 43), reward: 3600 },
-        ],
-        background: '/bg_alola_route.webp',
-        description: 'Vulcão ativo com Pokémon Fogo e Voador raros.',
-      },
-      {
-        id: 'alola_mount_lanakila', name: 'Mount Lanakila', type: 'farm',
-        group: 'Alola Liga', unlockLevel: 75,
-        requirements: ['alola_route_3_cleared'], unlocks: 'alola_lanakila_cleared',
-        biome: 'cave',
-        enemies: pk([784, 791, 792, 800, 778, 773], 73),
-        trainerChance: 0.10,
-        trainers: [
-          { name: 'Elite Alola', sprite: S.aceM, team: pk([791, 784], 77), reward: 7200 },
-          { name: 'Veteran Alola', sprite: S.aceF, team: pk([800, 792], 76), reward: 7400 },
-        ],
-        background: '/bg_alola_elite.webp',
-        description: 'Montanha sagrada de Alola, sede da Liga Pokémon.',
-      },
+    background: '/bg_paldea_elite.webp',
+    description: 'O Grande Abismo — onde Pokémon Paradoxais vagam livremente.',
+  },
+
+  paldea_post_league: {
+    id: 'paldea_post_league', name: 'Treino Elite Paldea', type: 'farm', group: 'Paldea Elite',
+    unlockLevel: 85, requirements: ['paldea_champion'],
+    biome: 'cave',
+    enemies: [
+      { id: 1008, level: 85, drop: 'electric_essence', rarity: 'super_rare' },
+      { id: 1007, level: 85, drop: 'fighting_essence', rarity: 'super_rare' },
+      { id: 1009, level: 82, drop: 'water_essence',    rarity: 'super_rare' },
+      { id: 1010, level: 82, drop: 'grass_essence',    rarity: 'super_rare' },
+      { id: 1024, level: 90, drop: 'normal_essence',   rarity: 'super_rare' },
     ],
-  }),
-  ...buildRegionRoutes({
-    region: 'galar', label: 'Galar', startFlag: 'galar_started', previousChampion: 'galar_champion',
-    groups: { home: 'Postwick' }, starters: [812, 815, 818], starterBases: [810, 813, 816], early: [819, 821, 824, 827], mid: [820, 823, 828, 834], late: [839, 844, 849, 861], final: [887, 888, 889, 890],
-    backgrounds: { city: '/bg_galar_city.webp', route: '/bg_galar_route.webp', cave: '/bg_galar_cave.webp', elite: '/bg_galar_elite.webp' },
-    extraRoutes: [
-      {
-        id: 'galar_wild_area', name: 'Wild Area', type: 'farm',
-        group: 'Galar Meio', unlockLevel: 30,
-        requirements: ['galar_route_1_cleared'], unlocks: 'galar_wild_area_cleared',
-        biome: 'grass',
-        enemies: [
-          ...pk([819, 821, 827, 831, 835, 840], 30),
-          // Grookey (#810) + Scorbunny (#813) — iniciais base de Galar (~1%) pós derrota do rival
-          { id: 810, level: 30, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'galar_rival_1_defeated' },
-          { id: 813, level: 30, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'galar_rival_1_defeated' },
-        ],
-        trainerChance: 0.08,
-        trainers: [
-          { name: 'Yell Grunt', sprite: S.yell, team: pk([827, 831], 33), reward: 2600 },
-          { name: 'Wild Trainer', sprite: S.aceM, team: pk([835, 840], 34), reward: 2800 },
-        ],
-        background: '/bg_galar_route.webp',
-        description: 'Área Selvagem de Galar com Pokémon poderosos e clima dinâmico.',
-      },
-      {
-        id: 'galar_hammerlocke_hills', name: 'Hammerlocke Hills', type: 'farm',
-        group: 'Galar Fim', unlockLevel: 56,
-        requirements: ['galar_route_2_cleared'], unlocks: 'galar_hills_cleared',
-        biome: 'mountain',
-        enemies: pk([839, 844, 849, 855, 861, 874], 56),
-        trainerChance: 0.09,
-        trainers: [
-          { name: 'Ace Trainer Galar', sprite: S.aceM, team: pk([844, 855], 60), reward: 5400 },
-          { name: 'Elite Galar', sprite: S.aceF, team: pk([849, 874], 61), reward: 5600 },
-        ],
-        background: '/bg_galar_cave.webp',
-        description: 'Colinas rochosas com Pokémon de Galar evoluídos.',
-      },
-      {
-        id: 'galar_crown_tundra', name: 'Crown Tundra', type: 'farm',
-        group: 'Galar Pos-Liga', unlockLevel: 78,
-        requirements: ['galar_champion'], unlocks: 'galar_tundra_cleared',
-        biome: 'cave',
-        enemies: pk([876, 877, 879, 882, 887, 888], 78),
-        trainerChance: 0.10,
-        trainers: [
-          { name: 'Veteran Galar', sprite: S.aceM, team: pk([887, 879], 82), reward: 8000 },
-          { name: 'Champion Rival', sprite: S.aceF, team: pk([888, 882], 83), reward: 8500 },
-        ],
-        background: '/bg_galar_elite.webp',
-        description: 'Tundra gelada com Pokémon lendários de Galar.',
-      },
+    trainerChance: 0.18,
+    trainers: [
+      { name: 'Kieran (Final Rival)', sprite: S.cooltrainer, team: pk([1025, 1001, 706, 911, 750, 930], 95), reward: 55000 },
     ],
-  }),
-  ...buildRegionRoutes({
-    region: 'paldea', label: 'Paldea', startFlag: 'paldea_started', previousChampion: 'paldea_champion',
-    groups: { home: 'Cabo Poco' }, starters: [908, 911, 914], starterBases: [906, 909, 912], early: [915, 917, 919, 921], mid: [916, 920, 922, 926], late: [936, 943, 952, 959], final: [967, 973, 998, 1008],
-    backgrounds: { city: '/bg_paldea_city.webp', route: '/bg_paldea_route.webp', cave: '/bg_paldea_cave.webp', elite: '/bg_paldea_elite.webp' },
-    extraRoutes: [
-      {
-        id: 'paldea_south_province', name: 'South Province Area 2', type: 'farm',
-        group: 'Paldea Inicio', unlockLevel: 16,
-        requirements: ['paldea_route_1_cleared'], unlocks: 'paldea_south_cleared',
-        biome: 'grass',
-        enemies: [
-          ...pk([915, 917, 919, 921, 922, 926], 16),
-          // Sprigatito (#906) + Fuecoco (#909) — iniciais base de Paldea (~1%) pós derrota do rival
-          { id: 906, level: 16, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'paldea_rival_1_defeated' },
-          { id: 909, level: 16, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'paldea_rival_1_defeated' },
-        ],
-        trainerChance: 0.07,
-        trainers: [
-          { name: 'Estudante Paldea', sprite: S.schoolkidm, team: pk([917, 921], 19), reward: 1400 },
-          { name: 'Estudante Paldea F', sprite: S.schoolkidf, team: pk([919, 922], 20), reward: 1500 },
-          { name: 'Entregador Paldea', sprite: S.courier, team: pk([915, 919], 18), reward: 1300 },
-        ],
-        background: '/bg_paldea_route.webp',
-        description: 'Províncias sul de Paldea com encontros iniciais.',
-      },
-      {
-        id: 'paldea_glaseado_mountain', name: 'Glaseado Mountain', type: 'farm',
-        group: 'Paldea Fim', unlockLevel: 58,
-        requirements: ['paldea_route_2_cleared'], unlocks: 'paldea_glaseado_cleared',
-        biome: 'mountain',
-        enemies: pk([936, 943, 952, 959, 973, 974], 58),
-        trainerChance: 0.09,
-        trainers: [
-          { name: 'Delinquente Paldea', sprite: S.delinquent, team: pk([943, 952], 62), reward: 5600 },
-          { name: 'Delinquente Paldea F', sprite: S.delinquentF, team: pk([959, 974], 63), reward: 5800 },
-          { name: 'Operário Paldea', sprite: S.worker, team: pk([936, 952], 61), reward: 5400 },
-        ],
-        background: '/bg_paldea_cave.webp',
-        description: 'Montanha gelada de Paldea com Pokémon Ice e Dragon.',
-      },
-      {
-        id: 'paldea_area_zero', name: 'Area Zero', type: 'farm',
-        group: 'Paldea Liga', unlockLevel: 82,
-        requirements: ['paldea_route_3_cleared'], unlocks: 'paldea_area_zero_cleared',
-        biome: 'cave',
-        enemies: pk([967, 973, 998, 1008, 1002, 1003], 80),
-        trainerChance: 0.10,
-        trainers: [
-          { name: 'Pesquisador Area Zero', sprite: S.aceM, team: pk([998, 1008], 84), reward: 8200 },
-          { name: 'Cientista Area Zero', sprite: S.aceF, team: pk([967, 1002], 83), reward: 8000 },
-          { name: 'Cozinheiro Laboratorio', sprite: S.cook, team: pk([973, 1003], 82), reward: 7800 },
-        ],
-        background: '/bg_paldea_elite.webp',
-        description: 'Zero Lab — o coração do Grande Abismo de Paldea.',
-      },
-    ],
-  }),
+    background: '/bg_paldea_elite.webp',
+    description: 'O desafio definitivo no fundo da Area Zero contra o lendário Terapagos.',
+  },
 };
 
 const rangeIds = (start, end) => Array.from({ length: end - start + 1 }, (_, index) => start + index);

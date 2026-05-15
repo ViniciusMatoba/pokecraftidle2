@@ -7,13 +7,37 @@ import {
 } from '../data/myRegion';
 import { AVATAR_SPRITES } from '../data/cosmetics';
 
+const SLOT_POKEMON_LIMIT = 6;
+
+const BADGE_MAP = [
+  'boulder_badge', 'cascade_badge', 'thunder_badge', 'rainbow_badge',
+  'soul_badge', 'marsh_badge', 'volcano_badge', 'earth_badge'
+];
+
 /* ─── Helpers ──────────────────────────────────────────────────────────────── */
 const FALLBACK_SPRITE = 'https://play.pokemonshowdown.com/sprites/trainers/red.png';
 const POKE_IMG = (id) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 const TRAINER_IMG = (id) => `https://play.pokemonshowdown.com/sprites/trainers/${id || 'red'}.png`;
 const TYPE_ORDER = ['normal','fire','water','grass','electric','ice','fighting','poison','ground','flying','psychic','bug','rock','ghost','dragon','dark','steel','fairy','mixed'];
 
-const SLOT_POKEMON_LIMIT = 6;
+/* ─── LevelSlider ──────────────────────────────────────────────────────────── */
+const LevelSlider = ({ value, min, max, onChange }) => (
+  <div className="bg-slate-50 p-4 rounded-2xl border-2 border-slate-100">
+    <div className="flex justify-between items-center mb-3">
+      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Nível do Desafio</p>
+      <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-black">Nv. {value}</span>
+    </div>
+    <input 
+      type="range" min={min} max={max} value={value}
+      onChange={(e) => onChange(Number(e.target.value))}
+      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+    />
+    <div className="flex justify-between text-[10px] font-bold text-slate-400 mt-2">
+      <span>Mín: {min}</span>
+      <span>Máx: {max}</span>
+    </div>
+  </div>
+);
 
 /* ─── SlotHeader ────────────────────────────────────────────────────────────── */
 const SlotHeader = ({ label, level, color, configured }) => (
@@ -203,7 +227,7 @@ const PokemonPicker = ({ caughtData, selected, level, POKEDEX, onChange }) => {
 
 /* ─── SlotEditor ─────────────────────────────────────────────────────────────── */
 const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, onCancel }) => {
-  const level = slotType === 'gym'
+  const defaultLevel = slotType === 'gym'
     ? GYM_SLOT_LEVELS[slotIndex]
     : slotType === 'elite'
     ? ELITE_SLOT_LEVELS[slotIndex]
@@ -213,6 +237,7 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
   const [leaderName,   setLeaderName]   = useState(slot.leaderName   || '');
   const [leaderSprite, setLeaderSprite] = useState(slot.leaderSprite || 'red');
   const [team,         setTeam]         = useState(slot.team         || []);
+  const [customLevel,  setCustomLevel]  = useState(slot.customLevel  || defaultLevel);
 
   const handleSave = () => {
     onSave({
@@ -221,9 +246,13 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
       leaderName: leaderName.trim(),
       leaderSprite,
       team,
+      customLevel,
       configured: team.length > 0,
     });
   };
+
+  const minLvl = Math.max(5, defaultLevel - 15);
+  const maxLvl = Math.min(100, defaultLevel + 15);
 
   return (
     <div className="fixed inset-0 z-[200000] flex items-end justify-center bg-black/70 pb-2 px-2"
@@ -264,11 +293,14 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
           {/* Sprite */}
           <SpriteSelector value={leaderSprite} onChange={setLeaderSprite} />
 
+          {/* Slider de Nível */}
+          <LevelSlider value={customLevel} min={minLvl} max={maxLvl} onChange={setCustomLevel} />
+
           {/* Equipe */}
           <PokemonPicker
             caughtData={caughtData}
             selected={team}
-            level={level}
+            level={customLevel}
             POKEDEX={POKEDEX}
             onChange={setTeam}
           />
@@ -280,61 +312,89 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
 
 /* ─── SlotCard ───────────────────────────────────────────────────────────────── */
 const SlotCard = ({ slot, slotType, slotIndex, onEdit, POKEDEX }) => {
-  const level = slotType === 'gym'
-    ? GYM_SLOT_LEVELS[slotIndex]
-    : slotType === 'elite'
-    ? ELITE_SLOT_LEVELS[slotIndex]
-    : CHAMPION_LEVEL;
-
+  const level = getSlotLevel(slotType, slotIndex, slot);
   const typeInfo  = REGION_GYM_TYPES[slot.bannerId] || REGION_GYM_TYPES.normal;
-  const labelText = slotType === 'gym' ? `G${slot.slot}` : slotType === 'elite' ? `E${slot.slot}` : '★';
+  const labelText = slotType === 'gym' ? `Líder ${slot.slot}` : slotType === 'elite' ? `Elite ${slot.slot}` : 'Campeão';
+  const badgeId   = slotType === 'gym' ? BADGE_MAP[slotIndex] : null;
 
   return (
     <div onClick={onEdit}
-      className="bg-white rounded-2xl border-2 border-slate-100 shadow-sm overflow-hidden cursor-pointer hover:border-blue-300 hover:shadow-md active:scale-95 transition-all">
-      {/* Color band */}
-      <div className="h-1.5 w-full" style={{ background: slotType === 'gym' ? typeInfo.color : slotType === 'elite' ? '#8b5cf6' : '#f59e0b' }} />
+      className="relative bg-white rounded-[2rem] border-2 border-slate-100 shadow-xl overflow-hidden cursor-pointer hover:border-blue-400 hover:shadow-2xl active:scale-[0.98] transition-all group">
+      
+      {/* Background Glow */}
+      <div className="absolute top-0 right-0 w-32 h-32 blur-[60px] opacity-20 -mr-16 -mt-16 pointer-events-none transition-all group-hover:opacity-40"
+        style={{ background: slotType === 'gym' ? typeInfo.color : slotType === 'elite' ? '#8b5cf6' : '#f59e0b' }} />
 
-      <div className="p-3 flex items-center gap-3">
-        {/* Avatar */}
-        <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center shrink-0 border-2 border-slate-200">
-          <img src={TRAINER_IMG(slot.leaderSprite)} className="w-12 h-12 object-contain"
-            style={{ imageRendering: 'pixelated' }}
-            onError={e => { if (e.target.src !== FALLBACK_SPRITE) e.target.src = FALLBACK_SPRITE; }} />
+      {/* Type Icon Overlay (Gym Only) */}
+      {slotType === 'gym' && (
+        <div className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center opacity-40 group-hover:opacity-100 transition-all">
+          <img src={typeInfo.icon} className="w-8 h-8 object-contain filter drop-shadow-[0_0_8px_rgba(0,0,0,0.3)]" alt="" 
+            style={{ filter: `drop-shadow(0 0 12px ${typeInfo.color})` }}/>
         </div>
+      )}
 
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="text-[9px] font-black text-white px-1.5 py-0.5 rounded-full"
-              style={{ background: slotType === 'gym' ? typeInfo.color : slotType === 'elite' ? '#8b5cf6' : '#f59e0b' }}>
-              {labelText}
-            </span>
-            <p className="font-black text-slate-700 text-xs truncate">
-              {slot.leaderName || (slotType === 'gym' ? `Líder ${slot.slot}` : slotType === 'elite' ? `Elite ${slot.slot}` : 'Campeão')}
-            </p>
-          </div>
-          <p className="text-[10px] font-bold text-slate-400 mt-0.5">Nv.{level} · {slot.team.length} Pokémon</p>
-
-          {/* Mini-equipe */}
-          <div className="flex gap-1 mt-1">
-            {slot.team.slice(0, 4).map(id => (
-              <img key={id} src={POKE_IMG(id)} className="w-7 h-7 object-contain"
-                onError={e => { e.target.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png'; }} />
-            ))}
-            {slot.team.length > 4 && (
-              <span className="text-[9px] font-black text-slate-400 self-end">+{slot.team.length - 4}</span>
+      <div className="p-5 flex flex-col gap-4">
+        {/* Header Section */}
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-[1.25rem] bg-slate-100 flex items-center justify-center border-2 border-slate-200 overflow-hidden shadow-inner">
+              <img src={TRAINER_IMG(slot.leaderSprite)} className="w-14 h-14 object-contain"
+                style={{ imageRendering: 'pixelated' }}
+                onLoad={() => console.log(`[RegionBuilder] Sprite do Líder carregado: ${slot.leaderSprite}`)}
+                onError={e => { if (e.target.src !== FALLBACK_SPRITE) e.target.src = FALLBACK_SPRITE; }} />
+            </div>
+            {badgeId && (
+              <img src={`/badges/${badgeId}.webp`} className="absolute -bottom-1 -right-1 w-7 h-7 object-contain drop-shadow-md border-2 border-white rounded-full bg-white/80" alt="Badge" />
             )}
           </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black text-white px-2 py-0.5 rounded-lg shadow-sm"
+                style={{ background: slotType === 'gym' ? typeInfo.color : slotType === 'elite' ? '#8b5cf6' : '#f59e0b' }}>
+                {slotType === 'gym' ? `G${slot.slot}` : slotType === 'elite' ? `E${slot.slot}` : '🏆'}
+              </span>
+              <p className="font-black text-slate-800 text-sm truncate uppercase tracking-tight">
+                {slot.leaderName || labelText}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+               <p className="text-[11px] font-black text-blue-600 bg-blue-50 px-2 rounded-md">Nv. {level}</p>
+               <p className="text-[10px] font-bold text-slate-400">{slot.team.length}/6 Pokémon</p>
+            </div>
+          </div>
         </div>
 
-        {/* Edit caret */}
-        <div className="text-slate-300 font-black text-lg shrink-0">›</div>
+        {/* Team Grid (Hign-Fidelity) */}
+        <div className="grid grid-cols-6 gap-2 bg-slate-50/50 p-2 rounded-2xl border border-slate-100">
+          {[...Array(6)].map((_, i) => {
+            const pokeId = slot.team[i];
+            return (
+              <div key={i} className={`relative aspect-square rounded-xl flex items-center justify-center border-2 transition-all
+                ${pokeId ? 'bg-white border-slate-100 shadow-sm' : 'bg-slate-100/50 border-dashed border-slate-200'}`}>
+                {pokeId ? (
+                  <>
+                    <img src={POKE_IMG(pokeId)} className="w-10 h-10 object-contain"
+                      onLoad={() => console.log(`[RegionBuilder] Sprite Pokemon ${pokeId} carregado para ${slot.leaderName}`)}
+                      onError={e => { e.target.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png'; }} />
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-slate-800 text-white rounded-full text-[8px] flex items-center justify-center font-black border border-white shadow-sm">
+                      {level}
+                    </div>
+                  </>
+                ) : (
+                  <span className="text-slate-300 text-xs">+</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {!slot.configured && (
-        <div className="px-3 pb-2 flex items-center gap-1.5">
-          <span className="text-[9px] font-bold text-amber-500">⚠ Configure a equipe para ativar</span>
+        <div className="bg-amber-500 py-1.5 px-4 text-center">
+          <p className="text-[9px] font-black text-white uppercase tracking-widest flex items-center justify-center gap-1">
+            <span>⚠️</span> Pendente: Configure a equipe
+          </p>
         </div>
       )}
     </div>

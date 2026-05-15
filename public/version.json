@@ -1,5 +1,5 @@
 {
-  "version": "1.90.6",
-  "date": "15/05/2026 19:00",
-  "notes": "7 rivais e 7 vilões por região; mecânicas únicas Alola (Capitães/Kahunas) e Paldea (Titãs/Team Star); filtro de rotas por região ativa expandido para todas as 9 regiões."
+  "version": "1.90.8",
+  "date": "15/05/2026 21:30",
+  "notes": "Implementada a Trava de Transferência Regional: Pokémon estrangeiros agora ficam bloqueados no PC até que o jogador vença a Liga da região atual. Adicionada proteção automática de save ao trocar de região e filtros visuais na interface de equipe."
 }

@@ -1,7 +1,26 @@
-export const APP_VERSION = '1.90.6';
-export const VERSION = '1.90.6';
-export const APP_VERSION_DATE = '15/05/2026 19:00';
+export const APP_VERSION = '1.92.0';
+export const VERSION = '1.92.0';
+export const APP_VERSION_DATE = '15/05/2026 15:02';
 export const CHANGELOG = [
+  '## [V1.92.0] - 15/05/2026 15:02',
+  '### Adicionado',
+  '- **Upgrade Visual "Minha Região"**: Cards de Ginásio e Elite reformulados com estética de alta fidelidade (Hall da Fama).',
+  '- **Team Grid Dinâmico**: Visualização da equipe completa com sprites da PokeAPI e badges de nível integrados nos cards.',
+  '- **Ajuste de Dificuldade**: Novo Slider de Nível no editor de slots para personalização total do desafio regional.',
+  '- **Estética Elemental**: Adicionado brilho suave e ícones de tipo com destaque visual nos cards de ginásio.',
+  '- **Persistência de Dados**: Níveis customizados e configurações de slot agora persistem corretamente via Firebase.',
+  '',
+  '## [V1.90.9] - 15/05/2026 22:45',
+  '## [V1.90.8] - 15/05/2026 21:30',
+  '## [V1.90.7] - 15/05/2026 21:00',
+  '### Alterado',
+  '- **Refatoração de Rotas (Unova a Paldea)**: Substituição da geração procedural por definições manuais e precisas baseadas nos jogos oficiais.',
+  '- **Redistribuição de Pokémon**: Pokémon selvagens e treinadores redistribuídos para seguir o tema regional e a dificuldade canônica (Lv 5-80).',
+  '- **Novos Iniciais Raros**: Iniciais de Unova a Paldea agora podem ser encontrados raramente (~1%) nas rotas iniciais das suas respectivas regiões após derrotar o primeiro rival.',
+  '- **Novas Áreas**: Adicionadas áreas icônicas como Dragonspiral Tower (Unova), Reflection Cave (Kalos), Aether Paradise (Alola), Lakeside Route 2 (Galar) e Deserto de Asado (Paldea).',
+  '### Corrigido',
+  '- **Compatibilidade PC**: Verificada e confirmada a compatibilidade total das gerações 5 a 9 com o sistema de gerenciamento do PC e filtragem regional.',
+  '',
   '## [V1.90.6] - 15/05/2026 19:00',
   '### Adicionado',
   '- **Rivais e Vilões expandidos (7 cada)**: todas as 5 regiões futuras (Unova, Kalos, Alola, Galar, Paldea) agora têm 7 batalhas de rival e 7 encontros de equipe vilã com equipes temáticas e progressão adequada.',

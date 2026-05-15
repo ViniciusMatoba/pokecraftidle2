@@ -49,7 +49,7 @@ import {
   BADGE_IDS, JOHTO_BADGE_IDS, HOENN_BADGE_IDS, SINNOH_BADGE_IDS,
   UNOVA_BADGE_IDS, KALOS_BADGE_IDS, ALOLA_BADGE_IDS, GALAR_BADGE_IDS, PALDEA_BADGE_IDS
 } from './data/constants';
-import { REGION_ORDER, REGION_CHAMPION_FLAGS, REGION_BADGE_IDS, getPokemonRegion, getUnlockedDexLimit as getRegionalDexLimit, isPokemonAllowedInRegion } from './data/regionStandards';
+import { REGION_ORDER, REGION_CHAMPION_FLAGS, REGION_BADGE_IDS, getPokemonRegion, getUnlockedDexLimit as getRegionalDexLimit, isPokemonAllowedInRegion, isPokemonLegal } from './data/regionStandards';
 import { getMasteryPath, getEffectiveStat, getShinyMult } from './utils/gameHelpers';
 import { getTrainerCurrencyReward } from './utils/economy';
 import { getTypeEffectiveness } from './data/typeChart';
@@ -949,46 +949,17 @@ export default function App() {
     if (!pokemon) return false;
     
     const worldFlags = gameState.worldFlags || [];
-    const isChampion = worldFlags.includes(`region_champion_${targetRegion}`) ||
-                      worldFlags.includes(REGION_CHAMPION_FLAGS[targetRegion]);
-    
-    if (isChampion) return true;
+    const isLegal = isPokemonLegal(pokemon, targetRegion, worldFlags);
+    if (!isLegal) return false;
 
-    // 1. Isolamento Regional e de Geração
-    const id = Number(pokemon.id);
-    const pokemonGen = id <= 151 ? 1 : id <= 251 ? 2 : id <= 386 ? 3 : id <= 493 ? 4 : 5;
-    
-    // Se não for campeão da região ativa, só pode usar Pokémon daquela região/geração permitida
-    if (targetRegion === 'hoenn') {
-      const capturedHere = pokemon.capturedRegion === 'hoenn';
-      if (!capturedHere && pokemonGen !== 3) return false;
-    } else if (targetRegion === 'sinnoh') {
-      const capturedHere = pokemon.capturedRegion === 'sinnoh';
-      if (!capturedHere && pokemonGen !== 4) return false;
-    } else if (targetRegion === 'johto') {
-      const capturedHere = pokemon.capturedRegion === 'johto';
-      if (!capturedHere && pokemonGen > 2) return false;
-    } else if (targetRegion === 'kanto') {
-      const capturedHere = pokemon.capturedRegion === 'kanto';
-      if (!capturedHere && pokemonGen > 1) return false;
-    }
-
-    // 2. Trava de Nível (Cap)
+    // Ainda mantemos a trava de nivel (Level Cap) baseada nas insignias ganhas na regiao
     const badges = gameState.badges || [];
-    let regionBadges = [];
-    if (targetRegion === 'kanto')  regionBadges = badges.filter(b => BADGE_IDS.includes(b));
-    else if (targetRegion === 'johto')  regionBadges = badges.filter(b => JOHTO_BADGE_IDS.includes(b));
-    else if (targetRegion === 'hoenn')  regionBadges = badges.filter(b => HOENN_BADGE_IDS.includes(b));
-    else if (targetRegion === 'sinnoh') regionBadges = badges.filter(b => SINNOH_BADGE_IDS.includes(b));
-    else if (targetRegion === 'unova')  regionBadges = badges.filter(b => UNOVA_BADGE_IDS.includes(b));
-    else if (targetRegion === 'kalos')  regionBadges = badges.filter(b => KALOS_BADGE_IDS.includes(b));
-    else if (targetRegion === 'alola')  regionBadges = badges.filter(b => ALOLA_BADGE_IDS.includes(b));
-    else if (targetRegion === 'galar')  regionBadges = badges.filter(b => GALAR_BADGE_IDS.includes(b));
-    else if (targetRegion === 'paldea') regionBadges = badges.filter(b => PALDEA_BADGE_IDS.includes(b));
+    const regionBadgeIds = REGION_BADGE_IDS[targetRegion] || [];
+    const badgeCount = regionBadgeIds.filter(id => badges.includes(id)).length;
     
     const caps = GYM_LEVEL_CAPS[targetRegion] || {};
     const capValues = Object.values(caps);
-    const currentCap = capValues[regionBadges.length] || 100;
+    const currentCap = capValues[badgeCount] || 100;
 
     if (pokemon.level > currentCap) return false;
 
@@ -1007,7 +978,26 @@ export default function App() {
       };
 
       // Carrega time da nova região
-      const newTeam = updated_regional_teams[newRegion] || [];
+      let newTeam = updated_regional_teams[newRegion] || [];
+      const worldFlags = prev.worldFlags || [];
+
+      // PROTEÇÃO DE SAVE: Remove automaticamente Pokemon ilegais para a nova regiao
+      const illegalPokemon = newTeam.filter(p => !isPokemonLegal(p, newRegion, worldFlags));
+      
+      if (illegalPokemon.length > 0) {
+        newTeam = newTeam.filter(p => isPokemonLegal(p, newRegion, worldFlags));
+        const newPC = [...(prev.pc || []), ...illegalPokemon];
+        
+        addLog(`⚠️ ${illegalPokemon.length} Pokemon estrangeiros foram enviados ao PC (Trava Regional).`, 'warning');
+        
+        return {
+          ...prev,
+          activeRegion: newRegion,
+          regional_teams: updated_regional_teams,
+          team: newTeam,
+          pc: newPC
+        };
+      }
 
       addLog(`🌍 Viajando para ${newRegion.toUpperCase()}... Equipe trocada!`, 'system');
 

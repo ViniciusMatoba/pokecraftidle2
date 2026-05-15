@@ -45,7 +45,9 @@ export const ELITE_SLOT_LEVELS = [88, 90, 92, 94];
 export const CHAMPION_LEVEL = 98;
 
 /** Retorna o nível de combate para um slot específico */
-export const getSlotLevel = (slotType, slotIndex = 0) => {
+export const getSlotLevel = (slotType, slotIndex = 0, slotData = null) => {
+  if (slotData?.customLevel) return slotData.customLevel;
+
   if (slotType === 'gym')      return GYM_SLOT_LEVELS[slotIndex] ?? 14;
   if (slotType === 'elite')    return ELITE_SLOT_LEVELS[slotIndex] ?? 88;
   if (slotType === 'champion') return CHAMPION_LEVEL;
@@ -83,6 +85,7 @@ export const defaultGymSlot = (slot) => ({
   leaderSprite: 'red',
   team:         [],         // array de IDs de Pokémon (max 6)
   configured:   false,
+  customLevel:  GYM_SLOT_LEVELS[slot - 1] || 14,
 });
 
 export const defaultEliteSlot = (slot) => ({
@@ -91,6 +94,7 @@ export const defaultEliteSlot = (slot) => ({
   leaderSprite: 'lorelei',
   team:         [],
   configured:   false,
+  customLevel:  ELITE_SLOT_LEVELS[slot - 1] || 88,
 });
 
 export const defaultChampion = () => ({
@@ -98,6 +102,7 @@ export const defaultChampion = () => ({
   leaderSprite: 'red',
   team:         [],
   configured:   false,
+  customLevel:  CHAMPION_LEVEL,
 });
 
 // ── Estado padrão de myRegion no gameState ────────────────────────────────────

@@ -6,7 +6,7 @@ import { getTimeOfDay } from '../utils/timeSystem';
 import { getCompatibleMegaStones, MEGA_STONE_ICONS, getMegaSprite } from '../data/megaEvolutions';
 
 import { GYM_LEVEL_CAPS } from '../data/constants';
-import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER } from '../data/regionStandards';
+import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER, isPokemonLegal } from '../data/regionStandards';
 
 const PokemonManagement = ({
   gameState,
@@ -528,34 +528,62 @@ const PokemonManagement = ({
                   return <p className="col-span-2 text-center py-10 text-slate-400 font-bold uppercase italic">{pcSearch ? 'Nenhum Pokémon encontrado...' : 'O PC está vazio...'}</p>;
                 }
 
-                return filtered.map((p) => (
-                  <div key={p.instanceId || `pc-${p.id}-${p.originalIndex}`} onClick={() => setActivePokemonDetails({ pokemon: p, index: p.originalIndex, location: 'pc' })} className="bg-white p-3 rounded-2xl border-2 border-slate-100 flex flex-col items-center gap-2 group relative cursor-pointer hover:border-pokeGold transition-all">
-                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className="w-12 h-12 object-contain" alt={p.name} loading="lazy" />
-                     <div className="text-center">
-                       <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none flex items-center justify-center gap-1">
-                         {p.name}
-                         {p.isShiny && (
-                           <span className="text-yellow-500 text-[8px]">
-                             ✨{p.shinyCount > 1 ? ` x${p.shinyCount}` : ''}
-                           </span>
-                         )}
-                       </p>
-                       <p className="text-[8px] font-bold text-slate-400 mt-0.5">Nv. {p.level}</p>
-                       {p.onExpedition && (
-                         <p className="text-[7px] font-black text-blue-500 uppercase mt-0.5 animate-pulse">🚢 Expedição</p>
+                return filtered.map((p) => {
+                  const worldFlags = gameState.worldFlags || [];
+                  const isLegal = isPokemonLegal(p, activeRegion, worldFlags);
+                  const isAllowedByLevel = validateTeamAccess ? validateTeamAccess(p, activeRegion) : true;
+                  const canSelect = isLegal && isAllowedByLevel && !p.onExpedition;
+
+                  return (
+                    <div 
+                      key={p.instanceId || `pc-${p.id}-${p.originalIndex}`} 
+                      onClick={() => setActivePokemonDetails({ pokemon: p, index: p.originalIndex, location: 'pc' })} 
+                      className={`bg-white p-3 rounded-2xl border-2 flex flex-col items-center gap-2 group relative cursor-pointer hover:border-pokeGold transition-all ${
+                        !isLegal ? 'opacity-50 grayscale border-red-100' : 'border-slate-100'
+                      }`}
+                    >
+                       <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className="w-12 h-12 object-contain" alt={p.name} loading="lazy" />
+                       
+                       {/* Ícone de Cadeado Regional */}
+                       {!isLegal && (
+                         <div className="absolute top-1 left-1 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center shadow-sm" title="Pokémon estrangeiros só podem ser usados após vencer a Liga desta região.">
+                           <span className="text-[10px]">🔒</span>
+                         </div>
                        )}
-                     </div>
-                     {!p.onExpedition ? (
-                       <button onClick={(e) => { e.stopPropagation(); moveToTeam(p.originalIndex, p.instanceId); }} className="absolute top-1 right-1 bg-blue-50 text-blue-500 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75">
-                         <span className="font-black text-[8px] uppercase">+ Team</span>
-                       </button>
-                     ) : (
-                       <div className="absolute top-1 right-1 bg-slate-100 text-slate-400 p-1.5 rounded-lg opacity-100 scale-75">
-                         <span className="font-black text-[8px] uppercase">🔒</span>
+
+                       <div className="text-center">
+                         <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none flex items-center justify-center gap-1">
+                           {p.name}
+                           {p.isShiny && (
+                             <span className="text-yellow-500 text-[8px]">
+                               ✨{p.shinyCount > 1 ? ` x${p.shinyCount}` : ''}
+                             </span>
+                           )}
+                         </p>
+                         <p className="text-[8px] font-bold text-slate-400 mt-0.5">Nv. {p.level}</p>
+                         {p.onExpedition && (
+                           <p className="text-[7px] font-black text-blue-500 uppercase mt-0.5 animate-pulse">🚢 Expedição</p>
+                         )}
                        </div>
-                     )}
-                  </div>
-                ));
+
+                       {canSelect ? (
+                         <button 
+                           onClick={(e) => { e.stopPropagation(); moveToTeam(p.originalIndex, p.instanceId); }} 
+                           className="absolute top-1 right-1 bg-blue-50 text-blue-500 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75"
+                         >
+                           <span className="font-black text-[8px] uppercase">+ Team</span>
+                         </button>
+                       ) : (
+                         <div 
+                           className="absolute top-1 right-1 bg-slate-100 text-slate-400 p-1.5 rounded-lg opacity-100 scale-75"
+                           title={!isLegal ? 'Pokémon estrangeiros só podem ser usados após vencer a Liga desta região.' : p.onExpedition ? 'Em expedição' : 'Nível muito alto'}
+                         >
+                           <span className="font-black text-[8px] uppercase">🔒</span>
+                         </div>
+                       )}
+                    </div>
+                  );
+                });
               })()}
             </div>
           </div>
