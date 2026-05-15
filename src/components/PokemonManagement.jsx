@@ -1527,7 +1527,7 @@ const PokemonManagement = ({
 
       {/* ── Modal de Natureza ─────────────────────────────────── */}
       {showNatureModal && activePokemonDetails && createPortal(
-        <div className="fixed inset-0 z-[999999] flex items-end justify-center bg-black/70 backdrop-blur-sm p-2"
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           onClick={() => setShowNatureModal(false)}>
           <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[88dvh] flex flex-col"
             onClick={e => e.stopPropagation()}>
@@ -1622,7 +1622,7 @@ const PokemonManagement = ({
 
       {/* ── Modal de Habilidade ───────────────────────────────── */}
       {showAbilityModal && activePokemonDetails && createPortal(
-        <div className="fixed inset-0 z-[999999] flex items-end justify-center bg-black/70 backdrop-blur-sm p-2"
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           onClick={() => setShowAbilityModal(false)}>
           <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[88dvh] flex flex-col"
             onClick={e => e.stopPropagation()}>
