@@ -1,7 +1,11 @@
-export const APP_VERSION = '1.88.9';
-export const VERSION = '1.88.9';
-export const APP_VERSION_DATE = '15/05/2026 00:00';
+export const APP_VERSION = '1.89.0';
+export const VERSION = '1.89.0';
+export const APP_VERSION_DATE = '15/05/2026 01:00';
 export const CHANGELOG = [
+  '## [V1.89.0] - 15/05/2026 01:00',
+  '### Corrigido',
+  '- **Raid — Animação de Pokébola**: a bola agora voa e pousa exatamente sobre o sprite do Pokémon (posição calculada dinamicamente com `getBoundingClientRect`). Mensagens "✨ Capturado!" e "💨 Escapou!" aparecem logo abaixo do sprite.',
+  '- **Raid — Shakings sem translateY**: as animações de tremida, brilho e fuga foram reescritas sem dependência de offsets fixos — funcionam corretamente em qualquer tamanho de tela.',
   '## [V1.88.9] - 15/05/2026 00:00',
   '### Corrigido',
   '- **Raid — Botão "Continuar e tentar derrotar"**: ao pressionar o botão, a luta agora continua normalmente sem voltar para a fase de captura. O combate prossegue até o HP do Boss chegar a 0 (recompensas) ou o tempo acabar (encerrado). A flag `continuingFromCapture` garante que o limiar de 30% de HP não re-ative a fase de captura.',
