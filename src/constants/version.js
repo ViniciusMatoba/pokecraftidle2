@@ -1,7 +1,13 @@
-export const APP_VERSION = '1.97.0';
-export const VERSION = '1.97.0';
-export const APP_VERSION_DATE = '16/05/2026 00:00';
+export const APP_VERSION = '1.97.2';
+export const VERSION = '1.97.2';
+export const APP_VERSION_DATE = '15/05/2026 21:00';
 export const CHANGELOG = [
+  '## [V1.97.2] - 15/05/2026 21:00',
+  '### Adicionado — Overhaul de Arenas (Mapeamento Completo)',
+  '- **Mapeamento Regional**: Todas as regiões (Unova a Paldea) agora possuem arenas temáticas para cada líder.',
+  '- **Unova Premium**: Primeiros 4 ginásios de Unova com backgrounds exclusivos de alta fidelidade.',
+  '- **Engine de Combate**: Finalização da engine de golpes compostos com overlays elementais.',
+  '',
   '## [V1.97.0] - 16/05/2026 00:00',
   '### Adicionado — Overhaul Visual de Batalha (Fase 2)',
   '- **Golpes Compostos**: Mordidas, Socos e Chutes agora possuem efeitos elementais sobrepostos (Ex: Thunder Fang exibe mordida + raios).',
