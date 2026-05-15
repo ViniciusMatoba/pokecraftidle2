@@ -189,7 +189,7 @@ const RaidScreen = ({
     <div style={{
       position: 'fixed', inset: 0, zIndex: 9990,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: 16, background: `rgba(2,6,23,0.85) url('${import.meta.env.BASE_URL}raid_bg.png') center/cover no-repeat`,
+      padding: 16, background: `rgba(2,6,23,0.85) url('${import.meta.env.BASE_URL}raid_bg.webp') center/cover no-repeat`,
       backdropFilter: 'blur(20px)',
     }}>
       <style>{`

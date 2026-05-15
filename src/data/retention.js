@@ -36,7 +36,7 @@ export const RETENTION_DAILY_MISSIONS = [
     description: 'Derrote 25 Pokemon nas rotas.',
     stat: 'pokemonDefeated',
     target: 25,
-    icon: 'muscle-band.png',
+    icon: 'muscle-band.webp',
     reward: { currency: 3000, items: { pokeballs: 5 } },
   },
   {
@@ -45,7 +45,7 @@ export const RETENTION_DAILY_MISSIONS = [
     description: 'Capture 5 Pokemon durante a jornada.',
     stat: 'pokemonCaptured',
     target: 5,
-    icon: 'poke-ball.png',
+    icon: 'poke-ball.webp',
     reward: { currency: 2500, items: { great_ball: 2 } },
   },
   {
@@ -54,7 +54,7 @@ export const RETENTION_DAILY_MISSIONS = [
     description: 'Venca 3 batalhas contra treinadores.',
     stat: 'trainersDefeated',
     target: 3,
-    icon: 'vs-seeker.png',
+    icon: 'vs-seeker.webp',
     reward: { currency: 3500, materials: { normal_essence: 20 } },
   },
   {
@@ -63,7 +63,7 @@ export const RETENTION_DAILY_MISSIONS = [
     description: 'Venca 1 raid ativa.',
     stat: 'raidsWon',
     target: 1,
-    icon: 'star-piece.png',
+    icon: 'star-piece.webp',
     reward: { currency: 8000, items: { exp_candy_m: 1 } },
   },
 ];
@@ -75,7 +75,7 @@ export const RETENTION_WEEKLY_MISSIONS = [
     description: 'Derrote 250 Pokemon em qualquer rota.',
     stat: 'pokemonDefeated',
     target: 250,
-    icon: 'muscle-band.png',
+    icon: 'muscle-band.webp',
     reward: { currency: 25000, items: { ultra_ball: 5 } },
   },
   {
@@ -84,7 +84,7 @@ export const RETENTION_WEEKLY_MISSIONS = [
     description: 'Capture 40 Pokemon na semana.',
     stat: 'pokemonCaptured',
     target: 40,
-    icon: 'poke-ball.png',
+    icon: 'poke-ball.webp',
     reward: { currency: 30000, materials: { mystic_dust: 10 } },
   },
   {
@@ -93,7 +93,7 @@ export const RETENTION_WEEKLY_MISSIONS = [
     description: 'Capture 1 Pokemon shiny.',
     stat: 'shinyCaptured',
     target: 1,
-    icon: 'shiny-charm.png',
+    icon: 'shiny-charm.webp',
     reward: { currency: 40000, items: { exp_candy_l: 1 } },
   },
   {
@@ -102,7 +102,7 @@ export const RETENTION_WEEKLY_MISSIONS = [
     description: 'Venca 5 raids.',
     stat: 'raidsWon',
     target: 5,
-    icon: 'star-piece.png',
+    icon: 'star-piece.webp',
     reward: { currency: 50000, materials: { stardust: 5 } },
   },
 ];

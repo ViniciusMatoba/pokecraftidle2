@@ -60,7 +60,7 @@ const BossScreen = ({ gameState, powerScore = 0, onChallengeBoss }) => {
           : 'https://play.pokemonshowdown.com/sprites/trainers/giovanni.png',
         team: [{ id: randomId, level: 100 }],
         quote: type === 'Legendary' ? '"O rugido da natureza ecoa..."' : '"Você não imagina o poder que enfrentará!"',
-        background: "url('/battle_bg_gym_1776863824590.png') center/cover no-repeat"
+        background: "url('/battle_bg_gym_1776863824590.webp') center/cover no-repeat"
       };
     }
 
@@ -68,13 +68,13 @@ const BossScreen = ({ gameState, powerScore = 0, onChallengeBoss }) => {
       switch (bType) {
         case 'Gym Leader':
         case 'Elite Four':
-          return "url('/battle_bg_gym_1776863824590.png') center/cover no-repeat";
+          return "url('/battle_bg_gym_1776863824590.webp') center/cover no-repeat";
         case 'Team Villain':
-          return "url('/battle_bg_lab_1776866008842.png') center/cover no-repeat";
+          return "url('/battle_bg_lab_1776866008842.webp') center/cover no-repeat";
         case 'Legendary':
-          return "url('/battle_bg_cave_1776863810604.png') center/cover no-repeat";
+          return "url('/battle_bg_cave_1776863810604.webp') center/cover no-repeat";
         default:
-          return "url('/battle_bg_grass_1776863779024.png') center/cover no-repeat";
+          return "url('/battle_bg_grass_1776863779024.webp') center/cover no-repeat";
       }
     };
 

@@ -1,7 +1,7 @@
 {
   "name": "poke-craft-idle",
   "private": true,
-  "version": "1.88.8",
+  "version": "1.89.9",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -32,6 +32,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "gh-pages": "^6.1.1",
+    "sharp": "^0.34.5",
     "vite": "^5.1.0"
   }
 }

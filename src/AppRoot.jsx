@@ -652,9 +652,9 @@ export default function App() {
   useEffect(() => {
     const assets = {
       images: [
-        fixPath('/battle_bg_grass_1776863779024.png'),
-        fixPath('/battle_bg_forest_1776863795763.png'),
-        fixPath('/battle_bg_cave_1776863810604.png'),
+        fixPath('/battle_bg_grass_1776863779024.webp'),
+        fixPath('/battle_bg_forest_1776863795763.webp'),
+        fixPath('/battle_bg_cave_1776863810604.webp'),
         'https://play.pokemonshowdown.com/sprites/trainers/red.png',
         'https://play.pokemonshowdown.com/sprites/trainers/leaf-gen3.png',
         'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
@@ -2428,16 +2428,16 @@ export default function App() {
 
     // Backgrounds para Lendários
     const legendaryBgs = {
-      144: fixPath('/battle_bg_seafoam.png'),
-      145: fixPath('/battle_bg_power_plant.png'),
-      146: fixPath('/battle_bg_gym_1776863824590.png'),
-      150: fixPath('/battle_bg_cave_1776863810604.png'),
-      243: fixPath('/bg_burned_tower.png'),
-      244: fixPath('/bg_burned_tower.png'),
-      245: fixPath('/bg_lake_of_rage.png'),
-      249: fixPath('/bg_whirl_islands.png'),
-      250: fixPath('/bg_tin_tower.png'),
-      251: fixPath('/bg_ilex_forest.png')
+      144: fixPath('/battle_bg_seafoam.webp'),
+      145: fixPath('/battle_bg_power_plant.webp'),
+      146: fixPath('/battle_bg_gym_1776863824590.webp'),
+      150: fixPath('/battle_bg_cave_1776863810604.webp'),
+      243: fixPath('/bg_burned_tower.webp'),
+      244: fixPath('/bg_burned_tower.webp'),
+      245: fixPath('/bg_lake_of_rage.webp'),
+      249: fixPath('/bg_whirl_islands.webp'),
+      250: fixPath('/bg_tin_tower.webp'),
+      251: fixPath('/bg_ilex_forest.webp')
     };
     const specialBg = legendaryBgs[Number(finalBase.id)] || null;
 
@@ -5193,7 +5193,7 @@ export default function App() {
       isTrainer: true,
       badgeToGive: null,
       isBoss: true,
-      background: fixPath('/battle_bg_lab_1776866008842.png'),
+      background: fixPath('/battle_bg_lab_1776866008842.webp'),
       unlockFlag: 'rival_lab_defeated',
       isInitialRival: true,
       instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9)
@@ -5966,7 +5966,7 @@ export default function App() {
         ];
         
         const isLastStep = introStep === introTexts.length - 1;
-        const labBg = fixPath('/battle_bg_lab_1776866008842.png');
+        const labBg = fixPath('/battle_bg_lab_1776866008842.webp');
 
         return (
           <div className="h-full flex flex-col items-center justify-end p-4 text-center animate-fadeIn relative overflow-hidden"
@@ -6372,7 +6372,7 @@ export default function App() {
         </div>
       );
       case 'rival_intro': {
-        const labBg = fixPath('/battle_bg_lab_1776866008842.png');
+        const labBg = fixPath('/battle_bg_lab_1776866008842.webp');
         return (
           <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden"
             style={{ backgroundImage: `url(${labBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
@@ -6447,7 +6447,7 @@ export default function App() {
           <div
             className="relative h-full flex flex-col items-center justify-center overflow-hidden"
             style={{
-              backgroundImage: `url('${fixPath('/battle_bg_lab_1776866008842.png')}')`,
+              backgroundImage: `url('${fixPath('/battle_bg_lab_1776866008842.webp')}')`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
@@ -6502,7 +6502,7 @@ export default function App() {
         );
       }
       case 'quest_oak': {
-        const labBg = fixPath('/battle_bg_lab_1776866008842.png');
+        const labBg = fixPath('/battle_bg_lab_1776866008842.webp');
         return (
           <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden"
             style={{ backgroundImage: `url(${labBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
@@ -6537,7 +6537,7 @@ export default function App() {
       );
     }
       case 'quest_oak_starters': {
-        const labBg = fixPath('/battle_bg_lab_1776866008842.png');
+        const labBg = fixPath('/battle_bg_lab_1776866008842.webp');
         return (
           <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden"
             style={{ backgroundImage: `url(${labBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
@@ -6582,7 +6582,7 @@ export default function App() {
         const johtoStarters = [152, 155, 158].map(id => POKEDEX[id]).filter(Boolean);
         return (
           <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden bg-emerald-950">
-            <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('${fixPath('/battle_bg_grass_1776863779024.png')}')` }} />
+            <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('${fixPath('/battle_bg_grass_1776863779024.webp')}')` }} />
             <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/40 via-emerald-900/30 to-slate-950/80" />
 
             <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
@@ -6643,7 +6643,7 @@ export default function App() {
         const hoennStarters = [252, 255, 258].map(id => POKEDEX[id]).filter(Boolean);
         return (
           <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden bg-orange-950">
-            <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('${fixPath('/bg_route119.png')}')` }} />
+            <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('${fixPath('/bg_route119.webp')}')` }} />
             <div className="absolute inset-0 bg-gradient-to-b from-orange-950/35 via-emerald-900/20 to-slate-950/80" />
 
             <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
@@ -7461,7 +7461,7 @@ export default function App() {
       case 'heal_after_defeat': return (
         <div className="absolute inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-100 p-6 text-center animate-fadeIn overflow-hidden">
           <div className="absolute inset-0 z-0">
-             <img src={fixPath('/battle_bg_pokecenter_1776868686753.png')} className="w-full h-full object-cover" alt="Pokecenter" />
+             <img src={fixPath('/battle_bg_pokecenter_1776868686753.webp')} className="w-full h-full object-cover" alt="Pokecenter" />
              <div className="absolute inset-0 bg-white/30 backdrop-blur-md"></div>
           </div>
 
@@ -8399,7 +8399,7 @@ export default function App() {
             <button onClick={() => menuUnlocked && handleSafeNavigation('menu')}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${currentView === 'menu' ? 'text-slate-800' : 'text-slate-400'}`}>
-              <img src={fixPath('/assets/menu/pokedex.png')}
+              <img src={fixPath('/assets/menu/pokedex.webp')}
                 className="w-7 h-7 object-contain" alt=""
                 onError={e => {
                   e.target.style.display='none';
@@ -8420,7 +8420,7 @@ export default function App() {
         <div className="absolute inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-100 animate-fadeIn overflow-hidden">
            {/* Background Imersivo */}
            <div className="absolute inset-0 z-0">
-              <img src={fixPath('/battle_bg_pokecenter_1776868686753.png')} className="w-full h-full object-cover" alt="Pokecenter" />
+              <img src={fixPath('/battle_bg_pokecenter_1776868686753.webp')} className="w-full h-full object-cover" alt="Pokecenter" />
               <div className="absolute inset-0 bg-white/20"></div>
            </div>
 

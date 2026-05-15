@@ -1,7 +1,13 @@
-export const APP_VERSION = '1.90.4';
-export const VERSION = '1.90.4';
-export const APP_VERSION_DATE = '15/05/2026 15:00';
+export const APP_VERSION = '1.90.5';
+export const VERSION = '1.90.5';
+export const APP_VERSION_DATE = '15/05/2026 18:00';
 export const CHANGELOG = [
+  '## [V1.90.5] - 15/05/2026 18:00',
+  '### Performance',
+  '- **Imagens WebP**: 221 backgrounds e ícones convertidos de PNG para WebP (qualidade 82) — 760 MB de assets eliminados.',
+  '  - Carregamento inicial até 5× mais rápido em conexões lentas.',
+  '  - Service Worker atualizado para cache-first em .webp e versão dinâmica via version.json.',
+  '  - Compatibilidade: WebP suportado por 97%+ dos browsers modernos (Chrome, Firefox, Safari 14+, Edge).',
   '## [V1.90.4] - 15/05/2026 15:00',
   '### Balanceamento',
   '- **GYM_LEVEL_CAPS — cap 100 após o 8º ginásio em todas as regiões**: após obter as 8 insígnias o jogador pode treinar até o nível 100 livremente antes de enfrentar a Liga.',
@@ -434,7 +440,7 @@ export const CHANGELOG = [
   'Feature: Modal de Receita Encontrada — celebração visual com nome, ícone e efeito do item ao dropar receita',
   'Fix: Raid sem Pokébolas — botão "Fechar" e "Recompensas" visíveis quando todas as bolas chegam a zero',
   'Fix: Ícones do Menu corrigidos — Pokédex 📕, Mochila 🎒 e Salvar 💾 agora usam emoji (100% confiável)',
-  'Fix: Avatar Leaf — sprite corrigido (leaf.png→green.png no PS, era 404)',
+  'Fix: Avatar Leaf — sprite corrigido (leaf.png→green.webp no PS, era 404)',
   'Fix: Avatar Florian/Juliana — sprites de Paldea corrigidos (florian→giacomo, juliana→penny)',
   'Fix: onError em todos os sprites de treinador — fallback para Red em vez de sumir',
   'UI: Modal de Expedição restaurado — ícones de itens (ITEM_LABELS), sprites dos Pokémon e visual completo',

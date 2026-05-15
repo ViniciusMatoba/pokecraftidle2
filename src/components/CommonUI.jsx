@@ -346,9 +346,9 @@ export const TrainerCard = ({
   const isSinnohChampion = hasProgressToken(['sinnoh_champion', 'region_champion_sinnoh']);
 
   const achievements = [
-    { id: 'pokedex', icon: POKEAPI_ITEM_URL + 'pokedex.png', label: 'Pokedex', active: caughtCount >= 50, title: '50+ Capturas' },
-    { id: 'crafting', icon: POKEAPI_ITEM_URL + 'metal-coat.png', label: 'Crafting', active: forgedItems >= 1, title: 'Primeira Forja' },
-    { id: 'slayer', icon: POKEAPI_ITEM_URL + 'mega-stone.png', label: 'Boss Slayer', active: bossDamage >= 100000, title: '100k+ Dano Boss' }
+    { id: 'pokedex', icon: POKEAPI_ITEM_URL + 'pokedex.webp', label: 'Pokedex', active: caughtCount >= 50, title: '50+ Capturas' },
+    { id: 'crafting', icon: POKEAPI_ITEM_URL + 'metal-coat.webp', label: 'Crafting', active: forgedItems >= 1, title: 'Primeira Forja' },
+    { id: 'slayer', icon: POKEAPI_ITEM_URL + 'mega-stone.webp', label: 'Boss Slayer', active: bossDamage >= 100000, title: '100k+ Dano Boss' }
   ];
   const psRanks = [
     { min: 0, label: 'Poké Ball', item: 'poke-ball' },

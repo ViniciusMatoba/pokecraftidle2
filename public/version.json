@@ -1,5 +1,5 @@
 {
-  "version": "1.90.4",
-  "date": "15/05/2026 15:00",
-  "notes": "Cap de nível 100 após o 8º ginásio em todas as 9 regiões. Sem cap após se tornar Campeão."
+  "version": "1.90.5",
+  "date": "15/05/2026 18:00",
+  "notes": "Otimização de imagens: 221 imagens convertidas para WebP, -760 MB. Carregamento muito mais rápido."
 }

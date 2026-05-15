@@ -295,10 +295,10 @@ export const ITEM_LABELS = {
   gold_nugget: { icon: '🪙', name: 'Pepita de Ouro' },
   iron_ore: { icon: '⛏️', name: 'Minério de Ferro' },
   mystic_dust: { icon: '✨', name: 'Pó Místico' },
-  mega_stone_shard: { icon: '/items/mega_stone_shard.png', name: 'Fragmento de Mega Pedra' },
+  mega_stone_shard: { icon: '/items/mega_stone_shard.webp', name: 'Fragmento de Mega Pedra' },
   
   // Materiais de Boss
-  armor_fragment: { icon: '/items/armor_fragment.png', name: 'Fragmento de Armadura' },
+  armor_fragment: { icon: '/items/armor_fragment.webp', name: 'Fragmento de Armadura' },
   fury_essence: { icon: '💢', name: 'Essência de Fúria' },
   dragon_scale: { icon: '🦎', name: 'Escama de Dragão' },
   stardust: { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/stardust.png', name: 'Poeira Estelar' },
@@ -343,8 +343,8 @@ export const ITEM_LABELS = {
   poke_food_premium: { icon: '🥩', name: 'Ração Premium' },
 
   // Pedras de Evolução
-  fire_stone: { icon: '/items/fire_stone.png', name: 'Pedra do Fogo' },
-  water_stone: { icon: '/items/water_stone.png', name: 'Pedra da Água' },
+  fire_stone: { icon: '/items/fire_stone.webp', name: 'Pedra do Fogo' },
+  water_stone: { icon: '/items/water_stone.webp', name: 'Pedra da Água' },
   leaf_stone: { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png', name: 'Pedra da Folha' },
   thunder_stone: { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png', name: 'Pedra do Trovão' },
   moon_stone: { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png', name: 'Pedra da Lua' },
@@ -424,7 +424,7 @@ export const ITEM_LABELS = {
 
   // Itens de Batalha
   potion:            { icon: '🧪', name: 'Poção' },
-  link_cable:        { icon: '/items/link_cable.png', name: 'Link Cable' },
+  link_cable:        { icon: '/items/link_cable.webp', name: 'Link Cable' },
 
   // Pedra de Evolução extra
   sun_stone:         { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sun-stone.png', name: 'Pedra do Sol' },
@@ -432,7 +432,7 @@ export const ITEM_LABELS = {
   shiny_stone:       { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/shiny-stone.png', name: 'Pedra do Brilho' },
   dawn_stone:        { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dawn-stone.png', name: 'Pedra da Alvorada' },
   dusk_stone:        { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dusk-stone.png', name: 'Pedra do Crepúsculo' },
-  rare_candy:        { icon: '/items/rare_candy.png', name: 'Rare Candy' },
+  rare_candy:        { icon: '/items/rare_candy.webp', name: 'Rare Candy' },
 
   // Drops de Expedição — Kanto
   pearl:             { icon: '🔮', name: 'Pérola' },
@@ -540,7 +540,7 @@ export const POKE_MART_DRINKS = [
   {
     id: 'link_cable',
     name: 'Link Cable',
-    img: '/assets/items/link-cable-custom.png',
+    img: '/assets/items/link-cable-custom.webp',
     description: 'Item misterioso que permite certas evoluções sem troca.',
     price: 5000,
     availableFrom: 'thunder_badge',

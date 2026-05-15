@@ -1,10 +1,10 @@
 // ── Configurações de Raid ──────────────────────────────────────────────────
 export const EXP_CANDIES = {
-  exp_candy_xs: { name: 'EXP Candy XS', xp: 100,  img: '/items/exp_candy_xs.png',  color: '#818cf8', size: 'XS' },
-  exp_candy_s:  { name: 'EXP Candy S',  xp: 800,  img: '/items/exp_candy_s.png',   color: '#60a5fa', size: 'S' },
-  exp_candy_m:  { name: 'EXP Candy M',  xp: 3000, img: '/items/exp_candy_m.png',   color: '#34d399', size: 'M' },
-  exp_candy_l:  { name: 'EXP Candy L',  xp: 10000,img: '/items/exp_candy_l.png',   color: '#fbbf24', size: 'L' },
-  exp_candy_xl: { name: 'EXP Candy XL', xp: 30000,img: '/items/exp_candy_xl.png',  color: '#f87171', size: 'XL' },
+  exp_candy_xs: { name: 'EXP Candy XS', xp: 100,  img: '/items/exp_candy_xs.webp',  color: '#818cf8', size: 'XS' },
+  exp_candy_s:  { name: 'EXP Candy S',  xp: 800,  img: '/items/exp_candy_s.webp',   color: '#60a5fa', size: 'S' },
+  exp_candy_m:  { name: 'EXP Candy M',  xp: 3000, img: '/items/exp_candy_m.webp',   color: '#34d399', size: 'M' },
+  exp_candy_l:  { name: 'EXP Candy L',  xp: 10000,img: '/items/exp_candy_l.webp',   color: '#fbbf24', size: 'L' },
+  exp_candy_xl: { name: 'EXP Candy XL', xp: 30000,img: '/items/exp_candy_xl.webp',  color: '#f87171', size: 'XL' },
 };
 
 export const REGION_ORDER = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea'];

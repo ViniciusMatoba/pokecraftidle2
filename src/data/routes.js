@@ -384,7 +384,7 @@ const normalizeRouteProgression = (routesObj) => {
 };
 
 export const getRivalSprite = (playerAvatarImg) => {
-  if (playerAvatarImg && playerAvatarImg.includes('blue.png')) {
+  if (playerAvatarImg && playerAvatarImg.includes('blue.webp')) {
     return 'https://play.pokemonshowdown.com/sprites/trainers/blue-gen3.png';
   }
   return 'https://play.pokemonshowdown.com/sprites/trainers/blue.png';
@@ -548,7 +548,7 @@ const FUTURE_REGION_ROUTES = {
   ...buildRegionRoutes({
     region: 'unova', label: 'Unova', startFlag: 'unova_started', previousChampion: 'unova_champion',
     groups: { home: 'Nuvema Town' }, starters: [497, 500, 503], starterBases: [495, 498, 501], early: [504, 506, 509, 519], mid: [507, 510, 520, 527], late: [530, 534, 553, 567], final: [612, 635, 637, 643],
-    backgrounds: { city: '/bg_unova_city.png', route: '/bg_unova_route.png', cave: '/bg_unova_cave.png', elite: '/bg_unova_elite.png' },
+    backgrounds: { city: '/bg_unova_city.webp', route: '/bg_unova_route.webp', cave: '/bg_unova_cave.webp', elite: '/bg_unova_elite.webp' },
     extraRoutes: [
       {
         id: 'unova_pinwheel_forest', name: 'Pinwheel Forest', type: 'farm',
@@ -566,7 +566,7 @@ const FUTURE_REGION_ROUTES = {
           { name: 'Plasma Grunt', sprite: S.plasma, team: pk([509, 527], 19), reward: 1400 },
           { name: 'Ranger Forrest', sprite: S.aceM, team: pk([511, 515], 20), reward: 1600 },
         ],
-        background: '/bg_unova_route.png',
+        background: '/bg_unova_route.webp',
         description: 'Floresta de Unova com Plasma Grunt.',
       },
       {
@@ -580,7 +580,7 @@ const FUTURE_REGION_ROUTES = {
           { name: 'Ace Trainer Unova', sprite: S.aceM, team: pk([530, 536], 44), reward: 3600 },
           { name: 'Veteran Unova', sprite: S.aceF, team: pk([553, 557], 45), reward: 3800 },
         ],
-        background: '/bg_unova_cave.png',
+        background: '/bg_unova_cave.webp',
         description: 'Deserto de Unova com Pokémon Terra e Pedra.',
       },
       {
@@ -594,7 +594,7 @@ const FUTURE_REGION_ROUTES = {
           { name: 'Dragon Tamer Unova', sprite: S.aceM, team: pk([612, 625], 72), reward: 6500 },
           { name: 'Elite Unova', sprite: S.aceF, team: pk([567, 630], 71), reward: 6800 },
         ],
-        background: '/bg_unova_cave.png',
+        background: '/bg_unova_cave.webp',
         description: 'Victory Road de Unova antes da Liga.',
       },
     ],
@@ -602,7 +602,7 @@ const FUTURE_REGION_ROUTES = {
   ...buildRegionRoutes({
     region: 'kalos', label: 'Kalos', startFlag: 'kalos_started', previousChampion: 'kalos_champion',
     groups: { home: 'Vaniville Town' }, starters: [652, 655, 658], starterBases: [650, 653, 656], early: [659, 661, 664, 669], mid: [660, 662, 666, 672], late: [675, 678, 681, 697], final: [700, 706, 715, 716],
-    backgrounds: { city: '/bg_kalos_city.png', route: '/bg_kalos_route.png', cave: '/bg_kalos_cave.png', elite: '/bg_kalos_elite.png' },
+    backgrounds: { city: '/bg_kalos_city.webp', route: '/bg_kalos_route.webp', cave: '/bg_kalos_cave.webp', elite: '/bg_kalos_elite.webp' },
     extraRoutes: [
       {
         id: 'kalos_santalune_forest', name: 'Santalune Forest', type: 'farm',
@@ -620,7 +620,7 @@ const FUTURE_REGION_ROUTES = {
           { name: 'Youngster Kalos', sprite: S.youngster, team: pk([659, 664], 16), reward: 1200 },
           { name: 'Lass Kalos', sprite: S.lass, team: pk([661, 666], 17), reward: 1300 },
         ],
-        background: '/bg_kalos_route.png',
+        background: '/bg_kalos_route.webp',
         description: 'Floresta de Kalos, portal para Santalune City.',
       },
       {
@@ -634,7 +634,7 @@ const FUTURE_REGION_ROUTES = {
           { name: 'Flare Grunt Kalos', sprite: S.flare, team: pk([696, 679], 36), reward: 3000 },
           { name: 'Ace Kalos', sprite: S.aceM, team: pk([698, 694], 37), reward: 3200 },
         ],
-        background: '/bg_kalos_cave.png',
+        background: '/bg_kalos_cave.webp',
         description: 'Caverna fosforescente com fósseis e Pokémon raros.',
       },
       {
@@ -648,7 +648,7 @@ const FUTURE_REGION_ROUTES = {
           { name: 'Dragon Tamer Kalos', sprite: S.aceM, team: pk([706, 715], 74), reward: 6800 },
           { name: 'Elite Kalos', sprite: S.aceF, team: pk([700, 681], 73), reward: 7000 },
         ],
-        background: '/bg_kalos_elite.png',
+        background: '/bg_kalos_elite.webp',
         description: 'Victory Road de Kalos antes da Ligue Pokémon.',
       },
     ],
@@ -656,7 +656,7 @@ const FUTURE_REGION_ROUTES = {
   ...buildRegionRoutes({
     region: 'alola', label: 'Alola', startFlag: 'alola_started', previousChampion: 'alola_champion',
     groups: { home: 'Hauoli Outskirts' }, starters: [724, 727, 730], starterBases: [722, 725, 728], early: [731, 734, 736, 739], mid: [735, 738, 744, 752], late: [758, 760, 768, 776], final: [784, 791, 792, 800],
-    backgrounds: { city: '/bg_alola_city.png', route: '/bg_alola_route.png', cave: '/bg_alola_cave.png', elite: '/bg_alola_elite.png' },
+    backgrounds: { city: '/bg_alola_city.webp', route: '/bg_alola_route.webp', cave: '/bg_alola_cave.webp', elite: '/bg_alola_elite.webp' },
     extraRoutes: [
       {
         id: 'alola_ten_carat_hill', name: 'Ten Carat Hill', type: 'farm',
@@ -674,7 +674,7 @@ const FUTURE_REGION_ROUTES = {
           { name: 'Youngster Alola', sprite: S.youngster, team: pk([739, 744], 21), reward: 1500 },
           { name: 'Lass Alola', sprite: S.lass, team: pk([741, 750], 22), reward: 1600 },
         ],
-        background: '/bg_alola_cave.png',
+        background: '/bg_alola_cave.webp',
         description: 'Caverna de rocha preciosa com Pokémon de Alola.',
       },
       {
@@ -688,7 +688,7 @@ const FUTURE_REGION_ROUTES = {
           { name: 'Skull Grunt Alola', sprite: S.skull, team: pk([757, 760], 42), reward: 3400 },
           { name: 'Ace Alola', sprite: S.aceM, team: pk([758, 776], 43), reward: 3600 },
         ],
-        background: '/bg_alola_route.png',
+        background: '/bg_alola_route.webp',
         description: 'Vulcão ativo com Pokémon Fogo e Voador raros.',
       },
       {
@@ -702,7 +702,7 @@ const FUTURE_REGION_ROUTES = {
           { name: 'Elite Alola', sprite: S.aceM, team: pk([791, 784], 77), reward: 7200 },
           { name: 'Veteran Alola', sprite: S.aceF, team: pk([800, 792], 76), reward: 7400 },
         ],
-        background: '/bg_alola_elite.png',
+        background: '/bg_alola_elite.webp',
         description: 'Montanha sagrada de Alola, sede da Liga Pokémon.',
       },
     ],
@@ -710,7 +710,7 @@ const FUTURE_REGION_ROUTES = {
   ...buildRegionRoutes({
     region: 'galar', label: 'Galar', startFlag: 'galar_started', previousChampion: 'galar_champion',
     groups: { home: 'Postwick' }, starters: [812, 815, 818], starterBases: [810, 813, 816], early: [819, 821, 824, 827], mid: [820, 823, 828, 834], late: [839, 844, 849, 861], final: [887, 888, 889, 890],
-    backgrounds: { city: '/bg_galar_city.png', route: '/bg_galar_route.png', cave: '/bg_galar_cave.png', elite: '/bg_galar_elite.png' },
+    backgrounds: { city: '/bg_galar_city.webp', route: '/bg_galar_route.webp', cave: '/bg_galar_cave.webp', elite: '/bg_galar_elite.webp' },
     extraRoutes: [
       {
         id: 'galar_wild_area', name: 'Wild Area', type: 'farm',
@@ -728,7 +728,7 @@ const FUTURE_REGION_ROUTES = {
           { name: 'Yell Grunt', sprite: S.yell, team: pk([827, 831], 33), reward: 2600 },
           { name: 'Wild Trainer', sprite: S.aceM, team: pk([835, 840], 34), reward: 2800 },
         ],
-        background: '/bg_galar_route.png',
+        background: '/bg_galar_route.webp',
         description: 'Área Selvagem de Galar com Pokémon poderosos e clima dinâmico.',
       },
       {
@@ -742,7 +742,7 @@ const FUTURE_REGION_ROUTES = {
           { name: 'Ace Trainer Galar', sprite: S.aceM, team: pk([844, 855], 60), reward: 5400 },
           { name: 'Elite Galar', sprite: S.aceF, team: pk([849, 874], 61), reward: 5600 },
         ],
-        background: '/bg_galar_cave.png',
+        background: '/bg_galar_cave.webp',
         description: 'Colinas rochosas com Pokémon de Galar evoluídos.',
       },
       {
@@ -756,7 +756,7 @@ const FUTURE_REGION_ROUTES = {
           { name: 'Veteran Galar', sprite: S.aceM, team: pk([887, 879], 82), reward: 8000 },
           { name: 'Champion Rival', sprite: S.aceF, team: pk([888, 882], 83), reward: 8500 },
         ],
-        background: '/bg_galar_elite.png',
+        background: '/bg_galar_elite.webp',
         description: 'Tundra gelada com Pokémon lendários de Galar.',
       },
     ],
@@ -764,7 +764,7 @@ const FUTURE_REGION_ROUTES = {
   ...buildRegionRoutes({
     region: 'paldea', label: 'Paldea', startFlag: 'paldea_started', previousChampion: 'paldea_champion',
     groups: { home: 'Cabo Poco' }, starters: [908, 911, 914], starterBases: [906, 909, 912], early: [915, 917, 919, 921], mid: [916, 920, 922, 926], late: [936, 943, 952, 959], final: [967, 973, 998, 1008],
-    backgrounds: { city: '/bg_paldea_city.png', route: '/bg_paldea_route.png', cave: '/bg_paldea_cave.png', elite: '/bg_paldea_elite.png' },
+    backgrounds: { city: '/bg_paldea_city.webp', route: '/bg_paldea_route.webp', cave: '/bg_paldea_cave.webp', elite: '/bg_paldea_elite.webp' },
     extraRoutes: [
       {
         id: 'paldea_south_province', name: 'South Province Area 2', type: 'farm',
@@ -783,7 +783,7 @@ const FUTURE_REGION_ROUTES = {
           { name: 'Estudante Paldea F', sprite: S.schoolkidf, team: pk([919, 922], 20), reward: 1500 },
           { name: 'Entregador Paldea', sprite: S.courier, team: pk([915, 919], 18), reward: 1300 },
         ],
-        background: '/bg_paldea_route.png',
+        background: '/bg_paldea_route.webp',
         description: 'Províncias sul de Paldea com encontros iniciais.',
       },
       {
@@ -798,7 +798,7 @@ const FUTURE_REGION_ROUTES = {
           { name: 'Delinquente Paldea F', sprite: S.delinquentF, team: pk([959, 974], 63), reward: 5800 },
           { name: 'Operário Paldea', sprite: S.worker, team: pk([936, 952], 61), reward: 5400 },
         ],
-        background: '/bg_paldea_cave.png',
+        background: '/bg_paldea_cave.webp',
         description: 'Montanha gelada de Paldea com Pokémon Ice e Dragon.',
       },
       {
@@ -813,7 +813,7 @@ const FUTURE_REGION_ROUTES = {
           { name: 'Cientista Area Zero', sprite: S.aceF, team: pk([967, 1002], 83), reward: 8000 },
           { name: 'Cozinheiro Laboratorio', sprite: S.cook, team: pk([973, 1003], 82), reward: 7800 },
         ],
-        background: '/bg_paldea_elite.png',
+        background: '/bg_paldea_elite.webp',
         description: 'Zero Lab — o coração do Grande Abismo de Paldea.',
       },
     ],
@@ -955,47 +955,47 @@ const REGIONAL_DEX_COVERAGE_ROUTES = {
   ...buildRegionalDexCoverageRoutes({
     region: 'kanto', label: 'Kanto', regionIndex: 0, startRequirement: 'has_starter', championRequirement: 'champion',
     range: [1, 151],
-    backgrounds: { route: '/battle_bg_route24_25_1776993592209.png', forest: '/battle_bg_forest_1776863795763.png', cave: '/battle_bg_cave_1776863810604.png', elite: '/battle_bg_elite_four.png' },
+    backgrounds: { route: '/battle_bg_route24_25_1776993592209.webp', forest: '/battle_bg_forest_1776863795763.webp', cave: '/battle_bg_cave_1776863810604.webp', elite: '/battle_bg_elite_four.webp' },
   }),
   ...buildRegionalDexCoverageRoutes({
     region: 'johto', label: 'Johto', regionIndex: 1, startRequirement: 'johto_started', championRequirement: 'johto_champion',
     range: [152, 251],
-    backgrounds: { route: '/bg_route30_johto.png', forest: '/bg_ilex_forest.png', cave: '/bg_mt_silver.png', elite: '/bg_johto_league.png' },
+    backgrounds: { route: '/bg_route30_johto.webp', forest: '/bg_ilex_forest.webp', cave: '/bg_mt_silver.webp', elite: '/bg_johto_league.webp' },
   }),
   ...buildRegionalDexCoverageRoutes({
     region: 'hoenn', label: 'Hoenn', regionIndex: 2, startRequirement: 'hoenn_started', championRequirement: 'hoenn_champion',
     range: [252, 386],
-    backgrounds: { route: '/bg_route119.png', forest: '/bg_petalburg_woods.png', cave: '/bg_meteor_falls.png', elite: '/bg_elite_four_hoenn.png' },
+    backgrounds: { route: '/bg_route119.webp', forest: '/bg_petalburg_woods.webp', cave: '/bg_meteor_falls.webp', elite: '/bg_elite_four_hoenn.webp' },
   }),
   ...buildRegionalDexCoverageRoutes({
     region: 'sinnoh', label: 'Sinnoh', regionIndex: 3, startRequirement: 'sinnoh_started', championRequirement: 'sinnoh_champion',
     range: [387, 493],
-    backgrounds: { route: '/bg_route202.png', forest: '/bg_eterna_forest.png', cave: '/bg_mt_coronet.png', elite: '/bg_sinnoh_league.png' },
+    backgrounds: { route: '/bg_route202.webp', forest: '/bg_eterna_forest.webp', cave: '/bg_mt_coronet.webp', elite: '/bg_sinnoh_league.webp' },
   }),
   ...buildRegionalDexCoverageRoutes({
     region: 'unova', label: 'Unova', regionIndex: 4, startRequirement: 'unova_started', championRequirement: 'unova_champion',
     range: [494, 649],
-    backgrounds: { route: '/bg_unova_route.png', forest: '/bg_unova_route.png', cave: '/bg_unova_cave.png', elite: '/bg_unova_elite.png' },
+    backgrounds: { route: '/bg_unova_route.webp', forest: '/bg_unova_route.webp', cave: '/bg_unova_cave.webp', elite: '/bg_unova_elite.webp' },
   }),
   ...buildRegionalDexCoverageRoutes({
     region: 'kalos', label: 'Kalos', regionIndex: 5, startRequirement: 'kalos_started', championRequirement: 'kalos_champion',
     range: [650, 721],
-    backgrounds: { route: '/bg_kalos_route.png', forest: '/bg_kalos_route.png', cave: '/bg_kalos_cave.png', elite: '/bg_kalos_elite.png' },
+    backgrounds: { route: '/bg_kalos_route.webp', forest: '/bg_kalos_route.webp', cave: '/bg_kalos_cave.webp', elite: '/bg_kalos_elite.webp' },
   }),
   ...buildRegionalDexCoverageRoutes({
     region: 'alola', label: 'Alola', regionIndex: 6, startRequirement: 'alola_started', championRequirement: 'alola_champion',
     range: [722, 809],
-    backgrounds: { route: '/bg_alola_route.png', forest: '/bg_alola_route.png', cave: '/bg_alola_cave.png', elite: '/bg_alola_elite.png' },
+    backgrounds: { route: '/bg_alola_route.webp', forest: '/bg_alola_route.webp', cave: '/bg_alola_cave.webp', elite: '/bg_alola_elite.webp' },
   }),
   ...buildRegionalDexCoverageRoutes({
     region: 'galar', label: 'Galar', regionIndex: 7, startRequirement: 'galar_started', championRequirement: 'galar_champion',
     range: [810, 905],
-    backgrounds: { route: '/bg_galar_route.png', forest: '/bg_galar_route.png', cave: '/bg_galar_cave.png', elite: '/bg_galar_elite.png' },
+    backgrounds: { route: '/bg_galar_route.webp', forest: '/bg_galar_route.webp', cave: '/bg_galar_cave.webp', elite: '/bg_galar_elite.webp' },
   }),
   ...buildRegionalDexCoverageRoutes({
     region: 'paldea', label: 'Paldea', regionIndex: 8, startRequirement: 'paldea_started', championRequirement: 'paldea_champion',
     range: [906, 1025],
-    backgrounds: { route: '/bg_paldea_route.png', forest: '/bg_paldea_route.png', cave: '/bg_paldea_cave.png', elite: '/bg_paldea_elite.png' },
+    backgrounds: { route: '/bg_paldea_route.webp', forest: '/bg_paldea_route.webp', cave: '/bg_paldea_cave.webp', elite: '/bg_paldea_elite.webp' },
   }),
 };
 
@@ -1016,7 +1016,7 @@ const RAW_ROUTES = {
     id: 'pallet_town', name: 'Cidade de Pallet', type: 'city', group: 'Pallet Town',
     unlockLevel: 0, requirements: [], unlocks: 'starter_event',
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_grass_1776863779024.png',
+    background: '/battle_bg_grass_1776863779024.webp',
     description: 'Sua jornada começa aqui.',
   },
 
@@ -1037,7 +1037,7 @@ const RAW_ROUTES = {
       { name: 'Lass Haley',      sprite: S.lass,      team: pk([16, 16], 3),  reward: 60 },
       { name: 'Youngster Mikey', sprite: S.youngster, team: pk([16, 19], 3),  reward: 70 },
     ],
-    background: '/battle_bg_grass_1776863779024.png',
+    background: '/battle_bg_grass_1776863779024.webp',
     description: 'Caminho gramado para Viridian. Seu rival te espera!',
   },
 
@@ -1045,7 +1045,7 @@ const RAW_ROUTES = {
     id: 'viridian_city', name: 'Cidade de Viridian', type: 'city', group: 'Viridian City',
     unlockLevel: 3, requirements: ['has_starter'], unlocks: 'parcel_pickup',
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_grass_1776863779024.png',
+    background: '/battle_bg_grass_1776863779024.webp',
     description: 'Um centro urbano agitado.',
   },
 
@@ -1068,7 +1068,7 @@ const RAW_ROUTES = {
       { name: 'Hiker Clark',      sprite: S.hiker,     team: pk([21, 56], 5),   reward: 120 },
       { name: 'Youngster Calvin', sprite: S.youngster, team: pk([29, 32], 4),   reward: 80  },
     ],
-    background: '/battle_bg_route22_1776993565727.png',
+    background: '/battle_bg_route22_1776993565727.webp',
     description: 'Caminho oeste de Viridian.',
   },
 
@@ -1093,7 +1093,7 @@ const RAW_ROUTES = {
       { name: 'Bug Catcher Sammy',   sprite: S.bugcatcher, team: pk([10, 11, 14], 8),  reward: 120 },
       { name: 'Bug Catcher Charlie', sprite: S.bugcatcher, team: pk([13, 14, 14], 7),  reward: 110 },
     ],
-    background: '/battle_bg_forest_1776863795763.png',
+    background: '/battle_bg_forest_1776863795763.webp',
     description: 'Floresta de insetos. Um grunt da Rocket bloqueia a saída!',
   },
 
@@ -1102,7 +1102,7 @@ const RAW_ROUTES = {
     hasGym: true, gymLeader: GYM_LEADERS.brock,
     unlockLevel: 8, requirements: ['viridian_forest_cleared'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_gym_1776863824590.png',
+    background: '/battle_bg_gym_1776863824590.webp',
     description: 'Cidade de pedra. Derrote Brock para continuar!',
   },
 
@@ -1119,7 +1119,7 @@ const RAW_ROUTES = {
       { name: 'Bug Catcher Sammy',   sprite: S.bugcatcher, team: pk([14, 11], 10),   reward: 160 },
       { name: 'Ace Trainer Marissa', sprite: S.aceF,       team: pk([39, 21], 12),   reward: 300 },
     ],
-    background: '/battle_bg_route3_1776993578907.png',
+    background: '/battle_bg_route3_1776993578907.webp',
     description: 'Terreno árido a caminho de Mt. Moon.',
   },
 
@@ -1142,7 +1142,7 @@ const RAW_ROUTES = {
       { name: 'Hiker Jim',           sprite: S.hiker,   team: pk([95, 74], 13),   reward: 260 },
       { name: 'Lass Iris',           sprite: S.lass,    team: pk([35, 39], 11),   reward: 200 },
     ],
-    background: '/battle_bg_cave_1776863810604.png',
+    background: '/battle_bg_cave_1776863810604.webp',
     description: 'Caverna misteriosa. Clefairys raramente carregam Pedras da Lua!',
   },
 
@@ -1151,7 +1151,7 @@ const RAW_ROUTES = {
     hasGym: true, gymLeader: GYM_LEADERS.misty,
     requirements: ['mt_moon_cleared', 'mt_moon_rockets_defeated'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_gym_1776863824590.png',
+    background: '/battle_bg_gym_1776863824590.webp',
     description: 'Cidade banhada pela água. Desafie Misty!',
   },
 
@@ -1167,7 +1167,7 @@ const RAW_ROUTES = {
       { name: 'Youngster Timmy',  sprite: S.youngster,   team: pk([21, 16], 15), reward: 240 },
       { name: 'Hiker Lenny',      sprite: S.hiker,       team: pk([74, 74], 16), reward: 300 },
     ],
-    background: '/battle_bg_route24_25_1776993592209.png',
+    background: '/battle_bg_route24_25_1776993592209.webp',
     description: 'Rotas do Cabo Cerulean. Rival te espera!',
   },
 
@@ -1183,7 +1183,7 @@ const RAW_ROUTES = {
       { name: 'Ace Trainer Cole', sprite: S.aceM,      team: pk([52, 19], 20),     reward: 380 },
       { name: 'Lass Megan',       sprite: S.lass,      team: pk([39, 96], 19),     reward: 280 },
     ],
-    background: '/battle_bg_route5_6_1776993605611.png',
+    background: '/battle_bg_route5_6_1776993605611.webp',
     description: 'Caminho para Vermilion.',
   },
 
@@ -1199,7 +1199,7 @@ const RAW_ROUTES = {
       { name: 'Sailor Edmond',    sprite: S.sailor,    team: pk([52, 19], 22),       reward: 440 },
       { name: 'Gentleman Brooks', sprite: S.gentleman, team: pk([96, 96], 22),       reward: 600 },
     ],
-    background: '/battle_bg_ship_1776863844924.png',
+    background: '/battle_bg_ship_1776863844924.webp',
     description: 'Luxuoso navio de cruzeiro. Azul está a bordo!',
   },
 
@@ -1208,7 +1208,7 @@ const RAW_ROUTES = {
     hasGym: true, gymLeader: GYM_LEADERS.ltsurge,
     unlockLevel: 22, requirements: ['cascade_badge', 'rival_3_defeated'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_ship_1776863844924.png',
+    background: '/battle_bg_ship_1776863844924.webp',
     description: 'Cidade portuaria. Derrote Lt. Surge!',
   },
 
@@ -1224,7 +1224,7 @@ const RAW_ROUTES = {
       { name: 'Hiker Liam',      sprite: S.hiker,     team: pk([74, 95], 23),   reward: 420 },
       { name: 'Juggler Nedrick', sprite: S.juggler,   team: pk([100, 81], 24),  reward: 480 },
     ],
-    background: '/battle_bg_route9_10_1776993620394.png',
+    background: '/battle_bg_route9_10_1776993620394.webp',
     description: 'Estradas rochosas a caminho de Lavender.',
   },
 
@@ -1241,7 +1241,7 @@ const RAW_ROUTES = {
       { name: 'Picnicker Martha',  sprite: S.picnicker, team: pk([41, 41, 41], 24),  reward: 480 },
       { name: 'Ace Trainer Ryder', sprite: S.aceM,      team: pk([95, 66], 26),      reward: 620 },
     ],
-    background: '/battle_bg_rock_tunnel_1776993634918.png',
+    background: '/battle_bg_rock_tunnel_1776993634918.webp',
     description: 'Tunel escuro. A Rocket está aqui!',
   },
 
@@ -1257,7 +1257,7 @@ const RAW_ROUTES = {
       { name: 'Team Rocket Grunt F', sprite: S.rocketF, team: pk([92, 93], 28),   reward: 560, isRocket: true },
       { name: 'Team Rocket Grunt M', sprite: S.rocket,  team: pk([104, 41], 29),  reward: 580, isRocket: true },
     ],
-    background: '/battle_bg_cave_1776863810604.png',
+    background: '/battle_bg_cave_1776863810604.webp',
     description: 'Torre assombrada tomada pela Rocket.',
   },
 
@@ -1273,7 +1273,7 @@ const RAW_ROUTES = {
       { name: 'Juggler Brendan',    sprite: S.juggler, team: pk([100, 81], 29),  reward: 640 },
       { name: 'Ace Trainer Harvey', sprite: S.aceM,    team: pk([58, 96], 30),   reward: 800 },
     ],
-    background: '/battle_bg_grass_1776863779024.png',
+    background: '/battle_bg_grass_1776863779024.webp',
     description: 'Rota de conexão para Celadon.',
   },
 
@@ -1289,7 +1289,7 @@ const RAW_ROUTES = {
       { name: 'Team Rocket Grunt M', sprite: S.rocket,  team: pk([23, 41, 41], 31), reward: 720, isRocket: true },
       { name: 'Team Rocket Grunt F', sprite: S.rocketF, team: pk([88, 52], 31),     reward: 720, isRocket: true },
     ],
-    background: '/battle_bg_cave_1776863810604.png',
+    background: '/battle_bg_cave_1776863810604.webp',
     description: 'QG secreto da Rocket em Celadon. Giovanni te aguarda!',
   },
 
@@ -1298,7 +1298,7 @@ const RAW_ROUTES = {
     hasGym: true, gymLeader: GYM_LEADERS.erika,
     unlockLevel: 35, requirements: ['thunder_badge', 'rocket_hideout_cleared'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_gym_1776863824590.png',
+    background: '/battle_bg_gym_1776863824590.webp',
     description: 'Cidade verde. Derrote Erika para avançar!',
   },
 
@@ -1314,7 +1314,7 @@ const RAW_ROUTES = {
       { name: 'Ace Trainer Brian',  sprite: S.aceM,      team: pk([128, 111], 35),   reward: 960 },
       { name: 'Picnicker Valerie',  sprite: S.picnicker, team: pk([84, 22, 39], 34), reward: 760 },
     ],
-    background: '/battle_bg_grass_1776863779024.png',
+    background: '/battle_bg_grass_1776863779024.webp',
     description: 'Rotas da costa sul.',
   },
 
@@ -1324,7 +1324,7 @@ const RAW_ROUTES = {
     biome: 'grass',
     enemies: pk([102, 108, 113, 114, 115, 123, 127, 128], 35),
     trainerChance: 0, trainers: [],
-    background: '/battle_bg_grass_1776863779024.png',
+    background: '/battle_bg_grass_1776863779024.webp',
     description: 'Reserva exclusiva com Pokémon raros — captura especial sem batalha!',
     safariEntryCost: 500,
   },
@@ -1334,7 +1334,7 @@ const RAW_ROUTES = {
     hasGym: true, gymLeader: GYM_LEADERS.koga,
     unlockLevel: 38, requirements: ['rainbow_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_gym_1776863824590.png',
+    background: '/battle_bg_gym_1776863824590.webp',
     description: 'Cidade venenosa. Derrote Koga!',
   },
 
@@ -1350,7 +1350,7 @@ const RAW_ROUTES = {
       { name: 'Scientist Delman',    sprite: S.aceM,    team: pk([137, 100], 36),    reward: 1000 },
       { name: 'Scientist Jerry',     sprite: S.aceM,    team: pk([81, 63], 36),      reward: 1000 },
     ],
-    background: '/battle_bg_lab_1776866008842.png',
+    background: '/battle_bg_lab_1776866008842.webp',
     description: 'Torre dominada pela Rocket. Rival e Giovanni te esperam!',
   },
 
@@ -1359,7 +1359,7 @@ const RAW_ROUTES = {
     hasGym: true, gymLeader: GYM_LEADERS.sabrina,
     unlockLevel: 42, requirements: ['soul_badge', 'rival_silph_defeated'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_gym_1776863824590.png',
+    background: '/battle_bg_gym_1776863824590.webp',
     description: 'Centro psíquico de Kanto. Derrote Sabrina!',
   },
 
@@ -1374,7 +1374,7 @@ const RAW_ROUTES = {
       { name: 'Biker Virgil',      sprite: S.cooltrainer, team: pk([84, 22, 22], 35), reward: 860  },
       { name: 'Cooltrainer Mitch', sprite: S.cooltrainer, team: pk([128, 22], 37),    reward: 1000 },
     ],
-    background: '/battle_bg_grass_1776863779024.png',
+    background: '/battle_bg_grass_1776863779024.webp',
     description: 'Cycling Road!',
   },
 
@@ -1390,7 +1390,7 @@ const RAW_ROUTES = {
       { name: 'Scientist Grant',  sprite: S.aceM,    team: pk([132, 126], 39),     reward: 1200 },
       { name: 'Burglar Simon',    sprite: S.gambler, team: pk([109, 88, 89], 40),  reward: 1400 },
     ],
-    background: '/battle_bg_lab_1776866008842.png',
+    background: '/battle_bg_lab_1776866008842.webp',
     description: 'Mansao abandonada com segredos da Rocket.',
   },
 
@@ -1399,7 +1399,7 @@ const RAW_ROUTES = {
     hasGym: true, gymLeader: GYM_LEADERS.blaine,
     unlockLevel: 46, requirements: ['marsh_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_gym_1776863824590.png',
+    background: '/battle_bg_gym_1776863824590.webp',
     description: 'Ilha vulcanica. Derrote Blaine!',
   },
 
@@ -1414,7 +1414,7 @@ const RAW_ROUTES = {
       { name: 'Cooltrainer Male',   sprite: S.cooltrainer, team: pk([67, 23], 47),   reward: 2000 },
       { name: 'Ace Trainer Parker', sprite: S.aceM,        team: pk([148, 22], 48),  reward: 2500 },
     ],
-    background: '/battle_bg_grass_1776863779024.png',
+    background: '/battle_bg_grass_1776863779024.webp',
     description: 'O caminho para o último ginásio.',
   },
 
@@ -1423,7 +1423,7 @@ const RAW_ROUTES = {
     hasGym: true, gymLeader: GYM_LEADERS.giovanni,
     unlockLevel: 50, requirements: ['volcano_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_gym_1776863824590.png',
+    background: '/battle_bg_gym_1776863824590.webp',
     description: 'Ginásio misterioso e seu segredo sombrio.',
   },
 
@@ -1438,7 +1438,7 @@ const RAW_ROUTES = {
       { name: 'Ace Trainer Samuel', sprite: S.aceM,        team: pk([112, 95], 53),  reward: 2600 },
       { name: 'Cooltrainer George', sprite: S.cooltrainer, team: pk([148, 105], 54), reward: 2800 },
     ],
-    background: '/battle_bg_cave_1776863810604.png',
+    background: '/battle_bg_cave_1776863810604.webp',
     description: 'Caverna do desafio final. Seu rival te aguarda!',
   },
 
@@ -1447,7 +1447,7 @@ const RAW_ROUTES = {
     unlockLevel: 58, requirements: ['earth_badge'],
     hasGym: false,
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_gym_1776863824590.png',
+    background: '/battle_bg_gym_1776863824590.webp',
     description: 'Plateau Indigo  sede da Liga Pokemon de Kanto.',
   },
 
@@ -1457,7 +1457,7 @@ const RAW_ROUTES = {
     biome: 'mountain',
     enemies: pk([42, 47, 67, 75, 95, 106, 107, 108, 113, 131, 132, 136, 138, 140, 142, 143, 150], 60),
     trainerChance: 0, trainers: [],
-    background: '/battle_bg_cave_1776863810604.png',
+    background: '/battle_bg_cave_1776863810604.webp',
     description: 'Caverna proibida   lar de uma lenda..',
   },
 
@@ -1466,7 +1466,7 @@ const RAW_ROUTES = {
     id: 'new_bark_town', name: 'New Bark Town', type: 'city', group: 'New Bark Town',
     unlockLevel: 60, requirements: ['johto_started'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_johto_city_1777340517574.png',
+    background: '/battle_bg_johto_city_1777340517574.webp',
     description: 'O novo ponto de partida depois da conquista da Liga de Kanto.',
   },
 
@@ -1485,7 +1485,7 @@ const RAW_ROUTES = {
       { name: 'Youngster Mikey', sprite: S.youngster, team: pk([161, 165], 3), reward: 120 },
       { name: 'Lass Carrie', sprite: S.lass, team: pk([179, 187], 4), reward: 140 },
     ],
-    background: '/bg_route29_johto.png',
+    background: '/bg_route29_johto.webp',
     description: 'Primeira rota de Johto, aberta apenas para campeoes de Kanto.',
   },
 
@@ -1494,7 +1494,7 @@ const RAW_ROUTES = {
     id: 'cherrygrove_city', name: 'Cherrygrove City', type: 'city', group: 'Cherrygrove City',
     unlockLevel: 61, requirements: ['johto_route_29_cleared'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_cherrygrove.png',
+    background: '/bg_cherrygrove.webp',
     description: 'Cidade costeira de Johto e descanso depois da Rota 29.',
   },
 
@@ -1512,7 +1512,7 @@ const RAW_ROUTES = {
       { name: 'Bug Catcher Don', sprite: S.bugcatcher, team: pk([10, 13, 165], 4), reward: 160 },
       { name: 'Youngster Joey Jr.', sprite: S.youngster, team: pk([19, 162], 5), reward: 180 },
     ],
-    background: '/bg_route30_johto.png',
+    background: '/bg_route30_johto.webp',
     description: 'Rotas iniciais de Johto com encontros classicos de floresta.',
   },
 
@@ -1521,7 +1521,7 @@ const RAW_ROUTES = {
     id: 'violet_city', name: 'Violet City', type: 'city', group: 'Violet City',
     unlockLevel: 63, requirements: ['johto_rival_1_defeated'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_violet_city.png',
+    background: '/bg_violet_city.webp',
     description: 'Cidade do primeiro ginasio de Johto.',
   },
 
@@ -1542,7 +1542,7 @@ const RAW_ROUTES = {
       { name: 'Sage Nico', sprite: S.juggler, team: pk([69, 163], 6), reward: 200 },
       { name: 'Sage Chow', sprite: S.juggler, team: pk([92, 179], 7), reward: 220 },
     ],
-    background: '/bg_sprout_tower.png',
+    background: '/bg_sprout_tower.webp',
     description: 'Torre antiga onde treinadores de Johto testam disciplina.',
   },
 
@@ -1564,7 +1564,7 @@ const RAW_ROUTES = {
       { name: 'Picnicker Liz', sprite: S.picnicker, team: pk([179, 19], 7), reward: 240 },
       { name: 'Fisher Ralph', sprite: S.cooltrainer, team: pk([194, 60], 8), reward: 260 },
     ],
-    background: '/battle_bg_johto_meadow_1777340536606.png',
+    background: '/battle_bg_johto_meadow_1777340536606.webp',
     description: 'Estrada ao sul de Violet. Falkner libera este caminho.',
   },
 
@@ -1587,7 +1587,7 @@ const RAW_ROUTES = {
       { name: 'Hiker Daniel', sprite: S.hiker, team: pk([74, 95], 9), reward: 300 },
       { name: 'Firebreather Bill', sprite: S.gambler, team: pk([109, 41], 10), reward: 320 },
     ],
-    background: '/battle_bg_johto_cave_1777340560945.png',
+    background: '/battle_bg_johto_cave_1777340560945.webp',
     description: 'Caverna que leva a Azalea e a novos problemas com a Rocket.',
   },
 
@@ -1595,7 +1595,7 @@ const RAW_ROUTES = {
     id: 'azalea_town', name: 'Azalea Town', type: 'city', group: 'Azalea Town',
     unlockLevel: 66, requirements: ['johto_slowpoke_well_cleared'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_johto_city_1777340517574.png',
+    background: '/battle_bg_johto_city_1777340517574.webp',
     description: 'Cidade dos Slowpoke e do segundo desafio de Johto.',
   },
 
@@ -1609,7 +1609,7 @@ const RAW_ROUTES = {
       { name: 'Rocket Lookout', sprite: S.rocket, team: pk([41, 109], 10), reward: 420 },
       { name: 'Hiker Kurt', sprite: S.hiker, team: pk([74, 79], 11), reward: 440 },
     ],
-    background: '/battle_bg_johto_cave_1777340560945.png',
+    background: '/battle_bg_johto_cave_1777340560945.webp',
     description: 'Caverna de Azalea ligada ao novo conflito Rocket em Johto.',
   },
 
@@ -1631,7 +1631,7 @@ const RAW_ROUTES = {
       { name: 'Bug Catcher Doug', sprite: S.bugcatcher, team: pk([10, 13, 46], 13), reward: 360 },
       { name: 'Lass Dana', sprite: S.lass, team: pk([43, 163], 14), reward: 380 },
     ],
-    background: '/battle_bg_johto_forest_1777340549427.png',
+    background: '/battle_bg_johto_forest_1777340549427.webp',
     description: 'Floresta densa entre Azalea e Goldenrod.',
   },
 
@@ -1640,7 +1640,7 @@ const RAW_ROUTES = {
     id: 'goldenrod_city', name: 'Goldenrod City', type: 'city', group: 'Goldenrod City',
     unlockLevel: 68, requirements: ['hive_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_johto_city_1777340517574.png',
+    background: '/battle_bg_johto_city_1777340517574.webp',
     description: 'Grande metropole de Johto e palco da terceira insignia.',
   },
 
@@ -1662,7 +1662,7 @@ const RAW_ROUTES = {
       { name: 'School Kid Jack', sprite: S.youngster, team: pk([48, 203], 15), reward: 400 },
       { name: 'Bug Catcher Arnie', sprite: S.bugcatcher, team: pk([46, 123], 16), reward: 420 },
     ],
-    background: '/battle_bg_johto_meadow_1777340536606.png',
+    background: '/battle_bg_johto_meadow_1777340536606.webp',
     description: 'Parque amplo com insetos raros e Pokemon de Johto.',
   },
 
@@ -1671,7 +1671,7 @@ const RAW_ROUTES = {
     id: 'ecruteak_city', name: 'Ecruteak City', type: 'city', group: 'Ecruteak City',
     unlockLevel: 70, requirements: ['plain_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_johto_city_1777340517574.png',
+    background: '/battle_bg_johto_city_1777340517574.webp',
     description: 'Cidade historica das torres de Johto.',
   },
 
@@ -1695,7 +1695,7 @@ const RAW_ROUTES = {
       { name: 'Mystic Eusine', sprite: S.gentleman, team: pk([96, 101], 18), reward: 520 },
       { name: 'Sage Jeffrey', sprite: S.juggler, team: pk([92, 41], 17), reward: 440 },
     ],
-    background: '/battle_bg_johto_cave_1777340560945.png',
+    background: '/battle_bg_johto_cave_1777340560945.webp',
     description: 'Ruinas lendarias onde fantasmas e historias se cruzam.',
   },
 
@@ -1723,7 +1723,7 @@ const RAW_ROUTES = {
       { name: 'Sailor Harry', sprite: S.sailor, team: pk([77, 81], 19), reward: 540 },
       { name: 'Lass Dana', sprite: S.lass, team: pk([52, 241], 20), reward: 560 },
     ],
-    background: '/battle_bg_johto_meadow_1777340536606.png',
+    background: '/battle_bg_johto_meadow_1777340536606.webp',
     description: 'Campos a caminho de Olivine, com Miltank e eletricos raros.',
   },
 
@@ -1731,7 +1731,7 @@ const RAW_ROUTES = {
     id: 'olivine_city', name: 'Olivine City', type: 'city', group: 'Olivine City',
     unlockLevel: 73, requirements: ['fog_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_johto_water_1777340582200.png',
+    background: '/battle_bg_johto_water_1777340582200.webp',
     description: 'Porto de Johto e cidade da lider Jasmine.',
   },
 
@@ -1756,7 +1756,7 @@ const RAW_ROUTES = {
       { name: 'Swimmer Simon', sprite: S.cooltrainer, team: pk([72, 170], 22), reward: 600 },
       { name: 'Fisher Tully', sprite: S.cooltrainer, team: pk([98, 223], 23), reward: 620 },
     ],
-    background: '/battle_bg_johto_water_1777340582200.png',
+    background: '/battle_bg_johto_water_1777340582200.webp',
     description: 'Mar aberto de Johto rumo a Cianwood.',
   },
 
@@ -1764,7 +1764,7 @@ const RAW_ROUTES = {
     id: 'cianwood_city', name: 'Cianwood City', type: 'city', group: 'Cianwood City',
     unlockLevel: 75, requirements: ['storm_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_johto_water_1777340582200.png',
+    background: '/battle_bg_johto_water_1777340582200.webp',
     description: 'Ilha do desafio de Chuck e passagem para voltar a Olivine.',
   },
 
@@ -1790,7 +1790,7 @@ const RAW_ROUTES = {
       { name: 'Hiker Benjamin', sprite: S.hiker, team: pk([95, 66], 24), reward: 700 },
       { name: 'Black Belt Kenji', sprite: S.cooltrainer, team: pk([66, 216], 25), reward: 720 },
     ],
-    background: '/battle_bg_johto_cave_1777340560945.png',
+    background: '/battle_bg_johto_cave_1777340560945.webp',
     description: 'Montanhas de Johto entre Ecruteak e Mahogany.',
   },
 
@@ -1810,7 +1810,7 @@ const RAW_ROUTES = {
       { name: 'Fisher Marvin', sprite: S.cooltrainer, team: pk([129, 130], 26), reward: 800 },
       { name: 'Rocket Scout', sprite: S.rocket, team: pk([41, 109], 25), reward: 750, isRocket: true },
     ],
-    background: '/battle_bg_johto_water_1777340582200.png',
+    background: '/battle_bg_johto_water_1777340582200.webp',
     description: 'Lago agitado pelo sinal da Equipe Rocket.',
   },
 
@@ -1833,7 +1833,7 @@ const RAW_ROUTES = {
       { name: 'Skier Roxanne', sprite: S.aceF, team: pk([124, 220], 40), reward: 1850 },
       { name: 'Cooltrainer Allen', sprite: S.cooltrainer, team: pk([221, 225], 42), reward: 2000 },
     ],
-    background: '/battle_bg_johto_ice_1777340596339.png',
+    background: '/battle_bg_johto_ice_1777340596339.webp',
     description: 'Caverna congelada que protege o caminho para Blackthorn.',
   },
 
@@ -1841,7 +1841,7 @@ const RAW_ROUTES = {
     id: 'blackthorn_city', name: 'Blackthorn City', type: 'city', group: 'Blackthorn City',
     unlockLevel: 80, requirements: ['glacier_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_johto_city_1777340517574.png',
+    background: '/battle_bg_johto_city_1777340517574.webp',
     description: 'Cidade dos domadores de Dragao e da ultima insignia de Johto.',
   },
 
@@ -1861,7 +1861,7 @@ const RAW_ROUTES = {
       { name: 'Dragon Tamer Paul', sprite: S.aceM, team: pk([147, 148], 48), reward: 3200 },
       { name: 'Ace Trainer Gina', sprite: S.aceF, team: pk([54, 148], 48), reward: 3100 },
     ],
-    background: '/battle_bg_johto_cave_1777340560945.png',
+    background: '/battle_bg_johto_cave_1777340560945.webp',
     description: 'Santuario draconico depois da ultima insignia.',
   },
 
@@ -1884,7 +1884,7 @@ const RAW_ROUTES = {
       { name: 'Ace Trainer Irene', sprite: S.aceF, team: pk([67, 217], 52), reward: 4500 },
       { name: 'Dragon Tamer Lee', sprite: S.aceM, team: pk([148, 112], 54), reward: 5000 },
     ],
-    background: '/battle_bg_johto_cave_1777340560945.png',
+    background: '/battle_bg_johto_cave_1777340560945.webp',
     description: 'Ultimo teste antes da Liga de Johto.',
   },
 
@@ -1899,7 +1899,7 @@ const RAW_ROUTES = {
       { name: 'Hiker Bob',        sprite: S.hiker,     team: pk([74, 56], 12),  reward: 260 },
       { name: 'Lass Crissy',      sprite: S.lass,      team: pk([39, 39], 12),  reward: 220 },
     ],
-    background: '/battle_bg_route4.png',
+    background: '/battle_bg_route4.webp',
     description: 'Rota ao leste de Mt. Moon, com acesso a Cerulean.',
   },
 
@@ -1908,7 +1908,7 @@ const RAW_ROUTES = {
     id: 'lavender_town', name: 'Lavender Town', type: 'city', group: 'Lavender Town',
     unlockLevel: 28, requirements: ['thunder_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/battle_bg_lavender.png',
+    background: '/battle_bg_lavender.webp',
     description: 'Cidade sombria lar da Torre Pokémon.',
   },
 
@@ -1924,7 +1924,7 @@ const RAW_ROUTES = {
       { name: 'Juggler Kirk',       sprite: S.juggler,   team: pk([100, 81], 23),  reward: 520 },
       { name: 'Ace Trainer Brian',  sprite: S.aceM,      team: pk([63, 96], 23),   reward: 620 },
     ],
-    background: '/battle_bg_route8.png',
+    background: '/battle_bg_route8.webp',
     description: 'Rota entre Saffron e Lavender.',
   },
 
@@ -1940,7 +1940,7 @@ const RAW_ROUTES = {
       { name: 'Picnicker Edna',    sprite: S.picnicker, team: pk([60, 19], 22),   reward: 360 },
       { name: 'Hiker Yoshi',       sprite: S.hiker,     team: pk([23, 95], 23),   reward: 460 },
     ],
-    background: '/battle_bg_route11.png',
+    background: '/battle_bg_route11.webp',
     description: 'Rota leste de Vermilion, caminho para Lavender.',
   },
 
@@ -1957,7 +1957,7 @@ const RAW_ROUTES = {
       { name: 'Cooltrainer Mitch',  sprite: S.cooltrainer, team: pk([128, 101], 34),  reward: 920 },
       { name: 'Ace Trainer Parker', sprite: S.aceF,        team: pk([22, 128], 35),   reward: 1000 },
     ],
-    background: '/battle_bg_route16_17_18.png',
+    background: '/battle_bg_route16_17_18.webp',
     description: 'Cycling Road e rotas sul de Celadon até Fuchsia.',
   },
 
@@ -1973,7 +1973,7 @@ const RAW_ROUTES = {
       { name: 'Beauty Sheila',   sprite: S.beauty,      team: pk([90, 73], 42),  reward: 840 },
       { name: 'Swimmer Kevin',   sprite: S.cooltrainer, team: pk([61, 86], 41),  reward: 740 },
     ],
-    background: '/battle_bg_route19_20.png',
+    background: '/battle_bg_route19_20.webp',
     description: 'Rotas aquáticas entre Fuchsia e Cinnabar.',
   },
 
@@ -1984,7 +1984,7 @@ const RAW_ROUTES = {
     enemies: pk([79, 86, 87, 90, 91, 98, 124, 131, 144], 38),
     trainerChance: 0,
     trainers: [],
-    background: '/battle_bg_seafoam.png',
+    background: '/battle_bg_seafoam.webp',
     description: 'Cavernas geladas. Lenda diz que Articuno vive aqui.',
   },
 
@@ -2000,7 +2000,7 @@ const RAW_ROUTES = {
       { name: 'Swimmer Elaine', sprite: S.aceF,        team: pk([73, 132], 42),  reward: 940 },
       { name: 'Fisher Gilbert', sprite: S.cooltrainer, team: pk([129, 90], 43),  reward: 1000 },
     ],
-    background: '/battle_bg_route21.png',
+    background: '/battle_bg_route21.webp',
     description: 'Rota aquática entre Pallet e Cinnabar.',
   },
 
@@ -2011,7 +2011,7 @@ const RAW_ROUTES = {
     enemies: pk([81, 82, 100, 101, 125, 135, 145], 35),
     trainerChance: 0,
     trainers: [],
-    background: '/battle_bg_power_plant.png',
+    background: '/battle_bg_power_plant.webp',
     description: 'Usina abandonada. Zapdos dizem que habita aqui.',
   },
 
@@ -2028,7 +2028,7 @@ const RAW_ROUTES = {
       { name: 'Ace Trainer Parker', sprite: S.aceM,        team: pk([148, 22], 47),  reward: 2500 },
       { name: 'Ace Trainer Cybil',  sprite: S.aceF,        team: pk([147, 67], 47),  reward: 2500 },
     ],
-    background: '/battle_bg_route23.png',
+    background: '/battle_bg_route23.webp',
     description: 'O caminho final para o Plateau Indigo.',
   },
 
@@ -2037,7 +2037,7 @@ const RAW_ROUTES = {
     id: 'littleroot_town', name: 'Littleroot Town', type: 'city', group: 'Hoenn Inicio',
     unlockLevel: 1, requirements: ['hoenn_started'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_littleroot.png',
+    background: '/bg_littleroot.webp',
     description: 'Sua jornada em Hoenn comeca aqui.',
   },
 
@@ -2050,7 +2050,7 @@ const RAW_ROUTES = {
     ],
     trainerChance: 0,
     trainers: [],
-    background: '/bg_route101.png',
+    background: '/bg_route101.webp',
     description: 'Rota inicial cheia de Pokemon pequenos.',
   },
 
@@ -2058,7 +2058,7 @@ const RAW_ROUTES = {
     id: 'oldale_town', name: 'Oldale Town', type: 'city', group: 'Hoenn Inicio',
     unlockLevel: 2, requirements: ['hoenn_started'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_oldale_town.png',
+    background: '/bg_oldale_town.webp',
     description: 'Pequena cidade com um Pokemon Mart.',
   },
 
@@ -2074,7 +2074,7 @@ const RAW_ROUTES = {
       { name: 'Youngster Calvin', sprite: S.youngster, team: pk([261, 263], 5), reward: 80 },
       { name: 'Lass Tiana',       sprite: S.lass,      team: pk([280], 5),      reward: 80 },
     ],
-    background: '/bg_route102.png',
+    background: '/bg_route102.webp',
     description: 'Trilha que leva a Petalburg City.',
   },
 
@@ -2082,7 +2082,7 @@ const RAW_ROUTES = {
     id: 'petalburg_city', name: 'Petalburg City', type: 'city', group: 'Hoenn Inicio',
     unlockLevel: 4, requirements: ['hoenn_started'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_petalburg_city.png',
+    background: '/bg_petalburg_city.webp',
     description: 'A cidade onde a natureza e as pessoas compartilham espaco.',
   },
 
@@ -2100,7 +2100,7 @@ const RAW_ROUTES = {
       { name: 'Rich Boy Winston', sprite: S.aceM, team: pk([263], 7), reward: 200 },
       { name: 'Lady Cindy',       sprite: S.aceF, team: pk([278], 6), reward: 180 },
     ],
-    background: '/bg_route104.png',
+    background: '/bg_route104.webp',
     description: 'Rota costeira antes da floresta de Petalburg.',
   },
 
@@ -2118,7 +2118,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Bug Catcher Lyle', sprite: S.bugcatcher, team: pk([265, 266], 6), reward: 100 },
     ],
-    background: '/bg_petalburg_woods.png',
+    background: '/bg_petalburg_woods.webp',
     description: 'Floresta densa. Shroomish e Slakoth moram aqui.',
   },
 
@@ -2126,7 +2126,7 @@ const RAW_ROUTES = {
     id: 'rustboro_city', name: 'Rustboro City', type: 'city', group: 'Hoenn Rustboro',
     unlockLevel: 8, requirements: ['hoenn_started'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_rustboro_city.png',
+    background: '/bg_rustboro_city.webp',
     description: 'Grande metropole industrial, lar da Devon Corp.',
   },
 
@@ -2139,7 +2139,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Hiker Clark', sprite: S.hiker, team: pk([74, 293], 8), reward: 150 },
     ],
-    background: '/bg_route116.png',
+    background: '/bg_route116.webp',
     description: 'Caminho rochoso levando ao Rusturf Tunnel.',
   },
 
@@ -2150,7 +2150,7 @@ const RAW_ROUTES = {
     enemies: pk([293, 294], 8),
     trainerChance: 0,
     trainers: [],
-    background: '/bg_rusturf_tunnel.png',
+    background: '/bg_rusturf_tunnel.webp',
     description: 'Tunel escavado pela forca dos Whismur.',
   },
 
@@ -2158,7 +2158,7 @@ const RAW_ROUTES = {
     id: 'dewford_town', name: 'Dewford Town', type: 'city', group: 'Hoenn Dewford',
     unlockLevel: 11, requirements: ['stone_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_dewford_town.png',
+    background: '/bg_dewford_town.webp',
     description: 'Ilha ensolarada famosa pelo surf.',
   },
 
@@ -2169,7 +2169,7 @@ const RAW_ROUTES = {
     enemies: pk([41, 293, 304, 299, 361], 10),
     trainerChance: 0,
     trainers: [],
-    background: '/bg_granite_cave.png',
+    background: '/bg_granite_cave.webp',
     description: 'Caverna de pedras cristalizadas com pinturas antigas.',
   },
 
@@ -2177,7 +2177,7 @@ const RAW_ROUTES = {
     id: 'slateport_city', name: 'Slateport City', type: 'city', group: 'Hoenn Slateport',
     unlockLevel: 15, requirements: ['knuckle_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_slateport_city.png',
+    background: '/bg_slateport_city.webp',
     description: 'Cidade portuaria movimentada com museu oceanico.',
   },
 
@@ -2191,7 +2191,7 @@ const RAW_ROUTES = {
       { name: 'Cyclist Lein',   sprite: S.aceM, team: pk([309], 15), reward: 320 },
       { name: 'Cyclist Hailey', sprite: S.aceF, team: pk([311], 15), reward: 320 },
     ],
-    background: '/bg_route110.png',
+    background: '/bg_route110.webp',
     description: 'A Cycling Road acima desta rota e iconica.',
   },
 
@@ -2199,7 +2199,7 @@ const RAW_ROUTES = {
     id: 'mauville_city', name: 'Mauville City', type: 'city', group: 'Hoenn Mauville',
     unlockLevel: 17, requirements: ['knuckle_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_mauville_city.png',
+    background: '/bg_mauville_city.webp',
     description: 'Cidade hipertecnologica e indoor com casino.',
   },
 
@@ -2212,7 +2212,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Ruin Maniac Dusty', sprite: S.hiker, team: pk([27, 328], 20), reward: 500 },
     ],
-    background: '/bg_route111_desert.png',
+    background: '/bg_route111_desert.webp',
     description: 'Deserto com tempestades de areia e ruinas enterradas.',
   },
 
@@ -2223,7 +2223,7 @@ const RAW_ROUTES = {
     enemies: pk([322, 218, 219, 109, 77], 20),
     trainerChance: 0,
     trainers: [],
-    background: '/bg_fiery_path.png',
+    background: '/bg_fiery_path.webp',
     description: 'Caverna vulcanica com rios de lava.',
   },
 
@@ -2231,7 +2231,7 @@ const RAW_ROUTES = {
     id: 'fallarbor_town', name: 'Fallarbor Town', type: 'city', group: 'Hoenn Lavaridge',
     unlockLevel: 22, requirements: ['dynamo_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_fallarbor_town.png',
+    background: '/bg_fallarbor_town.webp',
     description: 'Vilarejo rural coberto de cinzas vulcanicas.',
   },
 
@@ -2244,7 +2244,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Ninja Boy Lao', sprite: S.youngster, team: pk([291], 20), reward: 400 },
     ],
-    background: '/bg_route113.png',
+    background: '/bg_route113.webp',
     description: 'Rota coberta de cinzas com Skarmory e Swablu.',
   },
 
@@ -2257,7 +2257,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Team Magma Grunt', sprite: S.rocket, team: pk([322, 304], 22), reward: 600 },
     ],
-    background: '/bg_meteor_falls.png',
+    background: '/bg_meteor_falls.webp',
     description: 'Caverna magica com cachoeiras azuis e meteoritos.',
   },
 
@@ -2270,7 +2270,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Team Magma Admin Tabitha', sprite: S.rocket, team: pk([322, 322, 323], 25), reward: 1500 },
     ],
-    background: '/bg_mt_chimney.png',
+    background: '/bg_mt_chimney.webp',
     description: 'O pico de um vulcao ativo. Combate final com o Team Magma.',
   },
 
@@ -2278,7 +2278,7 @@ const RAW_ROUTES = {
     id: 'lavaridge_town', name: 'Lavaridge Town', type: 'city', group: 'Hoenn Lavaridge',
     unlockLevel: 25, requirements: ['dynamo_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_lavaridge_town.png',
+    background: '/bg_lavaridge_town.webp',
     description: 'Cidade termal com fontes quentes e spa.',
   },
 
@@ -2292,7 +2292,7 @@ const RAW_ROUTES = {
       { name: 'Bird Keeper Phil',  sprite: S.aceM, team: pk([333, 278], 29), reward: 700 },
       { name: 'Fisherman Elliot',  sprite: S.cooltrainer, team: pk([341], 29), reward: 650 },
     ],
-    background: '/bg_route119.png',
+    background: '/bg_route119.webp',
     description: 'Rotas de chuva torrencial com grama extremamente alta.',
   },
 
@@ -2300,7 +2300,7 @@ const RAW_ROUTES = {
     id: 'fortree_city', name: 'Fortree City', type: 'city', group: 'Hoenn Fortree',
     unlockLevel: 33, requirements: ['heat_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_fortree_city.png',
+    background: '/bg_fortree_city.webp',
     description: 'Cidade nas copas das arvores, ligadas por pontes suspensas.',
   },
 
@@ -2314,7 +2314,7 @@ const RAW_ROUTES = {
       { name: 'Ace Trainer Cybil',  sprite: S.aceF, team: pk([352, 358], 35), reward: 900 },
       { name: 'Ace Trainer Ruben',  sprite: S.aceM, team: pk([302, 354], 35), reward: 900 },
     ],
-    background: '/bg_route119.png',
+    background: '/bg_route119.webp',
     description: 'Rotas de savana que levam a Lilycove.',
   },
 
@@ -2327,7 +2327,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Team Aqua Grunt', sprite: S.rocket, team: pk([316, 315], 36), reward: 800 },
     ],
-    background: '/bg_mt_pyre.png',
+    background: '/bg_mt_pyre.webp',
     description: 'Cemiterio Pokemon envolvido em neblina permanente.',
   },
 
@@ -2335,7 +2335,7 @@ const RAW_ROUTES = {
     id: 'lilycove_city', name: 'Lilycove City', type: 'city', group: 'Hoenn Lilycove',
     unlockLevel: 38, requirements: ['feather_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_lilycove_city.png',
+    background: '/bg_lilycove_city.webp',
     description: 'Cidade costeira majestosa com uma loja departamentos gigante.',
   },
 
@@ -2349,7 +2349,7 @@ const RAW_ROUTES = {
       { name: 'Swimmer Cody',   sprite: S.cooltrainer, team: pk([72, 278], 41), reward: 900 },
       { name: 'Swimmer Missy',  sprite: S.aceF,        team: pk([341, 370], 41), reward: 900 },
     ],
-    background: '/bg_ocean_routes.png',
+    background: '/bg_ocean_routes.webp',
     description: 'Oceano tropical com recifes de coral coloridos.',
   },
 
@@ -2357,7 +2357,7 @@ const RAW_ROUTES = {
     id: 'mossdeep_city', name: 'Mossdeep City', type: 'city', group: 'Hoenn Mossdeep',
     unlockLevel: 43, requirements: ['mind_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_mossdeep_city.png',
+    background: '/bg_mossdeep_city.webp',
     description: 'Ilha com o centro espacial da Hoenn.',
   },
 
@@ -2370,7 +2370,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Team Aqua Admin Matt', sprite: S.rocket, team: pk([315, 316, 370], 46), reward: 2000 },
     ],
-    background: '/bg_seafloor_cavern.png',
+    background: '/bg_seafloor_cavern.webp',
     description: 'Caverna subaquatica onde o Team Aqua ativa Kyogre.',
   },
 
@@ -2378,7 +2378,7 @@ const RAW_ROUTES = {
     id: 'sootopolis_city', name: 'Sootopolis City', type: 'city', group: 'Hoenn Sootopolis',
     unlockLevel: 47, requirements: ['mind_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_sootopolis_city.png',
+    background: '/bg_sootopolis_city.webp',
     description: 'Cidade dentro de uma cratera vulcanica cheia de agua.',
   },
 
@@ -2389,7 +2389,7 @@ const RAW_ROUTES = {
     enemies: pk([41, 42, 302, 303, 361, 362], 46),
     trainerChance: 0,
     trainers: [],
-    background: '/bg_cave_of_origin.png',
+    background: '/bg_cave_of_origin.webp',
     description: 'Caverna sagrada coberta de cristais ancestrais.',
   },
 
@@ -2400,7 +2400,7 @@ const RAW_ROUTES = {
     enemies: pk([329, 330, 333, 335, 291, 302], 50),
     trainerChance: 0,
     trainers: [],
-    background: '/bg_sky_pillar.png',
+    background: '/bg_sky_pillar.webp',
     description: 'A torre ancestral que toca o ceu. Rayquaza habita aqui.',
   },
 
@@ -2408,7 +2408,7 @@ const RAW_ROUTES = {
     id: 'pacifidlog_town', name: 'Pacifidlog Town', type: 'city', group: 'Hoenn Ever Grande',
     unlockLevel: 52, requirements: ['rain_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_pacifidlog.png',
+    background: '/bg_pacifidlog.webp',
     description: 'Vilarejo flutuante sobre um recife de coral vivo.',
   },
 
@@ -2416,7 +2416,7 @@ const RAW_ROUTES = {
     id: 'ever_grande_city', name: 'Ever Grande City', type: 'city', group: 'Hoenn Liga',
     unlockLevel: 56, requirements: ['rain_badge'],
     enemies: [], trainers: [], trainerChance: 0,
-    background: '/bg_ever_grande.png',
+    background: '/bg_ever_grande.webp',
     description: 'A cidade das flores que guarda a Liga Pokemon de Hoenn.',
   },
 
@@ -2430,7 +2430,7 @@ const RAW_ROUTES = {
       { name: 'Ace Trainer Hope',  sprite: S.aceF, team: pk([330, 357], 55), reward: 3000 },
       { name: 'Ace Trainer Edgar', sprite: S.aceM, team: pk([306, 362], 56), reward: 3000 },
     ],
-    background: '/bg_victory_road_hoenn.png',
+    background: '/bg_victory_road_hoenn.webp',
     description: 'O derradeiro desafio antes da Liga de Hoenn.',
   },
 
@@ -2444,7 +2444,7 @@ const RAW_ROUTES = {
       { name: 'Frontier Ace Mara', sprite: S.aceF, team: pk([350, 373, 376], 72), reward: 4200 },
       { name: 'Frontier Ace Caio', sprite: S.aceM, team: pk([306, 330, 359], 74), reward: 4500 },
     ],
-    background: '/bg_battle_frontier.png',
+    background: '/bg_battle_frontier.webp',
     description: 'Treino pos-Liga de Hoenn para preparar o time para desafios acima do nivel 70.',
   },
 
@@ -2457,14 +2457,14 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Dragon Tamer Ivo', sprite: S.aceM, team: pk([330, 373], 82), reward: 5200 },
     ],
-    background: '/bg_sky_pillar.png',
+    background: '/bg_sky_pillar.webp',
     description: 'Uma rota de elite para lapidar o time de Hoenn antes de partir para Sinnoh.',
   },
 
   twinleaf_town: {
     id: 'twinleaf_town', name: 'Twinleaf Town', type: 'city', group: 'Sinnoh Inicio',
     unlockLevel: 1, requirements: ['sinnoh_started'],
-    background: '/bg_twinleaf.png',
+    background: '/bg_twinleaf.webp',
     description: 'O primeiro lar da jornada de Sinnoh.',
   },
 
@@ -2480,14 +2480,14 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Youngster Nolan', sprite: S.youngster, team: pk([396, 399], 7), reward: 400 },
     ],
-    background: '/bg_route201.png',
+    background: '/bg_route201.webp',
     description: 'Primeira rota de Sinnoh, ideal para treinar o inicial ate os primeiros niveis.',
   },
 
   sandgem_town: {
     id: 'sandgem_town', name: 'Sandgem Town', type: 'city', group: 'Sinnoh Sandgem',
     unlockLevel: 6, requirements: ['sinnoh_route_201_cleared'],
-    background: '/bg_sandgem.png',
+    background: '/bg_sandgem.webp',
     description: 'A cidade do laboratorio do Prof. Rowan.',
   },
 
@@ -2507,14 +2507,14 @@ const RAW_ROUTES = {
       { name: 'Lass Natalie', sprite: S.lass, team: pk([401, 406], 10), reward: 520 },
       { name: 'Youngster Logan', sprite: S.youngster, team: pk([399, 403], 11), reward: 560 },
     ],
-    background: '/bg_route202.png',
+    background: '/bg_route202.webp',
     description: 'Capturas basicas para formar o primeiro time de Sinnoh.',
   },
 
   jubilife_city: {
     id: 'jubilife_city', name: 'Jubilife City', type: 'city', group: 'Sinnoh Jubilife',
     unlockLevel: 10, requirements: ['sinnoh_route_202_cleared'],
-    background: '/bg_jubilife.png',
+    background: '/bg_jubilife.webp',
     description: 'Centro urbano de Sinnoh e ponto seguro para reorganizar o time.',
   },
 
@@ -2532,7 +2532,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Youngster Dallas', sprite: S.youngster, team: pk([397, 64], 15), reward: 760 },
     ],
-    background: '/bg_route202.png',
+    background: '/bg_route202.webp',
     description: 'Rota de transicao para evoluir capturas iniciais e preparar desafios maiores.',
   },
 
@@ -2546,7 +2546,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Aroma Lady Sofia', sprite: S.lass, team: pk([406, 315], 20), reward: 950 },
     ],
-    background: '/bg_eterna.png',
+    background: '/bg_eterna.webp',
     description: 'Primeira subida de dificuldade, com evolucoes iniciais e capturas mais resistentes.',
   },
 
@@ -2560,7 +2560,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Bug Catcher Anton', sprite: S.bugcatcher, team: pk([402, 412], 26), reward: 1200 },
     ],
-    background: '/bg_eterna_forest.png',
+    background: '/bg_eterna_forest.webp',
     description: 'Floresta para consolidar o time antes dos desafios intermediarios.',
   },
 
@@ -2574,7 +2574,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Pokemon Breeder Abril', sprite: S.lass, team: pk([427, 433, 434], 34), reward: 1600 },
     ],
-    background: '/bg_eterna.png',
+    background: '/bg_eterna.webp',
     description: 'Rota de treino de nivel medio, boa para preparar evolucoes finais.',
   },
 
@@ -2588,7 +2588,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Ace Trainer Breno', sprite: S.aceM, team: pk([405, 419], 44), reward: 2400 },
     ],
-    background: '/bg_sinnoh_league.png',
+    background: '/bg_sinnoh_league.webp',
     description: 'Margem do lago com combates em ritmo de pos-ginasios intermediarios.',
   },
 
@@ -2602,7 +2602,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Hiker Davi', sprite: S.hiker, team: pk([437, 444], 56), reward: 3200 },
     ],
-    background: '/bg_mt_coronet.png',
+    background: '/bg_mt_coronet.webp',
     description: 'Montanha central de Sinnoh, com encontros fortes para chegar ao fim da campanha.',
   },
 
@@ -2616,7 +2616,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Skier Bianca', sprite: S.aceF, team: pk([460, 478], 68), reward: 4200 },
     ],
-    background: '/bg_snowpoint.png',
+    background: '/bg_snowpoint.webp',
     description: 'Rotas geladas para preparar o time para o fechamento da Liga.',
   },
 
@@ -2630,7 +2630,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Ace Trainer Lia', sprite: S.aceF, team: pk([407, 448, 445], 78), reward: 5200 },
     ],
-    background: '/bg_sunyshore.png',
+    background: '/bg_sunyshore.webp',
     description: 'Treino pre-Liga de Sinnoh, equilibrado para times na faixa dos 70.',
   },
 
@@ -2644,7 +2644,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Ace Trainer Mira', sprite: S.aceF, team: pk([407, 448, 445], 88), reward: 6200 },
     ],
-    background: '/bg_victory_road_sinnoh.png',
+    background: '/bg_victory_road_sinnoh.webp',
     description: 'Treino intenso para times que ja passaram da fase inicial de Sinnoh.',
   },
 
@@ -2658,7 +2658,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Veteran Alma', sprite: S.aceF, team: pk([475, 464, 467], 95), reward: 7600 },
     ],
-    background: '/bg_mt_coronet.png',
+    background: '/bg_mt_coronet.webp',
     description: 'Area dura para manter a progressao ate os niveis finais.',
   },
 
@@ -2671,7 +2671,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Veteran Buck', sprite: S.aceM, team: pk([448, 467, 485], 100), reward: 10000 },
     ],
-    background: '/bg_mt_coronet.png',
+    background: '/bg_mt_coronet.webp',
     description: 'Rota final de treino: inimigos no nivel 100 para fechar o endgame.',
   },
   ...REGIONAL_DEX_COVERAGE_ROUTES,

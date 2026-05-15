@@ -300,7 +300,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
     { id: 'guide',    name: 'Guia da Jornada', icon: `${POKEAPI_ITEM}town-map.png`,       desc: 'Proximo passo e drops',    color: 'bg-blue-50 border-blue-200 text-blue-700' },
     { id: 'pokedex',  name: 'Pokedex',       icon: '📕',                                   desc: 'Registro de especies',    color: 'bg-red-50 border-red-200 text-red-600' },
     { id: 'backpack', name: 'Mochila',        icon: '🎒',                                   desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
-    { id: 'missions', name: 'Missoes',        icon: '/assets/icons/quests.png',             desc: 'Login diario e metas',    color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
+    { id: 'missions', name: 'Missoes',        icon: '/assets/icons/quests.webp',             desc: 'Login diario e metas',    color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
     { id: 'friends',  name: 'Rede de Amigos', icon: `${POKEAPI_ITEM}vs-seeker.png`,        desc: 'Amigos, batalhas e desafios', color: 'bg-blue-50 border-blue-200 text-blue-700', badge: pendingFriendRequestsCount },
     { id: 'stats',    name: 'Estatisticas',   icon: `${POKEAPI_ITEM}data-card-01.png`,      desc: 'Dados da Jornada',        color: 'bg-cyan-50 border-cyan-200 text-cyan-700' },
     { id: 'settings', name: 'Configuracoes',  icon: `${POKEAPI_ITEM}vs-seeker.png`,         desc: 'Ajustes do sistema',      color: 'bg-indigo-50 border-indigo-200 text-indigo-600' },
@@ -708,7 +708,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
 
     const statCards = [
       { label: 'Tempo de jogo', value: formatPlayTime(playTime), sub: `Inicio: ${startedAt}`, img: `${POKEAPI_ITEM}town-map.png`, color: 'bg-slate-900 text-white border-slate-950' },
-      { label: 'Pokedex', value: fmtNumber(caughtSpecies), sub: 'especies registradas', img: assetPath('/assets/menu/pokedex.png'), color: 'bg-red-50 text-red-700 border-red-200' },
+      { label: 'Pokedex', value: fmtNumber(caughtSpecies), sub: 'especies registradas', img: assetPath('/assets/menu/pokedex.webp'), color: 'bg-red-50 text-red-700 border-red-200' },
       { label: 'Capturados', value: fmtNumber(pokemonCaptured), sub: 'capturas totais', img: `${POKEAPI_ITEM}poke-ball.png`, color: 'bg-orange-50 text-orange-700 border-orange-200' },
       { label: 'Derrotados', value: fmtNumber(stats.pokemonDefeated), sub: 'batalhas vencidas em rota', img: `${POKEAPI_ITEM}muscle-band.png`, color: 'bg-blue-50 text-blue-700 border-blue-200' },
       { label: 'Shiny capturados', value: fmtNumber(shinyCaptured), sub: 'raros no time e PC', img: `${POKEAPI_ITEM}shiny-charm.png`, color: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
@@ -765,7 +765,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
       <div className="bg-white border-2 border-slate-100 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
         <div className="flex items-start gap-3">
           <div className="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
-            <img src={`${POKEAPI_ITEM}${target.type === 'Receita' ? 'tm-case.png' : 'hard-stone.png'}`} alt="" className="w-8 h-8 object-contain" onError={e => { e.target.style.display = 'none'; }} />
+            <img src={`${POKEAPI_ITEM}${target.type === 'Receita' ? 'tm-case.webp' : 'hard-stone.webp'}`} alt="" className="w-8 h-8 object-contain" onError={e => { e.target.style.display = 'none'; }} />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[9px] font-black uppercase tracking-widest text-blue-500">{target.type}</p>
@@ -934,7 +934,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
     return (
       <div className="animate-slideUp flex flex-col gap-4">
         <div className="rounded-[2rem] p-5 shadow-xl border-b-8 border-yellow-600 bg-gradient-to-br from-yellow-400 to-orange-500 text-white relative overflow-hidden">
-          <img src={assetPath('/assets/icons/quests.png')} alt="" className="absolute -right-4 -top-5 w-28 h-28 opacity-20 rotate-12" />
+          <img src={assetPath('/assets/icons/quests.webp')} alt="" className="absolute -right-4 -top-5 w-28 h-28 opacity-20 rotate-12" />
           <p className="text-[10px] font-black uppercase tracking-[0.25em] text-yellow-100">Jornada diaria</p>
           <h3 className="text-2xl font-black uppercase italic leading-none mt-1">Streak {model.retention.login.streak} dias</h3>
           <p className="text-xs font-bold text-white/85 mt-2">Melhor sequencia: {model.retention.login.bestStreak} dias. Entre todo dia para acumular recursos e manter o ritmo de progresso.</p>
@@ -1084,7 +1084,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
       : subView === 'backpack'
         ? `${POKEAPI_ITEM}bag.png`
         : subView === 'missions'
-          ? assetPath('/assets/icons/quests.png')
+          ? assetPath('/assets/icons/quests.webp')
           : subView === 'guide'
             ? `${POKEAPI_ITEM}town-map.png`
             : `${POKEAPI_ITEM}poke-doll.png`;
