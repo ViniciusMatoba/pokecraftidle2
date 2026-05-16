@@ -26,6 +26,7 @@ const CityScreen = ({
   setIsPowerRankModalOpen,
   powerScore = 0,
   onOpenRegionBuilder,
+  onOpenUnovaChampionModal,
 }) => {
   const [activeOakModal, setActiveOakModal] = useState(false);
   const [oakTipIndex, setOakTipIndex] = useState(0);
@@ -208,6 +209,72 @@ const CityScreen = ({
       desc: 'Fale com o Prof. Rowan e escolha seu inicial de Sinnoh.',
       action: () => setCurrentView && setCurrentView('sinnoh_intro'),
       color: 'border-sky-500 bg-sky-50',
+    });
+  }
+
+  if (((gameState.worldFlags || []).includes('sinnoh_champion') || (gameState.worldFlags || []).includes('region_champion_sinnoh')) && !(gameState.worldFlags || []).includes('unova_started')) {
+    cityBuildings.push({
+      id: 'unova_start',
+      name: 'Iniciar Unova',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/liberty-pass.png',
+      desc: 'Fale com a Prof. Juniper e explore a região de Unova.',
+      action: () => setCurrentView && setCurrentView('unova_intro'),
+      color: 'border-indigo-500 bg-indigo-50',
+    });
+  }
+
+  if (((gameState.worldFlags || []).includes('unova_champion') || (gameState.worldFlags || []).includes('region_champion_unova')) && !(gameState.worldFlags || []).includes('kalos_started')) {
+    cityBuildings.push({
+      id: 'kalos_start',
+      name: 'Conhecer Nova Região',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/prof-letter.png',
+      desc: 'O Prof. Sycamore te convida para descobrir Kalos e a Mega Evolução!',
+      action: () => onOpenUnovaChampionModal ? onOpenUnovaChampionModal() : setCurrentView && setCurrentView('kalos_intro'),
+      color: 'border-pink-500 bg-pink-50',
+    });
+  }
+
+  if (((gameState.worldFlags || []).includes('kalos_champion') || (gameState.worldFlags || []).includes('region_champion_kalos')) && !(gameState.worldFlags || []).includes('alola_started')) {
+    cityBuildings.push({
+      id: 'alola_start',
+      name: 'Iniciar Alola',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/strange-amulet.png',
+      desc: 'O Prof. Kukui te convida para o Desafio da Ilha em Alola.',
+      action: () => setCurrentView && setCurrentView('alola_intro'),
+      color: 'border-cyan-500 bg-cyan-50',
+    });
+  }
+
+  if (((gameState.worldFlags || []).includes('alola_champion') || (gameState.worldFlags || []).includes('region_champion_alola')) && !(gameState.worldFlags || []).includes('galar_started')) {
+    cityBuildings.push({
+      id: 'galar_start',
+      name: 'Iniciar Galar',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/wishing-star.png',
+      desc: 'A Prof. Magnolia te convida para o Desafio das Ginásios em Galar.',
+      action: () => setCurrentView && setCurrentView('galar_intro'),
+      color: 'border-violet-500 bg-violet-50',
+    });
+  }
+
+  if (((gameState.worldFlags || []).includes('galar_champion') || (gameState.worldFlags || []).includes('region_champion_galar')) && !(gameState.worldFlags || []).includes('hisui_started')) {
+    cityBuildings.push({
+      id: 'hisui_start',
+      name: 'Iniciar Hisui',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/azure-flute.png',
+      desc: 'Um chamado misterioso te leva para o passado na região de Hisui.',
+      action: () => setCurrentView && setCurrentView('hisui_intro'),
+      color: 'border-stone-500 bg-stone-50',
+    });
+  }
+
+  if (((gameState.worldFlags || []).includes('hisui_champion') || (gameState.worldFlags || []).includes('region_champion_hisui')) && !(gameState.worldFlags || []).includes('paldea_started')) {
+    cityBuildings.push({
+      id: 'paldea_start',
+      name: 'Iniciar Paldea',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tera-orb.png',
+      desc: 'A Caça ao Tesouro começou! Explore o mundo aberto de Paldea.',
+      action: () => setCurrentView && setCurrentView('paldea_intro'),
+      color: 'border-lime-500 bg-lime-50',
     });
   }
 

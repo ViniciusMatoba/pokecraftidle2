@@ -457,12 +457,97 @@ const processExpeditionPokemon = (pokemon, xpGained) => {
   return { pokemon: p, initialLevel, finalLevel: p.level || 1,
     levelsGained: (p.level || 1) - initialLevel, xpGained, moveEvents };
 };
+const TYPE_HEX = {
+  Normal:'#9ea3b0', Fire:'#f97316', Water:'#3b82f6', Electric:'#eab308',
+  Grass:'#22c55e', Poison:'#a855f7', Bug:'#84cc16', Flying:'#38bdf8',
+  Rock:'#d97706', Ground:'#ca8a04', Fighting:'#dc2626', Psychic:'#ec4899',
+  Dark:'#334155', Steel:'#64748b', Ghost:'#4f46e5', Dragon:'#6366f1',
+  Fairy:'#f472b6', Ice:'#22d3ee',
+};
+const STAT_LABELS = { hp:'HP', attack:'ATK', defense:'DEF', spAtk:'SpA', spDef:'SpD', speed:'VEL' };
+
+const StarterPreviewModal = ({ pokemon, accentColor, onConfirm, onCancel }) => {
+  if (!pokemon) return null;
+  const types = pokemon.types || [pokemon.type];
+  const primaryColor = TYPE_HEX[types[0]] || accentColor;
+  const stats = [
+    { key:'hp',      val: pokemon.hp      || 45 },
+    { key:'attack',  val: pokemon.attack   || 45 },
+    { key:'defense', val: pokemon.defense  || 45 },
+    { key:'spAtk',   val: pokemon.spAtk    || 45 },
+    { key:'spDef',   val: pokemon.spDef    || 45 },
+    { key:'speed',   val: pokemon.speed    || 45 },
+  ];
+  const initMoves = (pokemon.learnset || []).slice(0, 4).map(l => MOVES[l.move]).filter(Boolean);
+  return (
+    <div onClick={onCancel} style={{ position:'absolute', inset:0, zIndex:9999, background:'rgba(0,0,0,0.78)', display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background:'#fff', borderRadius:28, overflow:'hidden', width:'100%', maxWidth:380, boxShadow:'0 32px 64px rgba(0,0,0,0.5)', borderBottom:`8px solid ${primaryColor}` }}>
+        {/* Header */}
+        <div style={{ background:`linear-gradient(160deg, ${primaryColor}30, ${primaryColor}12)`, padding:'20px 20px 4px', textAlign:'center' }}>
+          <img
+            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`}
+            onError={e => { e.currentTarget.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`; }}
+            style={{ width:120, height:120, objectFit:'contain', filter:`drop-shadow(0 4px 12px ${primaryColor}55)` }} alt={pokemon.name} />
+          <h3 style={{ fontSize:22, fontWeight:900, textTransform:'uppercase', color:'#1e293b', margin:'8px 0 6px', letterSpacing:'-0.02em' }}>{pokemon.name}</h3>
+          <div style={{ display:'flex', gap:6, justifyContent:'center', paddingBottom:16 }}>
+            {types.map(t => (
+              <span key={t} style={{ background: TYPE_HEX[t]||'#9ea3b0', color:'#fff', fontSize:10, fontWeight:900, padding:'3px 12px', borderRadius:99, textTransform:'uppercase', letterSpacing:'0.08em' }}>{t}</span>
+            ))}
+          </div>
+        </div>
+        {/* Stats */}
+        <div style={{ padding:'12px 20px 8px' }}>
+          <p style={{ fontSize:9, fontWeight:900, textTransform:'uppercase', letterSpacing:'0.2em', color:'#94a3b8', marginBottom:8 }}>Stats Base</p>
+          {stats.map(({ key, val }) => (
+            <div key={key} style={{ display:'flex', alignItems:'center', gap:8, marginBottom:5 }}>
+              <span style={{ fontSize:9, fontWeight:900, textTransform:'uppercase', color:'#94a3b8', width:28 }}>{STAT_LABELS[key]}</span>
+              <span style={{ fontSize:11, fontWeight:900, color:'#1e293b', width:26, textAlign:'right' }}>{val}</span>
+              <div style={{ flex:1, height:6, background:'#e2e8f0', borderRadius:3, overflow:'hidden' }}>
+                <div style={{ width:`${Math.min(100,(val/180)*100)}%`, height:'100%', background:primaryColor, borderRadius:3 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Moves */}
+        {initMoves.length > 0 && (
+          <div style={{ padding:'4px 20px 12px' }}>
+            <p style={{ fontSize:9, fontWeight:900, textTransform:'uppercase', letterSpacing:'0.2em', color:'#94a3b8', marginBottom:8 }}>Golpes Iniciais</p>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
+              {initMoves.map(m => (
+                <div key={m.id} style={{ background:`${TYPE_HEX[m.type]||'#94a3b8'}18`, borderRadius:12, padding:'6px 10px', border:`1px solid ${TYPE_HEX[m.type]||'#94a3b8'}35` }}>
+                  <span style={{ fontSize:8, fontWeight:900, textTransform:'uppercase', color: TYPE_HEX[m.type]||'#94a3b8', display:'block', marginBottom:1 }}>{m.type} · {m.category}</span>
+                  <span style={{ fontSize:11, fontWeight:900, color:'#1e293b' }}>{m.name}</span>
+                  {m.power ? <span style={{ fontSize:9, color:'#94a3b8', marginLeft:4 }}>· {m.power} POD</span> : <span style={{ fontSize:9, color:'#94a3b8', marginLeft:4 }}>· Status</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* Buttons */}
+        <div style={{ padding:'4px 20px 20px', display:'grid', gap:10 }}>
+          <button onClick={onConfirm} style={{ background:primaryColor, color:'#fff', border:'none', borderRadius:16, padding:'16px 20px', fontWeight:900, fontSize:12, textTransform:'uppercase', letterSpacing:'0.1em', cursor:'pointer', boxShadow:`0 4px 16px ${primaryColor}55` }}>
+            Escolher {pokemon.name}!
+          </button>
+          <button onClick={onCancel} style={{ background:'#f1f5f9', color:'#64748b', border:'none', borderRadius:16, padding:'14px 20px', fontWeight:900, fontSize:12, textTransform:'uppercase', letterSpacing:'0.08em', cursor:'pointer' }}>
+            Escolher outro
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const RegionIntroScreen = ({
   professorSprite, professorName, regionName, accentColor, bgColor,
   starters, onSelectStarter, onBack, ruleText, inviteText
-}) => (
-  <div className={`h-full flex flex-col items-center animate-fadeIn relative overflow-hidden ${bgColor}`}>
-    <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-slate-950/80" />
+}) => {
+  const [preview, setPreview] = React.useState(null);
+  return (
+  <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden"
+    style={{ backgroundImage: "url('/bg_lab_1776866008842.webp')", backgroundSize: 'cover', backgroundPosition: 'center top' }}>
+    <div className="absolute inset-0" style={{
+      background: `linear-gradient(to bottom, ${accentColor}bb 0%, ${accentColor}66 35%, rgba(2,6,23,0.80) 70%, rgba(2,6,23,0.97) 100%)`
+    }} />
     <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
       <img src={professorSprite}
         onError={e => {
@@ -503,11 +588,10 @@ const RegionIntroScreen = ({
         </div>
         <div className="grid grid-cols-3 gap-3 mb-4">
           {starters.map(s => (
-            <button key={s.id} onClick={() => onSelectStarter(s.id)}
-              className="bg-slate-50 border-2 border-slate-100 rounded-2xl p-3 flex flex-col items-center gap-2 active:scale-95 transition-all hover:border-opacity-100"
-              style={{ '--tw-border-opacity': 0 }}
+            <button key={s.id} onClick={() => setPreview(s)}
+              className="bg-slate-50 border-2 border-slate-100 rounded-2xl p-3 flex flex-col items-center gap-2 active:scale-95 transition-all"
               onMouseEnter={e => e.currentTarget.style.borderColor = accentColor}
-              onMouseLeave={e => e.currentTarget.style.borderColor = ''}>
+              onMouseLeave={e => e.currentTarget.style.borderColor = '#f1f5f9'}>
               <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${s.id}.png`}
                 className="w-16 h-16 object-contain" alt={s.name} />
               <span className="text-[10px] font-black uppercase text-slate-800">{s.name}</span>
@@ -521,8 +605,17 @@ const RegionIntroScreen = ({
         </button>
       </div>
     </div>
+    {preview && (
+      <StarterPreviewModal
+        pokemon={preview}
+        accentColor={accentColor}
+        onConfirm={() => { onSelectStarter(preview.id); setPreview(null); }}
+        onCancel={() => setPreview(null)}
+      />
+    )}
   </div>
-);
+  );
+};
 
 const handleSelectTitleInApp = (newTitleId, setGameState) => {
   console.log('-> handleSelectTitle disparado:', newTitleId);
@@ -770,6 +863,7 @@ export default function App() {
   const [showHouse, setShowHouse] = useState(false);
   const [showOakHouseModal, setShowOakHouseModal] = useState(false);
   const [showOakStaminaModal, setShowOakStaminaModal] = useState(false);
+  const [starterPreview, setStarterPreview] = useState(null); // { pokemon, accentColor, onConfirm }
   const [showKantoChampionModal,  setShowKantoChampionModal]  = useState(false);
   const [showSinnohIntroModal,    setShowSinnohIntroModal]    = useState(false); // Hoenn → Sinnoh (já existe)
   const [showJohtoChampionModal,  setShowJohtoChampionModal]  = useState(false); // Johto → Hoenn
@@ -1467,7 +1561,8 @@ export default function App() {
 
         // Se tem status de campeão mas NÃO tem a última insígnia, é um fantasma!
         if (hasChamp && !hasLastBadge && !hasNextRegion) {
-          auditedFlags = auditedFlags.filter(f => f !== reg.champ && f !== reg.flag);
+          // Remove champion flags AND _modal_shown so the invite modal can re-trigger after re-winning
+          auditedFlags = auditedFlags.filter(f => f !== reg.champ && f !== reg.flag && f !== `${reg.id}_champion_modal_shown`);
           auditChanged = true;
           console.log(`[Audit] Ghost Champion detectado em ${reg.id}. Status removido.`);
         }
@@ -2282,6 +2377,7 @@ export default function App() {
         trainerReward: Math.floor(150 * teamData.rewardMult),
         isVillainAmbush: true,
         villainColor: teamData.color,
+        background: teamData.backgroundPath ? fixPath(teamData.backgroundPath) : null,
         instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9)
       });
       addLog(`⚠️ EMBOSCADA! ${teamData.name} ${reason}`, 'enemy');
@@ -6839,12 +6935,12 @@ export default function App() {
         );
       }
       case 'johto_intro': {
-        const elmSprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorelm.png';
+        const elmSprite = 'https://play.pokemonshowdown.com/sprites/trainers/elm.png';
         const johtoStarters = [152, 155, 158].map(id => POKEDEX[id]).filter(Boolean);
         return (
-          <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden bg-emerald-950">
-            <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('${fixPath('/battle_bg_grass_1776863779024.webp')}')` }} />
-            <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/40 via-emerald-900/30 to-slate-950/80" />
+          <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden"
+            style={{ backgroundImage: "url('/bg_lab_1776866008842.webp')", backgroundSize: 'cover', backgroundPosition: 'center top' }}>
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #059669bb 0%, #05966666 35%, rgba(2,6,23,0.80) 70%, rgba(2,6,23,0.97) 100%)' }} />
 
             <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
               <img src={elmSprite} onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="h-64 object-contain drop-shadow-2xl animate-float" alt="Prof. Vidoeiro" />
@@ -6878,7 +6974,7 @@ export default function App() {
                   {johtoStarters.map(starter => (
                     <button
                       key={starter.id}
-                      onClick={() => handleStartJohto(starter.id)}
+                      onClick={() => setStarterPreview({ pokemon: starter, accentColor: '#059669', onConfirm: () => { handleStartJohto(starter.id); setStarterPreview(null); } })}
                       className="bg-slate-50 border-2 border-slate-100 rounded-2xl p-3 flex flex-col items-center gap-2 hover:border-emerald-400 hover:bg-emerald-50 active:scale-95 transition-all"
                     >
                       <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${starter.id}.png`} className="w-16 h-16 object-contain" alt={starter.name} />
@@ -6900,12 +6996,12 @@ export default function App() {
         );
       }
       case 'hoenn_intro': {
-        const birchSprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorbirch.png';
+        const birchSprite = 'https://play.pokemonshowdown.com/sprites/trainers/birch.png';
         const hoennStarters = [252, 255, 258].map(id => POKEDEX[id]).filter(Boolean);
         return (
-          <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden bg-orange-950">
-            <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('${fixPath('/bg_route119.webp')}')` }} />
-            <div className="absolute inset-0 bg-gradient-to-b from-orange-950/35 via-emerald-900/20 to-slate-950/80" />
+          <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden"
+            style={{ backgroundImage: "url('/bg_lab_1776866008842.webp')", backgroundSize: 'cover', backgroundPosition: 'center top' }}>
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #ea580cbb 0%, #ea580c66 35%, rgba(2,6,23,0.80) 70%, rgba(2,6,23,0.97) 100%)' }} />
 
             <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
               <img src={birchSprite} onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="h-64 object-contain drop-shadow-2xl animate-float" alt="Prof. Bétula" />
@@ -6939,7 +7035,7 @@ export default function App() {
                   {hoennStarters.map(starter => (
                     <button
                       key={starter.id}
-                      onClick={() => handleStartHoenn(starter.id)}
+                      onClick={() => setStarterPreview({ pokemon: starter, accentColor: '#ea580c', onConfirm: () => { handleStartHoenn(starter.id); setStarterPreview(null); } })}
                       className="bg-slate-50 border-2 border-slate-100 rounded-2xl p-3 flex flex-col items-center gap-2 hover:border-orange-400 hover:bg-orange-50 active:scale-95 transition-all"
                     >
                       <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${starter.id}.png`} className="w-16 h-16 object-contain" alt={starter.name} />
@@ -6961,7 +7057,7 @@ export default function App() {
         );
       }
       case 'sinnoh_intro': {
-        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorrowan.png';
+        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/rowan.png';
         const starters = [387, 390, 393].map(id => POKEDEX[id]).filter(Boolean);
         return <RegionIntroScreen
           professorSprite={sprite} professorName="Prof. Sorbus"
@@ -6973,7 +7069,7 @@ export default function App() {
         />;
       }
       case 'unova_intro': {
-        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorjuniper.png';
+        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/juniper.png';
         const starters = [495, 498, 501].map(id => POKEDEX[id]).filter(Boolean);
         return <RegionIntroScreen
           professorSprite={sprite} professorName="Prof. Juniper"
@@ -6985,7 +7081,7 @@ export default function App() {
         />;
       }
       case 'kalos_intro': {
-        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorsycamore.png';
+        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/sycamore.png';
         const starters = [650, 653, 656].map(id => POKEDEX[id]).filter(Boolean);
         return <RegionIntroScreen
           professorSprite={sprite} professorName="Prof. Plátano"
@@ -6997,7 +7093,7 @@ export default function App() {
         />;
       }
       case 'alola_intro': {
-        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/professorkukui.png';
+        const sprite = 'https://play.pokemonshowdown.com/sprites/trainers/kukui.png';
         const starters = [722, 725, 728].map(id => POKEDEX[id]).filter(Boolean);
         return <RegionIntroScreen
           professorSprite={sprite} professorName="Prof. Kukui"
@@ -7126,6 +7222,7 @@ export default function App() {
             isPowerRankModalOpen={isPowerRankModalOpen}
             setIsPowerRankModalOpen={setIsPowerRankModalOpen}
             onOpenRegionBuilder={() => setShowRegionBuilder(true)}
+            onOpenUnovaChampionModal={() => setShowUnovaChampionModal(true)}
           />
 
           {/* Modal do Prof. Carvalho sobre a Casa */}
@@ -7460,7 +7557,7 @@ export default function App() {
           <div className="bg-green-700 px-6 py-5 flex items-center justify-between shadow-xl shrink-0 z-20 border-b border-white/10">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner">
-                <img src="https://play.pokemonshowdown.com/sprites/trainers/professorjuniper.png" className="w-10 h-10 object-contain drop-shadow-md" alt="Juniper" onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} />
+                <img src="https://play.pokemonshowdown.com/sprites/trainers/juniper.png" className="w-10 h-10 object-contain drop-shadow-md" alt="Juniper" onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} />
               </div>
               <div className="text-left">
                 <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">Mensagem da Professora</p>
@@ -7475,7 +7572,7 @@ export default function App() {
             <div className="relative z-10 max-w-sm">
               <div className="mb-8 transform hover:scale-105 transition-transform duration-500">
                 <div className="w-32 h-32 mx-auto rounded-full bg-white/5 border-2 border-green-500/40 flex items-center justify-center p-4 shadow-[0_0_50px_rgba(34,197,94,0.15)]">
-                  <img src="https://play.pokemonshowdown.com/sprites/trainers/professorjuniper.png" className="w-24 h-24 object-contain drop-shadow-2xl" alt="Juniper" onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} />
+                  <img src="https://play.pokemonshowdown.com/sprites/trainers/juniper.png" className="w-24 h-24 object-contain drop-shadow-2xl" alt="Juniper" onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} />
                 </div>
               </div>
 
@@ -8172,10 +8269,20 @@ export default function App() {
         renderView()
       )}
 
+      {/* Preview de inicial para Johto/Hoenn (intros hardcoded sem estado próprio) */}
+      {starterPreview && (
+        <StarterPreviewModal
+          pokemon={starterPreview.pokemon}
+          accentColor={starterPreview.accentColor}
+          onConfirm={starterPreview.onConfirm}
+          onCancel={() => setStarterPreview(null)}
+        />
+      )}
+
       {showKantoChampionModal && (
         <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
           <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-amber-500 animate-bounceIn">
-            <div className="bg-amber-500 px-6 py-5 flex items-center gap-4">
+            <div className="px-6 py-5 flex items-center gap-4" style={{ background: "linear-gradient(135deg, #f59e0bf2, #d97706dd), url('/bg_lab_1776866008842.webp') center/cover" }}>
               <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
                 <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-12 h-12 object-contain" alt="Prof. Carvalho" />
               </div>
@@ -8229,9 +8336,9 @@ export default function App() {
       {showSinnohIntroModal && (
         <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
           <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-sky-500 animate-bounceIn">
-            <div className="bg-sky-600 px-6 py-5 flex items-center gap-4">
+            <div className="px-6 py-5 flex items-center gap-4" style={{ background: "linear-gradient(135deg, #0284c7f2, #0369a1dd), url('/bg_lab_1776866008842.webp') center/cover" }}>
               <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
-                <img src="https://play.pokemonshowdown.com/sprites/trainers/professorrowan.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-12 h-12 object-contain" alt="Prof. Rowan" />
+                <img src="https://play.pokemonshowdown.com/sprites/trainers/rowan.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-12 h-12 object-contain" alt="Prof. Rowan" />
               </div>
               <div>
                 <p className="text-sky-100 text-[10px] font-black uppercase tracking-[0.25em]">Prof. Rowan</p>
@@ -8285,7 +8392,7 @@ export default function App() {
         {
           show: showJohtoChampionModal, setShow: setShowJohtoChampionModal,
           pendingFlag: 'johto_champion_modal_pending', shownFlag: 'johto_champion_modal_shown',
-          nextView: 'hoenn_intro', professorSprite: 'professorbirch',
+          nextView: 'hoenn_intro', professorSprite: 'birch',
           professorName: 'Prof. Birch', regionWon: 'Johto', nextRegion: 'Hoenn',
           accentColor: '#f97316', buttonColor: 'bg-orange-500 hover:bg-orange-600',
           message: '"Você derrotou Lance e se tornou Campeão de Johto! Hoenn está esperando por você."',
@@ -8296,7 +8403,7 @@ export default function App() {
         {
           show: showSinnohChampionModal, setShow: setShowSinnohChampionModal,
           pendingFlag: 'sinnoh_champion_modal_pending', shownFlag: 'sinnoh_champion_modal_shown',
-          nextView: 'unova_intro', professorSprite: 'professorjuniper',
+          nextView: 'unova_intro', professorSprite: 'juniper',
           professorName: 'Prof. Juniper', regionWon: 'Sinnoh', nextRegion: 'Unova',
           accentColor: '#22c55e', buttonColor: 'bg-green-600 hover:bg-green-700',
           message: '"Cynthia foi derrotada! Você conquistou Sinnoh. A Prof. Juniper de Unova quer te conhecer."',
@@ -8307,7 +8414,7 @@ export default function App() {
         {
           show: showUnovaChampionModal, setShow: setShowUnovaChampionModal,
           pendingFlag: 'unova_champion_modal_pending', shownFlag: 'unova_champion_modal_shown',
-          nextView: 'kalos_intro', professorSprite: 'professorsycamore',
+          nextView: 'kalos_intro', professorSprite: 'sycamore',
           professorName: 'Prof. Sycamore', regionWon: 'Unova', nextRegion: 'Kalos',
           accentColor: '#3b82f6', buttonColor: 'bg-blue-600 hover:bg-blue-700',
           message: '"Incrível! Você venceu a Liga de Unova. O Prof. Sycamore de Kalos ouviu sobre você."',
@@ -8318,7 +8425,7 @@ export default function App() {
         {
           show: showKalosChampionModal, setShow: setShowKalosChampionModal,
           pendingFlag: 'kalos_champion_modal_pending', shownFlag: 'kalos_champion_modal_shown',
-          nextView: 'alola_intro', professorSprite: 'professorkukui',
+          nextView: 'alola_intro', professorSprite: 'kukui',
           professorName: 'Prof. Kukui', regionWon: 'Kalos', nextRegion: 'Alola',
           accentColor: '#f97316', buttonColor: 'bg-orange-500 hover:bg-orange-600',
           message: '"Yeah! Você derrotou Diantha e conquistou Kalos! O Prof. Kukui de Alola te convida."',
@@ -8329,7 +8436,7 @@ export default function App() {
         {
           show: showAlolaChampionModal, setShow: setShowAlolaChampionModal,
           pendingFlag: 'alola_champion_modal_pending', shownFlag: 'alola_champion_modal_shown',
-          nextView: 'galar_intro', professorSprite: 'professormagnolia',
+          nextView: 'galar_intro', professorSprite: 'magnolia',
           professorName: 'Prof. Magnolia', regionWon: 'Alola', nextRegion: 'Galar',
           accentColor: '#a855f7', buttonColor: 'bg-purple-600 hover:bg-purple-700',
           message: '"Você venceu os Trials de Alola! A Prof. Magnolia de Galar quer te desafiar."',
@@ -8351,7 +8458,7 @@ export default function App() {
         {
           show: showHisuiChampionModal, setShow: setShowHisuiChampionModal,
           pendingFlag: 'hisui_champion_modal_pending', shownFlag: 'hisui_champion_modal_shown',
-          nextView: 'paldea_intro', professorSprite: 'professorsada',
+          nextView: 'paldea_intro', professorSprite: 'sada',
           professorName: 'Profa. Sada', regionWon: 'Hisui', nextRegion: 'Paldea',
           accentColor: '#ef4444', buttonColor: 'bg-red-600 hover:bg-red-700',
           message: '"Você derrotou Kamado e trouxe paz a Hisui! A Profa. Sada de Paldea ouviu sobre suas façanhas."',
@@ -8363,7 +8470,7 @@ export default function App() {
         show ? (
           <div key={pendingFlag} className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
             <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-bounceIn" style={{ borderBottom: `10px solid ${accentColor}` }}>
-              <div className="px-6 py-5 flex items-center gap-4" style={{ backgroundColor: accentColor }}>
+              <div className="px-6 py-5 flex items-center gap-4" style={{ background: `linear-gradient(135deg, ${accentColor}f2, ${accentColor}cc), url('/bg_lab_1776866008842.webp') center/cover` }}>
                 <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
                   <img
                     src={`https://play.pokemonshowdown.com/sprites/trainers/${professorSprite}.png`}
@@ -8422,10 +8529,10 @@ export default function App() {
       {showMegaIntroModal && (
         <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
           <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-bounceIn" style={{ borderBottom: '10px solid #3b82f6' }}>
-            <div className="px-6 py-5 flex items-center gap-4" style={{ backgroundColor: '#3b82f6' }}>
+            <div className="px-6 py-5 flex items-center gap-4" style={{ background: "linear-gradient(135deg, #3b82f6f2, #2563ebcc), url('/bg_lab_1776866008842.webp') center/cover" }}>
               <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
                 <img
-                  src="https://play.pokemonshowdown.com/sprites/trainers/professorsycamore.png"
+                  src="https://play.pokemonshowdown.com/sprites/trainers/sycamore.png"
                   onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }}
                   className="w-12 h-12 object-contain" alt="Prof. Sycamore"
                 />
@@ -8540,7 +8647,7 @@ export default function App() {
       {showPaldeaChampionModal && (
         <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
           <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-violet-600 animate-bounceIn">
-            <div className="bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 px-6 py-5 flex items-center gap-4">
+            <div className="px-6 py-5 flex items-center gap-4" style={{ background: "linear-gradient(135deg, #7c3aedee, #4f46e5dd), url('/bg_lab_1776866008842.webp') center/cover" }}>
               <div className="text-4xl">🏆</div>
               <div>
                 <p className="text-violet-100 text-[10px] font-black uppercase tracking-[0.25em]">Conquista Suprema</p>
@@ -8581,7 +8688,7 @@ export default function App() {
       {showHisuiInviteModal && (
         <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
           <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-amber-600 animate-bounceIn">
-            <div className="px-6 py-5 flex items-center gap-4 bg-amber-600">
+            <div className="px-6 py-5 flex items-center gap-4" style={{ background: "linear-gradient(135deg, #d97706f2, #b45309dd), url('/bg_lab_1776866008842.webp') center/cover" }}>
               <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
                 <img
                   src="https://play.pokemonshowdown.com/sprites/trainers/laventon.png"

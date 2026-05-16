@@ -1,7 +1,30 @@
-export const APP_VERSION = '1.98.3';
-export const VERSION = '1.98.3';
-export const APP_VERSION_DATE = '15/05/2026 22:15';
+export const APP_VERSION = '1.98.8';
+export const VERSION = '1.98.8';
+export const APP_VERSION_DATE = '16/05/2026 09:25';
 export const CHANGELOG = [
+  '## [V1.98.8] - 16/05/2026 09:25',
+  '### Feature — Preview de Pokémon Inicial antes da Escolha',
+  '- **Todas as 9 regiões**: Clicar em um inicial abre um modal de detalhes com artwork oficial, tipos, stats base e golpes iniciais.',
+  '- **Confirmação segura**: O modal tem botão "Escolher [nome]!" e "Escolher outro", evitando seleções acidentais.',
+  '',
+  '## [V1.98.7] - 16/05/2026 10:30',
+  '### Visual — Lab Background em Todas as Telas de Introdução Regional',
+  '- **Todas as 9 regiões** (Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, Galar, Hisui, Paldea) agora exibem o background de laboratório na tela de boas-vindas/escolha de inicial, com gradiente da cor regional sobreposto.',
+  '',
+  '## [V1.98.6] - 16/05/2026 10:00',
+  '### Visual — Background de Laboratório nos Modais de Professores',
+  '- **Todos os modais de professor** (Carvalho, Elm, Birch, Rowan, Juniper, Sycamore, Kukui, Magnólia, Laventon, Sada) agora exibem o background de laboratório na faixa do cabeçalho, com gradiente da cor da região sobreposto.',
+  '- **Tela de Introdução Regional** (RegionIntroScreen) também recebe o laboratório como textura sutil de fundo, atrás do sprite do professor.',
+  '',
+  '## [V1.98.5] - 16/05/2026 09:30',
+  '### Correção — Sprites dos Professores nos Modais Regionais',
+  '- **Sprites corretos**: Todos os modais de boas-vindas regionais agora exibem o sprite correto do professor (Elm, Birch, Rowan, Juniper, Sycamore, Kukui, Magnólia, Sada). Os nomes de sprite no PokémonShowdown não usam o prefixo "professor".',
+  '',
+  '## [V1.98.4] - 16/05/2026 09:00',
+  '### Correção — Modal de Convite Regional (Unova → Kalos)',
+  '- **Auditoria corrigida**: Ao remover um "Ghost Champion", a flag `_modal_shown` correspondente também é removida, permitindo que o modal reapareça quando o jogador vencer novamente.',
+  '- **Card de fallback na Cidade**: O card "Conhecer Nova Região" reabre o modal de convite do Prof. Sycamore (em vez de ir direto para a seleção de inicial), dando a experiência completa ao jogador.',
+  '',
   '## [V1.98.3] - 15/05/2026 22:15',
   '### Auditoria — Troféus de Campeão e Status Regional',
   '- **Fim dos "Ghost Champions"**: Implementado sistema de auditoria que limpa troféus de jogadores que possuíam a flag de campeão mas não tinham a última insígnia da região (resolvendo bugs de flags poluidas por encontros randômicos).',
