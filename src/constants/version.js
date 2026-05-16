@@ -1,7 +1,13 @@
-export const APP_VERSION = '1.97.4';
-export const VERSION = '1.97.4';
-export const APP_VERSION_DATE = '15/05/2026 21:15';
+export const APP_VERSION = '1.97.5';
+export const VERSION = '1.97.5';
+export const APP_VERSION_DATE = '16/05/2026 00:25';
 export const CHANGELOG = [
+  '## [V1.97.5] - 16/05/2026 00:25',
+  '### Corrigido — Cobertura Total de Sprites Mega Evolução',
+  '- **Omnipresença do Fallback**: Estendido o sistema de recuperação de imagem para TODAS as telas do jogo: Pokédex (Lista e Modal), Mochila (Seletor de EXP Candy), Guia de Evolução e Reordenamento de Time.',
+  '- **Mega Emboar & Custom IDs**: Corrigida especificamente a falha visual do Mega Emboar (#20500) e outros IDs >= 20000 que não existem na PokeAPI.',
+  '- **Sincronização de Shiny**: O sistema de fallback agora preserva o estado Shiny ao tentar carregar a forma base do Pokémon.',
+  '',
   '## [V1.97.4] - 15/05/2026 21:15',
   '### Corrigido — Engine de Renderização de Sprites Mega',
   '- **Fallback Multi-nível**: Implementado sistema de recuperação de imagem em 3 estágios (GIF Animado → PNG Estático → Sprite Base). Isso resolve o problema de imagens quebradas para Mega Evoluções customizadas (ex: Mega Emboar #20500) e oficiais com falha na PokeAPI.',

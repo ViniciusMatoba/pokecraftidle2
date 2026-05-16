@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { TYPE_COLOR_HEX } from '../data/gyms';
 import { isRouteUnlocked } from '../data/routes';
+import { getMegaSprite } from '../data/megaEvolutions';
 
 const REGION_LABEL = {
   kanto: 'Kanto', johto: 'Johto', hoenn: 'Hoenn', sinnoh: 'Sinnoh',
@@ -92,12 +93,20 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 15
                   className={`relative aspect-square rounded-3xl border-2 transition-all flex flex-col items-center justify-center p-2 group ${isCaught ? 'bg-white border-slate-200 hover:border-pokeBlue' : 'bg-slate-200 border-transparent opacity-40 grayscale'}`}
                 >
                    <span className="absolute top-2 left-3 text-[8px] font-black text-slate-300">#{p.id}</span>
-                   <img 
-                     src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} 
-                     className="w-12 h-12 object-contain group-hover:scale-110 transition-transform" 
-                     alt={p.name} 
-                     loading="lazy"
-                   />
+                    <img 
+                      src={p.id >= 10000 ? getMegaSprite(p.id) : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} 
+                      onError={e => {
+                        if (!e.target.dataset.triedBase && p.id >= 10000) {
+                          e.target.dataset.triedBase = '1';
+                          // Fallback para o ID base se for um ID Mega/Alternativo
+                          const baseId = p.id % 10000;
+                          e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${baseId}.png`;
+                        }
+                      }}
+                      className="w-12 h-12 object-contain group-hover:scale-110 transition-transform" 
+                      alt={p.name} 
+                      loading="lazy"
+                    />
                    <span className="text-[9px] font-black uppercase text-slate-600 truncate w-full text-center">{isCaught ? p.name : '???'}</span>
                    {isCaught && <div className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full"></div>}
                 </button>
@@ -151,7 +160,15 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 15
                 </div>
 
                 <img
-                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${displayPoke.isShiny ? 'shiny/' : ''}${displayPoke.id}.png`}
+                  src={displayPoke.isMega && displayPoke.megaFormId 
+                    ? getMegaSprite(displayPoke.megaFormId)
+                    : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${displayPoke.isShiny ? 'shiny/' : ''}${displayPoke.id}.png`}
+                  onError={e => {
+                    if (!e.target.dataset.triedBase) {
+                      e.target.dataset.triedBase = '1';
+                      e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${displayPoke.isShiny ? 'shiny/' : ''}${displayPoke.id}.png`;
+                    }
+                  }}
                   className={`absolute left-1/2 top-12 z-10 w-28 h-28 -translate-x-1/2 object-contain drop-shadow-2xl ${isCaught ? '' : 'brightness-0 opacity-25 grayscale blur-[1px]'}`}
                   alt={displayPoke.name}
                   loading="lazy"

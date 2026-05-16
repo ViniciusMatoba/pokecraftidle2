@@ -6,6 +6,7 @@ import { CANDY_FAMILIES, getCandyIconUrl } from '../data/candies';
 import { EXP_CANDIES } from '../data/raids';
 import { claimLoginReward, claimMissionReward, formatRewardSummary, getRetentionViewModel } from '../data/retention';
 import { getJourneyGuide } from '../data/journeyGuide';
+import { getMegaSprite } from '../data/megaEvolutions';
 
 const CURRENT_VERSION = APP_VERSION || '1.4';
 const VERSION_DATE = APP_VERSION_DATE || '2026-04-23';
@@ -79,10 +80,17 @@ const ExpCandyConfirmModal = ({ candy, pokemon, onConfirm, onBack }) => {
             {/* Pokémon */}
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <img
-                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.isShiny ? 'shiny/' : ''}${pokemon.id}.png`}
+                src={pokemon.isMega && pokemon.megaFormId ? getMegaSprite(pokemon.megaFormId) : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.isShiny ? 'shiny/' : ''}${pokemon.id}.png`}
                 alt={pokemon.name}
                 className="w-12 h-12 object-contain shrink-0"
-                onError={e => { e.target.style.display = 'none'; }}
+                onError={e => {
+                  if (!e.target.dataset.triedBase) {
+                    e.target.dataset.triedBase = '1';
+                    e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.isShiny ? 'shiny/' : ''}${pokemon.id}.png`;
+                  } else {
+                    e.target.style.display = 'none';
+                  }
+                }}
               />
               <div className="min-w-0">
                 <p className="font-black text-slate-800 uppercase text-sm leading-none truncate">
@@ -232,10 +240,17 @@ const ExpCandyModal = ({ candy, gameState, onUse, onClose }) => {
                   onClick={() => setConfirmPokemon(p)}
                   className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border-2 border-slate-100 hover:border-slate-300 active:scale-[0.98] transition-all text-left w-full">
                   <img
-                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
+                    src={p.isMega && p.megaFormId ? getMegaSprite(p.megaFormId) : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
                     alt={p.name}
                     className="w-10 h-10 object-contain"
-                    onError={e => { e.target.style.display='none'; }}
+                    onError={e => {
+                      if (!e.target.dataset.triedBase) {
+                        e.target.dataset.triedBase = '1';
+                        e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`;
+                      } else {
+                        e.target.style.display = 'none';
+                      }
+                    }}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">

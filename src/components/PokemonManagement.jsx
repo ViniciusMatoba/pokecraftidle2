@@ -1365,7 +1365,18 @@ const PokemonManagement = ({
                                 <div className="flex items-center gap-4">
                                   {/* Thumbnail */}
                                   <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm shrink-0">
-                                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evo.id}.png`} className="w-10 h-10 object-contain" alt="Evo" />
+                                    <img
+                                      src={evo.id >= 10000 ? getMegaSprite(evo.id) : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evo.id}.png`}
+                                      onError={e => {
+                                        if (!e.target.dataset.triedBase) {
+                                          e.target.dataset.triedBase = '1';
+                                          // Se falhar o Mega ou o ID for alto, tenta o sprite do Pokémon atual (base) como fallback visual
+                                          e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`;
+                                        }
+                                      }}
+                                      className="w-10 h-10 object-contain"
+                                      alt="Evo"
+                                    />
                                   </div>
 
                                   {/* Info */}
@@ -1550,7 +1561,17 @@ const PokemonManagement = ({
                                    onClick={() => { moveToTeamPosition(slotIndex); setShowTeamReorder(false); }}
                                    className={`relative h-16 rounded-2xl border-2 transition-all flex items-center justify-center ${isCurrent ? 'border-pokeBlue bg-blue-50/50 shadow-inner' : 'border-white bg-white shadow-sm hover:border-pokeBlue/30 active:scale-95'}`}
                                  >
-                                   <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${teamPoke.isShiny ? 'shiny/' : ''}${teamPoke.id}.png`} className={`w-10 h-10 object-contain ${isCurrent ? 'opacity-100' : 'opacity-40'}`} alt="" />
+                                    <img
+                                      src={teamPoke.isMega && teamPoke.megaFormId ? getMegaSprite(teamPoke.megaFormId) : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${teamPoke.isShiny ? 'shiny/' : ''}${teamPoke.id}.png`}
+                                      onError={e => {
+                                        if (!e.target.dataset.triedBase) {
+                                          e.target.dataset.triedBase = '1';
+                                          e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${teamPoke.isShiny ? 'shiny/' : ''}${teamPoke.id}.png`;
+                                        }
+                                      }}
+                                      className={`w-10 h-10 object-contain ${isCurrent ? 'opacity-100' : 'opacity-40'}`}
+                                      alt=""
+                                    />
                                    <span className={`absolute bottom-1 right-2 text-[8px] font-black uppercase ${isCurrent ? 'text-pokeBlue' : 'text-slate-300'}`}>P{slotIndex + 1}</span>
                                  </button>
                                );
