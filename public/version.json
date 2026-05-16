@@ -1,5 +1,5 @@
 {
-  "version": "1.96.0",
-  "date": "16/05/2026 03:30",
-  "notes": "Corrigido ReferenceError customLevel no RegionBuilder. Modais de Natureza/Habilidade centralizados. Iniciais de Kalos/Alola/Galar/Paldea liberados só após rival. Modal de recompensas de Raid com detalhes clicáveis. Build corrigido."
+  "version": "1.98.3",
+  "date": "15/05/2026 22:15",
+  "notes": "Auditoria de Troféus de Campeão Regional. Fim dos Ghost Champions. Hardening de Batalha (status de campeão apenas via Boss da Liga). Correção de gymDefeatCounts para desafios. Trainer Card verificado."
 }

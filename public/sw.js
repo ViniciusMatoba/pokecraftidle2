@@ -1,6 +1,6 @@
 // Service Worker — versão lida dinamicamente do version.json
 // Ao mudar a versão do app, o cache é invalidado automaticamente.
-let CACHE_NAME = 'pokecraft-cache-v1.90.4';
+let CACHE_NAME = 'pokecraft-cache-v1.98.3';
 
 // Busca versão atual para manter cache sincronizado
 async function getCacheName() {
