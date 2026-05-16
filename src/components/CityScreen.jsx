@@ -116,7 +116,7 @@ const CityScreen = ({
     {
       id: 'region_builder',
       name: 'Minha Região',
-      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/badge.png',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png',
       desc: gameState.myRegion?.published
         ? '🌐 Região publicada! Amigos podem te desafiar.'
         : (gameState.myRegion?.gymSlots || 0) > 0
@@ -227,7 +227,7 @@ const CityScreen = ({
     cityBuildings.push({
       id: 'kalos_start',
       name: 'Conhecer Nova Região',
-      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/prof-letter.png',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pal-pad.png',
       desc: 'O Prof. Sycamore te convida para descobrir Kalos e a Mega Evolução!',
       action: () => onOpenUnovaChampionModal ? onOpenUnovaChampionModal() : setCurrentView && setCurrentView('kalos_intro'),
       color: 'border-pink-500 bg-pink-50',
@@ -428,10 +428,7 @@ const CityScreen = ({
             <button 
               key={b.id}
               onClick={() => {
-                if (isAnyModalOpen) {
-                  console.error(`-> ERRO: ${b.name} clicado através do modal!`);
-                  return;
-                }
+                if (isAnyModalOpen) return;
                 b.action();
               }}
               disabled={b.disabled}

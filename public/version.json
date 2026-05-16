@@ -1,5 +1,5 @@
 {
-  "version": "1.98.8",
-  "date": "16/05/2026 09:25",
-  "notes": "Preview de Pokémon Inicial: ao clicar num starter abre modal com artwork, tipos, stats e golpes. Funciona em todas as 9 regiões."
+  "version": "1.98.13",
+  "date": "16/05/2026 12:20",
+  "notes": "Overhaul de backgrounds HD para Kalos, Sinnoh e Equipes Vilãs com fallbacks regionais."
 }

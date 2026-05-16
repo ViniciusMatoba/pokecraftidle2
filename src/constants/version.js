@@ -1,7 +1,32 @@
-export const APP_VERSION = '1.98.8';
-export const VERSION = '1.98.8';
-export const APP_VERSION_DATE = '16/05/2026 09:25';
+export const APP_VERSION = '1.98.13';
+export const VERSION = '1.98.13';
+export const APP_VERSION_DATE = '16/05/2026 12:20';
 export const CHANGELOG = [
+  '## [V1.98.13] - 16/05/2026 12:20',
+  '### Visual — Overhaul Completo de Backgrounds HD e Fallbacks Regionais',
+  '- **Backgrounds Kalos**: Implementação de assets HD para todas as rotas principais (Glittering Cave, Reflection Cave, Azure Bay, Victory Road, etc.).',
+  '- **Fallbacks Regionais**: Novo sistema inteligente que atribui backgrounds temáticos automáticos para rotas não mapeadas individualmente em todas as regiões.',
+  '- **Arenas de Equipes Vilãs**: Adicionados backgrounds exclusivos de alta fidelidade para confrontos contra Equipes Galactic, Plasma, Flare, Skull, Yell e Star.',
+  '- **Sinnoh HD**: Atualização de todos os Ginásios, Liga Pokémon e bases Galácticas com novos assets premium.',
+  '- **Fix de Emboscadas**: Corrigido erro que impedia a exibição dos backgrounds temáticos durante encontros aleatórios com vilões.',
+  '',
+  '## [V1.98.11] - 16/05/2026 10:47',
+  '### Correções e Melhorias de Qualidade',
+  '- **Sprite de Pokémon Gen 6+**: Pokémon de Gen 6+ (Froakie, Chespin, etc.) não tentam mais GIF animado Gen 5 inexistente — vão direto ao PNG correto, sem flash de imagem quebrada.',
+  '- **Iniciais em rotas**: Kalos, Alola, Galar e Paldea agora liberam iniciais apenas após derrota do rival (padrão das demais regiões).',
+  '- **Z-index nav bar**: Barra de navegação não aparece mais sobre modais.',
+  '- **Console limpo**: Removidos todos os console.log de debug em produção.',
+  '- **Paths do bg_lab**: Background de laboratório usa path relativo correto em todos os 10 locais.',
+  '',
+  '## [V1.98.10] - 16/05/2026 10:04',
+  '### Correção — Background de Laboratório em Produção',
+  '- **Todos os modais e telas de intro**: Background de lab agora usa path relativo correto para GitHub Pages (base ./). Todos os 10 usos corrigidos.',
+  '',
+  '## [V1.98.9] - 16/05/2026 10:04',
+  '### Correção Crítica — Crash ao Abrir Modal de Kalos',
+  '- **React is not defined**: Corrigido erro que causava tela azul ao clicar em "Conhecer Nova Região".',
+  '- **Ícones 404**: Corrigidos ícones quebrados nos cards de Região Customizada e Kalos (URLs inválidos substituídos).',
+  '',
   '## [V1.98.8] - 16/05/2026 09:25',
   '### Feature — Preview de Pokémon Inicial antes da Escolha',
   '- **Todas as 9 regiões**: Clicar em um inicial abre um modal de detalhes com artwork oficial, tipos, stats base e golpes iniciais.',

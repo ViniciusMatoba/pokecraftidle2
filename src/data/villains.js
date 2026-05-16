@@ -39,7 +39,8 @@ export const VILLAIN_TEAMS = {
     pokemonPool: [41, 42, 198, 215, 434, 435, 442, 109, 110, 23],
     color: "#6b7280",
     reasons: ["está pesquisando o espaço!", "quer criar um novo mundo!", "está coletando energia!"],
-    rewardMult: 1.8
+    rewardMult: 1.8,
+    backgroundPath: 'battle_bg_villain_galactic.webp'
   },
   plasma: {
     name: "Equipe Plasma",
@@ -49,7 +50,8 @@ export const VILLAIN_TEAMS = {
     pokemonPool: [509, 510, 527, 528, 559, 560, 562, 563, 551, 552, 553],
     color: "#1d4ed8",
     reasons: ["luta pela libertação dos Pokémon!", "acredita que humanos e Pokémon não devem se misturar!", "segue as ordens do Grande N!"],
-    rewardMult: 1.7
+    rewardMult: 1.7,
+    backgroundPath: 'battle_bg_villain_plasma.webp'
   },
   flare: {
     name: "Equipe Flare",
@@ -59,7 +61,8 @@ export const VILLAIN_TEAMS = {
     pokemonPool: [629, 630, 624, 625, 318, 319, 228, 229, 607, 608, 609],
     color: "#f97316",
     reasons: ["quer criar um mundo belo apenas para poucos!", "segue as ordens de Lysandre!", "vai usar a Arma Suprema!"],
-    rewardMult: 1.8
+    rewardMult: 1.8,
+    backgroundPath: 'battle_bg_villain_flare.webp'
   },
   skull: {
     name: "Equipe Skull",
@@ -69,7 +72,8 @@ export const VILLAIN_TEAMS = {
     pokemonPool: [568, 569, 49, 89, 316, 317, 109, 110, 453, 454, 23, 24],
     color: "#7c3aed",
     reasons: ["está causando problemas em Alola!", "vai te machucar, bro!", "Guzma vai te destruir!"],
-    rewardMult: 1.7
+    rewardMult: 1.7,
+    backgroundPath: 'battle_bg_villain_skull.webp'
   },
   rainbow_rocket: {
     name: "Equipe Rainbow Rocket",
@@ -79,7 +83,8 @@ export const VILLAIN_TEAMS = {
     pokemonPool: [6, 9, 3, 130, 149, 248, 376, 445, 384, 144, 145, 146],
     color: "#9333ea",
     reasons: ["vem de outra dimensão onde os vilões venceram!", "serve a Giovanni de um universo alternativo!", "carrega Pokémon dos maiores líderes do mal!"],
-    rewardMult: 2.2
+    rewardMult: 2.2,
+    backgroundPath: 'battle_bg_villain_galactic.webp' // Fallback to galactic for Rainbow
   },
   yell: {
     name: "Equipe Yell",
@@ -89,7 +94,8 @@ export const VILLAIN_TEAMS = {
     pokemonPool: [559, 560, 629, 630, 862, 453, 454, 110, 709],
     color: "#ec4899",
     reasons: ["está torcendo para Marnie!", "bloqueia o caminho para defender Marnie!", "YEEEEELL!"],
-    rewardMult: 1.5
+    rewardMult: 1.5,
+    backgroundPath: 'battle_bg_villain_yell.webp'
   },
   star: {
     name: "Equipe Star",
@@ -99,6 +105,7 @@ export const VILLAIN_TEAMS = {
     pokemonPool: [954, 955, 963, 964, 935, 936, 919, 920, 948, 949, 1007, 1008],
     color: "#0ea5e9",
     reasons: ["representa sua base da Equipe Star!", "foi recrutado por Penny!", "está treinando Pokémon da academia!"],
-    rewardMult: 1.7
-  }
+    rewardMult: 1.7,
+    backgroundPath: 'battle_bg_villain_star.webp'
+  },
 };

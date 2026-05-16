@@ -3,6 +3,9 @@ import { db, auth } from '../firebase';
 import { collection, query, orderBy, limit, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import { GYMS, ELITE_FOUR } from '../data/gyms';
 
+const _BASE = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
+const fixBgPath = (bg) => bg ? bg.replace(/url\(['"]?(\/[^'"]+)['"]?\)/g, (_, p) => `url('${_BASE}${p}')`) : bg;
+
 // Importação dinâmica para evitar circularidade se possível, ou apenas usar os dados locais
 const BOSS_TYPES = ['Gym Leader', 'Elite Four', 'Team Villain', 'Legendary'];
 const BOSS_ROTATION_MS = 24 * 60 * 60 * 1000;
@@ -178,7 +181,7 @@ const BossScreen = ({ gameState, powerScore = 0, onChallengeBoss }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"></div>
           <div 
             className="absolute inset-0 opacity-40 group-hover:scale-110 transition-transform duration-1000"
-            style={{ background: boss.background }}
+            style={{ background: fixBgPath(boss.background) }}
           ></div>
           
           <div className="absolute bottom-0 left-0 right-0 p-6 z-20 flex justify-between items-end">

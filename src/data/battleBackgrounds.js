@@ -355,6 +355,62 @@ export const BATTLE_BACKGROUNDS = {
     timeOfDay: 'day',
     elements: ['flower_lavender', 'flower_lavender', 'chateau_distant', 'cloud'],
   },
+  kalos_route_2: {
+    sky: bg('bg_kalos_forest.webp'),
+    label: 'Kalos — Floresta Santalune',
+    ground: '#4d7c0f', groundAccent: '#365314',
+    timeOfDay: 'day',
+    elements: ['tall_tree', 'mushroom_glow', 'forest_mist'],
+  },
+  kalos_route_4: {
+    sky: bg('bg_kalos_route.webp'),
+    label: 'Kalos — Rota 4',
+    ground: '#98c060', groundAccent: '#709040',
+    timeOfDay: 'day',
+    elements: ['flower_lavender', 'statue_fountain', 'cloud'],
+  },
+  kalos_glittering_cave: {
+    sky: bg('bg_kalos_cave.webp'),
+    label: 'Glittering Cave',
+    ground: '#1e293b', groundAccent: '#0f172a',
+    timeOfDay: 'dark',
+    elements: ['crystal_shard', 'cave_entrance', 'torch_glow'],
+  },
+  kalos_reflection_cave: {
+    sky: bg('expedition_kalos_reflection.webp'),
+    label: 'Reflection Cave',
+    ground: '#334155', groundAccent: '#1e293b',
+    timeOfDay: 'dramatic',
+    elements: ['mirror_wall', 'crystal_pillar', 'blue_mist'],
+  },
+  kalos_azure_bay: {
+    sky: bg('bg_kalos_water.webp'),
+    label: 'Azure Bay',
+    ground: '#0e7490', groundAccent: '#155e75',
+    timeOfDay: 'day',
+    elements: ['ocean_wave', 'rock_arch', 'sea_spray'],
+  },
+  kalos_frost_cavern: {
+    sky: bg('bg_kalos_snow.webp'),
+    label: 'Frost Cavern',
+    ground: '#f1f5f9', groundAccent: '#cbd5e1',
+    timeOfDay: 'ice',
+    elements: ['ice_stalactite', 'snow_drift', 'cold_breath'],
+  },
+  kalos_route_17: {
+    sky: bg('bg_kalos_snow.webp'),
+    label: 'Kalos — Rota 17',
+    ground: '#f1f5f9', groundAccent: '#cbd5e1',
+    timeOfDay: 'ice',
+    elements: ['mamoswine_track', 'snow_storm', 'frozen_rock'],
+  },
+  kalos_victory_road: {
+    sky: bg('bg_kalos_elite.webp'),
+    label: 'Victory Road Kalos',
+    ground: '#334155', groundAccent: '#1e293b',
+    timeOfDay: 'epic_cave',
+    elements: ['league_gate', 'ancient_pillar', 'torch_fire'],
+  },
   kalos_home_town: {
     sky: bg('bg_kalos_city.webp'),
     label: 'Cidade de Kalos',
@@ -417,6 +473,115 @@ export const BATTLE_BACKGROUNDS = {
     timeOfDay: 'day',
     elements: ['academy_tower', 'plaza_fountain', 'tiled_roof', 'flower_orange'],
   },
+
+  // --- REGIONAL GENERICS ---
+  kanto_generic: { sky: bg('battle_bg_grass_1776863779024.webp'), label: 'Kanto', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'oak_tree'] },
+  johto_generic: { sky: bg('bg_new_bark_town.webp'), label: 'Johto', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'shrine'] },
+  hoenn_generic: { sky: bg('bg_hoenn_route.webp'), label: 'Hoenn', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'tropical_leaf'] },
+  sinnoh_generic: { sky: bg('battle_bg_hisui_fieldlands.webp'), label: 'Sinnoh', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'pine_tree'] },
+  unova_generic: { sky: bg('bg_unova_route.webp'), label: 'Unova', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'city_distant'] },
+  kalos_generic: { sky: bg('bg_kalos_route.webp'), label: 'Kalos', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'flower_lavender'] },
+  alola_generic: { sky: bg('bg_alola_route.webp'), label: 'Alola', ground: '#e0d0a0', groundAccent: '#c0b080', timeOfDay: 'day', elements: ['palm_tree', 'ocean_view'] },
+  galar_generic: { sky: bg('bg_galar_route.webp'), label: 'Galar', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'overcast', elements: ['windmill', 'stone_wall'] },
+  paldea_generic: { sky: bg('bg_paldea_route.webp'), label: 'Paldea', ground: '#c0b870', groundAccent: '#908850', timeOfDay: 'day', elements: ['olive_tree', 'mountain_range'] },
+  hisui_generic: { sky: bg('battle_bg_hisui_fieldlands.webp'), label: 'Hisui', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['ancient_tree', 'tall_grass'] },
+
+  // --- VILLAIN TEAMS ---
+  villain_galactic: {
+    sky: bg('battle_bg_villain_galactic.webp'),
+    label: 'Base Galáctica',
+    ground: '#1e293b', groundAccent: '#0f172a',
+    timeOfDay: 'dark',
+    elements: ['space_portal', 'nebula_mist', 'tech_column'],
+  },
+  villain_plasma: {
+    sky: bg('battle_bg_villain_plasma.webp'),
+    label: 'Fragata Plasma',
+    ground: '#334155', groundAccent: '#1e293b',
+    timeOfDay: 'dark',
+    elements: ['plasma_engine', 'ice_shard', 'tech_beam'],
+  },
+  villain_flare: {
+    sky: bg('battle_bg_villain_flare.webp'),
+    label: 'QG Flare',
+    ground: '#450a0a', groundAccent: '#7f1d1d',
+    timeOfDay: 'sunset',
+    elements: ['fire_pillar', 'energy_core', 'red_glow'],
+  },
+  villain_skull: {
+    sky: bg('battle_bg_villain_skull.webp'),
+    label: 'Po Town',
+    ground: '#1e1b4b', groundAccent: '#312e81',
+    timeOfDay: 'night',
+    elements: ['graffiti_wall', 'skull_flag', 'street_lamp'],
+  },
+  villain_yell: {
+    sky: bg('battle_bg_villain_yell.webp'),
+    label: 'Spikemuth',
+    ground: '#500724', groundAccent: '#831843',
+    timeOfDay: 'night',
+    elements: ['neon_pink', 'punk_fence', 'concert_speaker'],
+  },
+  villain_star: {
+    sky: bg('battle_bg_villain_star.webp'),
+    label: 'Base Star',
+    ground: '#0c4a6e', groundAccent: '#075985',
+    timeOfDay: 'day',
+    elements: ['star_flag', 'tent_base', 'colored_smoke'],
+  },
+
+  // --- LEAGUES ---
+  league_sinnoh: {
+    sky: bg('battle_bg_league_sinnoh.webp'),
+    label: 'Liga Sinnoh',
+    ground: '#1e3a8a', groundAccent: '#1e40af',
+    timeOfDay: 'league',
+    elements: ['league_pillar', 'gold_star', 'championship_banner'],
+  },
+  sinnoh_gym: {
+    sky: bg('battle_bg_sinnoh_gym.webp'),
+    label: 'Ginásio de Sinnoh',
+    ground: '#334155', groundAccent: '#1e293b',
+    timeOfDay: 'day',
+    elements: ['gym_statue', 'arena_light', 'type_banner'],
+  },
+
+  // --- HISUI ---
+  hisui_fieldlands: {
+    sky: bg('battle_bg_hisui_fieldlands.webp'),
+    label: 'Hisui — Campos Obsidiana',
+    ground: '#4d7c0f', groundAccent: '#365314',
+    timeOfDay: 'day',
+    elements: ['ancient_tree', 'tall_grass', 'mt_coronet_distant'],
+  },
+  hisui_mirelands: {
+    sky: bg('battle_bg_hisui_mirelands.webp'),
+    label: 'Hisui — Pântanos Carmesim',
+    ground: '#78350f', groundAccent: '#451a03',
+    timeOfDay: 'overcast',
+    elements: ['mud_puddle', 'crimson_leaf', 'mist'],
+  },
+  hisui_coastlands: {
+    sky: bg('battle_bg_hisui_coastlands.webp'),
+    label: 'Hisui — Costa Cobalto',
+    ground: '#0e7490', groundAccent: '#155e75',
+    timeOfDay: 'day',
+    elements: ['ocean_wave', 'sand_dune', 'sea_shell'],
+  },
+  hisui_highlands: {
+    sky: bg('battle_bg_hisui_highlands.webp'),
+    label: 'Hisui — Terras Altas Coronet',
+    ground: '#334155', groundAccent: '#1e293b',
+    timeOfDay: 'dramatic',
+    elements: ['sharp_rock', 'mountain_cliff', 'cloud_storm'],
+  },
+  hisui_icelands: {
+    sky: bg('battle_bg_hisui_icelands.webp'),
+    label: 'Hisui — Gelos Alabastro',
+    ground: '#f1f5f9', groundAccent: '#cbd5e1',
+    timeOfDay: 'ice',
+    elements: ['ice_crystal', 'snow_drift', 'frozen_lake'],
+  },
 };
 
 /**
@@ -424,7 +589,20 @@ export const BATTLE_BACKGROUNDS = {
  * Fallback para route_1 (campo aberto).
  */
 export function getRouteBg(routeId) {
-  return BATTLE_BACKGROUNDS[routeId] || BATTLE_BACKGROUNDS.route_1;
+  if (BATTLE_BACKGROUNDS[routeId]) return BATTLE_BACKGROUNDS[routeId];
+  
+  // Regional fallbacks
+  if (routeId.startsWith('kalos_')) return BATTLE_BACKGROUNDS.kalos_generic;
+  if (routeId.startsWith('unova_')) return BATTLE_BACKGROUNDS.unova_generic;
+  if (routeId.startsWith('alola_')) return BATTLE_BACKGROUNDS.alola_generic;
+  if (routeId.startsWith('galar_')) return BATTLE_BACKGROUNDS.galar_generic;
+  if (routeId.startsWith('paldea_')) return BATTLE_BACKGROUNDS.paldea_generic;
+  if (routeId.startsWith('sinnoh_')) return BATTLE_BACKGROUNDS.sinnoh_generic;
+  if (routeId.startsWith('hisui_')) return BATTLE_BACKGROUNDS.hisui_generic;
+  if (routeId.startsWith('hoenn_')) return BATTLE_BACKGROUNDS.hoenn_generic;
+  if (routeId.startsWith('johto_')) return BATTLE_BACKGROUNDS.johto_generic;
+
+  return BATTLE_BACKGROUNDS.route_1;
 }
 
 /**

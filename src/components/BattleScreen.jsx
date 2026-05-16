@@ -53,6 +53,7 @@ const BattleScreen = ({
   useEffect(() => {
     const onMove = (e) => {
       const { name, type, direction, moveKey } = e.detail;
+      const moveData = moveKey ? MOVES[moveKey] : null;
       
       const triggerReaction = (target, type) => {
         const ref = target === 'player' ? playerSpriteRef : enemySpriteRef;
@@ -87,13 +88,9 @@ const BattleScreen = ({
           }, 1500);
         }
 
-        // Screen shake para golpes fortes
-        setScreenShake(true);
-        setTimeout(() => setScreenShake(false), 300);
-
         // Elite Move Vignette
         const eliteKeywords = ['pump', 'thrower', 'blast', 'earthquake', 'storm', 'hyper', 'origin', 'meteor', 'v-create'];
-        if (eliteKeywords.some(kw => moveName.toLowerCase().includes(kw))) {
+        if (eliteKeywords.some(kw => name.toLowerCase().includes(kw))) {
           setShowVignette(true);
           setTimeout(() => setShowVignette(false), 800);
         }
@@ -169,6 +166,12 @@ const BattleScreen = ({
     if (!bg) return null;
     if (bg.includes('gradient')) return bg;
     
+    // Se for uma chave de BATTLE_BACKGROUNDS (ex: villain_galactic), pega a imagem sky
+    if (BATTLE_BACKGROUNDS[bg]) {
+      const bData = BATTLE_BACKGROUNDS[bg];
+      return bData.sky ? formatBg(bData.sky) : null;
+    }
+
     // Extrai o caminho de dentro de url() se existir
     let path = bg;
     if (bg.includes('url(')) {
@@ -366,6 +369,13 @@ const BattleScreen = ({
                   : (currentEnemy.sprite || (currentEnemy.id ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${currentEnemy.isShiny ? 'shiny/' : ''}${currentEnemy.id}.png` : 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'))
               }
               alt={currentEnemy.name || "Pokémon"}
+              onError={e => {
+                const target = e.target;
+                if (!target.dataset.triedFallback && currentEnemy.id) {
+                  target.dataset.triedFallback = '1';
+                  target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${currentEnemy.id}.png`;
+                }
+              }}
               className={`w-full h-full object-contain drop-shadow-xl transition-all duration-500 ${showTrainer && currentEnemy.isTrainer ? 'scale-110' : currentEnemy.isWildBoss ? 'scale-125 animate-float' : 'animate-float'} ${currentEnemy.isShiny && !showTrainer ? 'drop-shadow-[0_0_16px_rgba(234,179,8,1)]' : ''} ${currentEnemy.hp <= 0 ? 'opacity-0 scale-0' : 'opacity-100'}`}
             />
           </div>
@@ -468,23 +478,32 @@ const BattleScreen = ({
                 src={
                   activePoke.isMega && activePoke.megaFormId
                     ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/${activePoke.megaFormId}.gif`
-                    : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.gif`
+                    : activePoke.id >= 650
+                      ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.png`
+                      : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.gif`
                 }
                 onError={e => {
                   const target = e.target;
                   const isMega = activePoke.isMega && activePoke.megaFormId;
-                  
+
                   // Se era um GIF Mega e falhou, tenta o PNG Mega (PokeAPI) - BACK
                   if (isMega && !target.dataset.triedStaticMega) {
                     target.dataset.triedStaticMega = '1';
                     target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${activePoke.megaFormId}.png`;
                     return;
                   }
-                  
+
                   // Se tudo Mega falhou (ou não é mega), tenta o sprite base estático - BACK
                   if (!target.dataset.triedBase) {
                     target.dataset.triedBase = '1';
                     target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.png`;
+                    return;
+                  }
+
+                  // Gen 6+ não tem back sprite no PokeAPI — usa sprite frontal como último recurso
+                  if (!target.dataset.triedFront) {
+                    target.dataset.triedFront = '1';
+                    target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.png`;
                   }
                 }}
                 className={`w-full h-full object-contain drop-shadow-xl ${activePoke.isShiny ? 'drop-shadow-[0_0_10px_rgba(234,179,8,0.9)]' : ''} ${activePoke.isMega ? 'drop-shadow-[0_0_14px_rgba(124,58,237,0.7)]' : ''}`}

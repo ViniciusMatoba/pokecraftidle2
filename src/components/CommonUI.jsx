@@ -417,7 +417,6 @@ export const TrainerCard = ({
             onClick={(e) => { 
               e.stopPropagation(); 
               if (canEditTitle) {
-                console.log('-> Abrindo Seletor de Títulos');
                 setShowTitlePicker(true);
               }
             }}
@@ -499,7 +498,6 @@ export const TrainerCard = ({
                       type="button"
                       key={title.id}
                       onClick={() => {
-                        console.log('-> Clique detectado no título:', title.label);
                         if (canEditTitle) setPendingTitle(title);
                       }}
                       className={`w-full p-4 rounded-3xl border-2 transition-all flex items-center gap-4 text-left ${isSelected ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'border-white/5 bg-white/5 hover:border-white/10'}`}
@@ -544,7 +542,6 @@ export const TrainerCard = ({
                     <button
                       type="button"
                       onClick={() => {
-                        console.log("Título selecionado:", pendingTitle.id);
                         onSelectTitle(pendingTitle.id);
                         setPendingTitle(null);
                         setTimeout(() => setShowTitlePicker(false), 200);

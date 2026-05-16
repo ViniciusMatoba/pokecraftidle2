@@ -823,9 +823,9 @@ const FUTURE_REGION_ROUTES = {
     biome: 'forest',
     enemies: [
       ...pk([661, 659, 664, 25], 6),
-      { id: 650, level: 6, requiresFlag: 'kalos_route_2_cleared' },
-      { id: 653, level: 6, requiresFlag: 'kalos_route_2_cleared' },
-      { id: 656, level: 6, requiresFlag: 'kalos_route_2_cleared' },
+      { id: 650, level: 6, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'kalos_rival_1_defeated' },
+      { id: 653, level: 6, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'kalos_rival_1_defeated' },
+      { id: 656, level: 6, drop: 'water_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'kalos_rival_1_defeated' },
     ],
     trainerChance: 0.05,
     trainers: [{ name: 'Youngster Joey', sprite: S.youngster, team: pk([661, 659], 8), reward: 400 }],
@@ -948,9 +948,9 @@ const FUTURE_REGION_ROUTES = {
     biome: 'grass',
     enemies: [
       ...pk([731, 734, 736, 10], 5),
-      { id: 722, level: 5, requiresFlag: 'alola_route_1_cleared' },
-      { id: 725, level: 5, requiresFlag: 'alola_route_1_cleared' },
-      { id: 728, level: 5, requiresFlag: 'alola_route_1_cleared' },
+      { id: 722, level: 5, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'alola_rival_1_defeated' },
+      { id: 725, level: 5, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'alola_rival_1_defeated' },
+      { id: 728, level: 5, drop: 'water_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'alola_rival_1_defeated' },
     ],
     trainerChance: 0.05,
     trainers: [{ name: 'Youngster Shu', sprite: S.youngster, team: pk([731, 734], 7), reward: 300 }],
@@ -1052,9 +1052,9 @@ const FUTURE_REGION_ROUTES = {
     biome: 'grass',
     enemies: [
       ...pk([819, 827, 821, 835], 5),
-      { id: 810, level: 5, requiresFlag: 'galar_route_1_cleared' },
-      { id: 813, level: 5, requiresFlag: 'galar_route_1_cleared' },
-      { id: 816, level: 5, requiresFlag: 'galar_route_1_cleared' },
+      { id: 810, level: 5, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'galar_rival_1_defeated' },
+      { id: 813, level: 5, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'galar_rival_1_defeated' },
+      { id: 816, level: 5, drop: 'water_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'galar_rival_1_defeated' },
     ],
     trainerChance: 0.05,
     trainers: [{ name: 'Hop (Rival)', sprite: S.cooltrainer, team: pk([831, 810], 8), reward: 500 }],
@@ -1163,9 +1163,9 @@ const FUTURE_REGION_ROUTES = {
     biome: 'grass',
     enemies: [
       ...pk([915, 917, 921, 928, 934], 5),
-      { id: 906, level: 5, requiresFlag: 'paldea_south_a_cleared' },
-      { id: 909, level: 5, requiresFlag: 'paldea_south_a_cleared' },
-      { id: 912, level: 5, requiresFlag: 'paldea_south_a_cleared' },
+      { id: 906, level: 5, drop: 'grass_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'paldea_rival_1_defeated' },
+      { id: 909, level: 5, drop: 'fire_essence',  spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'paldea_rival_1_defeated' },
+      { id: 912, level: 5, drop: 'water_essence', spawnWeight: 10, rarity: 'super_rare', requiresFlag: 'paldea_rival_1_defeated' },
     ],
     trainerChance: 0.05,
     trainers: [{ name: 'Nemona (Rival)', sprite: S.schoolkidf, team: pk([921, 912], 8), reward: 600 }],
@@ -1400,10 +1400,10 @@ const FUTURE_REGION_ROUTES = {
     ],
     trainerChance: 0.12,
     trainers: [
-      { name: 'Guardião Gaeric', sprite: S.aceM, team: pk([713, 220], 63), reward: 4500 },
+      { name: 'Guardião Gaeric', sprite: S.aceM, team: pk([220, 712, 713], 68), reward: 4000 },
     ],
     background: '/battle_bg_hisui_icelands.webp',
-    description: 'Campos glaciais iluminados pela aurora boreal, lar do Avalugg de Hisui.',
+    description: 'Planicies geladas e montanhas brancas, onde o Avalugg de Hisui repousa.',
   },
 
   hisui_sacred_plaza: {
@@ -3206,7 +3206,7 @@ const RAW_ROUTES = {
     trainers: [
       { name: 'Ace Trainer Breno', sprite: S.aceM, team: pk([405, 419], 44), reward: 2400 },
     ],
-    background: '/bg_sinnoh_league.webp',
+    background: '/battle_bg_league_sinnoh.webp',
     description: 'Margem do lago com combates em ritmo de pos-ginasios intermediarios.',
   },
 

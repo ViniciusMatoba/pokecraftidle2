@@ -112,6 +112,8 @@ const fixPath = (path) => {
   return `${baseUrl}${cleanPath}`;
 };
 
+const LAB_BG_URL = fixPath('/bg_lab_1776866008842.webp');
+
 const cleanBattleText = (value) => {
   if (typeof value !== 'string') return value;
   return value
@@ -541,10 +543,10 @@ const RegionIntroScreen = ({
   professorSprite, professorName, regionName, accentColor, bgColor,
   starters, onSelectStarter, onBack, ruleText, inviteText
 }) => {
-  const [preview, setPreview] = React.useState(null);
+  const [preview, setPreview] = useState(null);
   return (
   <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden"
-    style={{ backgroundImage: "url('/bg_lab_1776866008842.webp')", backgroundSize: 'cover', backgroundPosition: 'center top' }}>
+    style={{ backgroundImage: `url('${LAB_BG_URL}')`, backgroundSize: 'cover', backgroundPosition: 'center top' }}>
     <div className="absolute inset-0" style={{
       background: `linear-gradient(to bottom, ${accentColor}bb 0%, ${accentColor}66 35%, rgba(2,6,23,0.80) 70%, rgba(2,6,23,0.97) 100%)`
     }} />
@@ -618,10 +620,8 @@ const RegionIntroScreen = ({
 };
 
 const handleSelectTitleInApp = (newTitleId, setGameState) => {
-  console.log('-> handleSelectTitle disparado:', newTitleId);
   setGameState(prev => {
-    console.log('Estado anterior:', prev.selectedTitle, 'Novo estado:', newTitleId);
-    return { 
+    return {
       ...prev, 
       selectedTitle: newTitleId,
       trainer: {
@@ -708,32 +708,23 @@ export default function App() {
   };
 
   useEffect(() => {
-    console.log("🔐 [Auth] Monitoring auth state...");
     const unsubscribe = monitorAuthState(async (u) => {
       if (u) {
-        console.log(`🔐 [Auth] User logged in: ${u.email} (${u.uid})`);
         setUser(u);
-        setLoading(true); // Garante que o loading está ativo durante o fetch
-        
+        setLoading(true);
+
         try {
-          console.log("☁️ [Cloud] Fetching save data...");
           const savedData = await loadGameState(u.uid);
-          
+
           if (savedData) {
-            console.log("☁️ [Cloud] Save found. Migrating...");
             const migratedData = migrateGameState(savedData, { version: APP_VERSION });
-            if (!migratedData.migrationAudit?.ok) {
-              console.info('💾 [Migration] Audit issues:', migratedData.migrationAudit);
-            }
             setGameState(migratedData);
-            
+
             const hasRealProgress = (migratedData.worldFlags || []).length > 0 || (migratedData.badges || []).length > 0;
             if (hasRealProgress) {
-              console.log("🎮 [Flow] Progress detected. Skipping landing.");
               setCurrentView('city');
             }
           } else {
-            console.warn("⚠️ [Cloud] No save found for this account. Initializing new game.");
             // Se não encontrou save, mas o usuário acha que tinha, aqui é o perigo.
             // Vamos apenas setar o default se tivermos certeza que é novo ou se o user confirmar.
             setGameState(DEFAULT_GAME_STATE);
@@ -745,7 +736,6 @@ export default function App() {
           notify("Erro ao carregar save da nuvem. Verifique sua conexão.", "error");
         }
       } else {
-        console.log("🔐 [Auth] No user session. Loading local/default.");
         setUser(null);
         // Ao deslogar, voltamos para o save local (se existir) ou padrão
         const localSaved = localStorage.getItem('poke_idle_save');
@@ -961,22 +951,11 @@ export default function App() {
 
     // 1. Verifica se o index.html já capturou o prompt
     if (window.deferredPrompt) {
-      console.log('PWA: deferredPrompt recuperado do global');
       setInstallPrompt(window.deferredPrompt);
     }
 
-    // 2. Ouve o evento customizado caso o prompt chegue depois do carregamento do React
-    const handlePwaReady = (e) => {
-      console.log('PWA: Evento customizado pwa-prompt-ready recebido');
-      setInstallPrompt(e.detail);
-    };
-
-    // 3. Mantém o listener padrão por redundância
-    const handler = (e) => {
-      console.log('PWA: beforeinstallprompt capturado no React');
-      e.preventDefault();
-      setInstallPrompt(e);
-    };
+    const handlePwaReady = (e) => { setInstallPrompt(e.detail); };
+    const handler = (e) => { e.preventDefault(); setInstallPrompt(e); };
 
     window.addEventListener('pwa-prompt-ready', handlePwaReady);
     window.addEventListener('beforeinstallprompt', handler);
@@ -991,7 +970,6 @@ export default function App() {
     if (installPrompt) {
       installPrompt.prompt();
       const { outcome } = await installPrompt.userChoice;
-      console.log(`PWA: Resposta do usuário: ${outcome}`);
       if (outcome === 'accepted') setInstallPrompt(null);
     } else if (isIOS) {
       showConfirm({
@@ -1564,7 +1542,6 @@ export default function App() {
           // Remove champion flags AND _modal_shown so the invite modal can re-trigger after re-winning
           auditedFlags = auditedFlags.filter(f => f !== reg.champ && f !== reg.flag && f !== `${reg.id}_champion_modal_shown`);
           auditChanged = true;
-          console.log(`[Audit] Ghost Champion detectado em ${reg.id}. Status removido.`);
         }
         
         // Se começou a próxima região, garante a flag de campeão verificado
@@ -1754,7 +1731,6 @@ export default function App() {
         }, { merge: true });
       }
 
-      console.log("☁️ Progress and Ranking synced to cloud");
     } catch (e) {
       console.error("Cloud Save Fail:", e);
     }
@@ -1815,7 +1791,6 @@ export default function App() {
           timestamp: serverTimestamp()
         });
         
-        console.log("🔥 Recorde de Dano no Boss sincronizado!");
       }
     } catch (e) {
       console.error("Boss damage save fail:", e);
@@ -2377,7 +2352,7 @@ export default function App() {
         trainerReward: Math.floor(150 * teamData.rewardMult),
         isVillainAmbush: true,
         villainColor: teamData.color,
-        background: teamData.backgroundPath ? fixPath(teamData.backgroundPath) : null,
+        background: teamData.backgroundPath || null,
         instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9)
       });
       addLog(`⚠️ EMBOSCADA! ${teamData.name} ${reason}`, 'enemy');
@@ -6110,7 +6085,6 @@ export default function App() {
                 updatedAt: serverTimestamp(),
                 resetAt: serverTimestamp()
               }, { merge: false }); // merge: false ensures we overwrite EVERYTHING
-              console.log("Cloud reset successful");
             } catch (e) {
               console.error("Cloud reset fail:", e);
             }
@@ -6939,7 +6913,7 @@ export default function App() {
         const johtoStarters = [152, 155, 158].map(id => POKEDEX[id]).filter(Boolean);
         return (
           <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden"
-            style={{ backgroundImage: "url('/bg_lab_1776866008842.webp')", backgroundSize: 'cover', backgroundPosition: 'center top' }}>
+            style={{ backgroundImage: `url('${LAB_BG_URL}')`, backgroundSize: 'cover', backgroundPosition: 'center top' }}>
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #059669bb 0%, #05966666 35%, rgba(2,6,23,0.80) 70%, rgba(2,6,23,0.97) 100%)' }} />
 
             <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
@@ -7000,7 +6974,7 @@ export default function App() {
         const hoennStarters = [252, 255, 258].map(id => POKEDEX[id]).filter(Boolean);
         return (
           <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden"
-            style={{ backgroundImage: "url('/bg_lab_1776866008842.webp')", backgroundSize: 'cover', backgroundPosition: 'center top' }}>
+            style={{ backgroundImage: `url('${LAB_BG_URL}')`, backgroundSize: 'cover', backgroundPosition: 'center top' }}>
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #ea580cbb 0%, #ea580c66 35%, rgba(2,6,23,0.80) 70%, rgba(2,6,23,0.97) 100%)' }} />
 
             <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
@@ -8282,7 +8256,7 @@ export default function App() {
       {showKantoChampionModal && (
         <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
           <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-amber-500 animate-bounceIn">
-            <div className="px-6 py-5 flex items-center gap-4" style={{ background: "linear-gradient(135deg, #f59e0bf2, #d97706dd), url('/bg_lab_1776866008842.webp') center/cover" }}>
+            <div className="px-6 py-5 flex items-center gap-4" style={{ background: `linear-gradient(135deg, #f59e0bf2, #d97706dd), url('${LAB_BG_URL}') center/cover` }}>
               <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
                 <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-12 h-12 object-contain" alt="Prof. Carvalho" />
               </div>
@@ -8336,7 +8310,7 @@ export default function App() {
       {showSinnohIntroModal && (
         <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
           <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-sky-500 animate-bounceIn">
-            <div className="px-6 py-5 flex items-center gap-4" style={{ background: "linear-gradient(135deg, #0284c7f2, #0369a1dd), url('/bg_lab_1776866008842.webp') center/cover" }}>
+            <div className="px-6 py-5 flex items-center gap-4" style={{ background: `linear-gradient(135deg, #0284c7f2, #0369a1dd), url('${LAB_BG_URL}') center/cover` }}>
               <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
                 <img src="https://play.pokemonshowdown.com/sprites/trainers/rowan.png" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }} className="w-12 h-12 object-contain" alt="Prof. Rowan" />
               </div>
@@ -8470,7 +8444,7 @@ export default function App() {
         show ? (
           <div key={pendingFlag} className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
             <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-bounceIn" style={{ borderBottom: `10px solid ${accentColor}` }}>
-              <div className="px-6 py-5 flex items-center gap-4" style={{ background: `linear-gradient(135deg, ${accentColor}f2, ${accentColor}cc), url('/bg_lab_1776866008842.webp') center/cover` }}>
+              <div className="px-6 py-5 flex items-center gap-4" style={{ background: `linear-gradient(135deg, ${accentColor}f2, ${accentColor}cc), url('${LAB_BG_URL}') center/cover` }}>
                 <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
                   <img
                     src={`https://play.pokemonshowdown.com/sprites/trainers/${professorSprite}.png`}
@@ -8529,7 +8503,7 @@ export default function App() {
       {showMegaIntroModal && (
         <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
           <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-bounceIn" style={{ borderBottom: '10px solid #3b82f6' }}>
-            <div className="px-6 py-5 flex items-center gap-4" style={{ background: "linear-gradient(135deg, #3b82f6f2, #2563ebcc), url('/bg_lab_1776866008842.webp') center/cover" }}>
+            <div className="px-6 py-5 flex items-center gap-4" style={{ background: `linear-gradient(135deg, #3b82f6f2, #2563ebcc), url('${LAB_BG_URL}') center/cover` }}>
               <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
                 <img
                   src="https://play.pokemonshowdown.com/sprites/trainers/sycamore.png"
@@ -8647,7 +8621,7 @@ export default function App() {
       {showPaldeaChampionModal && (
         <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
           <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-violet-600 animate-bounceIn">
-            <div className="px-6 py-5 flex items-center gap-4" style={{ background: "linear-gradient(135deg, #7c3aedee, #4f46e5dd), url('/bg_lab_1776866008842.webp') center/cover" }}>
+            <div className="px-6 py-5 flex items-center gap-4" style={{ background: `linear-gradient(135deg, #7c3aedee, #4f46e5dd), url('${LAB_BG_URL}') center/cover` }}>
               <div className="text-4xl">🏆</div>
               <div>
                 <p className="text-violet-100 text-[10px] font-black uppercase tracking-[0.25em]">Conquista Suprema</p>
@@ -8688,7 +8662,7 @@ export default function App() {
       {showHisuiInviteModal && (
         <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
           <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[10px] border-amber-600 animate-bounceIn">
-            <div className="px-6 py-5 flex items-center gap-4" style={{ background: "linear-gradient(135deg, #d97706f2, #b45309dd), url('/bg_lab_1776866008842.webp') center/cover" }}>
+            <div className="px-6 py-5 flex items-center gap-4" style={{ background: `linear-gradient(135deg, #d97706f2, #b45309dd), url('${LAB_BG_URL}') center/cover` }}>
               <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30">
                 <img
                   src="https://play.pokemonshowdown.com/sprites/trainers/laventon.png"
@@ -8996,7 +8970,7 @@ export default function App() {
         const isRivalBattle = currentEnemy?.isInitialRival === true;
         const menuUnlocked = (gameState.oakTutorialShown || (gameState.worldFlags && gameState.worldFlags.includes('has_starter'))) && !isRivalBattle;
         return (
-          <nav className="absolute bottom-0 left-0 right-0 w-full bg-white border-t border-slate-200 flex items-center justify-around px-2 py-2 z-[10001] shadow-xl">
+          <nav className="absolute bottom-0 left-0 right-0 w-full bg-white border-t border-slate-200 flex items-center justify-around px-2 py-2 z-[500] shadow-xl">
 
             <button onClick={() => menuUnlocked && handleSafeNavigation('routes')}
               disabled={!menuUnlocked}

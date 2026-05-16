@@ -5,6 +5,9 @@ import { BadgeSVG } from './CommonUI';
 import { getUnlockedRegions, REGION_LABELS } from '../data/regionStandards';
 import { getTrainerCurrencyReward } from '../utils/economy';
 
+const _BASE = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
+const fixBgPath = (bg) => bg ? bg.replace(/url\(['"]?(\/[^'"]+)['"]?\)/g, (_, p) => `url('${_BASE}${p}')`) : bg;
+
 const psTrainer = (name) => `https://play.pokemonshowdown.com/sprites/trainers/${name}.png`;
 const trainerSlug = (name) => ({
   'Olivia Elite': 'olivia',
@@ -28,6 +31,7 @@ const FUTURE_REGION_CHALLENGE_DATA = {
       "url('/bg_unova_ice.webp') center/cover no-repeat",         // Brycen (Icirrus)
       "url('/bg_unova_elite.webp') center/cover no-repeat"       // Drayden (Opelucid)
     ],
+    villainBg: "url('/battle_bg_villain_plasma.webp') center/cover no-repeat",
     badges: ['trio_badge', 'basic_badge', 'insect_badge', 'bolt_badge', 'quake_badge', 'jet_badge', 'freeze_badge', 'legend_badge'],
     leaders: [['Cilan', 'Grass', 14, [511, 512]], ['Lenora', 'Normal', 20, [507, 505]], ['Burgh', 'Bug', 26, [541, 542, 544]], ['Elesa', 'Electric', 32, [587, 522, 523]], ['Clay', 'Ground', 39, [529, 536, 530]], ['Skyla', 'Flying', 45, [528, 521, 581]], ['Brycen', 'Ice', 52, [614, 615, 583]], ['Drayden', 'Dragon', 60, [611, 621, 612]]],
     league: [['Shauntal', 'Ghost', 72, [609, 623, 593]], ['Grimsley', 'Dark', 74, [560, 625, 635]], ['Caitlin', 'Psychic', 76, [518, 579, 576]], ['Marshal', 'Fighting', 78, [534, 538, 539]], ['Alder', 'Bug', 82, [617, 589, 637]]],
@@ -63,6 +67,7 @@ const FUTURE_REGION_CHALLENGE_DATA = {
       "url('/expedition_templo_psiquico.webp') center/cover no-repeat", // Olympia (Psychic)
       "url('/bg_kalos_snow.webp') center/cover no-repeat"       // Wulfric (Ice)
     ],
+    villainBg: "url('/battle_bg_villain_flare.webp') center/cover no-repeat",
     badges: ['bug_badge', 'cliff_badge', 'rumble_badge', 'plant_badge', 'voltage_badge', 'fairy_badge', 'psychic_badge', 'iceberg_badge'],
     leaders: [['Viola', 'Bug', 12, [283, 666]], ['Grant', 'Rock', 25, [696, 698]], ['Korrina', 'Fighting', 32, [619, 701]], ['Ramos', 'Grass', 34, [189, 71, 673]], ['Clemont', 'Electric', 40, [587, 82, 695]], ['Valerie', 'Fairy', 48, [303, 439, 700]], ['Olympia', 'Psychic', 59, [678, 199, 561]], ['Wulfric', 'Ice', 65, [460, 713, 712]]],
     league: [['Malva', 'Fire', 74, [668, 663, 609]], ['Siebold', 'Water', 76, [689, 693, 130]], ['Wikstrom', 'Steel', 78, [681, 476, 212]], ['Drasna', 'Dragon', 80, [691, 621, 706]], ['Diantha', 'Fairy', 86, [701, 697, 700, 282]]],
@@ -100,6 +105,7 @@ const FUTURE_REGION_CHALLENGE_DATA = {
       "url('/bg_alola_route.webp') center/cover no-repeat",    // Mina
       "url('/battle_bg_gym_rock.webp') center/cover no-repeat", // Hapu
     ],
+    villainBg: "url('/battle_bg_villain_skull.webp') center/cover no-repeat",
     badges: ['melemele_stamp', 'akala_stamp', 'ulaula_stamp', 'poni_stamp', 'alola_elite_stamp', 'alola_champion_stamp', 'ultra_stamp', 'battle_tree_stamp'],
     leaders: [
       ['Ilima', 'Normal', 16, [676, 735], 'Capitao de Prova - Melemele'],
@@ -251,6 +257,7 @@ const FUTURE_REGION_CHALLENGE_DATA = {
       { suffix: 'titan_dondozo', name: 'Dondozo - Titã Aquático', sprite: psTrainer('giacomo'), level: 42, req: 'water_badge_paldea', ids: [977, 978], subtitle: 'Tita Aquatico - Dondozo', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
       { suffix: 'titan_falsedra', name: 'Falso Dragão - Titã Final', sprite: psTrainer('giacomo'), level: 55, req: 'ghost_badge_paldea', ids: [1006, 978], subtitle: 'Tita Falso Dragao', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
     ],
+    villainBg: "url('/battle_bg_villain_star.webp') center/cover no-repeat",
   },
 };
 
@@ -293,7 +300,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
       sprite: entry.sprite || cfg.villainSprite, quote: entry.quote || '"Nosso plano nao sera interrompido por voce."',
       reward: entry.level * 1000, unlockFlag,
       requiresFlag: i === 0 ? entry.req : (entry.req || prevUnlock),
-      team: team(entry.ids, entry.level), background: cfg.bg, location: `${cfg.label} - Operacao da Equipe Vila`,
+      team: team(entry.ids, entry.level), background: cfg.villainBg || cfg.bg, location: `${cfg.label} - Operacao da Equipe Vila`,
     };
   }) : [
     { suffix: 'villain_1', level: 24, req: rivalEntries[0]?.unlock || `${region}_${rivalEntries[0]?.suffix}_defeated` },
@@ -304,7 +311,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
     sprite: cfg.villainSprite, quote: '"Nosso plano nao sera interrompido por voce."',
     reward: entry.level * 1000, unlockFlag: `${region}_${entry.suffix}_cleared`, requiresFlag: entry.req,
     team: team([cfg.leaders[i + 1][3][0], cfg.leaders[i + 3][3][0], cfg.leaders[i + 5]?.[3]?.[0] || cfg.leaders[7][3][0]], entry.level),
-    background: cfg.bg, location: `${cfg.label} - Operacao da Equipe Vila`,
+    background: cfg.villainBg || cfg.bg, location: `${cfg.label} - Operacao da Equipe Vila`,
   }));
 
   // ── Gym Leaders ─────────────────────────────────────────────────────────────
@@ -1177,7 +1184,7 @@ const CHALLENGES = [
     unlockFlag: 'fen_badge',
     requiresFlag: 'sinnoh_galactic_valor_cleared',
     team: [{ id: 130, level: 30 }, { id: 195, level: 31 }, { id: 419, level: 33 }],
-    background: "url('/bg_sinnoh_league.webp') center/cover no-repeat",
+    background: "url('/battle_bg_sinnoh_gym.webp') center/cover no-repeat",
     location: 'Pastoria Gym',
   },
   {
@@ -1305,7 +1312,7 @@ const CHALLENGES = [
     unlockFlag: 'sinnoh_lucian_defeated',
     requiresFlag: 'sinnoh_flint_defeated',
     team: [{ id: 122, level: 66 }, { id: 203, level: 67 }, { id: 475, level: 68 }, { id: 437, level: 68 }, { id: 65, level: 70 }],
-    background: "url('/bg_sinnoh_league.webp') center/cover no-repeat",
+    background: "url('/battle_bg_league_sinnoh.webp') center/cover no-repeat",
     location: 'Liga Pokemon de Sinnoh',
   },
   {
@@ -1321,7 +1328,7 @@ const CHALLENGES = [
     unlockFlag: 'sinnoh_champion',
     requiresFlag: 'sinnoh_lucian_defeated',
     team: [{ id: 442, level: 70 }, { id: 407, level: 71 }, { id: 468, level: 71 }, { id: 448, level: 72 }, { id: 350, level: 72 }, { id: 445, level: 74 }],
-    background: "url('/bg_sinnoh_league.webp') center/cover no-repeat",
+    background: "url('/battle_bg_league_sinnoh.webp') center/cover no-repeat",
     location: 'Sala da Campea - Sinnoh',
   },
   {
@@ -2001,7 +2008,7 @@ const CHALLENGES = [
     unlockFlag: 'sinnoh_galactic_valley_cleared',
     requiresFlag: 'coal_badge',
     team: [{ id: 41, level: 18 }, { id: 431, level: 19 }, { id: 434, level: 20 }],
-    background: "url('/bg_eterna.webp') center/cover no-repeat",
+    background: "url('/battle_bg_villain_galactic.webp') center/cover no-repeat",
     location: 'Valley Windworks',
   },
   {
@@ -2016,7 +2023,7 @@ const CHALLENGES = [
     unlockFlag: 'sinnoh_galactic_eterna_cleared',
     requiresFlag: 'sinnoh_galactic_valley_cleared',
     team: [{ id: 41, level: 23 }, { id: 435, level: 25 }],
-    background: "url('/bg_eterna.webp') center/cover no-repeat",
+    background: "url('/battle_bg_villain_galactic.webp') center/cover no-repeat",
     location: 'Eterna Galactic Building',
   },
   {
@@ -2031,7 +2038,7 @@ const CHALLENGES = [
     unlockFlag: 'sinnoh_galactic_valor_cleared',
     requiresFlag: 'cobble_badge',
     team: [{ id: 436, level: 36 }, { id: 64, level: 37 }, { id: 454, level: 39 }],
-    background: "url('/bg_sinnoh_league.webp') center/cover no-repeat",
+    background: "url('/battle_bg_villain_galactic.webp') center/cover no-repeat",
     location: 'Lake Valor',
   },
   {
@@ -2114,7 +2121,7 @@ const getChallengeColor = (challenge) => {
 
 const getChallengeCardBackground = (challenge) => {
   const color = getChallengeColor(challenge);
-  return challenge.background || `linear-gradient(135deg, ${color} 0%, #0f172a 100%)`;
+  return fixBgPath(challenge.background) || `linear-gradient(135deg, ${color} 0%, #0f172a 100%)`;
 };
 
 const JohtoLeaderCard = ({ challenge, unlocked, defeated, onSelect, onRequirementClick, requirementLabel }) => {
@@ -2521,7 +2528,7 @@ const ChallengesScreen = ({
 
       {selectedChallenge && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setSelectedChallenge(null)}>
-          <div className="modal-panel-mobile rounded-[2rem] overflow-hidden shadow-2xl animate-bounceIn border-2 border-white/10 flex flex-col" style={{ background: selectedChallenge.background || selectedChallenge.bg }} onClick={e => e.stopPropagation()}>
+          <div className="modal-panel-mobile rounded-[2rem] overflow-hidden shadow-2xl animate-bounceIn border-2 border-white/10 flex flex-col" style={{ background: fixBgPath(selectedChallenge.background || selectedChallenge.bg) }} onClick={e => e.stopPropagation()}>
             <div className="absolute inset-0 pointer-events-none opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
             <div className="relative z-10 px-5 py-4 flex items-center gap-4 shrink-0 border-b border-white/10 bg-black/20">
                 <img src={selectedChallenge.sprite} alt={selectedChallenge.name} className="w-20 h-20 object-contain drop-shadow-2xl shrink-0" onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'; }} />

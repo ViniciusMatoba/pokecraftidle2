@@ -437,7 +437,6 @@ const SlotCard = ({ slot, slotType, slotIndex, onEdit, POKEDEX }) => {
             <div className="w-16 h-16 rounded-[1.25rem] bg-slate-100 flex items-center justify-center border-2 border-slate-200 overflow-hidden shadow-inner">
               <img src={TRAINER_IMG(slot.leaderSprite)} className="w-14 h-14 object-contain"
                 style={{ imageRendering: 'pixelated' }}
-                onLoad={() => console.log(`[RegionBuilder] Sprite do Líder carregado: ${slot.leaderSprite}`)}
                 onError={e => { if (e.target.src !== FALLBACK_SPRITE) e.target.src = FALLBACK_SPRITE; }} />
             </div>
             {badgeId && (
@@ -472,7 +471,6 @@ const SlotCard = ({ slot, slotType, slotIndex, onEdit, POKEDEX }) => {
                 {pokeId ? (
                   <>
                     <img src={POKE_IMG(pokeId)} className="w-10 h-10 object-contain"
-                      onLoad={() => console.log(`[RegionBuilder] Sprite Pokemon ${pokeId} carregado para ${slot.leaderName}`)}
                       onError={e => { e.target.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png'; }} />
                     <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-slate-800 text-white rounded-full text-[8px] flex items-center justify-center font-black border border-white shadow-sm">
                       {level}
