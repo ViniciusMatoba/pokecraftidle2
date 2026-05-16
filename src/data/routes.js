@@ -1,4 +1,4 @@
-import { hasProgressRequirement } from '../utils/progress';
+﻿import { hasProgressRequirement } from '../utils/progress';
 
 // ── UTILITIES ──────────────────────────────────────────────────
 export const isRouteUnlocked = (route, gameState) => {
@@ -779,12 +779,12 @@ const FUTURE_REGION_ROUTES = {
 
   vaniville_town: {
     id: 'vaniville_town', name: 'Vaniville Town', type: 'city', group: 'Kalos',
-    unlockLevel: 1, requirements: ['kalos_started'],
+    unlockLevel: 1, requirements: ['kalos_started'], background: '/bg_kalos_city.webp',
     enemies: [], trainers: [], trainerChance: 0,    description: 'Sua casa na bela região de Kalos.',
   },
 
   kalos_route_2: {
-    id: 'kalos_route_2', name: 'Rota 2 / Santalune Forest', type: 'farm', group: 'Kalos',
+    id: 'kalos_route_2', name: 'Rota 2 / Santalune Forest', type: 'farm', group: 'Kalos', background: '/bg_kalos_forest.webp',
     unlockLevel: 5, requirements: ['kalos_started'], unlocks: 'kalos_route_2_cleared',
     biome: 'forest',
     enemies: [
@@ -799,11 +799,11 @@ const FUTURE_REGION_ROUTES = {
 
   kalos_santalune_city: {
     id: 'kalos_santalune_city', name: 'Santalune City', type: 'city', group: 'Kalos',
-    unlockLevel: 12, requirements: ['kalos_route_2_cleared'],    description: 'Cidade hospitaleira com o ginásio de Viola.',
+    unlockLevel: 12, requirements: ['kalos_route_2_cleared'],    description: 'Cidade hospitaleira com o ginásio de Viola.', background: '/bg_kalos_city.webp',
   },
 
   kalos_route_4: {
-    id: 'kalos_route_4', name: 'Rota 4 / Lumiose Gateway', type: 'farm', group: 'Kalos',
+    id: 'kalos_route_4', name: 'Rota 4 / Lumiose Gateway', type: 'farm', group: 'Kalos', background: '/bg_kalos_route.webp',
     unlockLevel: 16, requirements: ['kalos_route_2_cleared'], unlocks: 'kalos_route_5_cleared',
     biome: 'grass',
     enemies: pk([667, 669, 672, 674, 677, 680], 14),
@@ -812,7 +812,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   kalos_glittering_cave: {
-    id: 'kalos_glittering_cave', name: 'Glittering Cave', type: 'farm', group: 'Kalos',
+    id: 'kalos_glittering_cave', name: 'Glittering Cave', type: 'farm', group: 'Kalos', background: '/bg_kalos_glittering_cave.webp',
     unlockLevel: 24, requirements: ['kalos_route_5_cleared'], unlocks: 'kalos_cave_cleared',
     biome: 'cave',
     enemies: pk([696, 698, 66, 111, 303, 304, 597], 22),
@@ -821,7 +821,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   kalos_reflection_cave: {
-    id: 'kalos_reflection_cave', name: 'Reflection Cave', type: 'farm', group: 'Kalos',
+    id: 'kalos_reflection_cave', name: 'Reflection Cave', type: 'farm', group: 'Kalos', background: '/bg_expedition_kalos_reflection.webp',
     unlockLevel: 32, requirements: ['kalos_cave_cleared'], unlocks: 'kalos_reflection_cleared',
     biome: 'cave',
     enemies: pk([701, 703, 439, 524, 577], 30),
@@ -830,7 +830,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   kalos_azure_bay: {
-    id: 'kalos_azure_bay', name: 'Azure Bay', type: 'farm', group: 'Kalos',
+    id: 'kalos_azure_bay', name: 'Azure Bay', type: 'farm', group: 'Kalos', background: '/bg_kalos_azure_bay.webp',
     unlockLevel: 40, requirements: ['kalos_reflection_cleared'], unlocks: 'kalos_azure_cleared',
     biome: 'water',
     enemies: pk([690, 692, 131, 79, 193], 38),
@@ -839,7 +839,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   kalos_frost_cavern: {
-    id: 'kalos_frost_cavern', name: 'Frost Cavern', type: 'farm', group: 'Kalos',
+    id: 'kalos_frost_cavern', name: 'Frost Cavern', type: 'farm', group: 'Kalos', background: '/bg_kalos_frost_cavern.webp',
     unlockLevel: 48, requirements: ['kalos_azure_cleared'], unlocks: 'kalos_frost_cleared',
     biome: 'cave',
     enemies: pk([712, 714, 613, 615, 124, 220, 532, 633, 704], 46),
@@ -848,7 +848,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   kalos_route_17: {
-    id: 'kalos_route_17', name: 'Rota 17 / Snowbelle Area', type: 'farm', group: 'Kalos',
+    id: 'kalos_route_17', name: 'Rota 17 / Snowbelle Area', type: 'farm', group: 'Kalos', background: '/bg_kalos_snowbelle.webp',
     unlockLevel: 56, requirements: ['kalos_frost_cleared'], unlocks: 'kalos_route_17_cleared',
     biome: 'mountain',
     enemies: pk([712, 713, 459, 460, 614, 533], 54),
@@ -857,7 +857,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   kalos_victory_road: {
-    id: 'kalos_victory_road', name: 'Victory Road Kalos', type: 'farm', group: 'Kalos',
+    id: 'kalos_victory_road', name: 'Victory Road Kalos', type: 'farm', group: 'Kalos', background: '/bg_kalos_victory_road.webp',
     unlockLevel: 64, requirements: ['kalos_route_17_cleared'], unlocks: 'kalos_victory_road_cleared',
     biome: 'cave',
     enemies: pk([715, 621, 635, 306, 75, 22], 62),
@@ -867,7 +867,7 @@ const FUTURE_REGION_ROUTES = {
 
   kalos_pokemon_league: {
     id: 'kalos_pokemon_league', name: 'Kalos Pokemon League', type: 'city', group: 'Kalos Liga',
-    unlockLevel: 68, requirements: ['kalos_victory_road_cleared'],
+    unlockLevel: 68, requirements: ['kalos_victory_road_cleared'], background: '/bg_kalos_elite.webp',
     enemies: [
       { id: 716, level: 68, requiresFlag: 'kalos_champion' },
       { id: 717, level: 68, requiresFlag: 'kalos_champion' },
@@ -882,12 +882,12 @@ const FUTURE_REGION_ROUTES = {
   // ══════════════════════════════════════════════════════════════
 
   hauoli_city: {
-    id: 'hauoli_city', name: 'Hauoli City', type: 'city', group: 'Alola',
+    id: 'hauoli_city', name: 'Hauoli City', type: 'city', group: 'Alola', background: '/bg_alola_city.webp',
     unlockLevel: 1, requirements: ['alola_started'],    description: 'A ensolarada e acolhedora cidade de Alola.',
   },
 
   alola_route_1: {
-    id: 'alola_route_1', name: 'Rota 1', type: 'farm', group: 'Alola',
+    id: 'alola_route_1', name: 'Rota 1', type: 'farm', group: 'Alola', background: '/bg_alola_route.webp',
     unlockLevel: 4, requirements: ['alola_started'], unlocks: 'alola_route_1_cleared',
     biome: 'grass',
     enemies: [
@@ -901,7 +901,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   alola_verdant_cavern: {
-    id: 'alola_verdant_cavern', name: 'Verdant Cavern', type: 'farm', group: 'Alola',
+    id: 'alola_verdant_cavern', name: 'Verdant Cavern', type: 'farm', group: 'Alola', background: '/bg_alola_verdant_cavern.webp',
     unlockLevel: 12, requirements: ['alola_route_1_cleared'], unlocks: 'alola_carat_cleared',
     biome: 'cave',
     enemies: pk([734, 735, 19, 20, 744, 782], 12),
@@ -910,7 +910,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   alola_akala_island: {
-    id: 'alola_akala_island', name: 'Akala Island / Rotas 4-6', type: 'farm', group: 'Alola',
+    id: 'alola_akala_island', name: 'Akala Island / Rotas 4-6', type: 'farm', group: 'Alola', background: '/bg_alola_akala.webp',
     unlockLevel: 22, requirements: ['alola_carat_cleared'], unlocks: 'alola_akala_cleared',
     biome: 'grass',
     enemies: pk([749, 751, 755, 757, 759, 761, 764], 20),
@@ -919,7 +919,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   alola_wela_volcano: {
-    id: 'alola_wela_volcano', name: 'Wela Volcano Park', type: 'farm', group: 'Alola',
+    id: 'alola_wela_volcano', name: 'Wela Volcano Park', type: 'farm', group: 'Alola', background: '/bg_alola_volcano.webp',
     unlockLevel: 30, requirements: ['alola_akala_cleared'], unlocks: 'alola_volcano_cleared',
     biome: 'mountain',
     enemies: pk([757, 758, 105, 776, 662, 741], 28),
@@ -928,7 +928,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   alola_aether_paradise: {
-    id: 'alola_aether_paradise', name: 'Aether Paradise', type: 'farm', group: 'Alola',
+    id: 'alola_aether_paradise', name: 'Aether Paradise', type: 'farm', group: 'Alola', background: '/bg_alola_aether.webp',
     unlockLevel: 38, requirements: ['alola_volcano_cleared'], unlocks: 'alola_aether_cleared',
     biome: 'cave',
     enemies: pk([137, 82, 89, 568, 772, 773], 36),
@@ -937,7 +937,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   alola_ula_ula_island: {
-    id: 'alola_ula_ula_island', name: "Ula'ula Island / Rotas 10-14", type: 'farm', group: 'Alola',
+    id: 'alola_ula_ula_island', name: "Ula'ula Island / Rotas 10-14", type: 'farm', group: 'Alola', background: '/bg_alola_ula_ula.webp',
     unlockLevel: 46, requirements: ['alola_aether_cleared'], unlocks: 'alola_ula_ula_cleared',
     biome: 'grass',
     enemies: pk([766, 765, 769, 770, 778, 435, 675], 44),
@@ -946,7 +946,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   alola_vast_poni_canyon: {
-    id: 'alola_vast_poni_canyon', name: 'Vast Poni Canyon', type: 'farm', group: 'Alola',
+    id: 'alola_vast_poni_canyon', name: 'Vast Poni Canyon', type: 'farm', group: 'Alola', background: '/bg_alola_poni_canyon.webp',
     unlockLevel: 54, requirements: ['alola_ula_ula_cleared'], unlocks: 'alola_lanakila_cleared',
     biome: 'mountain',
     enemies: pk([782, 783, 103, 621, 706, 780], 52),
@@ -955,7 +955,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   alola_mount_lanakila: {
-    id: 'alola_mount_lanakila', name: 'Mount Lanakila', type: 'farm', group: 'Alola',
+    id: 'alola_mount_lanakila', name: 'Mount Lanakila', type: 'farm', group: 'Alola', background: '/bg_alola_lanakila.webp',
     unlockLevel: 62, requirements: ['alola_lanakila_cleared'],
     biome: 'cave',
     enemies: pk([739, 740, 37, 38, 27, 28], 60),
@@ -968,12 +968,12 @@ const FUTURE_REGION_ROUTES = {
   // ══════════════════════════════════════════════════════════════
 
   postwick: {
-    id: 'postwick', name: 'Postwick', type: 'city', group: 'Galar',
+    id: 'postwick', name: 'Postwick', type: 'city', group: 'Galar', background: '/bg_galar_city.webp',
     unlockLevel: 1, requirements: ['galar_started'],    description: 'Uma pacata vila rural em Galar.',
   },
 
   galar_route_1: {
-    id: 'galar_route_1', name: 'Rota 1 / Slumbering Weald', type: 'farm', group: 'Galar',
+    id: 'galar_route_1', name: 'Rota 1 / Slumbering Weald', type: 'farm', group: 'Galar', background: '/bg_galar_route.webp',
     unlockLevel: 4, requirements: ['galar_started'], unlocks: 'galar_route_1_cleared',
     biome: 'grass',
     enemies: [
@@ -987,7 +987,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   galar_wild_area_south: {
-    id: 'galar_wild_area_south', name: 'Wild Area (Sul)', type: 'farm', group: 'Galar',
+    id: 'galar_wild_area_south', name: 'Wild Area (Sul)', type: 'farm', group: 'Galar', background: '/bg_galar_wild_area.webp',
     unlockLevel: 14, requirements: ['galar_route_1_cleared'], unlocks: 'galar_route_2_cleared',
     biome: 'grass',
     enemies: pk([819, 820, 821, 824, 827, 829, 831, 833, 835, 263], 12),
@@ -996,7 +996,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   galar_mine_1: {
-    id: 'galar_mine_1', name: 'Galar Mine No. 1', type: 'farm', group: 'Galar',
+    id: 'galar_mine_1', name: 'Galar Mine No. 1', type: 'farm', group: 'Galar', background: '/bg_galar_mine.webp',
     unlockLevel: 22, requirements: ['galar_route_2_cleared'], unlocks: 'galar_mine_cleared',
     biome: 'cave',
     enemies: pk([837, 838, 839, 50, 532], 20),
@@ -1005,7 +1005,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   galar_route_5: {
-    id: 'galar_route_5', name: 'Rota 5 / Hulbury Area', type: 'farm', group: 'Galar',
+    id: 'galar_route_5', name: 'Rota 5 / Hulbury Area', type: 'farm', group: 'Galar', background: '/bg_galar_hulbury.webp',
     unlockLevel: 30, requirements: ['galar_mine_cleared'], unlocks: 'galar_route_5_cleared',
     biome: 'grass',
     enemies: pk([832, 843, 841, 856, 857, 870, 83], 28),
@@ -1014,7 +1014,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   galar_glimwood_tangle: {
-    id: 'galar_glimwood_tangle', name: 'Glimwood Tangle', type: 'farm', group: 'Galar',
+    id: 'galar_glimwood_tangle', name: 'Glimwood Tangle', type: 'farm', group: 'Galar', background: '/bg_galar_forest.webp',
     unlockLevel: 40, requirements: ['galar_route_5_cleared'], unlocks: 'galar_glimwood_cleared',
     biome: 'forest',
     enemies: pk([854, 855, 876, 860, 852, 708], 38),
@@ -1023,7 +1023,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   galar_route_9: {
-    id: 'galar_route_9', name: 'Rota 9 / Circhester Area', type: 'farm', group: 'Galar',
+    id: 'galar_route_9', name: 'Rota 9 / Circhester Area', type: 'farm', group: 'Galar', background: '/bg_galar_circhester.webp',
     unlockLevel: 50, requirements: ['galar_glimwood_cleared'], unlocks: 'galar_route_9_cleared',
     biome: 'water',
     enemies: pk([872, 873, 874, 875, 882, 215], 48),
@@ -1032,7 +1032,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   galar_victory_road: {
-    id: 'galar_victory_road', name: 'Victory Road Galar / Rose Tower', type: 'farm', group: 'Galar',
+    id: 'galar_victory_road', name: 'Victory Road Galar / Rose Tower', type: 'farm', group: 'Galar', background: '/bg_galar_rose_tower.webp',
     unlockLevel: 60, requirements: ['galar_route_9_cleared'],
     biome: 'cave',
     enemies: pk([884, 862, 853, 612, 68], 58),
@@ -1041,7 +1041,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   galar_crown_tundra: {
-    id: 'galar_crown_tundra', name: 'Crown Tundra', type: 'farm', group: 'Galar',
+    id: 'galar_crown_tundra', name: 'Crown Tundra', type: 'farm', group: 'Galar', background: '/bg_galar_tundra.webp',
     unlockLevel: 75, requirements: ['galar_champion'], unlocks: 'galar_tundra_cleared',
     biome: 'mountain',
     enemies: [
@@ -1061,12 +1061,12 @@ const FUTURE_REGION_ROUTES = {
   // ══════════════════════════════════════════════════════════════
 
   cabo_poco: {
-    id: 'cabo_poco', name: 'Cabo Poco', type: 'city', group: 'Paldea',
+    id: 'cabo_poco', name: 'Cabo Poco', type: 'city', group: 'Paldea', background: '/bg_paldea_city.webp',
     unlockLevel: 1, requirements: ['paldea_started'],    description: 'Uma vila costeira ensolarada em Paldea.',
   },
 
   poco_path: {
-    id: 'poco_path', name: 'Poco Path', type: 'farm', group: 'Paldea',
+    id: 'poco_path', name: 'Poco Path', type: 'farm', group: 'Paldea', background: '/bg_paldea_poco_path.webp',
     unlockLevel: 4, requirements: ['paldea_started'], unlocks: 'paldea_south_a_cleared',
     biome: 'grass',
     enemies: [
@@ -1080,7 +1080,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   paldea_south_province: {
-    id: 'paldea_south_province', name: 'Província Sul / Cortondo Area', type: 'farm', group: 'Paldea',
+    id: 'paldea_south_province', name: 'Província Sul / Cortondo Area', type: 'farm', group: 'Paldea', background: '/bg_paldea_route.webp',
     unlockLevel: 14, requirements: ['paldea_south_a_cleared'], unlocks: 'paldea_south_b_cleared',
     biome: 'grass',
     enemies: pk([935, 936, 932, 924, 744, 669, 942], 12),
@@ -1089,7 +1089,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   paldea_artazon: {
-    id: 'paldea_artazon', name: 'East Province / Artazon', type: 'farm', group: 'Paldea',
+    id: 'paldea_artazon', name: 'East Province / Artazon', type: 'farm', group: 'Paldea', background: '/bg_paldea_artazon.webp',
     unlockLevel: 22, requirements: ['paldea_south_b_cleared'], unlocks: 'paldea_desert_cleared',
     biome: 'grass',
     enemies: pk([948, 951, 946, 953, 938, 939], 20),
@@ -1098,7 +1098,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   paldea_asado_desert: {
-    id: 'paldea_asado_desert', name: 'Asado Desert / Cascarrafa', type: 'farm', group: 'Paldea',
+    id: 'paldea_asado_desert', name: 'Asado Desert / Cascarrafa', type: 'farm', group: 'Paldea', background: '/bg_paldea_desert.webp',
     unlockLevel: 32, requirements: ['paldea_desert_cleared'], unlocks: 'paldea_west_cleared',
     biome: 'mountain',
     enemies: pk([968, 960, 951, 946, 969], 30),
@@ -1107,7 +1107,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   paldea_medali: {
-    id: 'paldea_medali', name: 'West Province / Medali Area', type: 'farm', group: 'Paldea',
+    id: 'paldea_medali', name: 'West Province / Medali Area', type: 'farm', group: 'Paldea', background: '/bg_paldea_medali.webp',
     unlockLevel: 42, requirements: ['paldea_west_cleared'], unlocks: 'paldea_east_cleared',
     biome: 'grass',
     enemies: pk([924, 925, 971, 972, 983, 911], 40),
@@ -1116,7 +1116,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   paldea_glaseado_mountain: {
-    id: 'paldea_glaseado_mountain', name: 'Glaseado Mountain', type: 'farm', group: 'Paldea',
+    id: 'paldea_glaseado_mountain', name: 'Glaseado Mountain', type: 'farm', group: 'Paldea', background: '/bg_paldea_glaseado.webp',
     unlockLevel: 52, requirements: ['paldea_east_cleared'], unlocks: 'paldea_glaseado_cleared',
     biome: 'mountain',
     enemies: pk([974, 975, 998, 943, 633, 714], 50),
@@ -1125,7 +1125,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   paldea_league: {
-    id: 'paldea_league', name: 'Paldea Pokémon League', type: 'farm', group: 'Paldea',
+    id: 'paldea_league', name: 'Paldea Pokémon League', type: 'farm', group: 'Paldea', background: '/bg_paldea_elite.webp',
     unlockLevel: 62, requirements: ['paldea_glaseado_cleared'],
     biome: 'cave',
     enemies: pk([955, 969, 103, 983, 967, 911], 60),
@@ -1134,7 +1134,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   paldea_area_zero: {
-    id: 'paldea_area_zero', name: 'Area Zero / Grande Abismo', type: 'farm', group: 'Paldea Elite',
+    id: 'paldea_area_zero', name: 'Area Zero / Grande Abismo', type: 'farm', group: 'Paldea Elite', background: '/bg_paldea_area_zero.webp',
     unlockLevel: 75, requirements: ['paldea_champion'],
     biome: 'cave',
     enemies: [
@@ -1152,7 +1152,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   paldea_post_league: {
-    id: 'paldea_post_league', name: 'Treino Elite Paldea', type: 'farm', group: 'Paldea Elite',
+    id: 'paldea_post_league', name: 'Treino Elite Paldea', type: 'farm', group: 'Paldea Elite', background: '/bg_paldea_elite.webp',
     unlockLevel: 85, requirements: ['paldea_champion'],
     biome: 'cave',
     enemies: [
@@ -1173,13 +1173,13 @@ const FUTURE_REGION_ROUTES = {
   // ══════════════════════════════════════════════════════════════
 
   hisui_jubilife: {
-    id: 'hisui_jubilife', name: 'Aldeia Jubilife', type: 'city', group: 'Hisui Inicio',
+    id: 'hisui_jubilife', name: 'Aldeia Jubilife', type: 'city', group: 'Hisui Inicio', background: '/bg_jubilife.webp',
     unlockLevel: 1, requirements: ['hisui_started'],
     enemies: [], trainers: [], trainerChance: 0,    description: 'O centro da Expedição Galática — ponto de partida para explorar a Hisui antiga.',
   },
 
   hisui_fieldlands_1: {
-    id: 'hisui_fieldlands_1', name: 'Campos Obsidiana — Pradaria', type: 'farm', group: 'Hisui Inicio',
+    id: 'hisui_fieldlands_1', name: 'Campos Obsidiana — Pradaria', type: 'farm', group: 'Hisui Inicio', background: '/bg_hisui_fieldlands.webp',
     unlockLevel: 10, requirements: ['hisui_started'], unlocks: 'hisui_fieldlands_1_cleared',
     biome: 'grass',
     enemies: [
@@ -1196,7 +1196,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   hisui_fieldlands_2: {
-    id: 'hisui_fieldlands_2', name: 'Campos Obsidiana — Floresta', type: 'farm', group: 'Hisui Inicio',
+    id: 'hisui_fieldlands_2', name: 'Campos Obsidiana — Floresta', type: 'farm', group: 'Hisui Inicio', background: '/bg_hisui_fieldlands.webp',
     unlockLevel: 22, requirements: ['hisui_fieldlands_1_cleared'], unlocks: 'hisui_fieldlands_2_cleared',
     biome: 'forest',
     enemies: [
@@ -1214,7 +1214,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   hisui_mirelands_1: {
-    id: 'hisui_mirelands_1', name: 'Pântanos Carmesim', type: 'farm', group: 'Hisui Medio',
+    id: 'hisui_mirelands_1', name: 'Pântanos Carmesim', type: 'farm', group: 'Hisui Medio', background: '/bg_hisui_mirelands.webp',
     unlockLevel: 35, requirements: ['hisui_fieldlands_2_cleared'], unlocks: 'hisui_mirelands_1_cleared',
     biome: 'cave',
     enemies: [
@@ -1231,7 +1231,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   hisui_coastlands_1: {
-    id: 'hisui_coastlands_1', name: 'Costa Cobalto', type: 'farm', group: 'Hisui Medio',
+    id: 'hisui_coastlands_1', name: 'Costa Cobalto', type: 'farm', group: 'Hisui Medio', background: '/bg_hisui_coastlands.webp',
     unlockLevel: 44, requirements: ['hisui_mirelands_1_cleared'], unlocks: 'hisui_coastlands_1_cleared',
     biome: 'water',
     enemies: [
@@ -1249,7 +1249,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   hisui_highlands_1: {
-    id: 'hisui_highlands_1', name: 'Terras Altas Coronet', type: 'farm', group: 'Hisui Avancado',
+    id: 'hisui_highlands_1', name: 'Terras Altas Coronet', type: 'farm', group: 'Hisui Avancado', background: '/bg_hisui_highlands.webp',
     unlockLevel: 52, requirements: ['hisui_coastlands_1_cleared'], unlocks: 'hisui_highlands_1_cleared',
     biome: 'mountain',
     enemies: [
@@ -1266,7 +1266,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   hisui_icelands_1: {
-    id: 'hisui_icelands_1', name: 'Gelos Alabastro', type: 'farm', group: 'Hisui Avancado',
+    id: 'hisui_icelands_1', name: 'Gelos Alabastro', type: 'farm', group: 'Hisui Avancado', background: '/bg_hisui_icelands.webp',
     unlockLevel: 60, requirements: ['hisui_highlands_1_cleared'], unlocks: 'hisui_icelands_1_cleared',
     biome: 'mountain',
     enemies: [
@@ -1283,7 +1283,7 @@ const FUTURE_REGION_ROUTES = {
   },
 
   hisui_sacred_plaza: {
-    id: 'hisui_sacred_plaza', name: 'Praça Sagrada / Templo Arceus', type: 'farm', group: 'Hisui Elite',
+    id: 'hisui_sacred_plaza', name: 'Praça Sagrada / Templo Arceus', type: 'farm', group: 'Hisui Elite', background: '/bg_hisui_sacred_plaza.webp',
     unlockLevel: 72, requirements: ['hisui_icelands_1_cleared'], unlocks: 'hisui_sacred_plaza_cleared',
     biome: 'cave',
     enemies: [
@@ -1700,6 +1700,7 @@ const RAW_ROUTES = {
     id: 'pokemon_tower', name: 'Torre Pokemon', type: 'farm', group: 'Lavender Town',
     unlockLevel: 30, requirements: ['rival_pokemon_tower_defeated'],
     unlocks: 'pokemon_tower_cleared',
+    background: '/bg_kanto_pokemon_tower.webp',
     biome: 'mountain',
     enemies: pk([92, 93, 104], 28),
     trainerChance: 0.05,
@@ -1727,6 +1728,7 @@ const RAW_ROUTES = {
   rocket_hideout: {
     id: 'rocket_hideout', name: 'QG da Equipe Rocket', type: 'farm', group: 'Celadon City',
     unlockLevel: 33, requirements: ['thunder_badge', 'rival_pokemon_tower_defeated'],
+    background: '/bg_kanto_rocket_hideout.webp',
     biome: 'mountain',
     enemies: pk([41, 23, 52, 88], 30),
     trainerChance: 0.05,
@@ -1778,6 +1780,7 @@ const RAW_ROUTES = {
   silph_co: {
     id: 'silph_co', name: 'Silph Co.', type: 'farm', group: 'Saffron City',
     unlockLevel: 40, requirements: ['soul_badge', 'rocket_hideout_cleared'],
+    background: '/bg_kanto_silph_co.webp',
     biome: 'mountain',
     enemies: pk([100, 81, 137, 63, 96], 35),
     trainerChance: 0.05,
@@ -1813,6 +1816,7 @@ const RAW_ROUTES = {
     id: 'pokemon_mansion', name: 'Mansão Pokémon', type: 'farm', group: 'Cinnabar Island',
     unlockLevel: 44, requirements: ['marsh_badge'],
     unlocks: 'mansion_cleared',
+    background: '/bg_kanto_pokemon_mansion.webp',
     biome: 'mountain',
     enemies: pk([88, 109, 126, 132, 89], 38),
     trainerChance: 0.05,
@@ -1873,6 +1877,7 @@ const RAW_ROUTES = {
   cerulean_cave: {
     id: 'cerulean_cave', name: 'Caverna Cerulean', type: 'farm', group: 'Pos-Game',
     unlockLevel: 60, requirements: ['champion'],
+    background: '/bg_kanto_cerulean_cave.webp',
     biome: 'mountain',
     enemies: pk([42, 47, 67, 75, 95, 106, 107, 108, 113, 131, 132, 136, 138, 140, 142, 143, 150], 60),
     trainerChance: 0, trainers: [],    description: 'Caverna proibida   lar de uma lenda..',

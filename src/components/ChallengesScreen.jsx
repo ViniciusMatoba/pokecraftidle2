@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { hasProgressRequirement } from '../utils/progress';
 import { TYPE_COLOR_HEX } from '../data/gyms';
 import { BadgeSVG } from './CommonUI';
@@ -128,8 +128,8 @@ const FUTURE_REGION_CHALLENGE_DATA = {
       { suffix: 'rival_victory', name: 'Hau - Mount Lanakila', level: 65, req: 'ultra_stamp', ids: [727, 730, 738, 741, 745, 702] },
     ],
     villains: [
-      { suffix: 'villain_1', name: 'Recruta Skull', sprite: psTrainer('skullgrunt'), level: 18, req: 'alola_started', ids: [509, 728], subtitle: 'Patrulha Skull', quote: '"Nós somos a Team Skull! Yeahhh!"' },
-      { suffix: 'villain_2', name: 'Recruta Skull', sprite: psTrainer('skullgrunt'), level: 28, req: 'melemele_stamp', ids: [571, 509, 728], subtitle: 'Bloqueio Skull', quote: '"Não vai passar sem enfrentar a Skull!"' },
+      { suffix: 'villain_1', name: 'Recruta Skull', sprite: psTrainer('skullgrunt'), level: 18, req: 'alola_started', ids: [509, 728], subtitle: 'Patrulha Skull', quote: '"NÃ³s somos a Team Skull! Yeahhh!"' },
+      { suffix: 'villain_2', name: 'Recruta Skull', sprite: psTrainer('skullgrunt'), level: 28, req: 'melemele_stamp', ids: [571, 509, 728], subtitle: 'Bloqueio Skull', quote: '"NÃ£o vai passar sem enfrentar a Skull!"' },
       { suffix: 'villain_3', name: 'Admin Plumeria', sprite: psTrainer('skullgrunt'), level: 36, req: 'akala_stamp', ids: [571, 452, 435], subtitle: 'Admin da Team Skull', quote: '"Voce tocou nos meus garotos. Hora de pagar!"' },
       { suffix: 'villain_4', name: 'Recruta Skull II', sprite: psTrainer('skullgrunt'), level: 44, req: 'ulaula_stamp', ids: [452, 571, 758, 509], subtitle: 'Po Town Skull', quote: '"Esta cidade e nossa! Fora daqui!"' },
       { suffix: 'villain_boss', name: 'Guzma', sprite: psTrainer('guzma'), level: 52, req: 'alola_champion_stamp', ids: [754, 571, 452, 738, 697], subtitle: 'Lider da Team Skull', quote: '"Guzma vai te destruir! Thats what Guzma do!"' },
@@ -177,14 +177,14 @@ const FUTURE_REGION_CHALLENGE_DATA = {
     badges: ['fieldlands_stamp', 'mirelands_stamp', 'coastlands_stamp', 'highlands_stamp', 'icelands_stamp', 'lake_stamp', 'volo_stamp', 'arceus_stamp'],
     leaderSubtitleOverride: true,
     leaders: [
-      ['Mai',    'Bug',     30, [900, 127],        'Nobre Frenético — Campos Obsidiana'],
-      ['Lian',   'Grass',   40, [549, 193],        'Nobre Frenético — Pântanos Carmesim'],
-      ['Iscan',  'Fire',    50, [59,  226],        'Nobre Frenético — Costa Cobalto'],
-      ['Ingo',   'Electric',58, [101, 215, 443],   'Nobre Frenético — Terras Altas'],
-      ['Gaeric', 'Ice',     65, [713, 220, 362],   'Nobre Frenético — Gelos Alabastro'],
-      ['Irida',  'Water',   73, [484, 223, 457],   'Guardiã do Clã Perla'],
+      ['Mai',    'Bug',     30, [900, 127],        'Nobre FrenÃ©tico â€” Campos Obsidiana'],
+      ['Lian',   'Grass',   40, [549, 193],        'Nobre FrenÃ©tico â€” PÃ¢ntanos Carmesim'],
+      ['Iscan',  'Fire',    50, [59,  226],        'Nobre FrenÃ©tico â€” Costa Cobalto'],
+      ['Ingo',   'Electric',58, [101, 215, 443],   'Nobre FrenÃ©tico â€” Terras Altas'],
+      ['Gaeric', 'Ice',     65, [713, 220, 362],   'Nobre FrenÃ©tico â€” Gelos Alabastro'],
+      ['Irida',  'Water',   73, [484, 223, 457],   'GuardiÃ£ do ClÃ£ Perla'],
       ['Volo',   'Ghost',   82, [487, 437, 282, 571], 'O Traidor de Hisui'],
-      ['Kamado', 'Normal',  92, [493, 487, 483, 484], 'Comandante Supremo — Arceus'],
+      ['Kamado', 'Normal',  92, [493, 487, 483, 484], 'Comandante Supremo â€” Arceus'],
     ],
     league: [
       ['Cogita',  'Psychic',  82, [426, 561, 442]],
@@ -194,22 +194,22 @@ const FUTURE_REGION_CHALLENGE_DATA = {
       ['Kamado',  'Normal',   94, [493, 487, 483, 484, 445]],
     ],
     rivals: [
-      { suffix: 'rival_1', name: 'Akari — Aldeia Jubilife', level: 15, req: 'hisui_started', ids: [722, 399] },
-      { suffix: 'rival_2', name: 'Akari — Campos Obsidiana', level: 28, req: 'fieldlands_stamp', ids: [724, 403, 418] },
-      { suffix: 'rival_3', name: 'Akari — Pântanos Carmesim', level: 40, req: 'mirelands_stamp', ids: [726, 403, 418, 123] },
-      { suffix: 'rival_4', name: 'Akari — Costa Cobalto', level: 50, req: 'coastlands_stamp', ids: [727, 403, 418, 123, 100] },
-      { suffix: 'rival_5', name: 'Akari — Terras Altas', level: 58, req: 'highlands_stamp', ids: [727, 418, 123, 100, 713] },
-      { suffix: 'rival_6', name: 'Akari — Gelos Alabastro', level: 65, req: 'icelands_stamp', ids: [727, 418, 123, 100, 713, 487] },
-      { suffix: 'rival_victory', name: 'Akari — Praça Sagrada', level: 78, req: 'volo_stamp', ids: [724, 418, 123, 100, 713, 487] },
+      { suffix: 'rival_1', name: 'Akari â€” Aldeia Jubilife', level: 15, req: 'hisui_started', ids: [722, 399] },
+      { suffix: 'rival_2', name: 'Akari â€” Campos Obsidiana', level: 28, req: 'fieldlands_stamp', ids: [724, 403, 418] },
+      { suffix: 'rival_3', name: 'Akari â€” PÃ¢ntanos Carmesim', level: 40, req: 'mirelands_stamp', ids: [726, 403, 418, 123] },
+      { suffix: 'rival_4', name: 'Akari â€” Costa Cobalto', level: 50, req: 'coastlands_stamp', ids: [727, 403, 418, 123, 100] },
+      { suffix: 'rival_5', name: 'Akari â€” Terras Altas', level: 58, req: 'highlands_stamp', ids: [727, 418, 123, 100, 713] },
+      { suffix: 'rival_6', name: 'Akari â€” Gelos Alabastro', level: 65, req: 'icelands_stamp', ids: [727, 418, 123, 100, 713, 487] },
+      { suffix: 'rival_victory', name: 'Akari â€” PraÃ§a Sagrada', level: 78, req: 'volo_stamp', ids: [724, 418, 123, 100, 713, 487] },
     ],
     villains: [
-      { suffix: 'villain_1',    name: 'Recruta Galactica',   sprite: psTrainer('galacticgrunt'), level: 18, req: 'hisui_started',     ids: [396, 399],           subtitle: 'Patrulha Galactica',       quote: '"Esta área é propriedade da Expedição Galática!"' },
+      { suffix: 'villain_1',    name: 'Recruta Galactica',   sprite: psTrainer('galacticgrunt'), level: 18, req: 'hisui_started',     ids: [396, 399],           subtitle: 'Patrulha Galactica',       quote: '"Esta Ã¡rea Ã© propriedade da ExpediÃ§Ã£o GalÃ¡tica!"' },
       { suffix: 'villain_2',    name: 'Recruta Galactica',   sprite: psTrainer('galacticgrunt'), level: 28, req: 'fieldlands_stamp',  ids: [403, 399, 418],      subtitle: 'Bloqueio Galactica',       quote: '"Nenhum membro renegado passa por aqui!"' },
-      { suffix: 'villain_3',    name: 'Capitão Zisu',        sprite: psTrainer('acetrainerf'),   level: 38, req: 'mirelands_stamp',   ids: [100, 127, 123],      subtitle: 'Guardião Obstrutivo',      quote: '"Prove que você merece avançar em nossa missão!"' },
-      { suffix: 'villain_4',    name: 'Volo — Primeiros Sinais', sprite: psTrainer('looker'),   level: 48, req: 'coastlands_stamp',  ids: [437, 282, 571],      subtitle: 'Pesquisador Suspeito',     quote: '"Você é admirável... mas há coisas que não deve saber."' },
-      { suffix: 'villain_5',    name: 'Volo — Revelação',    sprite: psTrainer('looker'),        level: 60, req: 'highlands_stamp',   ids: [437, 282, 571, 487], subtitle: 'A Traição de Volo',        quote: '"Eu nunca quis a paz. Quero o poder do Deus Pokémon!"' },
-      { suffix: 'villain_boss', name: 'Volo + Giratina',     sprite: psTrainer('looker'),        level: 75, req: 'lake_stamp',        ids: [487, 437, 282, 571, 359], subtitle: 'Confronto com o Traidor', quote: '"Giratina! Destrua quem se opõe a mim!"' },
-      { suffix: 'villain_final', name: 'Volo — Revanche',    sprite: psTrainer('looker'),        level: 85, req: 'hisui_champion',    ids: [487, 437, 282, 571, 384, 445], subtitle: 'Epílogo de Hisui', quote: '"Mesmo derrotado... o Pokémon Deus pertence a mim!"' },
+      { suffix: 'villain_3',    name: 'CapitÃ£o Zisu',        sprite: psTrainer('acetrainerf'),   level: 38, req: 'mirelands_stamp',   ids: [100, 127, 123],      subtitle: 'GuardiÃ£o Obstrutivo',      quote: '"Prove que vocÃª merece avanÃ§ar em nossa missÃ£o!"' },
+      { suffix: 'villain_4',    name: 'Volo â€” Primeiros Sinais', sprite: psTrainer('looker'),   level: 48, req: 'coastlands_stamp',  ids: [437, 282, 571],      subtitle: 'Pesquisador Suspeito',     quote: '"VocÃª Ã© admirÃ¡vel... mas hÃ¡ coisas que nÃ£o deve saber."' },
+      { suffix: 'villain_5',    name: 'Volo â€” RevelaÃ§Ã£o',    sprite: psTrainer('looker'),        level: 60, req: 'highlands_stamp',   ids: [437, 282, 571, 487], subtitle: 'A TraiÃ§Ã£o de Volo',        quote: '"Eu nunca quis a paz. Quero o poder do Deus PokÃ©mon!"' },
+      { suffix: 'villain_boss', name: 'Volo + Giratina',     sprite: psTrainer('looker'),        level: 75, req: 'lake_stamp',        ids: [487, 437, 282, 571, 359], subtitle: 'Confronto com o Traidor', quote: '"Giratina! Destrua quem se opÃµe a mim!"' },
+      { suffix: 'villain_final', name: 'Volo â€” Revanche',    sprite: psTrainer('looker'),        level: 85, req: 'hisui_champion',    ids: [487, 437, 282, 571, 384, 445], subtitle: 'EpÃ­logo de Hisui', quote: '"Mesmo derrotado... o PokÃ©mon Deus pertence a mim!"' },
     ],
   },
   paldea: {
@@ -242,22 +242,22 @@ const FUTURE_REGION_CHALLENGE_DATA = {
       { suffix: 'villain_2', name: 'Mela - Base Fire', sprite: psTrainer('mela'), level: 27, req: 'grass_badge_paldea', ids: [963, 851, 59], subtitle: 'Base Star Ardente', quote: '"Meu fogo nao vai se apagar!"' },
       { suffix: 'villain_3', name: 'Atticus - Base Poison', sprite: psTrainer('atticus'), level: 34, req: 'electric_badge_paldea', ids: [945, 952, 317], subtitle: 'Base Star Toxica', quote: '"Arte e veneno sao a mesma coisa!"' },
       { suffix: 'villain_4', name: 'Ortega - Base Fairy', sprite: psTrainer('ortega'), level: 45, req: 'normal_badge_paldea', ids: [868, 869, 282, 282], subtitle: 'Base Star Fantasiosa', quote: '"Voce e corajoso por desafiar a minha base!"' },
-      { suffix: 'villain_boss', name: 'Eri - Base Fighting', sprite: psTrainer('eri'), level: 50, req: 'ghost_badge_paldea', ids: [973, 68, 534, 448, 297], subtitle: 'Base Star Combatente', quote: '"Esta e minha batalha mais séria!"' },
+      { suffix: 'villain_boss', name: 'Eri - Base Fighting', sprite: psTrainer('eri'), level: 50, req: 'ghost_badge_paldea', ids: [973, 68, 534, 448, 297], subtitle: 'Base Star Combatente', quote: '"Esta e minha batalha mais sÃ©ria!"' },
       { suffix: 'villain_6', name: 'Cassiopeia/Penny', sprite: psTrainer('penny'), level: 60, req: 'psychic_badge_paldea', ids: [1009, 1006, 861, 963, 945], subtitle: 'Lider da Team Star', quote: '"Sou eu, Penny... Cassiopeia. Preciso proteger meus amigos!"' },
       { suffix: 'villain_final', name: 'Penny - Confronto Final', sprite: psTrainer('penny'), level: 68, req: 'paldea_champion', ids: [1009, 1006, 861, 963, 973, 945], subtitle: 'Epilogo de Paldea', quote: '"A Team Star existiu para proteger quem precisava. Valeu a pena!"' },
     ],
     titans: [
-      { suffix: 'titan_klawf', name: 'Klawf - Titã de Rocha', sprite: psTrainer('giacomo'), level: 16, req: 'paldea_started', ids: [950], subtitle: 'Tita de Rocha - Klawf', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
-      { suffix: 'titan_bombirdier', name: 'Bombirdier - Titã Voador', sprite: psTrainer('giacomo'), level: 20, req: 'bug_badge_paldea', ids: [962], subtitle: 'Tita Voador - Bombirdier', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
-      { suffix: 'titan_orthworm', name: 'Orthworm - Titã de Aço', sprite: psTrainer('giacomo'), level: 28, req: 'grass_badge_paldea', ids: [968], subtitle: 'Tita de Aco - Orthworm', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
-      { suffix: 'titan_greattusk', name: 'Presas Gigantes - Titã Terrestre', sprite: psTrainer('giacomo'), level: 35, req: 'electric_badge_paldea', ids: [984], subtitle: 'Tita Terrestre - Presas Gigantes', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
-      { suffix: 'titan_dondozo', name: 'Dondozo - Titã Aquático', sprite: psTrainer('giacomo'), level: 42, req: 'water_badge_paldea', ids: [977, 978], subtitle: 'Tita Aquatico - Dondozo', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
-      { suffix: 'titan_falsedra', name: 'Falso Dragão - Titã Final', sprite: psTrainer('giacomo'), level: 55, req: 'ghost_badge_paldea', ids: [1006, 978], subtitle: 'Tita Falso Dragao', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
+      { suffix: 'titan_klawf', name: 'Klawf - TitÃ£ de Rocha', sprite: psTrainer('giacomo'), level: 16, req: 'paldea_started', ids: [950], subtitle: 'Tita de Rocha - Klawf', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
+      { suffix: 'titan_bombirdier', name: 'Bombirdier - TitÃ£ Voador', sprite: psTrainer('giacomo'), level: 20, req: 'bug_badge_paldea', ids: [962], subtitle: 'Tita Voador - Bombirdier', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
+      { suffix: 'titan_orthworm', name: 'Orthworm - TitÃ£ de AÃ§o', sprite: psTrainer('giacomo'), level: 28, req: 'grass_badge_paldea', ids: [968], subtitle: 'Tita de Aco - Orthworm', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
+      { suffix: 'titan_greattusk', name: 'Presas Gigantes - TitÃ£ Terrestre', sprite: psTrainer('giacomo'), level: 35, req: 'electric_badge_paldea', ids: [984], subtitle: 'Tita Terrestre - Presas Gigantes', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
+      { suffix: 'titan_dondozo', name: 'Dondozo - TitÃ£ AquÃ¡tico', sprite: psTrainer('giacomo'), level: 42, req: 'water_badge_paldea', ids: [977, 978], subtitle: 'Tita Aquatico - Dondozo', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
+      { suffix: 'titan_falsedra', name: 'Falso DragÃ£o - TitÃ£ Final', sprite: psTrainer('giacomo'), level: 55, req: 'ghost_badge_paldea', ids: [1006, 978], subtitle: 'Tita Falso Dragao', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
     ],
   },
 };
 
-// Per-region villain team Pokémon (used by generic villain builder for regions without custom villain arrays)
+// Per-region villain team PokÃ©mon (used by generic villain builder for regions without custom villain arrays)
 const VILLAIN_POKEMON = {
   unova:  [[504, 519], [519, 543, 527], [542, 560, 529], [529, 571, 579], [612, 571, 545], [625, 635, 579, 612], [643, 625, 579]],
   kalos:  [[667, 686], [686, 667, 291], [668, 609, 695], [668, 706, 609], [645, 668, 706, 695, 609], [695, 706, 668, 609, 701], [706, 668, 609, 695, 667]],
@@ -267,7 +267,7 @@ const VILLAIN_POKEMON = {
 };
 
 const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE_DATA).flatMap(([region, cfg]) => {
-  // ── Rivals (7 battles) ──────────────────────────────────────────────────────
+  // â”€â”€ Rivals (7 battles) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const rivalEntries = cfg.rivals || [
     { suffix: 'rival_start', name: `Rival - ${cfg.label} I`, level: 12, req: cfg.start, ids: [cfg.leaders[0][3][0], cfg.leaders[1][3][0]] },
     { suffix: 'rival_mid', name: `Rival - ${cfg.label} II`, level: 38, req: cfg.badges[2], ids: [cfg.leaders[2][3][0], cfg.leaders[3][3][0], cfg.leaders[4][3][0]] },
@@ -285,7 +285,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
     };
   });
 
-  // ── Villains (7 battles) ────────────────────────────────────────────────────
+  // â”€â”€ Villains (7 battles) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const villainEntries = cfg.villains || [];
   const villainBattles = villainEntries.length > 0 ? villainEntries.map((entry, i) => {
     const unlockFlag = entry.unlock || `${region}_${entry.suffix}_cleared`;
@@ -310,7 +310,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
     background: cfg.bg, location: `${cfg.label} - Operacao da Equipe Vila`,
   }));
 
-  // ── Gym Leaders ─────────────────────────────────────────────────────────────
+  // â”€â”€ Gym Leaders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // For Alola, leaders array has 10 entries (trials + kahunas mapped to 8 stamps via stamp index override)
   const alolaStampMap = region === 'alola' ? [0, 0, 1, 1, 1, 1, 2, 2, 3, 3] : null;
   const gymBattles = cfg.leaders.map((leaderData, index) => {
@@ -332,7 +332,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
     };
   });
 
-  // ── League / Elite Four ──────────────────────────────────────────────────────
+  // â”€â”€ League / Elite Four â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // For Alola the last gym leader unlocks rival_victory, which then unlocks league
   const lastGymUnlock = region === 'alola' ? `${region}_trial_${cfg.leaders.length}_cleared` : cfg.badges[cfg.badges.length - 1];
   const rivalVictoryUnlock = rivalEntries.at(-1)?.unlock || `${region}_${rivalEntries.at(-1)?.suffix}_defeated`;
@@ -348,7 +348,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
     location: `${cfg.label} Pokemon League`,
   }));
 
-  // ── Rematches ────────────────────────────────────────────────────────────────
+  // â”€â”€ Rematches â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const rematches = cfg.leaders.map((leaderData, index) => {
     const [name, type, , ids] = leaderData;
     return {
@@ -361,7 +361,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
     };
   });
 
-  // ── Titans (Paldea only) ─────────────────────────────────────────────────────
+  // â”€â”€ Titans (Paldea only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const titanBattles = (cfg.titans || []).map((entry, i) => {
     const unlockFlag = `${region}_${entry.suffix}_cleared`;
     const prevUnlock = i === 0 ? entry.req : (`${region}_${(cfg.titans[i - 1]).suffix}_cleared`);
@@ -404,7 +404,7 @@ const CHALLENGES = [
     name: 'Azul - S.S. Anne',
     subtitle: 'Encontro no Navio',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/blue.png',
-    quote: '"Bon voyage! Mas antes, uma lição de batalha!"',
+    quote: '"Bon voyage! Mas antes, uma liÃ§Ã£o de batalha!"',
     reward: 2000,
     unlockFlag: 'rival_3_defeated',
     requiresFlag: 'cascade_badge',
@@ -414,7 +414,7 @@ const CHALLENGES = [
       { id: 64, level: 18 }, // Kadabra
       { id: 133, level: 20 }, // Eevee
     ],
-    background: "url('/bg_gym_water.webp') center/cover no-repeat", // Deck do navio/água
+    background: "url('/bg_gym_water.webp') center/cover no-repeat", // Deck do navio/Ã¡gua
     location: 'Deck do S.S. Anne',
   },
   {
@@ -436,14 +436,14 @@ const CHALLENGES = [
       { id: 133, level: 30 },
     ],
     background: "url('/bg_cave_1776863810604.webp') center/cover no-repeat", // Torre (escuro)
-    location: 'Torre Pokémon - Lavender',
+    location: 'Torre PokÃ©mon - Lavender',
   },
   {
     region: 'kanto',
     id: 'rival_silph_co',
     category: 'rival',
     name: 'Azul - Silph Co.',
-    subtitle: 'Rivalidade Ápice',
+    subtitle: 'Rivalidade Ãpice',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/blue.png',
     quote: '"Eu sou o treinador mais forte do mundo! Observe!"',
     reward: 5000,
@@ -457,8 +457,8 @@ const CHALLENGES = [
       { id: 65, level: 37 }, // Alakazam
       { id: 135, level: 40 }, // Jolteon
     ],
-    background: "url('/bg_gym_1776863824590.webp') center/cover no-repeat", // Escritório
-    location: 'Silph Co. - 11º Andar',
+    background: "url('/bg_kanto_silph_co.webp') center/cover no-repeat",
+    location: 'Silph Co. - 11Âº Andar',
   },
 
   // EQUIPE ROCKET
@@ -469,7 +469,7 @@ const CHALLENGES = [
     name: 'Recruta Rocket',
     subtitle: 'Problemas na Floresta',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/rocketgrunt.png',
-    quote: '"Esta floresta agora pertence à Equipe Rocket! Caia fora!"',
+    quote: '"Esta floresta agora pertence Ã  Equipe Rocket! Caia fora!"',
     reward: 800,
     unlockFlag: 'viridian_forest_cleared',
     requiresFlag: 'rival_1_defeated',
@@ -487,7 +487,7 @@ const CHALLENGES = [
     name: 'Recruta Rocket - Mt. Moon I',
     subtitle: 'Bloqueio na Caverna',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/rocketgrunt.png',
-    quote: '"Você não vai passar daqui! A Equipe Rocket está ocupada!"',
+    quote: '"VocÃª nÃ£o vai passar daqui! A Equipe Rocket estÃ¡ ocupada!"',
     reward: 1200,
     unlockFlag: 'mt_moon_rocket_1_defeated',
     requiresFlag: 'mt_moon_cleared',
@@ -503,9 +503,9 @@ const CHALLENGES = [
     id: 'mt_moon_rocket_2',
     category: 'rocket',
     name: 'Recruta Rocket - Mt. Moon II',
-    subtitle: 'Reforços Rocket',
+    subtitle: 'ReforÃ§os Rocket',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/rocketgruntf.png',
-    quote: '"Mais um intrometido? Vamos te dar uma lição!"',
+    quote: '"Mais um intrometido? Vamos te dar uma liÃ§Ã£o!"',
     reward: 1500,
     unlockFlag: 'mt_moon_rocket_2_defeated',
     requiresFlag: 'mt_moon_rocket_1_defeated',
@@ -533,7 +533,7 @@ const CHALLENGES = [
       { id: 52,  level: 18 }, // Meowth
     ],
     background: "url('/bg_cave_1776863810604.webp') center/cover no-repeat",
-    location: 'Mt. Moon - Saída',
+    location: 'Mt. Moon - SaÃ­da',
   },
   {
     region: 'kanto',
@@ -542,7 +542,7 @@ const CHALLENGES = [
     name: 'Chefe Giovanni',
     subtitle: 'Lider da Equipe Rocket',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/giovanni.png',
-    quote: '"Você ousou invadir meu esconderijo? Conheça o verdadeiro poder!"',
+    quote: '"VocÃª ousou invadir meu esconderijo? ConheÃ§a o verdadeiro poder!"',
     reward: 8000,
     unlockFlag: 'rocket_hideout_cleared',
     requiresFlag: 'rock_tunnel_cleared',
@@ -551,11 +551,11 @@ const CHALLENGES = [
       { id: 115, level: 24 }, // Kangaskhan
       { id: 112, level: 29 }, // Rhydon
     ],
-    background: "url('/bg_gym_1776863824590.webp') center/cover no-repeat",
+    background: "url('/bg_kanto_rocket_hideout.webp') center/cover no-repeat",
     location: 'QG Equipe Rocket - Celadon',
   },
 
-  // ── LENDÁRIOS ───────────────────────────────────────────────────────
+  // â”€â”€ LENDÃRIOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   {
     region: 'johto',
     id: 'johto_rival_new_bark',
@@ -809,7 +809,7 @@ const CHALLENGES = [
     name: 'Clair',
     subtitle: 'Insignia Rising',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/clair.png',
-    quote: '"Dragões obedecem apenas treinadores dignos."',
+    quote: '"DragÃµes obedecem apenas treinadores dignos."',
     reward: 16000,
     unlockFlag: 'rising_badge',
     requiresFlag: 'glacier_badge',
@@ -839,7 +839,7 @@ const CHALLENGES = [
     name: 'Will - Elite Four',
     subtitle: 'Mestre Psiquico',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/will.png',
-    quote: '"Eu treinei ao redor do mundo para aperfeiçoar meus poderes psíquicos!"',
+    quote: '"Eu treinei ao redor do mundo para aperfeiÃ§oar meus poderes psÃ­quicos!"',
     reward: 20000,
     unlockFlag: 'johto_will_defeated',
     requiresFlag: 'rising_badge',
@@ -869,7 +869,7 @@ const CHALLENGES = [
     name: 'Bruno - Elite Four',
     subtitle: 'Mestre de Luta',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/bruno.png',
-    quote: '"Eu continuo treinando meus músculos e meus Pokemon todos os dias!"',
+    quote: '"Eu continuo treinando meus mÃºsculos e meus Pokemon todos os dias!"',
     reward: 24000,
     unlockFlag: 'johto_bruno_e4_defeated',
     requiresFlag: 'johto_koga_e4_defeated',
@@ -884,7 +884,7 @@ const CHALLENGES = [
     name: 'Karen - Elite Four',
     subtitle: 'Mestra Sombria',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/karen.png',
-    quote: '"Pokemon fortes, Pokemon fracos... isso e apenas a percepção egoísta das pessoas."',
+    quote: '"Pokemon fortes, Pokemon fracos... isso e apenas a percepÃ§Ã£o egoÃ­sta das pessoas."',
     reward: 26000,
     unlockFlag: 'johto_karen_defeated',
     requiresFlag: 'johto_bruno_e4_defeated',
@@ -1118,7 +1118,7 @@ const CHALLENGES = [
     background: "url('/bg_elite_four_hoenn.webp') center/cover no-repeat",
     location: 'Sala do Campeao - Hoenn',
   },
-  // REVANCHE - KANTO (Desbloqueado após ser Campeão de Kanto)
+  // REVANCHE - KANTO (Desbloqueado apÃ³s ser CampeÃ£o de Kanto)
   {
     region: 'sinnoh',
     id: 'sinnoh_roark',
@@ -1339,7 +1339,7 @@ const CHALLENGES = [
     unlockFlag: 'rematch_brock_defeated',
     requiresFlag: 'champion',
     team: [{id: 74, level: 70}, {id: 75, level: 70}, {id: 95, level: 72}, {id: 141, level: 71}, {id: 139, level: 71}],
-    background: "url('/bg_gym_1776863824590.webp') center/cover no-repeat",
+    background: "url('/bg_kanto_gym.webp') center/cover no-repeat",
     location: 'Pewter Gym',
   },
   {
@@ -1399,7 +1399,7 @@ const CHALLENGES = [
     unlockFlag: 'rematch_sabrina_defeated',
     requiresFlag: 'champion',
     team: [{id: 65, level: 75}, {id: 122, level: 73}, {id: 196, level: 74}, {id: 124, level: 74}, {id: 97, level: 75}],
-    background: "url('/bg_gym_1776863824590.webp') center/cover no-repeat",
+    background: "url('/bg_kanto_gym.webp') center/cover no-repeat",
     location: 'Saffron Gym',
   },
   {
@@ -1414,7 +1414,7 @@ const CHALLENGES = [
     unlockFlag: 'rematch_blaine_defeated',
     requiresFlag: 'champion',
     team: [{id: 126, level: 75}, {id: 78, level: 75}, {id: 136, level: 76}, {id: 219, level: 76}, {id: 59, level: 78}],
-    background: "url('/bg_gym_1776863824590.webp') center/cover no-repeat",
+    background: "url('/bg_kanto_gym.webp') center/cover no-repeat",
     location: 'Cinnabar Gym',
   },
   {
@@ -1424,15 +1424,15 @@ const CHALLENGES = [
     name: 'Giovanni (Revanche)',
     subtitle: 'Elite Kanto',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/giovanni.png',
-    quote: '"A Equipe Rocket pode ter acabado, mas minha força e eterna."',
+    quote: '"A Equipe Rocket pode ter acabado, mas minha forÃ§a e eterna."',
     reward: 35000,
     unlockFlag: 'rematch_giovanni_defeated',
     requiresFlag: 'champion',
     team: [{id: 112, level: 78}, {id: 34, level: 78}, {id: 31, level: 78}, {id: 51, level: 78}, {id: 76, level: 80}],
-    background: "url('/bg_gym_1776863824590.webp') center/cover no-repeat",
+    background: "url('/bg_kanto_gym.webp') center/cover no-repeat",
     location: 'Viridian Gym',
   },
-  // REVANCHE - JOHTO (Desbloqueado após ser Campeão de Johto)
+  // REVANCHE - JOHTO (Desbloqueado apÃ³s ser CampeÃ£o de Johto)
   {
     region: 'johto',
     id: 'rematch_falkner',
@@ -1440,7 +1440,7 @@ const CHALLENGES = [
     name: 'Falkner (Revanche)',
     subtitle: 'Elite Johto',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/falkner.png',
-    quote: '"Meus Pokemon voadores alcançaram novos horizontes!"',
+    quote: '"Meus Pokemon voadores alcanÃ§aram novos horizontes!"',
     reward: 30000,
     unlockFlag: 'rematch_falkner_defeated',
     requiresFlag: 'johto_champion',
@@ -1455,7 +1455,7 @@ const CHALLENGES = [
     name: 'Bugsy (Revanche)',
     subtitle: 'Elite Johto',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/bugsy.png',
-    quote: '"Vou te mostrar o quanto meus Pokemon insetos evoluíram!"',
+    quote: '"Vou te mostrar o quanto meus Pokemon insetos evoluÃ­ram!"',
     reward: 30000,
     unlockFlag: 'rematch_bugsy_defeated',
     requiresFlag: 'johto_champion',
@@ -1515,7 +1515,7 @@ const CHALLENGES = [
     name: 'Jasmine (Revanche)',
     subtitle: 'Elite Johto',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/jasmine.png',
-    quote: '"O aço e frio, mas meu desejo de vencer e quente!"',
+    quote: '"O aÃ§o e frio, mas meu desejo de vencer e quente!"',
     reward: 30000,
     unlockFlag: 'rematch_jasmine_defeated',
     requiresFlag: 'johto_champion',
@@ -1545,7 +1545,7 @@ const CHALLENGES = [
     name: 'Clair (Revanche)',
     subtitle: 'Elite Johto',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/clair.png',
-    quote: '"Como a maior domadora de dragões, eu nao permitirei sua vitoria!"',
+    quote: '"Como a maior domadora de dragÃµes, eu nao permitirei sua vitoria!"',
     reward: 40000,
     unlockFlag: 'rematch_clair_defeated',
     requiresFlag: 'johto_champion',
@@ -1574,7 +1574,7 @@ const CHALLENGES = [
     id: 'articuno',
     category: 'legendary',
     name: 'Articuno',
-    subtitle: 'O Pássaro de Gelo',
+    subtitle: 'O PÃ¡ssaro de Gelo',
     sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/144.png',
     quote: '"Um frio intenso emana desta criatura majestosa..."',
     reward: 15000,
@@ -1589,9 +1589,9 @@ const CHALLENGES = [
     id: 'zapdos',
     category: 'legendary',
     name: 'Zapdos',
-    subtitle: 'O Pássaro do Trovão',
+    subtitle: 'O PÃ¡ssaro do TrovÃ£o',
     sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/145.png',
-    quote: '"Relâmpagos estalam ao redor de suas asas pontiagudas!"',
+    quote: '"RelÃ¢mpagos estalam ao redor de suas asas pontiagudas!"',
     reward: 15000,
     unlockFlag: 'zapdos_defeated',
     requiresFlag: 'soul_badge',
@@ -1604,9 +1604,9 @@ const CHALLENGES = [
     id: 'moltres',
     category: 'legendary',
     name: 'Moltres',
-    subtitle: 'O Pássaro de Fogo',
+    subtitle: 'O PÃ¡ssaro de Fogo',
     sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/146.png',
-    quote: '"As chamas que compõem suas asas brilham intensamente!"',
+    quote: '"As chamas que compÃµem suas asas brilham intensamente!"',
     reward: 15000,
     unlockFlag: 'moltres_defeated',
     requiresFlag: 'soul_badge',
@@ -1621,7 +1621,7 @@ const CHALLENGES = [
     name: 'Mewtwo',
     subtitle: 'Lenda de Kanto',
     sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png',
-    quote: '"Eu fui criado para ser o mais forte. Prove que você é digno!"',
+    quote: '"Eu fui criado para ser o mais forte. Prove que vocÃª Ã© digno!"',
     reward: 100000,
     unlockFlag: 'mewtwo_defeated',
     requiresFlag: 'champion',
@@ -1834,7 +1834,7 @@ const CHALLENGES = [
     name: 'Brawly (Revanche)',
     subtitle: 'Onda de Luta',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/brawly.png',
-    quote: '"A maré subiu. Vamos ver se voce acompanha o ritmo!"',
+    quote: '"A marÃ© subiu. Vamos ver se voce acompanha o ritmo!"',
     reward: 27000,
     unlockFlag: 'hoenn_rematch_brawly_defeated',
     requiresFlag: 'hoenn_champion',
@@ -1864,7 +1864,7 @@ const CHALLENGES = [
     name: 'Flannery (Revanche)',
     subtitle: 'Calor Vulcanico',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/flannery.png',
-    quote: '"Respira fundo... e aguenta a pressão do vulcão!"',
+    quote: '"Respira fundo... e aguenta a pressÃ£o do vulcÃ£o!"',
     reward: 33000,
     unlockFlag: 'hoenn_rematch_flannery_defeated',
     requiresFlag: 'hoenn_champion',
@@ -1894,7 +1894,7 @@ const CHALLENGES = [
     name: 'Winona (Revanche)',
     subtitle: 'Ceu Livre',
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/winona.png',
-    quote: '"Suba mais alto. A batalha real começa acima das nuvens."',
+    quote: '"Suba mais alto. A batalha real comeÃ§a acima das nuvens."',
     reward: 39000,
     unlockFlag: 'hoenn_rematch_winona_defeated',
     requiresFlag: 'hoenn_champion',
@@ -2235,9 +2235,9 @@ const ChallengesScreen = ({
     'mt_moon_cleared': 'Atravessar o Mt. Moon',
     'rock_tunnel_cleared': 'Atravessar o Rock Tunnel',
     'rocket_hideout_cleared': 'Destruir o QG da Equipe Rocket',
-    'soul_badge': 'Insígnia da Alma (Koga)',
-    'champion': 'Tornar-se o Campeão',
-    'earth_badge': 'Insígnia da Terra (Giovanni)',
+    'soul_badge': 'InsÃ­gnia da Alma (Koga)',
+    'champion': 'Tornar-se o CampeÃ£o',
+    'earth_badge': 'InsÃ­gnia da Terra (Giovanni)',
     'johto_started': 'Iniciar a jornada em Johto',
     'johto_route_29_cleared': 'Explorar a Rota 29',
     'johto_slowpoke_well_cleared': 'Salvar o Poco Slowpoke',
@@ -2382,7 +2382,7 @@ const ChallengesScreen = ({
         {!isEmbedded && (
           <div className="flex items-center gap-4 p-4 border-b border-white/10">
             <button onClick={onClose} className="bg-white/10 hover:bg-white/20 text-white p-3 rounded-2xl transition-all active:scale-95">
-              ←
+              â†
             </button>
             <div>
               <h2 className="text-xl font-black text-white uppercase italic tracking-tighter leading-none">Desafios</h2>
@@ -2477,7 +2477,7 @@ const ChallengesScreen = ({
                   <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px] z-20 flex items-center justify-center pointer-events-none">
                     <div className="bg-white/90 border border-white px-6 py-2 rounded-full rotate-[-5deg] shadow-2xl">
                       <span className="text-slate-800 font-black italic uppercase tracking-widest text-[10px] flex items-center gap-2">
-                         <span className="text-emerald-500 font-black">✓</span> CONCLUÍDO
+                         <span className="text-emerald-500 font-black">âœ“</span> CONCLUÃDO
                       </span>
                     </div>
                   </div>
@@ -2513,7 +2513,7 @@ const ChallengesScreen = ({
                         </button>
                       </div>
                     )}
-                    {unlocked && !defeated && <span className="text-white/80 text-xl">›</span>}
+                    {unlocked && !defeated && <span className="text-white/80 text-xl">â€º</span>}
                   </div>
                 </div>
               </div>
@@ -2553,7 +2553,7 @@ const ChallengesScreen = ({
                     if (selectedChallenge.region === 'johto') {
                       const hasLocked = gameState.team.some(p => p.lockedUntilFlag && !(gameState.worldFlags || []).includes(p.lockedUntilFlag));
                       if (hasLocked) {
-                        setAlertMessage("Você não pode enfrentar batalhas em Johto com Pokémon guardados pelo Prof. Elm. Guarde-os no PC primeiro!");
+                        setAlertMessage("VocÃª nÃ£o pode enfrentar batalhas em Johto com PokÃ©mon guardados pelo Prof. Elm. Guarde-os no PC primeiro!");
                         return;
                       }
                     }
@@ -2573,7 +2573,7 @@ const ChallengesScreen = ({
       {alertMessage && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn" onClick={() => setAlertMessage(null)}>
            <div className="bg-slate-950 w-full max-w-sm rounded-[3rem] shadow-2xl p-8 animate-bounceIn text-center border-4 border-red-500" onClick={e => e.stopPropagation()}>
-              <div className="text-4xl mb-4">🚫</div>
+              <div className="text-4xl mb-4">ðŸš«</div>
               <h3 className="text-xl font-black text-white uppercase italic mb-4">Acesso Bloqueado</h3>
               <p className="text-sm font-bold text-white/60 mb-8">{alertMessage}</p>
               <button 
@@ -2590,3 +2590,4 @@ const ChallengesScreen = ({
 };
 
 export default ChallengesScreen;
+

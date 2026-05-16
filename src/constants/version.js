@@ -1,7 +1,18 @@
-export const APP_VERSION = '1.99.0';
-export const VERSION = '1.99.0';
-export const APP_VERSION_DATE = '16/05/2026 15:45';
+export const APP_VERSION = '2.0.0';
+export const VERSION = '2.0.0';
+export const APP_VERSION_DATE = '16/05/2026 17:30';
 export const CHANGELOG = [
+  '## [V2.0.0] - 16/05/2026 17:30',
+  '### Visual — Backgrounds Específicos para Todas as Rotas e Batalhas (10 Regiões)',
+  '- **200+ Backgrounds Originais**: Criados e integrados cenários únicos para cada rota, ginásio, rival e batalha em todas as 10 regiões (Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, Galar, Paldea, Hisui).',
+  '- **Kalos Completo**: Azure Bay, Frost Cavern, Snowbelle, Victory Road e Glittering Cave com imagens dedicadas (antes usavam cave/snow genéricos).',
+  '- **Alola Completo**: Verdant Cavern, Akala Island, Ulaula Island, Vast Poni Canyon e Mount Lanakila com cenários exclusivos.',
+  '- **Galar Completo**: Wild Area, Galar Mine, Hulbury, Circhester e Rose Tower com imagens específicas.',
+  '- **Paldea Completo**: Poco Path, Artazon, Medali, Glaseado Mountain e Area Zero com arte dedicada.',
+  '- **Kanto Expandido**: 15+ cenários específicos incluindo Rock Tunnel, SS Anne (Navio), Rocket Hideout, Silph Co., Pokémon Tower, Cerulean Cave e Pokémon Mansion.',
+  '- **Desafios Corrigidos**: Silph Co. e QG Rocket nos Challenges agora usam suas imagens exclusivas; rematches de ginásio usam bg_kanto_gym.',
+  '- **Zero Placeholders**: Eliminado o último uso de `bg_gym_1776863824590` em todos os componentes.',
+  '',
   '## [V1.99.0] - 16/05/2026 15:45',
   '### Visual — Standardização Global de Backgrounds e Asset Clean-up',
   '- **Unificação de Nomenclatura**: Todos os caminhos de fundo migrados para o padrão "bg_" unificado (Expedições, Ginásios, Bosses e Raids).',

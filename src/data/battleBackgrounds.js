@@ -160,7 +160,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── TORRE POKÉMON ────────────────────────────────────────
   pokemon_tower: {
-    sky: bg('bg_kanto_cave.webp'),
+    sky: bg('bg_kanto_pokemon_tower.webp'),
     label: 'Torre Pokémon',
     ground: '#200a38',
     groundAccent: '#10041e',
@@ -180,7 +180,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // QG DA EQUIPE ROCKET
   rocket_hideout: {
-    sky: bg('bg_kanto_lab.webp'),
+    sky: bg('bg_kanto_rocket_hideout.webp'),
     label: 'QG Rocket',
     ground: '#282020',
     groundAccent: '#181010',
@@ -230,7 +230,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // SILPH CO.
   silph_co: {
-    sky: bg('bg_kanto_lab.webp'),
+    sky: bg('bg_kanto_silph_co.webp'),
     label: 'Silph Co. — Arranha-Céu',
     ground: '#243058',
     groundAccent: '#141e3a',
@@ -260,7 +260,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── MANSÃO POKÉMON ───────────────────────────────────────
   pokemon_mansion: {
-    sky: bg('bg_kanto_lab.webp'),
+    sky: bg('bg_kanto_pokemon_mansion.webp'),
     label: 'Mansão Pokémon',
     ground: '#281010',
     groundAccent: '#180808',
@@ -320,7 +320,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // CAVERNA CERULEAN
   cerulean_cave: {
-    sky: bg('bg_kanto_cave.webp'),
+    sky: bg('bg_kanto_cerulean_cave.webp'),
     label: 'Caverna Cerulean - Lair de Mewtwo',
     ground: '#0c0c28',
     groundAccent: '#060614',
@@ -370,7 +370,7 @@ export const BATTLE_BACKGROUNDS = {
     elements: ['flower_lavender', 'statue_fountain', 'cloud'],
   },
   kalos_glittering_cave: {
-    sky: bg('bg_kalos_cave.webp'),
+    sky: bg('bg_kalos_glittering_cave.webp'),
     label: 'Glittering Cave',
     ground: '#1e293b', groundAccent: '#0f172a',
     timeOfDay: 'dark',
@@ -384,28 +384,28 @@ export const BATTLE_BACKGROUNDS = {
     elements: ['mirror_wall', 'crystal_pillar', 'blue_mist'],
   },
   kalos_azure_bay: {
-    sky: bg('bg_kalos_water.webp'),
+    sky: bg('bg_kalos_azure_bay.webp'),
     label: 'Azure Bay',
     ground: '#0e7490', groundAccent: '#155e75',
     timeOfDay: 'day',
     elements: ['ocean_wave', 'rock_arch', 'sea_spray'],
   },
   kalos_frost_cavern: {
-    sky: bg('bg_kalos_snow.webp'),
+    sky: bg('bg_kalos_frost_cavern.webp'),
     label: 'Frost Cavern',
     ground: '#f1f5f9', groundAccent: '#cbd5e1',
     timeOfDay: 'ice',
     elements: ['ice_stalactite', 'snow_drift', 'cold_breath'],
   },
   kalos_route_17: {
-    sky: bg('bg_kalos_snow.webp'),
+    sky: bg('bg_kalos_snowbelle.webp'),
     label: 'Kalos — Rota 17',
     ground: '#f1f5f9', groundAccent: '#cbd5e1',
     timeOfDay: 'ice',
     elements: ['mamoswine_track', 'snow_storm', 'frozen_rock'],
   },
   kalos_victory_road: {
-    sky: bg('bg_kalos_elite.webp'),
+    sky: bg('bg_kalos_victory_road.webp'),
     label: 'Victory Road Kalos',
     ground: '#334155', groundAccent: '#1e293b',
     timeOfDay: 'epic_cave',
@@ -498,14 +498,29 @@ export const BATTLE_BACKGROUNDS = {
   kalos_forest: { sky: bg('bg_kalos_forest.webp'), label: 'Floresta de Kalos', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_tree', 'forest_mist'] },
   kalos_league: { sky: bg('bg_kalos_elite.webp'), label: 'Liga Kalos', ground: '#334155', groundAccent: '#1e293b', timeOfDay: 'league', elements: ['league_pillar', 'gold_star'] },
 
-  alola_cave:   { sky: bg('bg_alola_route.webp'), label: 'Caverna de Alola', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['palm_tree', 'cave_entrance'] },
+  alola_verdant_cavern: { sky: bg('bg_alola_verdant_cavern.webp'), label: 'Verdant Cavern', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['palm_tree', 'cave_entrance'] },
+  alola_akala_island: { sky: bg('bg_alola_akala.webp'), label: 'Akala Island', ground: '#e0d0a0', groundAccent: '#c0b080', timeOfDay: 'day', elements: ['palm_tree', 'ocean_view'] },
+  alola_ula_ula_island: { sky: bg('bg_alola_ula_ula.webp'), label: "Ula'ula Island", ground: '#1e1b4b', groundAccent: '#312e81', timeOfDay: 'night', elements: ['graffiti_wall', 'volcanic_smoke'] },
+  alola_vast_poni_canyon: { sky: bg('bg_alola_poni_canyon.webp'), label: 'Vast Poni Canyon', ground: '#7c2d12', groundAccent: '#431407', timeOfDay: 'dramatic', elements: ['ancient_pillar', 'sharp_rock'] },
+  alola_mount_lanakila: { sky: bg('bg_alola_lanakila.webp'), label: 'Mount Lanakila', ground: '#f1f5f9', groundAccent: '#cbd5e1', timeOfDay: 'ice', elements: ['ice_crystal', 'snow_drift'] },
+  alola_cave:   { sky: bg('bg_alola_verdant_cavern.webp'), label: 'Caverna de Alola', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['palm_tree', 'cave_entrance'] },
   alola_volcano: { sky: bg('bg_alola_volcano.webp'), label: 'Vulcão de Alola', ground: '#450a0a', groundAccent: '#7f1d1d', timeOfDay: 'sunset', elements: ['fire_pillar', 'lava_pool'] },
   alola_aether: { sky: bg('bg_alola_aether.webp'), label: 'Aether Paradise', ground: '#f8fafc', groundAccent: '#f1f5f9', timeOfDay: 'indoor_tech', elements: ['glass_wall', 'server_rack'] },
 
-  galar_cave:   { sky: bg('bg_galar_route.webp'), label: 'Caverna de Galar', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['windmill', 'cave_entrance'] },
+  galar_wild_area_south: { sky: bg('bg_galar_wild_area.webp'), label: 'Wild Area', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'overcast', elements: ['windmill', 'stone_wall'] },
+  galar_mine_1: { sky: bg('bg_galar_mine.webp'), label: 'Galar Mine', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['mine_cart', 'cave_entrance'] },
+  galar_route_5: { sky: bg('bg_galar_hulbury.webp'), label: 'Hulbury Area', ground: '#0e7490', groundAccent: '#155e75', timeOfDay: 'overcast', elements: ['ocean_wave', 'lighthouse'] },
+  galar_route_9: { sky: bg('bg_galar_circhester.webp'), label: 'Circhester Area', ground: '#f1f5f9', groundAccent: '#cbd5e1', timeOfDay: 'ice', elements: ['ice_crystal', 'snow_drift'] },
+  galar_victory_road: { sky: bg('bg_galar_rose_tower.webp'), label: 'Rose Tower', ground: '#0f172a', groundAccent: '#020617', timeOfDay: 'night', elements: ['neon_light', 'city_view'] },
+  galar_cave:   { sky: bg('bg_galar_mine.webp'), label: 'Caverna de Galar', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['windmill', 'cave_entrance'] },
   galar_tundra: { sky: bg('bg_galar_tundra.webp'), label: 'Crown Tundra', ground: '#f1f5f9', groundAccent: '#cbd5e1', timeOfDay: 'ice', elements: ['ice_crystal', 'snow_storm'] },
 
-  paldea_cave:  { sky: bg('bg_paldea_route.webp'), label: 'Caverna de Paldea', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['olive_tree', 'cave_entrance'] },
+  poco_path: { sky: bg('bg_paldea_poco_path.webp'), label: 'Poco Path', ground: '#c0b870', groundAccent: '#908850', timeOfDay: 'day', elements: ['olive_tree', 'ocean_view'] },
+  paldea_artazon: { sky: bg('bg_paldea_artazon.webp'), label: 'Artazon', ground: '#d9a441', groundAccent: '#a16207', timeOfDay: 'day', elements: ['flower', 'statue_fountain'] },
+  paldea_medali: { sky: bg('bg_paldea_medali.webp'), label: 'Medali', ground: '#d0c0a0', groundAccent: '#b0a080', timeOfDay: 'day', elements: ['plaza_fountain', 'tiled_roof'] },
+  paldea_glaseado_mountain: { sky: bg('bg_paldea_glaseado.webp'), label: 'Glaseado Mountain', ground: '#f1f5f9', groundAccent: '#cbd5e1', timeOfDay: 'ice', elements: ['ice_crystal', 'snow_storm'] },
+  paldea_area_zero: { sky: bg('bg_paldea_area_zero.webp'), label: 'Area Zero', ground: '#1e1b4b', groundAccent: '#312e81', timeOfDay: 'legendary', elements: ['crystal_glow', 'ancient_rune'] },
+  paldea_cave:  { sky: bg('bg_paldea_area_zero.webp'), label: 'Caverna de Paldea', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['olive_tree', 'cave_entrance'] },
   paldea_desert: { sky: bg('bg_paldea_desert.webp'), label: 'Deserto de Paldea', ground: '#d4a373', groundAccent: '#a98467', timeOfDay: 'day', elements: ['cactus', 'sand_dune'] },
 
   hisui_sacred_plaza: { sky: bg('bg_hisui_sacred_plaza.webp'), label: 'Praça Sagrada', ground: '#140028', groundAccent: '#080010', timeOfDay: 'legendary', elements: ['ancient_pillar', 'celestial_light'] },
