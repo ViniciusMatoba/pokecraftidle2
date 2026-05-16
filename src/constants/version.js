@@ -1,7 +1,12 @@
-export const APP_VERSION = '1.98.0';
-export const VERSION = '1.98.0';
-export const APP_VERSION_DATE = '15/05/2026 21:47';
+export const APP_VERSION = '1.98.1';
+export const VERSION = '1.98.1';
+export const APP_VERSION_DATE = '15/05/2026 21:51';
 export const CHANGELOG = [
+  '## [V1.98.1] - 15/05/2026 21:51',
+  '### Melhorado — Efeitos Visuais de Batalha',
+  '- **Reação de Dano Suavizada**: O efeito de "piscar" (flicker) ao receber dano foi suavizado e encurtado, reduzindo o cansaço visual sem perder o feedback de impacto.',
+  '- **Overlays Elementais Dinâmicos**: Adicionada inteligência visual que sobrepõe efeitos de fogo, raio, água e gelo em todos os golpes dos respectivos tipos, mesmo para ataques genéricos.',
+  '',
   '## [V1.98.0] - 15/05/2026 21:47',
   '### Hardening — Progressão Regional e Lendários',
   '- **Fim dos Unlocks Passivos**: Removidas todas as travas de "unlocks" automáticas das rotas de liga (Unova, Kalos, Alola). Agora, o título de Campeão e o acesso ao pós-jogo são estritamente amarrados à vitória em batalha contra o Campeão.',

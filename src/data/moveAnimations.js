@@ -102,7 +102,7 @@ export const resolveMoveAnimation = (moveName, moveData) => {
       count: 3, 
       duration: 320,
       isComposite: true,
-      overlay: (name.includes('fire') || name.includes('ice') || name.includes('thunder')) ? type.toLowerCase() : null
+      overlay: (type === 'Fire' || type === 'Ice' || type === 'Electric') ? type.toLowerCase() : null
     };
   }
 
@@ -115,28 +115,28 @@ export const resolveMoveAnimation = (moveName, moveData) => {
       count: 3, 
       duration: 320,
       isComposite: true,
-      overlay: (name.includes('blaze') || name.includes('thunder') || name.includes('triple')) ? type.toLowerCase() : null
+      overlay: (type === 'Fire' || type === 'Electric' || name.includes('blaze') || name.includes('thunder')) ? type.toLowerCase() : null
     };
   }
 
   // Cortes / Lâminas
   if (name.includes('slash') || name.includes('cut') || name.includes('blade') || name.includes('scissor') || name.includes('chop') || name.includes('tail') || name.includes('claw')) {
-    return { type: 'slash', sprite: 'rightslash', color, count: 3, duration: 300 };
+    return { type: 'slash', sprite: 'rightslash', color, count: 3, duration: 300, overlay: (type === 'Fire' || type === 'Ice' || type === 'Electric') ? type.toLowerCase() : null };
   }
 
   // Jatos / Ondas (Elemental)
   if (name.includes('thrower') || name.includes('pump') || name.includes('spray') || name.includes('wave') || name.includes('breath') || name.includes('stream')) {
-    return { type: 'high_frequency_stream', sprite: type === 'Water' ? 'waterwisp' : 'fireball', color, count: 5, duration: 700 };
+    return { type: 'high_frequency_stream', sprite: type === 'Water' ? 'waterwisp' : 'fireball', color, count: 5, duration: 700, overlay: type.toLowerCase() };
   }
 
   // Raios / Feixes
   if (name.includes('beam') || name.includes('cannon') || name.includes('ray')) {
-    return { type: 'beam', sprite: 'lightball', color, count: 4, duration: 600 };
+    return { type: 'beam', sprite: 'lightball', color, count: 4, duration: 600, overlay: (type === 'Electric' || type === 'Ice' || type === 'Fire') ? type.toLowerCase() : null };
   }
 
   // Pulsos / Auras
   if (name.includes('pulse') || name.includes('aura') || name.includes('sphere')) {
-    return { type: 'pulse', sprite: 'lightball', color, count: 4, duration: 450 };
+    return { type: 'pulse', sprite: 'lightball', color, count: 4, duration: 450, overlay: (type === 'Fire' || type === 'Water' || type === 'Electric') ? type.toLowerCase() : null };
   }
 
   // 3. Fallback por Categoria / Tipo
@@ -145,7 +145,7 @@ export const resolveMoveAnimation = (moveName, moveData) => {
   }
 
   if (isPhysical) {
-    return { type: 'impact_flash', sprite: 'impact', color, count: 1, duration: 250 };
+    return { type: 'impact_flash', sprite: 'impact', color, count: 1, duration: 250, overlay: (type === 'Fire' || type === 'Ice' || type === 'Electric') ? type.toLowerCase() : null };
   }
 
   // Fallback Geral (Mágica elemental)
@@ -154,6 +154,7 @@ export const resolveMoveAnimation = (moveName, moveData) => {
     sprite: type === 'Fire' ? 'fireball' : type === 'Water' ? 'waterwisp' : type === 'Electric' ? 'electroball' : 'lightball', 
     color, 
     count: 3, 
-    duration: 400 
+    duration: 400,
+    overlay: (type === 'Fire' || type === 'Water' || type === 'Electric' || type === 'Ice') ? type.toLowerCase() : null
   };
 };
