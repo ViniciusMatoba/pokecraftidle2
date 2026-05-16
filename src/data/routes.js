@@ -1590,27 +1590,32 @@ const REGIONAL_DEX_COVERAGE_ROUTES = {
   ...buildRegionalDexCoverageRoutes({
     region: 'unova', label: 'Unova', regionIndex: 4, startRequirement: 'unova_started', championRequirement: 'unova_champion',
     range: [494, 649],
-    backgrounds: { route: '/bg_unova_route.webp', forest: '/bg_unova_forest.webp', cave: '/bg_unova_cave.webp', elite: '/bg_unova_elite.webp' },
+    backgrounds: { route: '/bg_unova_route.webp', forest: '/bg_unova_forest.webp', cave: '/bg_unova_chargestone.webp', elite: '/bg_unova_elite.webp' },
   }),
   ...buildRegionalDexCoverageRoutes({
     region: 'kalos', label: 'Kalos', regionIndex: 5, startRequirement: 'kalos_started', championRequirement: 'kalos_champion',
     range: [650, 721],
-    backgrounds: { route: '/bg_kalos_route.webp', forest: '/bg_kalos_forest.webp', cave: '/bg_kalos_cave.webp', elite: '/bg_kalos_elite.webp' },
+    backgrounds: { route: '/bg_kalos_route.webp', forest: '/bg_kalos_forest.webp', cave: '/bg_kalos_snow.webp', elite: '/bg_kalos_elite.webp' },
   }),
   ...buildRegionalDexCoverageRoutes({
     region: 'alola', label: 'Alola', regionIndex: 6, startRequirement: 'alola_started', championRequirement: 'alola_champion',
     range: [722, 809],
-    backgrounds: { route: '/bg_alola_route.webp', forest: '/bg_alola_route.webp', cave: '/bg_alola_cave.webp', elite: '/bg_alola_elite.webp' },
+    backgrounds: { route: '/bg_alola_route.webp', forest: '/bg_alola_volcano.webp', cave: '/bg_alola_cave.webp', elite: '/bg_alola_elite.webp' },
   }),
   ...buildRegionalDexCoverageRoutes({
     region: 'galar', label: 'Galar', regionIndex: 7, startRequirement: 'galar_started', championRequirement: 'galar_champion',
     range: [810, 905],
-    backgrounds: { route: '/bg_galar_route.webp', forest: '/bg_galar_forest.webp', cave: '/bg_galar_cave.webp', elite: '/bg_galar_elite.webp' },
+    backgrounds: { route: '/bg_galar_route.webp', forest: '/bg_galar_forest.webp', cave: '/bg_galar_tundra.webp', elite: '/bg_galar_elite.webp' },
   }),
   ...buildRegionalDexCoverageRoutes({
     region: 'paldea', label: 'Paldea', regionIndex: 8, startRequirement: 'paldea_started', championRequirement: 'paldea_champion',
     range: [906, 1025],
-    backgrounds: { route: '/bg_paldea_route.webp', forest: '/bg_paldea_route.webp', cave: '/bg_paldea_cave.webp', elite: '/bg_paldea_elite.webp' },
+    backgrounds: { route: '/bg_paldea_route.webp', forest: '/bg_paldea_route.webp', cave: '/bg_paldea_desert.webp', elite: '/bg_paldea_elite.webp' },
+  }),
+  ...buildRegionalDexCoverageRoutes({
+    region: 'hisui', label: 'Hisui', regionIndex: 9, startRequirement: 'hisui_started', championRequirement: 'hisui_champion',
+    range: [899, 905], // Hisui specific dex range (simplified for coverage)
+    backgrounds: { route: '/battle_bg_hisui_fieldlands.webp', forest: '/battle_bg_hisui_fieldlands.webp', cave: '/battle_bg_hisui_sacred_plaza.webp', elite: '/battle_bg_hisui_sacred_plaza.webp' },
   }),
 };
 

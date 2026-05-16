@@ -1,7 +1,15 @@
-export const APP_VERSION = '1.97.2';
-export const VERSION = '1.97.2';
-export const APP_VERSION_DATE = '15/05/2026 21:00';
+export const APP_VERSION = '1.97.3';
+export const VERSION = '1.97.3';
+export const APP_VERSION_DATE = '16/05/2026 00:20';
 export const CHANGELOG = [
+  '## [V1.97.3] - 16/05/2026 00:20',
+  '### Adicionado — Auditoria e Limpeza de Backgrounds (Unova a Paldea)',
+  '- **Correção de Paths**: Substituídos caminhos temporários (`_temp.png`) pelos assets finais (`.webp`) em Kalos e Galar.',
+  '- **Arenas Temáticas Alola**: Implementado `gymBgs` para Alola, mapeando o Vulcão Wela e arenas de expedição para os Capitães.',
+  '- **Arenas Temáticas Paldea**: Mapeamento completo dos ginásios de Paldea usando o Deserto de Asado e templos de expedição, eliminando o uso da arena da Liga como placeholder.',
+  '- **Rotas de Dex Coverage**: Todas as rotas de "Habitat Regional" (Kanto a Hisui) auditadas para usar os melhores backgrounds temáticos disponíveis.',
+  '- **Hisui Coverage**: Adicionada a cobertura de Dex para Hisui no sistema de rotas globais.',
+  '',
   '## [V1.97.2] - 15/05/2026 21:00',
   '### Adicionado — Overhaul de Arenas (Mapeamento Completo)',
   '- **Mapeamento Regional**: Todas as regiões (Unova a Paldea) agora possuem arenas temáticas para cada líder.',
