@@ -2424,7 +2424,7 @@ export default function App() {
     const baseRef = pickWeightedEncounter(enemyPool, POKEDEX) || { id: 16, level: 3 };
 
     // Se for um lendário, registra o spawn do dia
-    if (legendaryIds.includes(Number(baseRef.id))) {
+    if (LEGENDARY_IDS.includes(Number(baseRef.id))) {
       setGameState(prev => ({
         ...prev,
         lastLegendarySpawns: {
