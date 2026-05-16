@@ -8,6 +8,15 @@ import {
 } from '../data/expeditions';
 import { ITEM_LABELS } from '../data/constants';
 
+const _BASE = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
+const fixBgPath = (bg) => {
+  if (!bg) return '';
+  if (bg.includes('gradient')) return bg;
+  if (bg.includes('url(')) return bg.replace(/url\(['"]?(\/[^'"]+)['"]?\)/g, (_, p) => `url('${_BASE}${p}')`);
+  const cleanPath = bg.startsWith('/') ? bg : `/${bg}`;
+  return `url('${_BASE}${cleanPath}') center/cover no-repeat`;
+};
+
 const MAX_EXPEDITION_TEAM = 3;
 const POKEAPI_ITEM_SPRITE = (id) =>
   `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${String(id).replace(/_/g, '-')}.png`;
@@ -404,7 +413,7 @@ const ExpeditionsScreen = ({
                       ? 'cursor-pointer hover:scale-[1.03] active:scale-[0.97]'
                       : 'opacity-50 cursor-not-allowed'
                   }`}
-                  style={{ background: biome.bg, minHeight: 120 }}
+                  style={{ background: fixBgPath(biome.bg), minHeight: 120 }}
                 >
                   <div
                     className="absolute inset-0 opacity-10 pointer-events-none"
@@ -462,7 +471,7 @@ const ExpeditionsScreen = ({
             {/* Card do bioma */}
             <div
               className="rounded-[2rem] overflow-hidden relative"
-              style={{ background: selectedBiome.bg }}
+              style={{ background: fixBgPath(selectedBiome.bg) }}
             >
               <div
                 className="absolute inset-0 opacity-10 pointer-events-none"

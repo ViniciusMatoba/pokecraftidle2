@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
+const _BASE = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
+const fixBgPath = (bg) => {
+  if (!bg) return '';
+  if (bg.includes('gradient')) return bg;
+  if (bg.includes('url(')) return bg.replace(/url\(['"]?(\/[^'"]+)['"]?\)/g, (_, p) => `url('${_BASE}${p}')`);
+  const cleanPath = bg.startsWith('/') ? bg : `/${bg}`;
+  return `url('${_BASE}${cleanPath}') center/cover no-repeat`;
+};
+
 const STAR_COLOR = {
   1: '#94a3b8',
   2: '#22c55e',
@@ -218,7 +227,7 @@ const RaidScreen = ({
     <div style={{
       position: 'fixed', inset: 0, zIndex: 9990,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: 16, background: `rgba(2,6,23,0.85) url('${import.meta.env.BASE_URL}raid_bg.webp') center/cover no-repeat`,
+      padding: 16, background: fixBgPath('bg_raid.webp'),
       backdropFilter: 'blur(20px)',
     }}>
       <style>{`

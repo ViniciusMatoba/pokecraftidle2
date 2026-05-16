@@ -1,7 +1,15 @@
-export const APP_VERSION = '1.98.15';
-export const VERSION = '1.98.15';
-export const APP_VERSION_DATE = '16/05/2026 12:34';
+export const APP_VERSION = '1.99.0';
+export const VERSION = '1.99.0';
+export const APP_VERSION_DATE = '16/05/2026 15:45';
 export const CHANGELOG = [
+  '## [V1.99.0] - 16/05/2026 15:45',
+  '### Visual — Standardização Global de Backgrounds e Asset Clean-up',
+  '- **Unificação de Nomenclatura**: Todos os caminhos de fundo migrados para o padrão "bg_" unificado (Expedições, Ginásios, Bosses e Raids).',
+  '- **Remoção de Timestamps**: Limpeza de nomes de arquivos legados com timestamps (ex: `bg_grass_1776863779024` -> `bg_kanto_grass`).',
+  '- **Performance e Confiabilidade**: Implementação do helper `fixBgPath` em todos os componentes de UI para garantir carregamento dinâmico robusto em qualquer ambiente (GitHub Pages/Local).',
+  '- **Correção de Batalhas**: Atualização completa do `battleBackgrounds.js` para usar o novo padrão de nomes limpos, eliminando falhas de carregamento em rotas clássicas.',
+  '- **Raid Screen Fix**: Corrigido background da Raid que utilizava path quebrado e agora segue o padrão "bg_raid.webp".',
+  '',
   '## [V1.98.15] - 16/05/2026 12:34',
   '### Visual — Padronização Global de Backgrounds de Batalha',
   '- **Standardização de Assets**: Migração completa de todos os caminhos legados "battle_bg_" para o novo padrão "bg_", garantindo consistência visual em todo o jogo.',

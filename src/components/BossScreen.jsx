@@ -4,7 +4,16 @@ import { collection, query, orderBy, limit, onSnapshot, doc, getDoc } from 'fire
 import { GYMS, ELITE_FOUR } from '../data/gyms';
 
 const _BASE = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
-const fixBgPath = (bg) => bg ? bg.replace(/url\(['"]?(\/[^'"]+)['"]?\)/g, (_, p) => `url('${_BASE}${p}')`) : bg;
+const fixBgPath = (bg) => {
+  if (!bg) return '';
+  // Se for o novo padrão (apenas o nome do arquivo), converte para url(...)
+  if (!bg.includes('url(')) {
+    const cleanPath = bg.startsWith('/') ? bg : `/${bg}`;
+    return `url('${_BASE}${cleanPath}') center/cover no-repeat`;
+  }
+  // Se for legado url('/...'), injeta o _BASE
+  return bg.replace(/url\(['"]?(\/[^'"]+)['"]?\)/g, (_, p) => `url('${_BASE}${p}')`);
+};
 
 // Importação dinâmica para evitar circularidade se possível, ou apenas usar os dados locais
 const BOSS_TYPES = ['Gym Leader', 'Elite Four', 'Team Villain', 'Legendary'];
@@ -63,7 +72,7 @@ const BossScreen = ({ gameState, powerScore = 0, onChallengeBoss }) => {
           : 'https://play.pokemonshowdown.com/sprites/trainers/giovanni.png',
         team: [{ id: randomId, level: 100 }],
         quote: type === 'Legendary' ? '"O rugido da natureza ecoa..."' : '"Você não imagina o poder que enfrentará!"',
-        background: "url('/bg_gym_1776863824590.webp') center/cover no-repeat"
+        background: "bg_gym_1776863824590.webp"
       };
     }
 
@@ -71,13 +80,13 @@ const BossScreen = ({ gameState, powerScore = 0, onChallengeBoss }) => {
       switch (bType) {
         case 'Gym Leader':
         case 'Elite Four':
-          return "url('/bg_gym_1776863824590.webp') center/cover no-repeat";
+          return "bg_gym_1776863824590.webp";
         case 'Team Villain':
-          return "url('/bg_lab_1776866008842.webp') center/cover no-repeat";
+          return "bg_lab_1776866008842.webp";
         case 'Legendary':
-          return "url('/bg_cave_1776863810604.webp') center/cover no-repeat";
+          return "bg_cave_1776863810604.webp";
         default:
-          return "url('/bg_grass_1776863779024.webp') center/cover no-repeat";
+          return "bg_grass_1776863779024.webp";
       }
     };
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { isRouteUnlocked as checkRouteUnlocked, getSortedRoutes, inferRouteRegion } from '../data/routes';
+import { isRouteUnlocked as checkRouteUnlocked, getSortedRoutes, inferRouteRegion, ROUTES } from '../data/routes';
 import { CRAFTING_RECIPES } from '../data/recipes';
+import { getRouteBg } from '../data/battleBackgrounds';
 
 const EVOLUTION_FRAGMENT_DROPS = {
   4: 'fire_stone_shard', 5: 'fire_stone_shard', 6: 'fire_stone_shard', 37: 'fire_stone_shard', 58: 'fire_stone_shard', 77: 'fire_stone_shard', 126: 'fire_stone_shard',
@@ -131,11 +132,20 @@ const TravelScreen = ({
     }
   }, [kantoChampion, johtoStarted, gameState.currentRoute, sortedRoutes]);
 
-  // ===== PRELOADER DE BACKGROUND DA ROTA =====
+  // ===== RESOLVER DE BACKGROUND DA ROTA =====
+  const getBgPath = (route) => {
+    if (!route) return '';
+    if (route.background && route.background.includes('.webp')) return fixPath(route.background);
+    const theme = getRouteBg(route.id);
+    const match = theme.sky.match(/url\(['"]?([^'"]+)['"]?\)/);
+    return match ? match[1] : '';
+  };
+
   React.useEffect(() => {
-    if (selectedRoute?.background) {
+    const bgPath = getBgPath(selectedRoute);
+    if (bgPath) {
       const img = new Image();
-      img.src = fixPath(selectedRoute.background);
+      img.src = bgPath;
     }
   }, [selectedRoute, fixPath]);
   const periodOrder = ['morning', 'day', 'evening', 'night'];
@@ -465,7 +475,7 @@ const TravelScreen = ({
                       >
                          <div className="flex items-center gap-4">
                            <div className="w-16 h-16 rounded-3xl overflow-hidden shadow-inner relative flex-shrink-0 bg-slate-200">
-                             <img src={fixPath(route.background)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={route.name} />
+                             <img src={getBgPath(route)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={route.name} />
                              {!unlocked && (
                                <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex items-center justify-center">
                                   <span className="text-lg">🔒</span>
@@ -511,7 +521,7 @@ const TravelScreen = ({
           <div className="bg-white w-full max-w-[400px] md:max-w-md rounded-[2rem] shadow-2xl overflow-hidden flex flex-col animate-bounceIn" style={{ maxHeight: '94dvh' }}>
             <div className="overflow-y-auto custom-scrollbar flex-1">
             <div className="h-36 sm:h-40 relative flex-shrink-0">
-              <img src={fixPath(selectedRoute.background)} className="w-full h-full object-cover" alt="" />
+              <img src={getBgPath(selectedRoute)} className="w-full h-full object-cover" alt="" />
               <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
               <button 
                 onClick={() => setSelectedRoute(null)}

@@ -1,15 +1,15 @@
 // Dados dos Ginásios de Kanto + Liga Pokémon
 
 export const GYM_BG = {
-  Rock:     "url('/bg_gym_rock.webp') center/cover no-repeat",
-  Water:    "url('/bg_gym_water.webp') center/cover no-repeat",
-  Electric: "url('/bg_gym_electric.webp') center/cover no-repeat",
-  Elite:    "url('/bg_elite_four.webp') center/cover no-repeat",
-  Grass:    "url('/bg_forest_1776863795763.webp') center/cover no-repeat",
-  Poison:   "url('/bg_gym_1776863824590.webp') center/cover no-repeat",
-  Psychic:  "url('/bg_gym_1776863824590.webp') center/cover no-repeat",
-  Fire:     "url('/bg_cave_1776863810604.webp') center/cover no-repeat",
-  Ground:   "url('/bg_gym_1776863824590.webp') center/cover no-repeat",
+  Rock:     "bg_gym_rock.webp",
+  Water:    "bg_gym_water.webp",
+  Electric: "bg_gym_electric.webp",
+  Elite:    "bg_gym_elite.webp",
+  Grass:    "bg_gym_grass.webp",
+  Poison:   "bg_gym_standard.webp",
+  Psychic:  "bg_gym_standard.webp",
+  Fire:     "bg_gym_fire.webp",
+  Ground:   "bg_gym_standard.webp",
 };
 
 export const GYMS = [

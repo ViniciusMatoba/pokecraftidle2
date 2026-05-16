@@ -7,6 +7,15 @@ import { getTrainerCurrencyReward } from '../utils/economy';
 import ChallengesScreen from './ChallengesScreen';
 import { getUnlockedRegions, REGION_LABELS, REGION_BADGE_IDS } from '../data/regionStandards';
 
+const _BASE = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
+const fixBgPath = (bg) => {
+  if (!bg) return '';
+  if (bg.includes('gradient')) return bg;
+  if (bg.includes('url(')) return bg.replace(/url\(['"]?(\/[^'"]+)['"]?\)/g, (_, p) => `url('${_BASE}${p}')`);
+  const cleanPath = bg.startsWith('/') ? bg : `/${bg}`;
+  return `url('${_BASE}${cleanPath}') center/cover no-repeat`;
+};
+
 const JOHTO_BADGES = [
   { id: 'zephyr_badge', badge: 'zephyr_badge', badgeOrder: 1 },
   { id: 'hive_badge', badge: 'hive_badge', badgeOrder: 2 },
@@ -77,7 +86,7 @@ const GymCard = ({ gym, earned, locked, onClick }) => {
   return (
     <div
       className={`relative rounded-[2rem] overflow-hidden shadow-xl transition-all border-2 ${locked ? 'opacity-50 grayscale-[0.5] border-white/10' : 'hover:scale-[1.02] active:scale-[0.98] cursor-pointer group border-white/15 hover:border-pokeGold/60'}`}
-      style={{ minHeight: '188px', background: gym.background || `linear-gradient(135deg, ${col} 0%, #0f172a 100%)` }}
+      style={{ minHeight: '188px', background: fixBgPath(gym.background) || `linear-gradient(135deg, ${col} 0%, #0f172a 100%)` }}
       onClick={() => onClick(gym)}
     >
       <div className="absolute inset-0 bg-gradient-to-r from-slate-950/88 via-slate-950/55 to-slate-950/18" />
@@ -136,7 +145,7 @@ const EliteCard = ({ member, index, earned, locked, onClick }) => {
   return (
     <div
       className={`relative rounded-[2rem] overflow-hidden shadow-xl transition-all mb-4 border-2 ${locked ? 'opacity-50 grayscale-[0.5] border-white/10' : 'hover:scale-[1.02] active:scale-[0.98] cursor-pointer group border-white/15 hover:border-pokeGold/60'}`}
-      style={{ minHeight: '138px', background: member.background || `linear-gradient(135deg, ${col} 0%, #111827 100%)` }}
+      style={{ minHeight: '138px', background: fixBgPath(member.background) || `linear-gradient(135deg, ${col} 0%, #111827 100%)` }}
       onClick={() => !locked && onClick(member)}
     >
       <div className="absolute inset-0 bg-gradient-to-r from-slate-950/88 via-slate-950/54 to-slate-950/18" />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import MoveAnimationLayer from './MoveAnimationLayer';
 import { StatusBadges } from './CommonUI';
-import { BATTLE_BACKGROUNDS } from '../data/battleBackgrounds';
+import { BATTLE_BACKGROUNDS, getRouteBg } from '../data/battleBackgrounds';
 import ActiveEffectsBar from './ActiveEffectsBar';
 import { MOVES } from '../data/moves';
 import { MOVE_TRANSLATIONS } from '../data/translations';
@@ -159,7 +159,7 @@ const BattleScreen = ({
 
   const hpPercent = ((currentEnemy.hp || 0) / (currentEnemy.maxHp || 1)) * 100;
   const route = ROUTES[gameState.currentRoute] || ROUTES.pallet_town;
-  const bgTheme = BATTLE_BACKGROUNDS[gameState.currentRoute] || BATTLE_BACKGROUNDS.pallet_town;
+  const bgTheme = getRouteBg(gameState.currentRoute);
   const customBg = currentEnemy.background || route.background;
   
   const formatBg = (bg) => {

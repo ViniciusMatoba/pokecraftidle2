@@ -1,5 +1,12 @@
 # Changelog - PokeCraft
 
+## [v1.99.0] - 16/05/2026 15:45
+### Alterado
+- **Standardização de Backgrounds**: Migração completa de todos os assets de fundo para a convenção `bg_` unificada em todo o projeto.
+- **Limpeza de Ativos**: Remoção de prefixos `battle_bg_` e eliminação de timestamps em arquivos de cenários de Kanto e demais regiões.
+- **Correção de Caminhos**: Atualização de `gyms.js`, `battleBackgrounds.js`, `expeditions.js` e componentes de UI (`BossScreen`, `GymScreen`, `ExpeditionsScreen`, `RaidScreen`) para o novo padrão de nomes limpos.
+- **Performance**: Otimização do carregamento dinâmico de backgrounds via helper centralizado, garantindo compatibilidade com GitHub Pages e Vite.
+
 ## [v1.88.8] - 14/05/2026 22:10
 ### Adicionado
 - **Tutorial de Boas-Vindas**: Modal de 6 passos (Rotas, Cidade, Rivais, Ginásios, Raids, Boss) exibido na primeira visita à Cidade após o starter.

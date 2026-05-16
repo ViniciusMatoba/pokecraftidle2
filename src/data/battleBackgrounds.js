@@ -10,7 +10,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // PALLET TOWN
   pallet_town: {
-    sky: bg('bg_grass_1776863779024.webp'),
+    sky: bg('bg_kanto_grass.webp'),
     label: 'Cidade Pallet',
     ground: '#7cb850',
     groundAccent: '#5a9e3a',
@@ -20,7 +20,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ROTA 1
   route_1: {
-    sky: bg('bg_grass_1776863779024.webp'),
+    sky: bg('bg_kanto_grass.webp'),
     label: 'Rota 1',
     ground: '#6ab040',
     groundAccent: '#52943a',
@@ -30,7 +30,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // VIRIDIAN CITY
   viridian_city: {
-    sky: bg('bg_grass_1776863779024.webp'),
+    sky: bg('bg_kanto_grass.webp'),
     label: 'Cidade Viridian',
     ground: '#82b844',
     groundAccent: '#6a9e36',
@@ -40,7 +40,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ROTA 22
   route_22: {
-    sky: bg('bg_route22_1776993565727.webp'),
+    sky: bg('bg_kanto_route22.webp'),
     label: 'Rota 22 — Pôr do Sol',
     ground: '#8fbc8f',
     groundAccent: '#5a9e3a',
@@ -50,7 +50,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // FLORESTA DE VIRIDIAN
   viridian_forest: {
-    sky: bg('bg_forest_1776863795763.webp'),
+    sky: bg('bg_kanto_forest.webp'),
     label: 'Floresta de Viridian',
     ground: '#3a6e28',
     groundAccent: '#2a5020',
@@ -60,7 +60,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // PEWTER CITY
   pewter_city: {
-    sky: bg('bg_gym_1776863824590.webp'),
+    sky: bg('bg_kanto_gym.webp'),
     label: 'Cidade Pewter',
     ground: '#a89880',
     groundAccent: '#8a7860',
@@ -70,7 +70,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ROTA 3
   route_3: {
-    sky: bg('bg_route3_1776993578907.webp'),
+    sky: bg('bg_kanto_route3.webp'),
     label: 'Rota 3',
     ground: '#c0d880',
     groundAccent: '#8ab850',
@@ -80,7 +80,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // MT. MOON
   mt_moon: {
-    sky: bg('bg_cave_1776863810604.webp'),
+    sky: bg('bg_kanto_cave.webp'),
     label: 'Mt. Moon',
     ground: '#3a3050',
     groundAccent: '#252035',
@@ -100,7 +100,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ROTA 24/25
   route_24_25: {
-    sky: bg('bg_route24_25_1776993592209.webp'),
+    sky: bg('bg_kanto_route24_25.webp'),
     label: 'Rota do Cabo Cerulean',
     ground: '#98d488',
     groundAccent: '#5aaa40',
@@ -110,7 +110,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ROTA 5/6
   route_5_6: {
-    sky: bg('bg_route5_6_1776993605611.webp'),
+    sky: bg('bg_kanto_route5_6.webp'),
     label: 'Rota 5-6',
     ground: '#b8e090',
     groundAccent: '#78b848',
@@ -120,7 +120,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // S.S. ANNE
   ss_anne: {
-    sky: bg('bg_ship_1776863844924.webp'),
+    sky: bg('bg_kanto_ship.webp'),
     label: 'S.S. Anne',
     ground: '#0a4878',
     groundAccent: '#053060',
@@ -140,7 +140,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ROTA 9/10
   route_9_10: {
-    sky: bg('bg_route9_10_1776993620394.webp'),
+    sky: bg('bg_kanto_route9_10.webp'),
     label: 'Rota 9-10',
     ground: '#80a860',
     groundAccent: '#507840',
@@ -150,7 +150,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ROCK TUNNEL
   rock_tunnel: {
-    sky: bg('bg_rock_tunnel_1776993634918.webp'),
+    sky: bg('bg_kanto_rock_tunnel.webp'),
     label: 'Rock Tunnel — Escuridão',
     ground: '#1e1810',
     groundAccent: '#120e0a',
@@ -160,7 +160,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── TORRE POKÉMON ────────────────────────────────────────
   pokemon_tower: {
-    sky: bg('bg_cave_1776863810604.webp'),
+    sky: bg('bg_kanto_cave.webp'),
     label: 'Torre Pokémon',
     ground: '#200a38',
     groundAccent: '#10041e',
@@ -170,7 +170,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ROTA 7/8
   route_7_8: {
-    sky: bg('bg_grass_1776863779024.webp'),
+    sky: bg('bg_kanto_grass.webp'),
     label: 'Rota 7-8',
     ground: '#c8e890',
     groundAccent: '#88b850',
@@ -180,7 +180,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // QG DA EQUIPE ROCKET
   rocket_hideout: {
-    sky: bg('bg_lab_1776866008842.webp'),
+    sky: bg('bg_kanto_lab.webp'),
     label: 'QG Rocket',
     ground: '#282020',
     groundAccent: '#181010',
@@ -190,7 +190,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // CELADON CITY
   celadon_city: {
-    sky: bg('bg_forest_1776863795763.webp'),
+    sky: bg('bg_kanto_forest.webp'),
     label: 'Celadon - Jardins',
     ground: '#a8d890',
     groundAccent: '#68a860',
@@ -210,7 +210,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // SAFARI ZONE
   safari_zone: {
-    sky: bg('bg_forest_1776863795763.webp'),
+    sky: bg('bg_kanto_forest.webp'),
     label: 'Zona Safari',
     ground: '#70b878',
     groundAccent: '#58a060',
@@ -220,7 +220,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // FUCHSIA CITY
   fuchsia_city: {
-    sky: bg('bg_gym_1776863824590.webp'),
+    sky: bg('bg_kanto_gym.webp'),
     label: 'Fuchsia — Ginásio do Veneno',
     ground: '#b870b0',
     groundAccent: '#903090',
@@ -230,7 +230,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // SILPH CO.
   silph_co: {
-    sky: bg('bg_lab_1776866008842.webp'),
+    sky: bg('bg_kanto_lab.webp'),
     label: 'Silph Co. — Arranha-Céu',
     ground: '#243058',
     groundAccent: '#141e3a',
@@ -240,7 +240,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // SAFFRON CITY
   saffron_city: {
-    sky: bg('bg_gym_1776863824590.webp'),
+    sky: bg('bg_kanto_gym.webp'),
     label: 'Saffron — Arena Psíquica',
     ground: '#d83090',
     groundAccent: '#a01870',
@@ -250,7 +250,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // CYCLING ROAD (ROTA 16-18)
   route_16_18: {
-    sky: bg('bg_route16_17_18.webp'),
+    sky: bg('bg_kanto_cycling_road.webp'),
     label: 'Cycling Road',
     ground: '#d0e8a8',
     groundAccent: '#90c060',
@@ -260,7 +260,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── MANSÃO POKÉMON ───────────────────────────────────────
   pokemon_mansion: {
-    sky: bg('bg_lab_1776866008842.webp'),
+    sky: bg('bg_kanto_lab.webp'),
     label: 'Mansão Pokémon',
     ground: '#281010',
     groundAccent: '#180808',
@@ -270,7 +270,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // CINNABAR ISLAND
   cinnabar_island: {
-    sky: bg('bg_cave_1776863810604.webp'),
+    sky: bg('bg_kanto_cave.webp'),
     label: 'Ilha Cinnabar — Vulcão',
     ground: '#d06030',
     groundAccent: '#a04018',
@@ -290,7 +290,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // ─── GINÁSIO DE VIRIDIAN ──────────────────────────────────
   viridian_gym: {
-    sky: bg('bg_gym_1776863824590.webp'),
+    sky: bg('bg_kanto_gym.webp'),
     label: 'Ginásio de Viridian — Terra',
     ground: '#4a3020',
     groundAccent: '#2a1a10',
@@ -300,7 +300,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // VICTORY ROAD
   victory_road: {
-    sky: bg('bg_cave_1776863810604.webp'),
+    sky: bg('bg_kanto_cave.webp'),
     label: 'Victory Road',
     ground: '#0c1220',
     groundAccent: '#06080e',
@@ -310,7 +310,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // PLATEAU INDIGO
   indigo_plateau: {
-    sky: bg('bg_gym_1776863824590.webp'),
+    sky: bg('bg_kanto_gym.webp'),
     label: 'Plateau Indigo — Liga Pokémon',
     ground: '#140028',
     groundAccent: '#080010',
@@ -320,7 +320,7 @@ export const BATTLE_BACKGROUNDS = {
 
   // CAVERNA CERULEAN
   cerulean_cave: {
-    sky: bg('bg_cave_1776863810604.webp'),
+    sky: bg('bg_kanto_cave.webp'),
     label: 'Caverna Cerulean - Lair de Mewtwo',
     ground: '#0c0c28',
     groundAccent: '#060614',
@@ -475,7 +475,7 @@ export const BATTLE_BACKGROUNDS = {
   },
 
   // --- REGIONAL GENERICS ---
-  kanto_generic: { sky: bg('bg_grass_1776863779024.webp'), label: 'Kanto', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'oak_tree'] },
+  kanto_generic: { sky: bg('bg_kanto_grass.webp'), label: 'Kanto', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'oak_tree'] },
   johto_generic: { sky: bg('bg_new_bark_town.webp'), label: 'Johto', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'shrine'] },
   hoenn_generic: { sky: bg('bg_hoenn_route.webp'), label: 'Hoenn', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'tropical_leaf'] },
   sinnoh_generic: { sky: bg('bg_sinnoh_route.webp'), label: 'Sinnoh', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'pine_tree'] },
@@ -485,6 +485,30 @@ export const BATTLE_BACKGROUNDS = {
   galar_generic: { sky: bg('bg_galar_route.webp'), label: 'Galar', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'overcast', elements: ['windmill', 'stone_wall'] },
   paldea_generic: { sky: bg('bg_paldea_route.webp'), label: 'Paldea', ground: '#c0b870', groundAccent: '#908850', timeOfDay: 'day', elements: ['olive_tree', 'mountain_range'] },
   hisui_generic: { sky: bg('bg_hisui_fieldlands.webp'), label: 'Hisui', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['ancient_tree', 'tall_grass'] },
+
+  // --- REGIONAL BIOMES (Fallbacks) ---
+  unova_cave:   { sky: bg('bg_unova_cave.webp'), label: 'Caverna de Unova', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['stalactite', 'cave_entrance'] },
+  unova_forest: { sky: bg('bg_unova_forest.webp'), label: 'Floresta de Unova', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_tree', 'forest_mist'] },
+  unova_league: { sky: bg('bg_unova_elite.webp'), label: 'Liga Unova', ground: '#334155', groundAccent: '#1e293b', timeOfDay: 'league', elements: ['league_pillar', 'gold_star'] },
+  unova_desert: { sky: bg('bg_unova_desert.webp'), label: 'Deserto de Unova', ground: '#d4a373', groundAccent: '#a98467', timeOfDay: 'day', elements: ['cactus', 'sand_dune'] },
+  unova_chargestone: { sky: bg('bg_unova_chargestone.webp'), label: 'Chargestone Cave', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['crystal_shard', 'electric_spark'] },
+  unova_ice: { sky: bg('bg_unova_ice.webp'), label: 'Montanha de Gelo', ground: '#f1f5f9', groundAccent: '#cbd5e1', timeOfDay: 'ice', elements: ['ice_stalactite', 'snow_drift'] },
+  
+  kalos_cave:   { sky: bg('bg_kalos_cave.webp'), label: 'Caverna de Kalos', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['crystal_shard', 'cave_entrance'] },
+  kalos_forest: { sky: bg('bg_kalos_forest.webp'), label: 'Floresta de Kalos', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_tree', 'forest_mist'] },
+  kalos_league: { sky: bg('bg_kalos_elite.webp'), label: 'Liga Kalos', ground: '#334155', groundAccent: '#1e293b', timeOfDay: 'league', elements: ['league_pillar', 'gold_star'] },
+
+  alola_cave:   { sky: bg('bg_alola_route.webp'), label: 'Caverna de Alola', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['palm_tree', 'cave_entrance'] },
+  alola_volcano: { sky: bg('bg_alola_volcano.webp'), label: 'Vulcão de Alola', ground: '#450a0a', groundAccent: '#7f1d1d', timeOfDay: 'sunset', elements: ['fire_pillar', 'lava_pool'] },
+  alola_aether: { sky: bg('bg_alola_aether.webp'), label: 'Aether Paradise', ground: '#f8fafc', groundAccent: '#f1f5f9', timeOfDay: 'indoor_tech', elements: ['glass_wall', 'server_rack'] },
+
+  galar_cave:   { sky: bg('bg_galar_route.webp'), label: 'Caverna de Galar', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['windmill', 'cave_entrance'] },
+  galar_tundra: { sky: bg('bg_galar_tundra.webp'), label: 'Crown Tundra', ground: '#f1f5f9', groundAccent: '#cbd5e1', timeOfDay: 'ice', elements: ['ice_crystal', 'snow_storm'] },
+
+  paldea_cave:  { sky: bg('bg_paldea_route.webp'), label: 'Caverna de Paldea', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['olive_tree', 'cave_entrance'] },
+  paldea_desert: { sky: bg('bg_paldea_desert.webp'), label: 'Deserto de Paldea', ground: '#d4a373', groundAccent: '#a98467', timeOfDay: 'day', elements: ['cactus', 'sand_dune'] },
+
+  hisui_sacred_plaza: { sky: bg('bg_hisui_sacred_plaza.webp'), label: 'Praça Sagrada', ground: '#140028', groundAccent: '#080010', timeOfDay: 'legendary', elements: ['ancient_pillar', 'celestial_light'] },
 
   // --- VILLAIN TEAMS ---
   villain_galactic: {
@@ -589,19 +613,91 @@ export const BATTLE_BACKGROUNDS = {
  * Fallback para route_1 (campo aberto).
  */
 export function getRouteBg(routeId) {
+  if (!routeId) return BATTLE_BACKGROUNDS.route_1;
   if (BATTLE_BACKGROUNDS[routeId]) return BATTLE_BACKGROUNDS[routeId];
   
-  // Regional fallbacks
-  if (routeId.startsWith('kalos_')) return BATTLE_BACKGROUNDS.kalos_generic;
-  if (routeId.startsWith('unova_')) return BATTLE_BACKGROUNDS.unova_generic;
-  if (routeId.startsWith('alola_')) return BATTLE_BACKGROUNDS.alola_generic;
-  if (routeId.startsWith('galar_')) return BATTLE_BACKGROUNDS.galar_generic;
-  if (routeId.startsWith('paldea_')) return BATTLE_BACKGROUNDS.paldea_generic;
-  if (routeId.startsWith('sinnoh_')) return BATTLE_BACKGROUNDS.sinnoh_generic;
-  if (routeId.startsWith('hisui_')) return BATTLE_BACKGROUNDS.hisui_generic;
-  if (routeId.startsWith('hoenn_')) return BATTLE_BACKGROUNDS.hoenn_generic;
-  if (routeId.startsWith('johto_')) return BATTLE_BACKGROUNDS.johto_generic;
+  // Mapeamento específico de cidades iniciais que não seguem o prefixo da região
+  const SPECIAL_MAP = {
+    // Kanto
+    pallet_town: 'pallet_town',
+    viridian_city: 'viridian_city',
+    pewter_city: 'pewter_city',
+    cerulean_city: 'cerulean_city',
+    vermilion_city: 'vermilion_city',
+    celadon_city: 'celadon_city',
+    fuchsia_city: 'fuchsia_city',
+    saffron_city: 'saffron_city',
+    // Johto
+    new_bark_town: 'johto_generic',
+    cherrygrove_city: 'johto_generic',
+    violet_city: 'johto_generic',
+    // Hoenn
+    littleroot_town: 'hoenn_generic',
+    oldale_town: 'hoenn_generic',
+    petalburg_city: 'hoenn_generic',
+    // Sinnoh
+    twinleaf_town: 'sinnoh_generic',
+    sandgem_town: 'sinnoh_generic',
+    jubilife_city: 'sinnoh_generic',
+    // Unova
+    nuvema_town: 'unova_home_town',
+    striaton_city: 'unova_home_town',
+    castelia_city: 'unova_home_town',
+    // Kalos
+    vaniville_town: 'kalos_home_town',
+    santalune_city: 'kalos_home_town',
+    lumiose_city: 'kalos_home_town',
+    // Alola
+    hauoli_city: 'alola_home_town',
+    // Galar
+    postwick: 'galar_home_town',
+    wedgehurst: 'galar_home_town',
+    // Paldea
+    cabo_poco: 'paldea_home_town',
+    mesagoza: 'paldea_home_town',
+    // Hisui
+    hisui_jubilife: 'hisui_generic',
+    // Biomas Específicos
+    unova_route_4: 'unova_desert',
+    unova_chargestone_cave: 'unova_chargestone',
+    unova_twist_mountain: 'unova_ice',
+    alola_aether_paradise: 'alola_aether',
+    alola_volcano_park: 'alola_volcano',
+    galar_crown_tundra: 'galar_tundra',
+    paldea_asado_desert: 'paldea_desert',
+    hisui_sacred_plaza: 'hisui_sacred_plaza',
+    // Sinnoh Especial
+    valor_lakefront: 'league_sinnoh',
+    sinnoh_victory_training: 'league_sinnoh',
+    mt_coronet_sinnoh: 'sinnoh_generic',
+    stark_mountain: 'sinnoh_generic',
+    snowpoint_routes: 'hisui_icelands',
+    sunyshore_routes: 'sinnoh_generic',
+  };
 
+  if (SPECIAL_MAP[routeId]) return BATTLE_BACKGROUNDS[SPECIAL_MAP[routeId]];
+
+  const parts = routeId.split('_');
+  const region = parts[0];
+  
+  // Fallbacks por tipo de local
+  const isCity = routeId.includes('city') || routeId.includes('town');
+  const isCave = routeId.includes('cave') || routeId.includes('tunnel') || routeId.includes('mountain') || routeId.includes('mine') || routeId.includes('chasm');
+  const isElite = routeId.includes('league') || routeId.includes('victory_road') || routeId.includes('elite');
+  const isForest = routeId.includes('forest') || routeId.includes('woods') || routeId.includes('grove');
+  const isWater = routeId.includes('route_21') || routeId.includes('sea') || routeId.includes('ocean') || routeId.includes('bay') || routeId.includes('lake');
+
+  // Busca regional temática
+  if (isElite && BATTLE_BACKGROUNDS[`${region}_league`]) return BATTLE_BACKGROUNDS[`${region}_league`];
+  if (isElite && BATTLE_BACKGROUNDS[`league_${region}`]) return BATTLE_BACKGROUNDS[`league_${region}`];
+  if (isCity && BATTLE_BACKGROUNDS[`${region}_home_town`]) return BATTLE_BACKGROUNDS[`${region}_home_town`];
+  if (isForest && BATTLE_BACKGROUNDS[`${region}_forest`]) return BATTLE_BACKGROUNDS[`${region}_forest`];
+  if (isCave && BATTLE_BACKGROUNDS[`${region}_cave`]) return BATTLE_BACKGROUNDS[`${region}_cave`];
+
+  // Fallbacks genéricos por região
+  if (BATTLE_BACKGROUNDS[`${region}_generic`]) return BATTLE_BACKGROUNDS[`${region}_generic`];
+  
+  // Fallback final
   return BATTLE_BACKGROUNDS.route_1;
 }
 
