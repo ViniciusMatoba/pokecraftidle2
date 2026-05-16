@@ -1,7 +1,14 @@
-export const APP_VERSION = '1.98.1';
-export const VERSION = '1.98.1';
-export const APP_VERSION_DATE = '15/05/2026 21:51';
+export const APP_VERSION = '1.98.3';
+export const VERSION = '1.98.3';
+export const APP_VERSION_DATE = '15/05/2026 22:15';
 export const CHANGELOG = [
+  '## [V1.98.3] - 15/05/2026 22:15',
+  '### Auditoria — Troféus de Campeão e Status Regional',
+  '- **Fim dos "Ghost Champions"**: Implementado sistema de auditoria que limpa troféus de jogadores que possuíam a flag de campeão mas não tinham a última insígnia da região (resolvendo bugs de flags poluidas por encontros randômicos).',
+  '- **Hardening de Batalha**: O status de Campeão Regional agora só é concedido se o jogador derrotar o Boss da Liga na tela de Desafios. Encontros "selvagens" com o Campeão em rotas não concedem mais o título.',
+  '- **Rastreamento Robustecido**: Todas as batalhas de desafio (Rivais, Vilões, Elite Four) agora atualizam corretamente o contador `gymDefeatCounts`, permitindo uma verificação secundária de conquistas.',
+  '- **Trainer Card Verificado**: O card de treinador agora valida o status de campeão cruzando as worldFlags com o histórico de vitórias e a progressão regional real.',
+  '',
   '## [V1.98.1] - 15/05/2026 21:51',
   '### Melhorado — Efeitos Visuais de Batalha',
   '- **Reação de Dano Suavizada**: O efeito de "piscar" (flicker) ao receber dano foi suavizado e encurtado, reduzindo o cansaço visual sem perder o feedback de impacto.',

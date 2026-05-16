@@ -296,7 +296,8 @@ export const TrainerCard = ({
   onSelectTitle = null,
   playerStats = {},
   prestige = {},
-   setIsAnyModalOpen,
+  gymDefeatCounts = {},
+  setIsAnyModalOpen,
   isTitleModalOpen,
   setIsTitleModalOpen,
   isPowerRankModalOpen,
@@ -340,10 +341,10 @@ export const TrainerCard = ({
 
   const progressTokens = new Set([...(badges || []).map(String), ...(worldFlags || []).map(String)]);
   const hasProgressToken = (tokens = []) => tokens.some(token => progressTokens.has(token));
-  const isKantoChampion = hasProgressToken(['champion', 'kanto_champion', 'region_champion_kanto']);
-  const isJohtoChampion = hasProgressToken(['johto_champion', 'region_champion_johto']);
-  const isHoennChampion = hasProgressToken(['hoenn_champion', 'region_champion_hoenn']);
-  const isSinnohChampion = hasProgressToken(['sinnoh_champion', 'region_champion_sinnoh']);
+  const isKantoChampion = hasProgressToken(['champion', 'kanto_champion', 'region_champion_kanto']) || (gymDefeatCounts['blue'] > 0);
+  const isJohtoChampion = hasProgressToken(['johto_champion', 'region_champion_johto']) || (gymDefeatCounts['johto_champion'] > 0);
+  const isHoennChampion = hasProgressToken(['hoenn_champion', 'region_champion_hoenn']) || (gymDefeatCounts['hoenn_champion'] > 0);
+  const isSinnohChampion = hasProgressToken(['sinnoh_champion', 'region_champion_sinnoh']) || (gymDefeatCounts['sinnoh_champion'] > 0);
 
   const achievements = [
     { id: 'pokedex', icon: POKEAPI_ITEM_URL + 'pokedex.webp', label: 'Pokedex', active: caughtCount >= 50, title: '50+ Capturas' },
@@ -388,8 +389,8 @@ export const TrainerCard = ({
       id: region.id,
       label: region.label,
       ids: region.badges,
-      champion: hasProgressToken([region.champion, 'region_champion_' + region.id]),
-      startFlags: [region.started, region.champion, 'region_champion_' + region.id],
+      champion: (worldFlags || []).includes('region_champion_' + region.id) || (gymDefeatCounts[region.champion] > 0),
+      startFlags: [region.started, 'region_champion_' + region.id],
     })),
   ].map(region => {
     const count = region.ids.filter(id => badgeSources.has(id)).length;

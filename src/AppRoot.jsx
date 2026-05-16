@@ -1443,6 +1443,42 @@ export default function App() {
       // Sincroniza Pokedex (caughtData) com Pokémons que o jogador possui
       let caughtChanged = false;
       const newCaughtData = { ...(prev.caughtData || {}) };
+      
+      // ── AUDITORIA DE CAMPEÕES (v1.98.3) ───────────────────────────────────
+      // Resolve o bug de "Ghost Champion" onde jogadores tinham o troféu sem vencer o boss.
+      // Removemos o status de campeão se o jogador não tiver sequer a última insígnia da região.
+      const regionAudit = [
+        { id: 'johto',  flag: 'region_champion_johto',  champ: 'johto_champion',  lastBadge: 'rising_badge',  next: 'hoenn_started' },
+        { id: 'hoenn',  flag: 'region_champion_hoenn',  champ: 'hoenn_champion',  lastBadge: 'rain_badge',    next: 'sinnoh_started' },
+        { id: 'sinnoh', flag: 'region_champion_sinnoh', champ: 'sinnoh_champion', lastBadge: 'beacon_badge',  next: 'unova_started' },
+        { id: 'unova',  flag: 'region_champion_unova',  champ: 'unova_champion',  lastBadge: 'legend_badge',  next: 'kalos_started' },
+        { id: 'kalos',  flag: 'region_champion_kalos',  champ: 'kalos_champion',  lastBadge: 'iceberg_badge', next: 'alola_started' },
+        { id: 'alola',  flag: 'region_champion_alola',  champ: 'alola_champion',  lastBadge: 'battle_tree_stamp', next: 'galar_started' },
+      ];
+
+      let auditChanged = false;
+      let auditedFlags = [...(prev.worldFlags || [])];
+      const playerBadges = prev.badges || [];
+
+      regionAudit.forEach(reg => {
+        const hasChamp = auditedFlags.includes(reg.champ) || auditedFlags.includes(reg.flag);
+        const hasLastBadge = playerBadges.includes(reg.lastBadge);
+        const hasNextRegion = reg.next && auditedFlags.includes(reg.next);
+
+        // Se tem status de campeão mas NÃO tem a última insígnia, é um fantasma!
+        if (hasChamp && !hasLastBadge && !hasNextRegion) {
+          auditedFlags = auditedFlags.filter(f => f !== reg.champ && f !== reg.flag);
+          auditChanged = true;
+          console.log(`[Audit] Ghost Champion detectado em ${reg.id}. Status removido.`);
+        }
+        
+        // Se começou a próxima região, garante a flag de campeão verificado
+        if (hasNextRegion && !auditedFlags.includes(reg.flag)) {
+          auditedFlags.push(reg.flag);
+          auditChanged = true;
+        }
+      });
+
       all.forEach(p => {
         if (!newCaughtData[p.id]) {
           newCaughtData[p.id] = true;
@@ -1450,8 +1486,8 @@ export default function App() {
         }
       });
 
-      if (needsMoves || needsInstanceId || caughtChanged) {
-        const nextState = (needsMoves || needsInstanceId) ? sanitizeCollection(prev) : prev;
+      if (needsMoves || needsInstanceId || caughtChanged || auditChanged) {
+        const nextState = (needsMoves || needsInstanceId) ? sanitizeCollection({ ...prev, worldFlags: auditedFlags }) : { ...prev, worldFlags: auditedFlags };
         
         if (caughtChanged) {
           return { ...nextState, caughtData: newCaughtData };
@@ -4204,6 +4240,7 @@ export default function App() {
       opponentTeamIndex: 0,
       background: battleData.background || null,
       locationName: battleData.location || battleData.name,
+      gymId: battleData.id,
     });
     setCurrentView('battles');
     // BGM agora gerenciado pelas configurações
@@ -5561,10 +5598,15 @@ export default function App() {
       const unlockFlag = currentEnemy.unlockFlag;
       if (unlockFlag && CHAMPION_MODAL_MAP[unlockFlag]) {
         const { pendingFlag, regionFlag, setter } = CHAMPION_MODAL_MAP[unlockFlag];
-        if (!newFlags.includes(regionFlag))  newFlags.push(regionFlag);
-        if (!newFlags.includes(pendingFlag) && !newFlags.includes(pendingFlag.replace('_pending', '_shown'))) {
-          newFlags.push(pendingFlag);
-          setter();
+        
+        // REFEITA: Apenas concede o status de campeão regional (troféu) se for um BOSS real
+        // Isso evita que o Alder "Wild" na League Route dê o troféu por sorte.
+        if (currentEnemy.isBoss) {
+          if (!newFlags.includes(regionFlag))  newFlags.push(regionFlag);
+          if (!newFlags.includes(pendingFlag) && !newFlags.includes(pendingFlag.replace('_pending', '_shown'))) {
+            newFlags.push(pendingFlag);
+            setter();
+          }
         }
       }
 

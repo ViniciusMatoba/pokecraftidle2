@@ -243,6 +243,7 @@ const CityScreen = ({
           appearance={gameState.appearance || {}}
           selectedTitle={gameState.selectedTitle}
           onSelectTitle={onSelectTitle}
+          gymDefeatCounts={gameState.gymDefeatCounts || {}}
           setIsAnyModalOpen={setIsAnyModalOpen}
           isTitleModalOpen={isTitleModalOpen}
           setIsTitleModalOpen={setIsTitleModalOpen}
