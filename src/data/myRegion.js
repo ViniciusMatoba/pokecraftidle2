@@ -93,13 +93,13 @@ export const REGION_CARD_STYLES = [
 ];
 
 export const REGION_BATTLE_BACKGROUNDS = [
-  { id: '/battle_bg_gym_1776863824590.webp', name: 'Ginasio Classico' },
-  { id: '/battle_bg_gym_water.webp', name: 'Arena Aquatica' },
-  { id: '/battle_bg_gym_electric.webp', name: 'Arena Eletrica' },
-  { id: '/battle_bg_sinnoh_gym.webp', name: 'Ginasio Sinnoh' },
+  { id: '/bg_gym_1776863824590.webp', name: 'Ginasio Classico' },
+  { id: '/bg_gym_water.webp', name: 'Arena Aquatica' },
+  { id: '/bg_gym_electric.webp', name: 'Arena Eletrica' },
+  { id: '/bg_sinnoh_gym.webp', name: 'Ginasio Sinnoh' },
   { id: '/bg_johto_league.webp', name: 'Liga Johto' },
   { id: '/bg_sinnoh_league.webp', name: 'Liga Sinnoh' },
-  { id: '/battle_bg_elite_four.webp', name: 'Elite Four' },
+  { id: '/bg_elite_four.webp', name: 'Elite Four' },
   { id: '/bg_mt_coronet.webp', name: 'Montanha' },
 ];
 
@@ -113,7 +113,7 @@ export const defaultGymSlot = (slot) => ({
   configured:   false,
   customLevel:  GYM_SLOT_LEVELS[slot - 1] || 14,
   cardStyle: 'classic',
-  battleBackground: '/battle_bg_gym_1776863824590.webp',
+  battleBackground: '/bg_gym_1776863824590.webp',
 });
 
 export const defaultEliteSlot = (slot) => ({

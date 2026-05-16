@@ -769,9 +769,9 @@ export default function App() {
   useEffect(() => {
     const assets = {
       images: [
-        fixPath('/battle_bg_grass_1776863779024.webp'),
-        fixPath('/battle_bg_forest_1776863795763.webp'),
-        fixPath('/battle_bg_cave_1776863810604.webp'),
+        fixPath('/bg_grass_1776863779024.webp'),
+        fixPath('/bg_forest_1776863795763.webp'),
+        fixPath('/bg_cave_1776863810604.webp'),
         'https://play.pokemonshowdown.com/sprites/trainers/red.png',
         'https://play.pokemonshowdown.com/sprites/trainers/leaf-gen3.png',
         'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
@@ -2352,7 +2352,6 @@ export default function App() {
         trainerReward: Math.floor(150 * teamData.rewardMult),
         isVillainAmbush: true,
         villainColor: teamData.color,
-        background: teamData.backgroundPath || null,
         instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9)
       });
       addLog(`⚠️ EMBOSCADA! ${teamData.name} ${reason}`, 'enemy');
@@ -2600,10 +2599,10 @@ export default function App() {
 
     // Backgrounds para Lendários
     const legendaryBgs = {
-      144: fixPath('/battle_bg_seafoam.webp'),
-      145: fixPath('/battle_bg_power_plant.webp'),
-      146: fixPath('/battle_bg_gym_1776863824590.webp'),
-      150: fixPath('/battle_bg_cave_1776863810604.webp'),
+      144: fixPath('/bg_seafoam.webp'),
+      145: fixPath('/bg_power_plant.webp'),
+      146: fixPath('/bg_gym_1776863824590.webp'),
+      150: fixPath('/bg_cave_1776863810604.webp'),
       243: fixPath('/bg_burned_tower.webp'),
       244: fixPath('/bg_burned_tower.webp'),
       245: fixPath('/bg_lake_of_rage.webp'),
@@ -5495,7 +5494,7 @@ export default function App() {
       isTrainer: true,
       badgeToGive: null,
       isBoss: true,
-      background: fixPath('/battle_bg_lab_1776866008842.webp'),
+      background: fixPath('/bg_lab_1776866008842.webp'),
       unlockFlag: 'rival_lab_defeated',
       isInitialRival: true,
       instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9)
@@ -6275,7 +6274,7 @@ export default function App() {
         ];
         
         const isLastStep = introStep === introTexts.length - 1;
-        const labBg = fixPath('/battle_bg_lab_1776866008842.webp');
+        const labBg = fixPath('/bg_lab_1776866008842.webp');
 
         return (
           <div className="h-full flex flex-col items-center justify-end p-4 text-center animate-fadeIn relative overflow-hidden"
@@ -6703,7 +6702,7 @@ export default function App() {
         </div>
       );
       case 'rival_intro': {
-        const labBg = fixPath('/battle_bg_lab_1776866008842.webp');
+        const labBg = fixPath('/bg_lab_1776866008842.webp');
         return (
           <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden"
             style={{ backgroundImage: `url(${labBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
@@ -6778,7 +6777,7 @@ export default function App() {
           <div
             className="relative h-full flex flex-col items-center justify-center overflow-hidden"
             style={{
-              backgroundImage: `url('${fixPath('/battle_bg_lab_1776866008842.webp')}')`,
+              backgroundImage: `url('${fixPath('/bg_lab_1776866008842.webp')}')`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
@@ -6833,7 +6832,7 @@ export default function App() {
         );
       }
       case 'quest_oak': {
-        const labBg = fixPath('/battle_bg_lab_1776866008842.webp');
+        const labBg = fixPath('/bg_lab_1776866008842.webp');
         return (
           <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden"
             style={{ backgroundImage: `url(${labBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
@@ -6868,7 +6867,7 @@ export default function App() {
       );
     }
       case 'quest_oak_starters': {
-        const labBg = fixPath('/battle_bg_lab_1776866008842.webp');
+        const labBg = fixPath('/bg_lab_1776866008842.webp');
         return (
           <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden"
             style={{ backgroundImage: `url(${labBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
@@ -7905,7 +7904,7 @@ export default function App() {
       case 'heal_after_defeat': return (
         <div className="absolute inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-100 p-6 text-center animate-fadeIn overflow-hidden">
           <div className="absolute inset-0 z-0">
-             <img src={fixPath('/battle_bg_pokecenter_1776868686753.webp')} className="w-full h-full object-cover" alt="Pokecenter" />
+             <img src={fixPath('/bg_pokecenter_1776868686753.webp')} className="w-full h-full object-cover" alt="Pokecenter" />
              <div className="absolute inset-0 bg-white/30 backdrop-blur-md"></div>
           </div>
 
@@ -9044,7 +9043,7 @@ export default function App() {
         <div className="absolute inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-100 animate-fadeIn overflow-hidden">
            {/* Background Imersivo */}
            <div className="absolute inset-0 z-0">
-              <img src={fixPath('/battle_bg_pokecenter_1776868686753.webp')} className="w-full h-full object-cover" alt="Pokecenter" />
+              <img src={fixPath('/bg_pokecenter_1776868686753.webp')} className="w-full h-full object-cover" alt="Pokecenter" />
               <div className="absolute inset-0 bg-white/20"></div>
            </div>
 

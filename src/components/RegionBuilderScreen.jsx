@@ -259,7 +259,7 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
   const [leaderSprite,     setLeaderSprite]     = useState(slot.leaderSprite     || 'red');
   const [team,             setTeam]             = useState(slot.team             || []);
   const [cardStyle,        setCardStyle]        = useState(slot.cardStyle        || 'classic');
-  const [battleBackground, setBattleBackground] = useState(slot.battleBackground || '/battle_bg_gym_1776863824590.webp');
+  const [battleBackground, setBattleBackground] = useState(slot.battleBackground || '/bg_gym_1776863824590.webp');
 
   const handleSave = () => {
     onSave({

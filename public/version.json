@@ -1,5 +1,5 @@
 {
-  "version": "1.98.13",
-  "date": "16/05/2026 12:20",
-  "notes": "Overhaul de backgrounds HD para Kalos, Sinnoh e Equipes Vilãs com fallbacks regionais."
+  "version": "1.98.15",
+  "date": "16/05/2026 12:34",
+  "notes": "Padronização global de backgrounds de batalha e otimização do sistema de assets."
 }

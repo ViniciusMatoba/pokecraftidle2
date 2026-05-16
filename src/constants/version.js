@@ -1,7 +1,14 @@
-export const APP_VERSION = '1.98.13';
-export const VERSION = '1.98.13';
-export const APP_VERSION_DATE = '16/05/2026 12:20';
+export const APP_VERSION = '1.98.15';
+export const VERSION = '1.98.15';
+export const APP_VERSION_DATE = '16/05/2026 12:34';
 export const CHANGELOG = [
+  '## [V1.98.15] - 16/05/2026 12:34',
+  '### Visual — Padronização Global de Backgrounds de Batalha',
+  '- **Standardização de Assets**: Migração completa de todos os caminhos legados "battle_bg_" para o novo padrão "bg_", garantindo consistência visual em todo o jogo.',
+  '- **Refatoração de Desafios**: Atualizados todos os backgrounds de Ginásios, Rivais e Elite Four no `ChallengesScreen` para o novo sistema de assets HD.',
+  '- **Registry de Backgrounds**: Otimização do `battleBackgrounds.js` para suportar fallbacks dinâmicos por região e tipo de terreno.',
+  '- **Correção em Kalos**: Verificados e corrigidos backgrounds em rotas de Kalos que estavam utilizando placeholders temporários.',
+  '',
   '## [V1.98.13] - 16/05/2026 12:20',
   '### Visual — Overhaul Completo de Backgrounds HD e Fallbacks Regionais',
   '- **Backgrounds Kalos**: Implementação de assets HD para todas as rotas principais (Glittering Cave, Reflection Cave, Azure Bay, Victory Road, etc.).',

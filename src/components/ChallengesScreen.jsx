@@ -26,12 +26,11 @@ const FUTURE_REGION_CHALLENGE_DATA = {
       "url('/bg_unova_gym_nacrene.png') center/cover no-repeat",  // Lenora (Nacrene)
       "url('/bg_unova_gym_castelia.png') center/cover no-repeat", // Burgh (Castelia)
       "url('/bg_unova_gym_nimbasa.png') center/cover no-repeat",  // Elesa (Nimbasa)
-      "url('/battle_bg_gym_rock.webp') center/cover no-repeat",    // Clay (Driftveil)
+      "url('/bg_gym_rock.webp') center/cover no-repeat",    // Clay (Driftveil)
       "url('/bg_unova_city.webp') center/cover no-repeat",        // Skyla (Mistralton)
       "url('/bg_unova_ice.webp') center/cover no-repeat",         // Brycen (Icirrus)
       "url('/bg_unova_elite.webp') center/cover no-repeat"       // Drayden (Opelucid)
     ],
-    villainBg: "url('/battle_bg_villain_plasma.webp') center/cover no-repeat",
     badges: ['trio_badge', 'basic_badge', 'insect_badge', 'bolt_badge', 'quake_badge', 'jet_badge', 'freeze_badge', 'legend_badge'],
     leaders: [['Cilan', 'Grass', 14, [511, 512]], ['Lenora', 'Normal', 20, [507, 505]], ['Burgh', 'Bug', 26, [541, 542, 544]], ['Elesa', 'Electric', 32, [587, 522, 523]], ['Clay', 'Ground', 39, [529, 536, 530]], ['Skyla', 'Flying', 45, [528, 521, 581]], ['Brycen', 'Ice', 52, [614, 615, 583]], ['Drayden', 'Dragon', 60, [611, 621, 612]]],
     league: [['Shauntal', 'Ghost', 72, [609, 623, 593]], ['Grimsley', 'Dark', 74, [560, 625, 635]], ['Caitlin', 'Psychic', 76, [518, 579, 576]], ['Marshal', 'Fighting', 78, [534, 538, 539]], ['Alder', 'Bug', 82, [617, 589, 637]]],
@@ -59,15 +58,14 @@ const FUTURE_REGION_CHALLENGE_DATA = {
     leagueBg: "url('/bg_kalos_elite.webp') center/cover no-repeat",
     gymBgs: [
       "url('/bg_kalos_forest.webp') center/cover no-repeat",    // Viola (Bug)
-      "url('/battle_bg_gym_rock.webp') center/cover no-repeat",     // Grant (Rock)
+      "url('/bg_gym_rock.webp') center/cover no-repeat",     // Grant (Rock)
       "url('/expedition_campo_lutador.webp') center/cover no-repeat", // Korrina (Fighting)
       "url('/bg_kalos_forest.webp') center/cover no-repeat",    // Ramos (Grass)
-      "url('/battle_bg_gym_electric.webp') center/cover no-repeat", // Clemont (Electric)
+      "url('/bg_gym_electric.webp') center/cover no-repeat", // Clemont (Electric)
       "url('/bg_kalos_forest.webp') center/cover no-repeat",    // Valerie (Fairy)
       "url('/expedition_templo_psiquico.webp') center/cover no-repeat", // Olympia (Psychic)
       "url('/bg_kalos_snow.webp') center/cover no-repeat"       // Wulfric (Ice)
     ],
-    villainBg: "url('/battle_bg_villain_flare.webp') center/cover no-repeat",
     badges: ['bug_badge', 'cliff_badge', 'rumble_badge', 'plant_badge', 'voltage_badge', 'fairy_badge', 'psychic_badge', 'iceberg_badge'],
     leaders: [['Viola', 'Bug', 12, [283, 666]], ['Grant', 'Rock', 25, [696, 698]], ['Korrina', 'Fighting', 32, [619, 701]], ['Ramos', 'Grass', 34, [189, 71, 673]], ['Clemont', 'Electric', 40, [587, 82, 695]], ['Valerie', 'Fairy', 48, [303, 439, 700]], ['Olympia', 'Psychic', 59, [678, 199, 561]], ['Wulfric', 'Ice', 65, [460, 713, 712]]],
     league: [['Malva', 'Fire', 74, [668, 663, 609]], ['Siebold', 'Water', 76, [689, 693, 130]], ['Wikstrom', 'Steel', 78, [681, 476, 212]], ['Drasna', 'Dragon', 80, [691, 621, 706]], ['Diantha', 'Fairy', 86, [701, 697, 700, 282]]],
@@ -99,13 +97,12 @@ const FUTURE_REGION_CHALLENGE_DATA = {
       "url('/bg_alola_route.webp') center/cover no-repeat",    // Lana
       "url('/bg_alola_volcano.webp') center/cover no-repeat",  // Kiawe
       "url('/bg_alola_route.webp') center/cover no-repeat",    // Mallow
-      "url('/battle_bg_gym_rock.webp') center/cover no-repeat", // Olivia
-      "url('/battle_bg_gym_electric.webp') center/cover no-repeat", // Sophocles
+      "url('/bg_gym_rock.webp') center/cover no-repeat", // Olivia
+      "url('/bg_gym_electric.webp') center/cover no-repeat", // Sophocles
       "url('/bg_alola_route.webp') center/cover no-repeat",    // Nanu
       "url('/bg_alola_route.webp') center/cover no-repeat",    // Mina
-      "url('/battle_bg_gym_rock.webp') center/cover no-repeat", // Hapu
+      "url('/bg_gym_rock.webp') center/cover no-repeat", // Hapu
     ],
-    villainBg: "url('/battle_bg_villain_skull.webp') center/cover no-repeat",
     badges: ['melemele_stamp', 'akala_stamp', 'ulaula_stamp', 'poni_stamp', 'alola_elite_stamp', 'alola_champion_stamp', 'ultra_stamp', 'battle_tree_stamp'],
     leaders: [
       ['Ilima', 'Normal', 16, [676, 735], 'Capitao de Prova - Melemele'],
@@ -145,11 +142,11 @@ const FUTURE_REGION_CHALLENGE_DATA = {
     leagueBg: "url('/bg_galar_elite.webp') center/cover no-repeat",
     gymBgs: [
       "url('/bg_galar_forest.webp') center/cover no-repeat",     // Milo (Grass)
-      "url('/battle_bg_gym_water.webp') center/cover no-repeat",     // Nessa (Water)
+      "url('/bg_gym_water.webp') center/cover no-repeat",     // Nessa (Water)
       "url('/expedition_vulcao.webp') center/cover no-repeat",       // Kabu (Fire)
       "url('/expedition_campo_lutador.webp') center/cover no-repeat", // Bea (Fighting)
       "url('/bg_galar_forest.webp') center/cover no-repeat",     // Opal (Fairy)
-      "url('/battle_bg_gym_rock.webp') center/cover no-repeat",      // Gordie (Rock)
+      "url('/bg_gym_rock.webp') center/cover no-repeat",      // Gordie (Rock)
       "url('/bg_galar_route.webp') center/cover no-repeat",          // Piers (Dark)
       "url('/bg_unova_elite.webp') center/cover no-repeat"           // Raihan (Dragon)
     ],
@@ -176,7 +173,7 @@ const FUTURE_REGION_CHALLENGE_DATA = {
     ],
   },
   hisui: {
-    label: 'Hisui', start: 'hisui_started', champion: 'hisui_champion', villain: 'Galaxy Team', villainSprite: psTrainer('galacticgrunt'), rivalSprite: psTrainer('dawn'), bg: "url('/battle_bg_hisui_fieldlands.webp') center/cover no-repeat",
+    label: 'Hisui', start: 'hisui_started', champion: 'hisui_champion', villain: 'Galaxy Team', villainSprite: psTrainer('galacticgrunt'), rivalSprite: psTrainer('dawn'), bg: "url('/bg_hisui_fieldlands.webp') center/cover no-repeat",
     badges: ['fieldlands_stamp', 'mirelands_stamp', 'coastlands_stamp', 'highlands_stamp', 'icelands_stamp', 'lake_stamp', 'volo_stamp', 'arceus_stamp'],
     leaderSubtitleOverride: true,
     leaders: [
@@ -221,8 +218,8 @@ const FUTURE_REGION_CHALLENGE_DATA = {
     gymBgs: [
       "url('/bg_paldea_route.webp') center/cover no-repeat",    // Katy (Bug)
       "url('/bg_paldea_route.webp') center/cover no-repeat",    // Brassius (Grass)
-      "url('/battle_bg_gym_electric.webp') center/cover no-repeat", // Iono (Electric)
-      "url('/battle_bg_gym_water.webp') center/cover no-repeat",     // Kofu (Water)
+      "url('/bg_gym_electric.webp') center/cover no-repeat", // Iono (Electric)
+      "url('/bg_gym_water.webp') center/cover no-repeat",     // Kofu (Water)
       "url('/bg_paldea_city.webp') center/cover no-repeat",         // Larry (Normal)
       "url('/expedition_torre_fantasma.webp') center/cover no-repeat", // Ryme (Ghost)
       "url('/expedition_templo_psiquico.webp') center/cover no-repeat", // Tulip (Psychic)
@@ -257,7 +254,6 @@ const FUTURE_REGION_CHALLENGE_DATA = {
       { suffix: 'titan_dondozo', name: 'Dondozo - Titã Aquático', sprite: psTrainer('giacomo'), level: 42, req: 'water_badge_paldea', ids: [977, 978], subtitle: 'Tita Aquatico - Dondozo', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
       { suffix: 'titan_falsedra', name: 'Falso Dragão - Titã Final', sprite: psTrainer('giacomo'), level: 55, req: 'ghost_badge_paldea', ids: [1006, 978], subtitle: 'Tita Falso Dragao', quote: '"Um Pokemon gigantesco bloqueia o caminho!"' },
     ],
-    villainBg: "url('/battle_bg_villain_star.webp') center/cover no-repeat",
   },
 };
 
@@ -300,7 +296,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
       sprite: entry.sprite || cfg.villainSprite, quote: entry.quote || '"Nosso plano nao sera interrompido por voce."',
       reward: entry.level * 1000, unlockFlag,
       requiresFlag: i === 0 ? entry.req : (entry.req || prevUnlock),
-      team: team(entry.ids, entry.level), background: cfg.villainBg || cfg.bg, location: `${cfg.label} - Operacao da Equipe Vila`,
+      team: team(entry.ids, entry.level), background: cfg.bg, location: `${cfg.label} - Operacao da Equipe Vila`,
     };
   }) : [
     { suffix: 'villain_1', level: 24, req: rivalEntries[0]?.unlock || `${region}_${rivalEntries[0]?.suffix}_defeated` },
@@ -311,7 +307,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
     sprite: cfg.villainSprite, quote: '"Nosso plano nao sera interrompido por voce."',
     reward: entry.level * 1000, unlockFlag: `${region}_${entry.suffix}_cleared`, requiresFlag: entry.req,
     team: team([cfg.leaders[i + 1][3][0], cfg.leaders[i + 3][3][0], cfg.leaders[i + 5]?.[3]?.[0] || cfg.leaders[7][3][0]], entry.level),
-    background: cfg.villainBg || cfg.bg, location: `${cfg.label} - Operacao da Equipe Vila`,
+    background: cfg.bg, location: `${cfg.label} - Operacao da Equipe Vila`,
   }));
 
   // ── Gym Leaders ─────────────────────────────────────────────────────────────
@@ -348,7 +344,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
     reward: level * 1600,
     unlockFlag: index === cfg.league.length - 1 ? cfg.champion : `${region}_elite_${index + 1}_defeated`,
     requiresFlag: index === 0 ? rivalVictoryUnlock : `${region}_elite_${index}_defeated`,
-    type, typeIcon: typeIconUrl(type), team: team(ids, level), background: cfg.leagueBg || "url('/battle_bg_elite_four.webp') center/cover no-repeat",
+    type, typeIcon: typeIconUrl(type), team: team(ids, level), background: cfg.leagueBg || "url('/bg_elite_four.webp') center/cover no-repeat",
     location: `${cfg.label} Pokemon League`,
   }));
 
@@ -398,7 +394,7 @@ const CHALLENGES = [
     unlockFlag: 'rival_1_defeated',
     requiresFlag: null,
     team: [{ id: 133, level: 5 }], // Eevee
-    background: "url('/battle_bg_grass_1776863779024.webp') center/cover no-repeat",
+    background: "url('/bg_grass_1776863779024.webp') center/cover no-repeat",
     location: 'Rota 1 (Encontro)',
   },
   {
@@ -418,7 +414,7 @@ const CHALLENGES = [
       { id: 64, level: 18 }, // Kadabra
       { id: 133, level: 20 }, // Eevee
     ],
-    background: "url('/battle_bg_gym_water.webp') center/cover no-repeat", // Deck do navio/água
+    background: "url('/bg_gym_water.webp') center/cover no-repeat", // Deck do navio/água
     location: 'Deck do S.S. Anne',
   },
   {
@@ -439,7 +435,7 @@ const CHALLENGES = [
       { id: 130, level: 28 },
       { id: 133, level: 30 },
     ],
-    background: "url('/battle_bg_cave_1776863810604.webp') center/cover no-repeat", // Torre (escuro)
+    background: "url('/bg_cave_1776863810604.webp') center/cover no-repeat", // Torre (escuro)
     location: 'Torre Pokémon - Lavender',
   },
   {
@@ -461,7 +457,7 @@ const CHALLENGES = [
       { id: 65, level: 37 }, // Alakazam
       { id: 135, level: 40 }, // Jolteon
     ],
-    background: "url('/battle_bg_gym_1776863824590.webp') center/cover no-repeat", // Escritório
+    background: "url('/bg_gym_1776863824590.webp') center/cover no-repeat", // Escritório
     location: 'Silph Co. - 11º Andar',
   },
 
@@ -481,7 +477,7 @@ const CHALLENGES = [
       { id: 19, level: 8 }, // Rattata
       { id: 23, level: 8 }, // Ekans
     ],
-    background: "url('/battle_bg_grass_1776863779024.webp') center/cover no-repeat",
+    background: "url('/bg_grass_1776863779024.webp') center/cover no-repeat",
     location: 'Floresta de Viridian',
   },
   {
@@ -499,7 +495,7 @@ const CHALLENGES = [
       { id: 41, level: 12 }, // Zubat
       { id: 19, level: 13 }, // Rattata
     ],
-    background: "url('/battle_bg_cave_1776863810604.webp') center/cover no-repeat",
+    background: "url('/bg_cave_1776863810604.webp') center/cover no-repeat",
     location: 'Mt. Moon - Entrada',
   },
   {
@@ -517,7 +513,7 @@ const CHALLENGES = [
       { id: 23, level: 14 }, // Ekans
       { id: 41, level: 14 }, // Zubat
     ],
-    background: "url('/battle_bg_cave_1776863810604.webp') center/cover no-repeat",
+    background: "url('/bg_cave_1776863810604.webp') center/cover no-repeat",
     location: 'Mt. Moon - Subsolo',
   },
   {
@@ -536,7 +532,7 @@ const CHALLENGES = [
       { id: 23,  level: 16 }, // Ekans
       { id: 52,  level: 18 }, // Meowth
     ],
-    background: "url('/battle_bg_cave_1776863810604.webp') center/cover no-repeat",
+    background: "url('/bg_cave_1776863810604.webp') center/cover no-repeat",
     location: 'Mt. Moon - Saída',
   },
   {
@@ -555,7 +551,7 @@ const CHALLENGES = [
       { id: 115, level: 24 }, // Kangaskhan
       { id: 112, level: 29 }, // Rhydon
     ],
-    background: "url('/battle_bg_gym_1776863824590.webp') center/cover no-repeat",
+    background: "url('/bg_gym_1776863824590.webp') center/cover no-repeat",
     location: 'QG Equipe Rocket - Celadon',
   },
 
@@ -1136,7 +1132,7 @@ const CHALLENGES = [
     unlockFlag: 'coal_badge',
     requiresFlag: 'sinnoh_rival_jubilife_defeated',
     team: [{ id: 74, level: 12 }, { id: 95, level: 13 }, { id: 408, level: 14 }],
-    background: "url('/battle_bg_sinnoh_gym.webp') center/cover no-repeat",
+    background: "url('/bg_sinnoh_gym.webp') center/cover no-repeat",
     location: 'Oreburgh Gym',
   },
   {
@@ -1168,7 +1164,7 @@ const CHALLENGES = [
     unlockFlag: 'cobble_badge',
     requiresFlag: 'forest_badge',
     team: [{ id: 307, level: 25 }, { id: 67, level: 26 }, { id: 448, level: 28 }],
-    background: "url('/battle_bg_sinnoh_gym.webp') center/cover no-repeat",
+    background: "url('/bg_sinnoh_gym.webp') center/cover no-repeat",
     location: 'Veilstone Gym',
   },
   {
@@ -1184,7 +1180,7 @@ const CHALLENGES = [
     unlockFlag: 'fen_badge',
     requiresFlag: 'sinnoh_galactic_valor_cleared',
     team: [{ id: 130, level: 30 }, { id: 195, level: 31 }, { id: 419, level: 33 }],
-    background: "url('/battle_bg_sinnoh_gym.webp') center/cover no-repeat",
+    background: "url('/bg_sinnoh_gym.webp') center/cover no-repeat",
     location: 'Pastoria Gym',
   },
   {
@@ -1200,7 +1196,7 @@ const CHALLENGES = [
     unlockFlag: 'relic_badge',
     requiresFlag: 'fen_badge',
     team: [{ id: 426, level: 36 }, { id: 94, level: 37 }, { id: 429, level: 39 }],
-    background: "url('/battle_bg_sinnoh_gym.webp') center/cover no-repeat",
+    background: "url('/bg_sinnoh_gym.webp') center/cover no-repeat",
     location: 'Hearthome Gym',
   },
   {
@@ -1216,7 +1212,7 @@ const CHALLENGES = [
     unlockFlag: 'mine_badge',
     requiresFlag: 'relic_badge',
     team: [{ id: 437, level: 41 }, { id: 208, level: 43 }, { id: 411, level: 45 }],
-    background: "url('/battle_bg_sinnoh_gym.webp') center/cover no-repeat",
+    background: "url('/bg_sinnoh_gym.webp') center/cover no-repeat",
     location: 'Canalave Gym',
   },
   {
@@ -1312,7 +1308,7 @@ const CHALLENGES = [
     unlockFlag: 'sinnoh_lucian_defeated',
     requiresFlag: 'sinnoh_flint_defeated',
     team: [{ id: 122, level: 66 }, { id: 203, level: 67 }, { id: 475, level: 68 }, { id: 437, level: 68 }, { id: 65, level: 70 }],
-    background: "url('/battle_bg_league_sinnoh.webp') center/cover no-repeat",
+    background: "url('/bg_sinnoh_league.webp') center/cover no-repeat",
     location: 'Liga Pokemon de Sinnoh',
   },
   {
@@ -1328,7 +1324,7 @@ const CHALLENGES = [
     unlockFlag: 'sinnoh_champion',
     requiresFlag: 'sinnoh_lucian_defeated',
     team: [{ id: 442, level: 70 }, { id: 407, level: 71 }, { id: 468, level: 71 }, { id: 448, level: 72 }, { id: 350, level: 72 }, { id: 445, level: 74 }],
-    background: "url('/battle_bg_league_sinnoh.webp') center/cover no-repeat",
+    background: "url('/bg_sinnoh_league.webp') center/cover no-repeat",
     location: 'Sala da Campea - Sinnoh',
   },
   {
@@ -1343,7 +1339,7 @@ const CHALLENGES = [
     unlockFlag: 'rematch_brock_defeated',
     requiresFlag: 'champion',
     team: [{id: 74, level: 70}, {id: 75, level: 70}, {id: 95, level: 72}, {id: 141, level: 71}, {id: 139, level: 71}],
-    background: "url('/battle_bg_gym_1776863824590.webp') center/cover no-repeat",
+    background: "url('/bg_gym_1776863824590.webp') center/cover no-repeat",
     location: 'Pewter Gym',
   },
   {
@@ -1358,7 +1354,7 @@ const CHALLENGES = [
     unlockFlag: 'rematch_misty_defeated',
     requiresFlag: 'champion',
     team: [{id: 121, level: 70}, {id: 55, level: 71}, {id: 195, level: 72}, {id: 131, level: 73}, {id: 9, level: 75}],
-    background: "url('/battle_bg_gym_water.webp') center/cover no-repeat",
+    background: "url('/bg_gym_water.webp') center/cover no-repeat",
     location: 'Cerulean Gym',
   },
   {
@@ -1373,7 +1369,7 @@ const CHALLENGES = [
     unlockFlag: 'rematch_surge_defeated',
     requiresFlag: 'champion',
     team: [{id: 26, level: 70}, {id: 101, level: 71}, {id: 82, level: 72}, {id: 125, level: 73}, {id: 135, level: 75}],
-    background: "url('/battle_bg_gym_electric.webp') center/cover no-repeat",
+    background: "url('/bg_gym_electric.webp') center/cover no-repeat",
     location: 'Vermilion Gym',
   },
   {
@@ -1388,7 +1384,7 @@ const CHALLENGES = [
     unlockFlag: 'rematch_erika_defeated',
     requiresFlag: 'champion',
     team: [{id: 71, level: 70}, {id: 45, level: 71}, {id: 182, level: 72}, {id: 189, level: 73}, {id: 103, level: 75}],
-    background: "url('/battle_bg_forest_1776863795763.webp') center/cover no-repeat",
+    background: "url('/bg_forest_1776863795763.webp') center/cover no-repeat",
     location: 'Celadon Gym',
   },
   {
@@ -1403,7 +1399,7 @@ const CHALLENGES = [
     unlockFlag: 'rematch_sabrina_defeated',
     requiresFlag: 'champion',
     team: [{id: 65, level: 75}, {id: 122, level: 73}, {id: 196, level: 74}, {id: 124, level: 74}, {id: 97, level: 75}],
-    background: "url('/battle_bg_gym_1776863824590.webp') center/cover no-repeat",
+    background: "url('/bg_gym_1776863824590.webp') center/cover no-repeat",
     location: 'Saffron Gym',
   },
   {
@@ -1418,7 +1414,7 @@ const CHALLENGES = [
     unlockFlag: 'rematch_blaine_defeated',
     requiresFlag: 'champion',
     team: [{id: 126, level: 75}, {id: 78, level: 75}, {id: 136, level: 76}, {id: 219, level: 76}, {id: 59, level: 78}],
-    background: "url('/battle_bg_gym_1776863824590.webp') center/cover no-repeat",
+    background: "url('/bg_gym_1776863824590.webp') center/cover no-repeat",
     location: 'Cinnabar Gym',
   },
   {
@@ -1433,7 +1429,7 @@ const CHALLENGES = [
     unlockFlag: 'rematch_giovanni_defeated',
     requiresFlag: 'champion',
     team: [{id: 112, level: 78}, {id: 34, level: 78}, {id: 31, level: 78}, {id: 51, level: 78}, {id: 76, level: 80}],
-    background: "url('/battle_bg_gym_1776863824590.webp') center/cover no-repeat",
+    background: "url('/bg_gym_1776863824590.webp') center/cover no-repeat",
     location: 'Viridian Gym',
   },
   // REVANCHE - JOHTO (Desbloqueado após ser Campeão de Johto)
@@ -1585,7 +1581,7 @@ const CHALLENGES = [
     unlockFlag: 'articuno_defeated',
     requiresFlag: 'soul_badge',
     team: [{ id: 144, level: 50 }],
-    background: "url('/battle_bg_cave_1776863810604.webp') center/cover no-repeat",
+    background: "url('/bg_cave_1776863810604.webp') center/cover no-repeat",
     location: 'Ilhas Seafoam - Profundezas',
   },
   {
@@ -1600,7 +1596,7 @@ const CHALLENGES = [
     unlockFlag: 'zapdos_defeated',
     requiresFlag: 'soul_badge',
     team: [{ id: 145, level: 50 }],
-    background: "url('/battle_bg_gym_electric.webp') center/cover no-repeat",
+    background: "url('/bg_gym_electric.webp') center/cover no-repeat",
     location: 'Power Plant',
   },
   {
@@ -1615,7 +1611,7 @@ const CHALLENGES = [
     unlockFlag: 'moltres_defeated',
     requiresFlag: 'soul_badge',
     team: [{ id: 146, level: 50 }],
-    background: "url('/battle_bg_cave_1776863810604.webp') center/cover no-repeat",
+    background: "url('/bg_cave_1776863810604.webp') center/cover no-repeat",
     location: 'Victory Road',
   },
   {
@@ -1632,7 +1628,7 @@ const CHALLENGES = [
     team: [
       { id: 150, level: 70 },
     ],
-    background: "url('/battle_bg_cave_1776863810604.webp') center/cover no-repeat",
+    background: "url('/bg_cave_1776863810604.webp') center/cover no-repeat",
     location: 'Caverna de Cerulean',
   },
   {
@@ -1677,7 +1673,7 @@ const CHALLENGES = [
     unlockFlag: 'suicune_defeated',
     requiresFlag: 'johto_champion',
     team: [{ id: 245, level: 50 }],
-    background: "url('/battle_bg_johto_water_1777340582200.webp') center/cover no-repeat",
+    background: "url('/bg_johto_water_1777340582200.webp') center/cover no-repeat",
     location: 'Rotas de Johto',
   },
   {
@@ -2008,7 +2004,7 @@ const CHALLENGES = [
     unlockFlag: 'sinnoh_galactic_valley_cleared',
     requiresFlag: 'coal_badge',
     team: [{ id: 41, level: 18 }, { id: 431, level: 19 }, { id: 434, level: 20 }],
-    background: "url('/battle_bg_villain_galactic.webp') center/cover no-repeat",
+    background: "url('/bg_villain_galactic.webp') center/cover no-repeat",
     location: 'Valley Windworks',
   },
   {
@@ -2023,7 +2019,7 @@ const CHALLENGES = [
     unlockFlag: 'sinnoh_galactic_eterna_cleared',
     requiresFlag: 'sinnoh_galactic_valley_cleared',
     team: [{ id: 41, level: 23 }, { id: 435, level: 25 }],
-    background: "url('/battle_bg_villain_galactic.webp') center/cover no-repeat",
+    background: "url('/bg_villain_galactic.webp') center/cover no-repeat",
     location: 'Eterna Galactic Building',
   },
   {
@@ -2038,7 +2034,7 @@ const CHALLENGES = [
     unlockFlag: 'sinnoh_galactic_valor_cleared',
     requiresFlag: 'cobble_badge',
     team: [{ id: 436, level: 36 }, { id: 64, level: 37 }, { id: 454, level: 39 }],
-    background: "url('/battle_bg_villain_galactic.webp') center/cover no-repeat",
+    background: "url('/bg_villain_galactic.webp') center/cover no-repeat",
     location: 'Lake Valor',
   },
   {
