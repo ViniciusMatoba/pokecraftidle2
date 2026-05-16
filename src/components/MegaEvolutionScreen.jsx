@@ -107,6 +107,12 @@ const MegaStoneCard = ({ megaData, stoneId, hasStone, onChoose }) => {
         <div style={{ width: 44, height: 44, borderRadius: 10, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <img
             src={getMegaSprite(megaData.megaFormId)}
+            onError={e => {
+              if (!e.target.dataset.triedBase) {
+                e.target.dataset.triedBase = '1';
+                e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.isShiny ? 'shiny/' : ''}${pokemon.id}.png`;
+              }
+            }}
             style={{ width: 36, height: 36, objectFit: 'contain', filter: hasStone ? 'none' : 'brightness(0) invert(0.3)' }}
             alt={megaData.name}
           />
@@ -377,6 +383,12 @@ const MegaEvolutionScreen = ({
                     style={{ background: `${accentColor}40` }} />
                   <img
                     src={getMegaSprite(megaData.megaFormId)}
+                    onError={e => {
+                      if (!e.target.dataset.triedBase) {
+                        e.target.dataset.triedBase = '1';
+                        e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${selectedCandidate.pokemon.isShiny ? 'shiny/' : ''}${selectedCandidate.pokemon.id}.png`;
+                      }
+                    }}
                     style={{ width: 90, height: 90, position: 'relative', zIndex: 1, filter: `drop-shadow(0 0 16px ${accentColor}80)` }}
                     alt="mega"
                   />
@@ -460,6 +472,12 @@ const MegaEvolutionScreen = ({
               style={{ background: `${accentColor}20`, borderRadius: '50%', animationDelay: '0.3s' }} />
             <img
               src={getMegaSprite(megaData.megaFormId)}
+              onError={e => {
+                if (!e.target.dataset.triedBase) {
+                  e.target.dataset.triedBase = '1';
+                  e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${selectedCandidate.pokemon.isShiny ? 'shiny/' : ''}${selectedCandidate.pokemon.id}.png`;
+                }
+              }}
               style={{ width: 160, height: 160, position: 'relative', zIndex: 1,
                 filter: `brightness(0) invert(1) drop-shadow(0 0 40px ${accentColor})`,
                 animation: 'pulse 0.5s ease-in-out infinite' }}

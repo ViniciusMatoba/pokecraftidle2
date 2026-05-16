@@ -589,7 +589,18 @@ const PokemonManagement = ({
                 }`}
               >
                 <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center relative">
-                  <img src={p.isMega && p.megaFormId ? getMegaSprite(p.megaFormId) : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className="w-14 h-14 object-contain" alt={p.name} loading="lazy" />
+                  <img
+                    src={p.isMega && p.megaFormId ? getMegaSprite(p.megaFormId) : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
+                    onError={e => {
+                      if (p.isMega && p.megaFormId && !e.target.dataset.triedBase) {
+                        e.target.dataset.triedBase = '1';
+                        e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`;
+                      }
+                    }}
+                    className="w-14 h-14 object-contain"
+                    alt={p.name}
+                    loading="lazy"
+                  />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-start">
@@ -692,7 +703,18 @@ const PokemonManagement = ({
                         !isLegal ? 'opacity-50 grayscale border-red-100' : 'border-slate-100'
                       }`}
                     >
-                       <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className="w-12 h-12 object-contain" alt={p.name} loading="lazy" />
+                       <img
+                         src={p.isMega && p.megaFormId ? getMegaSprite(p.megaFormId) : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
+                         onError={e => {
+                           if (p.isMega && p.megaFormId && !e.target.dataset.triedBase) {
+                             e.target.dataset.triedBase = '1';
+                             e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`;
+                           }
+                         }}
+                         className="w-12 h-12 object-contain"
+                         alt={p.name}
+                         loading="lazy"
+                       />
                        
                        {/* Ícone de Cadeado Regional */}
                        {!isLegal && (
@@ -802,7 +824,13 @@ const PokemonManagement = ({
                          ? getMegaSprite(poke.megaFormId)
                          : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`}
                        className={`absolute left-1/2 top-12 z-10 w-28 h-28 -translate-x-1/2 object-contain drop-shadow-2xl ${poke.isShiny ? 'drop-shadow-[0_0_20px_rgba(234,179,8,0.9)]' : ''}`}
-                       alt={poke.name}
+                        onError={e => {
+                          if (poke.isMega && poke.megaFormId && !e.target.dataset.triedBase) {
+                            e.target.dataset.triedBase = '1';
+                            e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`;
+                          }
+                        }}
+                        alt={poke.name}
                        loading="lazy"
                      />
 
@@ -1413,7 +1441,17 @@ const PokemonManagement = ({
                             Mega Evolução
                           </h4>
                           <div style={{ background: 'linear-gradient(135deg, #7c3aed15, #4f46e515)', borderRadius: 16, padding: 14, border: '1px solid #7c3aed30', display: 'flex', alignItems: 'center', gap: 12 }}>
-                            <img src={getMegaSprite(poke.megaFormId)} style={{ width: 48, height: 48, objectFit: 'contain' }} alt={poke.megaName} />
+                            <img
+                              src={getMegaSprite(poke.megaFormId)}
+                              onError={e => {
+                                if (!e.target.dataset.triedBase) {
+                                  e.target.dataset.triedBase = '1';
+                                  e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`;
+                                }
+                              }}
+                              style={{ width: 48, height: 48, objectFit: 'contain' }}
+                              alt={poke.megaName}
+                            />
                             <div>
                               <p style={{ fontWeight: 900, fontSize: 13, color: '#7c3aed', textTransform: 'uppercase', fontStyle: 'italic' }}>
                                 {poke.megaName}
@@ -1449,7 +1487,17 @@ const PokemonManagement = ({
                                 borderRadius: 14, padding: '10px 14px', border: stoneCount > 0 ? '1px solid #7c3aed30' : '1px solid #e2e8f0',
                                 display: 'flex', alignItems: 'center', gap: 10,
                               }}>
-                                <img src={getMegaSprite(megaFormId)} style={{ width: 36, height: 36, objectFit: 'contain', opacity: stoneCount > 0 ? 1 : 0.3 }} alt={name} />
+                                <img
+                                  src={getMegaSprite(megaFormId)}
+                                  onError={e => {
+                                    if (!e.target.dataset.triedBase) {
+                                      e.target.dataset.triedBase = '1';
+                                      e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke2.isShiny ? 'shiny/' : ''}${poke2.id}.png`;
+                                    }
+                                  }}
+                                  style={{ width: 36, height: 36, objectFit: 'contain', opacity: stoneCount > 0 ? 1 : 0.3 }}
+                                  alt={name}
+                                />
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                   <p style={{ fontWeight: 900, fontSize: 11, color: stoneCount > 0 ? '#7c3aed' : '#94a3b8', textTransform: 'uppercase', fontStyle: 'italic' }}>{name}</p>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>

@@ -1,7 +1,14 @@
-export const APP_VERSION = '1.97.3';
-export const VERSION = '1.97.3';
-export const APP_VERSION_DATE = '16/05/2026 00:20';
+export const APP_VERSION = '1.97.4';
+export const VERSION = '1.97.4';
+export const APP_VERSION_DATE = '15/05/2026 21:15';
 export const CHANGELOG = [
+  '## [V1.97.4] - 15/05/2026 21:15',
+  '### Corrigido — Engine de Renderização de Sprites Mega',
+  '- **Fallback Multi-nível**: Implementado sistema de recuperação de imagem em 3 estágios (GIF Animado → PNG Estático → Sprite Base). Isso resolve o problema de imagens quebradas para Mega Evoluções customizadas (ex: Mega Emboar #20500) e oficiais com falha na PokeAPI.',
+  '- **Correção de UI**: Aplicado fallback em todas as telas: Team List, PC Storage, Pokémon Details Modal, Battle Screen e Mega Evolution Preview.',
+  '- **Consistência do PC**: Pokémon Mega Evoluídos agora exibem corretamente sua forma Mega no armazenamento do PC (antes mostravam a forma base).',
+  '- **Auditoria de Backgrounds**: Finalizada a padronização das arenas de Unova. Primeiros 4 ginásios com arte exclusiva, outros 4 com mapeamento temático otimizado.',
+  '',
   '## [V1.97.3] - 16/05/2026 00:20',
   '### Adicionado — Auditoria e Limpeza de Backgrounds (Unova a Paldea)',
   '- **Correção de Paths**: Substituídos caminhos temporários (`_temp.png`) pelos assets finais (`.webp`) em Kalos e Galar.',
