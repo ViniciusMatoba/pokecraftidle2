@@ -693,7 +693,7 @@ const FUTURE_REGION_ROUTES = {
 
   unova_route_3: {
     id: 'unova_route_3', name: 'Rota 3', type: 'farm', group: 'Unova',
-    unlockLevel: 18, requirements: ['unova_route_2_cleared'], unlocks: 'unova_route_3_cleared',
+    unlockLevel: 18, requirements: ['trio_badge'], unlocks: 'unova_route_3_cleared',
     biome: 'grass',
     enemies: pk([519, 520, 522, 524, 517, 568], 16),
     trainerChance: 0.07,
@@ -704,7 +704,7 @@ const FUTURE_REGION_ROUTES = {
 
   unova_pinwheel_forest: {
     id: 'unova_pinwheel_forest', name: 'Pinwheel Forest', type: 'farm', group: 'Unova',
-    unlockLevel: 24, requirements: ['unova_route_3_cleared'], unlocks: 'unova_pinwheel_cleared',
+    unlockLevel: 24, requirements: ['basic_badge'], unlocks: 'unova_pinwheel_cleared',
     biome: 'forest',
     enemies: pk([540, 543, 546, 548, 532, 535], 22),
     trainerChance: 0.08,
@@ -722,7 +722,7 @@ const FUTURE_REGION_ROUTES = {
 
   unova_route_4: {
     id: 'unova_route_4', name: 'Rota 4 / Desert Resort', type: 'farm', group: 'Unova',
-    unlockLevel: 32, requirements: ['unova_pinwheel_cleared'], unlocks: 'unova_desert_cleared',
+    unlockLevel: 32, requirements: ['insect_badge'], unlocks: 'unova_desert_cleared',
     biome: 'mountain',
     enemies: pk([551, 554, 557, 559, 561, 562], 30),
     trainerChance: 0.08,
@@ -733,7 +733,7 @@ const FUTURE_REGION_ROUTES = {
 
   unova_chargestone_cave: {
     id: 'unova_chargestone_cave', name: 'Chargestone Cave', type: 'farm', group: 'Unova',
-    unlockLevel: 38, requirements: ['unova_desert_cleared'], unlocks: 'unova_chargestone_cleared',
+    unlockLevel: 38, requirements: ['bolt_badge'], unlocks: 'unova_chargestone_cleared',
     biome: 'cave',
     enemies: pk([524, 525, 595, 599, 601, 602], 36),
     trainerChance: 0.09,
@@ -744,7 +744,7 @@ const FUTURE_REGION_ROUTES = {
 
   unova_twist_mountain: {
     id: 'unova_twist_mountain', name: 'Twist Mountain', type: 'farm', group: 'Unova',
-    unlockLevel: 44, requirements: ['unova_chargestone_cleared'], unlocks: 'unova_twist_cleared',
+    unlockLevel: 44, requirements: ['quake_badge'], unlocks: 'unova_twist_cleared',
     biome: 'mountain',
     enemies: pk([613, 615, 619, 525, 582, 583], 42),
     trainerChance: 0.09,
@@ -755,7 +755,7 @@ const FUTURE_REGION_ROUTES = {
 
   unova_route_9: {
     id: 'unova_route_9', name: 'Rota 9', type: 'farm', group: 'Unova',
-    unlockLevel: 50, requirements: ['unova_twist_cleared'], unlocks: 'unova_route_9_cleared',
+    unlockLevel: 50, requirements: ['freeze_badge'], unlocks: 'unova_route_9_cleared',
     biome: 'grass',
     enemies: pk([610, 624, 569, 622, 626, 629, 633, 636], 48),
     trainerChance: 0.10,
@@ -766,7 +766,7 @@ const FUTURE_REGION_ROUTES = {
 
   unova_victory_road: {
     id: 'unova_victory_road', name: 'Victory Road Unova', type: 'farm', group: 'Unova',
-    unlockLevel: 58, requirements: ['unova_route_9_cleared'], unlocks: 'unova_victory_road_cleared',
+    unlockLevel: 58, requirements: ['legend_badge'], unlocks: 'unova_victory_road_cleared',
     biome: 'cave',
     enemies: pk([611, 612, 623, 625, 634], 56),
     trainerChance: 0.12,
@@ -775,19 +775,16 @@ const FUTURE_REGION_ROUTES = {
     description: 'O desafio final de Unova antes da Pokémon League.',
   },
 
-  unova_league: {
-    id: 'unova_league', name: 'Unova Pokémon League', type: 'farm', group: 'Unova',
-    unlockLevel: 65, requirements: ['unova_victory_road_cleared'], unlocks: 'unova_champion',
-    biome: 'cave',
+  unova_pokemon_league: {
+    id: 'unova_pokemon_league', name: 'Unova Pokemon League', type: 'city', group: 'Unova Liga',
+    unlockLevel: 68, requirements: ['unova_victory_road_cleared'],
     enemies: [
-      { id: 635, level: 64 },
-      { id: 637, level: 64 },
       { id: 638, level: 64, requiresFlag: 'unova_champion' },
       { id: 639, level: 64, requiresFlag: 'unova_champion' },
       { id: 640, level: 64, requiresFlag: 'unova_champion' },
     ],
-    trainerChance: 0.15,
-    trainers: [{ name: 'Champion Alder', sprite: S.cooltrainer, team: pk([617, 626, 584, 621, 637], 70), reward: 15000 }],
+    trainerChance: 1,
+    trainers: [{ name: 'Champion Alder', sprite: S.cooltrainer, team: pk([617, 626, 584, 621, 637], 70), reward: 15000, unlockFlag: 'unova_champion' }],
     background: '/bg_unova_elite.webp',
     description: 'Enfrente a Elite dos Quatro e o Campeão de Unova.',
   },
@@ -920,21 +917,16 @@ const FUTURE_REGION_ROUTES = {
     description: 'O caminho final para provar seu valor na Liga Kalos.',
   },
 
-  kalos_league: {
-    id: 'kalos_league', name: 'Kalos Pokémon League', type: 'farm', group: 'Kalos',
-    unlockLevel: 70, requirements: ['kalos_victory_road_cleared'], unlocks: 'kalos_champion',
-    biome: 'cave',
+  kalos_pokemon_league: {
+    id: 'kalos_pokemon_league', name: 'Kalos Pokemon League', type: 'city', group: 'Kalos Liga',
+    unlockLevel: 68, requirements: ['kalos_victory_road_cleared'],
     enemies: [
-      { id: 706, level: 68 },
-      { id: 697, level: 68 },
-      { id: 699, level: 68 },
-      { id: 701, level: 68 },
       { id: 716, level: 68, requiresFlag: 'kalos_champion' },
       { id: 717, level: 68, requiresFlag: 'kalos_champion' },
       { id: 718, level: 68, requiresFlag: 'kalos_champion' },
     ],
-    trainerChance: 0.15,
-    trainers: [{ name: 'Grand Duchess Diantha', sprite: S.cooltrainer, team: pk([701, 697, 699, 706, 711, 282], 75), reward: 30000 }],
+    trainerChance: 1,
+    trainers: [{ name: 'Grand Duchess Diantha', sprite: S.cooltrainer, team: pk([701, 697, 699, 706, 711, 282], 75), reward: 30000, unlockFlag: 'kalos_champion' }],
     background: '/bg_kalos_elite.webp',
     description: 'A glória eterna aguarda o próximo campeão de Kalos.',
   },
@@ -1034,11 +1026,11 @@ const FUTURE_REGION_ROUTES = {
 
   alola_mount_lanakila: {
     id: 'alola_mount_lanakila', name: 'Mount Lanakila', type: 'farm', group: 'Alola',
-    unlockLevel: 62, requirements: ['alola_lanakila_cleared'], unlocks: 'alola_champion',
+    unlockLevel: 62, requirements: ['alola_lanakila_cleared'],
     biome: 'cave',
     enemies: pk([739, 740, 37, 38, 27, 28], 60),
     trainerChance: 0.12,
-    trainers: [{ name: 'Professor Kukui', sprite: S.cooltrainer, team: pk([724, 733, 745, 756, 763, 727], 68), reward: 20000 }],
+    trainers: [{ name: 'Professor Kukui', sprite: S.cooltrainer, team: pk([724, 733, 745, 756, 763, 727], 68), reward: 20000, unlockFlag: 'alola_champion' }],
     background: '/bg_alola_elite.webp',
     description: 'O ponto mais alto de Alola e sede da nova Liga.',
   },
@@ -1127,11 +1119,11 @@ const FUTURE_REGION_ROUTES = {
 
   galar_victory_road: {
     id: 'galar_victory_road', name: 'Victory Road Galar / Rose Tower', type: 'farm', group: 'Galar',
-    unlockLevel: 60, requirements: ['galar_route_9_cleared'], unlocks: 'galar_champion',
+    unlockLevel: 60, requirements: ['galar_route_9_cleared'],
     biome: 'cave',
     enemies: pk([884, 862, 853, 612, 68], 58),
     trainerChance: 0.12,
-    trainers: [{ name: 'Champion Leon', sprite: S.cooltrainer, team: pk([823, 867, 884, 865, 812, 6], 68), reward: 30000 }],
+    trainers: [{ name: 'Champion Leon', sprite: S.cooltrainer, team: pk([823, 867, 884, 865, 812, 6], 68), reward: 30000, unlockFlag: 'galar_champion' }],
     background: '/bg_galar_elite.webp',
     description: 'A torre de poder de Wyndon, o teste final.',
   },
@@ -1238,11 +1230,11 @@ const FUTURE_REGION_ROUTES = {
 
   paldea_league: {
     id: 'paldea_league', name: 'Paldea Pokémon League', type: 'farm', group: 'Paldea',
-    unlockLevel: 62, requirements: ['paldea_glaseado_cleared'], unlocks: 'paldea_champion',
+    unlockLevel: 62, requirements: ['paldea_glaseado_cleared'],
     biome: 'cave',
     enemies: pk([955, 969, 103, 983, 967, 911], 60),
     trainerChance: 0.12,
-    trainers: [{ name: 'Geeta (Top Champion)', sprite: S.aceF, team: pk([955, 969, 103, 983, 967, 911], 68), reward: 30000 }],
+    trainers: [{ name: 'Geeta (Top Champion)', sprite: S.aceF, team: pk([955, 969, 103, 983, 967, 911], 68), reward: 30000, unlockFlag: 'paldea_champion' }],
     background: '/bg_paldea_elite.webp',
     description: 'Prove que você é digno do Rank Campeão.',
   },
@@ -2244,7 +2236,8 @@ const RAW_ROUTES = {
       { id: 46, level: 13, drop: 'mushroom', dropChance: 0.10 },
       { id: 163, level: 13, drop: 'feather', dropChance: 0.12 },
       { id: 204, level: 12, drop: 'bug_essence', dropChance: 0.18 },
-      { id: 214, level: 12, drop: 'bug_essence', dropChance: 0.18 }
+      { id: 214, level: 12, drop: 'bug_essence', dropChance: 0.18 },
+      { id: 251, level: 30 }
     ],
     trainerChance: 0.06,
     trainers: [
@@ -2290,7 +2283,8 @@ const RAW_ROUTES = {
   ecruteak_city: {
     id: 'ecruteak_city', name: 'Ecruteak City', type: 'city', group: 'Ecruteak City',
     unlockLevel: 70, requirements: ['plain_badge'],
-    enemies: [], trainers: [], trainerChance: 0,
+    enemies: [ { id: 250, level: 60 } ],
+    trainers: [], trainerChance: 0,
     background: '/battle_bg_johto_city_1777340517574.webp',
     description: 'Cidade historica das torres de Johto.',
   },
@@ -2308,7 +2302,10 @@ const RAW_ROUTES = {
       { id: 198, level: 17, drop: 'fire_essence', dropChance: 0.18 },
       { id: 200, level: 17, drop: 'fire_essence', dropChance: 0.18 },
       { id: 228, level: 17, drop: 'fire_essence', dropChance: 0.18 },
-      { id: 240, level: 17, drop: 'fire_essence', dropChance: 0.18 }
+      { id: 240, level: 17, drop: 'fire_essence', dropChance: 0.18 },
+      { id: 243, level: 40 },
+      { id: 244, level: 40 },
+      { id: 245, level: 40 }
     ],
     trainerChance: 0.06,
     trainers: [
@@ -2369,7 +2366,8 @@ const RAW_ROUTES = {
       { id: 223, level: 22, drop: 'water_essence', dropChance: 0.18 },
       { id: 211, level: 21, drop: 'water_essence', dropChance: 0.18 },
       { id: 213, level: 21, drop: 'water_essence', dropChance: 0.18 },
-      { id: 222, level: 21, drop: 'water_essence', dropChance: 0.18 }
+      { id: 222, level: 21, drop: 'water_essence', dropChance: 0.18 },
+      { id: 249, level: 60 }
     ],
     trainerChance: 0.07,
     trainers: [

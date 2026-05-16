@@ -2310,27 +2310,38 @@ export default function App() {
     
     let enemyPool = [...route.enemies];
     
-    // ── 2. FILTRO DE LENDÁRIOS ──
-    const legendaryIds = [144, 145, 146, 150, 243, 244, 245, 249, 250, 251];
+    // ── 2. FILTRO DE LENDÁRIOS / MÍTICOS ──
+    const LEGENDARY_IDS = [
+      144, 145, 146, 150, 151, // Gen 1
+      243, 244, 245, 249, 250, 251, // Gen 2
+      377, 378, 379, 380, 381, 382, 383, 384, 385, 386, // Gen 3
+      480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, // Gen 4
+      494, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, // Gen 5
+      716, 717, 718, 719, 720, 721, // Gen 6
+      772, 773, 785, 786, 787, 788, 789, 790, 791, 792, 793, 794, 795, 796, 797, 798, 799, 800, 801, 802, 803, 804, 805, 806, 807, // Gen 7
+      888, 889, 890, 891, 892, 893, 894, 895, 896, 897, 898, 905, // Gen 8
+      1001, 1002, 1003, 1004, 1007, 1008, 1010, 1024 // Gen 9
+    ];
     const todayStr = new Date().toISOString().split('T')[0];
 
     enemyPool = enemyPool.filter(e => {
       const id = Number(e.id);
-      if (legendaryIds.includes(id)) {
-        // Verifica se já derrotou o boss correspondente nas flags globais
-        const flagMap = {
-          144: 'articuno_defeated', 145: 'zapdos_defeated', 146: 'moltres_defeated', 150: 'mewtwo_defeated',
-          243: 'raikou_defeated', 244: 'entei_defeated', 245: 'suicune_defeated',
-          249: 'lugia_defeated', 250: 'ho_oh_defeated', 251: 'celebi_defeated'
-        };
-        const flag = flagMap[id];
+      if (LEGENDARY_IDS.includes(id)) {
+        const baseData = POKEDEX[id];
+        // Formata o nome para bater com as flags: Ho-Oh -> ho_oh_defeated
+        const pokemonName = baseData?.name?.toLowerCase().replace(/ /g, '_').replace(/-/g, '_') || '';
         
-        if (flag && !gameState.worldFlags?.includes(flag)) return false;
+        // 1. Verifica se já derrotou o boss correspondente nas flags globais
+        // Ex: 'mewtwo_defeated', 'ho_oh_defeated'
+        const defeatFlag = `${pokemonName}_defeated`;
+        const currentFlags = gameState.worldFlags || [];
+        if (!currentFlags.includes(defeatFlag)) return false;
 
-        // Raridade reforçada (5% de chance de aparecer se elegível)
-        if (Math.random() > 0.05) return false;
+        // 2. Raridade Extrema (0.05% de chance de aparecer se elegível)
+        // O spawnWeight original da rota é ignorado para lendários para garantir a raridade fixa
+        if (Math.random() > 0.0005) return false;
 
-        // Verifica limite diário (1 vez por dia por espécie)
+        // 3. Verifica limite diário (1 vez por dia por espécie)
         if (gameState.lastLegendarySpawns?.[id] === todayStr) return false;
       }
       return true;

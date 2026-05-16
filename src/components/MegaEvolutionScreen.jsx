@@ -110,7 +110,8 @@ const MegaStoneCard = ({ megaData, stoneId, hasStone, onChoose }) => {
             onError={e => {
               if (!e.target.dataset.triedBase) {
                 e.target.dataset.triedBase = '1';
-                e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.isShiny ? 'shiny/' : ''}${pokemon.id}.png`;
+                // Fallback para sprite base (sem mega) usando baseId do megaData
+                e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${megaData.baseId}.png`;
               }
             }}
             style={{ width: 36, height: 36, objectFit: 'contain', filter: hasStone ? 'none' : 'brightness(0) invert(0.3)' }}
@@ -386,7 +387,7 @@ const MegaEvolutionScreen = ({
                     onError={e => {
                       if (!e.target.dataset.triedBase) {
                         e.target.dataset.triedBase = '1';
-                        e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${selectedCandidate.pokemon.isShiny ? 'shiny/' : ''}${selectedCandidate.pokemon.id}.png`;
+                        e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${candidate.pokemon.isShiny ? 'shiny/' : ''}${candidate.pokemon.id}.png`;
                       }
                     }}
                     style={{ width: 90, height: 90, position: 'relative', zIndex: 1, filter: `drop-shadow(0 0 16px ${accentColor}80)` }}
@@ -475,7 +476,7 @@ const MegaEvolutionScreen = ({
               onError={e => {
                 if (!e.target.dataset.triedBase) {
                   e.target.dataset.triedBase = '1';
-                  e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${selectedCandidate.pokemon.isShiny ? 'shiny/' : ''}${selectedCandidate.pokemon.id}.png`;
+                  e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${confirmData.candidate.pokemon.isShiny ? 'shiny/' : ''}${confirmData.candidate.pokemon.id}.png`;
                 }
               }}
               style={{ width: 160, height: 160, position: 'relative', zIndex: 1,

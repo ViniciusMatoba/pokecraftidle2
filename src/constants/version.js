@@ -1,12 +1,13 @@
-export const APP_VERSION = '1.97.5';
-export const VERSION = '1.97.5';
-export const APP_VERSION_DATE = '16/05/2026 00:25';
+export const APP_VERSION = '1.98.0';
+export const VERSION = '1.98.0';
+export const APP_VERSION_DATE = '16/05/2026 00:50';
 export const CHANGELOG = [
-  '## [V1.97.5] - 16/05/2026 00:25',
-  '### Corrigido — Cobertura Total de Sprites Mega Evolução',
-  '- **Omnipresença do Fallback**: Estendido o sistema de recuperação de imagem para TODAS as telas do jogo: Pokédex (Lista e Modal), Mochila (Seletor de EXP Candy), Guia de Evolução e Reordenamento de Time.',
-  '- **Mega Emboar & Custom IDs**: Corrigida especificamente a falha visual do Mega Emboar (#20500) e outros IDs >= 20000 que não existem na PokeAPI.',
-  '- **Sincronização de Shiny**: O sistema de fallback agora preserva o estado Shiny ao tentar carregar a forma base do Pokémon.',
+  '## [V1.98.0] - 16/05/2026 00:50',
+  '### Hardening — Progressão Regional e Lendários',
+  '- **Fim dos Unlocks Passivos**: Removidas todas as travas de "unlocks" automáticas das rotas de liga (Unova, Kalos, Alola). Agora, o título de Campeão e o acesso ao pós-jogo são estritamente amarrados à vitória em batalha contra o Campeão.',
+  '- **Gatilho de Lendários**: Implementada trava global para Lendários e Míticos. Eles agora só aparecem nas rotas após serem derrotados como bosses em desafios. Taxa de encontro extremamente rara fixada em 0.05% (1 em 2000).',
+  '- **Reparo de Sprites Mega**: Corrigida falha visual de Mega Evoluções no BattleScreen e PokemonManagement. Implementado fallback inteligente para sprites de "back" (costas) e suporte total a Mega Evoluções de Gen 6+ que não possuem arte animada no estilo Gen 5.',
+  '- **Distribuição Johto**: Raikou, Entei, Suicune, Lugia, Ho-Oh e Celebi agora habitam rotas temáticas de Johto como encontros raros pós-vitória.',
   '',
   '## [V1.97.4] - 15/05/2026 21:15',
   '### Corrigido — Engine de Renderização de Sprites Mega',
