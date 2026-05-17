@@ -752,20 +752,52 @@ export default function App() {
               setGameState(migratedData);
             }
 
+            isFullyLoadedRef.current = true;
+
             const hasRealProgress = (migratedData.worldFlags || []).length > 0 || (migratedData.badges || []).length > 0;
             if (hasRealProgress) {
               setCurrentView('city');
             }
           } else {
-            // Se não encontrou save, mas o usuário acha que tinha, aqui é o perigo.
-            // Vamos apenas setar o default se tivermos certeza que é novo ou se o user confirmar.
-            setGameState(DEFAULT_GAME_STATE);
+            // Não encontrou save na nuvem — tenta recuperar do localStorage
+            const localSaved = localStorage.getItem('poke_idle_save');
+            let localData = null;
+            if (localSaved) {
+              try {
+                const decompressed = LZString.decompress(localSaved);
+                const parsed = decompressed ? JSON.parse(decompressed) : JSON.parse(localSaved);
+                localData = parsed?.gameState || null;
+              } catch { localData = null; }
+            }
+            if (localData) {
+              const migratedLocal = migrateGameState(localData, { version: APP_VERSION });
+              setGameState(migratedLocal);
+              notify('Save local restaurado (não havia save na nuvem).', 'info');
+            } else {
+              setGameState(DEFAULT_GAME_STATE);
+            }
+            isFullyLoadedRef.current = true;
           }
         } catch (err) {
           console.error("❌ [Cloud] Error loading save:", err);
-          // EM CASO DE ERRO DE REDE, NÃO RESETAR O ESTADO PADRÃO!
-          // Isso evita que o auto-save sobrescreva o save real com um vazio.
-          notify("Erro ao carregar save da nuvem. Verifique sua conexão.", "error");
+          // Em caso de erro de rede, tenta o localStorage antes de desistir
+          const localSaved = localStorage.getItem('poke_idle_save');
+          if (localSaved) {
+            try {
+              const decompressed = LZString.decompress(localSaved);
+              const parsed = decompressed ? JSON.parse(decompressed) : JSON.parse(localSaved);
+              const localData = parsed?.gameState || null;
+              if (localData) {
+                const migratedLocal = migrateGameState(localData, { version: APP_VERSION });
+                setGameState(migratedLocal);
+                isFullyLoadedRef.current = true;
+                notify('Carregado do save local (erro na nuvem). Progresso preservado.', 'error');
+                return;
+              }
+            } catch { /* ignora */ }
+          }
+          // Não marca isFullyLoaded para evitar sobrescrever save real com estado vazio
+          notify("Erro ao carregar save. Reconectando...", "error");
         }
       } else {
         setUser(null);
@@ -965,6 +997,10 @@ export default function App() {
   const lastSyncRef = useRef(0);
   const saveTimeoutRef = useRef(null);
   const bossSaveTimeoutRef = useRef(null);
+  // Guard: só permite save após o load do Firestore completar com sucesso
+  const isFullyLoadedRef = useRef(false);
+  // Ref para acessar gameState atual nos event listeners sem re-registrar
+  const gameStateRef = useRef(null);
 
   const [bossDamage, setBossDamage] = useState(0);
   const [bossTimer, setBossTimer] = useState(null);
@@ -1254,8 +1290,84 @@ export default function App() {
       }
       return currentId;
     };
+    const TYPE_DOMAIN_DROPS = {
+      Normal: 'normal_essence',
+      Fire: 'fire_essence',
+      Water: 'water_essence',
+      Grass: 'grass_essence',
+      Electric: 'electric_essence',
+      Flying: 'flying_essence',
+      Poison: 'poison_essence',
+      Ground: 'ground_essence',
+      Rock: 'rock_essence',
+      Fighting: 'fury_essence',
+      Psychic: 'psychic_essence',
+      Bug: 'bug_essence',
+      Ice: 'ice_essence',
+      Ghost: 'ghost_essence',
+      Dragon: 'dragon_essence',
+      Dark: 'dark_essence',
+      Steel: 'steel_essence',
+      Fairy: 'fairy_essence',
+    };
+
+    const getPokedexTypes = (entry = {}) => {
+      const types = Array.isArray(entry.types) && entry.types.length ? entry.types : [entry.type];
+      return types.filter(Boolean);
+    };
+
+    const getPostGameLevel = (index, total) => {
+      if (total <= 1) return 100;
+      return Math.min(100, 70 + Math.floor((index / (total - 1)) * 30));
+    };
+
+    const buildTypeDomainEnemies = (type) => {
+      const ids = Object.keys(POKEDEX)
+        .map(Number)
+        .filter(id => Number.isFinite(id) && id > 0 && id <= 1025)
+        .filter(id => {
+          const entry = POKEDEX[id] || POKEDEX[String(id)];
+          return entry && getPokedexTypes(entry).includes(type);
+        })
+        .sort((a, b) => a - b);
+
+      return ids.map((id, index) => {
+        const level = getPostGameLevel(index, ids.length);
+        return {
+          id,
+          level,
+          drop: TYPE_DOMAIN_DROPS[type] || 'normal_essence',
+          dropChance: level >= 95 ? 0.42 : level >= 85 ? 0.36 : 0.3,
+          spawnWeight: level >= 95 ? 28 : level >= 85 ? 42 : 64,
+        };
+      });
+    };
+
+    const buildPrismDomainEnemies = () => {
+      const ids = Object.keys(POKEDEX)
+        .map(Number)
+        .filter(id => Number.isFinite(id) && id > 0 && id <= 1025)
+        .sort((a, b) => a - b);
+      return ids.map(id => ({ id, level: 100, drop: 'stardust', dropChance: 0.32, spawnWeight: 30 }));
+    };
+
+    Object.values(newRoutes).forEach(route => {
+      if (!route?.postGameDomain) return;
+      const enemies = route.prismDomain ? buildPrismDomainEnemies() : buildTypeDomainEnemies(route.typeDomain);
+      route.enemies = enemies;
+      const trainerTeam = enemies
+        .filter(enemy => enemy.level >= 90)
+        .slice(-6)
+        .map(enemy => ({ id: enemy.id, level: Math.min(100, enemy.level + 3) }));
+      route.trainers = (route.trainers || []).map(trainer => ({
+        ...trainer,
+        team: trainerTeam.slice(0, route.prismDomain ? 6 : 4),
+      }));
+    });
+
     Object.values(newRoutes).forEach(route => {
       if (route.type !== 'farm') return;
+      if (route.postGameDomain) return;
 
       // ── NOVO: detectar região da rota e seu limite de Dex ──
       const routeRegion = inferRouteRegion(route.id, route.group);
@@ -1644,8 +1756,15 @@ export default function App() {
 
 
 
+  // Mantém gameStateRef atualizado para uso em event listeners
+  useEffect(() => {
+    gameStateRef.current = gameState;
+  }, [gameState]);
+
   // 1. Sincronização LocalStorage (Sempre que o estado mudar)
   useEffect(() => {
+    // Não salva localmente enquanto o load não completou (evita sobrescrever save com estado padrão)
+    if (!isFullyLoadedRef.current) return;
     try {
       const compressed = LZString.compress(JSON.stringify({ gameState }));
       localStorage.setItem('poke_idle_save', compressed);
@@ -1724,7 +1843,24 @@ export default function App() {
   const saveToCloud = useCallback(async (dataToSave) => {
     const user = auth.currentUser;
     if (!user) return;
-    
+
+    // Nunca salvar se o load ainda não completou — evita sobrescrever save real com estado vazio
+    if (!isFullyLoadedRef.current) {
+      console.warn('[Save] Bloqueado: load ainda não completou.');
+      return;
+    }
+
+    // Validação de estado: recusa salvar um estado completamente vazio (sem progresso)
+    const _hasProgress = (dataToSave.team?.length > 0) ||
+      (dataToSave.pc?.length > 0) ||
+      Object.keys(dataToSave.caughtData || {}).length > 0 ||
+      (dataToSave.badges?.length > 0) ||
+      (dataToSave.worldFlags?.length > 0);
+    if (!_hasProgress && !dataToSave._allowEmptySave) {
+      console.warn('[Save] Bloqueado: estado sem progresso detectado, save ignorado.');
+      return;
+    }
+
     try {
       const badgeCount = getBadgeCount(dataToSave);
       const powerScore = calculatePowerScore(dataToSave, POKEDEX);
@@ -1859,12 +1995,14 @@ export default function App() {
   }, [saveToCloud]);
 
   // 3. beforeunload + visibilitychange — salva com lastSeenAt antes de fechar/minimizar
+  // Usa gameStateRef para não precisar re-registrar listeners a cada mudança de estado
   useEffect(() => {
     const saveLocal = () => {
+      if (!isFullyLoadedRef.current || !gameStateRef.current) return;
       try {
         const stateWithTimestamp = {
-          ...gameState,
-          playerStats: { ...gameState.playerStats, lastSeenAt: Date.now() }
+          ...gameStateRef.current,
+          playerStats: { ...gameStateRef.current.playerStats, lastSeenAt: Date.now() }
         };
         const compressed = LZString.compress(JSON.stringify({ gameState: stateWithTimestamp }));
         localStorage.setItem('poke_idle_save', compressed);
@@ -1877,7 +2015,7 @@ export default function App() {
       window.removeEventListener('beforeunload', saveLocal);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [gameState]);
+  }, []); // [] = registra uma única vez, gameStateRef sempre tem o valor atual
 
   // 4. Online/Offline — avisa o jogador e resync automático ao reconectar
   useEffect(() => {
@@ -1885,7 +2023,7 @@ export default function App() {
     const handleOnline = () => {
       notify('Conexão restaurada. Sincronizando...', 'success');
       const user = auth.currentUser;
-      if (user) saveToCloud(gameState).catch(e => console.error("Resync fail:", e));
+      if (user && gameStateRef.current) saveToCloud(gameStateRef.current).catch(e => console.error("Resync fail:", e));
     };
     window.addEventListener('offline', handleOffline);
     window.addEventListener('online', handleOnline);
@@ -1893,7 +2031,7 @@ export default function App() {
       window.removeEventListener('offline', handleOffline);
       window.removeEventListener('online', handleOnline);
     };
-  }, [gameState, saveToCloud]);
+  }, [saveToCloud]);
 
   const prevView = useRef(currentView);
   const prevRoute = useRef(gameState.currentRoute);
