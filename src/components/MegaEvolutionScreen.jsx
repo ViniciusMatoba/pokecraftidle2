@@ -106,7 +106,7 @@ const MegaStoneCard = ({ megaData, stoneId, hasStone, onChoose }) => {
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
         <div style={{ width: 44, height: 44, borderRadius: 10, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <img
-            src={getMegaSprite(megaData.megaFormId)}
+            src={getMegaSprite(megaData.showdownId)}
             onError={e => {
               if (!e.target.dataset.triedBase) {
                 e.target.dataset.triedBase = '1';
@@ -218,14 +218,14 @@ const MegaEvolutionScreen = ({
             ...p,
             // Identidade Mega
             isMega:       true,
-            megaFormId:   megaData.megaFormId,
+            megaShowdownId: megaData.showdownId,
             megaName:     megaData.name,
             megaStatBonus: bonus,
             // Tipo atualizado
             type:         megaData.types?.[0] || p.type,
             types:        megaData.types || p.types,
-            // Sprite atualizado
-            megaSprite:   getMegaSprite(megaData.megaFormId),
+            // Sprite via Pokémon Showdown
+            megaSprite:   getMegaSprite(megaData.showdownId),
             // Stats aumentados permanentemente
             attack:   applyBonus(p.attack,  'attack'),
             defense:  applyBonus(p.defense, 'defense'),
@@ -244,10 +244,10 @@ const MegaEvolutionScreen = ({
             ...prev.inventory,
             items: {
               ...prev.inventory?.items,
-              [stoneId]: Math.max(0, (prev.inventory?.items?.[stoneId] || 1) - 1),
+              [stoneId]: Math.max(0, (prev.inventory?.items?.[stoneId] || 0) - 1),
             },
           },
-          caughtData: { ...prev.caughtData, [megaData.megaFormId]: true },
+          caughtData: { ...prev.caughtData, [megaData.showdownId]: true },
         };
       });
 
@@ -383,7 +383,7 @@ const MegaEvolutionScreen = ({
                   <div className="absolute inset-0 blur-2xl rounded-full animate-pulse"
                     style={{ background: `${accentColor}40` }} />
                   <img
-                    src={getMegaSprite(megaData.megaFormId)}
+                    src={getMegaSprite(megaData.showdownId)}
                     onError={e => {
                       if (!e.target.dataset.triedBase) {
                         e.target.dataset.triedBase = '1';
@@ -472,7 +472,7 @@ const MegaEvolutionScreen = ({
             <div className="absolute inset-0 animate-ping rounded-full"
               style={{ background: `${accentColor}20`, borderRadius: '50%', animationDelay: '0.3s' }} />
             <img
-              src={getMegaSprite(megaData.megaFormId)}
+              src={getMegaSprite(megaData.showdownId)}
               onError={e => {
                 if (!e.target.dataset.triedBase) {
                   e.target.dataset.triedBase = '1';

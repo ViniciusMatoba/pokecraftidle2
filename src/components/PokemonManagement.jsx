@@ -590,9 +590,9 @@ const PokemonManagement = ({
               >
                 <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center relative">
                   <img
-                    src={p.isMega && p.megaFormId ? getMegaSprite(p.megaFormId) : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
+                    src={p.isMega && p.megaSprite ? p.megaSprite : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
                     onError={e => {
-                      if (p.isMega && p.megaFormId && !e.target.dataset.triedBase) {
+                      if (p.isMega && p.megaSprite && !e.target.dataset.triedBase) {
                         e.target.dataset.triedBase = '1';
                         e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`;
                       }
@@ -704,9 +704,9 @@ const PokemonManagement = ({
                       }`}
                     >
                        <img
-                         src={p.isMega && p.megaFormId ? getMegaSprite(p.megaFormId) : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
+                         src={p.isMega && p.megaSprite ? p.megaSprite : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
                          onError={e => {
-                           if (p.isMega && p.megaFormId && !e.target.dataset.triedBase) {
+                           if (p.isMega && p.megaSprite && !e.target.dataset.triedBase) {
                              e.target.dataset.triedBase = '1';
                              e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`;
                            }
@@ -820,12 +820,12 @@ const PokemonManagement = ({
                        ))}
                      </div>
                      <img
-                       src={poke.isMega && poke.megaFormId
-                         ? getMegaSprite(poke.megaFormId)
+                       src={poke.isMega && poke.megaSprite
+                         ? poke.megaSprite
                          : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`}
                        className={`absolute left-1/2 top-12 z-10 w-28 h-28 -translate-x-1/2 object-contain drop-shadow-2xl ${poke.isShiny ? 'drop-shadow-[0_0_20px_rgba(234,179,8,0.9)]' : ''}`}
                         onError={e => {
-                          if (poke.isMega && poke.megaFormId && !e.target.dataset.triedBase) {
+                          if (poke.isMega && poke.megaSprite && !e.target.dataset.triedBase) {
                             e.target.dataset.triedBase = '1';
                             e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`;
                           }
@@ -1453,7 +1453,7 @@ const PokemonManagement = ({
                           </h4>
                           <div style={{ background: 'linear-gradient(135deg, #7c3aed15, #4f46e515)', borderRadius: 16, padding: 14, border: '1px solid #7c3aed30', display: 'flex', alignItems: 'center', gap: 12 }}>
                             <img
-                              src={getMegaSprite(poke.megaFormId)}
+                              src={poke.megaSprite || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.id}.png`}
                               onError={e => {
                                 if (!e.target.dataset.triedBase) {
                                   e.target.dataset.triedBase = '1';
@@ -1490,7 +1490,7 @@ const PokemonManagement = ({
                           Mega Evolução Disponível!
                         </h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          {compatibles.map(({ stoneId, name, megaFormId, types }) => {
+                          {compatibles.map(({ stoneId, name, showdownId, types }) => {
                             const stoneCount = inventory[stoneId] || 0;
                             return (
                               <div key={stoneId} style={{
@@ -1499,7 +1499,7 @@ const PokemonManagement = ({
                                 display: 'flex', alignItems: 'center', gap: 10,
                               }}>
                                 <img
-                                  src={getMegaSprite(megaFormId)}
+                                  src={getMegaSprite(showdownId)}
                                   onError={e => {
                                     if (!e.target.dataset.triedBase) {
                                       e.target.dataset.triedBase = '1';
@@ -1562,7 +1562,7 @@ const PokemonManagement = ({
                                    className={`relative h-16 rounded-2xl border-2 transition-all flex items-center justify-center ${isCurrent ? 'border-pokeBlue bg-blue-50/50 shadow-inner' : 'border-white bg-white shadow-sm hover:border-pokeBlue/30 active:scale-95'}`}
                                  >
                                     <img
-                                      src={teamPoke.isMega && teamPoke.megaFormId ? getMegaSprite(teamPoke.megaFormId) : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${teamPoke.isShiny ? 'shiny/' : ''}${teamPoke.id}.png`}
+                                      src={teamPoke.isMega && teamPoke.megaSprite ? teamPoke.megaSprite : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${teamPoke.isShiny ? 'shiny/' : ''}${teamPoke.id}.png`}
                                       onError={e => {
                                         if (!e.target.dataset.triedBase) {
                                           e.target.dataset.triedBase = '1';

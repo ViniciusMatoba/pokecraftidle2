@@ -80,7 +80,7 @@ const ExpCandyConfirmModal = ({ candy, pokemon, onConfirm, onBack }) => {
             {/* Pokémon */}
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <img
-                src={pokemon.isMega && pokemon.megaFormId ? getMegaSprite(pokemon.megaFormId) : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.isShiny ? 'shiny/' : ''}${pokemon.id}.png`}
+                src={pokemon.isMega && pokemon.megaSprite ? pokemon.megaSprite : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.isShiny ? 'shiny/' : ''}${pokemon.id}.png`}
                 alt={pokemon.name}
                 className="w-12 h-12 object-contain shrink-0"
                 onError={e => {
@@ -240,7 +240,7 @@ const ExpCandyModal = ({ candy, gameState, onUse, onClose }) => {
                   onClick={() => setConfirmPokemon(p)}
                   className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border-2 border-slate-100 hover:border-slate-300 active:scale-[0.98] transition-all text-left w-full">
                   <img
-                    src={p.isMega && p.megaFormId ? getMegaSprite(p.megaFormId) : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
+                    src={p.isMega && p.megaSprite ? p.megaSprite : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
                     alt={p.name}
                     className="w-10 h-10 object-contain"
                     onError={e => {

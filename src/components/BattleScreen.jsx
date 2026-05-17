@@ -52,7 +52,8 @@ const BattleScreen = ({
   // Escuta eventos de golpe disparados pelo AppRoot
   useEffect(() => {
     const onMove = (e) => {
-      const { name, type, direction, moveKey } = e.detail;
+      const detail = e.detail || {};
+      const { name, type, direction, moveKey } = detail;
       const moveData = moveKey ? MOVES[moveKey] : null;
       
       const triggerReaction = (target, type) => {
@@ -70,9 +71,15 @@ const BattleScreen = ({
       };
 
       const handleHit = () => {
+        if (detail.missed) return;
         const target = direction === 'player-to-enemy' ? 'enemy' : 'player';
         triggerReaction(target, 'reaction-shake');
-        triggerReaction(target, 'reaction-flicker');
+        if (!detail.noEffect && detail.effectiveness !== 0) triggerReaction(target, 'reaction-flicker');
+
+        if (detail.critical || detail.effectiveness > 1 || (detail.damage || 0) >= 80) {
+          setScreenShake(true);
+          setTimeout(() => setScreenShake(false), detail.critical ? 420 : 260);
+        }
 
         // Trigger stat arrows if any
         if (moveData?.statChanges) {
@@ -90,13 +97,13 @@ const BattleScreen = ({
 
         // Elite Move Vignette
         const eliteKeywords = ['pump', 'thrower', 'blast', 'earthquake', 'storm', 'hyper', 'origin', 'meteor', 'v-create'];
-        if (eliteKeywords.some(kw => name.toLowerCase().includes(kw))) {
+        if (eliteKeywords.some(kw => String(name || '').toLowerCase().includes(kw)) || detail.critical) {
           setShowVignette(true);
           setTimeout(() => setShowVignette(false), 800);
         }
       };
 
-      animLayerRef.current?.play(name, type, direction, moveKey, handleHit, handleAttack);
+      animLayerRef.current?.play(name, type, direction, moveKey, handleHit, handleAttack, detail);
     };
     window.addEventListener('pokemove', onMove);
     return () => window.removeEventListener('pokemove', onMove);
@@ -476,20 +483,20 @@ const BattleScreen = ({
               {playerShinyFlash && <ShinySparkles />}
               <img
                 src={
-                  activePoke.isMega && activePoke.megaFormId
-                    ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/${activePoke.megaFormId}.gif`
+                  activePoke.isMega && activePoke.megaShowdownId
+                    ? `https://play.pokemonshowdown.com/sprites/dex-back/${activePoke.megaShowdownId}.png`
                     : activePoke.id >= 650
                       ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.png`
                       : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.gif`
                 }
                 onError={e => {
                   const target = e.target;
-                  const isMega = activePoke.isMega && activePoke.megaFormId;
+                  const isMega = activePoke.isMega && activePoke.megaShowdownId;
 
-                  // Se era um GIF Mega e falhou, tenta o PNG Mega (PokeAPI) - BACK
+                  // Fallback mega back → sprite base
                   if (isMega && !target.dataset.triedStaticMega) {
                     target.dataset.triedStaticMega = '1';
-                    target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${activePoke.megaFormId}.png`;
+                    target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.png`;
                     return;
                   }
 

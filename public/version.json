@@ -1,5 +1,5 @@
 {
-  "version": "2.1.0",
-  "date": "17/05/2026 12:00",
-  "notes": "Estabilidade & Offline: progresso offline (idle farm), Firestore offline persistence, detecção de conexão, localStorage comprimido."
+  "version": "2.1.1",
+  "date": "17/05/2026 14:25",
+  "notes": "Correção completa de golpes: Semente Sanguessuga, Veneno Tóxico, multi-acerto, STAB duplo tipo, Congelamento, OHKO, Descanso, efeitos secundários do inimigo e 72 Mega Evoluções."
 }

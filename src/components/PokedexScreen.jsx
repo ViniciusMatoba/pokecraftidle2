@@ -160,8 +160,8 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 15
                 </div>
 
                 <img
-                  src={displayPoke.isMega && displayPoke.megaFormId 
-                    ? getMegaSprite(displayPoke.megaFormId)
+                  src={displayPoke.isMega && displayPoke.megaSprite
+                    ? displayPoke.megaSprite
                     : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${displayPoke.isShiny ? 'shiny/' : ''}${displayPoke.id}.png`}
                   onError={e => {
                     if (!e.target.dataset.triedBase) {

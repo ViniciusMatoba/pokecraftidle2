@@ -1946,15 +1946,21 @@ export default function App() {
     const name = (move.name || '').toLowerCase();
     const result = {
       statChanges: [],   // [{ stat, change, target: 'enemy'|'self' }]
-      statusEffect: null, // 'burn'|'poison'|'sleep'|'paralyze'|'confuse'|'freeze'
+      statusEffect: null, // 'burn'|'poison'|'sleep'|'paralyze'|'confuse'|'freeze'|'toxic'
       statusTarget: 'enemy',
       heal: false,       // se cura o próprio pokémon
       fixedDamage: null, // dano fixo (seismic-toss, dragon-rage, etc)
       ohko: false,       // one-hit KO
+      leechSeed: false,  // Semente Sanguessuga
       accuracy_change: null, // { target, change }
       evasion_change: null,
       noEffect: false,   // teleport, roar, etc - sem efeito em batalha idle
     };
+
+    // Semente Sanguessuga
+    if (name === 'leech-seed' || name === 'leech seed') {
+      result.leechSeed = true; return result;
+    }
 
     // Efeitos especiais de dano
     if (e.includes('one-hit ko') || e.includes('causes a one-hit ko')) {
@@ -2083,10 +2089,14 @@ export default function App() {
     const atkMult = isPhysical ? getStatMult(attacker.stages?.attack) : getStatMult(attacker.stages?.spAtk);
     const defMult = isPhysical ? getStatMult(defender.stages?.defense) : getStatMult(defender.stages?.spDef);
 
-    const atk = atkBase * atkMult;
+    let atk = atkBase * atkMult;
+    // Queimadura: reduz Ataque físico à metade
+    if (isPhysical && (attacker.status || []).includes('burn')) atk *= 0.5;
     const def = Math.max(1, defBase * defMult);
 
-    const stab = move.type === attacker.type ? 1.5 : 1.0;
+    // STAB: verifica tipos primário E secundário do atacante
+    const attackerTypes = attacker.types || [attacker.type];
+    const stab = attackerTypes.includes(move.type) ? 1.5 : 1.0;
     const effectiveness = getTypeEffectiveness(move.type, defender.type);
     
     if (effectiveness === 0) return 0;
@@ -3442,7 +3452,16 @@ export default function App() {
           updatedTeam[activeMemberIndex].status = myStatus.filter(s => s !== 'sleep');
           addLog(`${myPoke.name} acordou!`, 'system');
         } else {
-          return { ...prev, team: updatedTeam }; 
+          return { ...prev, team: updatedTeam };
+        }
+      }
+      if (myStatus.includes('freeze')) {
+        addLog(`❄️ ${myPoke.name} está congelado e não pode atacar!`, 'system');
+        if (Math.random() < 0.20) {
+          updatedTeam[activeMemberIndex].status = myStatus.filter(s => s !== 'freeze');
+          addLog(`🔥 ${myPoke.name} se descongelou!`, 'system');
+        } else {
+          return { ...prev, team: updatedTeam };
         }
       }
 
@@ -3484,9 +3503,16 @@ export default function App() {
           addLog(`${myPoke.name} usou ${move.name}... sem efeito aqui.`, 'system');
 
         } else if (fx.ohko) {
-          updatedEnemyFinal.hp = 0;
-          addLog(`💥 ${myPoke.name} usou ${move.name}! Golpe decisivo!`, 'system');
-          addFloat('OHKO!', '#ef4444');
+          // Precisão real: base 30% + (level usuário - level alvo)
+          const _ohkoAcc = 30 + (myPoke.level || 5) - (updatedEnemyFinal.level || 5);
+          if (_ohkoAcc <= 0 || Math.random() * 100 > Math.max(1, _ohkoAcc)) {
+            addLog(`${myPoke.name} usou ${move.name}... mas falhou!`, 'system');
+            addFloat('Errou!', '#94a3b8');
+          } else {
+            updatedEnemyFinal.hp = 0;
+            addLog(`💥 ${myPoke.name} usou ${move.name}! Golpe decisivo!`, 'system');
+            addFloat('OHKO!', '#ef4444');
+          }
 
         } else if (fx.fixedDamage !== null) {
           let dmg = 0;
@@ -3500,13 +3526,35 @@ export default function App() {
           addFloat(`-${dmg}`, '#ef4444');
 
         } else if (fx.heal) {
-          const healed = Math.floor((myPoke.maxHp || 30) * 0.5);
-          updatedTeamFinal[activeMemberIndex] = {
-            ...updatedTeamFinal[activeMemberIndex],
-            hp: Math.min(myPoke.maxHp, myPoke.hp + healed)
-          };
-          addLog(`💚 ${myPoke.name} usou ${move.name}! Recuperou ${healed} HP!`, 'system');
-          addFloat(`+${healed} HP`, '#22c55e', 'player');
+          const _moveLower = (move.name || '').toLowerCase();
+          if (_moveLower === 'rest') {
+            // Rest: cura total + remove status ruim + aplica sono
+            const _healed = (myPoke.maxHp || 30) - (myPoke.hp || 0);
+            updatedTeamFinal[activeMemberIndex] = {
+              ...updatedTeamFinal[activeMemberIndex],
+              hp: myPoke.maxHp,
+              toxicTurns: 0,
+              status: [...((myPoke.status || []).filter(s => !['burn','poison','toxic','paralyze','freeze'].includes(s))), 'sleep'],
+            };
+            addLog(`💤 ${myPoke.name} usou Descanso! Se curou completamente e dormiu! (+${_healed} HP)`, 'system');
+            addFloat(`+${_healed} HP`, '#22c55e', 'player');
+          } else {
+            const healed = Math.floor((myPoke.maxHp || 30) * 0.5);
+            updatedTeamFinal[activeMemberIndex] = {
+              ...updatedTeamFinal[activeMemberIndex],
+              hp: Math.min(myPoke.maxHp, myPoke.hp + healed)
+            };
+            addLog(`💚 ${myPoke.name} usou ${move.name}! Recuperou ${healed} HP!`, 'system');
+            addFloat(`+${healed} HP`, '#22c55e', 'player');
+          }
+
+        } else if (fx.leechSeed) {
+          if (!(updatedEnemyFinal.status || []).includes('leech-seed')) {
+            updatedEnemyFinal.status = [...(updatedEnemyFinal.status || []), 'leech-seed'];
+            addLog(`🌱 ${myPoke.name} usou Semente Sanguessuga! ${updatedEnemyFinal.name} foi semeado!`, 'system');
+          } else {
+            addLog(`${myPoke.name} usou ${move.name}... mas não surtiu efeito!`, 'system');
+          }
 
         } else {
           // Stat changes
@@ -3558,9 +3606,12 @@ export default function App() {
 
           // Status condition
           if (fx.statusEffect) {
-                  const statusNames = { burn:'🔥 Queimadura', poison:'☠️ Veneno', sleep:'💤 Sono', paralyze:'⚡ Paralisia', confuse:'💫 Confusão' };
-            if (!(updatedEnemyFinal.status || []).includes(fx.statusEffect)) {
+            const statusNames = { burn:'🔥 Queimadura', poison:'☠️ Veneno', toxic:'☠️ Veneno Grave', sleep:'💤 Sono', paralyze:'⚡ Paralisia', confuse:'💫 Confusão', freeze:'❄️ Congelamento' };
+            const _checkStatus = fx.statusEffect === 'toxic' ? 'toxic' : fx.statusEffect;
+            const _alreadyHas = (updatedEnemyFinal.status || []).some(s => s === 'poison' || s === 'toxic' || s === _checkStatus);
+            if (!_alreadyHas) {
               updatedEnemyFinal.status = [...(updatedEnemyFinal.status || []), fx.statusEffect];
+              if (fx.statusEffect === 'toxic') updatedEnemyFinal.toxicTurns = 1;
               addLog(`${statusNames[fx.statusEffect]||fx.statusEffect}: ${updatedEnemyFinal.name} foi afetado!`, 'enemy');
             } else {
               addLog(`${myPoke.name} usou ${move.name}... mas não surtiu efeito!`, 'system');
@@ -3575,6 +3626,22 @@ export default function App() {
         setCurrentEnemy(updatedEnemyFinal);
       } else {
         playerDmg = calcDamage(myPoke, move, updatedEnemyFinal);
+
+        // Golpes múltiplos
+        if (playerDmg > 0) {
+          const _mhNm = (move.name || '').toLowerCase().replace(/ /g, '-');
+          const MULTI2 = new Set(['double-kick','bonemerang','dual-chop','double-hit','gear-grind','twineedle','dual-wingbeat','surging-strikes']);
+          const MULTI25 = new Set(['bullet-seed','rock-blast','icicle-spear','pin-missile','fury-attack',
+            'fury-swipes','comet-punch','double-slap','spike-cannon','arm-thrust','tail-slap',
+            'water-shuriken','bone-rush','population-bomb','scale-shot']);
+          if (MULTI2.has(_mhNm)) {
+            playerDmg += Math.max(1, calcDamage(myPoke, move, updatedEnemyFinal));
+          } else if (MULTI25.has(_mhNm)) {
+            const _r = Math.random();
+            const _hc = _r < 0.333 ? 2 : _r < 0.666 ? 3 : _r < 0.833 ? 4 : 5;
+            for (let _h = 1; _h < _hc; _h++) playerDmg += Math.max(1, calcDamage(myPoke, move, updatedEnemyFinal));
+          }
+        }
 
         // Dispara evento de animação do golpe para o BattleScreen
         if (allyBonus?.damageMult) playerDmg = Math.floor(playerDmg * allyBonus.damageMult);
@@ -3631,20 +3698,26 @@ export default function App() {
         const _fullMove = MOVES[_nm] || move;
         const _eff = (_fullMove.effect || move.effect || '').toLowerCase();
 
-        // 1. DRAIN — recupera 50% do dano causado
+        // 1. DRAIN — absorve HP do inimigo
         const DRAIN_NAMES = new Set([
           'absorb','mega-drain','giga-drain','drain-punch','leech-life',
           'horn-leech','draining-kiss','oblivion-wing','dream-eater',
           'bitter-blade','matcha-gotcha','bouncy-bubble'
         ]);
+        const DRAIN75 = new Set(['draining-kiss','oblivion-wing']); // 75% em vez de 50%
         if (DRAIN_NAMES.has(_nm) || _eff.includes('drains half the damage')) {
-          const healAmt = Math.max(1, Math.floor(playerDmg / 2));
-          updatedTeamFinal[activeMemberIndex].hp = Math.min(
-            updatedTeamFinal[activeMemberIndex].maxHp,
-            updatedTeamFinal[activeMemberIndex].hp + healAmt
-          );
-          addLog(`💚 ${myPoke.name} absorveu ${healAmt} HP!`, 'system');
-          addFloat(`+${healAmt} HP`, '#22c55e', 'player');
+          // Dream Eater só funciona em alvo dormindo
+          const _canDrain = _nm !== 'dream-eater' || (updatedEnemyFinal.status || []).includes('sleep');
+          if (_canDrain) {
+            const _frac = DRAIN75.has(_nm) ? 0.75 : 0.5;
+            const healAmt = Math.max(1, Math.floor(playerDmg * _frac));
+            updatedTeamFinal[activeMemberIndex].hp = Math.min(
+              updatedTeamFinal[activeMemberIndex].maxHp,
+              updatedTeamFinal[activeMemberIndex].hp + healAmt
+            );
+            addLog(`💚 ${myPoke.name} absorveu ${healAmt} HP!`, 'system');
+            addFloat(`+${healAmt} HP`, '#22c55e', 'player');
+          }
         }
 
         // 2. RECUO — dano ao próprio usuário
@@ -3730,25 +3803,32 @@ export default function App() {
         const CONF10 = new Set(['psybeam','confusion','dizzy-punch','dynamic-punch','signal-beam',
           'water-pulse','hurricane','strange-steam']);
 
-        if (!_enemySt.includes('burn')) {
-          if ((BURN30.has(_nm) && Math.random() < 0.30) || (BURN10.has(_nm) && Math.random() < 0.10)) {
-            updatedEnemyFinal.status = [..._enemySt, 'burn'];
-            addLog(`🔥 ${updatedEnemyFinal.name} foi queimado!`, 'enemy');
-          }
-        } else if (!_enemySt.includes('paralyze')) {
-          if ((PARA30.has(_nm) && Math.random() < 0.30) || (PARA10.has(_nm) && Math.random() < 0.10)) {
-            updatedEnemyFinal.status = [..._enemySt, 'paralyze'];
-            addLog(`⚡ ${updatedEnemyFinal.name} foi paralisado!`, 'enemy');
-          }
-        } else if (!_enemySt.includes('poison')) {
-          if (POIS30.has(_nm) && Math.random() < 0.30) {
-            updatedEnemyFinal.status = [..._enemySt, 'poison'];
-            addLog(`☠️ ${updatedEnemyFinal.name} foi envenenado!`, 'enemy');
-          }
-        } else if (FRZE10.has(_nm) && !_enemySt.includes('freeze') && Math.random() < 0.10) {
+        // Cada status verifica de forma independente (um por ataque)
+        let _secStatusApplied = false;
+        if (!_secStatusApplied && !_enemySt.includes('burn') &&
+            ((BURN30.has(_nm) && Math.random() < 0.30) || (BURN10.has(_nm) && Math.random() < 0.10))) {
+          updatedEnemyFinal.status = [..._enemySt, 'burn'];
+          addLog(`🔥 ${updatedEnemyFinal.name} foi queimado!`, 'enemy');
+          _secStatusApplied = true;
+        }
+        if (!_secStatusApplied && !_enemySt.includes('paralyze') && !_enemySt.includes('burn') &&
+            ((PARA30.has(_nm) && Math.random() < 0.30) || (PARA10.has(_nm) && Math.random() < 0.10))) {
+          updatedEnemyFinal.status = [..._enemySt, 'paralyze'];
+          addLog(`⚡ ${updatedEnemyFinal.name} foi paralisado!`, 'enemy');
+          _secStatusApplied = true;
+        }
+        if (!_secStatusApplied && !_enemySt.includes('poison') && !_enemySt.includes('toxic') &&
+            (POIS30.has(_nm) && Math.random() < 0.30)) {
+          updatedEnemyFinal.status = [..._enemySt, 'poison'];
+          addLog(`☠️ ${updatedEnemyFinal.name} foi envenenado!`, 'enemy');
+          _secStatusApplied = true;
+        }
+        if (!_secStatusApplied && FRZE10.has(_nm) && !_enemySt.includes('freeze') && Math.random() < 0.10) {
           updatedEnemyFinal.status = [..._enemySt, 'freeze'];
           addLog(`❄️ ${updatedEnemyFinal.name} foi congelado!`, 'enemy');
-        } else if (CONF10.has(_nm) && !_enemySt.includes('confuse') && Math.random() < 0.10) {
+          _secStatusApplied = true;
+        }
+        if (!_secStatusApplied && CONF10.has(_nm) && !_enemySt.includes('confuse') && Math.random() < 0.10) {
           updatedEnemyFinal.status = [..._enemySt, 'confuse'];
           addLog(`💫 ${updatedEnemyFinal.name} ficou confuso!`, 'enemy');
         }
@@ -3799,12 +3879,19 @@ export default function App() {
       }
 
       // Dano de Status (Inimigo)
-      if (enemyStatus.includes('poison') || enemyStatus.includes('burn')) {
-        const dot = Math.max(1, Math.floor(updatedEnemyFinal.maxHp / 16));
+      if (enemyStatus.includes('poison') || enemyStatus.includes('burn') || enemyStatus.includes('toxic')) {
+        let dot;
+        if (enemyStatus.includes('toxic')) {
+          const tTurns = updatedEnemyFinal.toxicTurns || 1;
+          dot = Math.max(1, Math.floor((updatedEnemyFinal.maxHp / 16) * tTurns));
+          updatedEnemyFinal.toxicTurns = tTurns + 1;
+        } else {
+          dot = Math.max(1, Math.floor(updatedEnemyFinal.maxHp / 16));
+        }
         updatedEnemyFinal.hp = updatedEnemyFinal.isWorldBoss
           ? Math.max(1, updatedEnemyFinal.hp - dot)
           : Math.max(0, updatedEnemyFinal.hp - dot);
-        
+
         if (updatedEnemyFinal.isWorldBoss) {
           setBossDamage(prev => {
             const newVal = prev + dot;
@@ -3818,7 +3905,22 @@ export default function App() {
           });
         }
 
-        addLog(`☠️ ${updatedEnemyFinal.name} sofreu dano por status!`, 'enemy');
+        const _statusDotLabel = enemyStatus.includes('toxic') ? '☠️ Veneno Grave' : enemyStatus.includes('burn') ? '🔥 Queimadura' : '☠️ Veneno';
+        addLog(`${_statusDotLabel}: ${updatedEnemyFinal.name} sofreu ${dot} de dano!`, 'enemy');
+      }
+
+      // Semente Sanguessuga (Inimigo)
+      if (enemyStatus.includes('leech-seed')) {
+        const _lsDmg = Math.max(1, Math.floor((updatedEnemyFinal.maxHp || 30) / 8));
+        updatedEnemyFinal.hp = updatedEnemyFinal.isWorldBoss
+          ? Math.max(1, updatedEnemyFinal.hp - _lsDmg)
+          : Math.max(0, updatedEnemyFinal.hp - _lsDmg);
+        const _healTarget = updatedTeamFinal[activeMemberIndex];
+        if (_healTarget && _healTarget.hp > 0) {
+          updatedTeamFinal[activeMemberIndex].hp = Math.min(_healTarget.maxHp, _healTarget.hp + _lsDmg);
+          addLog(`🌱 Semente Sanguessuga drenou ${_lsDmg} HP de ${updatedEnemyFinal.name}!`, 'system');
+          addFloat(`+${_lsDmg} HP`, '#22c55e', 'player');
+        }
       }
 
       // Turno do Inimigo (apenas se ainda estiver vivo)
@@ -3834,6 +3936,16 @@ export default function App() {
             const selfDmg = Math.max(1, Math.floor(updatedEnemyFinal.maxHp / 10));
             updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - selfDmg);
             addLog(`💥 ${updatedEnemyFinal.name} feriu-se em sua confusão!`, 'enemy');
+            canAct = false;
+          }
+        }
+
+        if (canAct && enemyStatus.includes('freeze')) {
+          addLog(`❄️ ${updatedEnemyFinal.name} está congelado!`, 'enemy');
+          if (Math.random() < 0.20) {
+            updatedEnemyFinal.status = (updatedEnemyFinal.status || []).filter(s => s !== 'freeze');
+            addLog(`🔥 ${updatedEnemyFinal.name} se descongelou!`, 'enemy');
+          } else {
             canAct = false;
           }
         }
@@ -3917,11 +4029,23 @@ export default function App() {
                 }
 
                 if (fxE.statusEffect) {
-                  const statusNames = { burn:'🔥 Queimadura', poison:'☠️ Veneno', sleep:'💤 Sono', paralyze:'⚡ Paralisia', confuse:'💫 Confusão' };
+                  const statusNames = { burn:'🔥 Queimadura', poison:'☠️ Veneno', toxic:'☠️ Veneno Grave', sleep:'💤 Sono', paralyze:'⚡ Paralisia', confuse:'💫 Confusão', freeze:'❄️ Congelamento' };
                   const myStatusList = updatedTeamFinal[activeMemberIndex].status || [];
-                  if (!myStatusList.includes(fxE.statusEffect)) {
+                  const _eAlreadyHas = myStatusList.some(s => s === 'poison' || s === 'toxic' || s === fxE.statusEffect);
+                  if (!_eAlreadyHas) {
                     updatedTeamFinal[activeMemberIndex].status = [...myStatusList, fxE.statusEffect];
+                    if (fxE.statusEffect === 'toxic') updatedTeamFinal[activeMemberIndex].toxicTurns = 1;
                     addLog(`${statusNames[fxE.statusEffect]||fxE.statusEffect}: ${updatedTeamFinal[activeMemberIndex].name} foi afetado!`, 'system');
+                  }
+                }
+
+                if (fxE.leechSeed) {
+                  const myStatusList = updatedTeamFinal[activeMemberIndex].status || [];
+                  if (!myStatusList.includes('leech-seed')) {
+                    updatedTeamFinal[activeMemberIndex].status = [...myStatusList, 'leech-seed'];
+                    addLog(`🌱 ${updatedEnemyFinal.name} usou ${enemyMove.name}! ${updatedTeamFinal[activeMemberIndex].name} foi semeado!`, 'enemy');
+                  } else {
+                    addLog(`${updatedEnemyFinal.name} usou ${enemyMove.name}... mas não surtiu efeito!`, 'enemy');
                   }
                 }
               }
@@ -3949,12 +4073,61 @@ export default function App() {
                  addLog(`${updatedEnemyFinal.name} usou ${enemyMove.name}... mas errou!`, 'enemy');
               } else {
                 let enemyDmg = Math.max(1, Math.floor(enemyDmgRaw * 0.75));
-                if (allyBonus?.defenseMult) enemyDmg = Math.floor(enemyDmg * (2 - allyBonus.defenseMult)); // Reduz se defenseMult > 1
+                if (allyBonus?.defenseMult) enemyDmg = Math.floor(enemyDmg * (2 - allyBonus.defenseMult));
                 updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - enemyDmg);
                 addFloat(`-${enemyDmg}`, '#ef4444', 'player');
                 if (effE > 1) addLog("💥 É super efetivo!", 'enemy');
                 if (effE > 0 && effE < 1) addLog("💢 Não é muito efetivo!", 'enemy');
                 if (effE === 0) addLog("🚫 Não afetou seu Pokemon!", 'enemy');
+
+                // Efeitos Secundários do Inimigo
+                if (enemyDmg > 0 && effE > 0) {
+                  const _eNm = (enemyMove.name || '').toLowerCase().replace(/ /g, '-');
+                  const _eType = (enemyMove.type || '').toLowerCase();
+                  const _pSt = updatedTeamFinal[activeMemberIndex].status || [];
+
+                  // Queimadura (10% de golpes de Fogo)
+                  if (!_pSt.includes('burn') && _eType === 'fire' && Math.random() < 0.10) {
+                    updatedTeamFinal[activeMemberIndex].status = [..._pSt, 'burn'];
+                    addLog(`🔥 ${updatedTeamFinal[activeMemberIndex].name} foi queimado!`, 'enemy');
+                  }
+                  // Paralisia (10% de golpes Elétricos)
+                  else if (!_pSt.includes('paralyze') && _eType === 'electric' && Math.random() < 0.10) {
+                    updatedTeamFinal[activeMemberIndex].status = [..._pSt, 'paralyze'];
+                    addLog(`⚡ ${updatedTeamFinal[activeMemberIndex].name} foi paralisado!`, 'enemy');
+                  }
+                  // Congelamento (10% de golpes de Gelo)
+                  else if (!_pSt.includes('freeze') && _eType === 'ice' && Math.random() < 0.10) {
+                    updatedTeamFinal[activeMemberIndex].status = [..._pSt, 'freeze'];
+                    addLog(`❄️ ${updatedTeamFinal[activeMemberIndex].name} foi congelado!`, 'enemy');
+                  }
+                  // Veneno (10% de golpes Venenosos)
+                  else if (!_pSt.includes('poison') && !_pSt.includes('toxic') && _eType === 'poison' && Math.random() < 0.10) {
+                    updatedTeamFinal[activeMemberIndex].status = [..._pSt, 'poison'];
+                    addLog(`☠️ ${updatedTeamFinal[activeMemberIndex].name} foi envenenado!`, 'enemy');
+                  }
+
+                  // Dreno: inimigo cura 50% do dano causado
+                  const ENEMY_DRAIN = new Set(['giga-drain','mega-drain','absorb','leech-life','drain-punch','draining-kiss','oblivion-wing','parabolic-charge']);
+                  if (ENEMY_DRAIN.has(_eNm)) {
+                    const _eDrainAmt = Math.max(1, Math.floor(enemyDmg * 0.5));
+                    updatedEnemyFinal.hp = Math.min(updatedEnemyFinal.maxHp, updatedEnemyFinal.hp + _eDrainAmt);
+                    addLog(`💚 ${updatedEnemyFinal.name} absorveu ${_eDrainAmt} HP!`, 'enemy');
+                  }
+
+                  // Recuo: inimigo perde HP por recuo
+                  const ENEMY_RECOIL25 = new Set(['take-down','submission','double-edge','brave-bird','wood-hammer','head-smash','wild-charge','flare-blitz','head-charge','high-jump-kick','jump-kick']);
+                  const ENEMY_RECOIL33 = new Set(['volt-tackle','struggle']);
+                  if (ENEMY_RECOIL33.has(_eNm)) {
+                    const _eRecoil = Math.max(1, Math.floor(enemyDmg / 3));
+                    updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - _eRecoil);
+                    addLog(`💥 ${updatedEnemyFinal.name} sofreu recuo! (-${_eRecoil} HP)`, 'enemy');
+                  } else if (ENEMY_RECOIL25.has(_eNm)) {
+                    const _eRecoil = Math.max(1, Math.floor(enemyDmg / 4));
+                    updatedEnemyFinal.hp = Math.max(0, updatedEnemyFinal.hp - _eRecoil);
+                    addLog(`💥 ${updatedEnemyFinal.name} sofreu recuo! (-${_eRecoil} HP)`, 'enemy');
+                  }
+                }
               }
             }
           }
@@ -3971,10 +4144,29 @@ export default function App() {
       }
 
       // Dano de Status (Jogador)
-      if (myStatus.includes('poison') || myStatus.includes('burn')) {
-        const dot = Math.max(1, Math.floor(updatedTeamFinal[activeMemberIndex].maxHp / 16));
-        updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - dot);
-        addLog(`☠️ ${myPoke.name} sofreu dano por status!`, 'system');
+      if (myStatus.includes('poison') || myStatus.includes('burn') || myStatus.includes('toxic')) {
+        let _myDot;
+        if (myStatus.includes('toxic')) {
+          const _myToxTurns = updatedTeamFinal[activeMemberIndex].toxicTurns || 1;
+          _myDot = Math.max(1, Math.floor((updatedTeamFinal[activeMemberIndex].maxHp / 16) * _myToxTurns));
+          updatedTeamFinal[activeMemberIndex].toxicTurns = _myToxTurns + 1;
+        } else {
+          _myDot = Math.max(1, Math.floor(updatedTeamFinal[activeMemberIndex].maxHp / 16));
+        }
+        updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - _myDot);
+        const _myStatusLabel = myStatus.includes('toxic') ? '☠️ Veneno Grave' : myStatus.includes('burn') ? '🔥 Queimadura' : '☠️ Veneno';
+        addLog(`${_myStatusLabel}: ${myPoke.name} sofreu ${_myDot} de dano!`, 'system');
+      }
+
+      // Semente Sanguessuga (Jogador)
+      if (myStatus.includes('leech-seed')) {
+        const _myLsDmg = Math.max(1, Math.floor((updatedTeamFinal[activeMemberIndex].maxHp || 30) / 8));
+        updatedTeamFinal[activeMemberIndex].hp = Math.max(0, updatedTeamFinal[activeMemberIndex].hp - _myLsDmg);
+        if (updatedEnemyFinal.hp > 0) {
+          updatedEnemyFinal.hp = Math.min(updatedEnemyFinal.maxHp, updatedEnemyFinal.hp + _myLsDmg);
+          addLog(`🌱 Semente Sanguessuga drenou ${_myLsDmg} HP de ${myPoke.name}!`, 'system');
+          addFloat(`-${_myLsDmg}`, '#ef4444', 'player');
+        }
       }
 
       // ── Dano Passivo de Clima ─────────────────────────────────────────────

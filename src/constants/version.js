@@ -1,7 +1,21 @@
-export const APP_VERSION = '2.1.0';
-export const VERSION = '2.1.0';
-export const APP_VERSION_DATE = '17/05/2026 12:00';
+export const APP_VERSION = '2.1.1';
+export const VERSION = '2.1.1';
+export const APP_VERSION_DATE = '17/05/2026 14:25';
 export const CHANGELOG = [
+  '## [V2.1.1] - 17/05/2026 14:25',
+  '### Batalha — Correção Completa de Golpes',
+  '- **Semente Sanguessuga**: Agora funciona corretamente — drena 1/8 do HP máximo por turno e cura o Pokémon ativo.',
+  '- **Veneno Tóxico (Toxic)**: Dano escalável por turno (N/16 × HP máximo), aumentando a cada turno.',
+  '- **Golpes Multi-Acerto**: Double Kick, Bullet Seed, Rock Blast, Icicle Spear e outros agora acertam 2-5 vezes.',
+  '- **STAB Duplo Tipo**: Bônus STAB agora detecta ambos os tipos do Pokémon corretamente.',
+  '- **Queimadura no Ataque Físico**: Queimadura agora reduz o Ataque em 50% ao calcular dano físico.',
+  '- **Congelamento**: Pokémons congelados não atacam; 20% de chance de descongelar por turno.',
+  '- **OHKO Precisão**: Golpes como Guilhotina têm chance baseada em nível (30 + nível do usuário - nível do alvo).',
+  '- **Descanso (Rest)**: Cura 100% do HP e aplica sono, removendo todos os status negativos.',
+  '- **Efeitos Secundários Corrigidos**: Paralisia, Congelamento e Confusão agora podem ser aplicados independentemente.',
+  '- **Inimigos com Efeitos Secundários**: Golpes de Fogo/Elétrico/Gelo/Veneno do inimigo agora aplicam status; dreno cura o inimigo; recuo causa dano ao inimigo.',
+  '- **Megas Expandidas**: 72 Mega Evoluções com sprites do Pokémon Showdown (incluindo todas de Legends: Z-A).',
+  '',
   '## [V2.1.0] - 17/05/2026 12:00',
   '### Estabilidade & Offline',
   '- **Progresso Offline**: Ao retornar ao jogo, o time continua farmando em background. XP, moedas e materiais são calculados pelo tempo fora (cap: 8h) e exibidos numa tela de boas-vindas.',
