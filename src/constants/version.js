@@ -1,7 +1,17 @@
-export const APP_VERSION = '2.0.0';
-export const VERSION = '2.0.0';
-export const APP_VERSION_DATE = '16/05/2026 17:30';
+export const APP_VERSION = '2.1.0';
+export const VERSION = '2.1.0';
+export const APP_VERSION_DATE = '17/05/2026 12:00';
 export const CHANGELOG = [
+  '## [V2.1.0] - 17/05/2026 12:00',
+  '### Estabilidade & Offline',
+  '- **Progresso Offline**: Ao retornar ao jogo, o time continua farmando em background. XP, moedas e materiais são calculados pelo tempo fora (cap: 8h) e exibidos numa tela de boas-vindas.',
+  '- **Jogar Offline**: Firestore com persistência local (IndexedDB) — leituras e escritas funcionam sem internet e sincronizam automaticamente ao reconectar.',
+  '- **Detecção de Conexão**: Aviso automático ao ficar offline; sync imediato ao reconectar.',
+  '- **Save de Emergência**: Ao fechar/minimizar o app, o progresso é salvo instantaneamente no localStorage (com timestamp para o cálculo offline).',
+  '- **localStorage Comprimido**: Saves locais agora usam LZString (mesmo sistema do Firestore), eliminando o risco de quota overflow em jogadores avançados.',
+  '- **Erros Silenciosos Corrigidos**: Saves automáticos, save de boss e logout agora têm tratamento de erro adequado — o jogador é notificado em caso de falha.',
+  '- **Firestore Limpo**: Campo legado `gameState` removido dos documentos via `deleteField()` após migração para `compressedState`.',
+  '',
   '## [V2.0.0] - 16/05/2026 17:30',
   '### Visual — Backgrounds Específicos para Todas as Rotas e Batalhas (10 Regiões)',
   '- **200+ Backgrounds Originais**: Criados e integrados cenários únicos para cada rota, ginásio, rival e batalha em todas as 10 regiões (Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, Galar, Paldea, Hisui).',

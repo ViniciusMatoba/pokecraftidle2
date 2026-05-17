@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 // Credenciais via variáveis de ambiente (.env — nunca commitado)
@@ -17,7 +17,9 @@ const firebaseConfig = {
 
 const app       = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-const db        = getFirestore(app);
+const db        = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+});
 const auth      = getAuth(app);
 
 export { app, analytics, db, auth };

@@ -40,10 +40,12 @@ const ChallengesScreen = lazy(() => import('./components/ChallengesScreen'));
 const HouseScreen = lazy(() => import('./components/HouseScreen'));
 const ExpeditionsScreen = lazy(() => import('./components/ExpeditionsScreen'));
 import { MoveCategoryIcon, StatusBadges, QuickInventory, TrainerCard, BadgeSVG } from './components/CommonUI';
+import OfflineProgressModal from './components/OfflineProgressModal';
+import { calculateOfflineProgress, applyOfflineProgress } from './utils/offlineProgress';
 import { GYMS, ELITE_FOUR } from './data/gyms';
 import { auth, db } from './firebase';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteField, serverTimestamp, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
 import LZString from 'lz-string';
 import { 
   APP_VERSION, APP_VERSION_DATE, DEFAULT_GAME_STATE, GYM_LEVEL_CAPS, 
@@ -671,7 +673,14 @@ export default function App() {
     try {
       const saved = localStorage.getItem('poke_idle_save');
       if (saved) {
-        const parsed = JSON.parse(saved);
+        // Tenta descomprimir (novo formato); cai no JSON.parse direto para saves antigos
+        let parsed;
+        try {
+          const decompressed = LZString.decompress(saved);
+          parsed = decompressed ? JSON.parse(decompressed) : JSON.parse(saved);
+        } catch {
+          parsed = JSON.parse(saved);
+        }
         if (parsed && parsed.gameState) {
           const loaded = parsed.gameState;
           const merged = migrateGameState(loaded, { version: APP_VERSION });
@@ -726,7 +735,22 @@ export default function App() {
 
           if (savedData) {
             const migratedData = migrateGameState(savedData, { version: APP_VERSION });
-            setGameState(migratedData);
+
+            // Calcula progresso offline desde o último acesso
+            const lastActiveAt = migratedData.playerStats?.lastSeenAt;
+            if (lastActiveAt) {
+              const elapsedMs = Date.now() - lastActiveAt;
+              const progress = calculateOfflineProgress(migratedData, ROUTES, elapsedMs);
+              if (progress) {
+                const stateWithProgress = applyOfflineProgress(migratedData, progress);
+                setGameState(stateWithProgress);
+                setOfflineProgress(progress);
+              } else {
+                setGameState(migratedData);
+              }
+            } else {
+              setGameState(migratedData);
+            }
 
             const hasRealProgress = (migratedData.worldFlags || []).length > 0 || (migratedData.badges || []).length > 0;
             if (hasRealProgress) {
@@ -749,7 +773,11 @@ export default function App() {
         const localSaved = localStorage.getItem('poke_idle_save');
         if (localSaved) {
            try {
-             const parsed = JSON.parse(localSaved);
+             let parsed;
+             try {
+               const decompressed = LZString.decompress(localSaved);
+               parsed = decompressed ? JSON.parse(decompressed) : JSON.parse(localSaved);
+             } catch { parsed = JSON.parse(localSaved); }
              if (parsed?.gameState) {
                setGameState(migrateGameState(parsed.gameState, { version: APP_VERSION }));
              }
@@ -835,6 +863,7 @@ export default function App() {
   const [megaEvolutionPending, setMegaEvolutionPending] = useState(false); // abre tela de Mega Evolução
   const [safariSession, setSafariSession] = useState(null); // { ballsLeft } quando dentro da Safari Zone
   const [showTutorial, setShowTutorial] = useState(false); // tutorial de boas-vindas
+  const [offlineProgress, setOfflineProgress] = useState(null); // progresso acumulado offline
   const [masteryNotification, setMasteryNotification] = useState(null);
   const [activePokemonDetails, setActivePokemonDetails] = useState(null);
   const [currentView, setCurrentView] = useState('landing');
@@ -1617,7 +1646,14 @@ export default function App() {
 
   // 1. Sincronização LocalStorage (Sempre que o estado mudar)
   useEffect(() => {
-    localStorage.setItem('poke_idle_save', JSON.stringify({ gameState }));
+    try {
+      const compressed = LZString.compress(JSON.stringify({ gameState }));
+      localStorage.setItem('poke_idle_save', compressed);
+    } catch (e) {
+      if (e?.name === 'QuotaExceededError') {
+        notify('Armazenamento local cheio. Salve na nuvem para não perder progresso!', 'error');
+      }
+    }
   }, [gameState]);
 
   useEffect(() => {
@@ -1700,7 +1736,7 @@ export default function App() {
       const compressedState = LZString.compress(JSON.stringify(cleanState));
       await setDoc(doc(db, "saves", user.uid), {
         compressedState,
-        gameState: null,
+        gameState: deleteField(),
         updatedAt: serverTimestamp()
       }, { merge: true });
 
@@ -1811,16 +1847,53 @@ export default function App() {
   const debouncedSaveBossDamage = useCallback((damage) => {
     if (bossSaveTimeoutRef.current) clearTimeout(bossSaveTimeoutRef.current);
     bossSaveTimeoutRef.current = setTimeout(() => {
-      saveBossDamage(damage);
+      saveBossDamage(damage).catch(e => console.error("Boss save fail:", e));
     }, 5000);
   }, [saveBossDamage]);
 
   const debouncedSave = useCallback((data) => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
-      saveToCloud(data);
+      saveToCloud(data).catch(e => console.error("Auto save fail:", e));
     }, 5000);
   }, [saveToCloud]);
+
+  // 3. beforeunload + visibilitychange — salva com lastSeenAt antes de fechar/minimizar
+  useEffect(() => {
+    const saveLocal = () => {
+      try {
+        const stateWithTimestamp = {
+          ...gameState,
+          playerStats: { ...gameState.playerStats, lastSeenAt: Date.now() }
+        };
+        const compressed = LZString.compress(JSON.stringify({ gameState: stateWithTimestamp }));
+        localStorage.setItem('poke_idle_save', compressed);
+      } catch (e) { /* sem-op se quota estourar */ }
+    };
+    const handleVisibility = () => { if (document.hidden) saveLocal(); };
+    window.addEventListener('beforeunload', saveLocal);
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      window.removeEventListener('beforeunload', saveLocal);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [gameState]);
+
+  // 4. Online/Offline — avisa o jogador e resync automático ao reconectar
+  useEffect(() => {
+    const handleOffline = () => notify('Sem conexão. Progresso sendo salvo localmente.', 'error');
+    const handleOnline = () => {
+      notify('Conexão restaurada. Sincronizando...', 'success');
+      const user = auth.currentUser;
+      if (user) saveToCloud(gameState).catch(e => console.error("Resync fail:", e));
+    };
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
+    return () => {
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, [gameState, saveToCloud]);
 
   const prevView = useRef(currentView);
   const prevRoute = useRef(gameState.currentRoute);
@@ -1856,7 +1929,7 @@ export default function App() {
       const compressedState = LZString.compress(JSON.stringify(cleanState));
       await setDoc(doc(db, "saves", user.uid), {
         compressedState,
-        gameState: null,
+        gameState: deleteField(),
         updatedAt: serverTimestamp()
       }, { merge: true });
       showConfirm({ type: 'success', title: 'Salvo!', message: 'Jogo salvo na nuvem com sucesso!', onConfirm: closeConfirm });
@@ -3385,12 +3458,27 @@ export default function App() {
 
       if (move.category === 'Status' || move.power === 0) {
         nextDelay = 600;
-        window.dispatchEvent(new CustomEvent('pokemove', {
-          detail: { name: move.name, type: move.type, direction: 'player-to-enemy', moveKey: move.moveId || move.key }
-        }));
         const playerWeatherChanged = activateWeatherFromMove(move, myPoke.name);
         if (playerWeatherChanged) weatherChangedThisTick = true;
         const fx = interpretMoveEffect(move);
+        window.dispatchEvent(new CustomEvent('pokemove', {
+          detail: {
+            name: move.name,
+            type: move.type,
+            category: move.category || 'Status',
+            power: move.power || 0,
+            direction: 'player-to-enemy',
+            moveKey: move.moveId || move.key,
+            isStatus: true,
+            noEffect: fx.noEffect && !playerWeatherChanged,
+            heal: !!fx.heal,
+            ohko: !!fx.ohko,
+            fixedDamage: fx.fixedDamage,
+            statusEffect: fx.statusEffect,
+            statChanges: fx.statChanges || [],
+            weatherChanged: playerWeatherChanged,
+          }
+        }));
 
         if (fx.noEffect && !playerWeatherChanged) {
           addLog(`${myPoke.name} usou ${move.name}... sem efeito aqui.`, 'system');
@@ -3489,11 +3577,22 @@ export default function App() {
         playerDmg = calcDamage(myPoke, move, updatedEnemyFinal);
 
         // Dispara evento de animação do golpe para o BattleScreen
-        window.dispatchEvent(new CustomEvent('pokemove', {
-          detail: { name: move.name, type: move.type, direction: 'player-to-enemy', moveKey: move.moveId || move.key }
-        }));
         if (allyBonus?.damageMult) playerDmg = Math.floor(playerDmg * allyBonus.damageMult);
         const eff = getTypeEffectiveness(move.type, updatedEnemyFinal.type);
+        window.dispatchEvent(new CustomEvent('pokemove', {
+          detail: {
+            name: move.name,
+            type: move.type,
+            category: move.category || 'Physical',
+            power: move.power || 0,
+            direction: 'player-to-enemy',
+            moveKey: move.moveId || move.key,
+            damage: playerDmg,
+            missed: playerDmg === 0 && eff > 0,
+            effectiveness: eff,
+            noEffect: eff === 0,
+          }
+        }));
         
         if (playerDmg === 0 && eff > 0) {
           addLog(`${myPoke.name} usou ${move.name}... mas errou!`, 'system');
@@ -3754,12 +3853,27 @@ export default function App() {
             
             if (enemyMove) {
             if (enemyMove.category === 'Status' || enemyMove.power === 0) {
-              window.dispatchEvent(new CustomEvent('pokemove', {
-                detail: { name: enemyMove.name, type: enemyMove.type, direction: 'enemy-to-player', moveKey: enemyMove.moveId || enemyMove.key }
-              }));
               const enemyWeatherChanged = activateWeatherFromMove(enemyMove, updatedEnemyFinal.name);
               if (enemyWeatherChanged) weatherChangedThisTick = true;
               const fxE = interpretMoveEffect(enemyMove);
+              window.dispatchEvent(new CustomEvent('pokemove', {
+                detail: {
+                  name: enemyMove.name,
+                  type: enemyMove.type,
+                  category: enemyMove.category || 'Status',
+                  power: enemyMove.power || 0,
+                  direction: 'enemy-to-player',
+                  moveKey: enemyMove.moveId || enemyMove.key,
+                  isStatus: true,
+                  noEffect: fxE.noEffect && !enemyWeatherChanged,
+                  heal: !!fxE.heal,
+                  ohko: !!fxE.ohko,
+                  fixedDamage: fxE.fixedDamage,
+                  statusEffect: fxE.statusEffect,
+                  statChanges: fxE.statChanges || [],
+                  weatherChanged: enemyWeatherChanged,
+                }
+              }));
 
               if (fxE.noEffect || fxE.heal) {
                 if (fxE.heal) {
@@ -3815,10 +3929,21 @@ export default function App() {
               const enemyDmgRaw = calcDamage(updatedEnemyFinal, enemyMove, updatedTeamFinal[activeMemberIndex]);
 
               // Dispara evento de animação do golpe inimigo
-              window.dispatchEvent(new CustomEvent('pokemove', {
-                detail: { name: enemyMove.name, type: enemyMove.type, direction: 'enemy-to-player', moveKey: enemyMove.moveId || enemyMove.key }
-              }));
               const effE = getTypeEffectiveness(enemyMove.type, updatedTeamFinal[activeMemberIndex].type);
+              window.dispatchEvent(new CustomEvent('pokemove', {
+                detail: {
+                  name: enemyMove.name,
+                  type: enemyMove.type,
+                  category: enemyMove.category || 'Physical',
+                  power: enemyMove.power || 0,
+                  direction: 'enemy-to-player',
+                  moveKey: enemyMove.moveId || enemyMove.key,
+                  damage: enemyDmgRaw,
+                  missed: enemyDmgRaw === 0 && effE > 0,
+                  effectiveness: effE,
+                  noEffect: effE === 0,
+                }
+              }));
               
               if (enemyDmgRaw === 0 && effE > 0) {
                  addLog(`${updatedEnemyFinal.name} usou ${enemyMove.name}... mas errou!`, 'enemy');
@@ -6096,7 +6221,6 @@ export default function App() {
               const compressedFresh = LZString.compress(JSON.stringify(freshState));
               await setDoc(doc(db, "saves", u.uid), {
                 compressedState: compressedFresh,
-                gameState: null,
                 updatedAt: serverTimestamp(),
                 resetAt: serverTimestamp()
               }, { merge: false }); // merge: false ensures we overwrite EVERYTHING
@@ -6238,6 +6362,9 @@ export default function App() {
                          firebaseSignOut(auth).then(() => {
                            setUser(null);
                            setCurrentView('landing');
+                         }).catch(e => {
+                           console.error("Logout fail:", e);
+                           notify('Erro ao sair. Verifique sua conexão.', 'error');
                          });
                        }}
                        style={{
@@ -9524,6 +9651,14 @@ export default function App() {
             POKEDEX={POKEDEX}
           />
         </Suspense>
+      )}
+
+      {/* PROGRESSO OFFLINE */}
+      {offlineProgress && (
+        <OfflineProgressModal
+          progress={offlineProgress}
+          onClose={() => setOfflineProgress(null)}
+        />
       )}
 
       {/* TUTORIAL DE BOAS-VINDAS */}
