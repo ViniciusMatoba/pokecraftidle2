@@ -1,5 +1,5 @@
 {
-  "version": "2.1.1",
-  "date": "17/05/2026 14:25",
-  "notes": "Correção completa de golpes: Semente Sanguessuga, Veneno Tóxico, multi-acerto, STAB duplo tipo, Congelamento, OHKO, Descanso, efeitos secundários do inimigo e 72 Mega Evoluções."
+  "version": "2.1.2",
+  "date": "17/05/2026 15:12",
+  "notes": "Pos-game com Dominios Elementais: 18 rotas por tipo, Dominio Prisma, encontros dinamicos da Pokedex em niveis 70-100 e 19 backgrounds WebP mobile."
 }

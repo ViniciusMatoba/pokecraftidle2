@@ -1,5 +1,13 @@
 # Changelog - PokeCraft
 
+## [v2.1.2] - 17/05/2026 15:12
+### Adicionado
+- **Dominios Elementais Pos-game**: 18 rotas por tipo liberadas apos concluir as 9 regioes, com encontros dinamicos por tipo usando a Pokedex principal.
+- **Dominio Prisma**: rota final no nivel 100 reunindo todos os Pokemon da Pokedex principal para farm e captura de alto nivel.
+- **Backgrounds Mobile**: 19 novos fundos WebP em 960x540 conectados aos dominios e otimizados para telas pequenas.
+### Alterado
+- **Treino Final**: rotas de tipo usam faixa de nivel 70-100 e treinadores especialistas para reforcar a progressao pos-game.
+
 ## [v1.99.0] - 16/05/2026 15:45
 ### Alterado
 - **Standardização de Backgrounds**: Migração completa de todos os assets de fundo para a convenção `bg_` unificada em todo o projeto.

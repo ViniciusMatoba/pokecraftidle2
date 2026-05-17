@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.1.1';
-export const VERSION = '2.1.1';
-export const APP_VERSION_DATE = '17/05/2026 14:25';
+export const APP_VERSION = '2.1.2';
+export const VERSION = '2.1.2';
+export const APP_VERSION_DATE = '17/05/2026 15:12';
 export const CHANGELOG = [
+  '## [V2.1.2] - 17/05/2026 15:12',
+  '### Pos-game — Dominios Elementais',
+  '- **Rotas por Tipo**: adicionados 18 Dominios Elementais liberados apos concluir as 9 regioes, cada um focado em um tipo Pokemon.',
+  '- **Captura Completa por Tipo**: os dominios montam encontros dinamicamente pela Pokedex, com todos os Pokemon do tipo correspondente entre os niveis 70 e 100.',
+  '- **Dominio Prisma**: nova rota final no nivel 100 reunindo toda a Pokedex principal para farm e captura de alto nivel.',
+  '- **Backgrounds Mobile**: 19 novos cenarios WebP 960x540 conectados aos dominios e otimizados para tela pequena.',
+  '- **Treino Pos-game**: especialistas de tipo e Guardiao Prisma adicionados como treinadores de elite nas novas rotas.',
+  '',
   '## [V2.1.1] - 17/05/2026 14:25',
   '### Batalha — Correção Completa de Golpes',
   '- **Semente Sanguessuga**: Agora funciona corretamente — drena 1/8 do HP máximo por turno e cura o Pokémon ativo.',

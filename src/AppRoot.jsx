@@ -8360,13 +8360,13 @@ export default function App() {
             team={gameState.team}
             box={gameState.pc}
             dexLimit={getUnlockedDexLimit(gameState)}
-            routes={ROUTES}
+            routes={processedRoutes}
             gameState={gameState}
             onGoToRoute={(routeId) => {
               setGameState(prev => ({
                 ...prev,
                 currentRoute: routeId,
-                lastFarmingRoute: ROUTES[routeId]?.type === 'farm' ? routeId : prev.lastFarmingRoute,
+                lastFarmingRoute: processedRoutes[routeId]?.type === 'farm' ? routeId : prev.lastFarmingRoute,
               }));
               setCurrentView('battles');
             }}

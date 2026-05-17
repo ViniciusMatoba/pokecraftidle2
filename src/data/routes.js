@@ -1351,6 +1351,72 @@ const legacyEncounters = (regionIndex, phaseIndex) => {
   return rangeIds(start, Math.min(previousMax, start + 5)).filter(id => !STARTER_IDS.has(id));
 };
 
+const TYPE_DOMAIN_TYPES = [
+  'Normal', 'Fire', 'Water', 'Grass', 'Electric', 'Flying',
+  'Poison', 'Ground', 'Rock', 'Fighting', 'Psychic', 'Bug',
+  'Ice', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy',
+];
+
+const TYPE_DOMAIN_REQUIREMENTS = [
+  'champion',
+  'johto_champion',
+  'hoenn_champion',
+  'sinnoh_champion',
+  'unova_champion',
+  'kalos_champion',
+  'alola_champion',
+  'galar_champion',
+  'paldea_champion',
+];
+
+const TYPE_DOMAIN_ROUTES = Object.fromEntries(TYPE_DOMAIN_TYPES.map((type, index) => {
+  const slug = type.toLowerCase();
+  return [`paldea_type_domain_${slug}`, {
+    id: `paldea_type_domain_${slug}`,
+    name: `Dominio ${type}`,
+    type: 'farm',
+    group: 'Dominios Elementais',
+    unlockLevel: 70 + Math.min(30, Math.floor(index * 30 / Math.max(1, TYPE_DOMAIN_TYPES.length - 1))),
+    requirements: TYPE_DOMAIN_REQUIREMENTS,
+    biome: slug,
+    typeDomain: type,
+    postGameDomain: true,
+    background: `/bg_type_${slug}_domain.webp`,
+    enemies: [],
+    trainerChance: 0.12,
+    trainers: [
+      {
+        name: `Especialista ${type}`,
+        sprite: index % 2 === 0 ? S.aceF : S.aceM,
+        team: [],
+        reward: 12000 + (index * 250),
+      },
+    ],
+    description: `Rota pos-game do tipo ${type}. Encontros sobem do nivel 70 ao 100 e reunem Pokemon desse tipo apos concluir as 9 regioes.`,
+  }];
+}));
+
+const PRISM_DOMAIN_ROUTE = {
+  paldea_type_domain_prism: {
+    id: 'paldea_type_domain_prism',
+    name: 'Dominio Prisma',
+    type: 'farm',
+    group: 'Dominios Elementais',
+    unlockLevel: 100,
+    requirements: TYPE_DOMAIN_REQUIREMENTS,
+    biome: 'prism',
+    postGameDomain: true,
+    prismDomain: true,
+    background: '/bg_type_prism_domain.webp',
+    enemies: [],
+    trainerChance: 0.16,
+    trainers: [
+      { name: 'Guardiao Prisma', sprite: S.cooltrainer, team: [], reward: 25000 },
+    ],
+    description: 'Area final de captura e treino apos dominar todas as regioes. Mistura todos os tipos no nivel 100.',
+  },
+};
+
 const buildRegionalDexCoverageRoutes = ({
   region,
   label,
@@ -2932,6 +2998,8 @@ const RAW_ROUTES = {
     ],    description: 'Rota final de treino: inimigos no nivel 100 para fechar o endgame.',
   },
   ...REGIONAL_DEX_COVERAGE_ROUTES,
+  ...TYPE_DOMAIN_ROUTES,
+  ...PRISM_DOMAIN_ROUTE,
   ...FUTURE_REGION_ROUTES,
 };
 

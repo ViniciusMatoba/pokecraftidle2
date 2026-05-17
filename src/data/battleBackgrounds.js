@@ -6,7 +6,30 @@
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 const bg = (file) => `url('${BASE}/${file}')`;
 
+const TYPE_DOMAIN_BACKGROUNDS = {
+  normal:   { sky: bg('bg_type_normal_domain.webp'),   label: 'Dominio Normal',   ground: '#d6d3d1', groundAccent: '#a8a29e', timeOfDay: 'day', elements: ['cloud', 'tall_grass'] },
+  fire:     { sky: bg('bg_type_fire_domain.webp'),     label: 'Dominio Fire',     ground: '#7f1d1d', groundAccent: '#450a0a', timeOfDay: 'sunset', elements: ['fire_pillar', 'lava_pool'] },
+  water:    { sky: bg('bg_type_water_domain.webp'),    label: 'Dominio Water',    ground: '#155e75', groundAccent: '#083344', timeOfDay: 'day', elements: ['ocean_wave', 'waterfall'] },
+  grass:    { sky: bg('bg_type_grass_domain.webp'),    label: 'Dominio Grass',    ground: '#3f6212', groundAccent: '#1a2e05', timeOfDay: 'day', elements: ['tall_grass', 'flower'] },
+  electric: { sky: bg('bg_type_electric_domain.webp'), label: 'Dominio Electric', ground: '#854d0e', groundAccent: '#422006', timeOfDay: 'storm', elements: ['electric_spark', 'neon_light'] },
+  flying:   { sky: bg('bg_type_flying_domain.webp'),   label: 'Dominio Flying',   ground: '#0e7490', groundAccent: '#164e63', timeOfDay: 'day', elements: ['cloud', 'windmill'] },
+  poison:   { sky: bg('bg_type_poison_domain.webp'),   label: 'Dominio Poison',   ground: '#581c87', groundAccent: '#3b0764', timeOfDay: 'night', elements: ['forest_mist', 'poison_bubble'] },
+  ground:   { sky: bg('bg_type_ground_domain.webp'),   label: 'Dominio Ground',   ground: '#92400e', groundAccent: '#451a03', timeOfDay: 'day', elements: ['sand_dune', 'sharp_rock'] },
+  rock:     { sky: bg('bg_type_rock_domain.webp'),     label: 'Dominio Rock',     ground: '#57534e', groundAccent: '#292524', timeOfDay: 'day', elements: ['sharp_rock', 'crystal_shard'] },
+  fighting: { sky: bg('bg_type_fighting_domain.webp'), label: 'Dominio Fighting', ground: '#991b1b', groundAccent: '#450a0a', timeOfDay: 'sunrise', elements: ['dojo_gate', 'training_post'] },
+  psychic:  { sky: bg('bg_type_psychic_domain.webp'),  label: 'Dominio Psychic',  ground: '#7e22ce', groundAccent: '#3b0764', timeOfDay: 'legendary', elements: ['psychic_ring', 'floating_stone'] },
+  bug:      { sky: bg('bg_type_bug_domain.webp'),      label: 'Dominio Bug',      ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['flower', 'forest_mist'] },
+  ice:      { sky: bg('bg_type_ice_domain.webp'),      label: 'Dominio Ice',      ground: '#f1f5f9', groundAccent: '#cbd5e1', timeOfDay: 'ice', elements: ['ice_crystal', 'snow_drift'] },
+  ghost:    { sky: bg('bg_type_ghost_domain.webp'),    label: 'Dominio Ghost',    ground: '#1e1b4b', groundAccent: '#0f172a', timeOfDay: 'night', elements: ['spirit_orb', 'grave_stone'] },
+  dragon:   { sky: bg('bg_type_dragon_domain.webp'),   label: 'Dominio Dragon',   ground: '#312e81', groundAccent: '#1e1b4b', timeOfDay: 'dramatic', elements: ['ancient_rune', 'crystal_glow'] },
+  dark:     { sky: bg('bg_type_dark_domain.webp'),     label: 'Dominio Dark',     ground: '#111827', groundAccent: '#020617', timeOfDay: 'night', elements: ['moon', 'forest_mist'] },
+  steel:    { sky: bg('bg_type_steel_domain.webp'),    label: 'Dominio Steel',    ground: '#475569', groundAccent: '#1e293b', timeOfDay: 'indoor_tech', elements: ['steel_beam', 'server_rack'] },
+  fairy:    { sky: bg('bg_type_fairy_domain.webp'),    label: 'Dominio Fairy',    ground: '#be185d', groundAccent: '#831843', timeOfDay: 'evening', elements: ['flower', 'crystal_glow'] },
+  prism:    { sky: bg('bg_type_prism_domain.webp'),    label: 'Dominio Prisma',   ground: '#334155', groundAccent: '#0f172a', timeOfDay: 'legendary', elements: ['crystal_glow', 'ancient_rune'] },
+};
+
 export const BATTLE_BACKGROUNDS = {
+  ...Object.fromEntries(Object.entries(TYPE_DOMAIN_BACKGROUNDS).map(([type, value]) => [`paldea_type_domain_${type}`, value])),
 
   // PALLET TOWN
   pallet_town: {
