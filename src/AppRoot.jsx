@@ -44,6 +44,7 @@ import { GYMS, ELITE_FOUR } from './data/gyms';
 import { auth, db } from './firebase';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
+import LZString from 'lz-string';
 import { 
   APP_VERSION, APP_VERSION_DATE, DEFAULT_GAME_STATE, GYM_LEVEL_CAPS, 
   NATURE_LIST, NATURES, TYPE_COLORS, trainerAvatars, ITEM_LABELS,
@@ -699,7 +700,14 @@ export default function App() {
       const docRef = doc(db, "saves", uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        return docSnap.data().gameState;
+        const data = docSnap.data();
+        // New compressed format
+        if (data.compressedState) {
+          const decompressed = LZString.decompress(data.compressedState);
+          if (decompressed) return JSON.parse(decompressed);
+        }
+        // Legacy uncompressed format
+        if (data.gameState) return data.gameState;
       }
     } catch (e) {
       console.error("Error loading cloud save:", e);
@@ -1687,10 +1695,13 @@ export default function App() {
 
       lastSyncRef.current = Date.now();
       
-      // 1. Salva o estado completo do jogo
-      await setDoc(doc(db, "saves", user.uid), { 
-        gameState: removeUndefinedFields({ ...dataToSave, version: dataToSave.version || APP_VERSION }), 
-        updatedAt: serverTimestamp() 
+      // 1. Salva o estado completo do jogo (comprimido para respeitar limite de 1MB do Firestore)
+      const cleanState = removeUndefinedFields({ ...dataToSave, version: dataToSave.version || APP_VERSION });
+      const compressedState = LZString.compress(JSON.stringify(cleanState));
+      await setDoc(doc(db, "saves", user.uid), {
+        compressedState,
+        gameState: null,
+        updatedAt: serverTimestamp()
       }, { merge: true });
 
       // 2. Sincroniza dados públicos para o Ranking Global e sistema de amigos
@@ -1841,9 +1852,12 @@ export default function App() {
     }
     try {
       lastSyncRef.current = Date.now();
-      await setDoc(doc(db, "saves", user.uid), { 
-        gameState: removeUndefinedFields({ ...gameState, version: gameState.version || APP_VERSION }), 
-        updatedAt: serverTimestamp() 
+      const cleanState = removeUndefinedFields({ ...gameState, version: gameState.version || APP_VERSION });
+      const compressedState = LZString.compress(JSON.stringify(cleanState));
+      await setDoc(doc(db, "saves", user.uid), {
+        compressedState,
+        gameState: null,
+        updatedAt: serverTimestamp()
       }, { merge: true });
       showConfirm({ type: 'success', title: 'Salvo!', message: 'Jogo salvo na nuvem com sucesso!', onConfirm: closeConfirm });
     } catch (e) {
@@ -6079,8 +6093,10 @@ export default function App() {
           if (u) {
             try {
               lastSyncRef.current = Date.now();
-              await setDoc(doc(db, "saves", u.uid), { 
-                gameState: freshState, 
+              const compressedFresh = LZString.compress(JSON.stringify(freshState));
+              await setDoc(doc(db, "saves", u.uid), {
+                compressedState: compressedFresh,
+                gameState: null,
                 updatedAt: serverTimestamp(),
                 resetAt: serverTimestamp()
               }, { merge: false }); // merge: false ensures we overwrite EVERYTHING
