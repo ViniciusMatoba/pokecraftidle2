@@ -1,47 +1,99 @@
 import { POKEDEX } from '../data/pokedex';
+import { getCaptureRate, getPokemonRarity } from './pokemonDifficulty';
 
-const TICK_MS = 2500;        // 1 batalha a cada 2.5s
-const MAX_OFFLINE_MS = 8 * 60 * 60 * 1000; // cap: 8 horas
+const TICK_MS = 2500;
+const MAX_OFFLINE_MS = 8 * 60 * 60 * 1000; // cap 8h
 const BATTLES_PER_MS = 1 / TICK_MS;
 
-/**
- * Estima o XP ganho por batalha contra um inimigo.
- * Fórmula espelha AppRoot.jsx linha ~5584.
- */
+// XP que um membro de bancada recebe (Exp Share simplificado)
+const BENCH_XP_RATE = 0.5;
+
 function calcBattleXP(enemy) {
   const baseXp = POKEDEX[Number(enemy.id)]?.baseXp || 50;
   return Math.floor((enemy.level * 1.5 * baseXp) / 7);
 }
 
-/**
- * Estima moedas ganhas por batalha.
- * Fórmula espelha AppRoot.jsx linha ~2113.
- */
 function calcBattleCoins(enemy) {
   return Math.max(1, Math.floor(enemy.level * 0.15));
 }
 
 /**
- * Calcula progresso acumulado durante o tempo offline.
- *
- * @param {object} gameState - Estado atual do jogo
- * @param {object} routes    - Objeto ROUTES com todas as rotas
- * @param {number} elapsedMs - Milissegundos fora do jogo
- * @returns {{ xp, coins, materials, battles, cappedMs }}
+ * Simula level-ups a partir do XP acumulado offline.
+ * Espelha o loop em AppRoot.jsx ~linha 4808.
+ */
+function simulateLevelGain(currentLevel, currentXp, xpGained) {
+  let level = currentLevel || 1;
+  let xp = (currentXp || 0) + xpGained;
+  const startLevel = level;
+
+  while (level < 100) {
+    const xpNeeded = Math.pow(level + 1, 3) - Math.pow(level, 3);
+    if (xp >= xpNeeded) { xp -= xpNeeded; level++; }
+    else break;
+  }
+
+  return { newLevel: level, newXp: xp, levelsGained: level - startLevel };
+}
+
+/**
+ * Simula capturas offline para cada batalha, usando taxa de captura real.
+ * Só tenta capturar se autoCapture + autoCaptureConfig.enabled estiver ativo.
+ */
+function simulateCaptures(gameState, route, battles) {
+  const cfg = gameState.autoCaptureConfig;
+  if (!gameState.autoCapture || !cfg?.enabled) return [];
+
+  const mode = cfg.mode || 'shiny_only';
+  const caughtData = gameState.caughtData || {};
+  const captured = {};
+
+  // Multiplicador de bola (offline usa pokeball padrão = 1.0)
+  const ballMult = 1.0;
+
+  for (let i = 0; i < battles; i++) {
+    const enemy = route.enemies[i % route.enemies.length];
+    if (!enemy || enemy.isTrainer || enemy.isWildBoss) continue;
+
+    // Filtra por modo de captura
+    const alreadyCaught = !!caughtData[String(enemy.id)];
+    if (mode === 'shiny_only') continue; // shinies não aparecem no farm offline
+    if (mode === 'not_caught' && alreadyCaught) continue;
+    if (mode === 'specific' && !cfg.targetIds?.includes(Number(enemy.id))) continue;
+
+    // Usa enemy com HP=0 para máxima taxa de captura (como no jogo real)
+    const enemyAtZeroHp = { ...enemy, hp: 0, maxHp: enemy.maxHp || 50 };
+    const rate = getCaptureRate(enemyAtZeroHp, ballMult, POKEDEX);
+
+    if (Math.random() < rate) {
+      const key = String(enemy.id);
+      if (!captured[key]) {
+        captured[key] = {
+          id: enemy.id,
+          name: POKEDEX[Number(enemy.id)]?.name || enemy.name || `#${enemy.id}`,
+          level: enemy.level,
+          type: POKEDEX[Number(enemy.id)]?.type || enemy.type || 'Normal',
+          rarity: getPokemonRarity(enemy, POKEDEX),
+          count: 0,
+        };
+      }
+      captured[key].count++;
+    }
+  }
+
+  return Object.values(captured);
+}
+
+/**
+ * Calcula o progresso acumulado offline.
  */
 export function calculateOfflineProgress(gameState, routes, elapsedMs) {
   const cappedMs = Math.min(elapsedMs, MAX_OFFLINE_MS);
   const battles = Math.floor(cappedMs * BATTLES_PER_MS);
-
   if (battles <= 0) return null;
 
   const routeId = gameState.lastFarmingRoute || gameState.currentRoute;
   const route = routes[routeId];
-
-  // Só calcula progresso se estava em uma rota de farm
-  if (!route || route.type !== 'farm' || !Array.isArray(route.enemies) || route.enemies.length === 0) {
-    return null;
-  }
+  if (!route || route.type !== 'farm' || !Array.isArray(route.enemies) || route.enemies.length === 0) return null;
 
   let totalXP = 0;
   let totalCoins = 0;
@@ -51,42 +103,58 @@ export function calculateOfflineProgress(gameState, routes, elapsedMs) {
     const enemy = route.enemies[i % route.enemies.length];
     totalXP += calcBattleXP(enemy);
     totalCoins += calcBattleCoins(enemy);
-
-    // Drops de material (simplificado — sem RNG para offline, usa chance média)
     if (enemy.drop && enemy.dropChance) {
-      const expectedDrops = enemy.dropChance;
-      materials[enemy.drop] = (materials[enemy.drop] || 0) + expectedDrops;
+      materials[enemy.drop] = (materials[enemy.drop] || 0) + enemy.dropChance;
     }
   }
 
-  // Arredonda materiais para inteiros
   for (const key of Object.keys(materials)) {
     materials[key] = Math.floor(materials[key]);
     if (materials[key] <= 0) delete materials[key];
   }
 
-  return { xp: totalXP, coins: totalCoins, materials, battles, cappedMs, routeId };
+  // Calcula XP e level-ups por membro do time
+  const teamProgress = (gameState.team || []).map((pokemon, idx) => {
+    const xpGained = idx === 0 ? totalXP : Math.floor(totalXP * BENCH_XP_RATE);
+    const { newLevel, newXp, levelsGained } = simulateLevelGain(pokemon.level, pokemon.xp, xpGained);
+    return {
+      instanceId: pokemon.instanceId,
+      name: pokemon.name,
+      id: pokemon.id,
+      isShiny: pokemon.isShiny,
+      startLevel: pokemon.level || 1,
+      newLevel,
+      newXp,
+      levelsGained,
+      xpGained,
+    };
+  });
+
+  // Simula capturas
+  const captures = simulateCaptures(gameState, route, battles);
+
+  return { xp: totalXP, coins: totalCoins, materials, battles, cappedMs, routeId, teamProgress, captures };
 }
 
 /**
- * Aplica o progresso offline ao gameState e retorna o novo estado.
+ * Aplica o progresso offline ao gameState.
  */
 export function applyOfflineProgress(gameState, progress) {
   if (!progress) return gameState;
 
   let newState = { ...gameState };
-
-  // Moedas
   newState.currency = (newState.currency || 0) + progress.coins;
 
-  // XP para o líder do time
-  if (newState.team?.length > 0) {
-    const leader = { ...newState.team[0] };
-    leader.xp = (leader.xp || 0) + progress.xp;
-    newState.team = [leader, ...newState.team.slice(1)];
+  // Aplica XP e level-ups a cada membro
+  if (progress.teamProgress?.length > 0) {
+    newState.team = newState.team.map((pokemon, idx) => {
+      const tp = progress.teamProgress[idx];
+      if (!tp) return pokemon;
+      return { ...pokemon, level: tp.newLevel, xp: tp.newXp };
+    });
   }
 
-  // Materiais
+  // Aplica materiais
   if (Object.keys(progress.materials).length > 0) {
     const mats = { ...(newState.inventory?.materials || {}) };
     for (const [key, amount] of Object.entries(progress.materials)) {
@@ -95,10 +163,20 @@ export function applyOfflineProgress(gameState, progress) {
     newState.inventory = { ...newState.inventory, materials: mats };
   }
 
+  // Registra capturas no caughtData
+  if (progress.captures?.length > 0) {
+    const newCaught = { ...(newState.caughtData || {}) };
+    for (const cap of progress.captures) {
+      const key = String(cap.id);
+      if (!newCaught[key]) newCaught[key] = { caught: true, count: 0 };
+      newCaught[key].count = (newCaught[key].count || 0) + cap.count;
+    }
+    newState.caughtData = newCaught;
+  }
+
   return newState;
 }
 
-/** Formata duração em horas/minutos para exibição. */
 export function formatOfflineTime(ms) {
   const totalMin = Math.floor(ms / 60000);
   const hours = Math.floor(totalMin / 60);
