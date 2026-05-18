@@ -994,6 +994,7 @@ export default function App() {
   const [showPaldeaChampionModal, setShowPaldeaChampionModal] = useState(false); // Paldea = Final
   const [showHisuiInviteModal,    setShowHisuiInviteModal]    = useState(false); // Hisui (recovery para quem já tem galar)
   const [showMegaIntroModal, setShowMegaIntroModal] = useState(false); // Sycamore mega evolution intro
+  const [showLegendaryModal, setShowLegendaryModal] = useState(null);  // { professor, professorName, region, accentColor, title, message, legendaries, shownFlag, secondaryFlag, secondaryLegendaries, secondaryMessage }
   const [showGymVictoryModal, setShowGymVictoryModal] = useState(null); // { leaderName, badge, badgeImg, reward }
   const [previewStarter, setPreviewStarter] = useState(null);
   const [activeQuestModal, setActiveQuestModal] = useState(null);
@@ -5664,6 +5665,118 @@ export default function App() {
         !flags.includes('hisui_started') && !flags.includes('hisui_invite_shown'))
       setShowHisuiInviteModal(true);
 
+    // ── Legendary Appearance Modals ──────────────────────────────────────────
+    // Kanto: Pássaros Lendários (após conquistar a Soul Badge de Giovanni)
+    if (flags.includes('soul_badge') &&
+        !flags.includes('kanto_birds_legendary_modal_shown') &&
+        !flags.includes('kanto_birds_legendary_modal_pending')) {
+      setShowLegendaryModal({
+        professor: 'oak',
+        professorName: 'Prof. Carvalho',
+        region: 'kanto',
+        accentColor: '#ee1515',
+        title: 'Lendários de Kanto Avistados!',
+        message: '"Treinador, tenho notícias urgentes! Com a derrota de Giovanni e o colapso do QG da Equipe Rocket, uma energia misteriosa se espalhou por Kanto. Articuno, Zapdos e Moltres — os Pássaros Lendários — foram avistados nos pontos mais remotos da região!"',
+        legendaries: [
+          { name: 'Articuno', id: 144 },
+          { name: 'Zapdos', id: 145 },
+          { name: 'Moltres', id: 146 },
+        ],
+        routeHint: 'Após derrotá-los no Modo VS, cada um poderá ser encontrado nas rotas de Kanto!',
+        shownFlag: 'kanto_birds_legendary_modal_shown',
+      });
+    }
+
+    // Kanto: Mewtwo (após se tornar Campeão de Kanto)
+    if (flags.includes('champion') &&
+        !flags.includes('kanto_mewtwo_legendary_modal_shown') &&
+        !flags.includes('kanto_mewtwo_legendary_modal_pending')) {
+      setTimeout(() => {
+        setShowLegendaryModal(prev => prev ? prev : {
+          professor: 'oak',
+          professorName: 'Prof. Carvalho',
+          region: 'kanto',
+          accentColor: '#7c3aed',
+          title: 'Mewtwo Detectado!',
+          message: '"Parabéns por conquistar a Liga Pokémon de Kanto! Mas há algo que devo te contar em segredo... pesquisas recentes confirmaram que MEWTWO — o Pokémon criado em laboratório — está escondido na Caverna Cerulean. Ele é perigosíssimo e não pode ser capturado por qualquer treinador."',
+          legendaries: [
+            { name: 'Mewtwo', id: 150 },
+          ],
+          routeHint: 'Derrote Mewtwo no Modo VS para que ele possa depois ser encontrado raramente nas rotas!',
+          shownFlag: 'kanto_mewtwo_legendary_modal_shown',
+        });
+      }, 3500);
+    }
+
+    // Johto: Trios + Lugia + Ho-Oh (após se tornar Campeão de Johto)
+    if (flags.includes('johto_champion') &&
+        !flags.includes('johto_legendary_modal_shown') &&
+        !flags.includes('johto_legendary_modal_pending')) {
+      setTimeout(() => {
+        setShowLegendaryModal(prev => prev ? prev : {
+          professor: 'elm',
+          professorName: 'Prof. Elm',
+          region: 'johto',
+          accentColor: '#f59e0b',
+          title: 'Lendários de Johto Despertaram!',
+          message: '"Você se tornou o Campeão de Johto! Isso despertou forças ancestrais que dormiam há séculos. O Trio do Trovão — Raikou, Entei e Suicune — saiu do Burned Tower e vaga livremente. Lugia foi avistado nas Whirl Islands e Ho-Oh regressou à Torre Tin!"',
+          legendaries: [
+            { name: 'Raikou', id: 243 },
+            { name: 'Entei', id: 244 },
+            { name: 'Suicune', id: 245 },
+            { name: 'Lugia', id: 249 },
+            { name: 'Ho-Oh', id: 250 },
+          ],
+          routeHint: 'Derrote cada lendário no Modo VS para que eles possam surgir raramente nas rotas de Johto!',
+          shownFlag: 'johto_legendary_modal_shown',
+        });
+      }, 3500);
+    }
+
+    // Hoenn: Rayquaza (após se tornar Campeão de Hoenn)
+    if (flags.includes('hoenn_champion') &&
+        !flags.includes('hoenn_legendary_modal_shown') &&
+        !flags.includes('hoenn_legendary_modal_pending')) {
+      setTimeout(() => {
+        setShowLegendaryModal(prev => prev ? prev : {
+          professor: 'birch',
+          professorName: 'Prof. Birch',
+          region: 'hoenn',
+          accentColor: '#16a34a',
+          title: 'Rayquaza Emerge do Céu!',
+          message: '"Extraordinário! Com a derrota de Steven e sua conquista sobre Hoenn, o equilíbrio entre terra, mar e céu foi restaurado. Mas isso chamou a atenção de Rayquaza — o Dragão dos Céus — que desce do Sky Pillar para testar os mais poderosos treinadores!"',
+          legendaries: [
+            { name: 'Rayquaza', id: 384 },
+          ],
+          routeHint: 'Derrote Rayquaza no Modo VS e ele poderá ser encontrado nas alturas de Hoenn!',
+          shownFlag: 'hoenn_legendary_modal_shown',
+        });
+      }, 3500);
+    }
+
+    // Sinnoh: Dialga / Palkia / Giratina (após Campeão de Sinnoh)
+    if (flags.includes('sinnoh_champion') &&
+        !flags.includes('sinnoh_legendary_modal_shown') &&
+        !flags.includes('sinnoh_legendary_modal_pending')) {
+      setTimeout(() => {
+        setShowLegendaryModal(prev => prev ? prev : {
+          professor: 'rowan',
+          professorName: 'Prof. Rowan',
+          region: 'sinnoh',
+          accentColor: '#2563eb',
+          title: 'Deuses de Sinnoh Aparecem!',
+          message: '"Sua vitória sobre Cynthia, a Campeã de Sinnoh, ecoou pelas dimensões! Dialga, o Senhor do Tempo, e Palkia, o Senhor do Espaço, foram detectados em Spear Pillar. E há rumores de que Giratina observa tudo do Mundo Distorção…"',
+          legendaries: [
+            { name: 'Dialga', id: 483 },
+            { name: 'Palkia', id: 484 },
+            { name: 'Giratina', id: 487 },
+          ],
+          routeHint: 'Derrote-os no Modo VS para que possam aparecer raramente em Sinnoh!',
+          shownFlag: 'sinnoh_legendary_modal_shown',
+        });
+      }, 3500);
+    }
+
   }, [gameState.worldFlags]);
   // ————————————————————————————————————————————————————————————
 
@@ -9207,6 +9320,97 @@ export default function App() {
           </div>
         ) : null
       )}
+
+      {/* ── LEGENDARY APPEARANCE MODALS — Professor anuncia lendários ──────── */}
+      {showLegendaryModal && (() => {
+        const cfg = showLegendaryModal;
+        const dismiss = (goToVs = false) => {
+          setGameState(prev => ({
+            ...prev,
+            worldFlags: [...new Set([...(prev.worldFlags || []), cfg.shownFlag])],
+          }));
+          setShowLegendaryModal(null);
+          if (goToVs) {
+            setVsInitialTab('legendary');
+            setVsInitialCategory('legendary');
+            setVsInitialRegion(cfg.region);
+            setCurrentView('vs');
+          }
+        };
+        return (
+          <div className="absolute inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-fadeIn">
+            <div className="w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-bounceIn flex flex-col max-h-[88dvh]" style={{ borderBottom: `10px solid ${cfg.accentColor}` }}>
+
+              {/* Header — Professor */}
+              <div className="px-6 py-5 flex items-center gap-4 shrink-0" style={{ background: `linear-gradient(135deg, ${cfg.accentColor}f2, ${cfg.accentColor}aa), url('${LAB_BG_URL}') center/cover` }}>
+                <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center overflow-hidden border border-white/30 shrink-0">
+                  <img
+                    src={`https://play.pokemonshowdown.com/sprites/trainers/${cfg.professor}.png`}
+                    onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/oak.png'; }}
+                    className="w-12 h-12 object-contain" alt={cfg.professorName}
+                  />
+                </div>
+                <div>
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.25em]">{cfg.professorName}</p>
+                  <h2 className="text-white text-xl font-black uppercase italic tracking-tighter leading-tight">
+                    ✨ {cfg.title}
+                  </h2>
+                </div>
+              </div>
+
+              {/* Body */}
+              <div className="flex-1 overflow-y-auto px-6 pt-5 pb-2 custom-scrollbar">
+                {/* Professor speech */}
+                <p className="text-sm font-bold text-slate-600 leading-relaxed italic mb-4">{cfg.message}</p>
+
+                {/* Legendary sprites row */}
+                <div className="rounded-3xl p-4 mb-4 border-2 flex flex-col gap-3" style={{ backgroundColor: cfg.accentColor + '10', borderColor: cfg.accentColor + '30' }}>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-center" style={{ color: cfg.accentColor }}>
+                    🌟 Pokémon Lendários Descobertos
+                  </p>
+                  <div className={`flex gap-2 justify-center flex-wrap`}>
+                    {cfg.legendaries.map(({ name, id }) => (
+                      <div key={id} className="flex flex-col items-center gap-1">
+                        <div className="w-14 h-14 rounded-2xl bg-white shadow-md flex items-center justify-center border-2" style={{ borderColor: cfg.accentColor + '40' }}>
+                          <img
+                            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`}
+                            className="w-12 h-12 object-contain drop-shadow-md"
+                            alt={name}
+                          />
+                        </div>
+                        <span className="text-[8px] font-black uppercase tracking-wider text-slate-500">{name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Route unlock hint */}
+                <div className="rounded-2xl p-3 mb-5 flex items-start gap-2" style={{ background: '#fef3c7', border: '1px solid #fcd34d' }}>
+                  <span className="text-base shrink-0 mt-0.5">🗺️</span>
+                  <p className="text-[11px] font-bold text-amber-800 leading-relaxed">{cfg.routeHint}</p>
+                </div>
+              </div>
+
+              {/* Buttons */}
+              <div className="shrink-0 px-6 pb-6 pt-2 flex flex-col gap-3">
+                <button
+                  onClick={() => dismiss(true)}
+                  className="w-full min-h-[54px] rounded-2xl text-white font-black uppercase tracking-widest text-xs transition-all shadow-lg active:scale-95"
+                  style={{ background: `linear-gradient(135deg, ${cfg.accentColor}, ${cfg.accentColor}cc)` }}
+                >
+                  ⚔️ Ir para Lendários no Modo VS
+                </button>
+                <button
+                  onClick={() => dismiss(false)}
+                  className="w-full min-h-[44px] rounded-2xl bg-slate-100 text-slate-500 font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-all active:scale-95"
+                >
+                  Fechar — ver depois
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* MEGA EVOLUTION INTRO — Prof. Sycamore após 1º ginásio de Kalos */}
       {showMegaIntroModal && (

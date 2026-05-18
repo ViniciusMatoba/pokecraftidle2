@@ -1,7 +1,16 @@
-export const APP_VERSION = '2.3.5';
-export const VERSION = '2.3.5';
-export const APP_VERSION_DATE = '18/05/2026 12:00';
+export const APP_VERSION = '2.3.6';
+export const VERSION = '2.3.6';
+export const APP_VERSION_DATE = '18/05/2026 13:00';
 export const CHANGELOG = [
+  '## [V2.3.6] - 18/05/2026 13:00',
+  '### Aviso de Lendários por Região',
+  '- **Modal de aparecimento**: quando uma condição-chave é atingida (Soul Badge, Campeão, etc.), o professor da região aparece para anunciar os lendários.',
+  '- **Prof. Carvalho (Kanto)**: avisa sobre os Pássaros Lendários após a Soul Badge; anuncia Mewtwo após o título de Campeão.',
+  '- **Prof. Elm (Johto)**: anuncia o Trio do Trovão, Lugia e Ho-Oh após o Campeonato de Johto.',
+  '- **Prof. Birch (Hoenn)**: anuncia Rayquaza após o Campeonato de Hoenn.',
+  '- **Prof. Rowan (Sinnoh)**: anuncia Dialga, Palkia e Giratina após o Campeonato de Sinnoh.',
+  '- **Botão de navegação**: cada modal tem um botão que leva diretamente para a aba Lendários no Modo VS, na região correta.',
+  '- **Dica de rota**: o modal explica que derrotar o lendário no Modo VS libera seu encontro nas rotas.',
   '## [V2.3.5] - 18/05/2026 12:00',
   '### Sistema de Pokébolas',
   '- **Efeitos visuais**: cada pokébola tem um efeito único ao entrar em batalha (flash, raios, luar, amizade, etc.).',

@@ -1,5 +1,5 @@
 {
-  "version": "2.3.5",
-  "date": "18/05/2026 12:00",
-  "notes": "Sistema de Pokebolas: efeitos visuais ao entrar em batalha, rastreamento por pokemon, troca com chances e preview animado."
+  "version": "2.3.6",
+  "date": "18/05/2026 13:00",
+  "notes": "Aviso de Lendarios: professor da regiao anuncia apareimento dos lendarios com modal e botao direto para a aba Lendarios no Modo VS."
 }
