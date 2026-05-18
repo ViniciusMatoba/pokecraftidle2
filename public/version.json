@@ -1,5 +1,5 @@
 {
-  "version": "2.1.4",
-  "date": "17/05/2026 22:40",
-  "notes": "Auditoria automatica no build para Pokedex, rotas, backgrounds e progressao; Hisui entrou no balanceamento gradual e treinadores de rota passam a respeitar minimo +3 niveis."
+  "version": "2.1.5",
+  "date": "17/05/2026 22:56",
+  "notes": "Bloco 2: modal de drops raros, colecao de titulos com bloqueados/desbloqueados e nova tela de progresso regional no menu."
 }

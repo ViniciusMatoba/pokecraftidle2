@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { getPrimaryTrainerTitle, getUnlockedTrainerTitles } from '../data/trainerTitles';
+import { getPrimaryTrainerTitle, getTrainerTitleCollection, getUnlockedTrainerTitles } from '../data/trainerTitles';
 import { AVATAR_SPRITES, AVATAR_TINTS, CARD_FRAMES, CARD_BACKGROUNDS, getTintFilter } from '../data/cosmetics';
 
 const POKEAPI_ITEM_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
@@ -334,7 +334,9 @@ export const TrainerCard = ({
     shinyCount, trainerBattleWins, playerStats, badges, 
     purchasedTitles: prestige?.purchasedTitles || [] 
   };
-   const unlockedTitles = getUnlockedTrainerTitles(titleContext);
+  const unlockedTitles = getUnlockedTrainerTitles(titleContext);
+  const titleCollection = getTrainerTitleCollection(titleContext);
+  const titleCollectionUnlocked = titleCollection.filter(title => title.unlocked);
   const activeTitleId = selectedTitle || trainer.titleId || prestige?.activeTitle || null;
   const activeTitle = unlockedTitles.find(title => title.id === activeTitleId) || getPrimaryTrainerTitle(titleContext);
   const canEditTitle = typeof onSelectTitle === 'function';
@@ -483,7 +485,12 @@ export const TrainerCard = ({
               onClick={(e) => e.stopPropagation()}
             >
               <div className="bg-slate-800/50 px-6 py-5 flex items-center justify-between border-b border-white/5">
-                <h3 className="text-white text-xl font-black uppercase italic">Seus Titulos</h3>
+                <div>
+                  <h3 className="text-white text-xl font-black uppercase italic leading-none">Seus Titulos</h3>
+                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/40">
+                    {titleCollectionUnlocked.length}/{titleCollection.length} desbloqueados
+                  </p>
+                </div>
                 <button type="button" onClick={() => setShowTitlePicker(false)} className="w-8 h-8 rounded-full bg-white/10 text-white font-black hover:bg-red-500 transition-colors">X</button>
               </div>
               <div 
@@ -491,23 +498,28 @@ export const TrainerCard = ({
                 style={{ maxHeight: '60vh' }}
                 onClick={(e) => e.stopPropagation()}
               >
-                {unlockedTitles.map(title => {
+                {titleCollection.map(title => {
                   const isSelected = activeTitleId === title.id;
+                  const locked = !title.unlocked;
                   return (
                     <button
                       type="button"
                       key={title.id}
                       onClick={() => {
-                        if (canEditTitle) setPendingTitle(title);
+                        if (canEditTitle && !locked) setPendingTitle(title);
                       }}
-                      className={`w-full p-4 rounded-3xl border-2 transition-all flex items-center gap-4 text-left ${isSelected ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'border-white/5 bg-white/5 hover:border-white/10'}`}
+                      className={`w-full p-4 rounded-3xl border-2 transition-all flex items-center gap-4 text-left ${locked ? 'border-white/5 bg-white/[0.03] opacity-55' : isSelected ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'border-white/5 bg-white/5 hover:border-white/10'}`}
                     >
                       <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border" style={{ background: title.bg, borderColor: title.color }}>
-                        {title.icon && <img src={title.icon} className="w-8 h-8 object-contain" alt="" />}
+                        {title.icon && <img src={title.icon} className={`w-8 h-8 object-contain ${locked ? 'grayscale' : ''}`} alt="" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className={`font-black uppercase text-xs leading-none mb-1 ${isSelected ? 'text-blue-400' : 'text-white'}`}>{title.label}</p>
-                        <p className="text-[9px] text-white/40 line-clamp-1">{title.description}</p>
+                        <div className="mb-1 flex items-center gap-2">
+                          <p className={`font-black uppercase text-xs leading-tight ${isSelected ? 'text-blue-400' : 'text-white'}`}>{title.label}</p>
+                          {locked && <span className="rounded-full bg-white/10 px-2 py-0.5 text-[8px] font-black uppercase text-white/50">Bloqueado</span>}
+                        </div>
+                        <p className="text-[9px] text-white/45 leading-snug">{title.description}</p>
+                        {title.source && <p className="mt-1 text-[8px] font-black uppercase tracking-widest text-white/25">{title.source}</p>}
                       </div>
                     </button>
                   );

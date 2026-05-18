@@ -65,6 +65,7 @@ import { getTimeOfDay, TIME_CONFIG, getTimeAdjustedEnemyPool } from './utils/tim
 import AutoCaptureModal from './components/AutoCaptureModal';
 import ConfirmModal from './components/ConfirmModal';
 import RankingModal from './components/RankingModal';
+import RareDropModal from './components/RareDropModal';
 
 import { QUESTS, updateQuestProgress, getAvailableQuest } from './data/quests';
 import NotificationSystem, { notify } from './components/NotificationSystem';
@@ -1012,6 +1013,7 @@ export default function App() {
   const [checkingName, setCheckingName] = useState(false);
   const [raidRouteNotice, setRaidRouteNotice] = useState(null);
   const [recipeFoundModal, setRecipeFoundModal] = useState(null); // { name, img, effect }
+  const [rareDropModal, setRareDropModal] = useState(null);
 
   const [installPrompt, setInstallPrompt] = useState(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -2329,6 +2331,7 @@ export default function App() {
   const processDrops = useCallback((enemy) => {
     const drops = { materials: {}, items: {}, currency: 0 };
     const messages = [];
+    const rareDrops = [];
 
     // Moedas base — reduzido drasticamente para tornar a economia mais desafiadora
     let coinAmount = Math.max(1, Math.floor((enemy.level || 5) * 0.15 * (enemy.isShiny ? 2 : 1)));
@@ -2436,7 +2439,14 @@ export default function App() {
       if (Math.random() < megaChance) {
         const qty = enemy.isWildBoss ? 2 : 1;
         drops.materials.mega_stone_shard = (drops.materials.mega_stone_shard || 0) + qty;
-        messages.push(`💎 ${qty}x Fragmento de Mega Pedra`);
+        messages.push(`Mega: ${qty}x Fragmento de Mega Pedra`);
+        rareDrops.push({
+          type: 'mega',
+          name: `${qty}x Fragmento de Mega Pedra`,
+          icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/mega-stone.png',
+          description: 'Fragmento usado nas forjas de Mega Pedra liberadas em Kalos.',
+          meta: `${enemy.name || POKEDEX[Number(enemy.id)]?.name || 'Pokemon'} - Nv.${enemy.level || '?'}`,
+        });
       }
     }
 
@@ -2467,7 +2477,7 @@ export default function App() {
           const recipeId = recipeDrop.replace('recipe_', '');
           const allRecipesList = Object.values(CRAFTING_RECIPES).flat();
           const recipeData = allRecipesList.find(r => r.id === recipeId);
-          if (recipeData) foundRecipes.push({ ...recipeData, isNew: true });
+          if (recipeData) foundRecipes.push({ ...recipeData, isNew: true, sourcePokemon: enemy.name || POKEDEX[Number(enemy.id)]?.name });
         }
       }
     }
@@ -2506,6 +2516,15 @@ export default function App() {
         drops.items[enemy.drop] = (drops.items[enemy.drop] || 0) + 1;
       }
       messages.push(`${dropData.icon} 1x ${dropData.name}`);
+      if (enemy.rarity === 'rare' || enemy.rarity === 'super_rare' || baseDropChance <= 0.08) {
+        rareDrops.push({
+          type: 'rare',
+          name: `1x ${dropData.name}`,
+          icon: typeof dropData.icon === 'string' && dropData.icon.startsWith('http') ? dropData.icon : undefined,
+          description: 'Item raro de rota. Guarde para receitas de forja, evolucao ou personalizacao.',
+          meta: `${enemy.name || POKEDEX[Number(enemy.id)]?.name || 'Pokemon'} - Nv.${enemy.level || '?'}`,
+        });
+      }
     }
 
     // 4. Rare Poké Ball Drop Chance. Mart prices push players toward the Forge.
@@ -2514,7 +2533,7 @@ export default function App() {
       messages.push(`+1 Poke Bola`);
     }
 
-    return { drops, messages, foundRecipes };
+    return { drops, messages, foundRecipes, rareDrops };
   }, [gameState, activeMemberIndex]);
 
   // SPAWN
@@ -6048,7 +6067,7 @@ export default function App() {
 
     // Vitória! O som de GYM tocará apenas se ganhar insígnia
 
-    const { drops, messages, foundRecipes } = processDrops(currentEnemy);
+    const { drops, messages, foundRecipes, rareDrops } = processDrops(currentEnemy);
     // ⛏️” PROTECTED: Fórmula XP — NíO ALTERAR DIVISOR SEM AUTORIZAÇíO
     const baseXpGain = Math.floor(((currentEnemy.level || 1) * 1.5 * (POKEDEX[Number(currentEnemy.id)]?.baseXp || 50)) / 7);
 
@@ -6333,6 +6352,8 @@ export default function App() {
     const newRecipes = foundRecipes?.filter(r => r.isNew);
     if (newRecipes?.length > 0 && !recipeFoundModal) {
       setTimeout(() => setRecipeFoundModal(newRecipes[0]), 400);
+    } else if (rareDrops?.length > 0 && !rareDropModal && !recipeFoundModal) {
+      setTimeout(() => setRareDropModal(rareDrops[0]), 400);
     }
     if (currentEnemy.isTrainer && currentEnemy.trainerReward) {
       const actualReward = getTrainerCurrencyReward(currentEnemy.trainerReward || 0);
@@ -10600,6 +10621,13 @@ export default function App() {
       )}
 
       {/* ── MODAL: Receita Encontrada ──────────────────────────────────────── */}
+      {rareDropModal && (
+        <RareDropModal
+          drop={rareDropModal}
+          onClose={() => setRareDropModal(null)}
+        />
+      )}
+
       {recipeFoundModal && (
         <div
           className="absolute inset-0 z-[100000] flex items-center justify-center p-4 cursor-default"

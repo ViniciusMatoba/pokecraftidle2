@@ -425,6 +425,48 @@ export const getUnlockedTrainerTitles = ({
   return [...unlocked, ...shopTitles];
 };
 
+export const getTrainerTitleCollection = (context = {}) => {
+  const unlockedIds = new Set(getUnlockedTrainerTitles(context).map(title => title.id));
+  const caughtIds = getCaughtIds(context.caughtData || {});
+  const safeCaughtCount = Math.max(context.caughtCount || 0, caughtIds.length);
+  const fullContext = {
+    ...context,
+    caughtIds,
+    caughtCount: safeCaughtCount,
+    worldFlags: context.worldFlags || [],
+    playerStats: context.playerStats || {},
+    badges: context.badges || [],
+  };
+
+  const achievementTitles = TRAINER_TITLES.map((title) => ({
+    ...title,
+    unlocked: title.unlocked(fullContext),
+    source: 'Conquista',
+  }));
+
+  const shopTitles = (context.purchasedTitles || []).map(id => {
+    const shopInfo = SHOP_TITLES[id];
+    if (!shopInfo) return null;
+    return {
+      id: shopInfo.id,
+      label: shopInfo.label,
+      shortLabel: shopInfo.label,
+      icon: shopInfo.sprite,
+      color: '#3b82f6',
+      bg: 'linear-gradient(135deg, rgba(59,130,246,.25), rgba(15,23,42,.65))',
+      description: 'Adquirido na Loja de Prestigio.',
+      isShopTitle: true,
+      unlocked: true,
+      source: 'Prestigio',
+    };
+  }).filter(Boolean);
+
+  return [...achievementTitles, ...shopTitles].map(title => ({
+    ...title,
+    unlocked: title.unlocked || unlockedIds.has(title.id),
+  }));
+};
+
 export const getPrimaryTrainerTitle = (context = {}) => {
   const unlocked = getUnlockedTrainerTitles(context);
   return unlocked.at(-1) || null;

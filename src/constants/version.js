@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.1.4';
-export const VERSION = '2.1.4';
-export const APP_VERSION_DATE = '17/05/2026 22:40';
+export const APP_VERSION = '2.1.5';
+export const VERSION = '2.1.5';
+export const APP_VERSION_DATE = '17/05/2026 22:56';
 export const CHANGELOG = [
+  '## [V2.1.5] - 17/05/2026 22:56',
+  '### Bloco 2 — Modais, Drops, Titulos e Progresso',
+  '- **Drops raros**: adicionado modal padronizado para itens raros e fragmentos de Mega Pedra, com icone tematico, descricao e leitura segura em mobile.',
+  '- **Receitas e feedback**: receitas encontradas agora carregam dados de origem do Pokemon para orientar melhor o jogador antes de ir para a Forja.',
+  '- **Titulos como colecao**: seletor do Trainer Card mostra titulos desbloqueados e bloqueados, contador total e condicao de conquista.',
+  '- **Progresso regional**: nova tela no MENU mostrando Dex, rotas, insignias e Liga por regiao liberada.',
+  '',
   '## [V2.1.4] - 17/05/2026 22:40',
   '### Auditoria e Balanceamento Automatico',
   '- **Auditoria de conteudo no build**: `npm run build` agora valida Pokedex base, referencias de rotas, backgrounds, saltos de nivel e treinadores abaixo do minimo esperado.',

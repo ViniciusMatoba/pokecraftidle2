@@ -1,12 +1,27 @@
 import React, { useState } from 'react';
 import { deleteUserAccount } from '../auth';
 import PrivacyModal from './PrivacyModal';
-import { APP_VERSION, APP_VERSION_DATE, ITEM_LABELS } from '../data/constants';
+import {
+  ALOLA_BADGE_IDS,
+  APP_VERSION,
+  APP_VERSION_DATE,
+  BADGE_IDS,
+  GALAR_BADGE_IDS,
+  HISUI_BADGE_IDS,
+  HOENN_BADGE_IDS,
+  ITEM_LABELS,
+  JOHTO_BADGE_IDS,
+  KALOS_BADGE_IDS,
+  PALDEA_BADGE_IDS,
+  SINNOH_BADGE_IDS,
+  UNOVA_BADGE_IDS,
+} from '../data/constants';
 import { CANDY_FAMILIES, getCandyIconUrl } from '../data/candies';
 import { EXP_CANDIES } from '../data/raids';
 import { claimLoginReward, claimMissionReward, formatRewardSummary, getRetentionViewModel } from '../data/retention';
 import { getJourneyGuide } from '../data/journeyGuide';
 import { getMegaSprite } from '../data/megaEvolutions';
+import { ROUTES, inferRouteRegion, isRouteUnlocked } from '../data/routes';
 
 const CURRENT_VERSION = APP_VERSION || '1.4';
 const VERSION_DATE = APP_VERSION_DATE || '2026-04-23';
@@ -14,6 +29,19 @@ const POKEAPI_ITEM = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/s
 const assetPath = (path) => `${(import.meta.env.BASE_URL || '/').replace(/\/$/, '')}${path}`;
 
 const fmtNumber = (value) => Number(value || 0).toLocaleString('pt-BR');
+
+const REGION_PROGRESS = [
+  { id: 'kanto', label: 'Kanto', min: 1, max: 151, start: 'has_starter', champion: 'champion', badges: BADGE_IDS, icon: `${POKEAPI_ITEM}poke-ball.png` },
+  { id: 'johto', label: 'Johto', min: 152, max: 251, start: 'johto_started', champion: 'johto_champion', badges: JOHTO_BADGE_IDS, icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/249.png' },
+  { id: 'hoenn', label: 'Hoenn', min: 252, max: 386, start: 'hoenn_started', champion: 'hoenn_champion', badges: HOENN_BADGE_IDS, icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/384.png' },
+  { id: 'sinnoh', label: 'Sinnoh', min: 387, max: 493, start: 'sinnoh_started', champion: 'sinnoh_champion', badges: SINNOH_BADGE_IDS, icon: `${POKEAPI_ITEM}explorer-kit.png` },
+  { id: 'unova', label: 'Unova', min: 494, max: 649, start: 'unova_started', champion: 'unova_champion', badges: UNOVA_BADGE_IDS, icon: `${POKEAPI_ITEM}liberty-pass.png` },
+  { id: 'kalos', label: 'Kalos', min: 650, max: 721, start: 'kalos_started', champion: 'kalos_champion', badges: KALOS_BADGE_IDS, icon: `${POKEAPI_ITEM}fairy-gem.png` },
+  { id: 'alola', label: 'Alola', min: 722, max: 809, start: 'alola_started', champion: 'alola_champion', badges: ALOLA_BADGE_IDS, icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/791.png' },
+  { id: 'galar', label: 'Galar', min: 810, max: 905, start: 'galar_started', champion: 'galar_champion', badges: GALAR_BADGE_IDS, icon: `${POKEAPI_ITEM}dynamax-band.png` },
+  { id: 'hisui', label: 'Hisui', min: 1, max: 493, start: 'hisui_started', champion: 'hisui_champion', badges: HISUI_BADGE_IDS, icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/493.png' },
+  { id: 'paldea', label: 'Paldea', min: 906, max: 1025, start: 'paldea_started', champion: 'paldea_champion', badges: PALDEA_BADGE_IDS, icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1007.png' },
+];
 
 const formatPlayTime = (ms = 0) => {
   const totalMinutes = Math.max(0, Math.floor(ms / 60000));
@@ -325,6 +353,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
     { id: 'missions', name: 'Missoes',        icon: '/assets/icons/quests.webp',             desc: 'Login diario e metas',    color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
     { id: 'friends',  name: 'Rede de Amigos', icon: `${POKEAPI_ITEM}vs-seeker.png`,        desc: 'Amigos, batalhas e desafios', color: 'bg-blue-50 border-blue-200 text-blue-700', badge: pendingFriendRequestsCount },
     { id: 'stats',    name: 'Estatisticas',   icon: `${POKEAPI_ITEM}data-card-01.png`,      desc: 'Dados da Jornada',        color: 'bg-cyan-50 border-cyan-200 text-cyan-700' },
+    { id: 'regions',  name: 'Progresso Regional', icon: `${POKEAPI_ITEM}town-map.png`,      desc: 'Dex, rotas, insignias e liga', color: 'bg-emerald-50 border-emerald-200 text-emerald-700' },
     { id: 'settings', name: 'Configuracoes',  icon: `${POKEAPI_ITEM}vs-seeker.png`,         desc: 'Ajustes do sistema',      color: 'bg-indigo-50 border-indigo-200 text-indigo-600' },
     { id: 'save',     name: 'Salvar Jogo',    icon: '💾',                                   desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
     { id: 'exit',     name: 'Sair do Jogo',   icon: `${POKEAPI_ITEM}escape-rope.png`,       desc: 'Voltar ao inicio',        color: 'bg-slate-50 border-slate-200 text-slate-600' },
@@ -362,6 +391,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
             else if (item.id === 'settings') setSubView('settings');
             else if (item.id === 'backpack') setSubView('backpack');
             else if (item.id === 'stats') setSubView('stats');
+            else if (item.id === 'regions') setSubView('regions');
             else if (item.id === 'missions') setSubView('missions');
             else if (item.id === 'guide') setSubView('guide');
             else if (item.id === 'friends') { if (onOpenFriends) onOpenFriends(); }
@@ -775,6 +805,85 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
     );
   };
 
+  const renderRegionalProgress = () => {
+    const flags = new Set(gameState?.worldFlags || []);
+    const badges = new Set([...(gameState?.badges || []).map(String), ...(gameState?.worldFlags || []).map(String)]);
+    const caughtIds = new Set(Object.keys(gameState?.caughtData || {}).map(Number).filter(Boolean));
+    const allRoutes = Object.values(ROUTES || {});
+
+    const regions = REGION_PROGRESS.map(region => {
+      const unlocked = region.id === 'kanto' || flags.has(region.start) || flags.has(region.champion) || flags.has(`region_champion_${region.id}`);
+      const routeList = allRoutes.filter(route => inferRouteRegion(route.id, route.group).id === region.id && route.type === 'farm');
+      const unlockedRoutes = routeList.filter(route => isRouteUnlocked(route, gameState)).length;
+      const caught = [...caughtIds].filter(id => id >= region.min && id <= region.max).length;
+      const dexTotal = region.max - region.min + 1;
+      const badgeCount = region.badges.filter(id => badges.has(id)).length;
+      const champion = flags.has(region.champion) || flags.has(`region_champion_${region.id}`) || (region.id === 'kanto' && flags.has('champion'));
+      const pct = Math.round(((caught / dexTotal) * 0.45 + (badgeCount / Math.max(1, region.badges.length)) * 0.35 + (champion ? 0.2 : 0)) * 100);
+      return { ...region, unlocked, routeList, unlockedRoutes, caught, dexTotal, badgeCount, champion, pct };
+    }).filter(region => region.unlocked);
+
+    return (
+      <div className="animate-slideUp flex flex-col gap-4">
+        <div className="rounded-[2rem] bg-gradient-to-br from-emerald-600 to-slate-900 p-5 text-white shadow-xl border-b-8 border-emerald-950 relative overflow-hidden">
+          <img src={`${POKEAPI_ITEM}town-map.png`} alt="" className="absolute -right-4 -top-5 h-28 w-28 rotate-12 opacity-20" />
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-200">Mapa de progresso</p>
+          <h3 className="mt-1 text-2xl font-black uppercase italic leading-none">Progresso Regional</h3>
+          <p className="mt-2 text-xs font-bold text-white/80">
+            Acompanhe Pokedex, rotas, insignias e Liga de cada regiao liberada.
+          </p>
+        </div>
+
+        <div className="grid gap-3">
+          {regions.map(region => (
+            <div key={region.id} className="rounded-[1.5rem] border-2 border-slate-100 bg-white p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-slate-100 bg-slate-50">
+                  <img src={region.icon} alt="" className="h-10 w-10 object-contain" onError={e => { e.currentTarget.style.display = 'none'; }} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <h4 className="text-lg font-black uppercase italic leading-none text-slate-800">{region.label}</h4>
+                    <span className="rounded-full bg-slate-900 px-2 py-1 text-[10px] font-black text-white">{region.pct}%</span>
+                  </div>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+                    <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-blue-500" style={{ width: `${Math.max(4, region.pct)}%` }} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-4 gap-2">
+                <div className="rounded-xl bg-red-50 p-2 text-center">
+                  <p className="text-[8px] font-black uppercase text-red-400">Dex</p>
+                  <p className="text-sm font-black text-red-700">{region.caught}/{region.dexTotal}</p>
+                </div>
+                <div className="rounded-xl bg-yellow-50 p-2 text-center">
+                  <p className="text-[8px] font-black uppercase text-yellow-500">Badges</p>
+                  <p className="text-sm font-black text-yellow-700">{region.badgeCount}/{region.badges.length}</p>
+                </div>
+                <div className="rounded-xl bg-blue-50 p-2 text-center">
+                  <p className="text-[8px] font-black uppercase text-blue-400">Rotas</p>
+                  <p className="text-sm font-black text-blue-700">{region.unlockedRoutes}/{region.routeList.length}</p>
+                </div>
+                <div className="rounded-xl bg-purple-50 p-2 text-center">
+                  <p className="text-[8px] font-black uppercase text-purple-400">Liga</p>
+                  <p className="text-sm font-black text-purple-700">{region.champion ? 'OK' : '-'}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => setSubView('main')}
+          className="w-full rounded-2xl border-b-8 border-slate-900 bg-slate-800 py-5 font-black uppercase tracking-widest text-white shadow-lg transition-all hover:bg-slate-700"
+        >
+          Voltar ao Menu
+        </button>
+      </div>
+    );
+  };
+
   const renderGuide = () => {
     const guide = getJourneyGuide(gameState);
     const goToRoute = (routeId) => {
@@ -1129,22 +1238,26 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
       ? 'Mochila'
       : subView === 'stats'
         ? 'Estatisticas'
-        : subView === 'missions'
-          ? 'Missoes'
-          : subView === 'guide'
-            ? 'Guia'
-            : 'Menu Principal';
+        : subView === 'regions'
+          ? 'Regioes'
+          : subView === 'missions'
+            ? 'Missoes'
+            : subView === 'guide'
+              ? 'Guia'
+              : 'Menu Principal';
   const screenIcon = subView === 'settings'
     ? `${POKEAPI_ITEM}vs-seeker.png`
     : subView === 'stats'
       ? `${POKEAPI_ITEM}data-card-01.png`
-      : subView === 'backpack'
-        ? `${POKEAPI_ITEM}bag.png`
-        : subView === 'missions'
-          ? assetPath('/assets/icons/quests.webp')
-          : subView === 'guide'
-            ? `${POKEAPI_ITEM}town-map.png`
-            : `${POKEAPI_ITEM}poke-doll.png`;
+      : subView === 'regions'
+        ? `${POKEAPI_ITEM}town-map.png`
+        : subView === 'backpack'
+          ? `${POKEAPI_ITEM}bag.png`
+          : subView === 'missions'
+            ? assetPath('/assets/icons/quests.webp')
+            : subView === 'guide'
+              ? `${POKEAPI_ITEM}town-map.png`
+              : `${POKEAPI_ITEM}poke-doll.png`;
 
   return (
     <div className="h-full bg-slate-100 animate-fadeIn relative overflow-y-auto custom-scrollbar pt-12 pb-24">
@@ -1162,7 +1275,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
           </h2>
         </div>
 
-        {subView === 'main' ? renderMain() : subView === 'settings' ? renderSettings() : subView === 'stats' ? renderStats() : subView === 'missions' ? renderMissions() : subView === 'guide' ? renderGuide() : renderBackpack()}
+        {subView === 'main' ? renderMain() : subView === 'settings' ? renderSettings() : subView === 'stats' ? renderStats() : subView === 'regions' ? renderRegionalProgress() : subView === 'missions' ? renderMissions() : subView === 'guide' ? renderGuide() : renderBackpack()}
 
         {subView === 'main' && (
           <button
