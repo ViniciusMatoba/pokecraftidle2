@@ -217,12 +217,12 @@ export const RAID_POKEMON_POOL = {
   hisui: [
     { id: 399, stars: 1, level: 20, name: 'Bidoof'        },
     { id: 396, stars: 1, level: 22, name: 'Starly'        },
-    { id:  58, stars: 2, level: 35, name: 'Growlithe-H'   }, // forma Hisuiana
-    { id: 211, stars: 2, level: 38, name: 'Qwilfish-H'    }, // forma Hisuiana
-    { id: 215, stars: 3, level: 45, name: 'Sneasel-H'     }, // forma Hisuiana
-    { id: 100, stars: 3, level: 48, name: 'Voltorb-H'     }, // forma Hisuiana
+    { id:  58, stars: 2, level: 35, name: 'Growlithe-H', formKey: 'growlithe-hisui' },
+    { id: 211, stars: 2, level: 38, name: 'Qwilfish-H',  formKey: 'qwilfish-hisui'  },
+    { id: 215, stars: 3, level: 45, name: 'Sneasel-H',   formKey: 'sneasel-hisui'   },
+    { id: 100, stars: 3, level: 48, name: 'Voltorb-H',   formKey: 'voltorb-hisui'   },
     { id: 900, stars: 4, level: 55, name: 'Kleavor'       },
-    { id: 713, stars: 4, level: 58, name: 'Avalugg-H'     }, // forma Hisuiana
+    { id: 713, stars: 4, level: 58, name: 'Avalugg-H',   formKey: 'avalugg-hisui'   },
     { id: 445, stars: 4, level: 62, name: 'Garchomp'      },
     { id: 487, stars: 5, level: 72, name: 'Giratina'      , isShinyLocked: true },
     { id: 493, stars: 5, level: 80, name: 'Arceus'        , isShinyLocked: true },
@@ -321,6 +321,7 @@ export const createRaid = (region = 'kanto', pokedex = {}, badgeCount = 0) => {
   return {
     id: `raid_${Date.now()}`,
     pokemonId: template.id,
+    formKey: template.formKey || null,
     name: base.name || template.name,
     level,
     stars: template.stars,

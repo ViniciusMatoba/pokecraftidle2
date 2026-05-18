@@ -1187,6 +1187,7 @@ export default function App() {
       raidName: raid.name,
       stars: raid.stars,
       pokemonId: raid.pokemonId,
+      formKey: raid.formKey || null,
       ...(messages[status] || messages.failed),
     });
   }, []);
@@ -11110,7 +11111,9 @@ export default function App() {
               <div className="flex items-center gap-3">
                 <div className="h-14 w-14 shrink-0 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
                   <img
-                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${raidRouteNotice.pokemonId}.png`}
+                    src={raidRouteNotice.formKey
+                      ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/forms/${raidRouteNotice.formKey}.png`
+                      : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${raidRouteNotice.pokemonId}.png`}
                     alt={raidRouteNotice.raidName}
                     className="h-12 w-12 object-contain"
                     style={{ imageRendering: 'pixelated' }}
@@ -11247,9 +11250,11 @@ export default function App() {
                     background: 'rgba(239,68,68,0.1)', position: 'relative',
                   }}>
                     <img
-                      src={pendingAlphaCapture.raid.isShiny
-                        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pendingAlphaCapture.raid.pokemonId}.png`
-                        : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pendingAlphaCapture.raid.pokemonId}.png`}
+                      src={pendingAlphaCapture.raid.formKey
+                        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/forms/${pendingAlphaCapture.raid.formKey}.png`
+                        : pendingAlphaCapture.raid.isShiny
+                          ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pendingAlphaCapture.raid.pokemonId}.png`
+                          : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pendingAlphaCapture.raid.pokemonId}.png`}
                       alt="alfa"
                       style={{ width: 70, height: 70, objectFit: 'contain', imageRendering: 'pixelated',
                         transform: 'scale(1.3)', filter: 'drop-shadow(0 0 6px #ef4444)' }}

@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.4.2';
-export const VERSION = '2.4.2';
-export const APP_VERSION_DATE = '18/05/2026 16:02';
+export const APP_VERSION = '2.5.0';
+export const VERSION = '2.5.0';
+export const APP_VERSION_DATE = '18/05/2026 16:10';
 export const CHANGELOG = [
+  '## [V2.5.0] - 18/05/2026 16:10',
+  '### Formas Regionais Hisuianas',
+  '- **Sprites corretos**: Raids com formas Hisuianas (Growlithe-H, Qwilfish-H, Sneasel-H, Voltorb-H, Avalugg-H) agora exibem o sprite da forma regional correta via PokeAPI forms.',
+  '- **formKey propagado**: Campo `formKey` adicionado nas entradas de raid e propagado para todo o fluxo (captura, notificação de rota, Alpha).',
+  '- **Pokedex corrigido**: Entrada #20157 renomeada de "Mega Typhlosion" para "Typhlosion Hisui" com flags `isRegionalForm` e `formRegion`.',
+  '',
   '## [V2.4.2] - 18/05/2026 16:02',
   '### UI/UX Mobile',
   '- **Touch Targets**: Os botões de fechar (X) de todos os modais (Forja, Quest, Oak, Confirmação, Títulos e Trainer Card) foram ampliados para um alvo mínimo de toque de 44x44px (`w-11 h-11`), melhorando a usabilidade em dispositivos móveis.',
