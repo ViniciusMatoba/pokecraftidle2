@@ -1063,6 +1063,63 @@ export const FORGE_MATERIAL_DROP_GUIDE = {
     requiredRegion: 'kalos',
     requiredFlag: 'mega_evolution_unlocked',
   },
+
+  // ── Pools por Era — controlam quais Pokémon dropam TMs de cada geração ────
+  early_tm_pool: {
+    pokemonIds: [
+      // Kanto (Gen 1)
+      16, 19, 21, 25, 27, 29, 32, 41, 43, 46, 50, 52, 54, 56, 58, 60,
+      63, 66, 69, 74, 77, 79, 81, 84, 86, 88, 90, 92, 95, 96, 98, 100,
+      102, 104, 109, 111, 114, 116, 118, 120, 123, 125, 126, 128, 129, 133,
+      // Johto (Gen 2)
+      152, 155, 158, 161, 163, 165, 167, 177, 187, 191, 194, 198, 204,
+      209, 213, 215, 218, 220, 223, 225, 228,
+    ],
+    routeId: 'route_1',
+    label: 'TMs clássicos (Gen 1-2) — derrote Pokémon de Kanto e Johto.',
+  },
+  mid_tm_pool: {
+    pokemonIds: [
+      // Hoenn (Gen 3)
+      261, 263, 265, 270, 273, 278, 283, 285, 287, 296, 300, 316, 325,
+      333, 335, 341, 343, 345, 347, 349, 351, 353, 355, 357, 359, 361, 363,
+      // Sinnoh (Gen 4)
+      396, 399, 401, 404, 406, 408, 412, 418, 420, 422, 425, 427, 431,
+      434, 436, 438, 440, 442, 443, 446, 447,
+    ],
+    routeId: 'hoenn_route_101',
+    label: 'TMs intermediários (Gen 3-4) — derrote Pokémon de Hoenn e Sinnoh.',
+  },
+  late_tm_pool: {
+    pokemonIds: [
+      // Unova (Gen 5)
+      504, 506, 509, 511, 513, 515, 517, 519, 522, 524, 527, 529, 531,
+      533, 535, 540, 543, 546, 548, 550, 551, 554, 557, 560, 562, 564,
+      566, 568, 572, 574, 577, 580, 582, 585, 587, 588, 590, 592, 595,
+      597, 599, 602, 605, 607, 610, 613, 616, 619, 621, 622, 624, 627,
+      629, 631, 633, 636,
+      // Kalos (Gen 6)
+      661, 664, 669, 672, 674, 676, 677, 682, 684, 686, 688, 690, 692,
+      694, 696, 698, 700, 701, 702, 704, 706,
+    ],
+    routeId: 'unova_route_1',
+    label: 'TMs avançados (Gen 5-6) — derrote Pokémon de Unova e Kalos.',
+  },
+  endgame_tm_pool: {
+    pokemonIds: [
+      // Alola (Gen 7)
+      731, 734, 736, 742, 744, 749, 751, 753, 755, 757, 761, 764,
+      766, 767, 769, 771, 778, 780, 781,
+      // Galar (Gen 8)
+      821, 824, 829, 831, 835, 837, 840, 843, 846, 848, 850, 852,
+      854, 856, 859, 862, 863, 864, 865, 868, 872,
+      // Paldea (Gen 9)
+      906, 909, 912, 915, 917, 919, 921, 923, 925, 928, 931, 935,
+      938, 940, 944, 946, 950, 953, 955, 957, 962, 965, 968, 971,
+    ],
+    routeId: 'melemele_island',
+    label: 'TMs end-game (Gen 7-9) — derrote Pokémon de Alola, Galar e Paldea.',
+  },
 };
 
 const ALL_FORGE_RECIPES_WITH_CATEGORY = Object.entries(CRAFTING_RECIPES).flatMap(([category, recipes]) =>
@@ -1072,9 +1129,90 @@ const ALL_FORGE_RECIPES = ALL_FORGE_RECIPES_WITH_CATEGORY;
 export const FORGE_RECIPE_IDS = [...new Set(ALL_FORGE_RECIPES.map(recipe => recipe.id))];
 export const RECIPE_GATED_FORGE_IDS = new Set(FORGE_RECIPE_IDS);
 
+// ── Classificação de TMs por Era ──────────────────────────────────────────────
+// Cada TM é classificado na geração em que foi introduzido como TM.
+// Isso garante que TMs de Gen 9 não caiam de Pidgey e Rattata.
+const EARLY_TM_IDS = new Set([
+  // Gen 1
+  'agility','amnesia','bide','blizzard','body-slam','bubble-beam','confuse-ray',
+  'counter','dig','double-edge','double-team','dragon-rage','dream-eater','egg-bomb',
+  'explosion','fire-blast','fire-punch','fire-spin','fissure','flash','flamethrower',
+  'fly','haze','horn-drill','hydro-pump','hyper-beam','ice-beam','ice-punch',
+  'light-screen','low-kick','mega-drain','mega-kick','mega-punch','metronome','mimic',
+  'night-shade','pay-day','pin-missile','psybeam','psychic','psywave','rage',
+  'razor-wind','reflect','rest','roar','rock-slide','screech','seismic-toss',
+  'self-destruct','skull-bash','sky-attack','soft-boiled','solar-beam','submission',
+  'substitute','super-fang','surf','swift','swords-dance','take-down','teleport',
+  'thunder','thunder-punch','thunder-wave','thunderbolt','toxic','tri-attack',
+  'water-gun','waterfall','whirlwind',
+  // Gen 2
+  'attract','baton-pass','beat-up','charm','crunch','curse','defense-curl','detect',
+  'dragon-breath','dynamic-punch','encore','endure','false-swipe','frustration',
+  'fury-cutter','future-sight','giga-drain','headbutt','hidden-power','icy-wind',
+  'iron-tail','megahorn','metal-claw','mud-slap','nightmare','pain-split','protect',
+  'psych-up','rain-dance','return','reversal','rock-smash','rollout','safeguard',
+  'sandstorm','scary-face','shadow-ball','sleep-talk','sludge-bomb','snore','spikes',
+  'spite','steel-wing','sunny-day','swagger','sweet-scent','thief','whirlpool',
+  'zap-cannon',
+]);
+
+const MID_TM_IDS = new Set([
+  // Gen 3
+  'aerial-ace','air-cutter','blast-burn','bounce','brick-break','bulk-up',
+  'bullet-seed','calm-mind','charge','dive','dragon-claw','dragon-dance','endeavor',
+  'facade','fake-tears','feather-dance','focus-punch','frenzy-plant','hail',
+  'heat-wave','helping-hand','hydro-cannon','hyper-voice','icicle-spear','imprison',
+  'iron-defense','knock-off','magical-leaf','metal-sound','mud-shot','muddy-water',
+  'nature-power','overheat','poison-tail','recycle','revenge','rock-blast','rock-tomb',
+  'sand-tomb','secret-power','shock-wave','silver-wind','skill-swap','snatch',
+  'superpower','taunt','torment','trick','uproar','water-pulse','weather-ball',
+  'will-o-wisp',
+  // Gen 4
+  'air-slash','assurance','aura-sphere','avalanche','brave-bird','brine','bug-bite',
+  'bug-buzz','captivate','charge-beam','close-combat','cross-poison','dark-pulse',
+  'draco-meteor','drain-punch','earth-power','embargo','energy-ball','fire-fang',
+  'flare-blitz','flash-cannon','fling','focus-blast','giga-impact','gravity',
+  'guard-swap','gunk-shot','gyro-ball','ice-fang','iron-head','leaf-storm',
+  'nasty-plot','natural-gift','outrage','payback','pluck','poison-jab','power-gem',
+  'power-swap','psycho-cut','rock-polish','roost','seed-bomb','shadow-claw',
+  'stealth-rock','stone-edge','tailwind','thunder-fang','toxic-spikes','trick-room',
+  'u-turn','vacuum-wave','x-scissor','zen-headbutt',
+]);
+
+const LATE_TM_IDS = new Set([
+  // Gen 5
+  'acid-spray','acrobatics','ally-switch','bulldoze','dragon-tail','drill-run',
+  'echoed-voice','electro-ball','electroweb','fire-pledge','flame-charge','foul-play',
+  'frost-breath','grass-knot','grass-pledge','heat-crash','heavy-slam','hex',
+  'hone-claws','hurricane','incinerate','low-sweep','magic-room','psyshock','quash',
+  'razor-shell','retaliate','round','scald','sky-drop','sludge-wave','smack-down',
+  'snarl','stored-power','struggle-bug','tail-slap','telekinesis','venoshock',
+  'volt-switch','water-pledge','wild-charge','wonder-room','work-up',
+  // Gen 6
+  'confide','dazzling-gleam','disarming-voice','draining-kiss','eerie-impulse',
+  'electric-terrain','grassy-terrain','infestation','misty-terrain','mystical-fire',
+  'petal-blizzard','phantom-force','play-rough','power-up-punch',
+]);
+
+// Tudo não listado acima = Gen 7-9 → endgame_tm_pool
+const _buildTmEraOverrides = () => {
+  const overrides = {};
+  OFFICIAL_TM_MOVE_IDS.forEach(moveId => {
+    const tmId = 'tm_' + moveId.replace(/-/g, '_');
+    if (EARLY_TM_IDS.has(moveId))     overrides[tmId] = 'early_tm_pool';
+    else if (MID_TM_IDS.has(moveId))  overrides[tmId] = 'mid_tm_pool';
+    else if (LATE_TM_IDS.has(moveId)) overrides[tmId] = 'late_tm_pool';
+    else                               overrides[tmId] = 'endgame_tm_pool';
+  });
+  return overrides;
+};
+const TM_ERA_OVERRIDES = _buildTmEraOverrides();
+
 // ── Mapa de onde cada receita é dropada (Pokémon fonte → material fonte) ──────
 // Receitas de itens iniciais devem dropar de Pokémon das rotas iniciais!
 const RECIPE_SOURCE_OVERRIDES = {
+  // TMs — geração-gated: cada TM só dropa de Pokémon da sua era
+  ...TM_ERA_OVERRIDES,
   // Consumíveis básicos — rotas iniciais (Route 1/2/3)
   pokeballs:   'normal_essence',   // Pidgey, Rattata (Route 1) ← antes apricorn (Johto!)
   great_ball:  'iron_ore',         // Geodude, Onix (Mt. Moon)
