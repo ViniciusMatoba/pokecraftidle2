@@ -22,6 +22,11 @@ service cloud.firestore {
       allow read, write: if isOwner(uid);
     }
 
+    // Snapshots diarios de backup: apenas o proprio jogador acessa.
+    match /saves/{uid}/snapshots/{day} {
+      allow read, write: if isOwner(uid);
+    }
+
     // Perfis publicos: qualquer autenticado le, so o dono escreve.
     match /users/{uid} {
       allow read: if isAuth();

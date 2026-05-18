@@ -1,5 +1,5 @@
 {
-  "version": "2.2.2",
+  "version": "2.3.0",
   "date": "18/05/2026 07:32",
-  "notes": "Safari Zone funcionando com modal de entrada, taxa e Safari Balls. Icone EXP Share corrigido. Sprites das Megas Z-A corrigidos (Tatsugiri Curly). Progresso offline aprimorado."
+  "notes": "Save Fortress: debounce 45s, dirty flag, retry com backoff, snapshot diario, export/import de save, validacao de tamanho. Saves nunca perdidos."
 }

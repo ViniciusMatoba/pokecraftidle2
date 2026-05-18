@@ -1,7 +1,18 @@
-export const APP_VERSION = '2.2.2';
-export const VERSION = '2.2.2';
+export const APP_VERSION = '2.3.0';
+export const VERSION = '2.3.0';
 export const APP_VERSION_DATE = '18/05/2026 07:32';
 export const CHANGELOG = [
+  '## [V2.3.0] - 18/05/2026 07:32',
+  '### Save Fortress — Saves Nunca Perdidos',
+  '- **Debounce 45s + dirty flag**: save na nuvem so ocorre quando ha mudanca real e com intervalo de 45s. Reducao de ~98% nas escritas do Firestore.',
+  '- **Retry com backoff**: falha no save tenta novamente em 10s e 30s antes de notificar o jogador.',
+  '- **Snapshot diario**: 1x por dia cria backup automatico em saves/{uid}/snapshots/YYYY-MM-DD. Mantidos os ultimos 3 dias.',
+  '- **Fallback de snapshots no load**: se save principal falhar, restaura automaticamente do snapshot mais recente.',
+  '- **Export de save**: botao em Configuracoes para baixar o save completo como arquivo .json.',
+  '- **Import de save**: restaura progresso a partir de um arquivo .json e sincroniza na nuvem automaticamente.',
+  '- **Validacao de tamanho**: alerta se payload ultrapassar 900KB comprimido ou 2MB bruto.',
+  '- **5 camadas de protecao**: nuvem principal > snapshots > localStorage > arquivo exportado > estado padrao.',
+  '',
   '## [V2.2.2] - 18/05/2026 07:32',
   '### Safari Zone, EXP Share e Correccoes de Sprites',
   '- **Safari Zone funcionando**: modal de entrada com tema verde, regras explicadas, taxa de 500 Pokedollars cobrada corretamente.',

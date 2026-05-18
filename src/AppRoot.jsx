@@ -708,22 +708,49 @@ export default function App() {
   }, []);
 
   const loadGameState = async (uid) => {
+    // 1. Tenta o save principal
     try {
       const docRef = doc(db, "saves", uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
-        // New compressed format
         if (data.compressedState) {
           const decompressed = LZString.decompress(data.compressedState);
-          if (decompressed) return JSON.parse(decompressed);
+          if (decompressed) {
+            const parsed = JSON.parse(decompressed);
+            if (parsed) return parsed;
+          }
         }
-        // Legacy uncompressed format
-        if (data.gameState) return data.gameState;
+        if (data.gameState) return data.gameState; // legado não comprimido
       }
     } catch (e) {
-      console.error("Error loading cloud save:", e);
+      console.error('[Load] Falha no save principal:', e);
     }
+
+    // 2. Fallback: tenta os snapshots diários (últimos 3 dias, mais recente primeiro)
+    try {
+      const { getDocs, collection, orderBy, limit, query } = await import('firebase/firestore');
+      const snapshotsRef = collection(db, 'saves', uid, 'snapshots');
+      const q = query(snapshotsRef, orderBy('createdAt', 'desc'), limit(3));
+      const snaps = await getDocs(q);
+      for (const snap of snaps.docs) {
+        const data = snap.data();
+        if (data.compressedState) {
+          const decompressed = LZString.decompress(data.compressedState);
+          if (decompressed) {
+            const parsed = JSON.parse(decompressed);
+            if (parsed) {
+              console.warn(`[Load] Save principal falhou — restaurado do snapshot ${snap.id}`);
+              notify(`Save restaurado do backup de ${snap.id}. Verifique seu progresso.`, 'warning');
+              return parsed;
+            }
+          }
+        }
+      }
+    } catch (snapErr) {
+      console.warn('[Load] Fallback de snapshots falhou:', snapErr);
+    }
+
     return null;
   };
 
@@ -1015,6 +1042,9 @@ export default function App() {
   const lastSyncRef = useRef(0);
   const saveTimeoutRef = useRef(null);
   const bossSaveTimeoutRef = useRef(null);
+  const gameStateHashRef = useRef(null);   // dirty flag — hash do último estado salvo com sucesso
+  const saveRetryRef = useRef(0);          // contador de tentativas de retry de save
+  const saveRetryTimerRef = useRef(null);  // timer de retry de save
   // Guard: só permite save após o load do Firestore completar com sucesso
   const isFullyLoadedRef = useRef(false);
   // Ref para acessar gameState atual nos event listeners sem re-registrar
@@ -1841,9 +1871,22 @@ export default function App() {
     return () => clearInterval(interval);
   }, [addLog]);
 
-  // 2. Gatilhos de Salvamento na Nuvem (Debounced 5s)
-  // Baseado em: Fechamento de Modais ou Troca de Rota
-  const saveToCloud = useCallback(async (dataToSave) => {
+  // Helper: hash simples dos campos-chave do estado para dirty flag
+  const computeStateHash = (state) => {
+    try {
+      return JSON.stringify({
+        c: state.currency || 0,
+        t: (state.team || []).length,
+        cd: Object.keys(state.caughtData || {}).length,
+        wf: (state.worldFlags || []).length,
+        b: (state.badges || []).length,
+        inv: JSON.stringify(state.inventory?.materials || {}),
+      });
+    } catch { return null; }
+  };
+
+  // 2. Gatilhos de Salvamento na Nuvem (Debounced 45s + dirty flag + retry)
+  const saveToCloud = useCallback(async (dataToSave, { isRetry = false, retryCount = 0 } = {}) => {
     const user = auth.currentUser;
     if (!user) return;
 
@@ -1864,22 +1907,41 @@ export default function App() {
       return;
     }
 
+    // Dirty flag: não escreve no Firestore se o estado não mudou desde o último save
+    const currentHash = computeStateHash(dataToSave);
+    if (!isRetry && currentHash && currentHash === gameStateHashRef.current) {
+      console.log('[Save] Sem mudanças detectadas — save ignorado (dirty flag).');
+      return;
+    }
+
     try {
       const badgeCount = getBadgeCount(dataToSave);
       const powerScore = calculatePowerScore(dataToSave, POKEDEX);
+      const cleanState = removeUndefinedFields({ ...dataToSave, version: dataToSave.version || APP_VERSION });
+
+      // Validação de tamanho antes de salvar
+      const rawJson = JSON.stringify(cleanState);
+      if (rawJson.length > 2_000_000) {
+        notify('⚠️ Save muito grande. Alguns dados podem não ser salvos.', 'error');
+        console.error('[Save] Payload excede 2MB, save abortado.');
+        return;
+      }
+
+      const compressedState = LZString.compress(rawJson);
+      if (compressedState.length > 900_000) {
+        notify('⚠️ Save próximo do limite de tamanho. Contate o suporte.', 'warning');
+      }
 
       lastSyncRef.current = Date.now();
-      
-      // 1. Salva o estado completo do jogo (comprimido para respeitar limite de 1MB do Firestore)
-      const cleanState = removeUndefinedFields({ ...dataToSave, version: dataToSave.version || APP_VERSION });
-      const compressedState = LZString.compress(JSON.stringify(cleanState));
+
+      // 1. Salva o estado completo do jogo (comprimido)
       await setDoc(doc(db, "saves", user.uid), {
         compressedState,
         gameState: deleteField(),
         updatedAt: serverTimestamp()
       }, { merge: true });
 
-      // 2. Sincroniza dados públicos para o Ranking Global e sistema de amigos
+      // 2. Sincroniza dados públicos
       await setDoc(doc(db, "users", user.uid), {
         name: dataToSave.trainer?.name || "Treinador",
         nameLower: (dataToSave.trainer?.name || "Treinador").toLowerCase().trim(),
@@ -1898,16 +1960,14 @@ export default function App() {
         shinyCapturedCount: dataToSave.shinyCapturedCount || 0,
         trainerBattleWins: dataToSave.trainerBattleWins || 0,
         playerStats: dataToSave.playerStats || {},
-        // Aparência — necessário para renderizar o Trainer Card nos amigos
         appearance: dataToSave.appearance || {},
         selectedTitle: dataToSave.selectedTitle || null,
         prestige: dataToSave.prestige || {},
-        // Região — indica se o jogador tem região publicada para desafio
         hasRegion: !!(dataToSave.myRegion?.published),
         updatedAt: serverTimestamp()
       }, { merge: true });
 
-      // 3. Sincroniza região publicada em coleção separada
+      // 3. Sincroniza região publicada
       if (dataToSave.myRegion?.published) {
         await setDoc(doc(db, 'userRegions', user.uid), {
           ...(dataToSave.myRegion || {}),
@@ -1917,8 +1977,48 @@ export default function App() {
         }, { merge: true });
       }
 
+      // 4. Snapshot diário — 1 vez por dia, mantém os últimos 3 dias como backup
+      const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD UTC
+      const lastSnapshot = dataToSave.playerStats?.lastSnapshotDate;
+      if (lastSnapshot !== today) {
+        try {
+          await setDoc(doc(db, 'saves', user.uid, 'snapshots', today), {
+            compressedState,
+            createdAt: serverTimestamp()
+          });
+          // Atualiza lastSnapshotDate no estado local (sem disparar novo save)
+          setGameState(prev => ({
+            ...prev,
+            playerStats: { ...prev.playerStats, lastSnapshotDate: today }
+          }));
+          console.log(`[Save] Snapshot diário criado: ${today}`);
+        } catch (snapErr) {
+          console.warn('[Save] Snapshot diário falhou (não crítico):', snapErr);
+        }
+      }
+
+      // Save concluído com sucesso — atualiza dirty flag e reseta retry
+      gameStateHashRef.current = currentHash;
+      saveRetryRef.current = 0;
+      if (saveRetryTimerRef.current) { clearTimeout(saveRetryTimerRef.current); saveRetryTimerRef.current = null; }
+
     } catch (e) {
       console.error("Cloud Save Fail:", e);
+
+      // Retry com backoff exponencial: 10s, 30s, desiste na 3ª falha
+      const attempt = retryCount + 1;
+      if (attempt <= 2) {
+        const delay = attempt === 1 ? 10_000 : 30_000;
+        console.warn(`[Save] Tentativa ${attempt} falhou. Retry em ${delay / 1000}s...`);
+        if (saveRetryTimerRef.current) clearTimeout(saveRetryTimerRef.current);
+        saveRetryTimerRef.current = setTimeout(() => {
+          saveToCloud(dataToSave, { isRetry: true, retryCount: attempt });
+        }, delay);
+      } else {
+        // 3 falhas consecutivas — avisa o usuário
+        notify('⚠️ Não foi possível salvar na nuvem. Seu progresso está salvo localmente.', 'error');
+        saveRetryRef.current = 0;
+      }
     }
   }, []);
 
@@ -1994,7 +2094,7 @@ export default function App() {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
       saveToCloud(data).catch(e => console.error("Auto save fail:", e));
-    }, 5000);
+    }, 45_000); // 45s — equilibrio entre segurança e cota Firestore
   }, [saveToCloud]);
 
   // 3. beforeunload + visibilitychange — salva com lastSeenAt antes de fechar/minimizar
@@ -2092,6 +2192,49 @@ export default function App() {
       showConfirm({ type: 'error', title: 'Erro ao salvar', message: 'Não foi possível salvar na nuvem: ' + e.message, onConfirm: closeConfirm });
     }
   }, [gameState]);
+
+  // ── Export / Import de save como arquivo JSON ────────────────────────────────
+  const exportSave = useCallback(() => {
+    try {
+      const exportData = removeUndefinedFields({ ...gameState, _exportedAt: new Date().toISOString(), version: APP_VERSION });
+      const json = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const date = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `pokecraft_backup_${date}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      notify('✅ Backup exportado com sucesso!', 'success');
+    } catch (e) {
+      console.error('Export save fail:', e);
+      notify('Erro ao exportar backup.', 'error');
+    }
+  }, [gameState]);
+
+  const importSave = useCallback((file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        // Validação mínima
+        if (!parsed || typeof parsed !== 'object') throw new Error('Arquivo inválido');
+        const hasMinFields = (parsed.team !== undefined) || (parsed.currency !== undefined) || (parsed.worldFlags !== undefined);
+        if (!hasMinFields) throw new Error('Estrutura de save não reconhecida');
+        const migrated = migrateGameState(parsed, { version: APP_VERSION });
+        setGameState(migrated);
+        // Salva na nuvem imediatamente após importar
+        saveToCloud({ ...migrated, _allowEmptySave: true });
+        notify('✅ Save importado e sincronizado na nuvem!', 'success');
+      } catch (e) {
+        console.error('Import save fail:', e);
+        notify(`Erro ao importar backup: ${e.message}`, 'error');
+      }
+    };
+    reader.readAsText(file);
+  }, [saveToCloud]);
 
   // ──────────────────────────────────────────────────────────────────────────────
   // Lê o campo "effect" do moves.js e retorna o que o golpe deve fazer
@@ -8290,6 +8433,8 @@ export default function App() {
           setGameState={setGameState}
           user={user}
           onSave={triggerSave}
+          onExportSave={exportSave}
+          onImportSave={importSave}
           MUSIC_LIST={MUSIC_LIST}
           onBack={() => setCurrentView(lastNonMenuView.current)}
           onUseExpCandy={handleUseExpCandy}

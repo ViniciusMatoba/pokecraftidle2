@@ -329,7 +329,7 @@ const ExpCandyModal = ({ candy, gameState, onUse, onClose }) => {
   );
 };
 
-const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0 }) => {
+const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onExportSave, onImportSave, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0 }) => {
   const [updating, setUpdating] = useState(false);
   const [subView, setSubView] = useState('main'); // 'main' ou 'settings'
   const [activeTab, setActiveTab] = useState('balls');
@@ -1185,6 +1185,44 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, MUS
               <p className="text-[9px] font-bold text-slate-400 italic px-2">Troque a música para entrar no clima!</p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Backup de Save */}
+      <div className="bg-blue-50 p-6 rounded-[2.5rem] shadow-xl border-b-8 border-blue-200">
+        <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-1 flex items-center gap-2">
+          <span className="text-lg">💾</span> Backup do Save
+        </h4>
+        <p className="text-[9px] text-blue-400 font-bold mb-4 leading-relaxed">
+          Exporte seu progresso como arquivo JSON ou restaure a partir de um backup anterior.
+          Snapshots automáticos diários também são criados na nuvem.
+        </p>
+        <div className="flex flex-col gap-3">
+          {/* Exportar */}
+          <button
+            type="button"
+            onClick={() => onExportSave?.()}
+            className="w-full py-4 rounded-xl font-black text-[11px] uppercase tracking-widest bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
+          >
+            <span>📥</span> Exportar Backup (.json)
+          </button>
+          {/* Importar */}
+          <label className="w-full py-4 rounded-xl font-black text-[11px] uppercase tracking-widest bg-white border-2 border-blue-300 text-blue-700 hover:border-blue-500 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer">
+            <span>📤</span> Importar Backup (.json)
+            <input
+              type="file"
+              accept=".json"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) onImportSave?.(file);
+                e.target.value = ''; // reset para permitir re-importar o mesmo arquivo
+              }}
+            />
+          </label>
+          <p className="text-[9px] text-blue-400 font-bold text-center leading-relaxed">
+            Importar substitui o save atual. Seus dados serão sincronizados na nuvem automaticamente.
+          </p>
         </div>
       </div>
 
