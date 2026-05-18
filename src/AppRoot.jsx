@@ -9711,7 +9711,7 @@ export default function App() {
                     '#475569'
                 }}
               >
-                <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
                     <img
                       src={
@@ -9727,7 +9727,7 @@ export default function App() {
                     <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">
                       {activeBuildingModal === 'mart' ? 'Suprimentos' : 'Crafting'}
                     </p>
-                    <h3 className="text-white text-lg font-black uppercase italic leading-tight truncate">
+                    <h3 className="text-white text-lg font-black uppercase italic leading-tight">
                       {activeBuildingModal === 'mart' ? 'Poke Mart' : 'Forja Pokemon'}
                     </h3>
                   </div>
@@ -9890,13 +9890,13 @@ export default function App() {
              onTouchStart={(e) => e.stopPropagation()}
            >
               <div className="bg-slate-700 px-5 py-4 flex items-center justify-between gap-3 shrink-0">
-                 <div className="flex items-center gap-3 min-w-0">
+                 <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dowsing-machine.png" className="w-9 h-9 object-contain" alt="" />
                     </div>
                     <div className="min-w-0">
                        <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">Guia de material</p>
-                       <h3 className="text-white text-lg font-black uppercase italic leading-tight truncate">Onde encontrar?</h3>
+                       <h3 className="text-white text-lg font-black uppercase italic leading-tight">Onde encontrar?</h3>
                     </div>
                  </div>
                  <button onClick={() => setActiveMaterialModal(null)} className="w-9 h-9 rounded-full bg-white/20 text-white font-black flex items-center justify-center hover:bg-white/30 transition-colors shrink-0" aria-label="Fechar">x</button>
@@ -9909,7 +9909,7 @@ export default function App() {
                     </div>
                     <div className="min-w-0">
                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Recurso</p>
-                       <h4 className="text-lg font-black text-slate-800 uppercase italic mt-1 truncate">{activeMaterialModal.replace(/_/g, ' ')}</h4>
+                       <h4 className="text-lg font-black text-slate-800 uppercase italic mt-1 leading-tight">{activeMaterialModal.replace(/_/g, ' ')}</h4>
                     </div>
                  </div>
 
@@ -9951,7 +9951,7 @@ export default function App() {
                   )}
                </div>
 
-              <div className="px-5 pt-3 pb-6 border-t border-slate-100 shrink-0">
+              <div className="px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-100 shrink-0">
                  <button onClick={() => setActiveMaterialModal(null)} className="w-full min-h-[52px] bg-slate-800 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg">Entendido</button>
               </div>
            </div>

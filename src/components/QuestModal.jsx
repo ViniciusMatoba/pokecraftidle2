@@ -10,7 +10,7 @@ const QuestModal = ({ activeQuest, quest, onClose, onAccept, onDecline }) => {
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
       <div className="modal-panel-mobile bg-white shadow-2xl overflow-hidden flex flex-col border-b-[8px] border-blue-900 animate-bounceIn">
         <div className="bg-blue-600 px-5 py-4 flex items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
               <img src={data.icon} className="w-9 h-9 object-contain drop-shadow-md" alt="Missao" />
             </div>
@@ -18,7 +18,7 @@ const QuestModal = ({ activeQuest, quest, onClose, onAccept, onDecline }) => {
               <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">
                 {onAccept ? 'Nova Missao' : 'Missao Ativa'}
               </p>
-              <h3 className="text-white text-lg font-black uppercase italic leading-tight truncate">
+              <h3 className="text-white text-lg font-black uppercase italic leading-tight">
                 {data.title}
               </h3>
             </div>
@@ -43,7 +43,7 @@ const QuestModal = ({ activeQuest, quest, onClose, onAccept, onDecline }) => {
           </div>
         </div>
 
-        <div className="px-5 pt-3 pb-6 border-t border-slate-100 flex gap-3 shrink-0">
+        <div className="px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-100 flex gap-3 shrink-0">
           {onAccept ? (
             <>
               <button

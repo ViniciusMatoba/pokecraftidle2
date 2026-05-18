@@ -51,13 +51,13 @@ const ConfirmModal = ({
     <div className="fixed inset-0 z-[200000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
       <div className="modal-panel-mobile bg-white overflow-hidden shadow-2xl animate-slideInUp flex flex-col border-b-[8px] border-slate-200">
         <div className="px-5 py-4 flex items-center justify-between gap-3 shrink-0" style={{ background: meta.color }}>
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
               <img src={meta.icon} className="w-9 h-9 object-contain" alt="" />
             </div>
             <div className="min-w-0">
               <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{meta.subtitle}</p>
-              <h3 className="text-white text-lg font-black uppercase italic leading-tight truncate">
+              <h3 className="text-white text-lg font-black uppercase italic leading-tight">
                 {title || meta.title}
               </h3>
             </div>
@@ -73,11 +73,11 @@ const ConfirmModal = ({
 
         {message && (
           <div className="modal-scroll-content p-5">
-            <p className="text-slate-600 text-sm text-center leading-relaxed font-bold">{message}</p>
+            <p className="text-slate-700 text-[15px] text-center leading-relaxed font-bold">{message}</p>
           </div>
         )}
 
-        <div className="px-5 pt-3 pb-6 border-t border-slate-100 flex gap-3 shrink-0">
+        <div className="px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-100 flex gap-3 shrink-0">
           {!isAlert && (
             <button
               onClick={onCancel}

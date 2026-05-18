@@ -294,8 +294,8 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
               <p className="text-white/70 text-[10px] font-black uppercase tracking-widest leading-none mb-1 pr-6">
                 {gym.category === 'elite' ? 'Liga Pokemon' : 'Lider de Ginasio'}
               </p>
-              <h3 className="text-white text-3xl font-black uppercase italic leading-none tracking-tighter truncate">{gym.name}</h3>
-              <p className="mt-1 text-white/55 text-[10px] font-black uppercase tracking-widest truncate">{gym.city}</p>
+              <h3 className="text-white text-[clamp(1.75rem,8vw,2.25rem)] font-black uppercase italic leading-none tracking-tighter">{gym.name}</h3>
+              <p className="mt-1 text-white/55 text-[10px] font-black uppercase tracking-widest leading-tight">{gym.city}</p>
               <div className="mt-3 flex items-center gap-2">
                 <span className="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2 text-white text-[10px] font-black uppercase tracking-widest">
                   {gym.typeIcon && <img src={gym.typeIcon} className="w-3.5 h-3.5 invert" alt="" />}
@@ -367,7 +367,7 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
           )}
         </div>
 
-        <div className="px-5 pt-3 pb-6 border-t border-white/10 shrink-0 bg-slate-950">
+        <div className="px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-white/10 shrink-0 bg-slate-950">
           {!locked ? (
             <button onClick={() => { onChallenge(gym); onClose(); }} className={actionClass}>
               {earned ? 'Desafiar Novamente' : 'Desafiar Agora'}

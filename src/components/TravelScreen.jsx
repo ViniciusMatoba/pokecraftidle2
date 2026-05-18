@@ -518,7 +518,7 @@ const TravelScreen = ({
            {/* Modal de Detalhes da Rota */}
       {selectedRoute && typeof document !== 'undefined' && createPortal((
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 md:p-4 bg-slate-900/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white w-full max-w-[400px] md:max-w-md rounded-[2rem] shadow-2xl overflow-hidden flex flex-col animate-bounceIn" style={{ maxHeight: '94dvh' }}>
+          <div className="bg-white w-full max-w-[420px] md:max-w-md rounded-[2rem] shadow-2xl overflow-hidden flex flex-col animate-bounceIn" style={{ maxHeight: '94dvh' }}>
             <div className="overflow-y-auto custom-scrollbar flex-1">
             <div className="h-36 sm:h-40 relative flex-shrink-0">
               <img src={getBgPath(selectedRoute)} className="w-full h-full object-cover" alt="" />
@@ -531,7 +531,7 @@ const TravelScreen = ({
 
             <div className="p-5 sm:p-8 -mt-8 sm:-mt-10 relative z-10">
               <div className="flex justify-between items-start mb-1">
-                 <h2 className="text-3xl font-black text-slate-800 uppercase italic tracking-tighter">{selectedRoute.name}</h2>
+                 <h2 className="text-[clamp(1.75rem,8vw,2.25rem)] font-black text-slate-800 uppercase italic tracking-tighter leading-none">{selectedRoute.name}</h2>
                  <span className={`text-[9px] font-black px-3 py-1 rounded-full uppercase ${isRouteUnlocked(selectedRoute) ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
                    {isRouteUnlocked(selectedRoute) ? 'Liberada' : 'Bloqueada'}
                  </span>
@@ -731,8 +731,8 @@ const TravelScreen = ({
 
       {/* Modal Detalhado do Pokémon */}
       {selectedPoke && typeof document !== 'undefined' && createPortal((
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
-           <div className="bg-white w-full max-w-sm rounded-[3rem] shadow-2xl overflow-y-auto max-h-[85vh] animate-bounceIn relative custom-scrollbar">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
+           <div className="bg-white w-full max-w-[400px] rounded-[2rem] shadow-2xl overflow-y-auto max-h-[92dvh] animate-bounceIn relative custom-scrollbar">
               <div 
                 className="h-48 w-full flex items-center justify-center relative overflow-hidden transition-all duration-500"
                 style={{ 
@@ -777,8 +777,8 @@ const TravelScreen = ({
                   />
               </div>
 
-              <div className="p-10 text-center">
-                 <h3 className="text-3xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">
+              <div className="p-5 sm:p-8 text-center">
+                 <h3 className="text-[clamp(1.6rem,8vw,2.2rem)] font-black text-slate-800 uppercase italic tracking-tighter leading-none">
                    {gameState.caughtData?.[selectedPoke.id] ? POKEDEX[selectedPoke.id]?.name : '??? Desconhecido'}
                  </h3>
                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">
@@ -805,7 +805,7 @@ const TravelScreen = ({
                       <p className="text-sm font-bold text-slate-500 italic leading-relaxed">"O habitat deste Pokémon e suas habilidades detalhadas estão salvos em sua Pokédex."</p>
                    </div>
                  ) : (
-                   <div className="mt-8 p-8 bg-slate-100/50 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-slate-400 font-bold italic text-sm leading-snug">
+                   <div className="mt-8 p-5 bg-slate-100/50 rounded-[2rem] border-2 border-dashed border-slate-200 text-slate-400 font-bold italic text-sm leading-snug">
                       Derrote e capture esta espécie para liberar informações completas de combate e biologia!
                    </div>
                  )}
@@ -820,21 +820,21 @@ const TravelScreen = ({
 
       {/* Modal de Detalhes do Drop */}
       {selectedDrop && typeof document !== 'undefined' && createPortal((
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
-           <div className="bg-white w-full max-w-sm rounded-[3rem] shadow-2xl overflow-hidden animate-bounceIn relative max-h-[85vh] flex flex-col">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
+           <div className="bg-white w-full max-w-[400px] rounded-[2rem] shadow-2xl overflow-hidden animate-bounceIn relative max-h-[92dvh] flex flex-col">
               <button 
                 onClick={() => setSelectedDrop(null)}
                 className="absolute top-4 right-4 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center z-20 font-black hover:bg-red-50 hover:text-red-500 transition-all"
               >x</button>
 
-              <div className="p-10 flex-1 overflow-y-auto custom-scrollbar pt-12">
+              <div className="p-5 sm:p-8 flex-1 overflow-y-auto custom-scrollbar pt-12">
                   <div className="flex items-center gap-5 bg-pokeBlue/5 p-6 rounded-[2.5rem] border-2 border-pokeBlue/10 mb-10">
                     <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-sm border border-slate-100 rotate-6">
                        <img src={getDropIcon(selectedDrop)} className="w-12 h-12 object-contain" alt={selectedDrop} />
                     </div>
                     <div>
                        <p className="text-[10px] font-black text-pokeBlue uppercase tracking-[0.2em] leading-none">Material Raro:</p>
-                       <h4 className="text-2xl font-black text-slate-800 uppercase italic mt-2 tracking-tighter">{selectedDrop.replace('_essence', '').replace('_', ' ')}</h4>
+                       <h4 className="text-[clamp(1.3rem,6vw,1.75rem)] font-black text-slate-800 uppercase italic mt-2 tracking-tighter leading-none">{selectedDrop.replace('_essence', '').replace('_', ' ')}</h4>
                     </div>
                   </div>
 
@@ -861,7 +861,7 @@ const TravelScreen = ({
                         </div>
                       ))
                     ) : (
-                      <div className="p-10 bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-slate-400 font-bold italic text-sm text-center">
+                      <div className="p-5 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200 text-slate-400 font-bold italic text-sm text-center">
                          Este material ainda não possui receitas conhecidas. Continue explorando Kanto!
                       </div>
                     )}
@@ -878,8 +878,8 @@ const TravelScreen = ({
 
       {/* Modal de Alerta Local */}
       {alertMessage && typeof document !== 'undefined' && createPortal((
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
-           <div className="bg-white w-full max-w-sm rounded-[3rem] shadow-2xl p-8 animate-bounceIn text-center border-4 border-red-500">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
+           <div className="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl p-6 animate-bounceIn text-center border-4 border-red-500">
               <div className="text-4xl mb-4">🚫</div>
               <h3 className="text-xl font-black text-slate-800 uppercase italic mb-4">Acesso Bloqueado</h3>
               <p className="text-sm font-bold text-slate-500 mb-8">{alertMessage}</p>

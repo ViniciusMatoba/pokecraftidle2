@@ -53,7 +53,7 @@ const AutoCaptureModal = ({ route, gameState, onSave, onClose, onDisable }) => {
             </div>
             <div className="min-w-0">
               <p className="text-emerald-200 text-[10px] font-black uppercase tracking-[0.18em]">Auto-Captura</p>
-              <h3 className="text-white font-black text-base uppercase italic leading-tight truncate">{route.name}</h3>
+              <h3 className="text-white font-black text-base uppercase italic leading-tight">{route.name}</h3>
             </div>
           </div>
           <button
@@ -85,7 +85,7 @@ const AutoCaptureModal = ({ route, gameState, onSave, onClose, onDisable }) => {
                   <div className="min-w-0">
                     <p className="text-slate-800 font-black text-xs flex items-center gap-2">
                       <img src={opt.icon} className="w-5 h-5 object-contain shrink-0" alt="" />
-                      <span className="truncate">{opt.label}</span>
+                      <span className="leading-tight">{opt.label}</span>
                     </p>
                     <p className="text-slate-500 text-[9px] mt-0.5 leading-snug">{opt.desc}</p>
                   </div>
@@ -116,8 +116,8 @@ const AutoCaptureModal = ({ route, gameState, onSave, onClose, onDisable }) => {
                         )}
                       </div>
                       <div className="text-left min-w-0">
-                        <p className="text-slate-800 font-black text-[10px] leading-tight truncate">{p.name}</p>
-                        <p className="text-slate-400 text-[8px] mt-0.5 truncate">{p.type}</p>
+                        <p className="text-slate-800 font-black text-[10px] leading-tight">{p.name}</p>
+                        <p className="text-slate-400 text-[8px] mt-0.5">{p.type}</p>
                         {caught && <p className="text-green-500 text-[8px] font-bold">Ja capturado</p>}
                       </div>
                     </button>
@@ -150,8 +150,8 @@ const AutoCaptureModal = ({ route, gameState, onSave, onClose, onDisable }) => {
                   >
                     <img src={ball.img} className="w-7 h-7 object-contain shrink-0" alt={ball.name} onError={e => { e.target.style.display = 'none'; }} />
                     <div className="text-left min-w-0">
-                      <p className="text-slate-800 font-black text-[9px] leading-tight truncate">{ball.name}</p>
-                      {ball.hint && <p className="text-[8px] font-bold text-slate-400 truncate">{ball.hint}</p>}
+                      <p className="text-slate-800 font-black text-[9px] leading-tight">{ball.name}</p>
+                      {ball.hint && <p className="text-[8px] font-bold text-slate-400 leading-tight">{ball.hint}</p>}
                       {qty !== null && (
                         <p className={`text-[8px] font-bold ${hasStock ? 'text-green-500' : 'text-red-400'}`}>{qty} disponiveis</p>
                       )}
@@ -182,7 +182,7 @@ const AutoCaptureModal = ({ route, gameState, onSave, onClose, onDisable }) => {
           </div>
         </div>
 
-        <div className="px-5 pt-3 pb-6 border-t border-slate-100 bg-white flex flex-col gap-3 shrink-0">
+        <div className="px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-100 bg-white flex flex-col gap-3 shrink-0">
           <button
             onClick={() => {
               if ((mode === 'specific' || mode === 'specific_plus_shiny') && targetIds.length === 0) return;

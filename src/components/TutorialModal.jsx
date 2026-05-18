@@ -1,115 +1,113 @@
-// ── Tutorial de Boas-Vindas — PokéCraft Idle 2 ───────────────────────────────
-// Exibido na primeira visita à Cidade após capturar o starter.
-// gameTutorialShown salvo no gameState para não exibir novamente.
-
 import React, { useState } from 'react';
+
+const itemIcon = (name) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${name}.png`;
+const pokemonSprite = (id) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+const trainerSprite = (name) => `https://play.pokemonshowdown.com/sprites/trainers/${name}.png`;
 
 const STEPS = [
   {
     id: 'routes',
     color: '#16a34a',
-    bg: 'linear-gradient(135deg, #14532d 0%, #166534 100%)',
-    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png',
-    pokemon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png',
-    tag: 'Passo 1 — Rotas',
+    bg: 'linear-gradient(145deg, #052e16 0%, #166534 62%, #0f172a 100%)',
+    icon: itemIcon('town-map'),
+    hero: pokemonSprite(25),
+    tag: 'Passo 1',
     title: 'Treine nas Rotas',
-    subtitle: 'O coração do jogo',
+    subtitle: 'O caminho principal',
     bullets: [
-      { icon: '⚔️', text: 'Lute contra Pokémons selvagens para ganhar XP e evoluir seu time' },
-      { icon: '🪙', text: 'Cada vitória rende moedas para comprar e forjar itens' },
-      { icon: '🎒', text: 'Pokémons derrotados dropam materiais para a Forja' },
-      { icon: '🔄', text: 'Ative o AUTO para farmar automaticamente enquanto explora o resto' },
+      { icon: itemIcon('poke-ball'), title: 'Batalhas selvagens', text: 'Derrote Pokemon nas rotas para ganhar XP, moedas e materiais.' },
+      { icon: itemIcon('rare-candy'), title: 'Evolucao constante', text: 'Quanto mais voce treina, mais rapido o time evolui e alcança novas areas.' },
+      { icon: itemIcon('dowsing-machine'), title: 'Drops de forja', text: 'Os Pokemon derrotados deixam essencias, fragmentos e receitas.' },
+      { icon: itemIcon('repeat-ball'), title: 'Auto farm', text: 'Use o modo automatico para continuar progredindo enquanto organiza outras areas.' },
     ],
-    tip: 'Dica: quanto mais insígnias, mais rotas e regiões são liberadas!',
+    tip: 'Mais insignias liberam rotas, regioes, itens e desafios.',
   },
   {
     id: 'city',
     color: '#0891b2',
-    bg: 'linear-gradient(135deg, #164e63 0%, #0e7490 100%)',
-    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/full-restore.png',
-    pokemon: 'https://play.pokemonshowdown.com/sprites/trainers/nursejoy.png',
-    tag: 'Passo 2 — Cidade',
-    title: 'Sua Base na Cidade',
-    subtitle: 'Cura, compras e crafting',
+    bg: 'linear-gradient(145deg, #083344 0%, #0e7490 58%, #0f172a 100%)',
+    icon: itemIcon('full-restore'),
+    hero: trainerSprite('nursejoy'),
+    tag: 'Passo 2',
+    title: 'Use a Cidade',
+    subtitle: 'Base de progresso',
     bullets: [
-      { icon: '🏥', text: 'Poke Center: cure seus Pokémons gratuitamente antes de cada desafio importante' },
-      { icon: '🛒', text: 'Poke Mart: gaste suas moedas em itens, pokébolas e equipamentos da loja' },
-      { icon: '⚒️', text: 'Forja: transforme os drops coletados nas rotas em equipamentos poderosos' },
-      { icon: '🗺️', text: 'Explorações: envie Pokémons em expedições para coletar itens e ganhar XP passivamente' },
+      { icon: itemIcon('full-restore'), title: 'Centro Pokemon', text: 'Cure seu time gratuitamente antes de lideres, rivais e raids.' },
+      { icon: itemIcon('poke-ball'), title: 'Poke Mart', text: 'Compre pokebolas e suprimentos quando a rota estiver mais dificil.' },
+      { icon: itemIcon('metal-coat'), title: 'Forja', text: 'Transforme materiais das rotas em equipamentos, receitas e itens raros.' },
+      { icon: itemIcon('escape-rope'), title: 'Expedicoes', text: 'Envie Pokemon do PC para coletar recursos e ganhar XP passivamente.' },
     ],
-    tip: 'Dica: a Forja é essencial — equipamentos forjados aumentam muito o dano do seu time! Visite também a Casa para plantações.',
+    tip: 'A Forja e a Casa ficam mais importantes conforme novas regioes abrem.',
   },
   {
     id: 'rivals',
     color: '#2563eb',
-    bg: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)',
-    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png',
-    pokemon: 'https://play.pokemonshowdown.com/sprites/trainers/blue.png',
-    tag: 'Passo 3 — Modo VS',
-    title: 'Rivais & Equipe Vilã',
-    subtitle: 'Avance na história',
+    bg: 'linear-gradient(145deg, #172554 0%, #1d4ed8 60%, #0f172a 100%)',
+    icon: itemIcon('vs-seeker'),
+    hero: trainerSprite('blue'),
+    tag: 'Passo 3',
+    title: 'Modo VS',
+    subtitle: 'Historia regional',
     bullets: [
-      { icon: '🧑‍🤝‍🧑', text: 'Derrote o Rival para desbloquear novas rotas e mecânicas' },
-      { icon: '☠️', text: 'Elimine os grunts e chefes da Equipe Vilã para salvar a região' },
-      { icon: '🗺️', text: 'Cada vitória abre novos caminhos no mapa do jogo' },
-      { icon: '🏆', text: 'Esses duelos fazem parte da narrativa — não os pule!' },
+      { icon: itemIcon('vs-seeker'), title: 'Rivais', text: 'Venca rivais para abrir novos momentos da campanha regional.' },
+      { icon: itemIcon('red-card'), title: 'Equipe vila', text: 'Derrote grunts e chefes para desbloquear rotas e progresso.' },
+      { icon: itemIcon('town-map'), title: 'Novos caminhos', text: 'Algumas rotas dependem dessas vitorias para aparecer.' },
+      { icon: itemIcon('medal-box'), title: 'Recompensas', text: 'Essas lutas contam para progresso, titulos e estatisticas.' },
     ],
-    tip: 'Acesse em: Nav inferior → Modo VS → aba Desafios',
+    tip: 'Acesse pelo botao Modo VS na barra inferior.',
   },
   {
     id: 'gyms',
     color: '#d97706',
-    bg: 'linear-gradient(135deg, #78350f 0%, #b45309 100%)',
-    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png',
-    pokemon: 'https://play.pokemonshowdown.com/sprites/trainers/brock.png',
-    tag: 'Passo 4 — Modo VS',
-    title: 'Ginásios & Liga',
-    subtitle: 'Conquiste as insígnias',
+    bg: 'linear-gradient(145deg, #451a03 0%, #b45309 60%, #111827 100%)',
+    icon: itemIcon('hard-stone'),
+    hero: trainerSprite('brock'),
+    tag: 'Passo 4',
+    title: 'Ginasios e Liga',
+    subtitle: 'Insignias e campeao',
     bullets: [
-      { icon: '🏅', text: 'Derrote os 8 Líderes de Ginásio para ganhar as Insígnias da região' },
-      { icon: '🔓', text: 'Cada insígnia libera novas rotas, itens e desafios' },
-      { icon: '👑', text: 'Após 8 insígnias, enfrente a Elite Four e o Campeão' },
-      { icon: '🌎', text: 'Tornar-se Campeão desbloqueia a próxima região (Johto, Hoenn...)' },
+      { icon: itemIcon('medal-box'), title: 'Insignias', text: 'Derrote os 8 lideres para liberar rotas, level cap e sistemas.' },
+      { icon: itemIcon('rare-candy'), title: 'Level cap', text: 'O limite de nivel cresce conforme voce vence ginasios.' },
+      { icon: itemIcon('kings-rock'), title: 'Liga', text: 'Depois das insignias, enfrente Elite Four e Campeao.' },
+      { icon: itemIcon('town-map'), title: 'Proxima regiao', text: 'Ser campeao abre a jornada seguinte e novas capturas.' },
     ],
-    tip: 'Acesse em: Nav inferior → Modo VS → aba Ginásios & Liga',
+    tip: 'Se travar, volte para rotas e treine ate o level cap atual.',
   },
   {
     id: 'raids',
     color: '#7c3aed',
-    bg: 'linear-gradient(135deg, #3b0764 0%, #6d28d9 100%)',
-    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-raid-battle.png',
-    pokemon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/249.png',
-    tag: 'Passo 5 — Raids',
-    title: 'Eventos de Raid',
-    subtitle: 'Boss especial nas rotas',
+    bg: 'linear-gradient(145deg, #2e1065 0%, #6d28d9 58%, #0f172a 100%)',
+    icon: itemIcon('star-piece'),
+    hero: pokemonSprite(249),
+    tag: 'Passo 5',
+    title: 'Raids',
+    subtitle: 'Boss das rotas',
     bullets: [
-      { icon: '⚡', text: 'A cada 200 batalhas um Raid Boss aparece na sua rota atual' },
-      { icon: '💪', text: 'Cause o máximo de dano possível no tempo limite' },
-      { icon: '✨', text: 'Pokémon raro pode ser shiny — tente capturá-lo após a luta!' },
-      { icon: '🎁', text: 'Recompensas: EXP Candy, TMs raras e materiais de forja' },
+      { icon: itemIcon('star-piece'), title: 'Evento de rota', text: 'Depois de muitas batalhas, um raid boss pode aparecer.' },
+      { icon: itemIcon('x-attack'), title: 'Dano no tempo', text: 'Cause o maximo de dano antes do cronometro acabar.' },
+      { icon: itemIcon('ultra-ball'), title: 'Captura rara', text: 'Ao enfraquecer a raid, tente capturar o Pokemon especial.' },
+      { icon: itemIcon('tm-normal'), title: 'Recompensas', text: 'Raids podem render TMs, candies e materiais de forja.' },
     ],
-    tip: 'Dica: use seu Pokémon mais forte quando a Raid aparecer!',
+    tip: 'Use seu melhor time e itens antes de iniciar uma raid forte.',
   },
   {
     id: 'boss',
     color: '#dc2626',
-    bg: 'linear-gradient(135deg, #450a0a 0%, #991b1b 100%)',
-    icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png',
-    pokemon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png',
-    tag: 'Passo 6 — Boss Global',
+    bg: 'linear-gradient(145deg, #450a0a 0%, #b91c1c 56%, #111827 100%)',
+    icon: itemIcon('rare-candy'),
+    hero: pokemonSprite(150),
+    tag: 'Passo 6',
     title: 'Boss Mundial',
-    subtitle: 'Teste seu poder real',
+    subtitle: 'Ranking e poder real',
     bullets: [
-      { icon: '🌐', text: 'Um Boss coletivo muda a cada 24 horas para todos os jogadores' },
-      { icon: '📊', text: 'Lute e veja quanto dano seu time causa — sem eliminação, sem risco' },
-      { icon: '🥇', text: 'Ranking global de dano — quem causa mais dano lidera o placar' },
-      { icon: '⚔️', text: 'Ótimo para medir seu progresso comparando com outros treinadores' },
+      { icon: itemIcon('life-orb'), title: 'Boss global', text: 'O boss muda por periodo e serve como desafio de dano.' },
+      { icon: itemIcon('muscle-band'), title: 'Poder PS', text: 'Seu poder de colecao ajuda no dano contra boss.' },
+      { icon: itemIcon('amulet-coin'), title: 'Ranking', text: 'Compare maior dano e pontuacao com outros jogadores.' },
+      { icon: itemIcon('master-ball'), title: 'Endgame', text: 'Quanto mais voce captura e evolui, maior seu desempenho.' },
     ],
-    tip: 'Acesse em: Nav inferior → Modo VS → aba BOSS',
+    tip: 'Capturar, evoluir e buscar shinies aumenta seu potencial.',
   },
 ];
-
-// ─────────────────────────────────────────────────────────────────────────────
 
 const TutorialModal = ({ onClose }) => {
   const [step, setStep] = useState(0);
@@ -117,128 +115,87 @@ const TutorialModal = ({ onClose }) => {
   const isLast = step === STEPS.length - 1;
 
   return (
-    <div
-      className="fixed inset-0 z-[99990] flex items-center justify-center bg-black/85 backdrop-blur-sm animate-fadeIn p-4"
-    >
-      <div
-        className="w-full max-w-md flex flex-col overflow-hidden animate-slideUp"
-        style={{ maxHeight: '90dvh', background: current.bg, borderRadius: '2rem' }}
+    <div className="fixed inset-0 z-[99990] flex items-center justify-center bg-slate-950/90 p-3 backdrop-blur-md animate-fadeIn">
+      <section
+        className="modal-readable-panel w-full max-w-[420px] overflow-hidden border border-white/15 shadow-2xl animate-slideUp"
+        style={{ background: current.bg, borderRadius: 28 }}
+        aria-modal="true"
+        role="dialog"
       >
-        {/* Barra de progresso */}
-        <div className="flex gap-1.5 px-6 pt-5 pb-0 shrink-0">
-          {STEPS.map((_, i) => (
-            <div
-              key={i}
-              className="flex-1 h-1 rounded-full transition-all duration-500"
-              style={{ background: i <= step ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)' }}
-            />
-          ))}
-        </div>
-
-        {/* Conteúdo scrollável */}
-        <div className="flex-1 overflow-y-auto px-7 py-6">
-          {/* Tag + ícone */}
-          <div className="flex items-center justify-between mb-5">
-            <span
-              className="text-[11px] font-black uppercase tracking-widest px-4 py-2 rounded-full"
-              style={{ background: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.8)' }}
-            >
-              {current.tag}
-            </span>
-            <img
-              src={current.icon}
-              alt=""
-              className="w-10 h-10 object-contain"
-              style={{ imageRendering: 'pixelated', filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.5))' }}
-              onError={e => { e.target.style.display = 'none'; }}
-            />
+        <div className="px-4 pt-4 pb-3 shrink-0">
+          <div className="mb-4 flex gap-1.5">
+            {STEPS.map((item, i) => (
+              <div
+                key={item.id}
+                className="h-1.5 flex-1 rounded-full transition-all duration-300"
+                style={{ background: i <= step ? '#fff' : 'rgba(255,255,255,0.20)' }}
+              />
+            ))}
           </div>
 
-          {/* Pokémon + título */}
-          <div className="flex items-center gap-5 mb-6">
-            <div
-              className="w-24 h-24 rounded-[1.5rem] flex items-center justify-center shrink-0 overflow-hidden"
-              style={{ background: 'rgba(255,255,255,0.12)', border: '2px solid rgba(255,255,255,0.2)' }}
-            >
-              <img
-                src={current.pokemon}
-                alt=""
-                className="w-20 h-20 object-contain"
-                style={{ imageRendering: 'pixelated', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.6))' }}
-                onError={e => { e.target.style.display = 'none'; }}
-              />
+          <div className="flex items-start gap-3">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/15">
+              <img src={current.icon} alt="" className="h-10 w-10 object-contain" loading="lazy" />
             </div>
-            <div>
-              <p className="text-[13px] font-black uppercase tracking-widest mb-1.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                {current.subtitle}
-              </p>
-              <h2
-                className="text-3xl font-black uppercase italic leading-none tracking-tighter"
-                style={{ color: 'white', textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}
-              >
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-white/60">{current.tag}</p>
+              <h2 className="mt-1 text-[clamp(1.55rem,7vw,2.35rem)] font-black uppercase italic leading-[0.95] text-white drop-shadow-md">
                 {current.title}
               </h2>
+              <p className="mt-2 text-xs font-black uppercase tracking-widest text-white/65">{current.subtitle}</p>
             </div>
           </div>
+        </div>
 
-          {/* Divisor */}
-          <div className="h-px mb-6" style={{ background: 'rgba(255,255,255,0.15)' }} />
+        <div className="modal-readable-scroll px-4 pb-4">
+          <div className="mb-4 flex items-center justify-center rounded-[1.75rem] border border-white/10 bg-black/15 py-3">
+            <img
+              src={current.hero}
+              alt=""
+              className="h-24 w-24 object-contain"
+              style={{ imageRendering: 'pixelated', filter: 'drop-shadow(0 12px 18px rgba(0,0,0,0.45))' }}
+              loading="lazy"
+            />
+          </div>
 
-          {/* Bullets */}
-          <div className="flex flex-col gap-4 mb-6">
-            {current.bullets.map((b, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-4 p-4 rounded-2xl"
-                style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)' }}
-              >
-                <span className="text-2xl leading-none shrink-0 mt-0.5">{b.icon}</span>
-                <p className="text-[15px] font-bold leading-relaxed" style={{ color: 'rgba(255,255,255,0.88)' }}>
-                  {b.text}
-                </p>
+          <div className="flex flex-col gap-2.5">
+            {current.bullets.map((bullet) => (
+              <div key={bullet.title} className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.12] p-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/90">
+                  <img src={bullet.icon} alt="" className="h-8 w-8 object-contain" loading="lazy" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-white">{bullet.title}</p>
+                  <p className="mt-1 text-[13px] font-bold leading-snug text-white/78">{bullet.text}</p>
+                </div>
               </div>
             ))}
           </div>
 
-          {/* Dica */}
-          <div
-            className="flex items-start gap-3 p-4 rounded-2xl mb-2"
-            style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.10)' }}
-          >
-            <span className="text-lg shrink-0">💡</span>
-            <p className="text-[13px] font-bold italic" style={{ color: 'rgba(255,255,255,0.6)' }}>
-              {current.tip}
-            </p>
+          <div className="mt-3 rounded-2xl border border-white/10 bg-black/15 p-3">
+            <p className="text-[12px] font-bold leading-snug text-white/72">{current.tip}</p>
           </div>
         </div>
 
-        {/* Rodapé com botões */}
-        <div
-          className="px-7 pb-8 pt-4 shrink-0 flex gap-3"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}
-        >
-          {step > 0 && (
+        <div className="grid shrink-0 grid-cols-[auto_1fr] gap-2 border-t border-white/10 bg-black/15 px-4 py-4">
+          {step > 0 ? (
             <button
               onClick={() => setStep(s => s - 1)}
-              className="px-6 py-4 rounded-2xl font-black uppercase text-[13px] tracking-widest transition-all active:scale-95"
-              style={{
-                background: 'rgba(255,255,255,0.12)',
-                color: 'rgba(255,255,255,0.7)',
-                border: '1px solid rgba(255,255,255,0.15)',
-              }}
+              className="min-h-[52px] rounded-2xl border border-white/15 bg-white/10 px-4 text-xs font-black uppercase tracking-widest text-white/75 active:scale-95"
             >
-              ← Voltar
+              Voltar
             </button>
+          ) : (
+            <span />
           )}
           <button
-            onClick={() => isLast ? onClose() : setStep(s => s + 1)}
-            className="flex-1 py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all active:scale-95 shadow-xl"
-            style={{ background: 'white', color: '#0f172a', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
+            onClick={() => (isLast ? onClose() : setStep(s => s + 1))}
+            className="min-h-[52px] rounded-2xl bg-white px-4 text-sm font-black uppercase tracking-widest text-slate-900 shadow-xl active:scale-95"
           >
-            {isLast ? '🚀 Começar Aventura!' : 'Próximo →'}
+            {isLast ? 'Comecar' : 'Proximo'}
           </button>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

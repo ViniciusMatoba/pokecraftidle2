@@ -77,14 +77,14 @@ const ExpeditionReportModal = ({ report, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[60000] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-      <div className="w-full max-w-[420px] bg-slate-900 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[88vh]">
+      <div className="w-full max-w-[420px] bg-slate-900 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[92dvh]">
 
         {/* ── HEADER ── */}
         <div className="relative overflow-hidden shrink-0">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-700/40 via-indigo-700/20 to-slate-900" />
           <div className="relative z-10 px-6 py-5 text-center">
             <p className="text-5xl mb-2 drop-shadow-lg">{report.biomeIcon}</p>
-            <h2 className="text-white font-black uppercase tracking-tighter text-2xl italic leading-none">
+            <h2 className="text-white font-black uppercase tracking-tighter text-[clamp(1.45rem,7vw,1.85rem)] italic leading-none">
               {report.biomeName}
             </h2>
             <p className="text-blue-300 text-[10px] font-black uppercase tracking-[0.2em] mt-1.5">
@@ -123,7 +123,7 @@ const ExpeditionReportModal = ({ report, onClose }) => {
                         />
                       </span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-white text-[11px] font-black leading-tight truncate capitalize">{name}</p>
+                        <p className="text-white text-[11px] font-black leading-tight capitalize">{name}</p>
                         <p className="text-yellow-400 text-[10px] font-black">×{qty}</p>
                       </div>
                     </div>

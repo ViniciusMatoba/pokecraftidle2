@@ -15,11 +15,11 @@ const DecisionModal = ({
 }) => {
   return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-fadeIn">
-      <div className="modal-panel-mobile bg-white overflow-hidden shadow-2xl animate-slideInUp flex flex-col border-b-[8px] border-slate-200 w-full max-w-sm">
+      <div className="modal-panel-mobile bg-white overflow-hidden shadow-2xl animate-slideInUp flex flex-col border-b-[8px] border-slate-200">
         
         {/* Header */}
         <div className="px-6 py-5 bg-slate-900 flex items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-4 min-w-0">
+          <div className="flex items-center gap-4 min-w-0 flex-1">
             <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0 border border-white/10">
               <img 
                 src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png" 
@@ -29,7 +29,7 @@ const DecisionModal = ({
             </div>
             <div className="min-w-0">
               <p className="text-pokeBlue text-[10px] font-black uppercase tracking-[0.2em] mb-1">{subtitle}</p>
-              <h3 className="text-white text-xl font-black uppercase italic leading-tight truncate">
+              <h3 className="text-white text-xl font-black uppercase italic leading-tight">
                 {title}
               </h3>
             </div>
@@ -45,12 +45,12 @@ const DecisionModal = ({
         </div>
 
         {/* Content - Options List */}
-        <div className="modal-scroll-content p-6 flex flex-col gap-3 bg-slate-50">
+        <div className="modal-scroll-content p-4 flex flex-col gap-3 bg-slate-50">
           {options.map((opt) => (
             <button
               key={opt.id}
               onClick={opt.onClick}
-              className="group relative flex items-center gap-4 p-4 rounded-[1.5rem] bg-white border-2 border-slate-100 hover:border-pokeBlue hover:shadow-xl hover:shadow-blue-900/5 transition-all active:scale-[0.97] text-left overflow-hidden"
+              className="group relative flex items-center gap-3 p-4 rounded-[1.5rem] bg-white border-2 border-slate-100 hover:border-pokeBlue hover:shadow-xl hover:shadow-blue-900/5 transition-all active:scale-[0.97] text-left overflow-hidden"
             >
               {/* Option Icon */}
               <div 
@@ -64,11 +64,11 @@ const DecisionModal = ({
 
               {/* Option Text */}
               <div className="flex-1 min-w-0">
-                <p className="text-slate-800 font-black uppercase italic tracking-tight text-sm group-hover:text-pokeBlue transition-colors">
+                <p className="text-slate-800 font-black uppercase italic tracking-tight text-sm leading-tight group-hover:text-pokeBlue transition-colors">
                   {opt.label}
                 </p>
                 {opt.desc && (
-                  <p className="text-slate-400 text-[10px] font-bold mt-0.5 leading-tight uppercase tracking-widest opacity-70">
+                  <p className="text-slate-500 text-[11px] font-bold mt-1 leading-snug uppercase tracking-wider">
                     {opt.desc}
                   </p>
                 )}
