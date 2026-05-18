@@ -911,6 +911,7 @@ export default function App() {
   const [evolutionPending, setEvolutionPending] = useState(null);
   const [megaEvolutionPending, setMegaEvolutionPending] = useState(false); // abre tela de Mega Evolução
   const [safariSession, setSafariSession] = useState(null); // { ballsLeft } quando dentro da Safari Zone
+  const [safariEntryModal, setSafariEntryModal] = useState(null); // { route } modal de entrada na Safari Zone
   const [showTutorial, setShowTutorial] = useState(false); // tutorial de boas-vindas
   const [offlineProgress, setOfflineProgress] = useState(null); // progresso acumulado offline
   const [masteryNotification, setMasteryNotification] = useState(null);
@@ -1480,30 +1481,14 @@ export default function App() {
 
   // ── Intercepta entrada na Safari Zone ────────────────────────────────────
   // Quando o jogador navega para 'battles' em uma rota do tipo 'safari',
-  // redireciona para a tela interativa da Safari Zone.
+  // mostra um modal de confirmação antes de entrar.
   useEffect(() => {
     if (currentView === 'battles') {
       const route = processedRoutes[gameState.currentRoute];
       if (route?.type === 'safari') {
-        const entryCost = route.safariEntryCost || 500;
-        const coins = gameState.inventory?.currency || gameState.inventory?.coins || 0;
-        if (coins < entryCost) {
-          addLog(`❌ Você precisa de ${entryCost} Pokédollars para entrar na Safari Zone!`, 'system');
-          setCurrentView('routes');
-          return;
-        }
-        // Deduz moedas de entrada
-        setGameState(prev => ({
-          ...prev,
-          inventory: {
-            ...prev.inventory,
-            currency: Math.max(0, (prev.inventory?.currency || 0) - entryCost),
-            coins:    Math.max(0, (prev.inventory?.coins    || 0) - entryCost),
-          },
-        }));
-        addLog(`🌿 Você pagou ${entryCost} Pokédollars e entrou na Safari Zone!`, 'success');
-        setSafariSession({ ballsLeft: 30 });
-        setCurrentView('safari');
+        // Redireciona de volta às rotas e abre o modal de entrada
+        setCurrentView('routes');
+        setSafariEntryModal({ route });
       }
     }
   }, [currentView, gameState.currentRoute, processedRoutes]);
@@ -9368,7 +9353,7 @@ export default function App() {
                   </div>
                   {showGymVictoryModal.expShare != null && (
                     <div className="bg-slate-50 border-2 border-slate-100 rounded-[2rem] p-4 flex flex-col items-center text-center hover:border-blue-200 hover:bg-blue-50 transition-all">
-                      <div className="text-2xl mb-1">✨</div>
+                      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" className="w-8 h-8 object-contain drop-shadow-sm mb-1" alt="Exp Share" />
                       <span className="text-xl font-black text-slate-800 leading-none">{showGymVictoryModal.expShare}%</span>
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1 text-blue-500">Exp Share</span>
                     </div>
@@ -10046,6 +10031,126 @@ export default function App() {
           />
         </Suspense>
       )}
+
+      {/* MODAL DE ENTRADA — SAFARI ZONE */}
+      {safariEntryModal && (() => {
+        const route = safariEntryModal.route;
+        const entryCost = route?.safariEntryCost || 500;
+        const playerCoins = gameState.currency || 0;
+        const canAfford = playerCoins >= entryCost;
+        const SAFARI_BALLS = 30;
+
+        const handleEnter = () => {
+          if (!canAfford) return;
+          setGameState(prev => ({
+            ...prev,
+            currency: Math.max(0, (prev.currency || 0) - entryCost),
+            currentRoute: 'safari_zone',
+            inventory: {
+              ...prev.inventory,
+              items: {
+                ...(prev.inventory?.items || {}),
+                safari_ball: ((prev.inventory?.items?.safari_ball) || 0) + SAFARI_BALLS,
+              }
+            }
+          }));
+          addLog(`🌿 Você pagou ${entryCost} Pokédollars e entrou na Safari Zone!`, 'success');
+          setSafariSession({ ballsLeft: SAFARI_BALLS });
+          setSafariEntryModal(null);
+          setCurrentView('safari');
+        };
+
+        return (
+          <div className="absolute inset-0 z-[9995] flex items-end justify-center p-4 pb-6"
+            style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)' }}>
+            <div className="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl border-b-8 border-green-200 overflow-hidden animate-slideInUp">
+              {/* Header */}
+              <div className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #166534 0%, #15803d 60%, #16a34a 100%)' }}>
+                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+                <div className="relative px-6 pt-6 pb-4 flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/safari-ball.png"
+                      onError={e => { e.target.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png'; }}
+                      className="w-12 h-12 object-contain drop-shadow-lg" alt="Safari Ball" />
+                  </div>
+                  <div>
+                    <p className="text-green-200 text-[10px] font-black uppercase tracking-widest">Área Especial</p>
+                    <h2 className="text-white font-black uppercase italic tracking-tight text-2xl leading-none">Safari Zone</h2>
+                    <p className="text-green-300 text-xs font-bold mt-1">🌿 Zona Selvagem Protegida</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Conteúdo */}
+              <div className="px-6 py-5">
+                <p className="text-slate-600 text-sm font-semibold leading-relaxed mb-4">
+                  Bem-vindo à <strong>Safari Zone</strong>! Aqui as regras são diferentes:
+                  Pokémon selvagens não podem ser enfraquecidos — use <strong>Safari Balls</strong>
+                  para capturar diretamente!
+                </p>
+
+                {/* Regras */}
+                <div className="bg-green-50 border border-green-200 rounded-2xl p-4 mb-4 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/safari-ball.png"
+                      onError={e => { e.target.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png'; }}
+                      className="w-8 h-8 object-contain flex-shrink-0" alt="" />
+                    <div>
+                      <p className="text-green-900 font-black text-sm">{SAFARI_BALLS} Safari Balls incluídas</p>
+                      <p className="text-green-700 text-xs">Pokébolas especiais da reserva</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl flex-shrink-0 w-8 text-center">🦎</span>
+                    <div>
+                      <p className="text-green-900 font-black text-sm">Pokémon raros exclusivos</p>
+                      <p className="text-green-700 text-xs">Exeggutor, Kangaskhan, Tauros e mais</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl flex-shrink-0 w-8 text-center">⚠️</span>
+                    <div>
+                      <p className="text-green-900 font-black text-sm">Sem batalha direta</p>
+                      <p className="text-green-700 text-xs">Arremesse Balls ou use iscas!</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Taxa de entrada */}
+                <div className={`rounded-2xl p-4 mb-5 flex items-center gap-3 border-2 ${canAfford ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200'}`}>
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-8 h-8 object-contain flex-shrink-0" alt="" />
+                  <div className="flex-1">
+                    <p className="font-black text-slate-800 text-sm">Taxa de Entrada</p>
+                    <p className={`text-xs font-bold ${canAfford ? 'text-amber-700' : 'text-red-600'}`}>
+                      {canAfford
+                        ? `Você tem ${playerCoins.toLocaleString()} Pokédollars`
+                        : `Você precisa de mais ${(entryCost - playerCoins).toLocaleString()} Pokédollars`}
+                    </p>
+                  </div>
+                  <span className={`font-black text-lg ${canAfford ? 'text-amber-700' : 'text-red-600'}`}>
+                    {entryCost.toLocaleString()} P$
+                  </span>
+                </div>
+
+                {/* Botões */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setSafariEntryModal(null)}
+                    className="flex-1 h-12 rounded-xl border-2 border-slate-200 font-black uppercase text-sm text-slate-500 hover:bg-slate-50 transition-all">
+                    Voltar
+                  </button>
+                  <button
+                    onClick={handleEnter}
+                    disabled={!canAfford}
+                    className={`flex-2 flex-grow-[2] h-12 rounded-xl font-black uppercase text-sm text-white transition-all shadow-lg ${canAfford ? 'bg-green-600 hover:bg-green-500 active:scale-95 shadow-green-200' : 'bg-slate-300 cursor-not-allowed'}`}>
+                    {canAfford ? `Entrar — ${entryCost} P$` : 'Sem Pokédollars'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* PROGRESSO OFFLINE */}
       {offlineProgress && (
