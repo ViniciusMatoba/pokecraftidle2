@@ -1,10 +1,10 @@
-export const APP_VERSION = '2.3.9.2';
-export const VERSION = '2.3.9.2';
-export const APP_VERSION_DATE = '18/05/2026 15:00';
+export const APP_VERSION = '2.3.9.3';
+export const VERSION = '2.3.9.3';
+export const APP_VERSION_DATE = '18/05/2026 15:30';
 export const CHANGELOG = [
-  '## [V2.3.9.2] - 18/05/2026 15:00',
+  '## [V2.3.9.3] - 18/05/2026 15:30',
   '### Correções Críticas',
-  '- **Crash na Raid (TDZ fix definitivo):** removida declaração `const _PK_ITEM` no escopo do módulo `pokeballs.js` — o minificador renomeava a variável causando "Cannot access before initialization" no bundle de produção. URLs inline agora evitam o conflito de inicialização.',
+  '- **Crash na Raid (TDZ fix completo):** eliminadas TODAS as referências entre `const` no escopo de módulo em `RaidScreen.jsx` e `pokeballs.js`. O pattern `const POKEAPI_ITEMS` + `const REWARD_ICONS = { ...: POKEAPI_ITEMS+url }` causava TDZ no bundle minificado. Todas as URLs agora são strings literais inline.',
   '',
   '## [V2.3.9.1] - 18/05/2026 14:15',
   '### Correções de Bugs',

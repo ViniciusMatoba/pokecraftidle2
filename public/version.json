@@ -1,5 +1,5 @@
 {
-  "version": "2.3.9.2",
-  "date": "18/05/2026 15:00",
-  "notes": "Fix definitivo crash Raid: removida const _PK_ITEM de pokeballs.js (TDZ no bundle minificado). URLs de sprites agora inline."
+  "version": "2.3.9.3",
+  "date": "18/05/2026 15:30",
+  "notes": "Fix completo crash Raid TDZ: inline de todas URLs em RaidScreen.jsx e pokeballs.js — eliminadas referências entre const no escopo de módulo."
 }
