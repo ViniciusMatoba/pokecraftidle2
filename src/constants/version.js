@@ -1,7 +1,18 @@
-export const APP_VERSION = '2.2.0';
-export const VERSION = '2.2.0';
-export const APP_VERSION_DATE = '18/05/2026 12:00';
+export const APP_VERSION = '2.2.1';
+export const VERSION = '2.2.1';
+export const APP_VERSION_DATE = '18/05/2026 13:00';
 export const CHANGELOG = [
+  '## [V2.2.1] - 18/05/2026 13:00',
+  '### Mega Evolucoes Legends Z-A Oficiais',
+  '- **24 novas Mega Evolucoes oficiais**: adicionadas com base na lista confirmada do Serebii (Legends Z-A).',
+  '- Mega Raichu X (Eletrico/Psiquico) e Mega Raichu Y (Eletrico)',
+  '- Mega Absol Z (Sombrio/Fantasma), Mega Garchomp Z, Mega Lucario Z — variantes Z',
+  '- Mega Staraptor, Mega Darkrai, Mega Scolipede, Mega Scrafty, Mega Eelektross',
+  '- Mega Pyroar, Mega Malamar, Mega Barbaracle, Mega Dragalge',
+  '- Mega Zygarde (Forma Completa), Mega Golisopod, Mega Magearna, Mega Magearna (Cor Original)',
+  '- Mega Zeraora, Mega Falinks, Mega Tatsugiri (3 formas), Mega Baxcalibur',
+  '- **Total agora: 96 Mega Evolucoes**',
+  '',
   '## [V2.2.0] - 18/05/2026 12:00',
   '### Progresso Offline Corrigido',
   '- **Progresso offline corrigido**: modal agora aparece corretamente ao retornar ao jogo apos um periodo offline.',

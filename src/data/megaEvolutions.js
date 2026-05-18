@@ -1,7 +1,7 @@
 // ── Sistema de Mega Evolução Permanente — PokéCraft Idle 2 ────────────────────
 // Sprites via Pokémon Showdown: play.pokemonshowdown.com/sprites/dex/{showdownId}.png
-// 72 Mega Evoluções: 48 canônicas (XY/ORAS/SM) + 24 não-canônicas / Z-A
-// TODO: adicionar megas oficiais de Legends Z-A e Mega Dimension após confirmação da lista oficial
+// 96 Mega Evoluções: 48 canônicas (XY/ORAS/SM) + 24 já listadas + 24 novas de Legends: Z-A
+// Fonte oficial: Serebii.net/legendsz-a/megaevolutions (confirmado via screenshots do jogo)
 
 export const MEGA_STONE_ICONS = {
   // ── KANTO ─────────────────────────────────────────────────────────────────
@@ -86,6 +86,31 @@ export const MEGA_STONE_ICONS = {
   glimmoranite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/glimmoranite.png',
   // ── DLC ───────────────────────────────────────────────────────────────────
   chimechite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/chimechite.png',
+  // ── LEGENDS: Z-A — Mega Pedras Oficiais (confirmadas via Serebii) ──────────
+  raichurite_x:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
+  raichurite_y:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
+  absolite_z:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/absolite.png',
+  staraptorite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sharp-beak.png',
+  garchompite_z:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/garchompite.png',
+  lucarionite_z:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucarionite.png',
+  darkraite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dread-plate.png',
+  scolipedite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poison-barb.png',
+  scraftite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dark-gem.png',
+  eelektrossite:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/zap-plate.png',
+  pyroarite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/flame-plate.png',
+  malamarite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/mind-plate.png',
+  barbaraclite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/stone-plate.png',
+  dragalgite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/draco-plate.png',
+  zygardite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/earth-plate.png',
+  golisopodite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/insect-plate.png',
+  magarnaite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron-plate.png',
+  magarnaite_oc:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron-plate.png',
+  zeraorite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/zap-plate.png',
+  falinksite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fist-plate.png',
+  tatsugirite_c:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/draco-plate.png',
+  tatsugirite_d:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/draco-plate.png',
+  tatsugirite_s:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/draco-plate.png',
+  baxcaliburite:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/icicle-plate.png',
 };
 
 // Mapa completo de Mega Evoluções — Pokémon Legends: Z-A
@@ -572,6 +597,196 @@ export const MEGA_EVOLUTION_MAP = {
     name: 'Mega Chimecho', types: ['Psychic'],
     statBonus: { spAtk: 0.35, spDef: 0.30, speed: 0.15 },
     craftCost: { psychic_essence: 12, currency: 2000 },
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // LEGENDS: Z-A — Mega Evoluções Oficiais (confirmadas via Serebii)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Raichu X (físico) e Y (especial) — variantes exclusivas de Z-A
+  raichurite_x: {
+    baseId: 26, showdownId: 'raichu-megax',
+    name: 'Mega Raichu X', types: ['Electric', 'Psychic'],
+    statBonus: { attack: 0.45, speed: 0.20, defense: 0.10 },
+    craftCost: { electric_essence: 12, psychic_essence: 5, currency: 2500 },
+  },
+  raichurite_y: {
+    baseId: 26, showdownId: 'raichu-megay',
+    name: 'Mega Raichu Y', types: ['Electric'],
+    statBonus: { spAtk: 0.50, speed: 0.20, defense: 0.10 },
+    craftCost: { electric_essence: 12, currency: 2500 },
+  },
+
+  // Absol Z — variante Z com tipo Fantasma adicionado
+  absolite_z: {
+    baseId: 359, showdownId: 'absol-megaz',
+    name: 'Mega Absol Z', types: ['Dark', 'Ghost'],
+    statBonus: { attack: 0.45, speed: 0.20, spAtk: 0.10 },
+    craftCost: { dark_essence: 15, ghost_essence: 5, currency: 3000 },
+  },
+
+  // Staraptor — Normal/Flying
+  staraptorite: {
+    baseId: 398, showdownId: 'staraptor-mega',
+    name: 'Mega Staraptor', types: ['Normal', 'Flying'],
+    statBonus: { attack: 0.40, speed: 0.25, defense: 0.10 },
+    craftCost: { normal_essence: 10, flying_essence: 8, currency: 2000 },
+  },
+
+  // Garchomp Z — variante Z (Dragon/Ground)
+  garchompite_z: {
+    baseId: 445, showdownId: 'garchomp-megaz',
+    name: 'Mega Garchomp Z', types: ['Dragon', 'Ground'],
+    statBonus: { attack: 0.40, defense: 0.25, speed: 0.15 },
+    craftCost: { dragon_scale: 12, rock_essence: 8, currency: 3500 },
+  },
+
+  // Lucario Z — variante Z (Fighting/Steel)
+  lucarionite_z: {
+    baseId: 448, showdownId: 'lucario-megaz',
+    name: 'Mega Lucario Z', types: ['Fighting', 'Steel'],
+    statBonus: { attack: 0.35, spAtk: 0.30, speed: 0.15 },
+    craftCost: { fighting_essence: 15, steel_essence: 8, currency: 3500 },
+  },
+
+  // Darkrai — Dark
+  darkraite: {
+    baseId: 491, showdownId: 'darkrai-mega',
+    name: 'Mega Darkrai', types: ['Dark'],
+    statBonus: { spAtk: 0.45, speed: 0.25, defense: 0.10 },
+    craftCost: { dark_essence: 15, ghost_essence: 5, currency: 4000 },
+  },
+
+  // Scolipede — Bug/Poison
+  scolipedite: {
+    baseId: 545, showdownId: 'scolipede-mega',
+    name: 'Mega Scolipede', types: ['Bug', 'Poison'],
+    statBonus: { attack: 0.40, speed: 0.30, defense: 0.10 },
+    craftCost: { bug_essence: 12, poison_essence: 8, currency: 2000 },
+  },
+
+  // Scrafty — Dark/Fighting
+  scraftite: {
+    baseId: 560, showdownId: 'scrafty-mega',
+    name: 'Mega Scrafty', types: ['Dark', 'Fighting'],
+    statBonus: { attack: 0.35, defense: 0.30, spDef: 0.15 },
+    craftCost: { dark_essence: 10, fighting_essence: 8, currency: 2000 },
+  },
+
+  // Eelektross — Electric
+  eelektrossite: {
+    baseId: 587, showdownId: 'eelektross-mega',
+    name: 'Mega Eelektross', types: ['Electric'],
+    statBonus: { attack: 0.30, spAtk: 0.30, defense: 0.20 },
+    craftCost: { electric_essence: 15, currency: 2000 },
+  },
+
+  // Pyroar — Fire/Normal
+  pyroarite: {
+    baseId: 668, showdownId: 'pyroar-mega',
+    name: 'Mega Pyroar', types: ['Fire', 'Normal'],
+    statBonus: { spAtk: 0.40, speed: 0.30, defense: 0.10 },
+    craftCost: { fire_essence: 12, normal_essence: 5, currency: 2000 },
+  },
+
+  // Malamar — Psychic/Dark
+  malamarite: {
+    baseId: 687, showdownId: 'malamar-mega',
+    name: 'Mega Malamar', types: ['Psychic', 'Dark'],
+    statBonus: { attack: 0.35, spDef: 0.25, defense: 0.20 },
+    craftCost: { psychic_essence: 10, dark_essence: 8, currency: 2000 },
+  },
+
+  // Barbaracle — Rock/Water
+  barbaraclite: {
+    baseId: 689, showdownId: 'barbaracle-mega',
+    name: 'Mega Barbaracle', types: ['Rock', 'Water'],
+    statBonus: { attack: 0.40, defense: 0.25, speed: 0.10 },
+    craftCost: { rock_essence: 12, water_essence: 8, currency: 2000 },
+  },
+
+  // Dragalge — Poison/Dragon
+  dragalgite: {
+    baseId: 691, showdownId: 'dragalge-mega',
+    name: 'Mega Dragalge', types: ['Poison', 'Dragon'],
+    statBonus: { spAtk: 0.40, spDef: 0.25, defense: 0.10 },
+    craftCost: { poison_essence: 12, dragon_scale: 5, currency: 2000 },
+  },
+
+  // Zygarde — Dragon/Ground (Forma Completa)
+  zygardite: {
+    baseId: 718, showdownId: 'zygarde-mega',
+    name: 'Mega Zygarde', types: ['Dragon', 'Ground'],
+    statBonus: { defense: 0.30, spDef: 0.25, attack: 0.20 },
+    craftCost: { dragon_scale: 15, rock_essence: 10, currency: 5000 },
+  },
+
+  // Golisopod — Bug/Water
+  golisopodite: {
+    baseId: 768, showdownId: 'golisopod-mega',
+    name: 'Mega Golisopod', types: ['Bug', 'Water'],
+    statBonus: { attack: 0.40, defense: 0.30, spDef: 0.10 },
+    craftCost: { bug_essence: 12, water_essence: 8, currency: 2500 },
+  },
+
+  // Magearna — Steel/Fairy
+  magarnaite: {
+    baseId: 801, showdownId: 'magearna-mega',
+    name: 'Mega Magearna', types: ['Steel', 'Fairy'],
+    statBonus: { spAtk: 0.35, spDef: 0.30, defense: 0.15 },
+    craftCost: { steel_essence: 15, fairy_essence: 10, currency: 4000 },
+  },
+
+  // Magearna Original Color — Steel/Fairy (forma alternativa)
+  magarnaite_oc: {
+    baseId: 801, showdownId: 'magearna-original-mega',
+    name: 'Mega Magearna (Cor Original)', types: ['Steel', 'Fairy'],
+    statBonus: { spAtk: 0.35, spDef: 0.30, defense: 0.15 },
+    craftCost: { steel_essence: 15, fairy_essence: 10, currency: 4000 },
+  },
+
+  // Zeraora — Electric
+  zeraorite: {
+    baseId: 807, showdownId: 'zeraora-mega',
+    name: 'Mega Zeraora', types: ['Electric'],
+    statBonus: { speed: 0.40, attack: 0.30, defense: 0.10 },
+    craftCost: { electric_essence: 15, fighting_essence: 5, currency: 4000 },
+  },
+
+  // Falinks — Fighting
+  falinksite: {
+    baseId: 878, showdownId: 'falinks-mega',
+    name: 'Mega Falinks', types: ['Fighting'],
+    statBonus: { attack: 0.40, defense: 0.30, speed: 0.10 },
+    craftCost: { fighting_essence: 15, currency: 2000 },
+  },
+
+  // Tatsugiri — Dragon/Water (3 formas)
+  tatsugirite_c: {
+    baseId: 978, showdownId: 'tatsugiri-mega',
+    name: 'Mega Tatsugiri (Forma Enrolada)', types: ['Dragon', 'Water'],
+    statBonus: { spAtk: 0.45, speed: 0.20, defense: 0.10 },
+    craftCost: { dragon_scale: 10, water_essence: 8, currency: 2500 },
+  },
+  tatsugirite_d: {
+    baseId: 978, showdownId: 'tatsugiri-droopy-mega',
+    name: 'Mega Tatsugiri (Forma Caída)', types: ['Dragon', 'Water'],
+    statBonus: { spAtk: 0.40, spDef: 0.25, speed: 0.10 },
+    craftCost: { dragon_scale: 10, water_essence: 8, currency: 2500 },
+  },
+  tatsugirite_s: {
+    baseId: 978, showdownId: 'tatsugiri-stretchy-mega',
+    name: 'Mega Tatsugiri (Forma Esticada)', types: ['Dragon', 'Water'],
+    statBonus: { spAtk: 0.35, speed: 0.35, defense: 0.10 },
+    craftCost: { dragon_scale: 10, water_essence: 8, currency: 2500 },
+  },
+
+  // Baxcalibur — Dragon/Ice
+  baxcaliburite: {
+    baseId: 998, showdownId: 'baxcalibur-mega',
+    name: 'Mega Baxcalibur', types: ['Dragon', 'Ice'],
+    statBonus: { attack: 0.40, defense: 0.25, spDef: 0.10 },
+    craftCost: { dragon_scale: 12, ice_crystal: 8, currency: 3000 },
   },
 
 };
