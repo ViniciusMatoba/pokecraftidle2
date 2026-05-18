@@ -329,7 +329,7 @@ const ExpCandyModal = ({ candy, gameState, onUse, onClose }) => {
   );
 };
 
-const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onExportSave, onImportSave, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0 }) => {
+const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onExportSave, onImportSave, onShowTutorial, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0 }) => {
   const [updating, setUpdating] = useState(false);
   const [subView, setSubView] = useState('main'); // 'main' ou 'settings'
   const [activeTab, setActiveTab] = useState('balls');
@@ -1261,12 +1261,35 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
         </div>
       </div>
 
+      {/* Tutorial e Ajuda */}
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={() => { onShowTutorial?.(); setSubView('main'); }}
+          className="flex-1 py-4 rounded-xl font-black text-[11px] uppercase tracking-widest bg-yellow-400 hover:bg-yellow-300 text-yellow-900 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
+        >
+          <span>🎓</span> Ver Tutorial
+        </button>
+        <button
+          type="button"
+          onClick={onSave}
+          className="flex-1 py-4 rounded-xl font-black text-[11px] uppercase tracking-widest bg-green-600 hover:bg-green-500 text-white active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
+        >
+          <span>💾</span> Salvar Agora
+        </button>
+      </div>
+
       <button
         onClick={() => setSubView('main')}
         className="w-full bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg border-b-8 border-slate-900"
       >
         Voltar ao Menu
       </button>
+
+      {/* Disclaimer */}
+      <p className="text-center text-[9px] text-slate-400 font-medium leading-relaxed pb-2">
+        Fan-game não oficial · Pokémon © Nintendo / Game Freak / The Pokémon Company
+      </p>
     </div>
   );
 

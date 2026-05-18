@@ -2094,6 +2094,7 @@ export default function App() {
       }
     } catch (e) {
       console.error("Boss damage save fail:", e);
+      notify('⚠️ Dano ao boss não registrado no ranking. Verifique sua conexão.', 'warning');
     }
   }, [gameState.trainer?.name, gameState.trainer?.avatar, gameState.trainer?.sprite, powerScore]);
 
@@ -6943,6 +6944,9 @@ export default function App() {
                    <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest text-center mt-4">
                      POKÉCRAFT IDLE {APP_VERSION} • {APP_VERSION_DATE}
                    </p>
+                   <p className="text-white/20 text-[9px] font-medium text-center mt-1 leading-relaxed">
+                     Fan-game não oficial · Pokémon © Nintendo / Game Freak / The Pokémon Company
+                   </p>
                  </div>
               </div>
 
@@ -8462,6 +8466,7 @@ export default function App() {
           onSave={triggerSave}
           onExportSave={exportSave}
           onImportSave={importSave}
+          onShowTutorial={() => setShowTutorial(true)}
           MUSIC_LIST={MUSIC_LIST}
           onBack={() => setCurrentView(lastNonMenuView.current)}
           onUseExpCandy={handleUseExpCandy}

@@ -1,5 +1,5 @@
 {
-  "version": "2.3.1",
+  "version": "2.3.2",
   "date": "18/05/2026 07:32",
-  "notes": "Analytics: eventos de sessao, captura, insignia e progresso offline. ErrorBoundary: tela de erro amigavel com salvo automatico do progresso."
+  "notes": "Polimento: disclaimer fan-game visivel na landing e configuracoes, botao Ver Tutorial, salvar agora nas configuracoes, notificacao de falha no boss ranking."
 }

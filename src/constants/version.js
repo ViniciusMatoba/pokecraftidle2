@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.3.1';
-export const VERSION = '2.3.1';
+export const APP_VERSION = '2.3.2';
+export const VERSION = '2.3.2';
 export const APP_VERSION_DATE = '18/05/2026 07:32';
 export const CHANGELOG = [
+  '## [V2.3.2] - 18/05/2026 07:32',
+  '### Polimento de Producao',
+  '- **Disclaimer visivel**: "Fan-game nao oficial · Pokemon © Nintendo / Game Freak" na tela inicial e em Configuracoes.',
+  '- **Botao Ver Tutorial**: em Configuracoes → abre o tutorial completo de 6 passos a qualquer momento.',
+  '- **Salvar Agora em Configuracoes**: atalho de save rapido sem precisar ir ao menu principal.',
+  '- **Boss ranking com notificacao**: falha ao salvar dano do boss agora avisa o jogador (era silenciosa).',
+  '',
   '## [V2.3.1] - 18/05/2026 07:32',
   '### Monitoramento & Error Boundary',
   '- **Analytics ativo**: Firebase Analytics agora rastreia eventos reais de gameplay.',
