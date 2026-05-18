@@ -1,5 +1,5 @@
 {
-  "version": "2.3.3",
+  "version": "2.3.4",
   "date": "18/05/2026 07:32",
-  "notes": "Click-to-Go: Guia da Jornada navega direto para a batalha certa no Modo VS (rival/ginasio/rocket). Rota recomendada destacada com borda dourada no mapa de viagem."
+  "notes": "Raids com configuracao: escolha batalhar ou capturar, defina a pokebola e o limiar de HP. Auto-captura automatica. Fix sprites transparentes no modal VS."
 }

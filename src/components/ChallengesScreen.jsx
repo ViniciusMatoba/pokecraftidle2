@@ -2540,9 +2540,11 @@ const ChallengesScreen = ({
               </div>
               <div className="grid grid-cols-3 gap-2 mb-6">
                 {selectedChallenge.team.map((p, i) => (
-                  <div key={i} className="bg-white/5 rounded-2xl p-2 border border-white/5 flex flex-col items-center">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} className="w-12 h-12 object-contain" alt="pokemon" />
-                    <span className="text-white/40 text-[8px] font-black uppercase mt-1">NV. {p.level}</span>
+                  <div key={i} className="bg-black/60 backdrop-blur-sm rounded-2xl p-2 border border-white/20 flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
+                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} className="w-11 h-11 object-contain" alt="pokemon" />
+                    </div>
+                    <span className="text-white text-[8px] font-black uppercase mt-1.5 bg-black/50 px-1.5 py-0.5 rounded-full">NV. {p.level}</span>
                   </div>
                 ))}
               </div>

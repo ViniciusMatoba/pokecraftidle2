@@ -89,14 +89,47 @@ const REWARD_INFO = {
 
 const RaidScreen = ({
   raid, gameState, onStart, onDismiss, onContinueFight, onForfeitCapture, onCatchAttempt, onCatchRoll, onClaimRewards, POKEDEX,
+  captureConfig, onConfigChange,
 }) => {
   const [now, setNow] = useState(Date.now());
   const [rewardDetail, setRewardDetail] = useState(null);
+  // Config local com fallback
+  const cfg = captureConfig || { mode: 'fight', ballType: 'pokeballs', hpThreshold: 30 };
+  const updateCfg = (partial) => onConfigChange && onConfigChange({ ...cfg, ...partial });
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
+
+  // Auto-captura: quando fase=capture e modo=capture, lança a pokébola automaticamente
+  const autoThrowRef = useRef(null);
+  useEffect(() => {
+    if (!raid || raid.phase !== 'capture') return;
+    if (!cfg || cfg.mode !== 'capture') return;
+    if (catchAnim.active) return;
+    if ((raid.catchAttemptsLeft || 0) <= 0) return;
+
+    // Encontra a pokébola configurada (ou a melhor disponível)
+    const preferred = balls.find ? null : null; // balls ainda não está definido aqui
+    autoThrowRef.current = setTimeout(() => {
+      // Recalcula balls dentro do timeout para ter acesso ao estado atual
+      const allBalls = [
+        { id: 'ultra_ball', label: 'Ultra Ball', count: gameState.inventory?.items?.ultra_ball || 0,
+          img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png' },
+        { id: 'great_ball', label: 'Great Ball', count: gameState.inventory?.items?.great_ball || 0,
+          img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png' },
+        { id: 'pokeballs',  label: 'Pokébola',   count: gameState.inventory?.items?.pokeballs  || 0,
+          img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png' },
+      ];
+      const autoBall = allBalls.find(b => b.id === cfg.ballType && b.count > 0)
+        || allBalls.find(b => b.count > 0); // fallback para qualquer bola disponível
+      if (autoBall) handleBallClick(autoBall);
+    }, 1200);
+
+    return () => clearTimeout(autoThrowRef.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [raid?.phase, raid?.catchAttemptsLeft, catchAnim.active, cfg?.mode, cfg?.ballType]);
 
   // Refs para calcular posição real do sprite
   // contentRef: div principal (sempre montado) — usado como origem das coordenadas
@@ -497,20 +530,140 @@ const RaidScreen = ({
 
           {/* IDLE */}
           {raid.phase === 'idle' && (
-            <button
-              onClick={onStart}
-              style={{
-                width: '100%', padding: 18, borderRadius: 20,
-                background: `linear-gradient(135deg, ${starColor}, ${starColor}bb)`,
-                color: '#fff', fontWeight: 900, fontSize: 15,
-                textTransform: 'uppercase', letterSpacing: 2,
-                border: 'none', cursor: 'pointer',
-                boxShadow: `0 8px 25px ${starColor}44`,
-                marginTop: 10,
-              }}
-            >
-              ⚔️ Desafiar Raid
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 8 }}>
+
+              {/* Painel de Configuração */}
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(148,163,184,0.18)',
+                borderRadius: 20, padding: '14px 16px', backdropFilter: 'blur(10px)',
+              }}>
+                <p style={{ color: '#94a3b8', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.5, margin: '0 0 10px' }}>
+                  ⚙️ Configuração da Raid
+                </p>
+
+                {/* Modo: Batalhar / Capturar */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+                  {[
+                    { id: 'fight',   label: '⚔️ Apenas Batalhar', desc: 'Derrote para recompensas' },
+                    { id: 'capture', label: '🎯 Tentar Capturar',  desc: 'Lança pokébola automático' },
+                  ].map(opt => (
+                    <button
+                      key={opt.id}
+                      onClick={() => updateCfg({ mode: opt.id })}
+                      style={{
+                        padding: '10px 8px', borderRadius: 14, border: 'none', cursor: 'pointer',
+                        background: cfg.mode === opt.id
+                          ? `linear-gradient(135deg, ${starColor}cc, ${starColor}55)`
+                          : 'rgba(30,41,59,0.7)',
+                        color: cfg.mode === opt.id ? '#fff' : '#94a3b8',
+                        fontWeight: 800, fontSize: 11,
+                        outline: cfg.mode === opt.id ? `2px solid ${starColor}` : '2px solid transparent',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      <div>{opt.label}</div>
+                      <div style={{ fontSize: 9, opacity: 0.7, marginTop: 3, fontWeight: 600 }}>{opt.desc}</div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Opções de captura (só quando modo=capture) */}
+                {cfg.mode === 'capture' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+
+                    {/* Pokébola */}
+                    <div>
+                      <p style={{ color: '#94a3b8', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 6px' }}>
+                        Pokébola a usar:
+                      </p>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
+                        {balls.map(ball => {
+                          const selected = cfg.ballType === ball.id;
+                          const empty = ball.count === 0;
+                          return (
+                            <button
+                              key={ball.id}
+                              onClick={() => !empty && updateCfg({ ballType: ball.id })}
+                              disabled={empty}
+                              style={{
+                                padding: '8px 4px', borderRadius: 12, border: 'none', cursor: empty ? 'not-allowed' : 'pointer',
+                                background: selected ? `${starColor}33` : 'rgba(30,41,59,0.6)',
+                                outline: selected ? `2px solid ${starColor}` : '2px solid transparent',
+                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                                opacity: empty ? 0.4 : 1, transition: 'all 0.15s',
+                              }}
+                            >
+                              <img src={ball.img} style={{ width: 22, height: 22 }} alt="" />
+                              <span style={{ color: selected ? '#fff' : '#94a3b8', fontSize: 8, fontWeight: 800 }}>{ball.label}</span>
+                              <span style={{ color: selected ? starColor : '#64748b', fontSize: 8, fontWeight: 700 }}>x{ball.count}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Threshold de HP */}
+                    <div>
+                      <p style={{ color: '#94a3b8', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 6px' }}>
+                        Capturar quando HP cair abaixo de:
+                      </p>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5 }}>
+                        {[50, 30, 10].map(pct => {
+                          const selected = cfg.hpThreshold === pct;
+                          return (
+                            <button
+                              key={pct}
+                              onClick={() => updateCfg({ hpThreshold: pct })}
+                              style={{
+                                padding: '8px 4px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                                background: selected ? `${starColor}33` : 'rgba(30,41,59,0.6)',
+                                outline: selected ? `2px solid ${starColor}` : '2px solid transparent',
+                                color: selected ? '#fff' : '#94a3b8',
+                                fontWeight: 800, fontSize: 12, transition: 'all 0.15s',
+                              }}
+                            >
+                              {pct}%
+                            </button>
+                          );
+                        })}
+                        {/* Opção máximo (logo no início) */}
+                        <button
+                          onClick={() => updateCfg({ hpThreshold: 75 })}
+                          style={{
+                            padding: '8px 4px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                            background: cfg.hpThreshold === 75 ? `${starColor}33` : 'rgba(30,41,59,0.6)',
+                            outline: cfg.hpThreshold === 75 ? `2px solid ${starColor}` : '2px solid transparent',
+                            color: cfg.hpThreshold === 75 ? '#fff' : '#94a3b8',
+                            fontWeight: 800, fontSize: 12, transition: 'all 0.15s',
+                            gridColumnStart: 1, gridRow: 1,
+                          }}
+                        >
+                          75%
+                        </button>
+                      </div>
+                      <p style={{ color: '#475569', fontSize: 8, fontWeight: 600, margin: '5px 0 0', textAlign: 'center' }}>
+                        A pokébola será lançada automaticamente quando o limiar for atingido
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Botão Desafiar */}
+              <button
+                onClick={onStart}
+                style={{
+                  width: '100%', padding: 18, borderRadius: 20,
+                  background: `linear-gradient(135deg, ${starColor}, ${starColor}bb)`,
+                  color: '#fff', fontWeight: 900, fontSize: 15,
+                  textTransform: 'uppercase', letterSpacing: 2,
+                  border: 'none', cursor: 'pointer',
+                  boxShadow: `0 8px 25px ${starColor}44`,
+                }}
+              >
+                {cfg.mode === 'capture' ? '🎯 Desafiar e Capturar' : '⚔️ Desafiar Raid'}
+              </button>
+            </div>
           )}
 
           {/* FIGHTING */}
@@ -546,32 +699,52 @@ const RaidScreen = ({
                 border: '1px solid rgba(148, 163, 184, 0.22)',
                 borderRadius: 18, padding: 14, textAlign: 'center',
               }}>
-                <p style={{ color: '#e2e8f0', fontSize: 11, fontWeight: 800, lineHeight: 1.35, margin: 0 }}>
-                  Tente capturar agora, continue lutando para derrotar a raid ou saia sem capturar.
-                </p>
+                {cfg.mode === 'capture' ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                    <p style={{ color: starColor, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1, margin: 0 }}>
+                      🤖 Auto-Captura Ativa
+                    </p>
+                    <p style={{ color: '#94a3b8', fontSize: 10, fontWeight: 700, margin: 0 }}>
+                      Lançando {balls.find(b => b.id === cfg.ballType)?.label || 'Pokébola'} automaticamente...
+                    </p>
+                  </div>
+                ) : (
+                  <p style={{ color: '#e2e8f0', fontSize: 11, fontWeight: 800, lineHeight: 1.35, margin: 0 }}>
+                    Tente capturar agora, continue lutando para derrotar a raid ou saia sem capturar.
+                  </p>
+                )}
               </div>
               <div style={{ textAlign: 'center', marginBottom: 5 }}>
                 <p style={{ color: '#22c55e', fontWeight: 900, fontSize: 13, textTransform: 'uppercase', margin: 0 }}>
                   Tentativas: {raid.catchAttemptsLeft}
                 </p>
               </div>
+              {/* Botões de pokébola: manual se modo=fight, apenas visual se modo=capture */}
               {balls.map(ball => (
                 <button
                   key={ball.id}
-                  disabled={ball.count === 0 || raid.catchAttemptsLeft === 0 || catchAnim.active}
-                  onClick={() => handleBallClick(ball)}
+                  disabled={ball.count === 0 || raid.catchAttemptsLeft === 0 || catchAnim.active || cfg.mode === 'capture'}
+                  onClick={() => cfg.mode !== 'capture' && handleBallClick(ball)}
                   style={{
                     padding: '12px 16px', borderRadius: 16,
-                    background: ball.count > 0 ? 'rgba(30, 41, 59, 0.8)' : 'rgba(15, 23, 42, 0.4)',
-                    border: ball.count > 0 ? '1px solid #334155' : '1px solid #1e293b',
+                    background: cfg.mode === 'capture' && ball.id === cfg.ballType
+                      ? `${starColor}22`
+                      : ball.count > 0 ? 'rgba(30, 41, 59, 0.8)' : 'rgba(15, 23, 42, 0.4)',
+                    border: cfg.mode === 'capture' && ball.id === cfg.ballType
+                      ? `1px solid ${starColor}66`
+                      : ball.count > 0 ? '1px solid #334155' : '1px solid #1e293b',
                     color: ball.count > 0 ? '#fff' : '#475569',
-                    cursor: ball.count > 0 ? 'pointer' : 'not-allowed',
+                    cursor: cfg.mode === 'capture' || ball.count === 0 ? 'default' : 'pointer',
                     display: 'flex', alignItems: 'center', gap: 10,
                     fontWeight: 800, fontSize: 13,
+                    opacity: cfg.mode === 'capture' && ball.id !== cfg.ballType ? 0.4 : 1,
                   }}
                 >
                   <img src={ball.img} style={{ width: 24, height: 24 }} alt="" />
                   <span>{ball.label}</span>
+                  {cfg.mode === 'capture' && ball.id === cfg.ballType && (
+                    <span style={{ fontSize: 9, color: starColor, fontWeight: 900 }}>AUTO</span>
+                  )}
                   <span style={{ marginLeft: 'auto', fontSize: 11, opacity: 0.7 }}>x{ball.count}</span>
                 </button>
               ))}

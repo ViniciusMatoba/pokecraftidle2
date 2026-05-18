@@ -1068,6 +1068,9 @@ export default function App() {
   const [bossLoot, setBossLoot] = useState(null);
   const [battleResult, setBattleResult] = useState(null);
   const [showRaidScreen, setShowRaidScreen] = useState(false);
+  // Configuração da Raid: modo de jogo e auto-captura
+  const [raidCaptureConfig, setRaidCaptureConfig] = useState({ mode: 'fight', ballType: 'pokeballs', hpThreshold: 30 });
+  const raidCaptureConfigRef = useRef({ mode: 'fight', ballType: 'pokeballs', hpThreshold: 30 });
   const [showRegionBuilder, setShowRegionBuilder] = useState(false);
   const [challengeRegion, setChallengeRegion] = useState(null); // { region, ownerProfile }
   const [checkingName, setCheckingName] = useState(false);
@@ -4658,15 +4661,18 @@ export default function App() {
         const raidHpPct = raidNewHp / prev.activeRaid.maxHp;
         
         let nextPhase = 'fighting';
+        const _raidCfg = raidCaptureConfigRef.current;
+        const _captureThreshold = _raidCfg.mode === 'capture' ? _raidCfg.hpThreshold / 100 : 0.3;
+        const _shouldCapture = _raidCfg.mode === 'capture'
+          ? (raidHpPct <= _captureThreshold && !prev.activeRaid.continuingFromCapture)
+          : false; // modo batalha: nunca entra em captura automaticamente
         if (raidNewHp === 0) {
           nextPhase = 'rewards';
           addLog(`🏆 ${prev.activeRaid.name} foi TOTALMENTE DERROTADO! Recompensas liberadas.`, 'system');
           showRaidRouteNotice(prev.activeRaid, 'rewards');
-        } else if (raidHpPct <= 0.3 && !prev.activeRaid.continuingFromCapture) {
-          // Só entra em captura na primeira vez — se o jogador optou por continuar lutando,
-          // não volta para captura; a luta segue até HP=0 ou o tempo esgotar.
+        } else if (_shouldCapture) {
           nextPhase = 'capture';
-          addLog(`🎯 ${prev.activeRaid.name} está enfraquecido! Iniciando fase de captura!`, 'system');
+          addLog(`🎯 ${prev.activeRaid.name} está enfraquecido (${_raidCfg.hpThreshold}% HP)! Iniciando auto-captura!`, 'system');
           showRaidRouteNotice(prev.activeRaid, 'capture');
         }
 
@@ -10799,6 +10805,11 @@ export default function App() {
               onCatchRoll={handleCatchRoll}
               onClaimRewards={handleClaimRaidRewards}
               POKEDEX={POKEDEX}
+              captureConfig={raidCaptureConfig}
+              onConfigChange={(cfg) => {
+                raidCaptureConfigRef.current = cfg;
+                setRaidCaptureConfig(cfg);
+              }}
             />
           </div>
         </div>

@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.3.3';
-export const VERSION = '2.3.3';
+export const APP_VERSION = '2.3.4';
+export const VERSION = '2.3.4';
 export const APP_VERSION_DATE = '18/05/2026 07:32';
 export const CHANGELOG = [
+  '## [V2.3.4] - 18/05/2026 07:32',
+  '### Raids com Configuração + Fix Visual',
+  '- **Config de Raid**: antes de iniciar, escolha o modo de jogo.',
+  '- Modo "Apenas Batalhar": derrota direta, sem fase de captura (recompensas ao HP=0).',
+  '- Modo "Tentar Capturar": escolha a pokébola e o limiar de HP (75%/50%/30%/10%).',
+  '- **Auto-captura**: quando o limiar é atingido, pokébola lançada automaticamente sem ação manual.',
+  '- **Fix sprites no modal VS**: fundo preto semitransparente nos quadrados de pokemon e nivel mais visivel.',
+  '',
   '## [V2.3.3] - 18/05/2026 07:32',
   '### Click-to-Go Universal',
   '- **Guia da Jornada com navegacao precisa**: botao agora leva direto para a batalha correta no Modo VS.',
