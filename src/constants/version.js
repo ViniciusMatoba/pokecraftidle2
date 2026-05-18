@@ -1,7 +1,31 @@
-export const APP_VERSION = '2.3.7';
-export const VERSION = '2.3.7';
-export const APP_VERSION_DATE = '18/05/2026 12:25';
+export const APP_VERSION = '2.3.9.2';
+export const VERSION = '2.3.9.2';
+export const APP_VERSION_DATE = '18/05/2026 15:00';
 export const CHANGELOG = [
+  '## [V2.3.9.2] - 18/05/2026 15:00',
+  '### Correções Críticas',
+  '- **Crash na Raid (TDZ fix definitivo):** removida declaração `const _PK_ITEM` no escopo do módulo `pokeballs.js` — o minificador renomeava a variável causando "Cannot access before initialization" no bundle de produção. URLs inline agora evitam o conflito de inicialização.',
+  '',
+  '## [V2.3.9.1] - 18/05/2026 14:15',
+  '### Correções de Bugs',
+  '- **Hotfix Raid (tentativa 1):** removida `const _BASE` de constants.js que conflitava com RaidScreen.jsx no bundle minificado.',
+  '',
+  '## [V2.3.9] - 18/05/2026 14:00',
+  '### Correções de Bugs',
+  '- **Link Cable no Poké Mart:** ícone quebrado corrigido — caminho estático agora usa BASE_URL do Vite para compatibilidade com GitHub Pages.',
+  '- **Golpes duplicados:** adicionada deduplicação em todos os pontos de geração de moveset (captura, batalha, starter, auto-captura).',
+  '- **Faixa de nível nas rotas:** display filtrado para excluir lendários e pokémon com requiresFlag — exibe apenas o range dos selvagens regulares. Dados corrigidos em burned_tower (Raikou/Entei/Suicune), ilex_forest (Celebi), route_40_41 (Lugia), ecruteak_city (Ho-Oh).',
+  '- **Hisui level spreads:** rotas hisui_fieldlands_2, hisui_coastlands_1, hisui_highlands_1 e hisui_icelands_1 ajustadas para faixa máxima de 5 níveis.',
+  '- **Sprites das Pokébolas:** modal de troca de pokébola agora exibe sprites reais (PokeAPI) em vez de emojis genéricos.',
+  '',
+  '## [V2.3.8] - 18/05/2026 13:10',
+  '### Melhorias nas Configurações',
+  '- **Slider de Volume**: controle deslizante de 0–100% para a música de fundo com atualização em tempo real.',
+  '- **Toggle de Mudo**: botão liga/desliga centralizado nas Configurações (antes só existia na barra do topo).',
+  '- **Toggle Log de Batalha**: possibilidade de ocultar as mensagens de combate para uma experiência mais limpa.',
+  '- **Toggle Números Compactos**: exibe valores grandes no formato 1,2M em vez de 1.200.000.',
+  '- **Defaults corrigidos**: `levelCap`, `selectedMusic`, `musicVolume`, `muteAll`, `showBattleLog` e `compactNumbers` agora inicializados corretamente para novos jogadores.',
+  '',
   '## [V2.3.7] - 18/05/2026 12:25',
   '### Lendários completos: Unova → Paldea (9ª Geração)',
   '- **Unova**: Cobalion, Terrakion, Virizion, Reshiram, Zekrom, Kyurem — adicionados ao Modo VS com progressão encadeada.',
