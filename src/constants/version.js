@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.1.6';
-export const VERSION = '2.1.6';
-export const APP_VERSION_DATE = '17/05/2026 23:10';
+export const APP_VERSION = '2.1.7';
+export const VERSION = '2.1.7';
+export const APP_VERSION_DATE = '17/05/2026 23:15';
 export const CHANGELOG = [
+  '## [V2.1.7] - 17/05/2026 23:15',
+  '### Publicacao Final',
+  '- **Historico atualizado**: registrada a finalizacao das correcoes de textos quebrados e auditoria de Pokedex/formas extras.',
+  '- **Build verificado**: auditoria automatica confirma 1025/1025 Pokemon base obtiveis, 0 evolucoes para formas sem entrada e 0 backgrounds ausentes.',
+  '- **Git push e deploy**: versao publicada no GitHub Pages com data e hora atual de Brasilia.',
+  '',
   '## [V2.1.6] - 17/05/2026 23:10',
   '### Auditoria de Pokedex e Textos',
   '- **Pokedex completa**: adicionadas entradas diretas para Mega Skarmory, Mega Kingdra, Mega Miltank, Mega Blissey e Mega Shedinja.',

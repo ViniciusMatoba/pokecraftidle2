@@ -1,5 +1,5 @@
 {
-  "version": "2.1.6",
-  "date": "17/05/2026 23:10",
-  "notes": "Auditoria de Pokedex ajustada, formas extras corrigidas e textos quebrados do Modo VS saneados."
+  "version": "2.1.7",
+  "date": "17/05/2026 23:15",
+  "notes": "Publicacao final: historico atualizado, auditoria validada, git push e deploy registrados."
 }
