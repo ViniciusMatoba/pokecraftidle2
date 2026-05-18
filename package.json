@@ -1,7 +1,7 @@
 {
   "name": "poke-craft-idle",
   "private": true,
-  "version": "2.1.2",
+  "version": "2.1.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "fix-encoding": "node scripts/fix-encoding.cjs",
-    "prebuild": "node scripts/check-circulars.cjs",
+    "prebuild": "node scripts/check-circulars.cjs && node scripts/audit-content.cjs",
     "deploy": "npm run build && gh-pages -d dist",
     "check": "node scripts/check-circulars.cjs",
     "audit-content": "node scripts/audit-content.cjs"

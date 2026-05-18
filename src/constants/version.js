@@ -1,7 +1,20 @@
-export const APP_VERSION = '2.1.2';
-export const VERSION = '2.1.2';
-export const APP_VERSION_DATE = '17/05/2026 15:12';
+export const APP_VERSION = '2.1.4';
+export const VERSION = '2.1.4';
+export const APP_VERSION_DATE = '17/05/2026 22:40';
 export const CHANGELOG = [
+  '## [V2.1.4] - 17/05/2026 22:40',
+  '### Auditoria e Balanceamento Automatico',
+  '- **Auditoria de conteudo no build**: `npm run build` agora valida Pokedex base, referencias de rotas, backgrounds, saltos de nivel e treinadores abaixo do minimo esperado.',
+  '- **Progressao de Hisui suavizada**: Hisui entrou na normalizacao automatica de rotas, evitando saltos grandes entre areas consecutivas.',
+  '- **Treinadores +3 niveis**: auditoria garante que treinadores de rota fiquem pelo menos 3 niveis acima dos selvagens da area.',
+  '- **Formas extras separadas**: auditoria agora diferencia Pokedex base 1-1025 de formas especiais/mega, evitando falsos positivos no relatorio.',
+  '',
+  '## [V2.1.3] - 17/05/2026 16:45',
+  '### Lendários — Correção do Sistema de Gate',
+  '- **Sem boss = sem bloqueio eterno**: lendários de Gen 3–9 sem boss no modo VS agora podem aparecer nos Domínios Elementais (apenas raridade 0.05% e limite diário aplicados).',
+  '- **Correção do stale closure**: `spawnEnemy` agora recria quando `worldFlags` muda, garantindo que derrotar um boss libere o spawn imediatamente.',
+  '- **Rotas de lendário único**: quando todos os lendários de uma rota estão bloqueados, o spawn é abortado em vez de spawnar um Pidgey nível 3 como fallback incorreto.',
+  '',
   '## [V2.1.2] - 17/05/2026 15:12',
   '### Pos-game — Dominios Elementais',
   '- **Rotas por Tipo**: adicionados 18 Dominios Elementais liberados apos concluir as 9 regioes, cada um focado em um tipo Pokemon.',

@@ -2652,7 +2652,7 @@ export default function App() {
     let enemyPool = [...route.enemies];
     
     // ── 2. FILTRO DE LENDÁRIOS / MÍTICOS ──
-    const LEGENDARY_IDS = [
+    const LEGENDARY_IDS = new Set([
       144, 145, 146, 150, 151, // Gen 1
       243, 244, 245, 249, 250, 251, // Gen 2
       377, 378, 379, 380, 381, 382, 383, 384, 385, 386, // Gen 3
@@ -2662,31 +2662,45 @@ export default function App() {
       772, 773, 785, 786, 787, 788, 789, 790, 791, 792, 793, 794, 795, 796, 797, 798, 799, 800, 801, 802, 803, 804, 805, 806, 807, // Gen 7
       888, 889, 890, 891, 892, 893, 894, 895, 896, 897, 898, 905, // Gen 8
       1001, 1002, 1003, 1004, 1007, 1008, 1010, 1024 // Gen 9
-    ];
+    ]);
+    // Lendários com boss real no modo VS — exigem flag _defeated para spawnar na rota
+    const LEGENDARY_BOSS_IDS = new Set([
+      144, 145, 146, 150,           // Kanto: Articuno, Zapdos, Moltres, Mewtwo
+      243, 244, 245, 249, 250, 251, // Johto: Raikou, Entei, Suicune, Lugia, Ho-Oh, Celebi
+      384,                          // Hoenn: Rayquaza
+    ]);
     const todayStr = new Date().toISOString().split('T')[0];
+    const currentFlagsForLegendary = gameState.worldFlags || [];
 
     enemyPool = enemyPool.filter(e => {
       const id = Number(e.id);
-      if (LEGENDARY_IDS.includes(id)) {
-        const baseData = POKEDEX[id];
-        // Formata o nome para bater com as flags: Ho-Oh -> ho_oh_defeated
-        const pokemonName = baseData?.name?.toLowerCase().replace(/ /g, '_').replace(/-/g, '_') || '';
-        
-        // 1. Verifica se já derrotou o boss correspondente nas flags globais
-        // Ex: 'mewtwo_defeated', 'ho_oh_defeated'
-        const defeatFlag = `${pokemonName}_defeated`;
-        const currentFlags = gameState.worldFlags || [];
-        if (!currentFlags.includes(defeatFlag)) return false;
-
-        // 2. Raridade Extrema (0.05% de chance de aparecer se elegível)
-        // O spawnWeight original da rota é ignorado para lendários para garantir a raridade fixa
+      if (LEGENDARY_IDS.has(id)) {
+        // 1. Lendários com boss no VS exigem flag de derrota; sem boss são gatados apenas por raridade
+        if (LEGENDARY_BOSS_IDS.has(id)) {
+          const baseData = POKEDEX[id];
+          const pokemonName = baseData?.name?.toLowerCase().replace(/ /g, '_').replace(/-/g, '_') || '';
+          const defeatFlag = `${pokemonName}_defeated`;
+          if (!currentFlagsForLegendary.includes(defeatFlag)) return false;
+        }
+        // 2. Raridade extrema (0.05%) — válido para todos os lendários
         if (Math.random() > 0.0005) return false;
-
-        // 3. Verifica limite diário (1 vez por dia por espécie)
+        // 3. Limite diário (1 por dia por espécie)
         if (gameState.lastLegendarySpawns?.[id] === todayStr) return false;
       }
       return true;
     });
+
+    // Fix: pool vazio após filtro de lendários — evita fallback Pidgey em rotas sem inimigos válidos
+    if (enemyPool.length === 0) {
+      const nonLegendaryFallback = route.enemies.filter(e => !LEGENDARY_IDS.has(Number(e.id)));
+      if (nonLegendaryFallback.length > 0) {
+        enemyPool = nonLegendaryFallback;
+      } else {
+        // Rota contém apenas lendários ainda bloqueados — aguarda desbloqueio via boss VS
+        isProcessingVictory.current = false;
+        return;
+      }
+    }
 
     // ── 2.3 FILTRO requiresFlag — Pokémon com gate por progresso (ex: iniciais pós-rival) ──
     const currentFlags = gameState.worldFlags || [];
@@ -2729,7 +2743,7 @@ export default function App() {
     const baseRef = pickWeightedEncounter(enemyPool, POKEDEX) || { id: 16, level: 3 };
 
     // Se for um lendário, registra o spawn do dia
-    if (LEGENDARY_IDS.includes(Number(baseRef.id))) {
+    if (LEGENDARY_IDS.has(Number(baseRef.id))) {
       setGameState(prev => ({
         ...prev,
         lastLegendarySpawns: {
@@ -2877,7 +2891,7 @@ export default function App() {
       }));
     }
     // BGM agora gerenciado pelas configuraçííµes
-  }, [gameState.currentRoute, gameState.speciesMastery, playBGM, addLog, processedRoutes]);
+  }, [gameState.currentRoute, gameState.worldFlags, gameState.speciesMastery, playBGM, addLog, processedRoutes]);
 
   useEffect(() => {
     if (currentView !== 'battles') return;

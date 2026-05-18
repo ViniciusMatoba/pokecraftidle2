@@ -1,5 +1,5 @@
 {
-  "version": "2.1.2",
-  "date": "17/05/2026 15:12",
-  "notes": "Pos-game com Dominios Elementais: 18 rotas por tipo, Dominio Prisma, encontros dinamicos da Pokedex em niveis 70-100 e 19 backgrounds WebP mobile."
+  "version": "2.1.4",
+  "date": "17/05/2026 22:40",
+  "notes": "Auditoria automatica no build para Pokedex, rotas, backgrounds e progressao; Hisui entrou no balanceamento gradual e treinadores de rota passam a respeitar minimo +3 niveis."
 }

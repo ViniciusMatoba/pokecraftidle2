@@ -388,13 +388,14 @@ const applyEvolutionFilter = (enemies) => {
   });
 };
 
-const ROUTE_PROGRESS_REGIONS = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea'];
+const ROUTE_PROGRESS_REGIONS = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea', 'hisui'];
 
 const ROUTE_LEVEL_STEP_LIMIT = {
   default: 8,
   unova: 7,
   galar: 8,
   paldea: 8,
+  hisui: 8,
 };
 
 const isRegionalDexTrainingRoute = (route) => route?.id?.includes('_dex_');
