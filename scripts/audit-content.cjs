@@ -217,7 +217,8 @@ while (changed) {
   }
 }
 
-const unobtainable = dexIds.filter((id) => !obtainable.has(id));
+const unobtainableBase = baseDexIds.filter((id) => !obtainable.has(id));
+const unobtainableForms = formDexIds.filter((id) => !obtainable.has(id));
 
 const backgroundSources = [
   routeSource,
@@ -272,8 +273,8 @@ if (routeProgressionIssues.length) {
 if (trainerBalanceIssues.length) {
   failures.push(`Treinadores abaixo do minimo esperado (+3 niveis): ${trainerBalanceIssues.length} ocorrencias.`);
 }
-if (strictObtainability && unobtainable.length) {
-  failures.push(`Modo estrito: ${unobtainable.length} Pokemon ainda nao sao obtiveis.`);
+if (strictObtainability && unobtainableBase.length) {
+  failures.push(`Modo estrito: ${unobtainableBase.length} Pokemon base ainda nao sao obtiveis.`);
 }
 
 const report = {
@@ -314,11 +315,14 @@ const report = {
     ),
   },
   obtainability: {
-    obtainable: obtainable.size,
+    obtainable: baseDexIds.filter((id) => obtainable.has(id)).length,
+    obtainableTotalEntries: obtainable.size,
     obtainableByRegion: byRegion(obtainable),
-    unobtainable: unobtainable.length,
-    unobtainableByRegion: byRegion(unobtainable),
-    unobtainableSample: unobtainable.slice(0, 40),
+    unobtainable: unobtainableBase.length,
+    unobtainableByRegion: byRegion(unobtainableBase),
+    unobtainableSample: unobtainableBase.slice(0, 40),
+    unobtainableForms: unobtainableForms.length,
+    unobtainableFormsSample: unobtainableForms.slice(0, 40),
   },
   forms: {
     catalogFamilies: formFamilyCount,
@@ -338,7 +342,7 @@ if (jsonOutput) {
   console.log('\nContent audit');
   console.log('-------------');
   console.log(`Pokedex base: ${report.dex.count}/1025 (${report.dex.min}-${report.dex.max}); formas extras: ${report.dex.formEntries}`);
-  console.log(`Obtiveis por rota + evolucao: ${report.obtainability.obtainable}/1025`);
+  console.log(`Pokemon base obtiveis por rota + evolucao: ${report.obtainability.obtainable}/1025`);
   console.log(`Rotas: ${report.routes.total}; especies selvagens: ${report.routes.wildSpecies}`);
   console.log(`Saltos grandes de nivel: ${report.routes.progressionIssues.length}`);
   console.log(`Treinadores abaixo do minimo +3: ${trainerBalanceIssues.length}`);
@@ -346,7 +350,7 @@ if (jsonOutput) {
   console.log(`Formas catalogadas: ${report.forms.catalogFamilies} familias, ${report.forms.catalogVariants} variantes`);
   console.log(`Rotas com selvagens fora da regiao inferida: ${report.routes.outOfRegionWildRoutes}`);
   if (report.obtainability.unobtainable) {
-    console.log(`Aviso: ${report.obtainability.unobtainable} Pokemon ainda nao sao obtiveis.`);
+    console.log(`Aviso: ${report.obtainability.unobtainable} Pokemon base ainda nao sao obtiveis.`);
   }
   if (report.evolutions.missingFormTargets.length) {
     console.log(`Aviso: ${report.evolutions.missingFormTargets.length} evolucoes apontam para formas extras ainda sem entrada direta na Pokedex.`);

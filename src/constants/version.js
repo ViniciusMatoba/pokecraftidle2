@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.1.5';
-export const VERSION = '2.1.5';
-export const APP_VERSION_DATE = '17/05/2026 22:56';
+export const APP_VERSION = '2.1.6';
+export const VERSION = '2.1.6';
+export const APP_VERSION_DATE = '17/05/2026 23:10';
 export const CHANGELOG = [
+  '## [V2.1.6] - 17/05/2026 23:10',
+  '### Auditoria de Pokedex e Textos',
+  '- **Pokedex completa**: adicionadas entradas diretas para Mega Skarmory, Mega Kingdra, Mega Miltank, Mega Blissey e Mega Shedinja.',
+  '- **Auditoria ajustada**: formas especiais agora sao separadas dos Pokemon base, removendo falso aviso de Pokemon nao obtiveis.',
+  '- **Modo VS**: textos corrompidos de desafios, rivais, equipes vila, titas e avisos foram saneados.',
+  '',
   '## [V2.1.5] - 17/05/2026 22:56',
   '### Bloco 2 — Modais, Drops, Titulos e Progresso',
   '- **Drops raros**: adicionado modal padronizado para itens raros e fragmentos de Mega Pedra, com icone tematico, descricao e leitura segura em mobile.',
