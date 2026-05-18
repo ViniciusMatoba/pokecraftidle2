@@ -491,7 +491,7 @@ export const TrainerCard = ({
                     {titleCollectionUnlocked.length}/{titleCollection.length} desbloqueados
                   </p>
                 </div>
-                <button type="button" onClick={() => setShowTitlePicker(false)} className="w-8 h-8 rounded-full bg-white/10 text-white font-black hover:bg-red-500 transition-colors">X</button>
+                <button type="button" onClick={() => setShowTitlePicker(false)} className="w-11 h-11 rounded-full bg-white/10 text-white font-black hover:bg-red-500 transition-colors shrink-0">X</button>
               </div>
               <div 
                 className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2" 
@@ -652,7 +652,7 @@ export const TrainerCardModal = ({ userData, onClose }) => {
       onTouchStart={(e) => e.stopPropagation()}
     >
       <div className="w-full max-w-sm relative animate-bounceIn">
-        <button onClick={onClose} className="absolute -top-12 right-0 w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-black border-2 border-red-400 shadow-lg active:scale-95 z-10">X</button>
+        <button onClick={onClose} className="absolute -top-14 right-0 w-11 h-11 bg-red-600 text-white rounded-full flex items-center justify-center font-black border-2 border-red-400 shadow-lg active:scale-95 z-10 shrink-0">X</button>
         <TrainerCard
           trainer={{ name: userData.name, avatarImg: `https://play.pokemonshowdown.com/sprites/trainers/red.png`, titleId: userData.titleId }}
           badges={userData.badgesList || []}

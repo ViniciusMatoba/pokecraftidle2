@@ -64,7 +64,7 @@ const ConfirmModal = ({
           </div>
           <button
             onClick={closeAction}
-            className="w-9 h-9 rounded-full bg-white/20 text-white font-black flex items-center justify-center hover:bg-white/30 transition-colors shrink-0"
+            className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/20 text-white font-black flex items-center justify-center hover:bg-white/30 transition-colors"
             aria-label="Fechar"
           >
             x

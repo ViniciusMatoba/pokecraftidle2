@@ -10360,7 +10360,7 @@ export default function App() {
                 </div>
                 <button
                   onClick={() => setActiveBuildingModal(null)}
-                  className="w-9 h-9 rounded-full bg-white/20 text-white font-black flex items-center justify-center hover:bg-white/30 transition-colors shrink-0"
+                  className="w-11 h-11 rounded-full bg-white/20 text-white font-black flex items-center justify-center hover:bg-white/30 transition-colors shrink-0"
                   aria-label="Fechar"
                 >
                   x
@@ -10525,7 +10525,7 @@ export default function App() {
                        <h3 className="text-white text-lg font-black uppercase italic leading-tight">Onde encontrar?</h3>
                     </div>
                  </div>
-                 <button onClick={() => setActiveMaterialModal(null)} className="w-9 h-9 rounded-full bg-white/20 text-white font-black flex items-center justify-center hover:bg-white/30 transition-colors shrink-0" aria-label="Fechar">x</button>
+                 <button onClick={() => setActiveMaterialModal(null)} className="w-11 h-11 rounded-full bg-white/20 text-white font-black flex items-center justify-center hover:bg-white/30 transition-colors shrink-0" aria-label="Fechar">x</button>
               </div>
 
               <div className="modal-scroll-content p-5 flex flex-col gap-5">
@@ -10913,7 +10913,7 @@ export default function App() {
                     <h3 className="font-black text-white uppercase italic text-[15px] leading-tight tracking-tight">Painel Automático</h3>
                   </div>
                 </div>
-                <button onClick={() => setShowBattleAutoPanel(false)} className="w-9 h-9 rounded-full flex items-center justify-center font-black text-white text-sm transition-colors hover:bg-white/20" style={{ background: 'rgba(255,255,255,0.1)' }} aria-label="Fechar">✕</button>
+                <button onClick={() => setShowBattleAutoPanel(false)} className="w-11 h-11 rounded-full flex items-center justify-center font-black text-white text-sm transition-colors hover:bg-white/20" style={{ background: 'rgba(255,255,255,0.1)' }} aria-label="Fechar">✕</button>
               </div>
 
               {/* ── BODY ── */}

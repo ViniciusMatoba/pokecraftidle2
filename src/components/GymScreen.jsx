@@ -275,7 +275,7 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
           <div className="absolute inset-0 opacity-15 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '18px 18px' }} />
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 z-30 w-9 h-9 rounded-full bg-white/20 text-white font-black flex items-center justify-center hover:bg-white/30 transition-colors border border-white/20"
+            className="absolute top-3 right-3 z-30 w-11 h-11 rounded-full bg-white/20 text-white font-black flex items-center justify-center hover:bg-white/30 transition-colors border border-white/20"
             aria-label="Fechar"
           >
             x

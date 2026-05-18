@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.4.1';
-export const VERSION = '2.4.1';
-export const APP_VERSION_DATE = '18/05/2026 15:51';
+export const APP_VERSION = '2.4.2';
+export const VERSION = '2.4.2';
+export const APP_VERSION_DATE = '18/05/2026 16:02';
 export const CHANGELOG = [
+  '## [V2.4.2] - 18/05/2026 16:02',
+  '### UI/UX Mobile',
+  '- **Touch Targets**: Os botões de fechar (X) de todos os modais (Forja, Quest, Oak, Confirmação, Títulos e Trainer Card) foram ampliados para um alvo mínimo de toque de 44x44px (`w-11 h-11`), melhorando a usabilidade em dispositivos móveis.',
+  '- **Viewport Lock**: Confirmada a configuração `h-100dvh` e `overflow: hidden` na `.app-shell` para manter o layout mobile isolado e livre de scroll no corpo do navegador.',
+  '- **Responsividade de Grids**: Reforço nos layouts das grids de Mochila e CityScreen que já usam flex-wrap e dimensões dinâmicas.',
+  '',
   '## [V2.4.1] - 18/05/2026 15:51',
   '### UI/UX & PWA',
   '- **Responsividade**: Melhoria no layout do "Minha Região" com um grid dinâmico (3 colunas em mobile e 6 no desktop).',

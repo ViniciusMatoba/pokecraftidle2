@@ -381,7 +381,7 @@ const CityScreen = ({
                          <h3 className="text-white text-xl font-black uppercase italic leading-none tracking-tighter">Laboratório</h3>
                       </div>
                    </div>
-                   <button onClick={() => setActiveOakModal(false)} className="w-9 h-9 rounded-full bg-white/10 text-white font-black flex items-center justify-center hover:bg-white/20 transition-colors shrink-0" aria-label="Fechar">x</button>
+                   <button onClick={() => setActiveOakModal(false)} className="w-11 h-11 rounded-full bg-white/10 text-white font-black flex items-center justify-center hover:bg-white/20 transition-colors shrink-0" aria-label="Fechar">x</button>
                 </div>
 
                 <div className="overflow-y-auto custom-scrollbar p-6 flex flex-col gap-6" style={{ maxHeight: '70vh' }}>

@@ -58,7 +58,7 @@ const AutoCaptureModal = ({ route, gameState, onSave, onClose, onDisable }) => {
           </div>
           <button
             onClick={onClose}
-            className="bg-white/20 text-white w-9 h-9 rounded-full flex items-center justify-center font-black hover:bg-white/30 transition-all shrink-0"
+            className="w-11 h-11 rounded-full bg-white/20 text-white font-black flex items-center justify-center hover:bg-white/30 transition-colors shrink-0"
             aria-label="Fechar"
           >
             x
