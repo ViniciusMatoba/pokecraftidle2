@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.5.0';
-export const VERSION = '2.5.0';
-export const APP_VERSION_DATE = '18/05/2026 16:10';
+export const APP_VERSION = '2.5.1';
+export const VERSION = '2.5.1';
+export const APP_VERSION_DATE = '18/05/2026 17:07';
 export const CHANGELOG = [
+  '## [V2.5.1] - 18/05/2026 17:07',
+  '### Sprites Regionais e Sincronizacao',
+  '- **Repositorio atualizado**: projeto sincronizado com as alteracoes mais recentes do GitHub antes da auditoria.',
+  '- **Helper central de sprites**: criada resolucao unica para sprites normais, shiny, mega e formas regionais com `formKey`.',
+  '- **Formas Hisui corrigidas**: Growlithe-H, Qwilfish-H, Sneasel-H, Voltorb-H, Electrode-H, Avalugg-H e Typhlosion Hisui passam a usar IDs reais de sprite da PokeAPI.',
+  '- **Rotas de Hisui**: encontros regionais receberam `formKey` e nao sao convertidos para evolucoes comuns pela evolucao automatica de rota.',
+  '- **Captura e PC**: formas regionais capturadas preservam `formKey`, aparecem com sprite correto no time, PC, Pokedex, batalha, raid e notificacoes.',
+  '',
   '## [V2.5.0] - 18/05/2026 16:10',
   '### Formas Regionais Hisuianas',
   '- **Sprites corretos**: Raids com formas Hisuianas (Growlithe-H, Qwilfish-H, Sneasel-H, Voltorb-H, Avalugg-H) agora exibem o sprite da forma regional correta via PokeAPI forms.',

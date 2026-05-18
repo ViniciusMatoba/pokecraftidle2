@@ -1,5 +1,5 @@
 {
-  "version": "2.5.0",
-  "date": "18/05/2026 16:10",
-  "notes": "Formas Regionais Hisuianas: sprites corretos nas raids (Growlithe-H, Qwilfish-H, Sneasel-H, Voltorb-H, Avalugg-H). Pokedex: Typhlosion Hisui corrigido (#20157)."
+  "version": "2.5.1",
+  "date": "18/05/2026 17:07",
+  "notes": "Sprites regionais: helper central para formas regionais, correcoes em raids/rotas de Hisui, PC, time, Pokedex, batalha e notificacoes."
 }

@@ -20,8 +20,8 @@ import { CANDY_FAMILIES, getCandyIconUrl } from '../data/candies';
 import { EXP_CANDIES } from '../data/raids';
 import { claimLoginReward, claimMissionReward, formatRewardSummary, getRetentionViewModel } from '../data/retention';
 import { getJourneyGuide } from '../data/journeyGuide';
-import { getMegaSprite } from '../data/megaEvolutions';
 import { ROUTES, inferRouteRegion, isRouteUnlocked } from '../data/routes';
+import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokemonSprites';
 
 const CURRENT_VERSION = APP_VERSION || '1.4';
 const VERSION_DATE = APP_VERSION_DATE || '2026-04-23';
@@ -108,13 +108,13 @@ const ExpCandyConfirmModal = ({ candy, pokemon, onConfirm, onBack }) => {
             {/* Pokémon */}
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <img
-                src={pokemon.isMega && pokemon.megaSprite ? pokemon.megaSprite : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.isShiny ? 'shiny/' : ''}${pokemon.id}.png`}
+                src={getPokemonSpriteUrl(pokemon)}
                 alt={pokemon.name}
                 className="w-12 h-12 object-contain shrink-0"
                 onError={e => {
                   if (!e.target.dataset.triedBase) {
                     e.target.dataset.triedBase = '1';
-                    e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.isShiny ? 'shiny/' : ''}${pokemon.id}.png`;
+                    e.target.src = getPokemonSpriteFallbackUrl(pokemon);
                   } else {
                     e.target.style.display = 'none';
                   }
@@ -268,13 +268,13 @@ const ExpCandyModal = ({ candy, gameState, onUse, onClose }) => {
                   onClick={() => setConfirmPokemon(p)}
                   className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border-2 border-slate-100 hover:border-slate-300 active:scale-[0.98] transition-all text-left w-full">
                   <img
-                    src={p.isMega && p.megaSprite ? p.megaSprite : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
+                    src={getPokemonSpriteUrl(p)}
                     alt={p.name}
                     className="w-10 h-10 object-contain"
                     onError={e => {
                       if (!e.target.dataset.triedBase) {
                         e.target.dataset.triedBase = '1';
-                        e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`;
+                        e.target.src = getPokemonSpriteFallbackUrl(p);
                       } else {
                         e.target.style.display = 'none';
                       }

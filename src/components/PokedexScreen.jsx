@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { TYPE_COLOR_HEX } from '../data/gyms';
 import { isRouteUnlocked } from '../data/routes';
 import { getMegaSprite } from '../data/megaEvolutions';
+import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokemonSprites';
 
 const REGION_LABEL = {
   kanto: 'Kanto', johto: 'Johto', hoenn: 'Hoenn', sinnoh: 'Sinnoh',
@@ -94,13 +95,13 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 15
                 >
                    <span className="absolute top-2 left-3 text-[8px] font-black text-slate-300">#{p.id}</span>
                     <img 
-                      src={p.id >= 10000 ? getMegaSprite(p.id) : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} 
+                      src={p.isRegionalForm || p.formKey ? getPokemonSpriteUrl(p) : p.id >= 10000 ? getMegaSprite(p.id) : getPokemonSpriteUrl(p)}
                       onError={e => {
                         if (!e.target.dataset.triedBase && p.id >= 10000) {
                           e.target.dataset.triedBase = '1';
                           // Fallback para o ID base se for um ID Mega/Alternativo
                           const baseId = p.id % 10000;
-                          e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${baseId}.png`;
+                          e.target.src = getPokemonSpriteFallbackUrl({ id: baseId });
                         }
                       }}
                       className="w-12 h-12 object-contain group-hover:scale-110 transition-transform" 
@@ -160,13 +161,11 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 15
                 </div>
 
                 <img
-                  src={displayPoke.isMega && displayPoke.megaSprite
-                    ? displayPoke.megaSprite
-                    : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${displayPoke.isShiny ? 'shiny/' : ''}${displayPoke.id}.png`}
+                  src={getPokemonSpriteUrl(displayPoke)}
                   onError={e => {
                     if (!e.target.dataset.triedBase) {
                       e.target.dataset.triedBase = '1';
-                      e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${displayPoke.isShiny ? 'shiny/' : ''}${displayPoke.id}.png`;
+                      e.target.src = getPokemonSpriteFallbackUrl(displayPoke);
                     }
                   }}
                   className={`absolute left-1/2 top-12 z-10 w-28 h-28 -translate-x-1/2 object-contain drop-shadow-2xl ${isCaught ? '' : 'brightness-0 opacity-25 grayscale blur-[1px]'}`}

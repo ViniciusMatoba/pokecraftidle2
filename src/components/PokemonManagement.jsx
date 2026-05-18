@@ -6,6 +6,7 @@ import { getTimeOfDay } from '../utils/timeSystem';
 import { getCompatibleMegaStones, MEGA_STONE_ICONS, getMegaSprite } from '../data/megaEvolutions';
 import { ABILITY_ITEM_ID, getPokemonAbilityPool, setPokemonAbility } from '../data/abilities';
 import { getPokeballDef, POKEBALL_DEFS, ALL_BALL_IDS, BALL_EFFECT_LABELS } from '../data/pokeballs';
+import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokemonSprites';
 
 import { GYM_LEVEL_CAPS } from '../data/constants';
 import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER, isPokemonLegal } from '../data/regionStandards';
@@ -595,11 +596,11 @@ const PokemonManagement = ({
               >
                 <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center relative">
                   <img
-                    src={p.isMega && p.megaSprite ? p.megaSprite : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
+                    src={getPokemonSpriteUrl(p)}
                     onError={e => {
                       if (p.isMega && p.megaSprite && !e.target.dataset.triedBase) {
                         e.target.dataset.triedBase = '1';
-                        e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`;
+                        e.target.src = getPokemonSpriteFallbackUrl(p);
                       }
                     }}
                     className="w-14 h-14 object-contain"
@@ -709,11 +710,11 @@ const PokemonManagement = ({
                       }`}
                     >
                        <img
-                         src={p.isMega && p.megaSprite ? p.megaSprite : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`}
+                         src={getPokemonSpriteUrl(p)}
                          onError={e => {
                            if (p.isMega && p.megaSprite && !e.target.dataset.triedBase) {
                              e.target.dataset.triedBase = '1';
-                             e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`;
+                             e.target.src = getPokemonSpriteFallbackUrl(p);
                            }
                          }}
                          className="w-12 h-12 object-contain"
@@ -825,14 +826,12 @@ const PokemonManagement = ({
                        ))}
                      </div>
                      <img
-                       src={poke.isMega && poke.megaSprite
-                         ? poke.megaSprite
-                         : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`}
+                       src={getPokemonSpriteUrl(poke)}
                        className={`absolute left-1/2 top-12 z-10 w-28 h-28 -translate-x-1/2 object-contain drop-shadow-2xl ${poke.isShiny ? 'drop-shadow-[0_0_20px_rgba(234,179,8,0.9)]' : ''}`}
                         onError={e => {
                           if (poke.isMega && poke.megaSprite && !e.target.dataset.triedBase) {
                             e.target.dataset.triedBase = '1';
-                            e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`;
+                            e.target.src = getPokemonSpriteFallbackUrl(poke);
                           }
                         }}
                         alt={poke.name}
@@ -1376,7 +1375,7 @@ const PokemonManagement = ({
                                         if (!e.target.dataset.triedBase) {
                                           e.target.dataset.triedBase = '1';
                                           // Se falhar o Mega ou o ID for alto, tenta o sprite do Pokémon atual (base) como fallback visual
-                                          e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`;
+                                          e.target.src = getPokemonSpriteFallbackUrl(poke);
                                         }
                                       }}
                                       className="w-10 h-10 object-contain"
@@ -1462,7 +1461,7 @@ const PokemonManagement = ({
                               onError={e => {
                                 if (!e.target.dataset.triedBase) {
                                   e.target.dataset.triedBase = '1';
-                                  e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.isShiny ? 'shiny/' : ''}${poke.id}.png`;
+                                  e.target.src = getPokemonSpriteFallbackUrl(poke);
                                 }
                               }}
                               style={{ width: 48, height: 48, objectFit: 'contain' }}
@@ -1594,11 +1593,11 @@ const PokemonManagement = ({
                                    className={`relative h-16 rounded-2xl border-2 transition-all flex items-center justify-center ${isCurrent ? 'border-pokeBlue bg-blue-50/50 shadow-inner' : 'border-white bg-white shadow-sm hover:border-pokeBlue/30 active:scale-95'}`}
                                  >
                                     <img
-                                      src={teamPoke.isMega && teamPoke.megaSprite ? teamPoke.megaSprite : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${teamPoke.isShiny ? 'shiny/' : ''}${teamPoke.id}.png`}
+                                      src={getPokemonSpriteUrl(teamPoke)}
                                       onError={e => {
                                         if (!e.target.dataset.triedBase) {
                                           e.target.dataset.triedBase = '1';
-                                          e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${teamPoke.isShiny ? 'shiny/' : ''}${teamPoke.id}.png`;
+                                          e.target.src = getPokemonSpriteFallbackUrl(teamPoke);
                                         }
                                       }}
                                       className={`w-10 h-10 object-contain ${isCurrent ? 'opacity-100' : 'opacity-40'}`}
@@ -1691,7 +1690,7 @@ const PokemonManagement = ({
                         </>
                       )}
                       <img
-                        src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke4.isShiny ? 'shiny/' : ''}${poke4.id}.png`}
+                        src={getPokemonSpriteUrl(poke4)}
                         className={`w-20 h-20 object-contain drop-shadow-2xl transition-all duration-300 ${ballPreviewEffect && selectedDef ? 'scale-110' : 'scale-100'}`}
                         style={{ filter: selectedDef && ballPreviewEffect ? `drop-shadow(0 0 10px ${selectedDef.color})` : 'none' }}
                         alt={poke4.name}

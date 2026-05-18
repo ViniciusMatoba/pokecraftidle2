@@ -57,6 +57,7 @@ import {
 } from './data/constants';
 import { REGION_ORDER, REGION_CHAMPION_FLAGS, REGION_BADGE_IDS, getPokemonRegion, getUnlockedDexLimit as getRegionalDexLimit, isPokemonAllowedInRegion, isPokemonLegal } from './data/regionStandards';
 import { getMasteryPath, getEffectiveStat, getShinyMult } from './utils/gameHelpers';
+import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from './utils/pokemonSprites';
 import { getTrainerCurrencyReward } from './utils/economy';
 import { getTypeEffectiveness } from './data/typeChart';
 import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
@@ -222,11 +223,14 @@ const deduplicateMoves = (moves) => {
   return [...seen.values()];
 };
 
-const ownsSpecies = (gameState = {}, pokemonId) => {
-  const id = Number(pokemonId);
-  return (gameState.team || []).some(p => Number(p.id) === id)
-    || (gameState.pc || []).some(p => Number(p.id) === id)
-    || (gameState.house?.caretakers || []).some(p => Number(p.id) === id);
+const ownsSpecies = (gameState = {}, pokemonOrId) => {
+  const target = typeof pokemonOrId === 'object' && pokemonOrId !== null ? pokemonOrId : { id: pokemonOrId };
+  const id = Number(target.id);
+  const targetFormKey = target.formKey || null;
+  const matches = (p) => Number(p.id) === id && ((p.formKey || null) === targetFormKey);
+  return (gameState.team || []).some(matches)
+    || (gameState.pc || []).some(matches)
+    || (gameState.house?.caretakers || []).some(matches);
 };
 
 const canCaptureGhostPokemon = (gameState = {}) => {
@@ -1458,9 +1462,10 @@ export default function App() {
       if (shouldEvolveWild && Array.isArray(route.enemies)) {
         const uniqueEnemies = new Map();
         route.enemies.forEach(enemy => {
-          const evolvedId = getLeveledSpeciesId(enemy.id, Number(enemy.level || maxWildLevel), maxDexId);
-          if (!uniqueEnemies.has(evolvedId)) {
-            uniqueEnemies.set(evolvedId, { ...enemy, id: evolvedId });
+          const evolvedId = enemy.formKey ? Number(enemy.id) : getLeveledSpeciesId(enemy.id, Number(enemy.level || maxWildLevel), maxDexId);
+          const uniqueKey = enemy.formKey ? `${evolvedId}:${enemy.formKey}` : String(evolvedId);
+          if (!uniqueEnemies.has(uniqueKey)) {
+            uniqueEnemies.set(uniqueKey, { ...enemy, id: evolvedId });
           }
         });
         route.enemies = Array.from(uniqueEnemies.values());
@@ -1491,7 +1496,7 @@ export default function App() {
       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
       'https://play.pokemonshowdown.com/sprites/trainers/oak.png',
       'https://play.pokemonshowdown.com/sprites/trainers/nurse.png',
-      ...(gameState.team || []).map(p => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`),
+      ...(gameState.team || []).map(p => getPokemonSpriteUrl(p)),
       fixPath(processedRoutes[gameState.currentRoute]?.background || '')
     ].flat().filter(src => src && src.length > 5);
 
@@ -3465,12 +3470,17 @@ export default function App() {
     if (caught) {
       const pokedexEntry = POKEDEX[raid.pokemonId] || {};
       const allOwned = [...(prev.team || []), ...(prev.pc || []), ...(prev.house?.caretakers || [])];
-      const ownedSameSpecies = allOwned.filter(p => Number(p.id) === Number(raid.pokemonId));
+      const raidFormKey = raid.formKey || null;
+      const isSameRaidPokemon = (p) =>
+        Number(p.id) === Number(raid.pokemonId) && ((p.formKey || null) === raidFormKey);
+      const ownedSameSpecies = allOwned.filter(isSameRaidPokemon);
 
       // Cria o Pokémon base
       let newPoke = assignRandomAbility({
         instanceId: `raid_caught_${Date.now()}`,
         id: raid.pokemonId,
+        formKey: raid.formKey || null,
+        formSpriteId: raid.formSpriteId || null,
         name: raid.name,
         level: raid.level,
         ball: ballKey || 'pokeballs',
@@ -3517,8 +3527,8 @@ export default function App() {
         }
 
         // Tem versão normal (não alfa, não shiny) → substitui automaticamente
-        const normalIdx_team = prev.team.findIndex(p => Number(p.id) === Number(raid.pokemonId) && !p.isAlpha && !p.isShiny);
-        const normalIdx_pc   = prev.pc.findIndex(p => Number(p.id) === Number(raid.pokemonId) && !p.isAlpha && !p.isShiny);
+        const normalIdx_team = prev.team.findIndex(p => isSameRaidPokemon(p) && !p.isAlpha && !p.isShiny);
+        const normalIdx_pc   = prev.pc.findIndex(p => isSameRaidPokemon(p) && !p.isAlpha && !p.isShiny);
         if (normalIdx_team >= 0 || normalIdx_pc >= 0) {
           addLog(`🔴 ${raid.name} ALFA capturado! Substituiu a versão normal.`, 'system');
           showRaidRouteNotice(raid, 'captured');
@@ -4796,13 +4806,13 @@ export default function App() {
 
 
           // Unificação por Espécie: Se já tem na caughtData (antes dessa captura), apenas aumenta maestria
-          const alreadyCaught = ownsSpecies(prev, currentEnemy.id);
+          const alreadyCaught = ownsSpecies(prev, currentEnemy);
           if (alreadyCaught) {
             addLog(`?? ${currentEnemy.name} j? capturado! Maestria aumentada.`, 'system');
             const findAndReplace = (list) => {
               let updated = false;
               const newList = list.map(p => {
-                if (Number(p.id) === Number(currentEnemy.id)) {
+                if (Number(p.id) === Number(currentEnemy.id) && ((p.formKey || null) === (currentEnemy.formKey || null))) {
                   updated = true;
                   if (currentEnemy.isShiny) {
                     const upgraded = applyShinyUpgrade(p, POKEDEX[Number(p.id)]);
@@ -6726,7 +6736,7 @@ export default function App() {
 
           const newLevel = (p.level || 5) + 1;
           addLog(`🎉 ${p.name} subiu para Nv. ${newLevel}!`, 'system');
-          notify({ type: 'level_up', title: `${p.name} subiu para Nv.${newLevel}!`, message: 'Continue treinando!', pokemonId: p.id, isShiny: p.isShiny });
+          notify({ type: 'level_up', title: `${p.name} subiu para Nv.${newLevel}!`, message: 'Continue treinando!', pokemonId: p.id, formKey: p.formKey, formSpriteId: p.formSpriteId, isShiny: p.isShiny });
           sfxLevelUp();
 
           let newMoves = [...(p.moves || [])];
@@ -11111,11 +11121,12 @@ export default function App() {
               <div className="flex items-center gap-3">
                 <div className="h-14 w-14 shrink-0 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
                   <img
-                    src={raidRouteNotice.formKey
-                      ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/forms/${raidRouteNotice.formKey}.png`
-                      : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${raidRouteNotice.pokemonId}.png`}
+                    src={getPokemonSpriteUrl(raidRouteNotice)}
                     alt={raidRouteNotice.raidName}
                     className="h-12 w-12 object-contain"
+                    onError={e => {
+                      e.currentTarget.src = getPokemonSpriteFallbackUrl(raidRouteNotice);
+                    }}
                     style={{ imageRendering: 'pixelated' }}
                   />
                 </div>
@@ -11250,12 +11261,11 @@ export default function App() {
                     background: 'rgba(239,68,68,0.1)', position: 'relative',
                   }}>
                     <img
-                      src={pendingAlphaCapture.raid.formKey
-                        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/forms/${pendingAlphaCapture.raid.formKey}.png`
-                        : pendingAlphaCapture.raid.isShiny
-                          ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pendingAlphaCapture.raid.pokemonId}.png`
-                          : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pendingAlphaCapture.raid.pokemonId}.png`}
+                      src={getPokemonSpriteUrl(pendingAlphaCapture.raid)}
                       alt="alfa"
+                      onError={e => {
+                        e.currentTarget.src = getPokemonSpriteFallbackUrl(pendingAlphaCapture.raid);
+                      }}
                       style={{ width: 70, height: 70, objectFit: 'contain', imageRendering: 'pixelated',
                         transform: 'scale(1.3)', filter: 'drop-shadow(0 0 6px #ef4444)' }}
                     />
@@ -11270,8 +11280,11 @@ export default function App() {
                     background: 'rgba(251,191,36,0.1)',
                   }}>
                     <img
-                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pendingAlphaCapture.raid.pokemonId}.png`}
+                      src={getPokemonSpriteUrl({ ...pendingAlphaCapture.raid, isShiny: true })}
                       alt="shiny"
+                      onError={e => {
+                        e.currentTarget.src = getPokemonSpriteFallbackUrl({ ...pendingAlphaCapture.raid, isShiny: true });
+                      }}
                       style={{ width: 70, height: 70, objectFit: 'contain', imageRendering: 'pixelated',
                         filter: 'drop-shadow(0 0 6px #fbbf24)' }}
                     />

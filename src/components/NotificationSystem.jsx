@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { getPokemonSpriteUrl } from '../utils/pokemonSprites';
 
 const NOTIF_COLORS = {
   success:    { bg: '#dcfce7', border: '#86efac', text: '#166534', icon: 'OK' },
@@ -45,7 +46,7 @@ const NotificationSystem = () => {
       {notifications.map(n => {
         const cfg = NOTIF_COLORS[n.type] || NOTIF_COLORS.info;
         const levelSprite = n.type === 'level_up' && n.pokemonId
-          ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${n.isShiny ? 'shiny/' : ''}${n.pokemonId}.png`
+          ? getPokemonSpriteUrl(n)
           : null;
         return (
           <button

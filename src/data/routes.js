@@ -1275,7 +1275,7 @@ const FUTURE_REGION_ROUTES = {
     unlockLevel: 35, requirements: ['hisui_fieldlands_2_cleared'], unlocks: 'hisui_mirelands_1_cleared',
     biome: 'cave',
     enemies: [
-      { id: 211, level: 38, name: 'Qwilfish-H', rate: 0.25 },
+      { id: 211, level: 38, name: 'Qwilfish-H', formKey: 'qwilfish-hisui', rate: 0.25 },
       { id: 193, level: 36, name: 'Yanma',      rate: 0.25 },
       { id: 114, level: 35, name: 'Tangela',    rate: 0.20 },
       { id: 453, level: 37, name: 'Croagunk',   rate: 0.20 },
@@ -1293,7 +1293,7 @@ const FUTURE_REGION_ROUTES = {
     unlockLevel: 44, requirements: ['hisui_mirelands_1_cleared'], unlocks: 'hisui_coastlands_1_cleared',
     biome: 'water',
     enemies: [
-      { id: 58,  level: 46, name: 'Growlithe-H', rate: 0.20 },
+      { id: 58,  level: 46, name: 'Growlithe-H', formKey: 'growlithe-hisui', rate: 0.20 },
       { id: 456, level: 41, name: 'Finneon',      rate: 0.20 },
       { id: 458, level: 42, name: 'Mantyke',      rate: 0.20 },
       { id: 457, level: 43, name: 'Lumineon',     rate: 0.15 },
@@ -1312,11 +1312,11 @@ const FUTURE_REGION_ROUTES = {
     unlockLevel: 52, requirements: ['hisui_coastlands_1_cleared'], unlocks: 'hisui_highlands_1_cleared',
     biome: 'mountain',
     enemies: [
-      { id: 100, level: 50, name: 'Voltorb-H', rate: 0.25 },
+      { id: 100, level: 50, name: 'Voltorb-H', formKey: 'voltorb-hisui', rate: 0.25 },
       { id: 443, level: 52, name: 'Gible',     rate: 0.20 },
       { id: 436, level: 51, name: 'Bronzor',   rate: 0.20 },
-      { id: 215, level: 53, name: 'Sneasel-H', rate: 0.20 },
-      { id: 101, level: 55, name: 'Electrode-H',rate: 0.15 },
+      { id: 215, level: 53, name: 'Sneasel-H', formKey: 'sneasel-hisui', rate: 0.20 },
+      { id: 101, level: 55, name: 'Electrode-H', formKey: 'electrode-hisui', rate: 0.15 },
     ],
     trainerChance: 0.12,
     trainers: [
@@ -1334,7 +1334,7 @@ const FUTURE_REGION_ROUTES = {
       { id: 361, level: 60, name: 'Snorunt',  rate: 0.25 },
       { id: 564, level: 59, name: 'Tirtouga', rate: 0.15 },
       { id: 712, level: 62, name: 'Bergmite', rate: 0.20 },
-      { id: 713, level: 63, name: 'Avalugg-H',rate: 0.15 },
+      { id: 713, level: 63, name: 'Avalugg-H', formKey: 'avalugg-hisui', rate: 0.15 },
     ],
     trainerChance: 0.12,
     trainers: [

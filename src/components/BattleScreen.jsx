@@ -8,6 +8,7 @@ import { MOVE_TRANSLATIONS } from '../data/translations';
 import { TIME_CONFIG } from '../utils/timeSystem';
 import { WEATHER_TYPES } from '../data/weather';
 import { getPokeballDef } from '../data/pokeballs';
+import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokemonSprites';
 
 const ShinySparkles = () => (
   <div className="absolute inset-0 pointer-events-none z-30">
@@ -542,14 +543,14 @@ const BattleScreen = ({
               src={
                 currentEnemy.isTrainer && showTrainer 
                   ? (currentEnemy.trainerSprite || 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png') 
-                  : (currentEnemy.sprite || (currentEnemy.id ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${currentEnemy.isShiny ? 'shiny/' : ''}${currentEnemy.id}.png` : 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'))
+                  : (currentEnemy.sprite || (currentEnemy.id ? getPokemonSpriteUrl(currentEnemy) : 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'))
               }
               alt={currentEnemy.name || "Pokémon"}
               onError={e => {
                 const target = e.target;
                 if (!target.dataset.triedFallback && currentEnemy.id) {
                   target.dataset.triedFallback = '1';
-                  target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${currentEnemy.id}.png`;
+                  target.src = getPokemonSpriteFallbackUrl(currentEnemy);
                 }
               }}
               className={`w-full h-full object-contain drop-shadow-xl transition-all duration-500 ${showTrainer && currentEnemy.isTrainer ? 'scale-110' : currentEnemy.isWildBoss ? 'scale-125 animate-float' : 'animate-float'} ${currentEnemy.isShiny && !showTrainer ? 'drop-shadow-[0_0_16px_rgba(234,179,8,1)]' : ''} ${currentEnemy.hp <= 0 ? 'opacity-0 scale-0' : 'opacity-100'}`}
@@ -657,8 +658,8 @@ const BattleScreen = ({
                 src={
                   activePoke.isMega && activePoke.megaShowdownId
                     ? `https://play.pokemonshowdown.com/sprites/dex-back/${activePoke.megaShowdownId}.png`
-                    : activePoke.id >= 650
-                      ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.png`
+                    : activePoke.formKey || activePoke.id >= 650
+                      ? getPokemonSpriteUrl(activePoke, { back: true })
                       : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.gif`
                 }
                 onError={e => {
@@ -668,21 +669,21 @@ const BattleScreen = ({
                   // Fallback mega back → sprite base
                   if (isMega && !target.dataset.triedStaticMega) {
                     target.dataset.triedStaticMega = '1';
-                    target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.png`;
+                    target.src = getPokemonSpriteUrl(activePoke, { back: true });
                     return;
                   }
 
                   // Se tudo Mega falhou (ou não é mega), tenta o sprite base estático - BACK
                   if (!target.dataset.triedBase) {
                     target.dataset.triedBase = '1';
-                    target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.png`;
+                    target.src = getPokemonSpriteUrl(activePoke, { back: true });
                     return;
                   }
 
                   // Gen 6+ não tem back sprite no PokeAPI — usa sprite frontal como último recurso
                   if (!target.dataset.triedFront) {
                     target.dataset.triedFront = '1';
-                    target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.png`;
+                    target.src = getPokemonSpriteUrl(activePoke);
                   }
                 }}
                 className={`w-full h-full object-contain drop-shadow-xl ${activePoke.isShiny ? 'drop-shadow-[0_0_10px_rgba(234,179,8,0.9)]' : ''} ${activePoke.isMega ? 'drop-shadow-[0_0_14px_rgba(124,58,237,0.7)]' : ''}`}
@@ -813,7 +814,7 @@ const BattleScreen = ({
                 }`}
               >
                 <div className="relative flex-shrink-0">
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.isShiny ? 'shiny/' : ''}${p.id}.png`} className={`w-10 h-10 object-contain ${blocked ? 'grayscale' : ''} ${p.isShiny ? 'drop-shadow-[0_0_6px_rgba(234,179,8,0.8)]' : ''}`} alt={p.name} />
+                  <img src={getPokemonSpriteUrl(p)} className={`w-10 h-10 object-contain ${blocked ? 'grayscale' : ''} ${p.isShiny ? 'drop-shadow-[0_0_6px_rgba(234,179,8,0.8)]' : ''}`} alt={p.name} />
                   {isActive && <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-pokeBlue rounded-full border-2 border-white" />}
                 </div>
                 <div className="flex-1 min-w-0">

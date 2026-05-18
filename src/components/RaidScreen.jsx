@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokemonSprites';
 
 const _BASE = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
 const fixBgPath = (bg) => {
@@ -151,11 +152,7 @@ const RaidScreen = ({
   const timeLeftExpire = raid.expiresAt - now;
   const timeLeftFight  = raid.fightEndsAt ? raid.fightEndsAt - now : 0;
   const starColor = STAR_COLOR[raid.stars] || '#94a3b8';
-  const pokemonSprite = raid.formKey
-    ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/forms/${raid.formKey}.png`
-    : raid.isShiny
-      ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${raid.pokemonId}.png`
-      : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${raid.pokemonId}.png`;
+  const pokemonSprite = getPokemonSpriteUrl(raid);
   const isAlphaShiny = raid.isAlpha && raid.isShiny;
 
   const balls = [
@@ -461,6 +458,9 @@ const RaidScreen = ({
           <img
             ref={spriteRef}
             src={pokemonSprite}
+            onError={e => {
+              e.currentTarget.src = getPokemonSpriteFallbackUrl(raid);
+            }}
             style={{
               width: raid.isAlpha ? 208 : 160,
               height: raid.isAlpha ? 208 : 160,
