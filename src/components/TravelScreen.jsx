@@ -500,15 +500,26 @@ const TravelScreen = ({
                                 <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase border ${unlocked ? 'bg-green-100 text-green-600 border-green-200' : 'bg-red-100 text-red-600 border-red-200'}`}>
                                   {unlocked ? 'Disponível' : 'Bloqueado'}
                                 </span>
-                                {route.enemies && route.enemies.length > 0 ? (
-                                  <span className="text-[8px] font-black px-2 py-0.5 rounded-full uppercase bg-slate-100 text-slate-500 border border-slate-200">
-                                    Nível: {Math.min(...route.enemies.map(e => e.level || 0))} - {Math.max(...route.enemies.map(e => e.level || 0))}
-                                  </span>
-                                ) : (
+                                {route.type === 'city' || route.type === 'safari' ? (
                                   <span className="text-[8px] font-black px-2 py-0.5 rounded-full uppercase bg-slate-100 text-slate-400 border border-slate-200">
-                                    Cidade / Ponto de Descanso
+                                    {route.type === 'safari' ? 'Zona Safari' : 'Cidade / Ponto de Descanso'}
                                   </span>
-                                )}
+                                ) : (() => {
+                                  const regularEnemies = (route.enemies || []).filter(e => !e.requiresFlag && !e.isLegendary);
+                                  const displayEnemies = regularEnemies.length > 0 ? regularEnemies : (route.enemies || []);
+                                  if (displayEnemies.length === 0) return (
+                                    <span className="text-[8px] font-black px-2 py-0.5 rounded-full uppercase bg-slate-100 text-slate-400 border border-slate-200">
+                                      Cidade / Ponto de Descanso
+                                    </span>
+                                  );
+                                  const minLv = Math.min(...displayEnemies.map(e => e.level || 0));
+                                  const maxLv = Math.max(...displayEnemies.map(e => e.level || 0));
+                                  return (
+                                    <span className="text-[8px] font-black px-2 py-0.5 rounded-full uppercase bg-slate-100 text-slate-500 border border-slate-200">
+                                      Nível: {minLv}{minLv !== maxLv ? ` - ${maxLv}` : ''}
+                                    </span>
+                                  );
+                                })()}
                              </div>
                            </div>
                          </div>

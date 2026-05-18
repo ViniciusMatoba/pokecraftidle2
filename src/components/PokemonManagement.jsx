@@ -1555,8 +1555,10 @@ const PokemonManagement = ({
                  const ballDef = getPokeballDef(poke3.ball || 'pokeballs');
                  return (
                    <div className="mx-5 mb-4 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 flex items-center gap-3">
-                     <div className="w-10 h-10 rounded-xl flex items-center justify-center text-2xl shrink-0" style={{ background: `${ballDef.color}22`, boxShadow: `0 0 8px ${ballDef.glowColor}` }}>
-                       {ballDef.emoji}
+                     <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${ballDef.color}22`, boxShadow: `0 0 8px ${ballDef.glowColor}` }}>
+                       {ballDef.sprite
+                         ? <img src={ballDef.sprite} alt={ballDef.name} className="w-7 h-7 object-contain" />
+                         : <span className="text-2xl">{ballDef.emoji}</span>}
                      </div>
                      <div className="flex-1 min-w-0">
                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Pokébola</p>
@@ -1697,7 +1699,10 @@ const PokemonManagement = ({
                     </div>
                     {selectedDef ? (
                       <div className="text-center">
-                        <p className="text-white font-black text-sm">{selectedDef.emoji} {selectedDef.name}</p>
+                        <p className="text-white font-black text-sm flex items-center gap-1.5">
+                          {selectedDef.sprite ? <img src={selectedDef.sprite} alt="" className="w-5 h-5 object-contain" /> : selectedDef.emoji}
+                          {selectedDef.name}
+                        </p>
                         <p className="text-white/50 text-[9px] font-bold uppercase">{BALL_EFFECT_LABELS[selectedDef.effect] || selectedDef.effect}</p>
                       </div>
                     ) : (
@@ -1727,7 +1732,9 @@ const PokemonManagement = ({
                             }`}
                             style={isSelected ? { borderColor: def.color, background: `${def.color}11`, boxShadow: `0 0 0 3px ${def.glowColor}` } : {}}
                           >
-                            <span className="text-xl">{def.emoji}</span>
+                            {def.sprite
+                              ? <img src={def.sprite} alt={def.name} className="w-8 h-8 object-contain shrink-0" />
+                              : <span className="text-xl">{def.emoji}</span>}
                             <div className="flex-1 min-w-0">
                               <p className="text-[10px] font-black text-slate-800 leading-tight truncate">{def.name}</p>
                               <p className="text-[9px] font-bold" style={{ color: available ? def.color : '#94a3b8' }}>

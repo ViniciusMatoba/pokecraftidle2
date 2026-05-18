@@ -3,6 +3,7 @@ import { APP_VERSION as V, APP_VERSION_DATE as D } from '../constants/version';
 export const APP_VERSION = V;
 export const APP_VERSION_DATE = D;
 
+
 export const NATURE_LIST = ['Adamant', 'Modest', 'Jolly', 'Timid', 'Bold', 'Calm', 'Impish', 'Careful', 'Brave', 'Quiet'];
 
 export const TYPE_COLORS = {
@@ -162,7 +163,13 @@ export const DEFAULT_GAME_STATE = {
   },
   settings: {
     battleSpeed: 1,
-    displayMode: 'mobile'
+    displayMode: 'mobile',
+    levelCap: true,
+    selectedMusic: 'all',
+    musicVolume: 25,
+    muteAll: false,
+    showBattleLog: true,
+    compactNumbers: false,
   },
   activeQuest: null,
   lastQuestTime: null,
@@ -430,7 +437,7 @@ export const ITEM_LABELS = {
 
   // Itens de Batalha
   potion:            { icon: '🧪', name: 'Poção' },
-  link_cable:        { icon: '/items/link_cable.webp', name: 'Link Cable' },
+  link_cable:        { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/up-grade.png', name: 'Link Cable' },
 
   // Pedra de Evolução extra
   sun_stone:         { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sun-stone.png', name: 'Pedra do Sol' },
@@ -546,7 +553,7 @@ export const POKE_MART_DRINKS = [
   {
     id: 'link_cable',
     name: 'Link Cable',
-    img: '/assets/items/link-cable-custom.webp',
+    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/up-grade.png',
     description: 'Item misterioso que permite certas evoluções sem troca.',
     price: 5000,
     availableFrom: 'thunder_badge',

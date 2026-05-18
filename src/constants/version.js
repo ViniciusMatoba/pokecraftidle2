@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.3.10.1';
-export const VERSION = '2.3.10.1';
-export const APP_VERSION_DATE = '18/05/2026 16:30';
+export const APP_VERSION = '2.4.0';
+export const VERSION = '2.4.0';
+export const APP_VERSION_DATE = '18/05/2026 15:48';
 export const CHANGELOG = [
+  '## [V2.4.0] - 18/05/2026 15:48',
+  '### SRE Audit & Production Readiness',
+  '- **Integridade de Save**: O processo de sanitização de saves antigos agora injeta explicitamente a `capturedRegion` padrão (Kanto), evitando bugs nos filtros do PC.',
+  '- **Sincronismo de Forja**: Melhorada a UI da Forja; a verificação de recursos e a notificação de forja agora ocorrem de forma determinística *antes* da mutação do estado global, eliminando race conditions visuais.',
+  '- **Otimização de Firestore**: Atraso do salvamento na nuvem alterado de 45s para 60s, poupando a cota diária de gravações gratuitas sem prejudicar a persistência.',
+  '',
   '## [V2.3.10.1] - 18/05/2026 16:30',
   '### Correção Crítica',
   '- **Crash definitivo na Raid corrigido:** a causa raiz era um TDZ (Temporal Dead Zone) dentro da função do componente RaidScreen. O `useState` de `catchAnim` estava declarado na linha 146, mas era referenciado na dependency array de um `useEffect` na linha 105. O Terser renomeava `catchAnim` para `ve`, gerando "Cannot access \'ve\' before initialization". Corrigido movendo todos os `useState`/`useRef` de posição e animação para antes do `useEffect` que os usa.',

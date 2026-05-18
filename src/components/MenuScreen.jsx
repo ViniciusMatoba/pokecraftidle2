@@ -329,7 +329,7 @@ const ExpCandyModal = ({ candy, gameState, onUse, onClose }) => {
   );
 };
 
-const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onExportSave, onImportSave, onShowTutorial, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0, setVsInitialTab, setVsInitialCategory, setVsInitialRegion }) => {
+const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onExportSave, onImportSave, onShowTutorial, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0, setVsInitialTab, setVsInitialCategory, setVsInitialRegion, muted, onToggleMute }) => {
   const [updating, setUpdating] = useState(false);
   const [subView, setSubView] = useState('main'); // 'main' ou 'settings'
   const [activeTab, setActiveTab] = useState('balls');
@@ -1185,7 +1185,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
           <div className="flex flex-col gap-3">
             <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Musica de Fundo</p>
             <div className="flex flex-col gap-2">
-              <select 
+              <select
                 value={gameState.settings?.selectedMusic || 'all'}
                 onChange={(e) => setGameState(prev => ({ ...prev, settings: { ...prev.settings, selectedMusic: e.target.value } }))}
                 className="w-full bg-slate-100 p-4 rounded-xl font-bold text-slate-700 appearance-none border-2 border-slate-200 focus:border-indigo-500 outline-none transition-all"
@@ -1196,6 +1196,69 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
               </select>
               <p className="text-[9px] font-bold text-slate-400 italic px-2">Troque a música para entrar no clima!</p>
             </div>
+          </div>
+
+          {/* Volume da Musica */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Volume da Musica</p>
+              <span className="text-[11px] font-black text-indigo-600">{gameState.settings?.musicVolume ?? 25}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="5"
+              value={gameState.settings?.musicVolume ?? 25}
+              onChange={(e) => setGameState(prev => ({ ...prev, settings: { ...prev.settings, musicVolume: Number(e.target.value) } }))}
+              className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-indigo-600 bg-slate-200"
+            />
+            <div className="flex justify-between text-[9px] text-slate-400 font-bold px-1">
+              <span>🔇 Mudo</span>
+              <span>🔊 Máximo</span>
+            </div>
+          </div>
+
+          {/* Mudo Geral */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Mudo</p>
+              <p className="text-[9px] text-slate-400 font-bold mt-0.5">Silencia toda música e sons</p>
+            </div>
+            <button
+              onClick={() => onToggleMute?.()}
+              className={`relative w-14 h-7 rounded-full transition-all duration-300 ${muted ? 'bg-slate-300' : 'bg-indigo-600'}`}
+            >
+              <span className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300 ${muted ? 'left-0.5' : 'left-7'}`} />
+            </button>
+          </div>
+
+          {/* Log de Batalha */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Log de Batalha</p>
+              <p className="text-[9px] text-slate-400 font-bold mt-0.5">Exibe mensagens durante o combate</p>
+            </div>
+            <button
+              onClick={() => setGameState(prev => ({ ...prev, settings: { ...prev.settings, showBattleLog: !(prev.settings?.showBattleLog ?? true) } }))}
+              className={`relative w-14 h-7 rounded-full transition-all duration-300 ${!(gameState.settings?.showBattleLog ?? true) ? 'bg-slate-300' : 'bg-indigo-600'}`}
+            >
+              <span className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300 ${!(gameState.settings?.showBattleLog ?? true) ? 'left-0.5' : 'left-7'}`} />
+            </button>
+          </div>
+
+          {/* Numeros Compactos */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Numeros Compactos</p>
+              <p className="text-[9px] text-slate-400 font-bold mt-0.5">Ex: 1.200.000 → 1,2M</p>
+            </div>
+            <button
+              onClick={() => setGameState(prev => ({ ...prev, settings: { ...prev.settings, compactNumbers: !(prev.settings?.compactNumbers ?? false) } }))}
+              className={`relative w-14 h-7 rounded-full transition-all duration-300 ${(gameState.settings?.compactNumbers ?? false) ? 'bg-indigo-600' : 'bg-slate-300'}`}
+            >
+              <span className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300 ${(gameState.settings?.compactNumbers ?? false) ? 'left-7' : 'left-0.5'}`} />
+            </button>
           </div>
         </div>
       </div>

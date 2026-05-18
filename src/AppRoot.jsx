@@ -1688,8 +1688,9 @@ export default function App() {
       const needsMoves = !processed.moves || processed.moves.length === 0;
       const needsStats = !processed.spAtk || !processed.spDef;
       const needsInstanceId = !processed.instanceId;
+      const needsRegion = !processed.capturedRegion;
 
-      if (needsMoves || needsStats || needsInstanceId) {
+      if (needsMoves || needsStats || needsInstanceId || needsRegion) {
         if (needsMoves) {
           const learnset = base.learnset || [];
           let availableMoves = learnset
@@ -1724,6 +1725,9 @@ export default function App() {
         if (needsInstanceId) {
           processed.instanceId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
         }
+        if (needsRegion) {
+          processed.capturedRegion = p.capturedRegion || 'kanto';
+        }
       }
       return processed;
     };
@@ -1740,6 +1744,7 @@ export default function App() {
       const all = [...(prev.team || []), ...(prev.pc || [])];
       const needsMoves = all.some(p => !p.moves || p.moves.length === 0);
       const needsInstanceId = all.some(p => !p.instanceId);
+      const needsRegion = all.some(p => !p.capturedRegion);
       
       // Sincroniza Pokedex (caughtData) com Pokémons que o jogador possui
       let caughtChanged = false;
@@ -1787,8 +1792,8 @@ export default function App() {
         }
       });
 
-      if (needsMoves || needsInstanceId || caughtChanged || auditChanged) {
-        const nextState = (needsMoves || needsInstanceId) ? sanitizeCollection({ ...prev, worldFlags: auditedFlags }) : { ...prev, worldFlags: auditedFlags };
+      if (needsMoves || needsInstanceId || needsRegion || caughtChanged || auditChanged) {
+        const nextState = (needsMoves || needsInstanceId || needsRegion) ? sanitizeCollection({ ...prev, worldFlags: auditedFlags }) : { ...prev, worldFlags: auditedFlags };
         
         if (caughtChanged) {
           return { ...nextState, caughtData: newCaughtData };
@@ -2143,7 +2148,7 @@ export default function App() {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
       saveToCloud(data).catch(e => console.error("Auto save fail:", e));
-    }, 45_000); // 45s — equilibrio entre segurança e cota Firestore
+    }, 60_000); // 60s — equilibrio entre segurança e cota Firestore
   }, [saveToCloud]);
 
   // 3. beforeunload + visibilitychange — salva com lastSeenAt antes de fechar/minimizar
@@ -5191,23 +5196,35 @@ export default function App() {
       onConfirm: () => {
         closeConfirm();
 
-        let crafted = false;
+        const currentGameState = gameStateRef.current || gameState;
+        const materials = currentGameState.inventory?.materials || {};
+        const items = currentGameState.inventory?.items || {};
+        const currentCurrency = currentGameState.currency || 0;
+
+        if (currentCurrency < currencyCost) {
+          addLog('Recursos insuficientes para a forja!', 'system');
+          return;
+        }
+
+        const hasMaterials = Object.entries(materialCost).every(
+          ([material, amount]) => (materials[material] || 0) + (items[material] || 0) >= amount
+        );
+        if (!hasMaterials) {
+          addLog('Recursos insuficientes para a forja!', 'system');
+          return;
+        }
+
+        // Validação passou: Log determinístico e síncrono antes do update de estado
+        addLog(`✨ Você fabricou: ${qty}x ${recipe.name}!`, 'drop');
 
         setGameState(prev => {
-          const materials = prev.inventory?.materials || {};
-          const items     = prev.inventory?.items     || {};
+          const prevMaterials = prev.inventory?.materials || {};
+          const prevItems = prev.inventory?.items || {};
+          
+          if ((prev.currency || 0) < currencyCost) return prev;
 
-          if (prev.currency < currencyCost) return prev;
-
-          // Verifica disponibilidade em materials + items (igual ao getAvail da CraftingStation)
-          const hasMaterials = Object.entries(materialCost).every(
-            ([material, amount]) => (materials[material] || 0) + (items[material] || 0) >= amount
-          );
-          if (!hasMaterials) return prev;
-
-          // Deduz de materials primeiro, depois de items se necessário
-          const newMaterials = { ...materials };
-          const newItems = { ...items };
+          const newMaterials = { ...prevMaterials };
+          const newItems = { ...prevItems };
           Object.entries(materialCost).forEach(([material, amount]) => {
             let remaining = amount;
             const fromMat = Math.min(remaining, newMaterials[material] || 0);
@@ -5219,7 +5236,6 @@ export default function App() {
           });
 
           newItems[recipe.id] = (newItems[recipe.id] || 0) + qty;
-          crafted = true;
 
           return {
             ...prev,
@@ -5232,12 +5248,6 @@ export default function App() {
             },
           };
         });
-
-        if (crafted) {
-          addLog(`✨ Você fabricou: ${qty}x ${recipe.name}!`, 'drop');
-        } else {
-          addLog('Recursos insuficientes para a forja!', 'system');
-        }
       },
       onCancel: () => {
         setIsForgeConfirmOpen(false);

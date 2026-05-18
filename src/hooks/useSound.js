@@ -14,6 +14,7 @@ const SFX_MAP = {
 export function useSound() {
   const [muted, setMuted] = useState(false);
   const mutedRef = useRef(false);
+  const bgmVolumeRef = useRef(0.25);
   const bgmRef = useRef(null);
   const currentBgmKey = useRef(null);
   const sfxRef = useRef(null);
@@ -71,8 +72,12 @@ export function useSound() {
   const sfxHeal = useCallback(() => playSFX('heal'), [playSFX]);
   const sfxGym = useCallback(() => playSFX('gym'), [playSFX]);
 
-  const playBGM = useCallback((url, volume = 0.25, loop = true, onEnded = null) => {
-    if (currentBgmKey.current === url && bgmRef.current && bgmRef.current.loop === loop) return;
+  const playBGM = useCallback((url, volume, loop = true, onEnded = null) => {
+    const vol = volume !== undefined ? volume : bgmVolumeRef.current;
+    if (currentBgmKey.current === url && bgmRef.current && bgmRef.current.loop === loop) {
+      bgmRef.current.volume = vol;
+      return;
+    }
 
     if (bgmRef.current) {
       bgmRef.current.pause();
@@ -87,7 +92,7 @@ export function useSound() {
 
     const audio = new Audio(url);
     audio.loop = loop;
-    audio.volume = volume;
+    audio.volume = vol;
     if (onEnded) audio.onended = onEnded;
 
     bgmRef.current = audio;
@@ -96,6 +101,11 @@ export function useSound() {
     if (!mutedRef.current) {
       audio.play().catch(e => console.warn("BGM play failed:", e));
     }
+  }, []);
+
+  const setBgmVolume = useCallback((vol) => {
+    bgmVolumeRef.current = vol;
+    if (bgmRef.current) bgmRef.current.volume = vol;
   }, []);
 
   const stopBGM = useCallback((fadeMs = 0) => {
@@ -147,5 +157,5 @@ export function useSound() {
     };
   }, []);
 
-  return { playBGM, stopBGM, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxGym, stopSFX, toggleMute, isMuted, muted };
+  return { playBGM, stopBGM, setBgmVolume, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxGym, stopSFX, toggleMute, isMuted, muted };
 }
