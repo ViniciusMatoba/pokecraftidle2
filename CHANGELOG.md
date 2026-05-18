@@ -1,5 +1,13 @@
 # Changelog - PokeCraft
 
+## [v2.5.2] - 18/05/2026 17:43
+### Adicionado
+- **TMs nos Golpes do Pokemon**: TMs forjados agora aparecem dentro do painel de golpes do Pokemon, com quantidade disponivel e dados do ataque.
+- **Ensino com Consumo Unitario**: cada uso consome 1 TM; para ensinar o mesmo golpe em outro Pokemon e necessario possuir ou forjar outro item.
+### Corrigido
+- **Compatibilidade de TMs**: Pokemon so podem aprender TMs presentes no proprio learnset.
+- **Substituicao Segura**: Pokemon com 4 golpes abrem seletor de slot antes de aprender o TM.
+
 ## [v2.1.2] - 17/05/2026 15:12
 ### Adicionado
 - **Dominios Elementais Pos-game**: 18 rotas por tipo liberadas apos concluir as 9 regioes, com encontros dinamicos por tipo usando a Pokedex principal.

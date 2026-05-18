@@ -164,6 +164,7 @@ const PokemonManagement = ({
   const [ballSwapSelectedId, setBallSwapSelectedId] = useState(null);
   const [ballSwapResult, setBallSwapResult] = useState(null); // 'success' | 'fail' | null
   const [ballPreviewEffect, setBallPreviewEffect] = useState(false);
+  const [tmReplaceMode, setTmReplaceMode] = useState(null); // { tmItemId, moveId }
   const activePokemonKey = activePokemonDetails
     ? `${activePokemonDetails.pokemon?.instanceId ?? activePokemonDetails.pokemon?.id ?? 'x'}_${activePokemonDetails.location}_${activePokemonDetails.index}`
     : null;
@@ -171,6 +172,7 @@ const PokemonManagement = ({
   useEffect(() => {
     setCandyExpanded(false);
     setShowItemPicker(false);
+    setTmReplaceMode(null);
   }, [activePokemonKey]);
 
   const navigateTeam = (direction) => {
@@ -238,6 +240,101 @@ const PokemonManagement = ({
     const key = getMoveKey(move);
     const data = getMoveData(move);
     return MOVE_TRANSLATIONS[key] || data.name || translateMove(typeof move === 'string' ? move : move?.name);
+  };
+
+  const getTmMoveId = (tmItemId) => String(tmItemId || '').replace(/^tm_/, '').replace(/_/g, '-');
+
+  const getTmRecipe = (tmItemId) => Object.values(CRAFTING_RECIPES || {})
+    .flat()
+    .find(recipe => recipe?.id === tmItemId);
+
+  const getOwnedTms = () => Object.entries(gameState.inventory?.items || {})
+    .filter(([itemId, amount]) => itemId.startsWith('tm_') && amount > 0)
+    .map(([itemId, amount]) => {
+      const moveId = getTmMoveId(itemId);
+      const moveData = MOVES[moveId] || {};
+      const recipe = getTmRecipe(itemId);
+      return { itemId, amount, moveId, moveData, recipe };
+    })
+    .filter(tm => tm.moveData?.name || tm.recipe?.name)
+    .sort((a, b) => getMoveLabel(a.moveId).localeCompare(getMoveLabel(b.moveId)));
+
+  const getPokemonLearnsetKeys = (pokemon) => {
+    const base = POKEDEX[pokemon?.id] || pokemon || {};
+    return new Set((base.learnset || []).map(entry => getMoveKey(entry.move)));
+  };
+
+  const pokemonCanLearnTm = (pokemon, moveId) => getPokemonLearnsetKeys(pokemon).has(getMoveKey(moveId));
+
+  const pokemonAlreadyKnowsMove = (pokemon, moveId) => (pokemon?.moves || [])
+    .some(move => getMoveKey(move) === getMoveKey(moveId));
+
+  const buildMoveObject = (moveId) => {
+    const moveData = MOVES[moveId] || {};
+    return { ...moveData, name: moveData.name || moveId };
+  };
+
+  const teachTmMove = (tmItemId, replaceIndex = null) => {
+    if (!activePokemonDetails || !tmItemId) return;
+    const { location, index } = activePokemonDetails;
+    const instanceId = activePokemonDetails.pokemon?.instanceId;
+    const moveId = getTmMoveId(tmItemId);
+    const moveObj = buildMoveObject(moveId);
+    if (!moveObj?.name || !MOVES[moveId]) return;
+
+    const currentPokemon = activePokemonDetails.pokemon;
+    if (!pokemonCanLearnTm(currentPokemon, moveId)) {
+      addLog(`${currentPokemon.name} nao pode aprender ${getMoveLabel(moveId)} por TM.`, 'system');
+      return;
+    }
+    if (pokemonAlreadyKnowsMove(currentPokemon, moveId)) {
+      addLog(`${currentPokemon.name} ja conhece ${getMoveLabel(moveId)}.`, 'system');
+      return;
+    }
+    if ((gameState.inventory?.items?.[tmItemId] || 0) <= 0) return;
+    if ((currentPokemon.moves || []).length >= 4 && replaceIndex === null) {
+      setTmReplaceMode({ tmItemId, moveId });
+      return;
+    }
+
+    const updatePokemon = (pokemon) => {
+      const currentMoves = [...(pokemon.moves || [])];
+      const currentLearned = [...(pokemon.learnedMoves || currentMoves)];
+      if (!currentLearned.some(move => getMoveKey(move) === getMoveKey(moveId))) currentLearned.push(moveObj);
+      const nextMoves = [...currentMoves];
+      if (replaceIndex !== null && replaceIndex >= 0 && replaceIndex < nextMoves.length) nextMoves[replaceIndex] = moveObj;
+      else nextMoves.push(moveObj);
+      return { ...pokemon, moves: nextMoves.slice(0, 4), learnedMoves: currentLearned };
+    };
+
+    const nextActivePokemon = updatePokemon(currentPokemon);
+    setGameState(prev => {
+      const list = [...(prev[location] || [])];
+      const realIndex = instanceId ? list.findIndex(p => p.instanceId === instanceId) : index;
+      const targetIndex = realIndex >= 0 ? realIndex : index;
+      const target = list[targetIndex];
+      const currentAmount = prev.inventory?.items?.[tmItemId] || 0;
+      if (!target || currentAmount <= 0 || !pokemonCanLearnTm(target, moveId) || pokemonAlreadyKnowsMove(target, moveId)) return prev;
+
+      const updatedPokemon = updatePokemon(target);
+      list[targetIndex] = updatedPokemon;
+      const items = { ...(prev.inventory?.items || {}) };
+      if (items[tmItemId] <= 1) delete items[tmItemId];
+      else items[tmItemId] -= 1;
+
+      return {
+        ...prev,
+        [location]: list,
+        inventory: {
+          ...(prev.inventory || {}),
+          items,
+        },
+      };
+    });
+
+    setActivePokemonDetails(prev => prev ? ({ ...prev, pokemon: nextActivePokemon }) : prev);
+    addLog(`${currentPokemon.name} aprendeu ${getMoveLabel(moveId)} usando 1 TM.`, 'system');
+    setTmReplaceMode(null);
   };
 
   const moveToPC = (instanceId) => {
@@ -1149,6 +1246,82 @@ const PokemonManagement = ({
                     </div>
                   </div>
 
+                  {/* TMS FORJADOS */}
+                  <div className="mt-5 rounded-3xl border-2 border-slate-100 bg-white shadow-sm overflow-hidden">
+                    <div className="px-4 py-3 bg-slate-900 text-white flex items-center gap-3">
+                      <img
+                        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-normal.png"
+                        className="w-7 h-7 object-contain shrink-0"
+                        alt=""
+                        onError={e => { e.currentTarget.style.display = 'none'; }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-black uppercase text-[11px] leading-none">TMs Forjados</h4>
+                        <p className="text-[8px] font-bold uppercase tracking-wider text-slate-300 mt-1 leading-tight">
+                          Uso unico. Consome 1 TM para ensinar.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="p-3 space-y-2 max-h-72 overflow-y-auto custom-scrollbar">
+                      {(() => {
+                        const ownedTms = getOwnedTms();
+                        if (ownedTms.length === 0) {
+                          return (
+                            <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-center">
+                              <p className="text-[10px] font-black uppercase text-slate-500 leading-tight">Nenhum TM disponivel</p>
+                              <p className="text-[9px] font-bold text-slate-400 mt-1 leading-snug">Forje TMs na Forja Pokemon e volte aqui para ensinar golpes.</p>
+                            </div>
+                          );
+                        }
+
+                        return ownedTms.map(tm => {
+                          const canLearn = pokemonCanLearnTm(activePokemonDetails.pokemon, tm.moveId);
+                          const alreadyKnown = pokemonAlreadyKnowsMove(activePokemonDetails.pokemon, tm.moveId);
+                          const disabled = !canLearn || alreadyKnown;
+                          const moveLabel = getMoveLabel(tm.moveId);
+                          return (
+                            <div
+                              key={tm.itemId}
+                              className={`rounded-2xl border-2 p-3 flex items-center gap-3 ${disabled ? 'border-slate-100 bg-slate-50 opacity-75' : 'border-blue-100 bg-blue-50/40'}`}
+                            >
+                              <img
+                                src={tm.recipe?.img || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-${String(tm.moveData?.type || 'normal').toLowerCase()}.png`}
+                                className="w-9 h-9 object-contain shrink-0"
+                                alt=""
+                                onError={e => { e.currentTarget.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-normal.png'; }}
+                              />
+                              <div className="flex-1 min-w-0 text-left">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <p className="text-[10px] font-black uppercase text-slate-800 leading-tight truncate">{moveLabel}</p>
+                                  <span className="px-1.5 py-0.5 rounded text-[7px] font-black text-white uppercase shrink-0" style={{ background: typeColorMap[tm.moveData?.type] || '#64748b' }}>
+                                    {tm.moveData?.type || '???'}
+                                  </span>
+                                </div>
+                                <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1">
+                                  <span className="text-[8px] font-black text-pokeBlue uppercase">x{tm.amount}</span>
+                                  {tm.moveData?.power > 0 && <span className="text-[8px] font-bold text-slate-500 uppercase">Pwr {tm.moveData.power}</span>}
+                                  <span className="text-[8px] font-bold text-slate-500 uppercase">Acc {tm.moveData?.accuracy || '-'}</span>
+                                </div>
+                                {disabled && (
+                                  <p className={`text-[8px] font-black uppercase mt-1 ${alreadyKnown ? 'text-emerald-600' : 'text-red-500'}`}>
+                                    {alreadyKnown ? 'Este Pokemon ja sabe esse golpe' : 'Fora do learnset deste Pokemon'}
+                                  </p>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => teachTmMove(tm.itemId)}
+                                disabled={disabled}
+                                className={`min-w-[76px] px-3 py-3 rounded-xl text-[9px] font-black uppercase transition-all active:scale-95 ${disabled ? 'bg-slate-200 text-slate-400' : 'bg-pokeBlue text-white shadow-md hover:bg-blue-700'}`}
+                              >
+                                Ensinar
+                              </button>
+                            </div>
+                          );
+                        });
+                      })()}
+                    </div>
+                  </div>
+
                   {/* MODAL DE TROCA DE GOLPES (OVERLAY LOCAL) */}
                   {moveSwapMode && createPortal((
                     <div className="fixed inset-0 z-[10000] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
@@ -1296,6 +1469,46 @@ const PokemonManagement = ({
                       <div className="px-4 py-2.5 border-t border-white/10 bg-slate-950/30 shrink-0">
                         <p className="text-[8px] text-slate-500 font-bold uppercase italic text-center">Dica: toque nos golpes ativos para reordenar.</p>
                       </div>
+                      </div>
+                    </div>
+                  ), document.body)}
+
+                  {/* MODAL DE SUBSTITUICAO PARA TM */}
+                  {tmReplaceMode && createPortal((
+                    <div className="fixed inset-0 z-[10000] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+                      <div className="w-full max-w-[360px] bg-slate-900 border border-white/10 shadow-2xl rounded-[1.5rem] overflow-hidden flex flex-col" style={{ backgroundColor: '#0f172a' }}>
+                        <div className="flex justify-between items-start gap-3 border-b border-white/10" style={{ padding: '16px 16px 12px 20px' }}>
+                          <div className="text-left min-w-0">
+                            <h4 className="text-white font-black uppercase text-[13px] leading-none">Escolha um Slot</h4>
+                            <p className="text-slate-400 text-[9px] font-bold uppercase mt-1 leading-tight">
+                              {activePokemonDetails.pokemon.name} ja tem 4 golpes. Substitua 1 para aprender {getMoveLabel(tmReplaceMode.moveId)}.
+                            </p>
+                          </div>
+                          <button onClick={() => setTmReplaceMode(null)} className="text-white bg-white/10 w-10 h-10 rounded-full font-black text-xs shrink-0 active:scale-95">x</button>
+                        </div>
+                        <div className="p-4 space-y-2">
+                          {(activePokemonDetails.pokemon.moves || []).map((move, idx) => {
+                            const moveData = getMoveData(move);
+                            return (
+                              <button
+                                key={`tm-replace-${idx}`}
+                                onClick={() => teachTmMove(tmReplaceMode.tmItemId, idx)}
+                                className="w-full min-h-12 px-3 py-2 rounded-xl border border-white/10 bg-slate-800/95 hover:bg-slate-700 transition-all active:scale-[0.98] flex items-center justify-between gap-3 text-left"
+                              >
+                                <div className="min-w-0">
+                                  <p className="text-white font-black uppercase text-[10px] leading-tight truncate">{getMoveLabel(move)}</p>
+                                  <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">Slot {idx + 1}</p>
+                                </div>
+                                <span className="px-2 py-0.5 rounded bg-white/10 text-[7px] font-black text-white uppercase tracking-widest shrink-0">{moveData?.type || '???'}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <div className="px-4 pb-4">
+                          <button onClick={() => setTmReplaceMode(null)} className="w-full py-3 rounded-xl bg-white/10 text-white font-black uppercase text-[10px] active:scale-95">
+                            Cancelar
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ), document.body)}

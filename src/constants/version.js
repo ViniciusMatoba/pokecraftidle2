@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.5.1';
-export const VERSION = '2.5.1';
-export const APP_VERSION_DATE = '18/05/2026 17:07';
+export const APP_VERSION = '2.5.2';
+export const VERSION = '2.5.2';
+export const APP_VERSION_DATE = '18/05/2026 17:43';
 export const CHANGELOG = [
+  '## [V2.5.2] - 18/05/2026 17:43',
+  '### TMs Forjados e Golpes',
+  '- **TMs no painel do Pokemon**: TMs fabricados agora aparecem diretamente dentro da area de golpes do Pokemon, facilitando encontrar e usar os itens forjados.',
+  '- **Uso unico por item**: ensinar um golpe por TM consome exatamente 1 unidade do TM; para ensinar outro Pokemon e necessario forjar ou possuir outro TM.',
+  '- **Compatibilidade por learnset**: o botao de ensinar so fica disponivel quando o golpe faz parte da lista de ataques que aquele Pokemon pode aprender.',
+  '- **Substituicao controlada**: Pokemon com 4 golpes abrem um modal para escolher qual slot sera substituido, evitando troca automatica inesperada.',
+  '',
   '## [V2.5.1] - 18/05/2026 17:07',
   '### Sprites Regionais e Sincronizacao',
   '- **Repositorio atualizado**: projeto sincronizado com as alteracoes mais recentes do GitHub antes da auditoria.',

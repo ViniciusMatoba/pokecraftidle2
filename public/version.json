@@ -1,5 +1,5 @@
 {
-  "version": "2.5.1",
-  "date": "18/05/2026 17:07",
-  "notes": "Sprites regionais: helper central para formas regionais, correcoes em raids/rotas de Hisui, PC, time, Pokedex, batalha e notificacoes."
+  "version": "2.5.2",
+  "date": "18/05/2026 17:43",
+  "notes": "TMs forjados: area de TMs dentro dos golpes do Pokemon, uso unico por item, validacao por learnset e escolha de slot ao substituir golpes."
 }
