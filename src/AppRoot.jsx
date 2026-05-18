@@ -131,12 +131,14 @@ const cleanBattleText = (value) => {
 };
 
 const MEGA_CAPABLE_SPECIES = [
-  3, 6, 9, 15, 18, 65, 80, 94, 115, 127, 130, 142, 150, 181, 208, 212, 214, 229, 248, 
-  254, 257, 260, 282, 302, 303, 306, 308, 310, 319, 323, 334, 354, 359, 362, 373, 376, 
+  3, 6, 9, 15, 18, 65, 80, 94, 115, 127, 130, 142, 150, 181, 208, 212, 214, 229, 248,
+  254, 257, 260, 282, 302, 303, 306, 308, 310, 319, 323, 334, 354, 359, 362, 373, 376,
   380, 381, 384, 428, 445, 448, 460, 475, 531, 719,
-  26, 149, 154, 157, 160, 389, 392, 395, 497, 500, 503, 652, 655, 658, 724, 727, 730, 
-  812, 815, 818, 908, 911, 914, 330, 405, 612, 635, 706, 784, 887, 998, 768, 485, 491, 
-  807, 358, 71, 121, 689, 668, 36, 545, 12, 68
+  26, 149, 154, 157, 160, 389, 392, 395, 497, 500, 503, 652, 655, 658, 724, 727, 730,
+  812, 815, 818, 908, 911, 914, 330, 405, 612, 635, 706, 784, 887, 998, 768, 485, 491,
+  807, 358, 71, 121, 689, 668, 36, 545, 12, 68,
+  // Legends: Z-A — Novas Mega Evoluções
+  59, 53, 38, 24, 105, 78, 55, 40, 34, 31, 91
 ];
 
 const removeUndefinedFields = (value) => {
@@ -737,8 +739,22 @@ export default function App() {
           if (savedData) {
             const migratedData = migrateGameState(savedData, { version: APP_VERSION });
 
-            // Calcula progresso offline desde o último acesso
-            const lastActiveAt = migratedData.playerStats?.lastSeenAt;
+            // Calcula progresso offline desde o último acesso.
+            // Verifica também o localStorage, que pode ter um lastSeenAt mais recente
+            // (salvo pelo handler beforeunload/visibilitychange).
+            let lastActiveAt = migratedData.playerStats?.lastSeenAt || null;
+            try {
+              const localRaw = localStorage.getItem('poke_idle_save');
+              if (localRaw) {
+                const dec = LZString.decompress(localRaw);
+                const localParsed = dec ? JSON.parse(dec) : JSON.parse(localRaw);
+                const localTs = localParsed?.gameState?.playerStats?.lastSeenAt;
+                if (localTs && (!lastActiveAt || localTs > lastActiveAt)) {
+                  lastActiveAt = localTs; // localStorage tem timestamp mais recente
+                }
+              }
+            } catch { /* ignora erros de leitura local */ }
+
             if (lastActiveAt) {
               const elapsedMs = Date.now() - lastActiveAt;
               const progress = calculateOfflineProgress(migratedData, ROUTES, elapsedMs);
@@ -2010,14 +2026,27 @@ export default function App() {
         localStorage.setItem('poke_idle_save', compressed);
       } catch (e) { /* sem-op se quota estourar */ }
     };
-    const handleVisibility = () => { if (document.hidden) saveLocal(); };
+
+    const handleVisibility = () => {
+      if (!document.hidden) return;
+      saveLocal(); // salva sempre no localStorage
+      // Também tenta salvar na nuvem com lastSeenAt atualizado (para offline progress funcionar)
+      if (isFullyLoadedRef.current && gameStateRef.current) {
+        const stateWithTimestamp = {
+          ...gameStateRef.current,
+          playerStats: { ...gameStateRef.current.playerStats, lastSeenAt: Date.now() }
+        };
+        saveToCloud(stateWithTimestamp).catch(() => { /* silencia erros de rede */ });
+      }
+    };
+
     window.addEventListener('beforeunload', saveLocal);
     document.addEventListener('visibilitychange', handleVisibility);
     return () => {
       window.removeEventListener('beforeunload', saveLocal);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, []); // [] = registra uma única vez, gameStateRef sempre tem o valor atual
+  }, [saveToCloud]); // inclui saveToCloud nas deps
 
   // 4. Online/Offline — avisa o jogador e resync automático ao reconectar
   useEffect(() => {

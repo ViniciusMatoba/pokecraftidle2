@@ -1,6 +1,7 @@
 // ── Sistema de Mega Evolução Permanente — PokéCraft Idle 2 ────────────────────
 // Sprites via Pokémon Showdown: play.pokemonshowdown.com/sprites/dex/{showdownId}.png
-// Inclui todas as megas disponíveis em Pokémon Legends: Z-A (base + DLC)
+// 84 Mega Evoluções: 48 canônicas (XY/ORAS/SM) + 12 novas Legends Z-A + 24 não-canônicas
+// Inclui todas as megas disponíveis em Pokémon Legends: Z-A (base + DLC/Expansão)
 
 export const MEGA_STONE_ICONS = {
   // ── KANTO ─────────────────────────────────────────────────────────────────
@@ -85,6 +86,19 @@ export const MEGA_STONE_ICONS = {
   glimmoranite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/glimmoranite.png',
   // ── DLC ───────────────────────────────────────────────────────────────────
   chimechite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/chimechite.png',
+  // ── LEGENDS: Z-A — Novas Mega Pedras ──────────────────────────────────────
+  arcaninite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png',
+  persianite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/normal-gem.png',
+  raichurite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
+  ninetalesite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png',
+  arbokite:        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poison-barb.png',
+  marowakite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thick-club.png',
+  rapidashite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png',
+  golduckite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png',
+  wigglytuffite:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png',
+  nidokingite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png',
+  nidoqueenite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png',
+  cloysterite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png',
 };
 
 // Mapa completo de Mega Evoluções — Pokémon Legends: Z-A
@@ -571,6 +585,83 @@ export const MEGA_EVOLUTION_MAP = {
     name: 'Mega Chimecho', types: ['Psychic'],
     statBonus: { spAtk: 0.35, spDef: 0.30, speed: 0.15 },
     craftCost: { psychic_essence: 12, currency: 2000 },
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // LEGENDS: Z-A — Novas Mega Evoluções (Lumiose City / Kanto Focus)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  arcaninite: {
+    baseId: 59, showdownId: 'arcanine-mega',
+    name: 'Mega Arcanine', types: ['Fire', 'Ground'],
+    statBonus: { attack: 0.40, speed: 0.25, defense: 0.15 },
+    craftCost: { fire_essence: 12, rock_essence: 5, currency: 2500 },
+  },
+  persianite: {
+    baseId: 53, showdownId: 'persian-mega',
+    name: 'Mega Persian', types: ['Normal', 'Dark'],
+    statBonus: { speed: 0.40, attack: 0.25, spAtk: 0.15 },
+    craftCost: { normal_essence: 10, dark_essence: 5, currency: 2000 },
+  },
+  raichurite: {
+    baseId: 26, showdownId: 'raichu-mega',
+    name: 'Mega Raichu', types: ['Electric', 'Fairy'],
+    statBonus: { spAtk: 0.35, speed: 0.30, defense: 0.10 },
+    craftCost: { electric_essence: 12, fairy_essence: 5, currency: 2000 },
+  },
+  ninetalesite: {
+    baseId: 38, showdownId: 'ninetales-mega',
+    name: 'Mega Ninetales', types: ['Fire', 'Ice'],
+    statBonus: { spAtk: 0.35, speed: 0.25, spDef: 0.20 },
+    craftCost: { fire_essence: 10, ice_essence: 5, currency: 2000 },
+  },
+  arbokite: {
+    baseId: 24, showdownId: 'arbok-mega',
+    name: 'Mega Arbok', types: ['Poison', 'Dark'],
+    statBonus: { attack: 0.40, speed: 0.25, defense: 0.15 },
+    craftCost: { poison_essence: 12, dark_essence: 5, currency: 1800 },
+  },
+  marowakite: {
+    baseId: 105, showdownId: 'marowak-mega',
+    name: 'Mega Marowak', types: ['Ground', 'Ghost'],
+    statBonus: { attack: 0.45, defense: 0.20, spDef: 0.15 },
+    craftCost: { rock_essence: 10, ghost_essence: 5, currency: 2000 },
+  },
+  rapidashite: {
+    baseId: 78, showdownId: 'rapidash-mega',
+    name: 'Mega Rapidash', types: ['Fire', 'Psychic'],
+    statBonus: { speed: 0.40, attack: 0.25, spAtk: 0.15 },
+    craftCost: { fire_essence: 12, psychic_essence: 5, currency: 2000 },
+  },
+  golduckite: {
+    baseId: 55, showdownId: 'golduck-mega',
+    name: 'Mega Golduck', types: ['Water', 'Psychic'],
+    statBonus: { spAtk: 0.35, speed: 0.25, defense: 0.15 },
+    craftCost: { water_essence: 10, psychic_essence: 5, currency: 1800 },
+  },
+  wigglytuffite: {
+    baseId: 40, showdownId: 'wigglytuff-mega',
+    name: 'Mega Wigglytuff', types: ['Normal', 'Fairy'],
+    statBonus: { spAtk: 0.30, spDef: 0.30, defense: 0.20 },
+    craftCost: { normal_essence: 8, fairy_essence: 8, currency: 1800 },
+  },
+  nidokingite: {
+    baseId: 34, showdownId: 'nidoking-mega',
+    name: 'Mega Nidoking', types: ['Poison', 'Ground'],
+    statBonus: { attack: 0.35, spAtk: 0.25, speed: 0.15 },
+    craftCost: { poison_essence: 12, rock_essence: 5, currency: 2500 },
+  },
+  nidoqueenite: {
+    baseId: 31, showdownId: 'nidoqueen-mega',
+    name: 'Mega Nidoqueen', types: ['Poison', 'Ground'],
+    statBonus: { spAtk: 0.30, defense: 0.30, spDef: 0.20 },
+    craftCost: { poison_essence: 12, rock_essence: 5, currency: 2500 },
+  },
+  cloysterite: {
+    baseId: 91, showdownId: 'cloyster-mega',
+    name: 'Mega Cloyster', types: ['Water', 'Ice'],
+    statBonus: { defense: 0.45, attack: 0.25, spDef: 0.10 },
+    craftCost: { water_essence: 10, ice_essence: 5, currency: 1800 },
   },
 };
 

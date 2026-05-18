@@ -3,6 +3,7 @@ import { getCaptureRate, getPokemonRarity } from './pokemonDifficulty';
 
 const TICK_MS = 2500;
 const MAX_OFFLINE_MS = 8 * 60 * 60 * 1000; // cap 8h
+const MIN_OFFLINE_MS = 60 * 1000; // mínimo 1 minuto para mostrar o modal
 const BATTLES_PER_MS = 1 / TICK_MS;
 
 // XP que um membro de bancada recebe (Exp Share simplificado)
@@ -84,16 +85,89 @@ function simulateCaptures(gameState, route, battles) {
 }
 
 /**
+ * Encontra a melhor rota de farm disponível para o jogador.
+ * Prioridade: lastFarmingRoute > currentRoute (se farm) > melhor rota desbloqueada
+ */
+function findBestFarmRoute(gameState, routes) {
+  // 1. Tenta lastFarmingRoute
+  const last = gameState.lastFarmingRoute;
+  if (last && routes[last]?.type === 'farm' && routes[last]?.enemies?.length > 0) {
+    return last;
+  }
+
+  // 2. Tenta currentRoute se for farm
+  const cur = gameState.currentRoute;
+  if (cur && routes[cur]?.type === 'farm' && routes[cur]?.enemies?.length > 0) {
+    return cur;
+  }
+
+  // 3. Fallback: encontra a rota de farm desbloqueada de maior nível
+  const worldFlags = new Set(gameState.worldFlags || []);
+  let bestRouteId = null;
+  let bestLevel = -1;
+
+  for (const [id, route] of Object.entries(routes)) {
+    if (route.type !== 'farm' || !Array.isArray(route.enemies) || route.enemies.length === 0) continue;
+
+    // Verifica se a rota está desbloqueada (sem requirements, ou todos satisfeitos)
+    const reqs = route.requirements || [];
+    const isUnlocked = reqs.length === 0 || reqs.every(req => worldFlags.has(req));
+    if (!isUnlocked) continue;
+
+    const avgLevel = route.enemies.reduce((sum, e) => sum + (e.level || 1), 0) / route.enemies.length;
+    if (avgLevel > bestLevel) {
+      bestLevel = avgLevel;
+      bestRouteId = id;
+    }
+  }
+
+  if (bestRouteId) return bestRouteId;
+
+  // 4. Último fallback: primeira rota de farm disponível
+  for (const [id, route] of Object.entries(routes)) {
+    if (route.type === 'farm' && Array.isArray(route.enemies) && route.enemies.length > 0) {
+      return id;
+    }
+  }
+
+  return null;
+}
+
+/**
  * Calcula o progresso acumulado offline.
  */
 export function calculateOfflineProgress(gameState, routes, elapsedMs) {
+  // Sem lastSeenAt não há como calcular
+  if (!gameState?.playerStats?.lastSeenAt) {
+    console.warn('[Offline] Sem lastSeenAt — modal não será exibido.');
+    return null;
+  }
+
+  // Tempo mínimo para exibir o modal (evita flicker em recargas rápidas)
+  if (elapsedMs < MIN_OFFLINE_MS) {
+    console.log(`[Offline] Tempo muito curto (${Math.round(elapsedMs / 1000)}s) — ignorando.`);
+    return null;
+  }
+
   const cappedMs = Math.min(elapsedMs, MAX_OFFLINE_MS);
   const battles = Math.floor(cappedMs * BATTLES_PER_MS);
   if (battles <= 0) return null;
 
-  const routeId = gameState.lastFarmingRoute || gameState.currentRoute;
+  // Encontra a melhor rota de farm disponível
+  const routeId = findBestFarmRoute(gameState, routes);
+
+  if (!routeId) {
+    console.warn('[Offline] Nenhuma rota de farm encontrada — modal não será exibido.');
+    return null;
+  }
+
   const route = routes[routeId];
-  if (!route || route.type !== 'farm' || !Array.isArray(route.enemies) || route.enemies.length === 0) return null;
+  if (!route || route.type !== 'farm' || !Array.isArray(route.enemies) || route.enemies.length === 0) {
+    console.warn(`[Offline] Rota "${routeId}" inválida ou sem inimigos.`);
+    return null;
+  }
+
+  console.log(`[Offline] Calculando ${battles} batalhas em "${routeId}" (${Math.round(cappedMs / 60000)}min offline)`);
 
   let totalXP = 0;
   let totalCoins = 0;
