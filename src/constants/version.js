@@ -1,8 +1,8 @@
 export const APP_VERSION = '2.3.7';
 export const VERSION = '2.3.7';
-export const APP_VERSION_DATE = '18/05/2026 14:00';
+export const APP_VERSION_DATE = '18/05/2026 12:25';
 export const CHANGELOG = [
-  '## [V2.3.7] - 18/05/2026 14:00',
+  '## [V2.3.7] - 18/05/2026 12:25',
   '### Lendários completos: Unova → Paldea (9ª Geração)',
   '- **Unova**: Cobalion, Terrakion, Virizion, Reshiram, Zekrom, Kyurem — adicionados ao Modo VS com progressão encadeada.',
   '- **Kalos**: Xerneas, Yveltal, Zygarde — Zygarde requer Xerneas e Yveltal derrotados.',
