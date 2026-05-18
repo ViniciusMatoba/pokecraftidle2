@@ -17,6 +17,7 @@ import { VILLAIN_TEAMS } from './data/villains';
 import { WEATHER_TYPE_MULT, WEATHER_PASSIVE_DAMAGE, WEATHER_IMMUNE_TYPES, generateWeatherForRoute, getWeatherFromMove } from './data/weather';
 import { getCompatibleMegaStones } from './data/megaEvolutions';
 import { assignRandomAbility } from './data/abilities';
+import { getJourneyGuide } from './data/journeyGuide';
 import AuthScreen from './components/AuthScreen';
 import MenuScreen from './components/MenuScreen';
 import TravelScreen from './components/TravelScreen';
@@ -212,6 +213,13 @@ const EVOLUTION_FRAGMENT_DROPS = {
   35: 'moon_stone_shard', 36: 'moon_stone_shard', 39: 'moon_stone_shard', 40: 'moon_stone_shard',
   63: 'link_cable_part', 64: 'link_cable_part', 66: 'link_cable_part', 67: 'link_cable_part',
   74: 'link_cable_part', 75: 'link_cable_part', 92: 'link_cable_part', 93: 'link_cable_part',
+};
+
+// Deduplica lista de golpes pelo nome (mantém a ocorrência mais recente de cada golpe)
+const deduplicateMoves = (moves) => {
+  const seen = new Map();
+  moves.forEach(m => seen.set(m.name, m));
+  return [...seen.values()];
 };
 
 const ownsSpecies = (gameState = {}, pokemonId) => {
@@ -650,8 +658,8 @@ export default function App() {
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [avatarTab, setAvatarTab] = useState('male');
   const { 
-    playBGM, stopBGM, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxGym, stopSFX,
-    toggleMute, isMuted, muted 
+    playBGM, stopBGM, setBgmVolume, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxGym, stopSFX,
+    toggleMute, isMuted, muted
   } = useSound();
   
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
@@ -1584,6 +1592,21 @@ export default function App() {
     setCurrentView(targetView);
   }, [currentEnemy, setCurrentView, setConfirmModal]);
 
+  const openVsScreen = useCallback(() => {
+    const guide = getJourneyGuide(gameState);
+    const nv = guide.nextVsBattle;
+    if (nv) {
+      setVsInitialTab(nv.tab);
+      setVsInitialCategory(nv.category || null);
+      setVsInitialRegion(nv.region);
+    } else {
+      setVsInitialTab('gyms');
+      setVsInitialCategory(null);
+      setVsInitialRegion(gameState.activeRegion || 'kanto');
+    }
+    handleSafeNavigation('vs');
+  }, [gameState, handleSafeNavigation, setVsInitialTab, setVsInitialCategory, setVsInitialRegion]);
+
   // PROTECTED: handleGoToCity - NAO EDITAR SEM AUTORIZACAO EXPLICITA
   const handleGoToCity = useCallback(() => {
     const currentR = ROUTES[gameState.currentRoute];
@@ -1628,21 +1651,28 @@ export default function App() {
   // Gerenciamento de BGM Global
   useEffect(() => {
     const selectedId = gameState.settings?.selectedMusic || 'all';
-    
+    const vol = (gameState.settings?.musicVolume ?? 25) / 100;
+
     const playNext = () => {
       const available = MUSIC_LIST.filter(m => m.id !== 'all');
       const random = available[Math.floor(Math.random() * available.length)];
-      if (random) playBGM(fixPath(random.url), 0.25, false, playNext);
+      if (random) playBGM(fixPath(random.url), vol, false, playNext);
     };
 
     if (selectedId === 'all') {
       playNext();
     } else {
       const track = MUSIC_LIST.find(m => m.id === selectedId);
-      if (track) playBGM(fixPath(track.url), 0.25, true);
+      if (track) playBGM(fixPath(track.url), vol, true);
       else playBGM(null);
     }
   }, [gameState.settings?.selectedMusic, playBGM]);
+
+  // Atualiza volume do BGM em tempo real
+  useEffect(() => {
+    const vol = (gameState.settings?.musicVolume ?? 25) / 100;
+    setBgmVolume(vol);
+  }, [gameState.settings?.musicVolume, setBgmVolume]);
 
   const goToCity = (fromBattle = false) => {
     handleGoToCity();
@@ -3036,7 +3066,8 @@ export default function App() {
       });
 
     // Se não tiver golpes, dá pelo menos Investida (Tackle)
-    const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
+    const _uniqueMoves0 = deduplicateMoves(availableMoves);
+    const finalMoves = _uniqueMoves0.length > 0 ? _uniqueMoves0.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
     // Atk Mult do Repel
     const atkRepelMult = (effects.activeRepel?.endsAt > now) ? (effects.activeRepel.atkMult || 0.8) : 1.0;
@@ -4972,7 +5003,8 @@ export default function App() {
         const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
         return { ...md, name: MOVE_TRANSLATIONS[mk] || md.name || m.move };
       });
-    const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
+    const _uniqueMoves1 = deduplicateMoves(availableMoves);
+    const finalMoves = _uniqueMoves1.length > 0 ? _uniqueMoves1.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
     setCurrentEnemy({
       ...boss,
@@ -5115,7 +5147,8 @@ export default function App() {
         const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
         return { ...md, name: MOVE_TRANSLATIONS[mk] || md.name || m.move };
       });
-    const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
+    const _uniqueMoves2 = deduplicateMoves(availableMoves);
+    const finalMoves = _uniqueMoves2.length > 0 ? _uniqueMoves2.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
     setCurrentEnemy({
       ...leaderPokeFinal,
@@ -5965,7 +5998,8 @@ export default function App() {
           category: moveData.category || 'Physical',
         };
       });
-    const finalMoves = moves.length > 0 ? moves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
+    const _uniqueMovesS = deduplicateMoves(moves);
+    const finalMoves = _uniqueMovesS.length > 0 ? _uniqueMovesS.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
     const maxHp = Math.ceil(((2 * (base.maxHp || base.hp || 30) * level) / 100) + level + 10);
     return {
       ...base,
@@ -6467,7 +6501,8 @@ export default function App() {
             const md = MOVES[mk] || { name: m.move, power: 40, type: 'Normal', category: 'Physical' };
             return { ...md, name: MOVE_TRANSLATIONS[mk] || md.name || m.move };
           });
-        const finalMoves = availableMoves.length > 0 ? availableMoves.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
+        const _uniqueMovesA = deduplicateMoves(availableMoves);
+        const finalMoves = _uniqueMovesA.length > 0 ? _uniqueMovesA.slice(-4) : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
 
         addLog(`🚀 ${currentEnemy.trainerName} enviou ${base.name}!`, 'enemy');
         
@@ -8734,6 +8769,8 @@ export default function App() {
           setVsInitialTab={setVsInitialTab}
           setVsInitialCategory={setVsInitialCategory}
           setVsInitialRegion={setVsInitialRegion}
+          muted={muted}
+          onToggleMute={toggleMute}
         />
       );
 
@@ -10041,7 +10078,7 @@ export default function App() {
               <span className="text-[9px] font-black uppercase mt-0.5">Equipe</span>
             </button>
 
-            <button onClick={() => menuUnlocked && handleSafeNavigation('vs')}
+            <button onClick={() => menuUnlocked && openVsScreen()}
               disabled={!menuUnlocked}
               className={`flex flex-col items-center py-1 px-3 transition-all ${!menuUnlocked ? 'opacity-30 cursor-not-allowed' : ''} ${['vs','gyms','challenges'].includes(currentView) ? 'text-yellow-600' : 'text-slate-400'}`}>
               <img

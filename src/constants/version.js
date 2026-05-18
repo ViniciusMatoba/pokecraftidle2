@@ -1,7 +1,11 @@
-export const APP_VERSION = '2.3.9.3';
-export const VERSION = '2.3.9.3';
-export const APP_VERSION_DATE = '18/05/2026 15:30';
+export const APP_VERSION = '2.3.10';
+export const VERSION = '2.3.10';
+export const APP_VERSION_DATE = '18/05/2026 16:00';
 export const CHANGELOG = [
+  '## [V2.3.10] - 18/05/2026 16:00',
+  '### Melhorias',
+  '- **Modo VS inteligente:** ao abrir o Modo VS pelo botão da barra de navegação, o jogo detecta automaticamente a região ativa e o próximo objetivo da jornada, abrindo diretamente na aba e região corretas (ex: jogador em Hoenn abre em Ginásios → Hoenn). Casos especiais como Lendários e Boss mantêm sua navegação específica.',
+  '',
   '## [V2.3.9.3] - 18/05/2026 15:30',
   '### Correções Críticas',
   '- **Crash na Raid (TDZ fix completo):** eliminadas TODAS as referências entre `const` no escopo de módulo em `RaidScreen.jsx` e `pokeballs.js`. O pattern `const POKEAPI_ITEMS` + `const REWARD_ICONS = { ...: POKEAPI_ITEMS+url }` causava TDZ no bundle minificado. Todas as URLs agora são strings literais inline.',
