@@ -2068,7 +2068,7 @@ export default function App() {
         }, delay);
       } else {
         // 3 falhas consecutivas — avisa o usuário
-        notify('⚠️ Não foi possível salvar na nuvem. Seu progresso está salvo localmente.', 'error');
+        notify('Conexão instável. Seu progresso está sendo guardado localmente por segurança.', 'error');
         trackEvent('save_failed', { error_code: e?.code || 'unknown', attempts: attempt });
         saveRetryRef.current = 0;
       }

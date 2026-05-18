@@ -462,7 +462,7 @@ const SlotCard = ({ slot, slotType, slotIndex, onEdit, POKEDEX }) => {
         </div>
 
         {/* Team Grid (Hign-Fidelity) */}
-        <div className="grid grid-cols-6 gap-2 bg-slate-50/50 p-2 rounded-2xl border border-slate-100">
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 bg-slate-50/50 p-2 rounded-2xl border border-slate-100">
           {[...Array(6)].map((_, i) => {
             const pokeId = slot.team[i];
             return (

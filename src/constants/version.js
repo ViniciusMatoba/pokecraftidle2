@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.4.0';
-export const VERSION = '2.4.0';
-export const APP_VERSION_DATE = '18/05/2026 15:48';
+export const APP_VERSION = '2.4.1';
+export const VERSION = '2.4.1';
+export const APP_VERSION_DATE = '18/05/2026 15:51';
 export const CHANGELOG = [
+  '## [V2.4.1] - 18/05/2026 15:51',
+  '### UI/UX & PWA',
+  '- **Responsividade**: Melhoria no layout do "Minha Região" com um grid dinâmico (3 colunas em mobile e 6 no desktop).',
+  '- **PWA Readiness**: Estruturação consolidada no manifest e sw.js para suporte à instalação (PWA).',
+  '- **Feedback de Conexão**: Nova trava de segurança com notificação amigável que avisa após 3 tentativas de salvamento offline.',
+  '',
   '## [V2.4.0] - 18/05/2026 15:48',
   '### SRE Audit & Production Readiness',
   '- **Integridade de Save**: O processo de sanitização de saves antigos agora injeta explicitamente a `capturedRegion` padrão (Kanto), evitando bugs nos filtros do PC.',
