@@ -1,5 +1,5 @@
 {
-  "version": "2.3.4",
-  "date": "18/05/2026 07:32",
-  "notes": "Raids com configuracao: escolha batalhar ou capturar, defina a pokebola e o limiar de HP. Auto-captura automatica. Fix sprites transparentes no modal VS."
+  "version": "2.3.5",
+  "date": "18/05/2026 12:00",
+  "notes": "Sistema de Pokebolas: efeitos visuais ao entrar em batalha, rastreamento por pokemon, troca com chances e preview animado."
 }

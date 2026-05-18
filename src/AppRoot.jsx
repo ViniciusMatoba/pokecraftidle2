@@ -3435,6 +3435,7 @@ export default function App() {
         id: raid.pokemonId,
         name: raid.name,
         level: raid.level,
+        ball: ballKey || 'pokeballs',
         isShiny: raid.isShiny,
         hp: pokedexEntry.hp || 60,
         maxHp: pokedexEntry.hp || 60,
@@ -4739,13 +4740,14 @@ export default function App() {
           sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
 
           const newCaughtData = { ...(prev.caughtData || {}), [currentEnemy.id]: true };
-          const newPoke = assignRandomAbility({ 
-            ...currentEnemy, 
-            id: Number(currentEnemy.id), 
-            hp: currentEnemy.maxHp, 
-            xp: 0, 
+          const newPoke = assignRandomAbility({
+            ...currentEnemy,
+            id: Number(currentEnemy.id),
+            hp: currentEnemy.maxHp,
+            xp: 0,
             instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
             capturedRegion: prev.activeRegion || 'kanto',
+            ball: itemId || 'pokeballs',
             stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
           }, POKEDEX[Number(currentEnemy.id)]);
           const newMastery = processCaptureMastery({ ...currentEnemy, id: Number(currentEnemy.id) }, prev);
@@ -6669,7 +6671,7 @@ export default function App() {
                   };
                 } else {
                   // Primeira Captura
-                  const newPoke = assignRandomAbility({ ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9), capturedRegion: prev.activeRegion || 'kanto' }, POKEDEX[Number(currentEnemy.id)]);
+                  const newPoke = assignRandomAbility({ ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9), capturedRegion: prev.activeRegion || 'kanto', ball: selectedBall || 'pokeballs' }, POKEDEX[Number(currentEnemy.id)]);
                   const newTeam = [...prev.team];
                   const newPC = [...(prev.pc || [])];
                   if (newTeam.length < 6) newTeam.push(newPoke); else newPC.push(newPoke);

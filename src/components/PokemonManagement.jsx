@@ -5,6 +5,7 @@ import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '.
 import { getTimeOfDay } from '../utils/timeSystem';
 import { getCompatibleMegaStones, MEGA_STONE_ICONS, getMegaSprite } from '../data/megaEvolutions';
 import { ABILITY_ITEM_ID, getPokemonAbilityPool, setPokemonAbility } from '../data/abilities';
+import { getPokeballDef, POKEBALL_DEFS, ALL_BALL_IDS, BALL_EFFECT_LABELS } from '../data/pokeballs';
 
 import { GYM_LEVEL_CAPS } from '../data/constants';
 import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER, isPokemonLegal } from '../data/regionStandards';
@@ -158,6 +159,10 @@ const PokemonManagement = ({
   const [showNatureModal, setShowNatureModal] = useState(false);
   const [showAbilityModal, setShowAbilityModal] = useState(false);
   const [showItemPicker, setShowItemPicker] = useState(false);
+  const [showBallSwapModal, setShowBallSwapModal] = useState(false);
+  const [ballSwapSelectedId, setBallSwapSelectedId] = useState(null);
+  const [ballSwapResult, setBallSwapResult] = useState(null); // 'success' | 'fail' | null
+  const [ballPreviewEffect, setBallPreviewEffect] = useState(false);
   const activePokemonKey = activePokemonDetails
     ? `${activePokemonDetails.pokemon?.instanceId ?? activePokemonDetails.pokemon?.id ?? 'x'}_${activePokemonDetails.location}_${activePokemonDetails.index}`
     : null;
@@ -1544,6 +1549,31 @@ const PokemonManagement = ({
                   })()}
                </div>
 
+               {/* ── Pokébola do Pokémon ──────────────────────────────── */}
+               {(() => {
+                 const poke3 = activePokemonDetails.pokemon;
+                 const ballDef = getPokeballDef(poke3.ball || 'pokeballs');
+                 return (
+                   <div className="mx-5 mb-4 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 flex items-center gap-3">
+                     <div className="w-10 h-10 rounded-xl flex items-center justify-center text-2xl shrink-0" style={{ background: `${ballDef.color}22`, boxShadow: `0 0 8px ${ballDef.glowColor}` }}>
+                       {ballDef.emoji}
+                     </div>
+                     <div className="flex-1 min-w-0">
+                       <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Pokébola</p>
+                       <p className="text-sm font-black text-slate-800 leading-tight">{ballDef.name}</p>
+                       <p className="text-[9px] text-slate-400 mt-0.5">{BALL_EFFECT_LABELS[ballDef.effect] || ballDef.effect}</p>
+                     </div>
+                     <button
+                       onClick={() => { setBallSwapSelectedId(null); setBallSwapResult(null); setBallPreviewEffect(false); setShowBallSwapModal(true); }}
+                       className="shrink-0 h-9 px-3 rounded-xl text-[9px] font-black uppercase tracking-wider bg-white border-2 text-slate-600 hover:border-slate-300 transition-all active:scale-95"
+                       style={{ borderColor: ballDef.color + '55' }}
+                     >
+                       Trocar
+                     </button>
+                   </div>
+                 );
+               })()}
+
                {/* FOOTER - TEAM MOVER */}
                <div className="flex-shrink-0 px-5 pt-3 pb-6 bg-white border-t border-slate-100 flex flex-col gap-3">
                   {activePokemonDetails.location === 'team' ? (
@@ -1593,6 +1623,176 @@ const PokemonManagement = ({
             </div>
          </div>
       ), document.body)}
+
+      {/* ── Modal de Troca de Pokébola ────────────────────────── */}
+      {showBallSwapModal && activePokemonDetails && createPortal(
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+          onClick={() => { if (!ballSwapResult) setShowBallSwapModal(false); }}>
+          <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90dvh] flex flex-col"
+            onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            {(() => {
+              const poke4 = activePokemonDetails.pokemon;
+              const currentBallDef = getPokeballDef(poke4.ball || 'pokeballs');
+              const selectedDef = ballSwapSelectedId ? getPokeballDef(ballSwapSelectedId) : null;
+              const inventory = gameState.inventory?.items || {};
+
+              // Ball swap result modal
+              if (ballSwapResult) {
+                const success = ballSwapResult === 'success';
+                return (
+                  <div className="flex flex-col items-center justify-center p-8 gap-4">
+                    <div className="text-6xl">{success ? '🎉' : '💨'}</div>
+                    <h2 className="text-2xl font-black uppercase text-center" style={{ color: success ? '#16a34a' : '#dc2626' }}>
+                      {success ? 'Troca bem-sucedida!' : 'Troca falhou!'}
+                    </h2>
+                    {success ? (
+                      <p className="text-sm text-center text-slate-600">
+                        {poke4.name} agora está em uma <strong style={{ color: selectedDef?.color }}>{selectedDef?.name}</strong>!
+                      </p>
+                    ) : (
+                      <p className="text-sm text-center text-slate-600">
+                        {poke4.name} resistiu e permanece na <strong style={{ color: currentBallDef?.color }}>{currentBallDef?.name}</strong>.
+                      </p>
+                    )}
+                    <button
+                      onClick={() => { setBallSwapResult(null); setShowBallSwapModal(false); setBallSwapSelectedId(null); }}
+                      className="mt-2 h-12 px-8 rounded-2xl font-black uppercase text-sm tracking-wider text-white transition-all active:scale-95"
+                      style={{ background: success ? '#16a34a' : '#dc2626' }}
+                    >
+                      OK
+                    </button>
+                  </div>
+                );
+              }
+
+              return (
+                <>
+                  <div className="flex items-center gap-3 px-5 py-4 shrink-0" style={{ background: selectedDef ? `linear-gradient(135deg, ${selectedDef.color}, ${selectedDef.color}aa)` : 'linear-gradient(135deg,#1e293b,#334155)' }}>
+                    <div className="flex-1">
+                      <p className="text-white/70 text-[9px] font-black uppercase tracking-widest">Pokébola de {poke4.name}</p>
+                      <h2 className="text-white text-lg font-black uppercase">Trocar Pokébola</h2>
+                    </div>
+                    <button onClick={() => setShowBallSwapModal(false)}
+                      className="w-8 h-8 rounded-full bg-white/20 text-white font-black flex items-center justify-center text-xs">✕</button>
+                  </div>
+
+                  {/* Preview do efeito */}
+                  <div className="shrink-0 bg-slate-900 flex flex-col items-center justify-center py-5 gap-3 relative overflow-hidden"
+                    style={{ minHeight: 130, background: selectedDef ? `radial-gradient(circle at 50% 60%, ${selectedDef.color}33 0%, #0f172a 70%)` : '#0f172a' }}>
+                    <div className="relative w-24 h-24 flex items-center justify-center">
+                      {/* Animated glow ring */}
+                      {selectedDef && ballPreviewEffect && (
+                        <>
+                          <div className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ background: selectedDef.color }} />
+                          <div className="absolute inset-[-8px] rounded-full border-2 animate-pulse" style={{ borderColor: selectedDef.color, boxShadow: `0 0 16px ${selectedDef.glowColor}` }} />
+                        </>
+                      )}
+                      <img
+                        src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke4.isShiny ? 'shiny/' : ''}${poke4.id}.png`}
+                        className={`w-20 h-20 object-contain drop-shadow-2xl transition-all duration-300 ${ballPreviewEffect && selectedDef ? 'scale-110' : 'scale-100'}`}
+                        style={{ filter: selectedDef && ballPreviewEffect ? `drop-shadow(0 0 10px ${selectedDef.color})` : 'none' }}
+                        alt={poke4.name}
+                      />
+                    </div>
+                    {selectedDef ? (
+                      <div className="text-center">
+                        <p className="text-white font-black text-sm">{selectedDef.emoji} {selectedDef.name}</p>
+                        <p className="text-white/50 text-[9px] font-bold uppercase">{BALL_EFFECT_LABELS[selectedDef.effect] || selectedDef.effect}</p>
+                      </div>
+                    ) : (
+                      <p className="text-white/40 text-xs font-bold">Selecione uma pokébola abaixo</p>
+                    )}
+                  </div>
+
+                  {/* Grid de pokébolas */}
+                  <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-3">Pokébolas disponíveis</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {ALL_BALL_IDS.map(ballId => {
+                        const def = POKEBALL_DEFS[ballId];
+                        const count = inventory[ballId] || 0;
+                        const isCurrent = (poke4.ball || 'pokeballs') === ballId;
+                        const isSelected = ballSwapSelectedId === ballId;
+                        const available = count > 0 && !isCurrent;
+                        return (
+                          <button
+                            key={ballId}
+                            disabled={!available}
+                            onClick={() => { setBallSwapSelectedId(ballId); setBallPreviewEffect(true); setTimeout(() => setBallPreviewEffect(false), 1200); }}
+                            className={`relative flex items-center gap-2 p-3 rounded-2xl border-2 transition-all active:scale-95 text-left ${
+                              isCurrent ? 'border-slate-200 bg-slate-50 opacity-60 cursor-not-allowed' :
+                              !available ? 'border-slate-100 bg-slate-50 opacity-40 cursor-not-allowed' :
+                              isSelected ? 'border-transparent shadow-lg' : 'border-slate-100 bg-white hover:border-slate-300'
+                            }`}
+                            style={isSelected ? { borderColor: def.color, background: `${def.color}11`, boxShadow: `0 0 0 3px ${def.glowColor}` } : {}}
+                          >
+                            <span className="text-xl">{def.emoji}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[10px] font-black text-slate-800 leading-tight truncate">{def.name}</p>
+                              <p className="text-[9px] font-bold" style={{ color: available ? def.color : '#94a3b8' }}>
+                                {isCurrent ? 'Atual' : count > 0 ? `${count}x • ${Math.round(def.successRate * 100)}% sucesso` : 'Sem estoque'}
+                              </p>
+                            </div>
+                            {isSelected && <div className="w-2 h-2 rounded-full" style={{ background: def.color }} />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Footer confirm */}
+                  <div className="shrink-0 px-4 pb-5 pt-3 bg-white border-t border-slate-100">
+                    {selectedDef && (
+                      <div className="mb-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-2 text-center">
+                        <p className="text-[10px] font-bold text-amber-700">
+                          Chance de sucesso: <strong>{Math.round(selectedDef.successRate * 100)}%</strong> · Consome 1x {selectedDef.name}
+                        </p>
+                        <p className="text-[9px] text-amber-600 mt-0.5">{selectedDef.description}</p>
+                      </div>
+                    )}
+                    <button
+                      disabled={!ballSwapSelectedId}
+                      onClick={() => {
+                        if (!ballSwapSelectedId) return;
+                        const def = POKEBALL_DEFS[ballSwapSelectedId];
+                        const success = Math.random() < def.successRate;
+                        // consume ball from inventory
+                        setGameState(prev => {
+                          const items = { ...prev.inventory.items };
+                          items[ballSwapSelectedId] = Math.max(0, (items[ballSwapSelectedId] || 0) - 1);
+                          const updatePoke = (p) => {
+                            if (p.instanceId === activePokemonDetails.pokemon.instanceId) {
+                              return success ? { ...p, ball: ballSwapSelectedId } : p;
+                            }
+                            return p;
+                          };
+                          return {
+                            ...prev,
+                            inventory: { ...prev.inventory, items },
+                            team: (prev.team || []).map(updatePoke),
+                            pc: (prev.pc || []).map(updatePoke),
+                          };
+                        });
+                        // Also update activePokemonDetails if success
+                        if (success) {
+                          setActivePokemonDetails(prev2 => prev2 ? { ...prev2, pokemon: { ...prev2.pokemon, ball: ballSwapSelectedId } } : prev2);
+                        }
+                        setBallSwapResult(success ? 'success' : 'fail');
+                      }}
+                      className="w-full h-14 rounded-2xl font-black uppercase text-sm tracking-wider text-white transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                      style={{ background: ballSwapSelectedId ? (POKEBALL_DEFS[ballSwapSelectedId]?.color || '#1e293b') : '#94a3b8' }}
+                    >
+                      {ballSwapSelectedId ? `⚡ Tentar Troca • ${Math.round((POKEBALL_DEFS[ballSwapSelectedId]?.successRate || 0) * 100)}%` : 'Escolha uma pokébola'}
+                    </button>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>,
+        document.body
+      )}
 
       {/* ── Modal de Natureza ─────────────────────────────────── */}
       {showNatureModal && activePokemonDetails && createPortal(

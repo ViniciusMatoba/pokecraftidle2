@@ -1,7 +1,16 @@
-export const APP_VERSION = '2.3.4';
-export const VERSION = '2.3.4';
-export const APP_VERSION_DATE = '18/05/2026 07:32';
+export const APP_VERSION = '2.3.5';
+export const VERSION = '2.3.5';
+export const APP_VERSION_DATE = '18/05/2026 12:00';
 export const CHANGELOG = [
+  '## [V2.3.5] - 18/05/2026 12:00',
+  '### Sistema de Pokébolas',
+  '- **Efeitos visuais**: cada pokébola tem um efeito único ao entrar em batalha (flash, raios, luar, amizade, etc.).',
+  '- **Rastreamento de pokébola**: cada pokémon capturado lembra em qual pokébola foi capturado.',
+  '- **Troca de pokébola**: no modal de detalhes do pokémon, agora aparece a pokébola atual e um botão para trocar.',
+  '- **Preview interativo**: ao selecionar uma pokébola para troca, um preview animado mostra o efeito visual.',
+  '- **Sistema de chances**: trocar a pokébola tem % de sucesso variável por tipo (70–88%).',
+  '- **Modal de resultado**: ao tentar trocar, um modal informa se a troca foi bem-sucedida ou falhou.',
+  '- Pokébolas suportadas: Pokébola, Superbola, Ultrabola, Safari Ball, Lure Ball, Moon Ball, Friend Ball, Heavy Ball, Fast Ball, Level Ball.',
   '## [V2.3.4] - 18/05/2026 07:32',
   '### Raids com Configuração + Fix Visual',
   '- **Config de Raid**: antes de iniciar, escolha o modo de jogo.',
