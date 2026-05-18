@@ -1,7 +1,16 @@
-export const APP_VERSION = '2.3.6';
-export const VERSION = '2.3.6';
-export const APP_VERSION_DATE = '18/05/2026 13:00';
+export const APP_VERSION = '2.3.7';
+export const VERSION = '2.3.7';
+export const APP_VERSION_DATE = '18/05/2026 14:00';
 export const CHANGELOG = [
+  '## [V2.3.7] - 18/05/2026 14:00',
+  '### Lendários completos: Unova → Paldea (9ª Geração)',
+  '- **Unova**: Cobalion, Terrakion, Virizion, Reshiram, Zekrom, Kyurem — adicionados ao Modo VS com progressão encadeada.',
+  '- **Kalos**: Xerneas, Yveltal, Zygarde — Zygarde requer Xerneas e Yveltal derrotados.',
+  '- **Alola**: Tapu Koko, Tapu Lele, Tapu Bulu, Tapu Fini, Solgaleo, Lunala, Necrozma — 7 lendários em sequência.',
+  '- **Galar**: Zacian, Zamazenta, Eternatus — culminando no confronto com Eternatus.',
+  '- **Hisui**: Darkrai, Shaymin e Arceus — o Pokémon Deus como chefe final (500k de recompensa).',
+  '- **Paldea**: Koraidon e Miraidon — os paradoxos do passado e futuro.',
+  '- Modal de anúncio do professor para cada região: Prof. Juniper (Unova), Sycamore (Kalos), Kukui (Alola), Magnolia (Galar), Laventon (Hisui), Profa. Sada (Paldea).',
   '## [V2.3.6] - 18/05/2026 13:00',
   '### Aviso de Lendários por Região',
   '- **Modal de aparecimento**: quando uma condição-chave é atingida (Soul Badge, Campeão, etc.), o professor da região aparece para anunciar os lendários.',

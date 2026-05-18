@@ -5777,6 +5777,144 @@ export default function App() {
       }, 3500);
     }
 
+    // Unova: Cobalion, Terrakion, Virizion, Reshiram, Zekrom, Kyurem (após Campeão de Unova)
+    if (flags.includes('unova_champion') &&
+        !flags.includes('unova_legendary_modal_shown')) {
+      setTimeout(() => {
+        setShowLegendaryModal(prev => prev ? prev : {
+          professor: 'juniper',
+          professorName: 'Prof. Juniper',
+          region: 'unova',
+          accentColor: '#22c55e',
+          title: 'Lendários de Unova Despertem!',
+          message: '"Você derrotou a Liga de Unova! Mas minha pesquisa detectou algo extraordinário: o Trio das Espadas — Cobalion, Terrakion e Virizion — saiu de suas cavernas. E na Dragonspiral Tower... Reshiram e Zekrom, os dragões opostos, aguardam o treinador mais forte de Unova!"',
+          legendaries: [
+            { name: 'Cobalion', id: 580 },
+            { name: 'Terrakion', id: 638 },
+            { name: 'Virizion', id: 639 },
+            { name: 'Reshiram', id: 643 },
+            { name: 'Zekrom', id: 644 },
+            { name: 'Kyurem', id: 646 },
+          ],
+          routeHint: 'Derrote cada lendário em sequência no Modo VS. Kyurem só aparece após Reshiram e Zekrom serem derrotados!',
+          shownFlag: 'unova_legendary_modal_shown',
+        });
+      }, 3500);
+    }
+
+    // Kalos: Xerneas, Yveltal, Zygarde (após Campeão de Kalos)
+    if (flags.includes('kalos_champion') &&
+        !flags.includes('kalos_legendary_modal_shown')) {
+      setTimeout(() => {
+        setShowLegendaryModal(prev => prev ? prev : {
+          professor: 'sycamore',
+          professorName: 'Prof. Sycamore',
+          region: 'kalos',
+          accentColor: '#3b82f6',
+          title: 'Lendários de Kalos Revelados!',
+          message: '"Magnifique! Você se tornou o Campeão de Kalos! Com a derrota de Diantha e o fim dos planos da Team Flare, dois seres extraordinários emergem: Xerneas, o Pokémon da Vida, e Yveltal, o Pokémon da Destruição. E nas profundezas de Kalos, Zygarde vela pelo equilíbrio…"',
+          legendaries: [
+            { name: 'Xerneas', id: 716 },
+            { name: 'Yveltal', id: 717 },
+            { name: 'Zygarde', id: 718 },
+          ],
+          routeHint: 'Derrote-os no Modo VS — Zygarde só aparece após Xerneas e Yveltal serem derrotados!',
+          shownFlag: 'kalos_legendary_modal_shown',
+        });
+      }, 3500);
+    }
+
+    // Alola: Tapus + Solgaleo + Lunala + Necrozma (após Campeão de Alola)
+    if (flags.includes('alola_champion') &&
+        !flags.includes('alola_legendary_modal_shown')) {
+      setTimeout(() => {
+        setShowLegendaryModal(prev => prev ? prev : {
+          professor: 'kukui',
+          professorName: 'Prof. Kukui',
+          region: 'alola',
+          accentColor: '#f97316',
+          title: 'Guardiões de Alola Convocam!',
+          message: '"Yeah! Você venceu os Trials e conquistou Alola! Os quatro Tapus — guardiões das ilhas — querem testar você pessoalmente. E nas alturas do Altar do Sol e da Lua, Solgaleo e Lunala aguardam. Há também rumores de Necrozma, o Devorador da Luz, espreitando pelas sombras…"',
+          legendaries: [
+            { name: 'Tapu Koko', id: 785 },
+            { name: 'Tapu Lele', id: 786 },
+            { name: 'Tapu Bulu', id: 787 },
+            { name: 'Tapu Fini', id: 788 },
+            { name: 'Solgaleo', id: 791 },
+            { name: 'Lunala', id: 792 },
+            { name: 'Necrozma', id: 800 },
+          ],
+          routeHint: 'Derrote os Tapus em sequência, depois Solgaleo e Lunala. Necrozma só aparece por último!',
+          shownFlag: 'alola_legendary_modal_shown',
+        });
+      }, 3500);
+    }
+
+    // Galar: Zacian, Zamazenta, Eternatus (após Campeão de Galar)
+    if (flags.includes('galar_champion') &&
+        !flags.includes('galar_legendary_modal_shown')) {
+      setTimeout(() => {
+        setShowLegendaryModal(prev => prev ? prev : {
+          professor: 'magnolia',
+          professorName: 'Prof. Magnolia',
+          region: 'galar',
+          accentColor: '#a855f7',
+          title: 'Heróis de Galar Retornam!',
+          message: '"Parabéns por derrotar Leon e salvar Galar! Com o colapso dos planos de Rose, as lendas adormecidas no Slumbering Weald despertaram: Zacian e Zamazenta, os heróis que derrotaram Eternatus há séculos. E o próprio Eternatus... ainda pulsa no topo da Energy Plant."',
+          legendaries: [
+            { name: 'Zacian', id: 888 },
+            { name: 'Zamazenta', id: 889 },
+            { name: 'Eternatus', id: 890 },
+          ],
+          routeHint: 'Derrote Zacian, Zamazenta e por último Eternatus no Modo VS!',
+          shownFlag: 'galar_legendary_modal_shown',
+        });
+      }, 3500);
+    }
+
+    // Hisui: Darkrai, Shaymin, Arceus (após Campeão de Hisui)
+    if (flags.includes('hisui_champion') &&
+        !flags.includes('hisui_legendary_modal_shown')) {
+      setTimeout(() => {
+        setShowLegendaryModal(prev => prev ? prev : {
+          professor: 'laventon',
+          professorName: 'Prof. Laventon',
+          region: 'hisui',
+          accentColor: '#d97706',
+          title: 'O Chamado de Arceus!',
+          message: '"Extraordinário! Você completou o Pokédex de Hisui e derrotou Kamado! Uma energia divina emana do Templo de Sinnoh... Darkrai foi avistado nas pântanas de Hisui, Shaymin floresce nos campos e — segundo os anciões — o próprio Arceus aguarda no Altar do Espaço Temporal quem completar a jornada!"',
+          legendaries: [
+            { name: 'Darkrai', id: 491 },
+            { name: 'Shaymin', id: 492 },
+            { name: 'Arceus', id: 493 },
+          ],
+          routeHint: 'Derrote Darkrai, depois Shaymin, e por fim Arceus — o Pokémon Deus — aguarda com recompensa máxima!',
+          shownFlag: 'hisui_legendary_modal_shown',
+        });
+      }, 3500);
+    }
+
+    // Paldea: Koraidon, Miraidon (após Campeão de Paldea)
+    if (flags.includes('paldea_champion') &&
+        !flags.includes('paldea_legendary_modal_shown')) {
+      setTimeout(() => {
+        setShowLegendaryModal(prev => prev ? prev : {
+          professor: 'sada',
+          professorName: 'Profa. Sada',
+          region: 'paldea',
+          accentColor: '#ef4444',
+          title: 'Koraidon e Miraidon Libertados!',
+          message: '"Você conquista Paldea e desce ao fundo da Area Zero! Minha pesquisa confirmou: Koraidon, o Pokémon do Passado, e Miraidon, o Pokémon do Futuro, são forças primordiais que moldaram Paldea. Com a derrota do Paradise Protection Protocol, eles buscam um treinador digno de desafiá-los em sua forma real de combate!"',
+          legendaries: [
+            { name: 'Koraidon', id: 1007 },
+            { name: 'Miraidon', id: 1008 },
+          ],
+          routeHint: 'Derrote Koraidon primeiro, depois Miraidon — os mais fortes desafios de toda a jornada!',
+          shownFlag: 'paldea_legendary_modal_shown',
+        });
+      }, 3500);
+    }
+
   }, [gameState.worldFlags]);
   // ————————————————————————————————————————————————————————————
 

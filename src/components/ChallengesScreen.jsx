@@ -380,6 +380,214 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
 
 const FUTURE_REGION_CHALLENGES = buildFutureRegionChallenges();
 
+// ── Lendários das regiões futuras (Unova → Paldea) ─────────────────────────
+const _sp = (id) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+const FUTURE_REGION_LEGENDARIES = [
+  // ─────────────── UNOVA ───────────────────────────────────────────────────
+  {
+    region: 'unova', id: 'cobalion', category: 'legendary', name: 'Cobalion',
+    subtitle: 'O Guerreiro de Aço', sprite: _sp(580),
+    quote: '"Meu aço não cede. Prove que seu coração é digno."',
+    reward: 80000, unlockFlag: 'cobalion_defeated', requiresFlag: 'unova_champion',
+    team: [{ id: 580, level: 72 }], background: "url('/bg_unova_route.webp') center/cover no-repeat",
+    location: 'Mistralton Cave',
+  },
+  {
+    region: 'unova', id: 'terrakion', category: 'legendary', name: 'Terrakion',
+    subtitle: 'O Guerreiro da Rocha', sprite: _sp(638),
+    quote: '"Aqueles que oprimem os fracos serão varridos pela minha força!"',
+    reward: 80000, unlockFlag: 'terrakion_defeated', requiresFlag: 'cobalion_defeated',
+    team: [{ id: 638, level: 74 }], background: "url('/bg_unova_route.webp') center/cover no-repeat",
+    location: 'Victory Road - Unova',
+  },
+  {
+    region: 'unova', id: 'virizion', category: 'legendary', name: 'Virizion',
+    subtitle: 'O Guerreiro da Pradaria', sprite: _sp(639),
+    quote: '"Com elegância e velocidade, corto qualquer oponente."',
+    reward: 80000, unlockFlag: 'virizion_defeated', requiresFlag: 'terrakion_defeated',
+    team: [{ id: 639, level: 74 }], background: "url('/bg_unova_route.webp') center/cover no-repeat",
+    location: 'Pinwheel Forest',
+  },
+  {
+    region: 'unova', id: 'reshiram', category: 'legendary', name: 'Reshiram',
+    subtitle: 'O Dragão da Verdade', sprite: _sp(643),
+    quote: '"A verdade queima mais forte que qualquer chama. Você pode suportá-la?"',
+    reward: 180000, unlockFlag: 'reshiram_defeated', requiresFlag: 'virizion_defeated',
+    team: [{ id: 643, level: 88 }], background: "url('/bg_unova_elite.webp') center/cover no-repeat",
+    location: 'Dragonspiral Tower',
+  },
+  {
+    region: 'unova', id: 'zekrom', category: 'legendary', name: 'Zekrom',
+    subtitle: 'O Dragão dos Ideais', sprite: _sp(644),
+    quote: '"Os ideais criam o futuro. Deixa meu raio julgar o seu!"',
+    reward: 180000, unlockFlag: 'zekrom_defeated', requiresFlag: 'reshiram_defeated',
+    team: [{ id: 644, level: 88 }], background: "url('/bg_unova_elite.webp') center/cover no-repeat",
+    location: 'Dragonspiral Tower',
+  },
+  {
+    region: 'unova', id: 'kyurem', category: 'legendary', name: 'Kyurem',
+    subtitle: 'O Dragão do Vazio', sprite: _sp(646),
+    quote: '"…Frio. Vazio. Poder."',
+    reward: 220000, unlockFlag: 'kyurem_defeated', requiresFlag: 'zekrom_defeated',
+    team: [{ id: 646, level: 95 }], background: "url('/bg_unova_ice.webp') center/cover no-repeat",
+    location: 'Giant Chasm',
+  },
+
+  // ─────────────── KALOS ───────────────────────────────────────────────────
+  {
+    region: 'kalos', id: 'xerneas', category: 'legendary', name: 'Xerneas',
+    subtitle: 'O Pokémon da Vida', sprite: _sp(716),
+    quote: '"A vida que compartilho é eterna. Você é digno de recebê-la?"',
+    reward: 150000, unlockFlag: 'xerneas_defeated', requiresFlag: 'kalos_champion',
+    team: [{ id: 716, level: 85 }], background: "url('/bg_kalos_forest.webp') center/cover no-repeat",
+    location: 'Team Flare Secret HQ',
+  },
+  {
+    region: 'kalos', id: 'yveltal', category: 'legendary', name: 'Yveltal',
+    subtitle: 'O Pokémon da Destruição', sprite: _sp(717),
+    quote: '"Tudo que vive um dia irá se extinguir… inclusive você."',
+    reward: 150000, unlockFlag: 'yveltal_defeated', requiresFlag: 'xerneas_defeated',
+    team: [{ id: 717, level: 85 }], background: "url('/bg_kalos_cave.webp') center/cover no-repeat",
+    location: 'Team Flare Secret HQ',
+  },
+  {
+    region: 'kalos', id: 'zygarde', category: 'legendary', name: 'Zygarde',
+    subtitle: 'O Pokémon da Ordem', sprite: _sp(718),
+    quote: '"Sou o guardião do equilíbrio. Pertube-o e enfrentará as consequências."',
+    reward: 220000, unlockFlag: 'zygarde_defeated', requiresFlag: 'yveltal_defeated',
+    team: [{ id: 718, level: 92 }], background: "url('/bg_kalos_cave.webp') center/cover no-repeat",
+    location: 'Terminus Cave',
+  },
+
+  // ─────────────── ALOLA ───────────────────────────────────────────────────
+  {
+    region: 'alola', id: 'tapu_koko', category: 'legendary', name: 'Tapu Koko',
+    subtitle: 'Divindade de Melemele', sprite: _sp(785),
+    quote: '"Sparksurfer! Vou testar minha força contra a sua!"',
+    reward: 100000, unlockFlag: 'tapu_koko_defeated', requiresFlag: 'alola_champion',
+    team: [{ id: 785, level: 85 }], background: "url('/bg_alola_route.webp') center/cover no-repeat",
+    location: 'Ruins of Conflict',
+  },
+  {
+    region: 'alola', id: 'tapu_lele', category: 'legendary', name: 'Tapu Lele',
+    subtitle: 'Divindade de Akala', sprite: _sp(786),
+    quote: '"Meus escamas de cura… também podem ferir."',
+    reward: 100000, unlockFlag: 'tapu_lele_defeated', requiresFlag: 'tapu_koko_defeated',
+    team: [{ id: 786, level: 85 }], background: "url('/bg_alola_route.webp') center/cover no-repeat",
+    location: 'Ruins of Life',
+  },
+  {
+    region: 'alola', id: 'tapu_bulu', category: 'legendary', name: 'Tapu Bulu',
+    subtitle: 'Divindade de Ula\'ula', sprite: _sp(787),
+    quote: '"A natureza não perdoa descuido."',
+    reward: 100000, unlockFlag: 'tapu_bulu_defeated', requiresFlag: 'tapu_lele_defeated',
+    team: [{ id: 787, level: 85 }], background: "url('/bg_alola_route.webp') center/cover no-repeat",
+    location: 'Ruins of Abundance',
+  },
+  {
+    region: 'alola', id: 'tapu_fini', category: 'legendary', name: 'Tapu Fini',
+    subtitle: 'Divindade de Poni', sprite: _sp(788),
+    quote: '"A névoa do oceano revela apenas os mais fortes."',
+    reward: 100000, unlockFlag: 'tapu_fini_defeated', requiresFlag: 'tapu_bulu_defeated',
+    team: [{ id: 788, level: 85 }], background: "url('/bg_alola_route.webp') center/cover no-repeat",
+    location: 'Ruins of Hope',
+  },
+  {
+    region: 'alola', id: 'solgaleo', category: 'legendary', name: 'Solgaleo',
+    subtitle: 'O Filho do Sol', sprite: _sp(791),
+    quote: '"Sou o que devora o sol. Seu espírito pode suportar minha luz?"',
+    reward: 200000, unlockFlag: 'solgaleo_defeated', requiresFlag: 'tapu_fini_defeated',
+    team: [{ id: 791, level: 92 }], background: "url('/bg_alola_elite.webp') center/cover no-repeat",
+    location: 'Altar of the Sunne',
+  },
+  {
+    region: 'alola', id: 'lunala', category: 'legendary', name: 'Lunala',
+    subtitle: 'A Filha da Lua', sprite: _sp(792),
+    quote: '"Sou a que chama a lua. Mergulhe nas sombras comigo."',
+    reward: 200000, unlockFlag: 'lunala_defeated', requiresFlag: 'solgaleo_defeated',
+    team: [{ id: 792, level: 92 }], background: "url('/bg_alola_elite.webp') center/cover no-repeat",
+    location: 'Altar of the Moone',
+  },
+  {
+    region: 'alola', id: 'necrozma', category: 'legendary', name: 'Necrozma',
+    subtitle: 'O Devorador da Luz', sprite: _sp(800),
+    quote: '"A luz pertence a mim. Toda ela."',
+    reward: 280000, unlockFlag: 'necrozma_defeated', requiresFlag: 'lunala_defeated',
+    team: [{ id: 800, level: 100 }], background: "url('/bg_alola_elite.webp') center/cover no-repeat",
+    location: 'Ultra Megalopolis',
+  },
+
+  // ─────────────── GALAR ───────────────────────────────────────────────────
+  {
+    region: 'galar', id: 'zacian', category: 'legendary', name: 'Zacian',
+    subtitle: 'O Herói Espada', sprite: _sp(888),
+    quote: '"Minha lâmina corta tudo. Até lendas."',
+    reward: 200000, unlockFlag: 'zacian_defeated', requiresFlag: 'galar_champion',
+    team: [{ id: 888, level: 92 }], background: "url('/bg_galar_route.webp') center/cover no-repeat",
+    location: 'Slumbering Weald',
+  },
+  {
+    region: 'galar', id: 'zamazenta', category: 'legendary', name: 'Zamazenta',
+    subtitle: 'O Herói Escudo', sprite: _sp(889),
+    quote: '"Meu escudo protege tudo que existe. Mas não você, hoje."',
+    reward: 200000, unlockFlag: 'zamazenta_defeated', requiresFlag: 'zacian_defeated',
+    team: [{ id: 889, level: 92 }], background: "url('/bg_galar_route.webp') center/cover no-repeat",
+    location: 'Slumbering Weald',
+  },
+  {
+    region: 'galar', id: 'eternatus', category: 'legendary', name: 'Eternatus',
+    subtitle: 'O Pokémon Eterno', sprite: _sp(890),
+    quote: '"Existia antes de Galar. Existirei depois."',
+    reward: 300000, unlockFlag: 'eternatus_defeated', requiresFlag: 'zamazenta_defeated',
+    team: [{ id: 890, level: 100 }], background: "url('/bg_galar_elite.webp') center/cover no-repeat",
+    location: 'Energy Plant - Topo',
+  },
+
+  // ─────────────── HISUI ───────────────────────────────────────────────────
+  {
+    region: 'hisui', id: 'darkrai_hisui', category: 'legendary', name: 'Darkrai',
+    subtitle: 'O Señor dos Pesadelos', sprite: _sp(491),
+    quote: '"Os seus pesadelos pertencem a mim."',
+    reward: 200000, unlockFlag: 'darkrai_hisui_defeated', requiresFlag: 'hisui_champion',
+    team: [{ id: 491, level: 90 }], background: "url('/bg_hisui_mirelands.webp') center/cover no-repeat",
+    location: 'Moonview Arena - Hisui',
+  },
+  {
+    region: 'hisui', id: 'shaymin_hisui', category: 'legendary', name: 'Shaymin',
+    subtitle: 'O Pokémon Gratidão', sprite: _sp(492),
+    quote: '"A gratidão floresce até em Hisui. Mereça-a."',
+    reward: 200000, unlockFlag: 'shaymin_hisui_defeated', requiresFlag: 'darkrai_hisui_defeated',
+    team: [{ id: 492, level: 90 }], background: "url('/bg_hisui_fieldlands.webp') center/cover no-repeat",
+    location: 'Flower Paradise - Hisui',
+  },
+  {
+    region: 'hisui', id: 'arceus', category: 'legendary', name: 'Arceus',
+    subtitle: 'O Pokémon Deus', sprite: _sp(493),
+    quote: '"Eu moldei este mundo. Agora você ousa me desafiar?"',
+    reward: 500000, unlockFlag: 'arceus_defeated', requiresFlag: 'shaymin_hisui_defeated',
+    team: [{ id: 493, level: 100 }], background: "url('/bg_hisui_sacred_plaza.webp') center/cover no-repeat",
+    location: 'Temple of Sinnoh - Spear Pillar Ancestral',
+  },
+
+  // ─────────────── PALDEA ──────────────────────────────────────────────────
+  {
+    region: 'paldea', id: 'koraidon', category: 'legendary', name: 'Koraidon',
+    subtitle: 'O Pokémon do Passado', sprite: _sp(1007),
+    quote: '"Do passado vem minha força. Você tem coragem de enfrentá-la?"',
+    reward: 350000, unlockFlag: 'koraidon_defeated', requiresFlag: 'paldea_champion',
+    team: [{ id: 1007, level: 100 }], background: "url('/bg_paldea_cave.webp') center/cover no-repeat",
+    location: 'Area Zero - Fundo do Abismo',
+  },
+  {
+    region: 'paldea', id: 'miraidon', category: 'legendary', name: 'Miraidon',
+    subtitle: 'O Pokémon do Futuro', sprite: _sp(1008),
+    quote: '"Do futuro venho. Nada pode me deter — nem mesmo você."',
+    reward: 350000, unlockFlag: 'miraidon_defeated', requiresFlag: 'koraidon_defeated',
+    team: [{ id: 1008, level: 100 }], background: "url('/bg_paldea_elite.webp') center/cover no-repeat",
+    location: 'Area Zero - Laboratório do Futuro',
+  },
+];
+
 const CHALLENGES = [
   // RIVAIS
   {
@@ -2067,7 +2275,8 @@ const CHALLENGES = [
     background: "url('/bg_sky_pillar.webp') center/cover no-repeat",
     location: 'Sky Pillar',
   },
-  ...FUTURE_REGION_CHALLENGES
+  ...FUTURE_REGION_CHALLENGES,
+  ...FUTURE_REGION_LEGENDARIES,
 ];
 
 const CATEGORY_CONFIG = {
