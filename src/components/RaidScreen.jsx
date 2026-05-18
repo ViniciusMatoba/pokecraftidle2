@@ -100,6 +100,25 @@ const RaidScreen = ({
     return () => clearInterval(t);
   }, []);
 
+  // Refs para calcular posição real do sprite
+  const spriteRef   = useRef(null);
+  const contentRef  = useRef(null);
+
+  // Estados de posição e animação — declarados ANTES dos useEffects que os referenciam
+  const [ballX,        setBallX]        = useState(184);
+  const [ballY,        setBallY]        = useState(500);
+  const [targetX,      setTargetX]      = useState(184);
+  const [targetY,      setTargetY]      = useState(200);
+  const [useTransition, setUseTransition] = useState(false);
+  const [catchAnim, setCatchAnim] = useState({
+    active: false,
+    phase: null,
+    caught: false,
+    ballImg: null,
+    ballId: null,
+    shakes: 0,
+  });
+
   // Auto-captura: quando fase=capture e modo=capture, lança a pokébola automaticamente
   const autoThrowRef = useRef(null);
   useEffect(() => {
@@ -108,10 +127,7 @@ const RaidScreen = ({
     if (catchAnim.active) return;
     if ((raid.catchAttemptsLeft || 0) <= 0) return;
 
-    // Encontra a pokébola configurada (ou a melhor disponível)
-    const preferred = balls.find ? null : null; // balls ainda não está definido aqui
     autoThrowRef.current = setTimeout(() => {
-      // Recalcula balls dentro do timeout para ter acesso ao estado atual
       const allBalls = [
         { id: 'ultra_ball', label: 'Ultra Ball', count: gameState.inventory?.items?.ultra_ball || 0,
           img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png' },
@@ -121,36 +137,13 @@ const RaidScreen = ({
           img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png' },
       ];
       const autoBall = allBalls.find(b => b.id === cfg.ballType && b.count > 0)
-        || allBalls.find(b => b.count > 0); // fallback para qualquer bola disponível
+        || allBalls.find(b => b.count > 0);
       if (autoBall) handleBallClick(autoBall);
     }, 1200);
 
     return () => clearTimeout(autoThrowRef.current);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [raid?.phase, raid?.catchAttemptsLeft, catchAnim.active, cfg?.mode, cfg?.ballType]);
-
-  // Refs para calcular posição real do sprite
-  // contentRef: div principal (sempre montado) — usado como origem das coordenadas
-  const spriteRef   = useRef(null);
-  const contentRef  = useRef(null);  // substitui overlayRef (sempre renderizado)
-
-  // Posição absoluta da pokébola (em px dentro do overlay)
-  const [ballX,    setBallX]    = useState(184);  // left
-  const [ballY,    setBallY]    = useState(500);  // top (start = fundo)
-  // Posição final (centro do sprite)
-  const [targetX,  setTargetX]  = useState(184);
-  const [targetY,  setTargetY]  = useState(200);
-  // Ativa transição CSS apenas durante o lançamento
-  const [useTransition, setUseTransition] = useState(false);
-
-  const [catchAnim, setCatchAnim] = useState({
-    active: false,
-    phase: null,      // 'throwing' | 'absorbing' | 'shaking' | 'result'
-    caught: false,
-    ballImg: null,
-    ballId: null,
-    shakes: 0,
-  });
 
   if (!raid) return null;
 

@@ -1,7 +1,11 @@
-export const APP_VERSION = '2.3.10';
-export const VERSION = '2.3.10';
-export const APP_VERSION_DATE = '18/05/2026 16:00';
+export const APP_VERSION = '2.3.10.1';
+export const VERSION = '2.3.10.1';
+export const APP_VERSION_DATE = '18/05/2026 16:30';
 export const CHANGELOG = [
+  '## [V2.3.10.1] - 18/05/2026 16:30',
+  '### Correção Crítica',
+  '- **Crash definitivo na Raid corrigido:** a causa raiz era um TDZ (Temporal Dead Zone) dentro da função do componente RaidScreen. O `useState` de `catchAnim` estava declarado na linha 146, mas era referenciado na dependency array de um `useEffect` na linha 105. O Terser renomeava `catchAnim` para `ve`, gerando "Cannot access \'ve\' before initialization". Corrigido movendo todos os `useState`/`useRef` de posição e animação para antes do `useEffect` que os usa.',
+  '',
   '## [V2.3.10] - 18/05/2026 16:00',
   '### Melhorias',
   '- **Modo VS inteligente:** ao abrir o Modo VS pelo botão da barra de navegação, o jogo detecta automaticamente a região ativa e o próximo objetivo da jornada, abrindo diretamente na aba e região corretas (ex: jogador em Hoenn abre em Ginásios → Hoenn). Casos especiais como Lendários e Boss mantêm sua navegação específica.',

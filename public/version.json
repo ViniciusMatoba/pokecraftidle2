@@ -1,5 +1,5 @@
 {
-  "version": "2.3.10",
-  "date": "18/05/2026 16:00",
-  "notes": "Modo VS inteligente: abre automaticamente na aba e região do próximo objetivo da jornada do jogador."
+  "version": "2.3.10.1",
+  "date": "18/05/2026 16:30",
+  "notes": "Crash definitivo da Raid corrigido: TDZ em catchAnim dentro do componente RaidScreen — useState movido para antes do useEffect que o referencia."
 }
