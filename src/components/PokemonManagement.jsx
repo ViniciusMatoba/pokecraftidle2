@@ -7,6 +7,7 @@ import { getCompatibleMegaStones, MEGA_STONE_ICONS, getMegaSprite } from '../dat
 import { ABILITY_ITEM_ID, getPokemonAbilityPool, setPokemonAbility } from '../data/abilities';
 import { getPokeballDef, POKEBALL_DEFS, ALL_BALL_IDS, BALL_EFFECT_LABELS } from '../data/pokeballs';
 import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokemonSprites';
+import { getPokemonTmCompatibility } from '../data/tmCompatibility';
 
 import { GYM_LEVEL_CAPS } from '../data/constants';
 import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER, isPokemonLegal } from '../data/regionStandards';
@@ -259,12 +260,9 @@ const PokemonManagement = ({
     .filter(tm => tm.moveData?.name || tm.recipe?.name)
     .sort((a, b) => getMoveLabel(a.moveId).localeCompare(getMoveLabel(b.moveId)));
 
-  const getPokemonLearnsetKeys = (pokemon) => {
-    const base = POKEDEX[pokemon?.id] || pokemon || {};
-    return new Set((base.learnset || []).map(entry => getMoveKey(entry.move)));
-  };
+  const getPokemonTmCompatibilitySet = (pokemon) => new Set(getPokemonTmCompatibility(pokemon, POKEDEX));
 
-  const pokemonCanLearnTm = (pokemon, moveId) => getPokemonLearnsetKeys(pokemon).has(getMoveKey(moveId));
+  const pokemonCanLearnTm = (pokemon, moveId) => getPokemonTmCompatibilitySet(pokemon).has(getMoveKey(moveId));
 
   const pokemonAlreadyKnowsMove = (pokemon, moveId) => (pokemon?.moves || [])
     .some(move => getMoveKey(move) === getMoveKey(moveId));
@@ -1304,7 +1302,7 @@ const PokemonManagement = ({
                                 </div>
                                 {disabled && (
                                   <p className={`text-[8px] font-black uppercase mt-1 ${alreadyKnown ? 'text-emerald-600' : 'text-red-500'}`}>
-                                    {alreadyKnown ? 'Este Pokemon ja sabe esse golpe' : 'Fora do learnset deste Pokemon'}
+                                    {alreadyKnown ? 'Este Pokemon ja sabe esse golpe' : 'Este Pokemon nao aprende este TM'}
                                   </p>
                                 )}
                               </div>

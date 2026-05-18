@@ -1,5 +1,5 @@
 {
-  "version": "2.5.3",
-  "date": "18/05/2026 17:48",
-  "notes": "TMs de raid: recompensas tm_* agora entram no mesmo inventario de itens dos TMs forjados e aparecem na area de golpes do Pokemon."
+  "version": "2.5.4",
+  "date": "18/05/2026 17:57",
+  "notes": "Compatibilidade oficial de TMs: ensino agora usa dados de machine por especie/forma, nao learnset por level."
 }

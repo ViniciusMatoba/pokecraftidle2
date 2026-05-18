@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.5.3';
-export const VERSION = '2.5.3';
-export const APP_VERSION_DATE = '18/05/2026 17:48';
+export const APP_VERSION = '2.5.4';
+export const VERSION = '2.5.4';
+export const APP_VERSION_DATE = '18/05/2026 17:57';
 export const CHANGELOG = [
+  '## [V2.5.4] - 18/05/2026 17:57',
+  '### Compatibilidade Oficial de TMs',
+  '- **Validacao por machine**: TMs agora usam uma tabela oficial de compatibilidade por especie/forma baseada em fontes `M` do Pokemon Showdown, alinhada ao funcionamento dos jogos.',
+  '- **Learnset separado**: golpes por level continuam no learnset, mas nao determinam mais se um Pokemon pode aprender um TM.',
+  '- **Formas regionais**: a resolucao considera `formKey` e nomes regionais para validar TMs de variantes como formas Hisui, Alola, Galar e Paldea.',
+  '',
   '## [V2.5.3] - 18/05/2026 17:48',
   '### TMs de Raid',
   '- **Inventario unificado de TMs**: TMs recebidos em raids agora sao forcados para `inventory.items`, o mesmo inventario usado pelos TMs forjados.',

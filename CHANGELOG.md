@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [v2.5.4] - 18/05/2026 17:57
+### Corrigido
+- **Compatibilidade Oficial de TMs**: TMs agora usam uma tabela de compatibilidade por especie/forma baseada em fontes de machine (`M`) do Pokemon Showdown.
+- **Learnset Separado de TM**: golpes aprendidos por nivel nao liberam mais automaticamente o uso de TM.
+- **Formas Regionais**: validacao considera `formKey` e nomes de variantes para formas Hisui, Alola, Galar e Paldea.
+
 ## [v2.5.3] - 18/05/2026 17:48
 ### Corrigido
 - **TMs de Raid no Inventario Correto**: recompensas `tm_*` de raids agora sao sempre adicionadas em `inventory.items`, o mesmo local usado pelos TMs forjados.
