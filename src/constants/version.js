@@ -3,13 +3,11 @@ export const VERSION = '2.2.0';
 export const APP_VERSION_DATE = '18/05/2026 12:00';
 export const CHANGELOG = [
   '## [V2.2.0] - 18/05/2026 12:00',
-  '### Progresso Offline + Mega Evolucoes Z-A',
+  '### Progresso Offline Corrigido',
   '- **Progresso offline corrigido**: modal agora aparece corretamente ao retornar ao jogo apos um periodo offline.',
   '- **Rota de farm inteligente**: sistema agora encontra a melhor rota disponivel como fallback, mesmo sem lastFarmingRoute salvo.',
   '- **Sincronizacao ao minimizar**: ao minimizar ou trocar de aba, lastSeenAt e salvo na nuvem em tempo real.',
   '- **Timestamp mais preciso**: ao carregar o jogo, verifica tanto Firebase quanto localStorage para usar o timestamp mais recente.',
-  '- **12 novas Mega Evolucoes (Legends: Z-A)**: Mega Arcanine, Mega Persian, Mega Raichu, Mega Ninetales, Mega Arbok, Mega Marowak, Mega Rapidash, Mega Golduck, Mega Wigglytuff, Mega Nidoking, Mega Nidoqueen, Mega Cloyster.',
-  '- **Total de Megas**: agora sao 84 Mega Evolucoes (48 canonicas + 12 novas Z-A + 24 nao-canonicas).',
   '',
   '## [V2.1.7] - 17/05/2026 23:15',
   '### Publicacao Final',
