@@ -1,5 +1,5 @@
 {
-  "version": "2.3.2",
+  "version": "2.3.3",
   "date": "18/05/2026 07:32",
-  "notes": "Polimento: disclaimer fan-game visivel na landing e configuracoes, botao Ver Tutorial, salvar agora nas configuracoes, notificacao de falha no boss ranking."
+  "notes": "Click-to-Go: Guia da Jornada navega direto para a batalha certa no Modo VS (rival/ginasio/rocket). Rota recomendada destacada com borda dourada no mapa de viagem."
 }

@@ -329,7 +329,7 @@ const ExpCandyModal = ({ candy, gameState, onUse, onClose }) => {
   );
 };
 
-const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onExportSave, onImportSave, onShowTutorial, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0 }) => {
+const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onExportSave, onImportSave, onShowTutorial, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0, setVsInitialTab, setVsInitialCategory, setVsInitialRegion }) => {
   const [updating, setUpdating] = useState(false);
   const [subView, setSubView] = useState('main'); // 'main' ou 'settings'
   const [activeTab, setActiveTab] = useState('balls');
@@ -891,7 +891,14 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
       setGameState(prev => ({ ...prev, currentRoute: routeId }));
       setCurrentView('battles');
     };
-    const goToVs = () => setCurrentView('vs');
+    const goToVs = (vsInfo) => {
+      if (vsInfo) {
+        if (setVsInitialTab) setVsInitialTab(vsInfo.tab || 'challenges');
+        if (setVsInitialCategory) setVsInitialCategory(vsInfo.category || null);
+        if (setVsInitialRegion) setVsInitialRegion(vsInfo.region || 'kanto');
+      }
+      setCurrentView('vs');
+    };
     const DropCard = ({ target }) => (
       <div className="bg-white border-2 border-slate-100 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
         <div className="flex items-start gap-3">
@@ -930,12 +937,17 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
             <h4 className="font-black uppercase italic text-slate-800 text-lg leading-tight mt-1">
               {guide.storyStep?.label || 'Regiao atual completa'}
             </h4>
+            {guide.nextVsBattle?.label && (
+              <p className="text-[9px] font-black text-pokeRed uppercase tracking-widest mt-1 italic">
+                ⚔️ {guide.nextVsBattle.label}
+              </p>
+            )}
             <p className="text-[10px] font-bold text-slate-500 mt-1">
-              {guide.storyStep ? 'Siga pelo MODO VS quando for batalha de historia, rival, equipe vila, ginasio ou liga.' : 'Use as rotas avancadas para treinar ate o nivel 100 e completar drops pendentes.'}
+              {guide.storyStep ? 'Clique para ir direto para a batalha certa no Modo VS.' : 'Use as rotas avancadas para treinar ate o nivel 100 e completar drops pendentes.'}
             </p>
             {guide.storyStep && (
-              <button onClick={goToVs} className="mt-3 w-full rounded-xl bg-pokeRed text-white py-3 text-[10px] font-black uppercase tracking-widest active:scale-95">
-                Abrir Modo VS
+              <button onClick={() => goToVs(guide.nextVsBattle)} className="mt-3 w-full rounded-xl bg-pokeRed text-white py-3 text-[10px] font-black uppercase tracking-widest active:scale-95">
+                {guide.nextVsBattle?.label ? `Ir para: ${guide.nextVsBattle.label}` : 'Abrir Modo VS'}
               </button>
             )}
           </div>

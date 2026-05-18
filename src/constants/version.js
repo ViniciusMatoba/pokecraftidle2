@@ -1,7 +1,16 @@
-export const APP_VERSION = '2.3.2';
-export const VERSION = '2.3.2';
+export const APP_VERSION = '2.3.3';
+export const VERSION = '2.3.3';
 export const APP_VERSION_DATE = '18/05/2026 07:32';
 export const CHANGELOG = [
+  '## [V2.3.3] - 18/05/2026 07:32',
+  '### Click-to-Go Universal',
+  '- **Guia da Jornada com navegacao precisa**: botao agora leva direto para a batalha correta no Modo VS.',
+  '- Rival pendente → abre aba Desafios, categoria Rival, regiao correta.',
+  '- Ginasio pendente → abre aba Ginasios & Liga, regiao correta.',
+  '- Equipe vilao pendente → abre aba Desafios, categoria Rocket/Villain.',
+  '- **Rota recomendada destacada**: borda dourada pulsante e badge "Recomendado" na rota de treino ideal.',
+  '- Funciona em Kanto, Johto, Hoenn e Sinnoh.',
+  '',
   '## [V2.3.2] - 18/05/2026 07:32',
   '### Polimento de Producao',
   '- **Disclaimer visivel**: "Fan-game nao oficial · Pokemon © Nintendo / Game Freak" na tela inicial e em Configuracoes.',

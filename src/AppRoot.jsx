@@ -8472,6 +8472,9 @@ export default function App() {
           onUseExpCandy={handleUseExpCandy}
           onOpenFriends={() => setActiveBuildingModal('friends')}
           pendingFriendRequestsCount={pendingFriendRequests.length}
+          setVsInitialTab={setVsInitialTab}
+          setVsInitialCategory={setVsInitialCategory}
+          setVsInitialRegion={setVsInitialRegion}
         />
       );
 

@@ -38,6 +38,7 @@ const RECIPE_FRAGMENT_DROPS = {
 import { TYPE_COLOR_HEX } from '../data/gyms';
 import { TIME_CONFIG, getTimeOfDay, getTimeAdjustedEnemyPool } from '../utils/timeSystem';
 import { hasProgressRequirement } from '../utils/progress';
+import { getJourneyGuide } from '../data/journeyGuide';
 
 const TravelScreen = ({ 
   gameState, 
@@ -58,6 +59,12 @@ const TravelScreen = ({
   const [selectedPoke, setSelectedPoke] = React.useState(null);
   const [selectedDrop, setSelectedDrop] = React.useState(null);
   const routeRegionTab = gameState.activeRegion || 'kanto';
+
+  // Rota recomendada pelo Guia da Jornada (highlight visual)
+  const recommendedRouteId = React.useMemo(() => {
+    const guide = getJourneyGuide(gameState);
+    return guide.nextRoute?.id || null;
+  }, [gameState.worldFlags, gameState.badges, gameState.activeRegion, gameState.currentRoute]);
   const isJohtoRoute = (route) => inferRouteRegion(route?.id, route?.group).id === 'johto';
   const [alertMessage, setAlertMessage] = React.useState(null);
   const [activePeriodTab, setActivePeriodTab] = React.useState(null);
@@ -466,12 +473,17 @@ const TravelScreen = ({
                     const id = route.id;
                     const unlocked = isRouteUnlocked(route);
                     const isCurrent = gameState.currentRoute === id;
-                    
+                    const isRecommended = !isCurrent && unlocked && recommendedRouteId === id;
+
                     return (
-                      <button 
-                        key={id} 
-                        onClick={() => setSelectedRoute({ id, ...route })} 
-                        className={`bg-white p-4 rounded-[2.5rem] border-4 transition-all flex items-center justify-between group overflow-hidden relative ${unlocked ? 'border-slate-50 hover:border-pokeBlue shadow-sm hover:shadow-md' : 'border-slate-50 opacity-60 grayscale'}`}
+                      <button
+                        key={id}
+                        onClick={() => setSelectedRoute({ id, ...route })}
+                        className={`bg-white p-4 rounded-[2.5rem] border-4 transition-all flex items-center justify-between group overflow-hidden relative ${
+                          isRecommended
+                            ? 'border-pokeGold shadow-[0_0_0_3px_rgba(255,203,5,0.35)] animate-pulse'
+                            : unlocked ? 'border-slate-50 hover:border-pokeBlue shadow-sm hover:shadow-md' : 'border-slate-50 opacity-60 grayscale'
+                        }`}
                       >
                          <div className="flex items-center gap-4">
                            <div className="w-16 h-16 rounded-3xl overflow-hidden shadow-inner relative flex-shrink-0 bg-slate-200">
@@ -501,6 +513,11 @@ const TravelScreen = ({
                            </div>
                          </div>
 
+                         {isRecommended && (
+                            <div className="absolute left-3 top-3 z-10">
+                              <span className="text-[8px] font-black uppercase bg-pokeGold text-slate-900 px-2 py-0.5 rounded-full shadow-sm">⭐ Recomendado</span>
+                            </div>
+                         )}
                          {isCurrent && (
                             <div className="absolute right-0 top-0 bottom-0 w-2 bg-pokeBlue flex items-center justify-center">
                               <span className="text-white text-[7px] font-black uppercase [writing-mode:vertical-lr] tracking-widest">Treinando Aqui</span>

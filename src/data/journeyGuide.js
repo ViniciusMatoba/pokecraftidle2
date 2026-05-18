@@ -14,6 +14,37 @@ const REGION_LABELS = {
   paldea: 'Paldea',
 };
 
+// Mapeia cada flag de história para os parâmetros de navegação do VsScreen
+const STORY_FLAG_TO_VS = {
+  // Kanto
+  rival_1_defeated:               { tab: 'challenges', category: 'rival',  region: 'kanto', label: 'Rival - Rota 1' },
+  boulder_badge:                  { tab: 'gyms',       category: 'kanto',  region: 'kanto', label: 'Ginásio de Pewter (Brock)' },
+  cascade_badge:                  { tab: 'gyms',       category: 'kanto',  region: 'kanto', label: 'Ginásio de Cerulean (Misty)' },
+  thunder_badge:                  { tab: 'gyms',       category: 'kanto',  region: 'kanto', label: 'Ginásios de Kanto' },
+  rocket_hideout_cleared:         { tab: 'challenges', category: 'rocket', region: 'kanto', label: 'QG da Equipe Rocket (Celadon)' },
+  earth_badge:                    { tab: 'gyms',       category: 'kanto',  region: 'kanto', label: 'Ginásios de Kanto' },
+  champion:                       { tab: 'gyms',       category: 'kanto',  region: 'kanto', label: 'Liga Pokémon de Kanto' },
+  // Johto
+  johto_rival_1_defeated:         { tab: 'challenges', category: 'rival',  region: 'johto', label: 'Rival em Cherrygrove' },
+  zephyr_badge:                   { tab: 'gyms',       category: 'johto',  region: 'johto', label: 'Ginásio de Violet (Falkner)' },
+  hive_badge:                     { tab: 'gyms',       category: 'johto',  region: 'johto', label: 'Ginásio de Azalea (Bugsy)' },
+  johto_rocket_radio_cleared:     { tab: 'challenges', category: 'rocket', region: 'johto', label: 'Torre de Rádio - Equipe Rocket' },
+  rising_badge:                   { tab: 'gyms',       category: 'johto',  region: 'johto', label: 'Ginásios de Johto' },
+  johto_champion:                 { tab: 'gyms',       category: 'johto',  region: 'johto', label: 'Liga Pokémon de Johto' },
+  // Hoenn
+  hoenn_rival_route_103_defeated: { tab: 'challenges', category: 'rival',  region: 'hoenn', label: 'Rival - Rota 103' },
+  stone_badge:                    { tab: 'gyms',       category: 'hoenn',  region: 'hoenn', label: 'Ginásio de Rustboro (Roxanne)' },
+  heat_badge:                     { tab: 'gyms',       category: 'hoenn',  region: 'hoenn', label: 'Ginásios de Hoenn' },
+  rain_badge:                     { tab: 'gyms',       category: 'hoenn',  region: 'hoenn', label: 'Ginásios de Hoenn' },
+  hoenn_champion:                 { tab: 'gyms',       category: 'hoenn',  region: 'hoenn', label: 'Liga Pokémon de Hoenn' },
+  // Sinnoh
+  sinnoh_rival_jubilife_defeated: { tab: 'challenges', category: 'rival',  region: 'sinnoh', label: 'Barry em Jubilife' },
+  coal_badge:                     { tab: 'gyms',       category: 'sinnoh', region: 'sinnoh', label: 'Ginásio de Oreburgh (Roark)' },
+  sinnoh_galactic_eterna_cleared: { tab: 'challenges', category: 'rocket', region: 'sinnoh', label: 'Galactica em Eterna City' },
+  beacon_badge:                   { tab: 'gyms',       category: 'sinnoh', region: 'sinnoh', label: 'Ginásios de Sinnoh' },
+  sinnoh_champion:                { tab: 'gyms',       category: 'sinnoh', region: 'sinnoh', label: 'Liga Pokémon de Sinnoh (Cynthia)' },
+};
+
 const REGION_STORY_STEPS = {
   kanto: [
     { flag: 'rival_1_defeated', label: 'Vencer o rival inicial' },
@@ -99,6 +130,10 @@ export const getJourneyGuide = (gameState = {}) => {
   const storyStep = (REGION_STORY_STEPS[activeRegion] || [])
     .find(step => !hasFlag(gameState, step.flag)) || null;
 
+  const nextVsBattle = storyStep
+    ? (STORY_FLAG_TO_VS[storyStep.flag] || { tab: 'challenges', category: null, region: activeRegion, label: null })
+    : null;
+
   const recipeTargets = Object.entries(FORGE_RECIPE_DROP_GUIDE)
     .filter(([recipeId, guide]) => {
       if ((gameState.inventory?.materials || {})[guide.recipeItemId] > 0) return false;
@@ -140,6 +175,7 @@ export const getJourneyGuide = (gameState = {}) => {
       ? { ...nextLockedRoute, missingRequirements: getMissingRequirements(nextLockedRoute, gameState) }
       : null,
     storyStep,
+    nextVsBattle,
     recipeTargets,
     materialTargets,
   };
