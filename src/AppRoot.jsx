@@ -43,7 +43,7 @@ import { MoveCategoryIcon, StatusBadges, QuickInventory, TrainerCard, BadgeSVG }
 import OfflineProgressModal from './components/OfflineProgressModal';
 import { calculateOfflineProgress, applyOfflineProgress } from './utils/offlineProgress';
 import { GYMS, ELITE_FOUR } from './data/gyms';
-import { auth, db } from './firebase';
+import { auth, db, trackEvent } from './firebase';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { doc, getDoc, setDoc, deleteField, serverTimestamp, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
 import LZString from 'lz-string';
@@ -729,7 +729,7 @@ export default function App() {
 
     // 2. Fallback: tenta os snapshots diários (últimos 3 dias, mais recente primeiro)
     try {
-      const { getDocs, collection, orderBy, limit, query } = await import('firebase/firestore');
+      const { orderBy, limit } = await import('firebase/firestore');
       const snapshotsRef = collection(db, 'saves', uid, 'snapshots');
       const q = query(snapshotsRef, orderBy('createdAt', 'desc'), limit(3));
       const snaps = await getDocs(q);
@@ -789,6 +789,12 @@ export default function App() {
                 const stateWithProgress = applyOfflineProgress(migratedData, progress);
                 setGameState(stateWithProgress);
                 setOfflineProgress(progress);
+                trackEvent('offline_progress', {
+                  hours_offline: Math.round(progress.cappedMs / 3_600_000 * 10) / 10,
+                  xp_gained: progress.xp || 0,
+                  battles: progress.battles || 0,
+                  route_id: progress.routeId || 'unknown',
+                });
               } else {
                 setGameState(migratedData);
               }
@@ -797,6 +803,13 @@ export default function App() {
             }
 
             isFullyLoadedRef.current = true;
+
+            // Analytics: sessão iniciada
+            trackEvent('session_start', {
+              badges: (migratedData.badges || []).length,
+              caught: Object.keys(migratedData.caughtData || {}).length,
+              region: migratedData.activeRegion || 'kanto',
+            });
 
             const hasRealProgress = (migratedData.worldFlags || []).length > 0 || (migratedData.badges || []).length > 0;
             if (hasRealProgress) {
@@ -2017,6 +2030,7 @@ export default function App() {
       } else {
         // 3 falhas consecutivas — avisa o usuário
         notify('⚠️ Não foi possível salvar na nuvem. Seu progresso está salvo localmente.', 'error');
+        trackEvent('save_failed', { error_code: e?.code || 'unknown', attempts: attempt });
         saveRetryRef.current = 0;
       }
     }
@@ -6262,6 +6276,12 @@ export default function App() {
         newBadges.push(currentEnemy.badgeToGive);
         addLog(`Recebeu a Insignia: ${currentEnemy.badgeToGive.replace(/_/g, ' ')}!`, 'system');
         sfxGym();
+        trackEvent('badge_earned', {
+          badge_id: currentEnemy.badgeToGive,
+          gym_id: currentEnemy.routeId || currentEnemy.id || 'unknown',
+          region: prev.activeRegion || 'kanto',
+          total_badges: newBadges.length,
+        });
         
         const activeRegion = prev.activeRegion || 'kanto';
         const newShare = Math.round(getRegionExpShareRate(newBadges, activeRegion) * 100);
@@ -6601,6 +6621,13 @@ export default function App() {
                 if (currentEnemy.isShiny) {
                   notify({ type: 'capture', title: '✨ SHINY capturado!', message: `${currentEnemy.name} brilhante foi capturado!`, duration: 6000 });
                 }
+                trackEvent('pokemon_captured', {
+                  pokemon_id: Number(currentEnemy.id),
+                  pokemon_name: currentEnemy.name,
+                  is_shiny: !!currentEnemy.isShiny,
+                  route_id: gameState.currentRoute || 'unknown',
+                  ball_used: selectedBall || 'poke_ball',
+                });
                 sfxCapture();
 
                 if (alreadyCaught) {

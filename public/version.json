@@ -1,5 +1,5 @@
 {
-  "version": "2.3.0",
+  "version": "2.3.1",
   "date": "18/05/2026 07:32",
-  "notes": "Save Fortress: debounce 45s, dirty flag, retry com backoff, snapshot diario, export/import de save, validacao de tamanho. Saves nunca perdidos."
+  "notes": "Analytics: eventos de sessao, captura, insignia e progresso offline. ErrorBoundary: tela de erro amigavel com salvo automatico do progresso."
 }

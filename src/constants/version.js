@@ -1,7 +1,20 @@
-export const APP_VERSION = '2.3.0';
-export const VERSION = '2.3.0';
+export const APP_VERSION = '2.3.1';
+export const VERSION = '2.3.1';
 export const APP_VERSION_DATE = '18/05/2026 07:32';
 export const CHANGELOG = [
+  '## [V2.3.1] - 18/05/2026 07:32',
+  '### Monitoramento & Error Boundary',
+  '- **Analytics ativo**: Firebase Analytics agora rastreia eventos reais de gameplay.',
+  '- `session_start`: registra regiao, insignias e total capturado ao entrar no jogo.',
+  '- `badge_earned`: registra qual insignia, qual regiao e total acumulado.',
+  '- `pokemon_captured`: registra especie, se e shiny, rota e pokebola usada.',
+  '- `offline_progress`: registra horas offline, XP ganho e rota de farm.',
+  '- `save_failed`: registra codigo do erro apos 3 tentativas falhas de save.',
+  '- `app_crash`: registra crashes nao tratados com stack do componente.',
+  '- **Desativado em dev**: trackEvent retorna imediatamente em localhost (sem poluir metricas).',
+  '- **ErrorBoundary**: tela amigavel em caso de crash — botao recarregar, aviso de save preservado.',
+  '- **Backup de crash**: ao recarregar apos erro, salva copia extra do save local como seguranca.',
+  '',
   '## [V2.3.0] - 18/05/2026 07:32',
   '### Save Fortress — Saves Nunca Perdidos',
   '- **Debounce 45s + dirty flag**: save na nuvem so ocorre quando ha mudanca real e com intervalo de 45s. Reducao de ~98% nas escritas do Firestore.',
