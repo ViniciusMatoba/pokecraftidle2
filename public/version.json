@@ -1,5 +1,5 @@
 {
-  "version": "2.5.2",
-  "date": "18/05/2026 17:43",
-  "notes": "TMs forjados: area de TMs dentro dos golpes do Pokemon, uso unico por item, validacao por learnset e escolha de slot ao substituir golpes."
+  "version": "2.5.3",
+  "date": "18/05/2026 17:48",
+  "notes": "TMs de raid: recompensas tm_* agora entram no mesmo inventario de itens dos TMs forjados e aparecem na area de golpes do Pokemon."
 }

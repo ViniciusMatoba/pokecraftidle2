@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.5.2';
-export const VERSION = '2.5.2';
-export const APP_VERSION_DATE = '18/05/2026 17:43';
+export const APP_VERSION = '2.5.3';
+export const VERSION = '2.5.3';
+export const APP_VERSION_DATE = '18/05/2026 17:48';
 export const CHANGELOG = [
+  '## [V2.5.3] - 18/05/2026 17:48',
+  '### TMs de Raid',
+  '- **Inventario unificado de TMs**: TMs recebidos em raids agora sao forcados para `inventory.items`, o mesmo inventario usado pelos TMs forjados.',
+  '- **Compatibilidade futura**: recompensas `tm_*` continuam aparecendo na area de golpes mesmo se uma raid antiga ou futura vier marcada com outro tipo de recompensa.',
+  '',
   '## [V2.5.2] - 18/05/2026 17:43',
   '### TMs Forjados e Golpes',
   '- **TMs no painel do Pokemon**: TMs fabricados agora aparecem diretamente dentro da area de golpes do Pokemon, facilitando encontrar e usar os itens forjados.',

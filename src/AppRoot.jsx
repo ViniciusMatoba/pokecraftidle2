@@ -3647,9 +3647,10 @@ export default function App() {
         candies:   { ...(prev.inventory.candies || {}) },
       };
       rewards.forEach(r => {
+        const isTmReward = String(r.id || '').startsWith('tm_');
         if (r.type === 'currency') {
           newCurrency += r.quantity || 0;
-        } else if (r.type === 'item') {
+        } else if (r.type === 'item' || isTmReward) {
           newInventory.items[r.id] = (newInventory.items[r.id] || 0) + (r.quantity || 1);
         } else if (r.type === 'material') {
           newInventory.materials[r.id] = (newInventory.materials[r.id] || 0) + (r.quantity || 1);

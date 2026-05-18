@@ -1,5 +1,10 @@
 # Changelog - PokeCraft
 
+## [v2.5.3] - 18/05/2026 17:48
+### Corrigido
+- **TMs de Raid no Inventario Correto**: recompensas `tm_*` de raids agora sao sempre adicionadas em `inventory.items`, o mesmo local usado pelos TMs forjados.
+- **Uso na Tela de Golpes**: TMs dropados de raids passam a aparecer junto dos TMs fabricados para ensino unitario aos Pokemon compativeis.
+
 ## [v2.5.2] - 18/05/2026 17:43
 ### Adicionado
 - **TMs nos Golpes do Pokemon**: TMs forjados agora aparecem dentro do painel de golpes do Pokemon, com quantidade disponivel e dados do ataque.
