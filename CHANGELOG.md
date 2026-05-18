@@ -1,5 +1,11 @@
 # Changelog - PokeCraft
 
+## [v2.5.5] - 18/05/2026 18:07
+### Corrigido
+- **Golpes Duplicados**: `moves` e `learnedMoves` agora sao deduplicados por chave canonica, cobrindo nomes traduzidos, nomes em ingles, objetos de move e IDs internos.
+- **Saves Existentes**: ao abrir um Pokemon, a lista de golpes e memoria de golpes e limpa e salva sem repeticoes.
+- **Entradas de Moves**: level-up, evolucao, TMs, ataques raros e troca de slots agora gravam listas normalizadas.
+
 ## [v2.5.4] - 18/05/2026 17:57
 ### Corrigido
 - **Compatibilidade Oficial de TMs**: TMs agora usam uma tabela de compatibilidade por especie/forma baseada em fontes de machine (`M`) do Pokemon Showdown.

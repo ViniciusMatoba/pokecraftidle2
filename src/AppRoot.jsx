@@ -216,10 +216,41 @@ const EVOLUTION_FRAGMENT_DROPS = {
   74: 'link_cable_part', 75: 'link_cable_part', 92: 'link_cable_part', 93: 'link_cable_part',
 };
 
-// Deduplica lista de golpes pelo nome (mantém a ocorrência mais recente de cada golpe)
+// Deduplica lista de golpes pela chave canonica (mantem a ocorrencia mais recente de cada golpe)
 const deduplicateMoves = (moves) => {
+  const normalizeMoveKey = (move) => {
+    const rawName = typeof move === 'string' ? move : move?.name;
+    const normalized = String(rawName || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    if (MOVES[normalized]) return normalized;
+    const translated = Object.entries(MOVE_TRANSLATIONS || {}).find(([, label]) => (
+      String(label || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') === normalized
+    ));
+    if (translated) return translated[0];
+    const english = Object.entries(MOVES || {}).find(([, data]) => (
+      String(data?.name || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') === normalized
+    ));
+    return english?.[0] || normalized;
+  };
   const seen = new Map();
-  moves.forEach(m => seen.set(m.name, m));
+  moves.forEach(m => {
+    const key = normalizeMoveKey(m);
+    if (key) seen.set(key, m);
+  });
   return [...seen.values()];
 };
 
@@ -461,8 +492,8 @@ const processExpeditionPokemon = (pokemon, xpGained) => {
       ...p,
       level: newLevel,
       xp: p.xp - xpNeeded,
-      moves: newMoves,
-      learnedMoves: newLearned,
+      moves: deduplicateMoves(newMoves).slice(0, 4),
+      learnedMoves: deduplicateMoves(newLearned),
       maxHp: calcHp(base.hp || 45, newLevel),
       hp:    calcHp(base.hp || 45, newLevel),
       attack:  calcStat(base.attack  || 45, newLevel),
@@ -6786,7 +6817,7 @@ export default function App() {
           const baseStats = pokeData || {};
           const newMaxHp = calcHp(baseStats.hp || 45, newLevel);
 
-          return { ...p, level: newLevel, xp: newXp - xpNeeded, moves: newMoves, learnedMoves: newLearnedMoves,
+          return { ...p, level: newLevel, xp: newXp - xpNeeded, moves: deduplicateMoves(newMoves).slice(0, 4), learnedMoves: deduplicateMoves(newLearnedMoves),
             maxHp: newMaxHp,
             hp: newMaxHp,
             attack:  calcStat(baseStats.attack  || 45, newLevel),

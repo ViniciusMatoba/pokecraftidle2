@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.5.4';
-export const VERSION = '2.5.4';
-export const APP_VERSION_DATE = '18/05/2026 17:57';
+export const APP_VERSION = '2.5.5';
+export const VERSION = '2.5.5';
+export const APP_VERSION_DATE = '18/05/2026 18:07';
 export const CHANGELOG = [
+  '## [V2.5.5] - 18/05/2026 18:07',
+  '### Golpes sem Duplicacao',
+  '- **Chave canonica de golpe**: moves agora sao comparados pela chave interna do golpe, evitando duplicatas entre nome traduzido, nome em ingles, objeto de move e ID interno.',
+  '- **Correcao de saves existentes**: ao abrir um Pokemon, `moves` e `learnedMoves` sao normalizados e salvos sem repeticoes.',
+  '- **Entradas protegidas**: level-up, evolucao, TMs, ataques raros e troca de slots passam pela deduplicacao antes de gravar no time ou PC.',
+  '',
   '## [V2.5.4] - 18/05/2026 17:57',
   '### Compatibilidade Oficial de TMs',
   '- **Validacao por machine**: TMs agora usam uma tabela oficial de compatibilidade por especie/forma baseada em fontes `M` do Pokemon Showdown, alinhada ao funcionamento dos jogos.',

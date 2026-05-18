@@ -243,6 +243,44 @@ const PokemonManagement = ({
     return MOVE_TRANSLATIONS[key] || data.name || translateMove(typeof move === 'string' ? move : move?.name);
   };
 
+  const dedupeMovesByKey = (moves = []) => {
+    const seen = new Set();
+    return moves.filter(move => {
+      const key = getMoveKey(move);
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  };
+
+  const normalizePokemonMoves = (pokemon = {}) => ({
+    ...pokemon,
+    moves: dedupeMovesByKey(pokemon.moves || []).slice(0, 4),
+    learnedMoves: dedupeMovesByKey(pokemon.learnedMoves || pokemon.moves || []),
+  });
+
+  useEffect(() => {
+    if (!activePokemonDetails) return;
+    const normalized = normalizePokemonMoves(activePokemonDetails.pokemon);
+    const currentMoveKeys = (activePokemonDetails.pokemon.moves || []).map(getMoveKey).join('|');
+    const normalizedMoveKeys = (normalized.moves || []).map(getMoveKey).join('|');
+    const currentLearnedKeys = (activePokemonDetails.pokemon.learnedMoves || []).map(getMoveKey).join('|');
+    const normalizedLearnedKeys = (normalized.learnedMoves || []).map(getMoveKey).join('|');
+    if (currentMoveKeys === normalizedMoveKeys && currentLearnedKeys === normalizedLearnedKeys) return;
+
+    const { location, index } = activePokemonDetails;
+    const instanceId = activePokemonDetails.pokemon?.instanceId;
+    setGameState(prev => {
+      const list = [...(prev[location] || [])];
+      const realIndex = instanceId ? list.findIndex(p => p.instanceId === instanceId) : index;
+      const targetIndex = realIndex >= 0 ? realIndex : index;
+      if (!list[targetIndex]) return prev;
+      list[targetIndex] = normalizePokemonMoves(list[targetIndex]);
+      return { ...prev, [location]: list };
+    });
+    setActivePokemonDetails(prev => prev ? ({ ...prev, pokemon: normalized }) : prev);
+  }, [activePokemonKey]);
+
   const getTmMoveId = (tmItemId) => String(tmItemId || '').replace(/^tm_/, '').replace(/_/g, '-');
 
   const getTmRecipe = (tmItemId) => Object.values(CRAFTING_RECIPES || {})
@@ -296,13 +334,13 @@ const PokemonManagement = ({
     }
 
     const updatePokemon = (pokemon) => {
-      const currentMoves = [...(pokemon.moves || [])];
-      const currentLearned = [...(pokemon.learnedMoves || currentMoves)];
+      const currentMoves = dedupeMovesByKey(pokemon.moves || []);
+      const currentLearned = dedupeMovesByKey(pokemon.learnedMoves || currentMoves);
       if (!currentLearned.some(move => getMoveKey(move) === getMoveKey(moveId))) currentLearned.push(moveObj);
       const nextMoves = [...currentMoves];
       if (replaceIndex !== null && replaceIndex >= 0 && replaceIndex < nextMoves.length) nextMoves[replaceIndex] = moveObj;
       else nextMoves.push(moveObj);
-      return { ...pokemon, moves: nextMoves.slice(0, 4), learnedMoves: currentLearned };
+      return { ...pokemon, moves: dedupeMovesByKey(nextMoves).slice(0, 4), learnedMoves: dedupeMovesByKey(currentLearned) };
     };
 
     const nextActivePokemon = updatePokemon(currentPokemon);
@@ -478,40 +516,40 @@ const PokemonManagement = ({
        const newList = [...prev[activePokemonDetails.location]];
        const poke = newList[activePokemonDetails.index];
 
-       let newLearnedMoves = poke.learnedMoves ? [...poke.learnedMoves] : [...poke.moves];
-       if (!newLearnedMoves.some(m => m.name === moveObj.name)) {
+       let newLearnedMoves = dedupeMovesByKey(poke.learnedMoves || poke.moves || []);
+       if (!newLearnedMoves.some(m => getMoveKey(m) === getMoveKey(moveObj))) {
          newLearnedMoves.push(moveObj);
        }
 
-       if (poke.moves.some(m => m.name === moveObj.name)) {
+       if ((poke.moves || []).some(m => getMoveKey(m) === getMoveKey(moveObj))) {
          newList[activePokemonDetails.index] = { ...poke, learnedMoves: newLearnedMoves };
          return { ...prev, [activePokemonDetails.location]: newList };
        }
 
-       const newMoves = [...poke.moves];
+       const newMoves = dedupeMovesByKey(poke.moves || []);
        if (newMoves.length < 4) newMoves.push(moveObj);
        else newMoves[0] = moveObj;
 
-       newList[activePokemonDetails.index] = { ...poke, moves: newMoves, learnedMoves: newLearnedMoves };
+       newList[activePokemonDetails.index] = { ...poke, moves: dedupeMovesByKey(newMoves).slice(0, 4), learnedMoves: dedupeMovesByKey(newLearnedMoves) };
        return { ...prev, [activePokemonDetails.location]: newList };
     });
 
     setActivePokemonDetails(prev => {
        const poke = prev.pokemon;
-       let newLearnedMoves = poke.learnedMoves ? [...poke.learnedMoves] : [...poke.moves];
-       if (!newLearnedMoves.some(m => m.name === moveObj.name)) {
+       let newLearnedMoves = dedupeMovesByKey(poke.learnedMoves || poke.moves || []);
+       if (!newLearnedMoves.some(m => getMoveKey(m) === getMoveKey(moveObj))) {
          newLearnedMoves.push(moveObj);
        }
 
-       if (poke.moves.some(m => m.name === moveObj.name)) {
+       if ((poke.moves || []).some(m => getMoveKey(m) === getMoveKey(moveObj))) {
          return { ...prev, pokemon: { ...poke, learnedMoves: newLearnedMoves } };
        }
 
-       const newMoves = [...poke.moves];
+       const newMoves = dedupeMovesByKey(poke.moves || []);
        if (newMoves.length < 4) newMoves.push(moveObj);
        else newMoves[0] = moveObj;
 
-       return { ...prev, pokemon: { ...poke, moves: newMoves, learnedMoves: newLearnedMoves } };
+       return { ...prev, pokemon: { ...poke, moves: dedupeMovesByKey(newMoves).slice(0, 4), learnedMoves: dedupeMovesByKey(newLearnedMoves) } };
     });
     addLog(`${activePokemonDetails.pokemon.name} aprendeu ${moveObj.name}!`, 'system');
   };
@@ -555,31 +593,31 @@ const PokemonManagement = ({
     setGameState(prev => {
       const newList = [...prev[activePokemonDetails.location]];
       const poke = { ...newList[activePokemonDetails.index] };
-      const newMoves = [...poke.moves];
+      const newMoves = dedupeMovesByKey(poke.moves || []);
 
       // Se já tiver o golpe em outra posição, apenas troca de lugar (reordenar)
-      const existingIdx = newMoves.findIndex(m => m.name === newMoveName);
+      const existingIdx = newMoves.findIndex(m => getMoveKey(m) === getMoveKey(newMoveName));
       if (existingIdx !== -1) {
         [newMoves[activeIdx], newMoves[existingIdx]] = [newMoves[existingIdx], newMoves[activeIdx]];
       } else {
         newMoves[activeIdx] = moveData; // Fix: use full moveData instead of just { name }
       }
 
-      poke.moves = newMoves;
+      poke.moves = dedupeMovesByKey(newMoves).slice(0, 4);
       newList[activePokemonDetails.index] = poke;
       return { ...prev, [activePokemonDetails.location]: newList };
     });
 
     setActivePokemonDetails(prev => {
       const poke = { ...prev.pokemon };
-      const newMoves = [...poke.moves];
-      const existingIdx = newMoves.findIndex(m => m.name === newMoveName);
+      const newMoves = dedupeMovesByKey(poke.moves || []);
+      const existingIdx = newMoves.findIndex(m => getMoveKey(m) === getMoveKey(newMoveName));
       if (existingIdx !== -1) {
         [newMoves[activeIdx], newMoves[existingIdx]] = [newMoves[existingIdx], newMoves[activeIdx]];
       } else {
         newMoves[activeIdx] = moveData; // Fix: use full moveData instead of just { name }
       }
-      return { ...prev, pokemon: { ...poke, moves: newMoves } };
+      return { ...prev, pokemon: { ...poke, moves: dedupeMovesByKey(newMoves).slice(0, 4) } };
     });
 
     setMoveSwapMode(null);
@@ -1334,12 +1372,13 @@ const PokemonManagement = ({
 
                       <div className="min-h-0 overflow-y-auto custom-scrollbar space-y-3" style={{ padding: '12px 12px 12px 20px', backgroundColor: '#0f172a' }}>
                         {(() => {
-                          const learned = activePokemonDetails.pokemon.learnedMoves || activePokemonDetails.pokemon.moves || [];
-                          const available = learned.filter(m => !activePokemonDetails.pokemon.moves.some(active => getMoveKey(active) === getMoveKey(m)));
+                          const learned = dedupeMovesByKey(activePokemonDetails.pokemon.learnedMoves || activePokemonDetails.pokemon.moves || []);
+                          const activeMoveKeys = new Set(dedupeMovesByKey(activePokemonDetails.pokemon.moves || []).map(getMoveKey));
+                          const available = learned.filter(m => !activeMoveKeys.has(getMoveKey(m)));
 
                           // Adiciona opção de reordenar (golpes já ativos)
-                          const currentActive = activePokemonDetails.pokemon.moves;
-                          const rareMoves = (path?.rareMoves || []).map(rm => ({ ...rm, ...getMoveData(rm), name: rm.name }));
+                          const currentActive = dedupeMovesByKey(activePokemonDetails.pokemon.moves || []);
+                          const rareMoves = dedupeMovesByKey((path?.rareMoves || []).map(rm => ({ ...rm, ...getMoveData(rm), name: rm.name })));
 
                           return (
                             <>

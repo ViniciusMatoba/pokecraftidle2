@@ -167,6 +167,23 @@ const EvolutionScreen = ({
 }) => {
   if (!evolutionPending) return null;
 
+  const moveKey = (move) => String(typeof move === 'string' ? move : move?.name || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  const dedupeMoves = (moves = []) => {
+    const seen = new Set();
+    return moves.filter(move => {
+      const key = moveKey(move);
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  };
+
   // ── MODO ESCOLHA ──────────────────────────────────────────────────────────
   const isChoiceMode =
     Array.isArray(evolutionPending.choices) &&
@@ -316,16 +333,16 @@ const EvolutionScreen = ({
                                   const shinyMult = p.isShiny ? 1.2 : 1.0;
                                   const calcStat = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + 5) * shinyMult));
                                   const calcHp   = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + lv + 10) * shinyMult));
-                                  let newMoves = [...(p.moves || [])];
-                                  let newLearnedMoves = p.learnedMoves ? [...p.learnedMoves] : [...newMoves];
+                                  let newMoves = dedupeMoves(p.moves || []);
+                                  let newLearnedMoves = dedupeMoves(p.learnedMoves || newMoves);
                                   if (nextPoke.learnset) {
                                      const movesAtLevel = nextPoke.learnset.filter(l => l.level <= p.level);
                                      movesAtLevel.forEach(learn => {
                                         const moveName = learn.move;
-                                        if (!newLearnedMoves.some(m => m.name === moveName)) {
+                                        if (!newLearnedMoves.some(m => moveKey(m) === moveKey(moveName))) {
                                            const moveObj = { name: moveName };
                                            newLearnedMoves.push(moveObj);
-                                           if (newMoves.length < 4) newMoves.push(moveObj);
+                                           if (newMoves.length < 4 && !newMoves.some(m => moveKey(m) === moveKey(moveObj))) newMoves.push(moveObj);
                                         }
                                      });
                                   }
@@ -341,8 +358,8 @@ const EvolutionScreen = ({
                                      spAtk:    calcStat(nextPoke.spAtk    || 40, p.level),
                                      spDef:    calcStat(nextPoke.spDef    || 40, p.level),
                                      speed:    calcStat(nextPoke.speed    || 40, p.level),
-                                     moves: newMoves,
-                                     learnedMoves: newLearnedMoves,
+                                     moves: dedupeMoves(newMoves).slice(0, 4),
+                                     learnedMoves: dedupeMoves(newLearnedMoves),
                                   };
                                }
                                return p;
