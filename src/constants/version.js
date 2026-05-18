@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.2.1';
-export const VERSION = '2.2.1';
-export const APP_VERSION_DATE = '18/05/2026 13:00';
+export const APP_VERSION = '2.2.2';
+export const VERSION = '2.2.2';
+export const APP_VERSION_DATE = '18/05/2026 07:32';
 export const CHANGELOG = [
+  '## [V2.2.2] - 18/05/2026 07:32',
+  '### Safari Zone, EXP Share e Correccoes de Sprites',
+  '- **Safari Zone funcionando**: modal de entrada com tema verde, regras explicadas, taxa de 500 Pokedollars cobrada corretamente.',
+  '- **30 Safari Balls concedidas**: ao entrar na Safari Zone, o inventario recebe as bolas especiais para o safari funcionar de ponta a ponta.',
+  '- **Icone EXP Share corrigido**: modal de vitoria de ginasio agora exibe o sprite real do item EXP Share (nao mais emoji).',
+  '- **Sprite Mega Tatsugiri corrigido**: showdownId da forma Enrolada corrigido para tatsugiri-curly-mega (padrao oficial do Showdown).',
+  '- **Progresso offline aprimorado**: findBestFarmRoute com 4 niveis de fallback; lastSeenAt salvo na nuvem ao minimizar/trocar de aba.',
+  '',
   '## [V2.2.1] - 18/05/2026 13:00',
   '### Mega Evolucoes Legends Z-A Oficiais',
   '- **24 novas Mega Evolucoes oficiais**: adicionadas com base na lista confirmada do Serebii (Legends Z-A).',
