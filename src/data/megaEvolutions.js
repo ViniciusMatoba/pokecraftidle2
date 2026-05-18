@@ -763,7 +763,7 @@ export const MEGA_EVOLUTION_MAP = {
 
   // Tatsugiri — Dragon/Water (3 formas)
   tatsugirite_c: {
-    baseId: 978, showdownId: 'tatsugiri-mega',
+    baseId: 978, showdownId: 'tatsugiri-curly-mega',
     name: 'Mega Tatsugiri (Forma Enrolada)', types: ['Dragon', 'Water'],
     statBonus: { spAtk: 0.45, speed: 0.20, defense: 0.10 },
     craftCost: { dragon_scale: 10, water_essence: 8, currency: 2500 },
