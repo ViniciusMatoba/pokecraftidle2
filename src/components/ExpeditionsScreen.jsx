@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   EXPEDITION_BIOMES,
   EXPEDITION_REGIONS,
@@ -42,8 +43,8 @@ const EfficiencyBadge = ({ value }) => {
 const calcFoodRequired = (pokemonCount, durationHours) =>
   Math.ceil(pokemonCount * durationHours);
 
-const ExpeditionAlertModal = ({ req, onClose }) => (
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn">
+const ExpeditionAlertModal = ({ req, onClose }) => createPortal(
+  <div className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn">
     <div className="modal-panel-mobile bg-slate-900 p-6 border border-white/10 shadow-2xl animate-bounceIn text-center">
       <div className="text-4xl mb-4">🔒</div>
       <h3 className="text-white font-black uppercase italic tracking-tighter text-xl mb-4">Caminho Bloqueado!</h3>
@@ -60,14 +61,15 @@ const ExpeditionAlertModal = ({ req, onClose }) => (
         </button>
       </div>
     </div>
-  </div>
+  </div>,
+  document.body
 );
 
 /* ─── Modal: Rações insuficientes ─── */
 const FoodShortageModal = ({ needed, available, onGoForge, onGoMart, onClose }) => {
   const missing = needed - available;
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn">
       <div className="w-full max-w-[360px] bg-slate-900 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden animate-bounceIn">
         {/* Header */}
         <div className="bg-gradient-to-br from-orange-700/60 to-red-800/40 px-6 py-5 text-center">
@@ -127,7 +129,8 @@ const FoodShortageModal = ({ needed, available, onGoForge, onGoMart, onClose }) 
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -147,8 +150,8 @@ const ExpeditionReportModal = ({ report, onClose }) => {
   const drops = report.drops || {};
   const hasDrops = Object.keys(drops).length > 0;
 
-  return (
-    <div className="fixed inset-0 z-[60000] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
       <div className="w-full max-w-[420px] bg-slate-900 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[92dvh]">
 
         {/* ── HEADER ── */}
@@ -296,7 +299,8 @@ const ExpeditionReportModal = ({ report, onClose }) => {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

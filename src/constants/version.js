@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.6.3';
-export const VERSION = '2.6.3';
-export const APP_VERSION_DATE = '19/05/2026 09:51';
+export const APP_VERSION = '2.6.4';
+export const VERSION = '2.6.4';
+export const APP_VERSION_DATE = '19/05/2026';
 export const CHANGELOG = [
+  '## [V2.6.4] - 19/05/2026',
+  '### Correção — Modais de Confirmação Sempre na Frente',
+  '- **Z-index global corrigido**: modais de confirmação (Ensinar TM, Forjar, Comprar, Loja de Prestígio) agora usam `createPortal` para renderizar direto no `document.body`, garantindo que apareçam na frente de qualquer painel ou tela aberta.',
+  '- Afetados: `ConfirmModal`, `CraftingStation` (confirmar forja), `ExpeditionsScreen` (alertas e relatório), `PrestigeShop` (compra, bloqueado, equipar).',
+  '',
   '## [V2.6.3] - 19/05/2026 09:51',
   '### Remoção — Seção de Doações do Centro Pokémon',
   '- **Apoie o Centro Pokémon removido**: a seção de doações não tinha função no jogo e foi retirada da interface do PokéCenter.',

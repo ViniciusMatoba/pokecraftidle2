@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   TROPHIES, SHOP_TITLES, POKEDEX_FRAMES, UI_THEMES,
   ALLIES, MINE_LEVELS, FISHING_RODS, GYM_BANNERS
@@ -1350,8 +1351,8 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
       `}} />
 
       {/* ── MODAL: CONFIRMAÇÃO DE COMPRA ──────────────────────────────────── */}
-      {confirmPurchase && (
-        <div className="fixed inset-0 z-[9999] flex items-end justify-center pb-6 px-4"
+      {confirmPurchase && createPortal(
+        <div className="fixed inset-0 z-[9999999] flex items-end justify-center pb-6 px-4"
           style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)' }}>
           <div className="w-full max-w-sm font-mono"
             style={{ animation: 'equipSlideIn 0.22s ease-out both' }}>
@@ -1402,11 +1403,11 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
 
       {/* ── MODAL: ITEM BLOQUEADO ──────────────────────────────────────────── */}
-      {lockedInfo && (
-        <div className="fixed inset-0 z-[9999] flex items-end justify-center pb-6 px-4"
+      {lockedInfo && createPortal(
+        <div className="fixed inset-0 z-[9999999] flex items-end justify-center pb-6 px-4"
           style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)' }}>
           <div className="w-full max-w-sm font-mono"
             style={{ animation: 'equipSlideIn 0.22s ease-out both' }}>
@@ -1435,11 +1436,11 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
 
       {/* ── MODAL: EQUIPAR APÓS COMPRA ─────────────────────────────────────── */}
-      {equipPrompt && (
-        <div className="fixed inset-0 z-[9999] flex items-end justify-center pb-6 px-4"
+      {equipPrompt && createPortal(
+        <div className="fixed inset-0 z-[9999999] flex items-end justify-center pb-6 px-4"
           style={{ background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(4px)' }}>
           <div className="w-full max-w-sm font-mono"
             style={{ animation: 'equipSlideIn 0.22s ease-out both' }}>
@@ -1492,7 +1493,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
     </div>
   );
 };
