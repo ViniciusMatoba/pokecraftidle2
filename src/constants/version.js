@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.5.7';
-export const VERSION = '2.5.7';
-export const APP_VERSION_DATE = '19/05/2026 10:30';
+export const APP_VERSION = '2.5.8';
+export const VERSION = '2.5.8';
+export const APP_VERSION_DATE = '19/05/2026 11:30';
 export const CHANGELOG = [
+  '## [V2.5.8] - 19/05/2026 11:30',
+  '### Lendários de Hoenn - Modo VS',
+  '- **9 novos lendários**: Kyogre, Groudon, Regirock, Regice, Registeel, Latias, Latios, Jirachi e Deoxys adicionados na aba Lendários de Hoenn.',
+  '- **Cadeia progressiva**: cada lendário requer derrota do anterior — Kyogre → Groudon → Regis → Latias → Latios → Rayquaza → Jirachi → Deoxys.',
+  '- **Rayquaza atualizado**: agora é o boss da cadeia (nível 88, recompensa 220k), requerendo Latios derrotado, com fala temática.',
+  '',
   '## [V2.5.7] - 19/05/2026 10:30',
   '### Confirmações de Compra e Forja',
   '- **Loja de Prestígio**: todas as compras (troféus, títulos, avatar, aliados, mina, pesca, estandartes, liga) agora exibem modal de confirmação com custo, saldo pós-compra e botões Confirmar/Cancelar.',
