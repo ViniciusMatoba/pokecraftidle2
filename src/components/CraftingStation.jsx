@@ -35,6 +35,7 @@ const CraftingStation = ({
   const [showLocked, setShowLocked] = useState(true);
   const [highlightedItem, setHighlightedItem] = useState(initialItem);
   const [tmTypeFilter, setTmTypeFilter] = useState('All');
+  const [pendingCraft, setPendingCraft] = useState(null); // { item, qty }
 
   // Quantidade selecionada por item (opcional, para persistir se o usuário trocar de aba)
   // Mas vamos simplificar e usar botões diretos x1, x10, Max
@@ -293,7 +294,7 @@ const CraftingStation = ({
                   <div className="grid grid-cols-3 gap-2 mt-1">
                     <button
                       disabled={!canCraftX1}
-                      onClick={() => onCraft(item, 1)}
+                      onClick={() => setPendingCraft({ item, qty: 1 })}
                       className={`py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
                         canCraftX1
                           ? 'bg-slate-800 text-white hover:bg-slate-700 active:scale-95'
@@ -304,7 +305,7 @@ const CraftingStation = ({
                     </button>
                     <button
                       disabled={!canCraftX10}
-                      onClick={() => onCraft(item, 10)}
+                      onClick={() => setPendingCraft({ item, qty: 10 })}
                       className={`py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
                         canCraftX10
                           ? 'bg-slate-800 text-white hover:bg-slate-700 active:scale-95'
@@ -315,7 +316,7 @@ const CraftingStation = ({
                     </button>
                     <button
                       disabled={maxCraft <= 0}
-                      onClick={() => onCraft(item, maxCraft)}
+                      onClick={() => setPendingCraft({ item, qty: maxCraft })}
                       className={`py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
                         maxCraft > 0
                           ? 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-md active:scale-95'
@@ -343,6 +344,80 @@ const CraftingStation = ({
           </div>
         )}
       </div>
+
+      {/* ── MODAL: CONFIRMAR FORJA ─────────────────────────────────────────── */}
+      {pendingCraft && (() => {
+        const { item, qty } = pendingCraft;
+        const materialCost = Object.fromEntries(Object.entries(item.cost || {}).filter(([m]) => m !== 'currency'));
+        const currencyCost = (item.cost?.currency || 0) * qty;
+        const canExecute = Object.entries(materialCost).every(([mat, amount]) => getAvail(mat) >= amount * qty)
+          && (currencyCost === 0 || currency >= currencyCost);
+        return (
+          <div className="fixed inset-0 z-[50000] flex items-end justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}>
+            <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border-b-8 border-slate-200"
+              style={{ animation: 'slideInUp 0.2s ease-out both' }}>
+              {/* Header */}
+              <div className="bg-slate-800 px-5 py-4 flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center shrink-0">
+                  <img src={item.img?.startsWith('/') ? item.img : item.img} alt={item.name}
+                    className="w-9 h-9 object-contain"
+                    onError={e => { e.target.style.display = 'none'; }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white/60 text-[10px] font-black uppercase tracking-widest">CONFIRMAR FORJA</p>
+                  <h3 className="text-white text-base font-black uppercase leading-tight truncate">
+                    {item.name} <span className="text-emerald-400">×{qty}</span>
+                  </h3>
+                </div>
+              </div>
+              {/* Custo resumido */}
+              <div className="px-5 py-4 flex flex-col gap-2">
+                {Object.entries(materialCost).map(([mat, amount]) => {
+                  const total = amount * qty;
+                  const avail = getAvail(mat);
+                  const ok = avail >= total;
+                  return (
+                    <div key={mat} className={`flex justify-between items-center rounded-xl px-3 py-2 ${ok ? 'bg-slate-50' : 'bg-red-50'}`}>
+                      <span className={`text-[11px] font-black uppercase ${ok ? 'text-slate-600' : 'text-red-600'}`}>
+                        {mat.replace(/_/g, ' ')}
+                      </span>
+                      <span className={`text-[11px] font-black ${ok ? 'text-slate-800' : 'text-red-600'}`}>
+                        {avail}/{total} {!ok && '⚠'}
+                      </span>
+                    </div>
+                  );
+                })}
+                {currencyCost > 0 && (
+                  <div className={`flex justify-between items-center rounded-xl px-3 py-2 ${currency >= currencyCost ? 'bg-yellow-50' : 'bg-red-50'}`}>
+                    <span className={`text-[11px] font-black uppercase ${currency >= currencyCost ? 'text-yellow-700' : 'text-red-600'}`}>
+                      💰 Coins
+                    </span>
+                    <span className={`text-[11px] font-black ${currency >= currencyCost ? 'text-yellow-800' : 'text-red-600'}`}>
+                      {currency.toLocaleString()} → {(currency - currencyCost).toLocaleString()} {currency < currencyCost && '⚠'}
+                    </span>
+                  </div>
+                )}
+                {!canExecute && (
+                  <p className="text-red-500 text-[10px] font-black uppercase text-center mt-1">Materiais insuficientes!</p>
+                )}
+              </div>
+              {/* Botões */}
+              <div className="px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-100 pt-3 flex gap-3">
+                <button onClick={() => setPendingCraft(null)}
+                  className="flex-1 min-h-[52px] rounded-2xl bg-slate-100 text-slate-600 font-black text-sm uppercase">
+                  Cancelar
+                </button>
+                <button disabled={!canExecute}
+                  onClick={() => { onCraft(item, qty); setPendingCraft(null); }}
+                  className={`flex-1 min-h-[52px] rounded-2xl text-white font-black text-sm uppercase shadow-lg transition-all active:scale-95 ${canExecute ? 'bg-emerald-600 shadow-emerald-200 hover:bg-emerald-500' : 'bg-slate-300 cursor-not-allowed'}`}>
+                  ⚒ FORJAR
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };

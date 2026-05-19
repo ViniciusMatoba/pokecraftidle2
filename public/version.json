@@ -1,5 +1,5 @@
 {
-  "version": "2.5.6",
-  "date": "18/05/2026 22:05",
-  "notes": "Efeitos de golpes aprimorados com novas animacoes especificas, fallbacks por funcao do ataque e suporte a multi-hit, som, barreiras, vortices e hazards."
+  "version": "2.5.7",
+  "date": "19/05/2026 10:30",
+  "notes": "Modais de confirmacao adicionados em toda a Loja de Prestigio, Forja e ensino de TMs. Itens bloqueados exibem requisitos ao clicar."
 }

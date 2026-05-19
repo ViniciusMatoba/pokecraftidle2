@@ -82,6 +82,26 @@ const GBAButton = ({ children, onClick, disabled, variant = 'red', className = '
     </button>
   );
 };
+/* ─── Helpers de desbloqueio ──────────────────────────────────────────────── */
+const REGION_FROM_FLAG = {
+  kanto: 'Kanto', johto: 'Johto', hoenn: 'Hoenn', sinnoh: 'Sinnoh',
+  unova: 'Unova', kalos: 'Kalos', alola: 'Alola', galar: 'Galar', paldea: 'Paldea', hisui: 'Hisui',
+};
+const getUnlockReason = (item, badges, worldFlags) => {
+  const reasons = [];
+  if (item.unlockFlag) {
+    if (!(worldFlags || []).includes(item.unlockFlag)) {
+      const parts = item.unlockFlag.split('_');
+      const region = REGION_FROM_FLAG[parts[0]] || parts[0];
+      reasons.push(parts[1] === 'champion' ? `Seja Campeão de ${region}` : `Inicie a região de ${region}`);
+    }
+  }
+  if ((item.minBadges || 0) > (badges || 0)) {
+    reasons.push(`Obtenha ${item.minBadges} insígnia${item.minBadges !== 1 ? 's' : ''} (possui ${badges || 0})`);
+  }
+  return reasons.length ? reasons.join(' e ') : 'Progresso insuficiente';
+};
+
 const BadgeTag = ({ required, current }) => {
   const ok = current >= required;
   return (
@@ -157,7 +177,7 @@ const AvatarPreviewCard = ({ sprite, tintId, frame, bg, name }) => {
   );
 };
 /** Grid de sprites com agrupamento por região */
-const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, onEquip, onBuySprite }) => {
+const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, onEquip, onBuySprite, onLockedClick }) => {
   const REGION_ORDER_LIST = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea', 'special'];
   const REGION_LABELS = {
     kanto: '🔴 Kanto', johto: '🥇 Johto', hoenn: '🌊 Hoenn', sinnoh: '⛰ Sinnoh',
@@ -206,6 +226,7 @@ const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, 
 
                 const handleClick = () => {
                   if (isEquipped) return;
+                  if (isLocked)  { onLockedClick && onLockedClick(item); return; }
                   if (isOwned)   { onEquip('sprite', item.id); return; }
                   if (canBuyNow) { onBuySprite(item); return; }
                 };
@@ -282,7 +303,7 @@ const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, 
   );
 };
 /** Grid de tints com preview ao vivo */
-const TintsGrid = ({ appearance, worldFlags, pTints, totalBadges, currency, currentSprite, onEquip, onBuy }) => (
+const TintsGrid = ({ appearance, worldFlags, pTints, totalBadges, currency, currentSprite, onEquip, onBuy, onLockedClick }) => (
   <div className="grid grid-cols-3 gap-2">
     {Object.values(AVATAR_TINTS).map(item => {
       const unlocked = isCosmeticUnlocked(item, worldFlags, pTints, totalBadges);
@@ -294,6 +315,7 @@ const TintsGrid = ({ appearance, worldFlags, pTints, totalBadges, currency, curr
         <div key={item.id}
           onClick={() => {
             if (isEquipped) return;
+            if (isLocked)  { onLockedClick && onLockedClick(item); return; }
             if (unlocked) onEquip('tint', item.id);
             else if (canBuy) onBuy('tint', item);
           }}
@@ -333,7 +355,7 @@ const TintsGrid = ({ appearance, worldFlags, pTints, totalBadges, currency, curr
   </div>
 );
 /** Grid de molduras */
-const FramesGrid = ({ appearance, worldFlags, pFrames, totalBadges, currency, onEquip, onBuy }) => (
+const FramesGrid = ({ appearance, worldFlags, pFrames, totalBadges, currency, onEquip, onBuy, onLockedClick }) => (
   <div className="grid grid-cols-2 gap-3">
     {Object.values(CARD_FRAMES).map(item => {
       const unlocked = isCosmeticUnlocked(item, worldFlags, pFrames, totalBadges);
@@ -344,6 +366,7 @@ const FramesGrid = ({ appearance, worldFlags, pFrames, totalBadges, currency, on
         <div key={item.id}
           onClick={() => {
             if (isEquipped) return;
+            if (isLocked)  { onLockedClick && onLockedClick(item); return; }
             if (unlocked) onEquip('frame', item.id);
             else if (canBuy) onBuy('frame', item);
           }}
@@ -400,7 +423,7 @@ const FramesGrid = ({ appearance, worldFlags, pFrames, totalBadges, currency, on
   </div>
 );
 /** Grid de fundos */
-const BgsGrid = ({ appearance, worldFlags, pBgs, totalBadges, currency, onEquip, onBuy }) => (
+const BgsGrid = ({ appearance, worldFlags, pBgs, totalBadges, currency, onEquip, onBuy, onLockedClick }) => (
   <div className="grid grid-cols-2 gap-3">
     {Object.values(CARD_BACKGROUNDS).map(item => {
       const unlocked = isCosmeticUnlocked(item, worldFlags, pBgs, totalBadges);
@@ -411,6 +434,7 @@ const BgsGrid = ({ appearance, worldFlags, pBgs, totalBadges, currency, onEquip,
         <div key={item.id}
           onClick={() => {
             if (isEquipped) return;
+            if (isLocked)  { onLockedClick && onLockedClick(item); return; }
             if (unlocked) onEquip('bg', item.id);
             else if (canBuy) onBuy('bg', item);
           }}
@@ -457,9 +481,14 @@ const BgsGrid = ({ appearance, worldFlags, pBgs, totalBadges, currency, onEquip,
 /* ─── COMPONENTE PRINCIPAL ─────────────────────────────────────────────────── */
 const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAlly, onBack, onOpenRegionBuilder }) => {
   // ── State — TODOS os hooks aqui no topo, fora de qualquer condicional ──────
-  const [activeTab,   setActiveTab]   = useState('avatar');
-  const [avatarSub,   setAvatarSub]   = useState('sprites');
-  const [equipPrompt, setEquipPrompt] = useState(null); // sprite recém-comprado aguardando decisão de equipar
+  const [activeTab,       setActiveTab]       = useState('avatar');
+  const [avatarSub,       setAvatarSub]       = useState('sprites');
+  const [equipPrompt,     setEquipPrompt]     = useState(null); // sprite recém-comprado aguardando decisão de equipar
+  const [confirmPurchase, setConfirmPurchase] = useState(null); // { label, cost, onConfirm }
+  const [lockedInfo,      setLockedInfo]      = useState(null); // { name, reason }
+
+  const requestPurchase = (label, cost, onConfirm) => setConfirmPurchase({ label, cost, onConfirm });
+  const requestLockedInfo = (itemName, reason) => setLockedInfo({ name: itemName, reason });
   const badges   = getBadgeCount(gameState);
   const currency = gameState.currency || 0;
   const prestige = gameState.prestige || {};
@@ -540,7 +569,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
       return { ...prev, appearance: { ...app, [field]: id } };
     });
   };
-  // Compra sprite e exibe prompt de equipar
+  // Compra sprite (executa sem confirmação — confirmação é feita antes via requestPurchase)
   const handleBuySpriteWithPrompt = (item) => {
     if (currency < item.cost) return;
     setGameState(prev => {
@@ -554,6 +583,8 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
     addLog(`✅ ${item.name} desbloqueado!`, 'system');
     setEquipPrompt(item);
   };
+  // Versão com confirmação prévia
+  const requestBuySpriteWithPrompt = (item) => requestPurchase(item.name, item.cost, () => handleBuySpriteWithPrompt(item));
   // ── Tabs ─────────────────────────────────────────────────────────────────────
   const tabs = [
     { id: 'avatar',    label: 'Avatar',   caption: 'Treinador', icon: trainerSprite('red'), tone: 'red' },
@@ -681,28 +712,36 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
               <SpritesGrid
                 appearance={appearance} worldFlags={worldFlags} pSprites={pSprites}
                 totalBadges={badges} currency={currency}
-                onEquip={handleEquipCosmetic} onBuySprite={handleBuySpriteWithPrompt}
+                onEquip={handleEquipCosmetic}
+                onBuySprite={requestBuySpriteWithPrompt}
+                onLockedClick={item => requestLockedInfo(item.name, getUnlockReason(item, badges, worldFlags))}
               />
             )}
             {avatarSub === 'tints' && (
               <TintsGrid
                 appearance={appearance} worldFlags={worldFlags} pTints={pTints}
                 totalBadges={badges} currency={currency} currentSprite={currentSprite}
-                onEquip={handleEquipCosmetic} onBuy={handleBuyCosmetic}
+                onEquip={handleEquipCosmetic}
+                onBuy={(cat, item) => requestPurchase(item.name, item.cost, () => handleBuyCosmetic(cat, item))}
+                onLockedClick={item => requestLockedInfo(item.name, getUnlockReason(item, badges, worldFlags))}
               />
             )}
             {avatarSub === 'frames' && (
               <FramesGrid
                 appearance={appearance} worldFlags={worldFlags} pFrames={pFrames}
                 totalBadges={badges} currency={currency}
-                onEquip={handleEquipCosmetic} onBuy={handleBuyCosmetic}
+                onEquip={handleEquipCosmetic}
+                onBuy={(cat, item) => requestPurchase(item.name, item.cost, () => handleBuyCosmetic(cat, item))}
+                onLockedClick={item => requestLockedInfo(item.name, getUnlockReason(item, badges, worldFlags))}
               />
             )}
             {avatarSub === 'bgs' && (
               <BgsGrid
                 appearance={appearance} worldFlags={worldFlags} pBgs={pBgs}
                 totalBadges={badges} currency={currency}
-                onEquip={handleEquipCosmetic} onBuy={handleBuyCosmetic}
+                onEquip={handleEquipCosmetic}
+                onBuy={(cat, item) => requestPurchase(item.name, item.cost, () => handleBuyCosmetic(cat, item))}
+                onLockedClick={item => requestLockedInfo(item.name, getUnlockReason(item, badges, worldFlags))}
               />
             )}
           </div>
@@ -714,8 +753,10 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
               const isOwned   = prestige.trophies?.includes(item.id);
               const canAfford = currency >= item.cost;
               const hasBadges = badges >= (item.minBadges || 0);
+              const isLocked  = !hasBadges && !isOwned;
               return (
-                <MenuCard key={item.id} owned={isOwned} locked={!hasBadges && !isOwned}>
+                <MenuCard key={item.id} owned={isOwned} locked={isLocked}
+                  onClick={isLocked ? () => requestLockedInfo(item.name, `Obtenha ${item.minBadges} insígnia${item.minBadges !== 1 ? 's' : ''} (possui ${badges})`) : undefined}>
                   <div className="flex items-center gap-4 p-4">
                     <div className={`w-16 h-16 flex items-center justify-center border-2 shrink-0
                       ${isOwned ? 'border-[#2e7d32] bg-[#e8f5e9]' : 'border-[#444] bg-[#111]'}`}>
@@ -737,7 +778,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                     {!isOwned && (
                       <GBAButton variant={canAfford && hasBadges ? 'red' : 'grey'}
                         disabled={!canAfford || !hasBadges}
-                        onClick={() => handleBuy('trophy', item)}>
+                        onClick={e => { e.stopPropagation(); requestPurchase(item.name, item.cost, () => handleBuy('trophy', item)); }}>
                         COMPRAR
                       </GBAButton>
                     )}
@@ -758,12 +799,16 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
               const isOwned   = (prestige.purchasedTitles || []).includes(item.id);
               const canAfford = currency >= item.cost;
               const hasBadges = badges >= (item.minBadges || 0);
-              
+              const isLocked  = !isOwned && !hasBadges;
               const canInteract = isOwned || (canAfford && hasBadges);
 
               return (
                 <div key={item.id}
-                  onClick={() => canInteract && handleBuy('title', item)}
+                  onClick={() => {
+                    if (isLocked) { requestLockedInfo(item.label || item.name, `Obtenha ${item.minBadges} insígnia${item.minBadges !== 1 ? 's' : ''} (possui ${badges})`); return; }
+                    if (isOwned) { handleBuy('title', item); return; }
+                    if (canInteract) requestPurchase(item.label || item.name, item.cost, () => handleBuy('title', item));
+                  }}
                   className={`flex items-center gap-4 px-4 py-3 border-2 cursor-pointer transition-all
                     ${isActive
                       ? 'bg-[#1a237e] border-[#3949ab] text-white shadow-[0_0_12px_rgba(57,73,171,0.5)]'
@@ -802,7 +847,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                   const canAfford = currency >= item.cost;
                   return (
                     <div key={item.id}
-                      onClick={() => canAfford && handleBuy('frame', item)}
+                      onClick={() => { if (!isActive) requestPurchase(item.name, item.cost, () => handleBuy('frame', item)); }}
                       className={`border-2 p-3 cursor-pointer transition-all
                         ${isActive ? 'border-[#fbbf24] bg-[#1a1500]' : 'border-[#333] bg-[#111] hover:border-[#555]'}`}
                       style={isActive ? { borderColor: item.borderColor } : {}}>
@@ -836,7 +881,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                   const isActive = prestige.uiTheme === item.id;
                   return (
                     <div key={item.id}
-                      onClick={() => handleBuy('theme', item)}
+                      onClick={() => { if (!isActive) requestPurchase(item.name, item.cost, () => handleBuy('theme', item)); }}
                       className={`flex items-center gap-4 border-2 p-3 cursor-pointer transition-all
                         ${isActive ? 'border-[#3949ab] bg-[#0d1117]' : 'border-[#333] bg-[#111] hover:border-[#555]'}`}>
                       <div className="flex gap-0.5 shrink-0">
@@ -868,6 +913,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
               const minutesLeft = Math.ceil(timeLeft / 60000);
               const canAfford  = currency >= item.cost;
               const hasBadges  = badges >= (item.minBadges || 0);
+              const isLocked   = !hasBadges && !isHired;
               return (
                 <div key={item.id} className={`border-2 overflow-hidden ${isHired ? 'border-[#2471a3]' : 'border-[#333]'}`}>
                   <div className={`h-1 w-full ${isHired ? 'bg-[#2471a3]' : 'bg-[#333]'}`} />
@@ -899,9 +945,14 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                     <div className="shrink-0">
                       {isHired
                         ? <span className="text-[9px] font-mono text-blue-400 border border-blue-400/40 px-2 py-1 block text-center">EM CAMPO</span>
-                        : <GBAButton variant={canAfford && hasBadges ? 'blue' : 'grey'}
-                            disabled={!canAfford || !hasBadges}
-                            onClick={() => onHireAlly(item.id, item.cost)}>
+                        : isLocked
+                        ? <GBAButton variant="grey"
+                            onClick={() => requestLockedInfo(item.name, `Obtenha ${item.minBadges} insígnia${item.minBadges !== 1 ? 's' : ''} (possui ${badges})`)}>
+                            🔒 BLOQ.
+                          </GBAButton>
+                        : <GBAButton variant={canAfford ? 'blue' : 'grey'}
+                            disabled={!canAfford}
+                            onClick={() => requestPurchase(item.name, item.cost, () => onHireAlly(item.id, item.cost))}>
                             CONTRATAR
                           </GBAButton>
                       }
@@ -966,11 +1017,17 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                       <BadgeTag required={nextConfig.minBadges || 0} current={badges} />
                       <div className="mt-1"><PriceTag value={cost} /></div>
                     </div>
-                    <GBAButton variant={canAfford && hasBadges ? 'gold' : 'grey'}
-                      disabled={!canAfford || !hasBadges}
-                      onClick={handleMineUpgrade}>
-                      {mineLevel === 0 ? 'DESBLOQUEAR' : 'UPGRADE'}
-                    </GBAButton>
+                    {!hasBadges
+                      ? <GBAButton variant="grey"
+                          onClick={() => requestLockedInfo('Mina', `Obtenha ${nextConfig.minBadges} insígnia${nextConfig.minBadges !== 1 ? 's' : ''} (possui ${badges})`)}>
+                          🔒 BLOQ.
+                        </GBAButton>
+                      : <GBAButton variant={canAfford ? 'gold' : 'grey'}
+                          disabled={!canAfford}
+                          onClick={() => requestPurchase(mineLevel === 0 ? 'Desbloquear Mina' : `Mina Nv.${mineLevel + 1}`, cost, handleMineUpgrade)}>
+                          {mineLevel === 0 ? 'DESBLOQUEAR' : 'UPGRADE'}
+                        </GBAButton>
+                    }
                   </div>
                 </div>
               )}
@@ -992,6 +1049,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
               const isOwned   = gameState.fishing?.rod === item.id;
               const canAfford = currency >= item.cost;
               const hasBadges = badges >= (item.minBadges || 0);
+              const isLocked  = !hasBadges && !isOwned;
               return (
                 <div key={item.id} className={`border-2 flex items-center gap-4 p-4 transition-all
                   ${isOwned ? 'border-[#0288d1] bg-[#0a1929]' : 'border-[#333] bg-[#111] hover:border-[#555]'}`}>
@@ -1009,9 +1067,14 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                   <div className="shrink-0">
                     {isOwned
                       ? <span className="text-[9px] font-mono text-[#4fc3f7] border border-[#0288d1]/50 px-2 py-1">EQUIPADA</span>
-                      : <GBAButton variant={canAfford && hasBadges ? 'blue' : 'grey'}
-                          disabled={!canAfford || !hasBadges}
-                          onClick={() => handleBuy('rod', item)}>
+                      : isLocked
+                      ? <GBAButton variant="grey"
+                          onClick={() => requestLockedInfo(item.name, `Obtenha ${item.minBadges} insígnia${item.minBadges !== 1 ? 's' : ''} (possui ${badges})`)}>
+                          🔒 BLOQ.
+                        </GBAButton>
+                      : <GBAButton variant={canAfford ? 'blue' : 'grey'}
+                          disabled={!canAfford}
+                          onClick={() => requestPurchase(item.name, item.cost, () => handleBuy('rod', item))}>
                           {item.cost.toLocaleString()} C
                         </GBAButton>
                     }
@@ -1033,7 +1096,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                 const canAfford = currency >= item.cost;
                 return (
                   <div key={item.id}
-                    onClick={() => canAfford && handleBuy('banner', item)}
+                    onClick={() => { if (!isActive) requestPurchase(item.name, item.cost, () => handleBuy('banner', item)); }}
                     className={`border-2 cursor-pointer transition-all overflow-hidden
                       ${isActive ? 'border-[#fbbf24]' : 'border-[#333] hover:border-[#555]'}`}>
                     <div className="h-20 relative overflow-hidden" style={{ backgroundColor: item.color }}>
@@ -1136,7 +1199,10 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                     const canAfford = currency >= cost;
                     return (
                       <div key={i}
-                        onClick={() => isNext && canAfford && handleBuyGymSlot()}
+                        onClick={() => {
+                          if (isLocked) { requestLockedInfo(`Ginásio ${slotN}`, `Compre o Ginásio ${slotN - 1} primeiro`); return; }
+                          if (isNext) requestPurchase(`Ginásio ${slotN}`, cost, handleBuyGymSlot);
+                        }}
                         style={{
                           border: `2px solid ${isPurchased ? '#22c55e' : isNext && canAfford ? '#3b82f6' : '#222'}`,
                           background: isPurchased ? '#071208' : isNext ? '#080f1c' : '#0a0a0a',
@@ -1186,7 +1252,14 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                     const canAfford  = currency >= cost;
                     return (
                       <div key={i}
-                        onClick={() => isNext && canAfford && handleBuyEliteSlot()}
+                        onClick={() => {
+                          if (isLocked) {
+                            const reason = gymSlots < 8 ? 'Compre todos os 8 Ginásios primeiro' : `Compre a Elite ${slotN - 1} primeiro`;
+                            requestLockedInfo(`Elite ${slotN}`, reason);
+                            return;
+                          }
+                          if (isNext) requestPurchase(`Elite ${slotN}`, cost, handleBuyEliteSlot);
+                        }}
                         style={{
                           border: `2px solid ${isPurchased ? '#22c55e' : isNext && canAfford ? '#a855f7' : '#222'}`,
                           background: isPurchased ? '#071208' : isNext ? '#12060f' : '#0a0a0a',
@@ -1232,7 +1305,10 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                   const canAfford = currency >= CHAMPION_SLOT_COST;
                   return (
                     <div
-                      onClick={() => isAvail && canAfford && handleBuyChampSlot()}
+                      onClick={() => {
+                        if (eliteSlots < 4 && !champSlot) { requestLockedInfo('Campeão da Liga', 'Compre toda a Elite Four primeiro'); return; }
+                        if (isAvail) requestPurchase('Campeão da Liga', CHAMPION_SLOT_COST, handleBuyChampSlot);
+                      }}
                       style={{
                         border: `2px solid ${champSlot ? '#fbbf24' : isAvail && canAfford ? '#f59e0b' : '#222'}`,
                         background: champSlot ? '#1c1500' : isAvail ? '#150e00' : '#0a0a0a',
@@ -1272,6 +1348,94 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
         .gba-blink { animation: gbaBlink 1s step-end infinite; }
         @keyframes equipSlideIn { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
       `}} />
+
+      {/* ── MODAL: CONFIRMAÇÃO DE COMPRA ──────────────────────────────────── */}
+      {confirmPurchase && (
+        <div className="fixed inset-0 z-[9999] flex items-end justify-center pb-6 px-4"
+          style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)' }}>
+          <div className="w-full max-w-sm font-mono"
+            style={{ animation: 'equipSlideIn 0.22s ease-out both' }}>
+            <div className="border-4 border-[#c0392b]"
+              style={{ background: '#0d1117', boxShadow: '0 0 40px #c0392b44, 0 -8px 0 #7b241c' }}>
+              {/* Header */}
+              <div className="flex items-center gap-3 px-4 py-3 border-b-2 border-[#c0392b]/30"
+                style={{ background: 'linear-gradient(90deg,#1a0000,#2d0a0a,#1a0000)' }}>
+                <ItemSprite src={COIN_ICON} size="w-8 h-8" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[8px] text-red-400/60 uppercase tracking-[0.35em]">CONFIRMAR COMPRA</p>
+                  <p className="text-sm font-black text-white uppercase leading-none truncate">{confirmPurchase.label}</p>
+                </div>
+              </div>
+              {/* Body */}
+              <div className="px-4 py-4">
+                <div className="flex justify-between items-center mb-3 bg-black/40 border border-white/10 px-3 py-2.5">
+                  <span className="text-[9px] font-mono text-white/50 uppercase">Custo</span>
+                  <PriceTag value={confirmPurchase.cost} />
+                </div>
+                <div className="flex justify-between items-center mb-4 bg-black/40 border border-white/10 px-3 py-2.5">
+                  <span className="text-[9px] font-mono text-white/50 uppercase">Saldo após compra</span>
+                  <span className={`text-[11px] font-mono font-black ${currency >= confirmPurchase.cost ? 'text-yellow-300' : 'text-red-400'}`}>
+                    {Math.max(0, currency - confirmPurchase.cost).toLocaleString()} C
+                  </span>
+                </div>
+                {currency < confirmPurchase.cost && (
+                  <p className="text-[9px] text-red-400 font-mono text-center mb-3 uppercase tracking-wider">⚠ Coins insuficientes!</p>
+                )}
+                <div className="flex gap-3">
+                  <GBAButton variant="green" className="flex-1"
+                    disabled={currency < confirmPurchase.cost}
+                    onClick={() => { confirmPurchase.onConfirm(); setConfirmPurchase(null); }}>
+                    ✓ CONFIRMAR
+                  </GBAButton>
+                  <GBAButton variant="grey" className="flex-1"
+                    onClick={() => setConfirmPurchase(null)}>
+                    CANCELAR
+                  </GBAButton>
+                </div>
+              </div>
+              {/* Footer decorativo */}
+              <div className="flex justify-between px-4 py-1.5 border-t border-[#333]">
+                {['#c0392b', '#c0392b88', '#c0392b44'].map((c, i) => <div key={i} className="w-2 h-2" style={{ background: c }} />)}
+                <p className="text-[7px] font-mono text-white/15 uppercase tracking-widest">LOJA DE PRESTÍGIO</p>
+                {['#c0392b44', '#c0392b88', '#c0392b'].map((c, i) => <div key={i} className="w-2 h-2" style={{ background: c }} />)}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: ITEM BLOQUEADO ──────────────────────────────────────────── */}
+      {lockedInfo && (
+        <div className="fixed inset-0 z-[9999] flex items-end justify-center pb-6 px-4"
+          style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)' }}>
+          <div className="w-full max-w-sm font-mono"
+            style={{ animation: 'equipSlideIn 0.22s ease-out both' }}>
+            <div className="border-4 border-[#555]"
+              style={{ background: '#0d1117', boxShadow: '0 0 30px #55555544, 0 -6px 0 #333' }}>
+              {/* Header */}
+              <div className="flex items-center gap-3 px-4 py-3 border-b-2 border-white/10"
+                style={{ background: 'linear-gradient(90deg,#111,#1a1a1a,#111)' }}>
+                <span className="text-2xl shrink-0">🔒</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[8px] text-white/40 uppercase tracking-[0.35em]">ITEM BLOQUEADO</p>
+                  <p className="text-sm font-black text-white uppercase leading-none truncate">{lockedInfo.name}</p>
+                </div>
+              </div>
+              {/* Body */}
+              <div className="px-4 py-5">
+                <p className="text-[9px] font-mono text-white/50 uppercase text-center mb-2 tracking-wider">Para desbloquear este item:</p>
+                <div className="bg-black/40 border border-yellow-600/30 px-4 py-3 mb-5 text-center">
+                  <p className="text-[12px] font-black text-yellow-300 uppercase leading-relaxed">{lockedInfo.reason}</p>
+                </div>
+                <GBAButton variant="grey" className="w-full justify-center"
+                  onClick={() => setLockedInfo(null)}>
+                  OK, ENTENDI
+                </GBAButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── MODAL: EQUIPAR APÓS COMPRA ─────────────────────────────────────── */}
       {equipPrompt && (

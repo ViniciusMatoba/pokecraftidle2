@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.5.6';
-export const VERSION = '2.5.6';
-export const APP_VERSION_DATE = '18/05/2026 22:05';
+export const APP_VERSION = '2.5.7';
+export const VERSION = '2.5.7';
+export const APP_VERSION_DATE = '19/05/2026 10:30';
 export const CHANGELOG = [
+  '## [V2.5.7] - 19/05/2026 10:30',
+  '### Confirmações de Compra e Forja',
+  '- **Loja de Prestígio**: todas as compras (troféus, títulos, avatar, aliados, mina, pesca, estandartes, liga) agora exibem modal de confirmação com custo, saldo pós-compra e botões Confirmar/Cancelar.',
+  '- **Itens bloqueados**: clicar em qualquer item bloqueado na Loja de Prestígio abre modal explicativo com o requisito exato para desbloquear (insígnias, região ou progressão na liga).',
+  '- **Forja**: botões x1, x10 e Max agora abrem confirmação mostrando materiais necessários, disponível e custo total antes de executar.',
+  '- **TMs**: botão Ensinar na tela de golpes do Pokémon agora exige confirmação antes de consumir o TM.',
+  '',
   '## [V2.5.6] - 18/05/2026 22:05',
   '### Efeitos de Golpes Aprimorados',
   '- **Golpes com assinatura visual**: adicionadas animacoes especificas para golpes como Inferno, Overheat, Whirlpool, Electro Ball, Bullet Seed, Future Sight, Close Combat, Hyper Voice, Protect, Reflect e Light Screen.',

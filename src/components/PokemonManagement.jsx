@@ -1345,7 +1345,17 @@ const PokemonManagement = ({
                                 )}
                               </div>
                               <button
-                                onClick={() => teachTmMove(tm.itemId)}
+                                onClick={() => {
+                                  if (disabled) return;
+                                  showConfirm({
+                                    title: 'Ensinar TM',
+                                    message: `Usar 1× ${moveLabel} para ensinar a ${activePokemonDetails.pokemon.name}? O TM será consumido.`,
+                                    confirmLabel: 'Ensinar',
+                                    cancelLabel: 'Cancelar',
+                                    onConfirm: () => { teachTmMove(tm.itemId); closeConfirm(); },
+                                    onCancel: closeConfirm,
+                                  });
+                                }}
                                 disabled={disabled}
                                 className={`min-w-[76px] px-3 py-3 rounded-xl text-[9px] font-black uppercase transition-all active:scale-95 ${disabled ? 'bg-slate-200 text-slate-400' : 'bg-pokeBlue text-white shadow-md hover:bg-blue-700'}`}
                               >
