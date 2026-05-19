@@ -1,11 +1,14 @@
 // ── Sistema de Nível de Treinador ─────────────────────────────────────────
 // Baseado no número de espécies únicas capturadas (Object.keys(caughtData).length)
 
+const ITEM = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
+
 export const TRAINER_LEVELS = [
   {
     level: 1,
     title: 'Novato',
-    emoji: '🌱',
+    // Pokébola — a primeira ferramenta de todo treinador
+    icon: `${ITEM}poke-ball.png`,
     species: 0,
     catchBonus:    0,
     xpBonus:       0,
@@ -19,7 +22,8 @@ export const TRAINER_LEVELS = [
   {
     level: 2,
     title: 'Explorador',
-    emoji: '🔍',
+    // Mapa da cidade — o explorador traça seu caminho
+    icon: `${ITEM}town-map.png`,
     species: 25,
     catchBonus:    0.03,
     xpBonus:       0.01,
@@ -33,7 +37,8 @@ export const TRAINER_LEVELS = [
   {
     level: 3,
     title: 'Caçador',
-    emoji: '🎯',
+    // Great Ball — captura com mais eficiência
+    icon: `${ITEM}great-ball.png`,
     species: 60,
     catchBonus:    0.06,
     xpBonus:       0.02,
@@ -47,7 +52,8 @@ export const TRAINER_LEVELS = [
   {
     level: 4,
     title: 'Veterano',
-    emoji: '⚔️',
+    // Ultra Ball — domínio avançado de captura
+    icon: `${ITEM}ultra-ball.png`,
     species: 120,
     catchBonus:    0.09,
     xpBonus:       0.03,
@@ -61,7 +67,8 @@ export const TRAINER_LEVELS = [
   {
     level: 5,
     title: 'Elite',
-    emoji: '🏅',
+    // Star Piece — raridade e valor acumulados
+    icon: `${ITEM}star-piece.png`,
     species: 200,
     catchBonus:    0.12,
     xpBonus:       0.05,
@@ -75,7 +82,8 @@ export const TRAINER_LEVELS = [
   {
     level: 6,
     title: 'Campeão',
-    emoji: '🏆',
+    // VS Seeker — o desafiador que nunca para
+    icon: `${ITEM}vs-seeker.png`,
     species: 310,
     catchBonus:    0.15,
     xpBonus:       0.06,
@@ -89,7 +97,8 @@ export const TRAINER_LEVELS = [
   {
     level: 7,
     title: 'Mestre',
-    emoji: '🌟',
+    // Master Ball — o ápice da captura
+    icon: `${ITEM}master-ball.png`,
     species: 430,
     catchBonus:    0.18,
     xpBonus:       0.07,
@@ -103,7 +112,8 @@ export const TRAINER_LEVELS = [
   {
     level: 8,
     title: 'Grande Mestre',
-    emoji: '💎',
+    // Shiny Charm — atraidor de raridades
+    icon: `${ITEM}shiny-charm.png`,
     species: 580,
     catchBonus:    0.20,
     xpBonus:       0.08,
@@ -117,7 +127,8 @@ export const TRAINER_LEVELS = [
   {
     level: 9,
     title: 'Lenda',
-    emoji: '🔥',
+    // PP Max — poder elevado ao limite máximo
+    icon: `${ITEM}pp-max.png`,
     species: 750,
     catchBonus:    0.23,
     xpBonus:       0.09,
@@ -131,7 +142,8 @@ export const TRAINER_LEVELS = [
   {
     level: 10,
     title: 'Mestre Pokémon',
-    emoji: '👑',
+    // Gold Bottle Cap — o troféu dourado supremo
+    icon: `${ITEM}gold-bottle-cap.png`,
     species: 950,
     catchBonus:    0.25,
     xpBonus:       0.10,

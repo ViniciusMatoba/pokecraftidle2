@@ -458,8 +458,14 @@ export const TrainerCard = ({
             <span className="text-xs font-black" style={{ color: tLevelColor }}>
               Lv.{tLevel.level}
             </span>
+            <img
+              src={tLevel.icon}
+              alt={tLevel.title}
+              className="w-4 h-4 object-contain"
+              style={{ imageRendering: 'pixelated' }}
+            />
             <span className="text-[10px] font-black text-white/70 uppercase tracking-wide">
-              {tLevel.emoji} {tLevel.title}
+              {tLevel.title}
             </span>
             <div className="ml-1 w-14 h-1.5 rounded-full bg-white/10 overflow-hidden">
               <div
@@ -668,7 +674,14 @@ export const TrainerCard = ({
           >
             {/* Header */}
             <div className="px-6 py-5 text-center shrink-0" style={{ background: `linear-gradient(135deg, ${tLevelColor}33, #0f172a)` }}>
-              <p className="text-5xl mb-1">{tLevel.emoji}</p>
+              <div className="w-16 h-16 mx-auto mb-2 flex items-center justify-center rounded-2xl bg-white/10 border-2" style={{ borderColor: `${tLevelColor}66` }}>
+                <img
+                  src={tLevel.icon}
+                  alt={tLevel.title}
+                  className="w-11 h-11 object-contain drop-shadow-lg"
+                  style={{ imageRendering: 'pixelated' }}
+                />
+              </div>
               <h2 className="text-white text-2xl font-black uppercase italic tracking-tighter leading-none">
                 Lv.{tLevel.level} — {tLevel.title}
               </h2>
@@ -739,7 +752,13 @@ export const TrainerCard = ({
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[11px] font-black text-white leading-none">{lvl.emoji} {lvl.title}</span>
+                        <img
+                          src={lvl.icon}
+                          alt={lvl.title}
+                          className="w-4 h-4 object-contain shrink-0"
+                          style={{ imageRendering: 'pixelated' }}
+                        />
+                        <span className="text-[11px] font-black text-white leading-none">{lvl.title}</span>
                         {isCurrentLevel && (
                           <span className="text-[8px] font-black px-1.5 py-0.5 rounded-md text-black" style={{ background: tLevelColor }}>ATUAL</span>
                         )}
