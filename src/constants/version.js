@@ -1,8 +1,13 @@
-export const APP_VERSION = '2.6.2';
-export const VERSION = '2.6.2';
-export const APP_VERSION_DATE = '19/05/2026 15:00';
+export const APP_VERSION = '2.6.3';
+export const VERSION = '2.6.3';
+export const APP_VERSION_DATE = '19/05/2026 09:51';
 export const CHANGELOG = [
-  '## [V2.6.2] - 19/05/2026 15:00',
+  '## [V2.6.3] - 19/05/2026 09:51',
+  '### Remoção — Seção de Doações do Centro Pokémon',
+  '- **Apoie o Centro Pokémon removido**: a seção de doações não tinha função no jogo e foi retirada da interface do PokéCenter.',
+  '- O botão "Cuidar da Equipe" permanece inalterado e funcional.',
+  '',
+  '## [V2.6.2] - 19/05/2026 09:51',
   '### Correção de Backgrounds — Hoenn e Sinnoh',
   '- **Causa raiz corrigida**: `hoenn_generic` e `sinnoh_generic` referenciavam arquivos inexistentes (`bg_hoenn_route.webp` e `bg_sinnoh_route.webp`), quebrando todos os backgrounds que usavam esses fallbacks.',
   '- **Battle Frontier**: agora exibe corretamente `bg_battle_frontier.webp`.',
