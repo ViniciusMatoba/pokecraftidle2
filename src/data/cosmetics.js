@@ -1034,21 +1034,33 @@ export const DEFAULT_APPEARANCE = {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /**
- * Verifica se um item cosmético está desbloqueado para o jogador.
- * @param {object} item - Item do catálogo (AVATAR_SPRITES, CARD_FRAMES, etc.)
- * @param {string[]} worldFlags - Array de flags do save do jogador
- * @param {string[]} purchased - IDs comprados pelo jogador
- * @param {number} totalBadges - Total de insígnias do jogador
+ * Aliases de flags para compatibilidade retroativa.
+ * Kanto usa 'champion' (legado) e 'region_champion_kanto' — mas cosméticos pedem 'kanto_champion'.
+ * Este mapa garante que salves antigos que têm 'champion' também desbloqueiem itens de kanto_champion.
  */
+const FLAG_ALIASES = {
+  kanto_champion: ['champion', 'region_champion_kanto'],
+};
+
+/**
+ * Verifica se uma flag está presente em worldFlags, considerando aliases.
+ */
+const hasWorldFlag = (worldFlags, flag) => {
+  if (!flag) return true;
+  if (worldFlags.includes(flag)) return true;
+  const aliases = FLAG_ALIASES[flag] || [];
+  return aliases.some(a => worldFlags.includes(a));
+};
+
 /**
  * Verifica se o item está desbloqueado (pode ser usado/equipado sem custo).
  * Itens gratuitos (cost === 0): desbloqueados quando a flag de progresso é atingida (ou sem flag).
- * Itens pagos (cost > 0): só desbloqueados quando explicitamente comprados (purchasedArray).
+ * Itens pagos (cost > 0): só desbloqueiam se foram explicitamente comprados (purchasedArray).
  */
 export const isCosmeticUnlocked = (item, worldFlags = [], purchased = [], totalBadges = 0) => {
   // Itens gratuitos — auto-desbloqueiam ao atingir o progresso
   if (item.cost === 0 || item.cost === null || item.cost === undefined) {
-    return !item.unlockFlag || worldFlags.includes(item.unlockFlag);
+    return !item.unlockFlag || hasWorldFlag(worldFlags, item.unlockFlag);
   }
   // Itens pagos — só desbloqueiam se foram explicitamente comprados
   return purchased.includes(item.id);
@@ -1059,7 +1071,7 @@ export const isCosmeticUnlocked = (item, worldFlags = [], purchased = [], totalB
  * (flag de mundo + insígnias mínimas). Não indica posse, só elegibilidade.
  */
 export const hasProgressForPurchase = (item, worldFlags = [], totalBadges = 0) => {
-  if (item.unlockFlag && !worldFlags.includes(item.unlockFlag)) return false;
+  if (item.unlockFlag && !hasWorldFlag(worldFlags, item.unlockFlag)) return false;
   if (item.minBadges && totalBadges < item.minBadges) return false;
   return true;
 };
