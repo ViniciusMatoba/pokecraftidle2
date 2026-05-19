@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.5.9';
-export const VERSION = '2.5.9';
-export const APP_VERSION_DATE = '19/05/2026 12:30';
+export const APP_VERSION = '2.6.0';
+export const VERSION = '2.6.0';
+export const APP_VERSION_DATE = '19/05/2026 13:00';
 export const CHANGELOG = [
+  '## [V2.6.0] - 19/05/2026 13:00',
+  '### Lendários Completos + Recompensas Rebalanceadas — Modo VS',
+  '- **23 novos lendários**: Sinnoh (Uxie, Mesprit, Azelf, Heatran, Cresselia, Regigigas, Dialga, Palkia, Giratina), Kanto (Mew), Unova (Tornadus, Thundurus, Landorus, Keldeo, Meloetta, Genesect), Galar Crown Tundra (Regieleki, Regidrago, Glastrier, Calyrex), Paldea (Ogerpon, Terapagos).',
+  '- **Sinnoh agora tem 9 lendários** em cadeia progressiva: Uxie → Mesprit → Azelf → Heatran → Cresselia → Regigigas → Dialga → Palkia → Giratina.',
+  '- **Recompensas rebalanceadas**: sistema de tier simbólico (2k / 5k / 8k / 12k) — objetivo é desbloquear para captura nas rotas, não recompensa monetária.',
+  '- **Todas as regiões completas**: Kanto 5, Johto 6, Hoenn 10, Sinnoh 9, Unova 12, Kalos 3, Alola 7, Galar 7, Hisui 3, Paldea 4.',
+  '',
   '## [V2.5.9] - 19/05/2026 12:30',
   '### Combates Faltantes — Kanto, Johto, Hoenn e Sinnoh',
   '- **Kanto**: +3 rivais (Azul em Cerulean, Victory Road e Campeão) e +2 Rockets (Torre Pokémon e Silph Co. Executive) → total 7+7.',
