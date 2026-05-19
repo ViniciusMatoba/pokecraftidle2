@@ -1,5 +1,13 @@
 # Changelog - PokeCraft
 
+## [v2.7.0] - 19/05/2026 17:43
+### Melhorado
+- **Progressao do Modo VS**: lideres das regioes futuras agora respeitam piso de nivel baseado em rival/equipe vila do arco, evitando sequencias com nivel voltando para baixo.
+- **Desbloqueio de Rotas**: rotas de Unova, Kalos, Alola, Galar, Hisui e Paldea passam a exigir marcos coerentes de rival, equipe vila, ginasio e titas quando aplicavel.
+- **Habilidades em Combate**: calcDamage aplica imunidades, boosts ofensivos, reducoes defensivas, STAB especial e interacoes de clima de habilidades principais.
+- **Status do Pokemon**: modal de habilidade exibe nome formatado e descricao correta para IDs internos como overgrow, water-absorb e multiscale.
+- **Efeitos de Golpes**: novos efeitos dedicados para Torch Song, Mystical Fire, Wave Crash, Hydro Steam, Electro Drift, Parabolic Charge, Shadow Claw, Night Slash, Psycho Cut, Spirit Shackle, Make It Rain, Flower Trick, Collision Course e Bitter Blade.
+
 ## [v2.6.9] - 19/05/2026 17:24
 ### Corrigido
 - **Save entre Dispositivos**: ao logar no computador, o jogo agora busca o save da conta diretamente de `saves/{uid}` no servidor antes de usar cache/localStorage.

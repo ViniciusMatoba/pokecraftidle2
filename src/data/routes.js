@@ -445,6 +445,63 @@ const keepRouteTrainersAboveWild = (route) => {
   };
 };
 
+const ROUTE_VS_REQUIREMENT_GATES = {
+  unova_route_2: ['unova_rival_1_defeated'],
+  unova_route_3: ['unova_villain_1_cleared', 'trio_badge'],
+  unova_pinwheel_forest: ['basic_badge'],
+  unova_route_4: ['unova_villain_2_cleared', 'insect_badge'],
+  unova_chargestone_cave: ['unova_villain_3_cleared', 'bolt_badge'],
+  unova_twist_mountain: ['unova_villain_4_cleared', 'quake_badge'],
+  unova_route_9: ['unova_rival_6_defeated', 'freeze_badge'],
+  unova_victory_road: ['unova_villain_boss_cleared', 'legend_badge'],
+
+  kalos_route_4: ['kalos_rival_1_defeated', 'bug_badge'],
+  kalos_glittering_cave: ['kalos_villain_2_cleared', 'cliff_badge'],
+  kalos_reflection_cave: ['kalos_rival_3_defeated', 'rumble_badge'],
+  kalos_azure_bay: ['kalos_villain_3_cleared', 'plant_badge'],
+  kalos_frost_cavern: ['kalos_villain_4_cleared', 'fairy_badge'],
+  kalos_route_17: ['kalos_rival_6_defeated', 'psychic_badge'],
+  kalos_victory_road: ['kalos_villain_boss_cleared', 'iceberg_badge'],
+
+  alola_verdant_cavern: ['alola_villain_1_cleared', 'melemele_stamp'],
+  alola_akala_island: ['alola_villain_2_cleared'],
+  alola_wela_volcano: ['alola_rival_3_defeated', 'akala_stamp'],
+  alola_aether_paradise: ['alola_villain_4_cleared', 'ulaula_stamp'],
+  alola_ula_ula_island: ['alola_villain_boss_cleared'],
+  alola_vast_poni_canyon: ['alola_rival_6_defeated', 'alola_champion_stamp'],
+  alola_mount_lanakila: ['alola_villain_6_cleared', 'ultra_stamp'],
+
+  galar_wild_area_south: ['galar_rival_1_defeated'],
+  galar_mine_1: ['galar_villain_1_cleared', 'grass_badge_galar'],
+  galar_route_5: ['galar_villain_2_cleared', 'fire_badge_galar'],
+  galar_glimwood_tangle: ['galar_rival_4_defeated', 'fairy_badge_galar'],
+  galar_route_9: ['galar_villain_4_cleared', 'rock_badge_galar'],
+  galar_victory_road: ['galar_villain_boss_cleared', 'dragon_badge_galar'],
+
+  hisui_fieldlands_2: ['hisui_villain_1_cleared', 'fieldlands_stamp'],
+  hisui_mirelands_1: ['hisui_villain_2_cleared', 'mirelands_stamp'],
+  hisui_coastlands_1: ['hisui_villain_3_cleared', 'coastlands_stamp'],
+  hisui_highlands_1: ['hisui_villain_4_cleared', 'highlands_stamp'],
+  hisui_icelands_1: ['hisui_villain_5_cleared', 'icelands_stamp'],
+  hisui_sacred_plaza: ['hisui_villain_boss_cleared', 'volo_stamp'],
+
+  paldea_south_province: ['paldea_rival_1_defeated', 'bug_badge_paldea'],
+  paldea_artazon: ['paldea_villain_1_cleared', 'grass_badge_paldea'],
+  paldea_asado_desert: ['paldea_villain_2_cleared', 'electric_badge_paldea'],
+  paldea_medali: ['paldea_titan_greattusk_cleared', 'water_badge_paldea'],
+  paldea_glaseado_mountain: ['paldea_villain_boss_cleared', 'ghost_badge_paldea'],
+  paldea_area_zero: ['paldea_rival_victory_defeated', 'ice_badge_paldea'],
+};
+
+const applyVsRouteGates = (route) => {
+  const gates = ROUTE_VS_REQUIREMENT_GATES[route.id];
+  if (!gates?.length) return route;
+  return {
+    ...route,
+    requirements: Array.from(new Set([...(route.requirements || []), ...gates])),
+  };
+};
+
 const normalizeRouteProgression = (routesObj) => {
   const normalized = Object.fromEntries(Object.entries(routesObj).map(([id, route]) => [id, {
     ...route,
@@ -476,13 +533,17 @@ const normalizeRouteProgression = (routesObj) => {
       const delta = desiredMin - currentLevels.min;
       const shifted = shiftRouteLevels(normalized[route.id], delta);
       const smoothed = keepRouteTrainersAboveWild(shifted);
-      normalized[route.id] = {
+      normalized[route.id] = applyVsRouteGates({
         ...smoothed,
         enemies: applyEvolutionFilter(smoothed.enemies || []),
         unlockLevel: Math.min(100, desiredMin),
-      };
+      });
       previousMin = desiredMin;
     });
+  });
+
+  Object.keys(normalized).forEach(id => {
+    normalized[id] = applyVsRouteGates(normalized[id]);
   });
 
   return normalized;

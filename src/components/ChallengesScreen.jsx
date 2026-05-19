@@ -319,16 +319,19 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
     const badge = cfg.badges[badgeIndex];
     const subtitle = cfg.leaderSubtitleOverride && customSubtitle ? customSubtitle : `Ginasio #${index + 1}`;
     const prevBadge = index === 0 ? (villainBattles[0]?.unlockFlag || cfg.start) : cfg.badges[alolaStampMap ? alolaStampMap[index - 1] : Math.min(index - 1, cfg.badges.length - 1)];
+    const rivalFloor = rivalBattles[index]?.team?.[0]?.level || 0;
+    const villainFloor = villainBattles[index]?.requiresFlag === cfg.champion ? 0 : (villainBattles[index]?.team?.[0]?.level || 0);
+    const normalizedLevel = Math.max(level, rivalFloor + 1, villainFloor + 1);
     return {
       region, id: `${region}_gym_${index + 1}`, category: region, name, subtitle,
       sprite: trainerSprite(name),
       quote: `"Meu tipo ${type} vai definir esta batalha."`,
-      reward: level * 1200,
+      reward: normalizedLevel * 1200,
       unlockFlag: region === 'alola' ? `${region}_trial_${index + 1}_cleared` : badge,
       badgeToGive: badge,
       requiresFlag: index === 0 ? (villainBattles[0]?.unlockFlag || cfg.start) : prevBadge,
       badge, badgeOrder: badgeIndex + 1, type, typeIcon: typeIconUrl(type),
-      team: team(ids, level), background: (cfg.gymBgs && cfg.gymBgs[index]) ? cfg.gymBgs[index] : cfg.bg, location: `${cfg.label} - ${subtitle}`,
+      team: team(ids, normalizedLevel), background: (cfg.gymBgs && cfg.gymBgs[index]) ? cfg.gymBgs[index] : cfg.bg, location: `${cfg.label} - ${subtitle}`,
     };
   });
 

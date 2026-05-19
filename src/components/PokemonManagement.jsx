@@ -4,7 +4,7 @@ import { MOVE_TRANSLATIONS } from '../data/translations';
 import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '../data/candies';
 import { getTimeOfDay } from '../utils/timeSystem';
 import { getCompatibleMegaStones, MEGA_STONE_ICONS, getMegaSprite } from '../data/megaEvolutions';
-import { ABILITY_ITEM_ID, getPokemonAbilityPool, setPokemonAbility } from '../data/abilities';
+import { ABILITY_ITEM_ID, getAbilityDescription, getAbilityLabel, getPokemonAbilityPool, setPokemonAbility } from '../data/abilities';
 import { getPokeballDef, POKEBALL_DEFS, ALL_BALL_IDS, BALL_EFFECT_LABELS } from '../data/pokeballs';
 import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokemonSprites';
 import { getPokemonTmCompatibility } from '../data/tmCompatibility';
@@ -569,7 +569,7 @@ const PokemonManagement = ({
       ...prev,
       pokemon: setPokemonAbility(prev.pokemon, abilityName),
     }) : prev);
-    addLog(`${activePokemonDetails.pokemon.name} alterou a habilidade para ${abilityName}.`, 'system');
+    addLog(`${activePokemonDetails.pokemon.name} alterou a habilidade para ${getAbilityLabel(abilityName)}.`, 'system');
   };
 
   const equipRareMove = (moveObj) => {
@@ -1168,10 +1168,10 @@ const PokemonManagement = ({
                       </div>
                       <div className="bg-white rounded-xl px-3 py-2 border border-violet-100 shadow-sm">
                         <p className="text-sm font-black text-slate-700">
-                          {activePokemonDetails.pokemon.ability || getPokemonAbilityPool(POKEDEX[activePokemonDetails.pokemon.id] || activePokemonDetails.pokemon)[0] || '—'}
+                          {getAbilityLabel(activePokemonDetails.pokemon.ability || getPokemonAbilityPool(POKEDEX[activePokemonDetails.pokemon.id] || activePokemonDetails.pokemon)[0] || '')}
                         </p>
                         <p className="text-[9px] font-bold text-slate-400 mt-0.5 leading-relaxed">
-                          {ABILITY_DESCRIPTIONS[activePokemonDetails.pokemon.ability] || 'Toque para ver todas as habilidades disponíveis.'}
+                          {getAbilityDescription(activePokemonDetails.pokemon.ability || getPokemonAbilityPool(POKEDEX[activePokemonDetails.pokemon.id] || activePokemonDetails.pokemon)[0] || '')}
                         </p>
                       </div>
                     </button>
@@ -2243,7 +2243,7 @@ const PokemonManagement = ({
                 <div className="mt-1 inline-flex items-center gap-1.5 bg-white/20 rounded-full px-2.5 py-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-violet-300 animate-pulse" />
                   <span className="text-white text-[10px] font-black">
-                    {activePokemonDetails.pokemon.ability || '—'}
+                    {getAbilityLabel(activePokemonDetails.pokemon.ability || '')}
                   </span>
                   <span className="text-white/60 text-[8px] font-bold uppercase">ativa</span>
                 </div>
@@ -2279,7 +2279,7 @@ const PokemonManagement = ({
                 const capsules = gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0;
                 const canSwitch = !isActive && capsules > 0 && !activePokemonDetails.pokemon.onExpedition;
                 const locked = !isActive && (capsules === 0 || activePokemonDetails.pokemon.onExpedition);
-                const desc = ABILITY_DESCRIPTIONS[ability];
+                const desc = getAbilityDescription(ability);
                 return (
                   <button
                     key={ability}
@@ -2300,7 +2300,7 @@ const PokemonManagement = ({
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <p className={`font-black text-sm ${isActive ? 'text-violet-800' : 'text-slate-800'}`}>{ability}</p>
+                        <p className={`font-black text-sm ${isActive ? 'text-violet-800' : 'text-slate-800'}`}>{getAbilityLabel(ability)}</p>
                         {isActive && (
                           <span className="text-[8px] font-black text-violet-600 bg-violet-100 border border-violet-200 px-2 py-0.5 rounded-full uppercase tracking-wide">
                             Ativa agora

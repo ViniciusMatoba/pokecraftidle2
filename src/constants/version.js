@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.6.9';
-export const VERSION = '2.6.9';
-export const APP_VERSION_DATE = '19/05/2026 17:24';
+export const APP_VERSION = '2.7.0';
+export const VERSION = '2.7.0';
+export const APP_VERSION_DATE = '19/05/2026 17:43';
 export const CHANGELOG = [
+  '## [V2.7.0] - 19/05/2026 17:43',
+  '### Progressao VS, Rotas e Habilidades',
+  '- **Modo VS**: ginasios futuros agora normalizam nivel acima dos rivais/equipes vila do mesmo arco, evitando batalhas regressivas na sequencia.',
+  '- **Rotas por marco**: rotas de Unova, Kalos, Alola, Galar, Hisui e Paldea ganharam travas adicionais por rival, equipe vila, ginasio e titas quando aplicavel.',
+  '- **Habilidades em batalha**: dano agora considera imunidades, STAB Adaptability, boosts de starter, Guts, Huge Power, Strong Jaw, Technician, Multiscale, Thick Fat, Wonder Guard e outros efeitos principais.',
+  '- **Modal de status**: habilidades passam a exibir nome formatado e descricao correta mesmo quando salvas como ID interno.',
+  '- **Golpes**: adicionadas animacoes especificas para ataques modernos e de assinatura como Torch Song, Electro Drift, Wave Crash, Make It Rain, Flower Trick, Bitter Blade e Collision Course.',
+  '',
   '## [V2.6.9] - 19/05/2026 17:24',
   '### Correcao de Save entre Celular e Computador',
   '- **Carregamento por e-mail/UID**: ao logar, o jogo busca `saves/{uid}` diretamente do servidor antes de usar cache local.',

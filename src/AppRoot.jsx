@@ -16,7 +16,7 @@ import { POKEDEX } from './data/pokedex';
 import { VILLAIN_TEAMS } from './data/villains';
 import { WEATHER_TYPE_MULT, WEATHER_PASSIVE_DAMAGE, WEATHER_IMMUNE_TYPES, generateWeatherForRoute, getWeatherFromMove } from './data/weather';
 import { getCompatibleMegaStones } from './data/megaEvolutions';
-import { assignRandomAbility } from './data/abilities';
+import { assignRandomAbility, normalizeAbilityId } from './data/abilities';
 import { getJourneyGuide } from './data/journeyGuide';
 import AuthScreen from './components/AuthScreen';
 import MenuScreen from './components/MenuScreen';
@@ -2485,123 +2485,142 @@ export default function App() {
 
   const calcDamage = useCallback((attacker, move, defender) => {
     if (!attacker || !defender || !move) return 0;
-    
+
     const moveName = move?.name || 'Investida';
-    const moveKey = (moveName || '').toLowerCase();
-    // Resolve full move data from dataset for accuracy/power reliability
-    const moveData = MOVES[moveKey.replace(/ /g, '-')] || move || {};
-    
+    const moveKey = String(moveName || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    const moveData = MOVES[moveKey] || move || {};
+    let moveType = move.type || moveData.type || 'Normal';
+    const attackerAbility = normalizeAbilityId(attacker.ability);
+    const defenderAbility = normalizeAbilityId(defender.ability);
+    const abilityBreaker = ['mold-breaker', 'teravolt', 'turboblaze'].includes(attackerAbility);
+
+    if (attackerAbility === 'normalize') moveType = 'Normal';
+    if (moveType === 'Normal' && attackerAbility === 'pixilate') moveType = 'Fairy';
+    if (moveType === 'Normal' && attackerAbility === 'refrigerate') moveType = 'Ice';
+    if (moveType === 'Normal' && attackerAbility === 'aerilate') moveType = 'Flying';
+
     const power = move.power || moveData.power || 0;
     if (!power) return 0;
 
     const level = attacker.level || 5;
     const getStatMult = (stage = 0) => (2 + Math.max(0, stage)) / (2 - Math.min(0, stage));
-
     const isPhysical = (moveData.category || 'Physical') === 'Physical';
-    
     const atkBase = isPhysical ? getEffectiveStat(attacker, 'attack') : getEffectiveStat(attacker, 'spAtk');
     const defBase = isPhysical ? getEffectiveStat(defender, 'defense') : getEffectiveStat(defender, 'spDef');
-    
     const atkMult = isPhysical ? getStatMult(attacker.stages?.attack) : getStatMult(attacker.stages?.spAtk);
     const defMult = isPhysical ? getStatMult(defender.stages?.defense) : getStatMult(defender.stages?.spDef);
 
     let atk = atkBase * atkMult;
-    // Queimadura: reduz Ataque físico à metade
-    if (isPhysical && (attacker.status || []).includes('burn')) atk *= 0.5;
-    const def = Math.max(1, defBase * defMult);
+    if (isPhysical && ['huge-power', 'pure-power'].includes(attackerAbility)) atk *= 2;
+    if (isPhysical && (attacker.status || []).length && attackerAbility === 'guts') atk *= 1.5;
+    if (isPhysical && (attacker.status || []).includes('burn') && attackerAbility !== 'guts') atk *= 0.5;
 
-    // STAB: verifica tipos primário E secundário do atacante
-    const attackerTypes = attacker.types || [attacker.type];
-    const stab = attackerTypes.includes(move.type) ? 1.5 : 1.0;
-    const effectiveness = getTypeEffectiveness(move.type, defender.type);
-    
+    let def = defBase * defMult;
+    if (isPhysical && (defender.status || []).length && defenderAbility === 'marvel-scale') def *= 1.5;
+    def = Math.max(1, def);
+
+    const attackerTypes = (attacker.types || [attacker.type]).filter(Boolean);
+    const defenderTypes = (defender.types || [defender.type]).filter(Boolean);
+    const stab = attackerTypes.includes(moveType) ? (attackerAbility === 'adaptability' ? 2.0 : 1.5) : 1.0;
+    const effectiveness = defenderTypes.reduce((mult, type) => mult * getTypeEffectiveness(moveType, type), 1);
     if (effectiveness === 0) return 0;
+
+    const soundMove = ['boomburst', 'hyper-voice', 'echoed-voice', 'round', 'snarl', 'bug-buzz', 'metal-sound', 'sing', 'growl'].some(key => moveKey.includes(key));
+    const bulletMove = ['ball', 'bomb', 'blast', 'sphere', 'shot', 'cannon', 'bullet'].some(key => moveKey.includes(key));
+    const biteMove = ['bite', 'crunch', 'fang'].some(key => moveKey.includes(key));
+    const punchMove = ['punch', 'fist'].some(key => moveKey.includes(key));
+    const slashMove = ['slash', 'cut', 'claw', 'blade', 'scythe', 'razor'].some(key => moveKey.includes(key));
+    const contactMove = isPhysical && !['earthquake', 'rock-slide', 'stone-edge', 'mud-shot', 'bone-rush', 'bonemerang'].some(key => moveKey.includes(key));
+
+    if (!abilityBreaker) {
+      if (defenderAbility === 'levitate' && moveType === 'Ground') return 0;
+      if (['water-absorb', 'storm-drain', 'dry-skin'].includes(defenderAbility) && moveType === 'Water') return 0;
+      if (['volt-absorb', 'lightning-rod', 'motor-drive'].includes(defenderAbility) && moveType === 'Electric') return 0;
+      if (defenderAbility === 'flash-fire' && moveType === 'Fire') return 0;
+      if (defenderAbility === 'sap-sipper' && moveType === 'Grass') return 0;
+      if (defenderAbility === 'soundproof' && soundMove) return 0;
+      if (defenderAbility === 'bulletproof' && bulletMove) return 0;
+      if (defenderAbility === 'wonder-guard' && effectiveness <= 1) return 0;
+    }
 
     let base = ((((2 * level) / 5 + 2) * power * (atk / def)) / 50 + 2) * stab * effectiveness;
     if (isNaN(base)) base = 1;
-    const roll = 0.85 + Math.random() * 0.15;
 
-    // ── Multiplicador de Clima ────────────────────────────────────────────────
-    const currentWeatherMults = WEATHER_TYPE_MULT[weather] || {};
-    const weatherMult = currentWeatherMults[move.type] || 1.0;
-    base *= weatherMult;
-    // ─────────────────────────────────────────────────────────────────────────
+    const weatherIgnored = ['cloud-nine', 'air-lock'].includes(attackerAbility) || ['cloud-nine', 'air-lock'].includes(defenderAbility);
+    const currentWeatherMults = weatherIgnored ? {} : (WEATHER_TYPE_MULT[weather] || {});
+    base *= currentWeatherMults[moveType] || 1.0;
 
-    // Efeitos Passivos de Itens de Boss
+    const lowHp = Number(attacker.hp || 0) > 0 && Number(attacker.maxHp || 0) > 0 && attacker.hp <= attacker.maxHp / 3;
+    if (lowHp && ((attackerAbility === 'overgrow' && moveType === 'Grass') || (attackerAbility === 'blaze' && moveType === 'Fire') || (attackerAbility === 'torrent' && moveType === 'Water') || (attackerAbility === 'swarm' && moveType === 'Bug'))) base *= 1.5;
+    if (attackerAbility === 'flash-fire' && moveType === 'Fire') base *= 1.25;
+    if (attackerAbility === 'water-bubble' && moveType === 'Water') base *= 2;
+    if (attackerAbility === 'steelworker' && moveType === 'Steel') base *= 1.5;
+    if (attackerAbility === 'strong-jaw' && biteMove) base *= 1.5;
+    if (attackerAbility === 'iron-fist' && punchMove) base *= 1.2;
+    if (attackerAbility === 'sharpness' && slashMove) base *= 1.5;
+    if (attackerAbility === 'tough-claws' && contactMove) base *= 1.3;
+    if (attackerAbility === 'mega-launcher' && ['pulse', 'aura-sphere'].some(key => moveKey.includes(key))) base *= 1.5;
+    if (attackerAbility === 'punk-rock' && soundMove) base *= 1.3;
+    if (attackerAbility === 'technician' && power <= 60) base *= 1.5;
+    if (attackerAbility === 'sheer-force' && String(moveData.effect || '').trim()) base *= 1.3;
+    if (attackerAbility === 'tinted-lens' && effectiveness < 1) base *= 2;
+    if (attackerAbility === 'neuroforce' && effectiveness > 1) base *= 1.25;
+    if (attackerAbility === 'sand-force' && weather === 'sandstorm' && ['Rock', 'Ground', 'Steel'].includes(moveType)) base *= 1.3;
+
+    if (!abilityBreaker) {
+      if (defenderAbility === 'thick-fat' && ['Fire', 'Ice'].includes(moveType)) base *= 0.5;
+      if (defenderAbility === 'heatproof' && moveType === 'Fire') base *= 0.5;
+      if (defenderAbility === 'water-bubble' && moveType === 'Fire') base *= 0.5;
+      if (defenderAbility === 'dry-skin' && moveType === 'Fire') base *= 1.25;
+      if (defenderAbility === 'fluffy') base *= moveType === 'Fire' ? 2 : (contactMove ? 0.5 : 1);
+      if (defenderAbility === 'fur-coat' && isPhysical) base *= 0.5;
+      if (['multiscale', 'shadow-shield'].includes(defenderAbility) && defender.hp >= defender.maxHp) base *= 0.5;
+      if (defenderAbility === 'punk-rock' && soundMove) base *= 0.5;
+    }
+
     if (attacker.isWorldBoss || defender.isWorldBoss) {
       const playerPokemon = attacker.isWorldBoss ? defender : attacker;
       const playerIsAttacker = !attacker.isWorldBoss;
       const heldItem = playerPokemon.heldItem;
-      
-      // Busca dados extras da receita se disponível para verificar isBossItem
       const itemData = Object.values(CRAFTING_RECIPES).flat().find(r => r.id === heldItem);
       const isBossItem = itemData?.isBossItem || false;
-
-      // Só ativa bônus se for item de boss
       if (isBossItem) {
         if (playerIsAttacker) {
           if (heldItem === 'adrenaline_potion') base *= 1.25;
           if (heldItem === 'penetration_pendant') base *= 1.30;
-        } else {
-          if (heldItem === 'titan_shield') base *= 0.80;
-        }
+        } else if (heldItem === 'titan_shield') base *= 0.80;
       }
-
       if (playerIsAttacker) {
         const psBossBonus = Math.min(2.5, Math.max(0, powerScore || 0) / 200000);
         base *= (1 + psBossBonus);
       }
     }
 
-    // Bônus de tipo por item segurado (apenas para o atacante do jogador)
     const heldItem = attacker.heldItem;
     const TYPE_BOOSTS = {
-      charcoal:       ['Fire',     0.20],
-      mystic_water:   ['Water',    0.20],
-      black_belt:     ['Fighting', 0.20],
-      magnet:         ['Electric', 0.20],
-      miracle_seed:   ['Grass',    0.20],
-      never_melt_ice: ['Ice',      0.20],
-      poison_barb:    ['Poison',   0.20],
-      soft_sand:      ['Ground',   0.20],
-      sharp_beak:     ['Flying',   0.20],
-      twisted_spoon:  ['Psychic',  0.20],
-      silver_powder:  ['Bug',      0.20],
-      hard_stone:     ['Rock',     0.20],
-      spell_tag:      ['Ghost',    0.20],
-      dragon_fang:    ['Dragon',   0.20],
-      black_glasses:  ['Dark',     0.20],
-      metal_coat:     ['Steel',    0.20],
-      fairy_feather:  ['Fairy',    0.20],
-      silk_scarf:     ['Normal',   0.20],
+      charcoal: ['Fire', 0.20], mystic_water: ['Water', 0.20], black_belt: ['Fighting', 0.20], magnet: ['Electric', 0.20], miracle_seed: ['Grass', 0.20], never_melt_ice: ['Ice', 0.20], poison_barb: ['Poison', 0.20], soft_sand: ['Ground', 0.20], sharp_beak: ['Flying', 0.20], twisted_spoon: ['Psychic', 0.20], silver_powder: ['Bug', 0.20], hard_stone: ['Rock', 0.20], spell_tag: ['Ghost', 0.20], dragon_fang: ['Dragon', 0.20], black_glasses: ['Dark', 0.20], metal_coat: ['Steel', 0.20], fairy_feather: ['Fairy', 0.20], silk_scarf: ['Normal', 0.20],
     };
     if (heldItem && TYPE_BOOSTS[heldItem]) {
       const [boostedType, mult] = TYPE_BOOSTS[heldItem];
-      if (move.type === boostedType) base *= (1 + mult);
+      if (moveType === boostedType) base *= (1 + mult);
     }
-    // Life Orb: +30% dano
     if (heldItem === 'life_orb') base *= 1.30;
-    // Expert Belt: +20% se super efetivo
     if (heldItem === 'expert_belt' && effectiveness > 1) base *= 1.20;
-    // Quick Claw: +15% dano flat (substitui o "speed priority" que não se aplica a idle)
     if (heldItem === 'quick_claw') base *= 1.15;
-    
-    // Accuracy System
+
     const baseAcc = move.accuracy || moveData.accuracy || 100;
-    
-    // Formula: (3 + stage) / 3 for positive, 3 / (3 + abs(stage)) for negative
     const accStage = attacker.stages?.accuracy || 0;
     const evaStage = defender.stages?.evasion || 0;
     const finalAccStage = Math.max(-6, Math.min(6, accStage - evaStage));
-    const accStageMult = finalAccStage >= 0
-      ? (3 + finalAccStage) / 3
-      : 3 / (3 + Math.abs(finalAccStage));
-    
-    const hitChance = baseAcc * accStageMult;
-    if (Math.random() * 100 > hitChance) return 0; // Miss
+    const accStageMult = finalAccStage >= 0 ? (3 + finalAccStage) / 3 : 3 / (3 + Math.abs(finalAccStage));
+    if (attackerAbility === 'compound-eyes') base *= 1.05;
+    const evasionBonus = ((defenderAbility === 'sand-veil' && weather === 'sandstorm') || (defenderAbility === 'snow-cloak' && ['hail', 'snow'].includes(weather))) ? 0.8 : 1;
+    const hitChance = baseAcc * accStageMult * evasionBonus;
+    if (Math.random() * 100 > hitChance) return 0;
 
+    const roll = 0.85 + Math.random() * 0.15;
     return Math.max(1, Math.ceil(base * roll));
-  }, [powerScore]);
+  }, [powerScore, weather]);
 
   // PROCESSAMENTO DE DROPS
   const processDrops = useCallback((enemy) => {
