@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.6.4';
-export const VERSION = '2.6.4';
+export const APP_VERSION = '2.6.5';
+export const VERSION = '2.6.5';
 export const APP_VERSION_DATE = '19/05/2026';
 export const CHANGELOG = [
+  '## [V2.6.5] - 19/05/2026',
+  '### Novo — Sistema de Nível de Treinador',
+  '- **Nível 1–10** baseado em espécies únicas capturadas. Cada nível desbloqueia bônus de captura (+3% a +25%), XP (+1% a +10%), drops de raid (+5% a +25%), desconto na forja (−5% a −20%), chance shiny extra (+5% a +25%) e tentativas de raid extras.',
+  '- **Badge clicável no Trainer Card**: exibe o nível atual (Lv.X), emoji, título e barra de progresso colorida diretamente no card do treinador.',
+  '- **Modal de progressão**: ao clicar no badge abre um painel completo com bônus ativos, progresso até o próximo nível e tabela dos 10 níveis para o jogador planejar.',
+  '',
   '## [V2.6.4] - 19/05/2026',
   '### Correção — Modais de Confirmação Sempre na Frente',
   '- **Z-index global corrigido**: modais de confirmação (Ensinar TM, Forjar, Comprar, Loja de Prestígio) agora usam `createPortal` para renderizar direto no `document.body`, garantindo que apareçam na frente de qualquer painel ou tela aberta.',

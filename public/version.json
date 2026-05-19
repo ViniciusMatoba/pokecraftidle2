@@ -1,5 +1,5 @@
 {
-  "version": "2.6.4",
+  "version": "2.6.5",
   "date": "19/05/2026",
-  "notes": "Modais de confirmação (TM, Forja, Compra, Prestígio) corrigidos para aparecer sempre na frente usando createPortal."
+  "notes": "Sistema de Nível de Treinador (Lv.1-10) com badge clicável no Trainer Card e modal de progressão completo."
 }

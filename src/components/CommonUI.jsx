@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { getPrimaryTrainerTitle, getTrainerTitleCollection, getUnlockedTrainerTitles } from '../data/trainerTitles';
 import { AVATAR_SPRITES, AVATAR_TINTS, CARD_FRAMES, CARD_BACKGROUNDS, getTintFilter } from '../data/cosmetics';
+import { TRAINER_LEVELS, getTrainerLevel, getNextTrainerLevel, getTrainerLevelProgress } from '../data/trainerLevels';
 
 const POKEAPI_ITEM_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
 const BADGE_IDS = ['boulder_badge', 'cascade_badge', 'thunder_badge', 'rainbow_badge', 'soul_badge', 'marsh_badge', 'volcano_badge', 'earth_badge'];
@@ -308,6 +309,7 @@ export const TrainerCard = ({
   const [showPsInfo, setShowPsInfo] = React.useState(false);
   const [showTitlePicker, setShowTitlePicker] = React.useState(false);
   const [pendingTitle, setPendingTitle] = React.useState(null); // v1.83.3
+  const [showLevelModal, setShowLevelModal] = React.useState(false);
 
   React.useEffect(() => {
     if (setIsAnyModalOpen) {
@@ -321,6 +323,23 @@ export const TrainerCard = ({
     }
   }, [showTitlePicker, showPsInfo, pendingTitle, setIsAnyModalOpen, setIsTitleModalOpen, setIsPowerRankModalOpen]);
   if (!trainer) return null;
+
+  // ── Nível de Treinador ────────────────────────────────────────────────────
+  const tLevel     = getTrainerLevel(caughtCount);
+  const tNext      = getNextTrainerLevel(tLevel.level);
+  const tProgress  = getTrainerLevelProgress(caughtCount);
+  const tLevelColor = [
+    '#94a3b8', // 1 - cinza
+    '#60a5fa', // 2 - azul
+    '#34d399', // 3 - verde
+    '#f59e0b', // 4 - âmbar
+    '#f97316', // 5 - laranja
+    '#ef4444', // 6 - vermelho
+    '#a78bfa', // 7 - roxo
+    '#38bdf8', // 8 - azul claro
+    '#fb923c', // 9 - laranja brilhante
+    '#fbbf24', // 10 - dourado
+  ][tLevel.level - 1] || '#94a3b8';
 
   const equippedSprite = AVATAR_SPRITES[appearance.spriteId] || AVATAR_SPRITES.red;
   const equippedFrame  = CARD_FRAMES[appearance.frameId]     || CARD_FRAMES.default;
@@ -427,6 +446,28 @@ export const TrainerCard = ({
           >
              {activeTitle?.icon && <img src={activeTitle.icon} className="h-6 w-6 shrink-0 object-contain" alt="" />}
              <span className="min-w-0 whitespace-normal break-words">{activeTitle?.label || 'Iniciante'}</span>
+          </button>
+
+          {/* ── Badge de Nível do Treinador ── */}
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setShowLevelModal(true); }}
+            className="mt-2 inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-left active:scale-95 transition-all border"
+            style={{ background: `${tLevelColor}22`, borderColor: `${tLevelColor}55` }}
+          >
+            <span className="text-xs font-black" style={{ color: tLevelColor }}>
+              Lv.{tLevel.level}
+            </span>
+            <span className="text-[10px] font-black text-white/70 uppercase tracking-wide">
+              {tLevel.emoji} {tLevel.title}
+            </span>
+            <div className="ml-1 w-14 h-1.5 rounded-full bg-white/10 overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{ width: `${tProgress}%`, background: tLevelColor }}
+              />
+            </div>
+            <span className="text-[9px] font-bold text-white/40">{tProgress}%</span>
           </button>
         </div>
         {compactExpandable && (
@@ -609,6 +650,130 @@ export const TrainerCard = ({
                 </div>
                 <button onClick={() => setShowPsInfo(false)} className="w-full bg-white text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg">Entendido</button>
              </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ── Modal de Progressão de Nível ─────────────────────────────────── */}
+      {showLevelModal && ReactDOM.createPortal(
+        <div
+          className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-fadeIn"
+          onClick={() => setShowLevelModal(false)}
+        >
+          <div
+            className="w-full max-w-[390px] bg-[#0f172a] rounded-[2rem] border-4 shadow-2xl flex flex-col overflow-hidden animate-bounceIn max-h-[88dvh]"
+            style={{ borderColor: tLevelColor }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-6 py-5 text-center shrink-0" style={{ background: `linear-gradient(135deg, ${tLevelColor}33, #0f172a)` }}>
+              <p className="text-5xl mb-1">{tLevel.emoji}</p>
+              <h2 className="text-white text-2xl font-black uppercase italic tracking-tighter leading-none">
+                Lv.{tLevel.level} — {tLevel.title}
+              </h2>
+              <p className="text-white/50 text-[10px] font-bold uppercase mt-1">{tLevel.description}</p>
+
+              {/* Barra de progresso */}
+              <div className="mt-4 bg-white/10 rounded-full h-2.5 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{ width: `${tProgress}%`, background: tLevelColor }}
+                />
+              </div>
+              <div className="flex justify-between mt-1">
+                <span className="text-[9px] font-black text-white/40">{caughtCount} espécies</span>
+                {tNext
+                  ? <span className="text-[9px] font-black" style={{ color: tLevelColor }}>
+                      {tNext.species - caughtCount} para Lv.{tNext.level}
+                    </span>
+                  : <span className="text-[9px] font-black text-amber-400">NÍVEL MÁXIMO ✓</span>
+                }
+              </div>
+            </div>
+
+            {/* Bônus ativos */}
+            {tLevel.level > 1 && (
+              <div className="px-5 py-3 shrink-0 border-b border-white/5">
+                <p className="text-[9px] font-black uppercase tracking-widest text-white/40 mb-2">Bônus Ativos</p>
+                <div className="flex flex-wrap gap-2">
+                  {tLevel.catchBonus    > 0 && <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-emerald-500/20 text-emerald-300">+{Math.round(tLevel.catchBonus*100)}% Captura</span>}
+                  {tLevel.xpBonus       > 0 && <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-blue-500/20 text-blue-300">+{Math.round(tLevel.xpBonus*100)}% XP</span>}
+                  {tLevel.raidBonus     > 0 && <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-purple-500/20 text-purple-300">+{Math.round(tLevel.raidBonus*100)}% Raids</span>}
+                  {tLevel.forgeDiscount > 0 && <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300">−{Math.round(tLevel.forgeDiscount*100)}% Forja</span>}
+                  {tLevel.shinyBonus    > 0 && <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-yellow-500/20 text-yellow-300">+{Math.round(tLevel.shinyBonus*100)}% Shiny</span>}
+                  {tLevel.raidAttempts  > 0 && <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-300">+{tLevel.raidAttempts} tentativa(s) Raid</span>}
+                  {tLevel.legendaryRaid      && <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-orange-500/20 text-orange-300">⭐ Raids Lendárias</span>}
+                </div>
+              </div>
+            )}
+
+            {/* Tabela de progressão */}
+            <div className="overflow-y-auto custom-scrollbar flex-1 px-4 py-3 space-y-1.5">
+              <p className="text-[9px] font-black uppercase tracking-widest text-white/30 mb-2">Progressão Completa</p>
+              {TRAINER_LEVELS.map(lvl => {
+                const isCurrentLevel = lvl.level === tLevel.level;
+                const isUnlocked = caughtCount >= lvl.species;
+                return (
+                  <div
+                    key={lvl.level}
+                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 border transition-all ${
+                      isCurrentLevel
+                        ? 'border-opacity-60'
+                        : isUnlocked
+                        ? 'border-white/10 bg-white/5'
+                        : 'border-white/5 opacity-50'
+                    }`}
+                    style={isCurrentLevel ? { borderColor: tLevelColor, background: `${tLevelColor}18` } : {}}
+                  >
+                    {/* Nível */}
+                    <div
+                      className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-xs font-black"
+                      style={isCurrentLevel
+                        ? { background: tLevelColor, color: '#000' }
+                        : { background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}
+                    >
+                      {isUnlocked && !isCurrentLevel ? '✓' : `${lvl.level}`}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[11px] font-black text-white leading-none">{lvl.emoji} {lvl.title}</span>
+                        {isCurrentLevel && (
+                          <span className="text-[8px] font-black px-1.5 py-0.5 rounded-md text-black" style={{ background: tLevelColor }}>ATUAL</span>
+                        )}
+                      </div>
+                      <p className="text-[9px] font-bold text-white/40 mt-0.5">{lvl.species} espécies</p>
+                    </div>
+
+                    {/* Bônus resumido */}
+                    <div className="text-right shrink-0">
+                      {lvl.level === 1 ? (
+                        <span className="text-[8px] text-white/25">—</span>
+                      ) : (
+                        <div className="space-y-0.5">
+                          <p className="text-[8px] font-black text-emerald-400">+{Math.round(lvl.catchBonus*100)}% cap.</p>
+                          {lvl.raidBonus > 0 && <p className="text-[8px] font-black text-purple-400">+{Math.round(lvl.raidBonus*100)}% raid</p>}
+                          {lvl.shinyBonus > 0 && <p className="text-[8px] font-black text-yellow-400">+{Math.round(lvl.shinyBonus*100)}% ✨</p>}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Botão fechar */}
+            <div className="px-5 pb-5 pt-3 shrink-0 border-t border-white/5">
+              <button
+                onClick={() => setShowLevelModal(false)}
+                className="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm text-black"
+                style={{ background: tLevelColor }}
+              >
+                Entendido!
+              </button>
+            </div>
           </div>
         </div>,
         document.body
