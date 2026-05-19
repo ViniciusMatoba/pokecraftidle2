@@ -551,6 +551,15 @@ export const POKE_MART_DRINKS = [
     availableFrom: 'rainbow_badge',
   },
   {
+    id: 'poke_food',
+    name: 'Ração Pokémon',
+    img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png',
+    description: 'Ração básica para expedições. Cada Pokémon consome 1 ração por hora de missão.',
+    effect: { type: 'stamina', restore: 30 },
+    price: 400,
+    availableFrom: null,
+  },
+  {
     id: 'link_cable',
     name: 'Link Cable',
     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/up-grade.png',

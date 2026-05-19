@@ -987,7 +987,7 @@ export default function App() {
   }, []);
 
   const [activeBuildingModal, setActiveBuildingModal] = useState(null);
-  const [forgeCategory, setForgeCategory] = useState('food');
+  const [forgeCategory, setForgeCategory] = useState(null); // null = abre na 1ª aba; 'food' = abre em Ração
   const [pendingFriendRequests, setPendingFriendRequests] = useState([]);
 
   const [activeMaterialModal, setActiveMaterialModal] = useState(null);
@@ -5460,15 +5460,24 @@ export default function App() {
   const handleStartExpedition = useCallback((biomeId, team, autoRepeat = false, durationMultiplier = 1) => {
     const biome = EXPEDITION_BIOMES[biomeId];
     if (!biome || !team.length) return;
-    
+
     // Bloqueio de Pokémons do Time Ativo
     const teamInstanceIds = new Set((gameState.team || []).map(p => p.instanceId));
     const hasTeamPokemon = team.some(p => teamInstanceIds.has(p.instanceId));
-    
+
     if (hasTeamPokemon) {
       addLog("❌ Erro: Não é possível enviar Pokémons que estão no seu time principal para expedições!", "error");
       return;
     }
+
+    // Verificação de Ração
+    const foodNeeded = Math.ceil(team.length * durationMultiplier);
+    const foodStock  = (gameState.inventory?.items?.poke_food) || 0;
+    if (foodStock < foodNeeded) {
+      addLog(`❌ Rações insuficientes! Necessário: ${foodNeeded}, Disponível: ${foodStock}. Forje ou compre no Poké Mart.`, "error");
+      return;
+    }
+
     const masteryLevel = Math.floor(((gameState.expeditionProgress || {})[biomeId]?.completed || 0) / 3);
     const tunedBiome = { ...biome, masteryLevel };
     const duration = calcExpeditionDuration(team, tunedBiome, durationMultiplier);
@@ -5476,15 +5485,24 @@ export default function App() {
     setGameState(prev => {
       const teamIds = new Set(team.map(p => p.instanceId));
       const newPC = (prev.pc || []).map(p => teamIds.has(p.instanceId) ? { ...p, onExpedition: biomeId } : p);
+      // Consumir rações
+      const prevFood = (prev.inventory?.items?.poke_food) || 0;
       return {
         ...prev,
         pc: newPC,
+        inventory: {
+          ...prev.inventory,
+          items: {
+            ...(prev.inventory?.items || {}),
+            poke_food: Math.max(0, prevFood - foodNeeded),
+          },
+        },
         expeditions: {
           ...(prev.expeditions || {}),
-        [biomeId]: {
-          biomeId,
-          masteryLevel,
-          team,
+          [biomeId]: {
+            biomeId,
+            masteryLevel,
+            team,
             startedAt: now,
             endsAt: now + duration,
             duration,
@@ -5494,8 +5512,8 @@ export default function App() {
         },
       };
     });
-    addLog(`🚢 Expedição para ${biome.name} iniciada! Duração: ~${Math.floor(duration / 60000)}min ${autoRepeat ? '(Auto-Repeat ON)' : ''}`, 'system');
-  }, [addLog, gameState.expeditionProgress, gameState.team]);
+    addLog(`🚢 Expedição para ${biome.name} iniciada! Consumidas ${foodNeeded} rações. Duração: ~${Math.floor(duration / 60000)}min ${autoRepeat ? '(Auto-Repeat ON)' : ''}`, 'system');
+  }, [addLog, gameState.expeditionProgress, gameState.team, gameState.inventory]);
 
   const handleClaimExpedition = useCallback((biomeId) => {
     const exp = gameState.expeditions?.[biomeId];
@@ -8381,6 +8399,17 @@ export default function App() {
                   handleStartExpedition(biomeId, team, autoRepeat, durationMultiplier);
                 }}
                 onClaimExpedition={(biomeId) => handleClaimExpedition(biomeId)}
+                onNavigateToCrafting={() => {
+                  setShowExpeditions(false);
+                  setCurrentView('city');
+                  setForgeCategory('food');
+                  setActiveBuildingModal('forge');
+                }}
+                onNavigateToCity={() => {
+                  setShowExpeditions(false);
+                  setCurrentView('city');
+                  setActiveBuildingModal('mart');
+                }}
               />
             </Suspense>
           )}
@@ -10190,8 +10219,8 @@ export default function App() {
            </div>
 
            {/* Botão de Fechar Superior */}
-           <button 
-             onClick={() => setActiveBuildingModal(null)}
+           <button
+             onClick={() => { setActiveBuildingModal(null); setForgeCategory(null); }}
              className="absolute top-6 right-6 z-30 w-12 h-12 rounded-full bg-black/40 text-white font-black flex items-center justify-center hover:bg-black/60 transition-all active:scale-90"
              aria-label="Sair"
            >
@@ -10536,6 +10565,7 @@ export default function App() {
                       recipeGuides={FORGE_RECIPE_DROP_GUIDE}
                       isAnyModalOpen={isAnyModalOpen}
                       isForgeConfirmOpen={isForgeConfirmOpen}
+                      initialCategory={forgeCategory}
                     />
                   </Suspense>
                 </div>

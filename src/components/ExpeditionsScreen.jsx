@@ -38,6 +38,10 @@ const EfficiencyBadge = ({ value }) => {
   );
 };
 
+/* ─── Calcula rações necessárias: 1 ração por Pokémon por hora ─── */
+const calcFoodRequired = (pokemonCount, durationHours) =>
+  Math.ceil(pokemonCount * durationHours);
+
 const ExpeditionAlertModal = ({ req, onClose }) => (
   <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn">
     <div className="modal-panel-mobile bg-slate-900 p-6 border border-white/10 shadow-2xl animate-bounceIn text-center">
@@ -48,7 +52,7 @@ const ExpeditionAlertModal = ({ req, onClose }) => (
         <span className="text-yellow-400 font-black">"Derrotar {req}"</span>
       </p>
       <div className="flex flex-col gap-3">
-        <button 
+        <button
           onClick={onClose}
           className="w-full bg-white text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-yellow-400 transition-all shadow-xl active:scale-95"
         >
@@ -58,6 +62,74 @@ const ExpeditionAlertModal = ({ req, onClose }) => (
     </div>
   </div>
 );
+
+/* ─── Modal: Rações insuficientes ─── */
+const FoodShortageModal = ({ needed, available, onGoForge, onGoMart, onClose }) => {
+  const missing = needed - available;
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn">
+      <div className="w-full max-w-[360px] bg-slate-900 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden animate-bounceIn">
+        {/* Header */}
+        <div className="bg-gradient-to-br from-orange-700/60 to-red-800/40 px-6 py-5 text-center">
+          <div className="text-5xl mb-2">🍖</div>
+          <h3 className="text-white font-black uppercase italic tracking-tighter text-xl leading-tight">
+            Rações Insuficientes!
+          </h3>
+          <p className="text-orange-200/80 text-[11px] font-bold mt-1">
+            Seus Pokémon precisam se alimentar antes da expedição.
+          </p>
+        </div>
+
+        {/* Stats */}
+        <div className="px-6 py-4 flex flex-col gap-3">
+          <div className="bg-white/5 rounded-2xl p-4 border border-white/10 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-white/60 text-xs font-bold">Necessário</span>
+              <span className="text-white font-black text-sm">{needed} rações</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-white/60 text-xs font-bold">Disponível</span>
+              <span className={`font-black text-sm ${available > 0 ? 'text-yellow-400' : 'text-white/30'}`}>
+                {available} rações
+              </span>
+            </div>
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+              <span className="text-red-400 text-xs font-black uppercase tracking-wide">Faltando</span>
+              <span className="text-red-400 font-black text-base">−{missing} rações</span>
+            </div>
+          </div>
+
+          <p className="text-white/40 text-[10px] font-bold text-center leading-relaxed">
+            Forje na <span className="text-yellow-400">Forja Pokémon</span> ou compre no{' '}
+            <span className="text-blue-400">Poké Mart</span>.
+          </p>
+        </div>
+
+        {/* Botões */}
+        <div className="px-6 pb-6 flex flex-col gap-2">
+          <button
+            onClick={onGoForge}
+            className="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3.5 rounded-2xl font-black uppercase tracking-widest text-xs hover:from-amber-500 hover:to-orange-500 active:scale-95 transition-all shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
+          >
+            <span className="text-base">🔨</span> Ir para a Forja
+          </button>
+          <button
+            onClick={onGoMart}
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3.5 rounded-2xl font-black uppercase tracking-widest text-xs hover:from-blue-500 hover:to-indigo-500 active:scale-95 transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
+          >
+            <span className="text-base">🏪</span> Ir para o Poké Mart
+          </button>
+          <button
+            onClick={onClose}
+            className="w-full bg-white/8 text-white/60 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-white/15 active:scale-95 transition-all border border-white/10"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const formatTime = (ms) => {
   const totalSeconds = Math.floor(ms / 1000);
@@ -235,10 +307,13 @@ const ExpeditionsScreen = ({
   onClaimExpedition,
   expeditionReport,
   onCloseReport,
+  onNavigateToCrafting,
+  onNavigateToCity,
 }) => {
   const [selectedBiome, setSelectedBiome] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState([]);
   const [alertReq, setAlertReq] = useState(null);
+  const [showFoodModal, setShowFoodModal] = useState(false);
   const [autoRepeat, setAutoRepeat] = useState(false);
   const [durationMult, setDurationMult] = useState(1);
   const [now, setNow] = useState(Date.now());
@@ -251,6 +326,7 @@ const ExpeditionsScreen = ({
   const activeExpeditions = gameState.expeditions || {};
   const expeditionProgress = gameState.expeditionProgress || {};
   const pcBox = gameState.pc || [];
+  const foodStock = (gameState.inventory?.items?.poke_food) || 0;
   const visibleRegionIds = new Set(EXPEDITION_REGIONS
     .filter(region => !region.unlockFlag || (gameState.worldFlags || []).includes(region.unlockFlag) || gameState.activeRegion === region.id)
     .map(region => region.id));
@@ -299,9 +375,19 @@ const ExpeditionsScreen = ({
       )}
 
       {alertReq && (
-        <ExpeditionAlertModal 
-          req={alertReq} 
-          onClose={() => setAlertReq(null)} 
+        <ExpeditionAlertModal
+          req={alertReq}
+          onClose={() => setAlertReq(null)}
+        />
+      )}
+
+      {showFoodModal && selectedTeam.length > 0 && (
+        <FoodShortageModal
+          needed={calcFoodRequired(selectedTeam.length, durationMult)}
+          available={foodStock}
+          onGoForge={() => { setShowFoodModal(false); onNavigateToCrafting?.(); }}
+          onGoMart={() => { setShowFoodModal(false); onNavigateToCity?.(); }}
+          onClose={() => setShowFoodModal(false)}
         />
       )}
 
@@ -584,28 +670,68 @@ const ExpeditionsScreen = ({
                 </div>
               </div>
 
-              {selectedTeam.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
-                  <div>
-                    <p className="text-white/60 text-[10px]">
-                      Duração estimada:
-                    </p>
-                    <p className="text-white font-black text-sm">
-                      {formatTime(calcExpeditionDuration(selectedTeam, selectedBiome, durationMult))}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      onStartExpedition(selectedBiome.id, selectedTeam, autoRepeat, durationMult);
-                      setSelectedBiome(null);
-                      setSelectedTeam([]);
-                    }}
-                    className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-black text-sm px-6 py-3 rounded-2xl uppercase shadow-xl hover:scale-105 transition-all active:scale-95"
-                  >
-                    🚀 Iniciar!
-                  </button>
-                </div>
-              )}
+              {selectedTeam.length > 0 && (() => {
+                const foodNeeded = calcFoodRequired(selectedTeam.length, durationMult);
+                const hasFood = foodStock >= foodNeeded;
+                return (
+                  <>
+                    {/* ── Indicador de Alimentos ── */}
+                    <div className={`mt-3 rounded-2xl px-4 py-3 border flex items-center gap-3 ${
+                      hasFood
+                        ? 'bg-green-500/10 border-green-500/30'
+                        : 'bg-red-500/10 border-red-500/30'
+                    }`}>
+                      <span className="text-2xl shrink-0">🍖</span>
+                      <div className="flex-1">
+                        <p className="text-white font-black text-[11px] uppercase tracking-wide">
+                          Ração para a Expedição
+                        </p>
+                        <p className="text-white/50 text-[10px] mt-0.5">
+                          {selectedTeam.length} Pokémon × {durationMult}h = {foodNeeded} rações
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className={`font-black text-sm ${hasFood ? 'text-green-400' : 'text-red-400'}`}>
+                          {foodStock}/{foodNeeded}
+                        </p>
+                        <p className={`text-[9px] font-bold ${hasFood ? 'text-green-500' : 'text-red-500'}`}>
+                          {hasFood ? '✅ OK' : '❌ Falta ' + (foodNeeded - foodStock)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* ── Duração + Botão Iniciar ── */}
+                    <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
+                      <div>
+                        <p className="text-white/60 text-[10px]">
+                          Duração estimada:
+                        </p>
+                        <p className="text-white font-black text-sm">
+                          {formatTime(calcExpeditionDuration(selectedTeam, selectedBiome, durationMult))}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          if (!hasFood) {
+                            setShowFoodModal(true);
+                            return;
+                          }
+                          onStartExpedition(selectedBiome.id, selectedTeam, autoRepeat, durationMult);
+                          setSelectedBiome(null);
+                          setSelectedTeam([]);
+                        }}
+                        className={`font-black text-sm px-6 py-3 rounded-2xl uppercase shadow-xl transition-all active:scale-95 ${
+                          hasFood
+                            ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:scale-105'
+                            : 'bg-gradient-to-r from-red-700 to-orange-700 text-white hover:scale-105'
+                        }`}
+                      >
+                        {hasFood ? '🚀 Iniciar!' : '🍖 Sem Ração!'}
+                      </button>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
             {/* PC Box */}

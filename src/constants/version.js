@@ -1,7 +1,16 @@
-export const APP_VERSION = '2.6.0';
-export const VERSION = '2.6.0';
-export const APP_VERSION_DATE = '19/05/2026 13:00';
+export const APP_VERSION = '2.6.1';
+export const VERSION = '2.6.1';
+export const APP_VERSION_DATE = '19/05/2026 14:00';
 export const CHANGELOG = [
+  '## [V2.6.1] - 19/05/2026 14:00',
+  '### Sistema de Alimentos para Expedições',
+  '- **Rações obrigatórias**: cada Pokémon consome 1 Ração por hora de expedição (3 Pokémon × 4h = 12 rações).',
+  '- **Indicador no painel**: barra verde/vermelha mostra rações disponíveis vs. necessárias antes de iniciar.',
+  '- **Botão adaptativo**: quando rações insuficientes, botão vira 🍖 "Sem Ração!" e abre modal de atalho.',
+  '- **Modal "Rações Insuficientes"**: mostra déficit exato + botões diretos para Forja (aba Ração) e Poké Mart.',
+  '- **Ração Pokémon no Poké Mart**: agora disponível para compra direta (400 P$) sem precisar da Forja.',
+  '- **Forja abre na aba Ração**: ao navegar da expedição para a Forja, abre direto na categoria de Alimentos.',
+  '',
   '## [V2.6.0] - 19/05/2026 13:00',
   '### Lendários Completos + Recompensas Rebalanceadas — Modo VS',
   '- **23 novos lendários**: Sinnoh (Uxie, Mesprit, Azelf, Heatran, Cresselia, Regigigas, Dialga, Palkia, Giratina), Kanto (Mew), Unova (Tornadus, Thundurus, Landorus, Keldeo, Meloetta, Genesect), Galar Crown Tundra (Regieleki, Regidrago, Glastrier, Calyrex), Paldea (Ogerpon, Terapagos).',
