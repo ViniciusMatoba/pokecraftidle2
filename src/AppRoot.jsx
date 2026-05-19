@@ -10282,36 +10282,6 @@ export default function App() {
                       {isHealing ? 'Cuidando...' : 'Cuidar da Equipe'}
                     </button>
 
-                    {/* Seção de Doação */}
-                    <div className="mt-4 pt-6 border-t border-slate-100">
-                      <div className="flex items-center justify-between mb-4 px-2">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">💝 Apoie o Centro Pokémon</p>
-                        <span className="bg-emerald-500 text-white text-[9px] font-black px-2 py-1 rounded-lg">
-                          {gameState.pokecenter?.freeHeals || 0} CURAS SALVAS
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2">
-                        {POKECENTER_DONATIONS.map((don, idx) => {
-                          const canDonate = (gameState.currency || 0) >= don.cost;
-                          return (
-                            <button
-                              key={idx}
-                              disabled={!canDonate || isHealing}
-                              onClick={() => handlePokecenterDonation(idx, don.cost)}
-                              className={`flex flex-col items-center p-3 rounded-2xl border-2 transition-all ${
-                                canDonate ? 'border-red-100 bg-red-50/50 hover:bg-red-100' : 'border-slate-100 bg-slate-50 opacity-50'
-                              }`}
-                            >
-                              <span className="text-xs font-black text-red-600 mb-1">{don.heals}x</span>
-                              <span className="text-[8px] font-black text-slate-400 uppercase leading-none mb-2">{don.label}</span>
-                              <span className="text-[9px] font-black text-slate-800">
-                                {don.cost.toLocaleString()} <span className="text-[7px] opacity-50">C</span>
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
                  </div>
               </div>
            </div>
