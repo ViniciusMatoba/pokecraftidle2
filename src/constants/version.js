@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.7.1';
-export const VERSION = '2.7.1';
-export const APP_VERSION_DATE = '19/05/2026 17:56';
+export const APP_VERSION = '2.7.2';
+export const VERSION = '2.7.2';
+export const APP_VERSION_DATE = '19/05/2026 18:05';
 export const CHANGELOG = [
+  '## [V2.7.2] - 19/05/2026 18:05',
+  '### Correcao de Encontros em Rotas',
+  '- **Evolucao automatica completa**: o mapa de evolucao por nivel agora e gerado a partir da Pokedex completa, cobrindo Kanto ate Paldea.',
+  '- **Rotas de alto nivel**: encontros selvagens em rotas avancadas passam a usar a forma evoluida quando o nivel ja passou do requisito, evitando casos como Caterpie em rota Nv.60.',
+  '- **Auditoria protegida**: o check de conteudo agora falha se uma rota voltar a listar Pokemon abaixo da forma esperada para seu nivel.',
+  '',
   '## [V2.7.1] - 19/05/2026 17:56',
   '### Auditoria de Rotas e Raids',
   '- **Rotas por geracao**: a auditoria agora valida a regra cumulativa correta: Kanto apenas Kanto; Johto Kanto+Johto; Hoenn Kanto+Johto+Hoenn; e assim por diante.',

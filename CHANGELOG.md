@@ -1,3 +1,9 @@
+## [V2.7.2] - 19/05/2026 18:05
+### Correcao de Encontros em Rotas
+- **Evolucao automatica completa**: o mapa de evolucao por nivel agora e gerado a partir da Pokedex completa, cobrindo Kanto ate Paldea.
+- **Rotas de alto nivel**: encontros selvagens em rotas avancadas passam a usar a forma evoluida quando o nivel ja passou do requisito, evitando casos como Caterpie em rota Nv.60.
+- **Auditoria protegida**: o check de conteudo agora falha se uma rota voltar a listar Pokemon abaixo da forma esperada para seu nivel.
+
 # Changelog - PokeCraft
 
 ## [v2.7.1] - 19/05/2026 17:56

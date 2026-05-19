@@ -161,210 +161,404 @@ export const getSortedRoutes = (routesObj) => {
 // POKEDEX resolvido em runtime pelo App   sem import circular
 const pk = (ids, level) => ids.map(id => ({ id: Number(id), level }));
 
-// ── Evolução por Nível ────────────────────────────────────────────────────────
-// Mapeamento: pokemonId → { evolvesAt: level, evolvesInto: id }
-// Usado para substituir pré-evoluções em rotas de alto nível automaticamente.
-// Apenas evoluções por nível são mapeadas (trades/pedras usam nível alto como proxy).
+// -- Evolucao por nivel --------------------------------------------------------
+// Gerado a partir da Pokedex para trocar pre-evolucoes por formas coerentes
+// quando a rota ja esta em um patamar acima do nivel de evolucao.
 const LEVEL_EVOLUTIONS = {
-  // Kanto
-  10: { evolvesAt: 7,  evolvesInto: 11  }, // Caterpie → Metapod
-  11: { evolvesAt: 10, evolvesInto: 12  }, // Metapod → Butterfree
-  13: { evolvesAt: 7,  evolvesInto: 14  }, // Weedle → Kakuna
-  14: { evolvesAt: 10, evolvesInto: 15  }, // Kakuna → Beedrill
-  16: { evolvesAt: 18, evolvesInto: 17  }, // Pidgey → Pidgeotto
-  17: { evolvesAt: 36, evolvesInto: 18  }, // Pidgeotto → Pidgeot
-  19: { evolvesAt: 20, evolvesInto: 20  }, // Rattata → Raticate
-  21: { evolvesAt: 20, evolvesInto: 22  }, // Spearow → Fearow
-  23: { evolvesAt: 22, evolvesInto: 24  }, // Ekans → Arbok
-  27: { evolvesAt: 22, evolvesInto: 28  }, // Sandshrew → Sandslash
-  29: { evolvesAt: 16, evolvesInto: 30  }, // Nidoran♀ → Nidorina
-  32: { evolvesAt: 16, evolvesInto: 33  }, // Nidoran♂ → Nidorino
-  41: { evolvesAt: 22, evolvesInto: 42  }, // Zubat → Golbat
-  42: { evolvesAt: 45, evolvesInto: 169 }, // Golbat → Crobat (felicidade, proxy 45)
-  43: { evolvesAt: 21, evolvesInto: 44  }, // Oddish → Gloom
-  46: { evolvesAt: 24, evolvesInto: 47  }, // Paras → Parasect
-  48: { evolvesAt: 31, evolvesInto: 49  }, // Venonat → Venomoth
-  50: { evolvesAt: 26, evolvesInto: 51  }, // Diglett → Dugtrio
-  52: { evolvesAt: 28, evolvesInto: 53  }, // Meowth → Persian
-  54: { evolvesAt: 33, evolvesInto: 55  }, // Psyduck → Golduck
-  56: { evolvesAt: 28, evolvesInto: 57  }, // Mankey → Primeape
-  60: { evolvesAt: 25, evolvesInto: 61  }, // Poliwag → Poliwhirl
-  63: { evolvesAt: 16, evolvesInto: 64  }, // Abra → Kadabra
-  66: { evolvesAt: 28, evolvesInto: 67  }, // Machop → Machoke
-  69: { evolvesAt: 21, evolvesInto: 70  }, // Bellsprout → Weepinbell
-  72: { evolvesAt: 30, evolvesInto: 73  }, // Tentacool → Tentacruel
-  74: { evolvesAt: 25, evolvesInto: 75  }, // Geodude → Graveler
-  77: { evolvesAt: 40, evolvesInto: 78  }, // Ponyta → Rapidash
-  79: { evolvesAt: 37, evolvesInto: 80  }, // Slowpoke → Slowbro
-  81: { evolvesAt: 30, evolvesInto: 82  }, // Magnemite → Magneton
-  84: { evolvesAt: 35, evolvesInto: 85  }, // Doduo → Dodrio
-  86: { evolvesAt: 34, evolvesInto: 87  }, // Seel → Dewgong
-  88: { evolvesAt: 38, evolvesInto: 89  }, // Grimer → Muk
-  92: { evolvesAt: 25, evolvesInto: 93  }, // Gastly → Haunter
-  96: { evolvesAt: 26, evolvesInto: 97  }, // Drowzee → Hypno
-  98: { evolvesAt: 28, evolvesInto: 99  }, // Krabby → Kingler
-  100: { evolvesAt: 30, evolvesInto: 101 }, // Voltorb → Electrode
-  104: { evolvesAt: 28, evolvesInto: 105 }, // Cubone → Marowak
-  109: { evolvesAt: 35, evolvesInto: 110 }, // Koffing → Weezing
-  111: { evolvesAt: 42, evolvesInto: 112 }, // Rhyhorn → Rhydon
-  116: { evolvesAt: 32, evolvesInto: 117 }, // Horsea → Seadra
-  118: { evolvesAt: 33, evolvesInto: 119 }, // Goldeen → Seaking
-  129: { evolvesAt: 20, evolvesInto: 130 }, // Magikarp → Gyarados
-  147: { evolvesAt: 30, evolvesInto: 148 }, // Dratini → Dragonair
-  148: { evolvesAt: 55, evolvesInto: 149 }, // Dragonair → Dragonite
-  // Johto
-  152: { evolvesAt: 18, evolvesInto: 153 }, // Chikorita → Bayleef
-  153: { evolvesAt: 32, evolvesInto: 154 }, // Bayleef → Meganium
-  155: { evolvesAt: 18, evolvesInto: 156 }, // Cyndaquil → Quilava
-  156: { evolvesAt: 36, evolvesInto: 157 }, // Quilava → Typhlosion
-  158: { evolvesAt: 18, evolvesInto: 159 }, // Totodile → Croconaw
-  159: { evolvesAt: 30, evolvesInto: 160 }, // Croconaw → Feraligatr
-  161: { evolvesAt: 15, evolvesInto: 162 }, // Sentret → Furret
-  163: { evolvesAt: 20, evolvesInto: 164 }, // Hoothoot → Noctowl
-  165: { evolvesAt: 18, evolvesInto: 166 }, // Ledyba → Ledian
-  167: { evolvesAt: 22, evolvesInto: 168 }, // Spinarak → Ariados
-  170: { evolvesAt: 27, evolvesInto: 171 }, // Chinchou → Lanturn
-  177: { evolvesAt: 25, evolvesInto: 178 }, // Natu → Xatu
-  179: { evolvesAt: 15, evolvesInto: 180 }, // Mareep → Flaaffy
-  180: { evolvesAt: 30, evolvesInto: 181 }, // Flaaffy → Ampharos
-  183: { evolvesAt: 18, evolvesInto: 184 }, // Marill → Azumarill
-  187: { evolvesAt: 18, evolvesInto: 188 }, // Hoppip → Skiploom
-  188: { evolvesAt: 27, evolvesInto: 189 }, // Skiploom → Jumpluff
-  194: { evolvesAt: 20, evolvesInto: 195 }, // Wooper → Quagsire
-  204: { evolvesAt: 31, evolvesInto: 205 }, // Pineco → Forretress
-  209: { evolvesAt: 23, evolvesInto: 210 }, // Snubbull → Granbull
-  216: { evolvesAt: 30, evolvesInto: 217 }, // Teddiursa → Ursaring
-  218: { evolvesAt: 38, evolvesInto: 219 }, // Slugma → Magcargo
-  220: { evolvesAt: 33, evolvesInto: 221 }, // Swinub → Piloswine
-  223: { evolvesAt: 25, evolvesInto: 224 }, // Remoraid → Octillery
-  228: { evolvesAt: 24, evolvesInto: 229 }, // Houndour → Houndoom
-  231: { evolvesAt: 25, evolvesInto: 232 }, // Phanpy → Donphan
-  // Hoenn
-  252: { evolvesAt: 16, evolvesInto: 253 }, // Treecko → Grovyle
-  253: { evolvesAt: 36, evolvesInto: 254 }, // Grovyle → Sceptile
-  255: { evolvesAt: 16, evolvesInto: 256 }, // Torchic → Combusken
-  256: { evolvesAt: 36, evolvesInto: 257 }, // Combusken → Blaziken
-  258: { evolvesAt: 16, evolvesInto: 259 }, // Mudkip → Marshtomp
-  259: { evolvesAt: 36, evolvesInto: 260 }, // Marshtomp → Swampert
-  261: { evolvesAt: 18, evolvesInto: 262 }, // Poochyena → Mightyena
-  263: { evolvesAt: 20, evolvesInto: 264 }, // Zigzagoon → Linoone
-  265: { evolvesAt: 7,  evolvesInto: 266 }, // Wurmple → Silcoon
-  266: { evolvesAt: 10, evolvesInto: 267 }, // Silcoon → Beautifly
-  268: { evolvesAt: 10, evolvesInto: 269 }, // Cascoon → Dustox
-  270: { evolvesAt: 14, evolvesInto: 271 }, // Lotad → Lombre
-  273: { evolvesAt: 14, evolvesInto: 274 }, // Seedot → Nuzleaf
-  276: { evolvesAt: 22, evolvesInto: 277 }, // Taillow → Swellow
-  278: { evolvesAt: 25, evolvesInto: 279 }, // Wingull → Pelipper
-  280: { evolvesAt: 20, evolvesInto: 281 }, // Ralts → Kirlia
-  281: { evolvesAt: 30, evolvesInto: 282 }, // Kirlia → Gardevoir
-  283: { evolvesAt: 22, evolvesInto: 284 }, // Surskit → Masquerain
-  285: { evolvesAt: 23, evolvesInto: 286 }, // Shroomish → Breloom
-  287: { evolvesAt: 18, evolvesInto: 288 }, // Slakoth → Vigoroth
-  288: { evolvesAt: 36, evolvesInto: 289 }, // Vigoroth → Slaking
-  293: { evolvesAt: 20, evolvesInto: 294 }, // Whismur → Loudred
-  294: { evolvesAt: 40, evolvesInto: 295 }, // Loudred → Exploud
-  296: { evolvesAt: 24, evolvesInto: 297 }, // Makuhita → Hariyama
-  304: { evolvesAt: 32, evolvesInto: 305 }, // Aron → Lairon
-  305: { evolvesAt: 42, evolvesInto: 306 }, // Lairon → Aggron
-  307: { evolvesAt: 37, evolvesInto: 308 }, // Meditite → Medicham
-  309: { evolvesAt: 26, evolvesInto: 310 }, // Electrike → Manectric
-  316: { evolvesAt: 26, evolvesInto: 317 }, // Gulpin → Swalot
-  318: { evolvesAt: 30, evolvesInto: 319 }, // Carvanha → Sharpedo
-  320: { evolvesAt: 40, evolvesInto: 321 }, // Wailmer → Wailord
-  322: { evolvesAt: 33, evolvesInto: 323 }, // Numel → Camerupt
-  325: { evolvesAt: 32, evolvesInto: 326 }, // Spoink → Grumpig
-  328: { evolvesAt: 35, evolvesInto: 329 }, // Trapinch → Vibrava
-  329: { evolvesAt: 45, evolvesInto: 330 }, // Vibrava → Flygon
-  331: { evolvesAt: 32, evolvesInto: 332 }, // Cacnea → Cacturne
-  333: { evolvesAt: 35, evolvesInto: 334 }, // Swablu → Altaria
-  339: { evolvesAt: 30, evolvesInto: 340 }, // Barboach → Whiscash
-  341: { evolvesAt: 30, evolvesInto: 342 }, // Corphish → Crawdaunt
-  343: { evolvesAt: 32, evolvesInto: 344 }, // Baltoy → Claydol
-  353: { evolvesAt: 37, evolvesInto: 354 }, // Shuppet → Banette
-  355: { evolvesAt: 37, evolvesInto: 356 }, // Duskull → Dusclops
-  360: { evolvesAt: 15, evolvesInto: 202 }, // Wynaut → Wobbuffet
-  361: { evolvesAt: 37, evolvesInto: 362 }, // Snorunt → Glalie
-  363: { evolvesAt: 32, evolvesInto: 364 }, // Spheal → Sealeo
-  364: { evolvesAt: 44, evolvesInto: 365 }, // Sealeo → Walrein
-  371: { evolvesAt: 30, evolvesInto: 372 }, // Bagon → Shelgon
-  372: { evolvesAt: 50, evolvesInto: 373 }, // Shelgon → Salamence
-  374: { evolvesAt: 20, evolvesInto: 375 }, // Beldum → Metang
-  375: { evolvesAt: 45, evolvesInto: 376 }, // Metang → Metagross
-  // Sinnoh
-  387: { evolvesAt: 18, evolvesInto: 388 }, // Turtwig → Grotle
-  388: { evolvesAt: 32, evolvesInto: 389 }, // Grotle → Torterra
-  390: { evolvesAt: 14, evolvesInto: 391 }, // Chimchar → Monferno
-  391: { evolvesAt: 36, evolvesInto: 392 }, // Monferno → Infernape
-  393: { evolvesAt: 16, evolvesInto: 394 }, // Piplup → Prinplup
-  394: { evolvesAt: 36, evolvesInto: 395 }, // Prinplup → Empoleon
-  396: { evolvesAt: 14, evolvesInto: 397 }, // Starly → Staravia
-  397: { evolvesAt: 34, evolvesInto: 398 }, // Staravia → Staraptor
-  399: { evolvesAt: 15, evolvesInto: 400 }, // Bidoof → Bibarel
-  401: { evolvesAt: 10, evolvesInto: 402 }, // Kricketot → Kricketune
-  403: { evolvesAt: 15, evolvesInto: 404 }, // Shinx → Luxio
-  404: { evolvesAt: 30, evolvesInto: 405 }, // Luxio → Luxray
-  406: { evolvesAt: 15, evolvesInto: 315 }, // Budew → Roselia
-  418: { evolvesAt: 26, evolvesInto: 419 }, // Buizel → Floatzel
-  420: { evolvesAt: 25, evolvesInto: 421 }, // Cherubi → Cherrim
-  422: { evolvesAt: 30, evolvesInto: 423 }, // Shellos → Gastrodon
-  427: { evolvesAt: 32, evolvesInto: 428 }, // Buneary → Lopunny
-  431: { evolvesAt: 28, evolvesInto: 432 }, // Glameow → Purugly
-  434: { evolvesAt: 34, evolvesInto: 435 }, // Stunky → Skuntank
-  436: { evolvesAt: 33, evolvesInto: 437 }, // Bronzor → Bronzong
-  443: { evolvesAt: 24, evolvesInto: 444 }, // Gible → Gabite
-  444: { evolvesAt: 48, evolvesInto: 445 }, // Gabite → Garchomp
-  447: { evolvesAt: 20, evolvesInto: 448 }, // Riolu → Lucario
-  449: { evolvesAt: 34, evolvesInto: 450 }, // Hippopotas → Hippowdon
-  451: { evolvesAt: 40, evolvesInto: 452 }, // Skorupi → Drapion
-  453: { evolvesAt: 37, evolvesInto: 454 }, // Croagunk → Toxicroak
-  456: { evolvesAt: 31, evolvesInto: 457 }, // Finneon → Lumineon
-  459: { evolvesAt: 40, evolvesInto: 460 }, // Snover → Abomasnow
-  // Unova
-  504: { evolvesAt: 20, evolvesInto: 505 }, // Patrat → Watchog
-  506: { evolvesAt: 16, evolvesInto: 507 }, // Lillipup → Herdier
-  507: { evolvesAt: 32, evolvesInto: 508 }, // Herdier → Stoutland
-  509: { evolvesAt: 20, evolvesInto: 510 }, // Purrloin → Liepard
-  519: { evolvesAt: 21, evolvesInto: 520 }, // Pidove → Tranquill
-  520: { evolvesAt: 32, evolvesInto: 521 }, // Tranquill → Unfezant
-  522: { evolvesAt: 27, evolvesInto: 523 }, // Blitzle → Zebstrika
-  524: { evolvesAt: 25, evolvesInto: 525 }, // Roggenrola → Boldore
-  527: { evolvesAt: 32, evolvesInto: 528 }, // Woobat → Swoobat
-  529: { evolvesAt: 31, evolvesInto: 530 }, // Drilbur → Excadrill
-  532: { evolvesAt: 25, evolvesInto: 533 }, // Timburr → Gurdurr
-  535: { evolvesAt: 25, evolvesInto: 536 }, // Tympole → Palpitoad
-  536: { evolvesAt: 36, evolvesInto: 537 }, // Palpitoad → Seismitoad
-  540: { evolvesAt: 20, evolvesInto: 541 }, // Sewaddle → Swadloon
-  541: { evolvesAt: 30, evolvesInto: 542 }, // Swadloon → Leavanny
-  543: { evolvesAt: 22, evolvesInto: 544 }, // Venipede → Whirlipede
-  544: { evolvesAt: 30, evolvesInto: 545 }, // Whirlipede → Scolipede
-  551: { evolvesAt: 29, evolvesInto: 552 }, // Sandile → Krokorok
-  552: { evolvesAt: 40, evolvesInto: 553 }, // Krokorok → Krookodile
-  554: { evolvesAt: 35, evolvesInto: 555 }, // Darumaka → Darmanitan
-  557: { evolvesAt: 34, evolvesInto: 558 }, // Dwebble → Crustle
-  559: { evolvesAt: 36, evolvesInto: 560 }, // Scraggy → Scrafty
-  562: { evolvesAt: 34, evolvesInto: 563 }, // Yamask → Cofagrigus
-  568: { evolvesAt: 36, evolvesInto: 569 }, // Trubbish → Garbodor
-  570: { evolvesAt: 30, evolvesInto: 571 }, // Zorua → Zoroark
-  574: { evolvesAt: 32, evolvesInto: 575 }, // Gothita → Gothorita
-  575: { evolvesAt: 41, evolvesInto: 576 }, // Gothorita → Gothitelle
-  577: { evolvesAt: 32, evolvesInto: 578 }, // Solosis → Duosion
-  578: { evolvesAt: 41, evolvesInto: 579 }, // Duosion → Reuniclus
-  582: { evolvesAt: 32, evolvesInto: 583 }, // Vanillite → Vanillish
-  583: { evolvesAt: 41, evolvesInto: 584 }, // Vanillish → Vanilluxe
-  588: { evolvesAt: 25, evolvesInto: 589 }, // Karrablast → Escavalier
-  595: { evolvesAt: 22, evolvesInto: 596 }, // Joltik → Galvantula
-  597: { evolvesAt: 31, evolvesInto: 598 }, // Ferroseed → Ferrothorn
-  599: { evolvesAt: 39, evolvesInto: 600 }, // Klink → Klang
-  600: { evolvesAt: 49, evolvesInto: 601 }, // Klang → Klinklang
-  605: { evolvesAt: 42, evolvesInto: 606 }, // Elgyem → Beheeyem
-  607: { evolvesAt: 41, evolvesInto: 608 }, // Litwick → Lampent
-  610: { evolvesAt: 38, evolvesInto: 611 }, // Axew → Fraxure
-  611: { evolvesAt: 48, evolvesInto: 612 }, // Fraxure → Haxorus
-  613: { evolvesAt: 37, evolvesInto: 614 }, // Cubchoo → Beartic
-  619: { evolvesAt: 32, evolvesInto: 620 }, // Mienfoo → Mienshao
-  622: { evolvesAt: 32, evolvesInto: 623 }, // Golett → Golurk
-  624: { evolvesAt: 35, evolvesInto: 625 }, // Pawniard → Bisharp
-  629: { evolvesAt: 54, evolvesInto: 630 }, // Vullaby → Mandibuzz
+     1: { evolvesAt: 16, evolvesInto:    2 },
+     2: { evolvesAt: 32, evolvesInto:    3 },
+     4: { evolvesAt: 16, evolvesInto:    5 },
+     5: { evolvesAt: 36, evolvesInto:    6 },
+     7: { evolvesAt: 16, evolvesInto:    8 },
+     8: { evolvesAt: 36, evolvesInto:    9 },
+    10: { evolvesAt:  7, evolvesInto:   11 },
+    11: { evolvesAt: 10, evolvesInto:   12 },
+    13: { evolvesAt:  7, evolvesInto:   14 },
+    14: { evolvesAt: 10, evolvesInto:   15 },
+    16: { evolvesAt: 18, evolvesInto:   17 },
+    17: { evolvesAt: 36, evolvesInto:   18 },
+    19: { evolvesAt: 20, evolvesInto:   20 },
+    21: { evolvesAt: 20, evolvesInto:   22 },
+    23: { evolvesAt: 22, evolvesInto:   24 },
+    27: { evolvesAt: 22, evolvesInto:   28 },
+    29: { evolvesAt: 16, evolvesInto:   30 },
+    32: { evolvesAt: 16, evolvesInto:   33 },
+    41: { evolvesAt: 22, evolvesInto:   42 },
+    42: { evolvesAt: 20, evolvesInto:  169 },
+    43: { evolvesAt: 21, evolvesInto:   44 },
+    46: { evolvesAt: 24, evolvesInto:   47 },
+    48: { evolvesAt: 31, evolvesInto:   49 },
+    50: { evolvesAt: 26, evolvesInto:   51 },
+    52: { evolvesAt: 28, evolvesInto:   53 },
+    54: { evolvesAt: 33, evolvesInto:   55 },
+    56: { evolvesAt: 28, evolvesInto:   57 },
+    57: { evolvesAt: 20, evolvesInto:  979 },
+    60: { evolvesAt: 25, evolvesInto:   61 },
+    63: { evolvesAt: 16, evolvesInto:   64 },
+    66: { evolvesAt: 28, evolvesInto:   67 },
+    69: { evolvesAt: 21, evolvesInto:   70 },
+    72: { evolvesAt: 30, evolvesInto:   73 },
+    74: { evolvesAt: 25, evolvesInto:   75 },
+    77: { evolvesAt: 40, evolvesInto:   78 },
+    79: { evolvesAt: 37, evolvesInto:   80 },
+    81: { evolvesAt: 30, evolvesInto:   82 },
+    83: { evolvesAt: 20, evolvesInto:  865 },
+    84: { evolvesAt: 31, evolvesInto:   85 },
+    86: { evolvesAt: 34, evolvesInto:   87 },
+    88: { evolvesAt: 38, evolvesInto:   89 },
+    92: { evolvesAt: 25, evolvesInto:   93 },
+    96: { evolvesAt: 26, evolvesInto:   97 },
+    98: { evolvesAt: 28, evolvesInto:   99 },
+   100: { evolvesAt: 30, evolvesInto:  101 },
+   104: { evolvesAt: 28, evolvesInto:  105 },
+   108: { evolvesAt: 33, evolvesInto:  463 },
+   109: { evolvesAt: 35, evolvesInto:  110 },
+   111: { evolvesAt: 42, evolvesInto:  112 },
+   113: { evolvesAt: 40, evolvesInto:  242 },
+   114: { evolvesAt: 33, evolvesInto:  465 },
+   116: { evolvesAt: 32, evolvesInto:  117 },
+   118: { evolvesAt: 33, evolvesInto:  119 },
+   122: { evolvesAt: 42, evolvesInto:  866 },
+   129: { evolvesAt: 20, evolvesInto:  130 },
+   133: { evolvesAt: 20, evolvesInto:  196 },
+   133: { evolvesAt: 20, evolvesInto:  197 },
+   138: { evolvesAt: 40, evolvesInto:  139 },
+   140: { evolvesAt: 40, evolvesInto:  141 },
+   147: { evolvesAt: 30, evolvesInto:  148 },
+   148: { evolvesAt: 55, evolvesInto:  149 },
+   152: { evolvesAt: 16, evolvesInto:  153 },
+   153: { evolvesAt: 32, evolvesInto:  154 },
+   155: { evolvesAt: 14, evolvesInto:  156 },
+   156: { evolvesAt: 36, evolvesInto:  157 },
+   158: { evolvesAt: 18, evolvesInto:  159 },
+   159: { evolvesAt: 30, evolvesInto:  160 },
+   161: { evolvesAt: 15, evolvesInto:  162 },
+   163: { evolvesAt: 20, evolvesInto:  164 },
+   165: { evolvesAt: 18, evolvesInto:  166 },
+   167: { evolvesAt: 22, evolvesInto:  168 },
+   170: { evolvesAt: 27, evolvesInto:  171 },
+   172: { evolvesAt: 20, evolvesInto:   25 },
+   173: { evolvesAt: 20, evolvesInto:   35 },
+   174: { evolvesAt: 20, evolvesInto:   39 },
+   175: { evolvesAt: 20, evolvesInto:  176 },
+   177: { evolvesAt: 25, evolvesInto:  178 },
+   179: { evolvesAt: 15, evolvesInto:  180 },
+   180: { evolvesAt: 30, evolvesInto:  181 },
+   183: { evolvesAt: 18, evolvesInto:  184 },
+   187: { evolvesAt: 18, evolvesInto:  188 },
+   188: { evolvesAt: 27, evolvesInto:  189 },
+   190: { evolvesAt: 32, evolvesInto:  424 },
+   193: { evolvesAt: 33, evolvesInto:  469 },
+   194: { evolvesAt: 20, evolvesInto:  195 },
+   203: { evolvesAt: 32, evolvesInto:  981 },
+   204: { evolvesAt: 31, evolvesInto:  205 },
+   206: { evolvesAt: 32, evolvesInto:  982 },
+   209: { evolvesAt: 23, evolvesInto:  210 },
+   211: { evolvesAt: 20, evolvesInto:  904 },
+   216: { evolvesAt: 30, evolvesInto:  217 },
+   217: { evolvesAt: 20, evolvesInto:  901 },
+   218: { evolvesAt: 38, evolvesInto:  219 },
+   220: { evolvesAt: 33, evolvesInto:  221 },
+   221: { evolvesAt: 40, evolvesInto:  473 },
+   222: { evolvesAt: 38, evolvesInto:  864 },
+   223: { evolvesAt: 25, evolvesInto:  224 },
+   228: { evolvesAt: 24, evolvesInto:  229 },
+   231: { evolvesAt: 25, evolvesInto:  232 },
+   234: { evolvesAt: 32, evolvesInto:  899 },
+   236: { evolvesAt: 20, evolvesInto:  106 },
+   236: { evolvesAt: 20, evolvesInto:  107 },
+   236: { evolvesAt: 20, evolvesInto:  237 },
+   238: { evolvesAt: 30, evolvesInto:  124 },
+   239: { evolvesAt: 30, evolvesInto:  125 },
+   240: { evolvesAt: 30, evolvesInto:  126 },
+   246: { evolvesAt: 30, evolvesInto:  247 },
+   247: { evolvesAt: 55, evolvesInto:  248 },
+   252: { evolvesAt: 16, evolvesInto:  253 },
+   253: { evolvesAt: 36, evolvesInto:  254 },
+   255: { evolvesAt: 16, evolvesInto:  256 },
+   256: { evolvesAt: 36, evolvesInto:  257 },
+   258: { evolvesAt: 16, evolvesInto:  259 },
+   259: { evolvesAt: 36, evolvesInto:  260 },
+   261: { evolvesAt: 18, evolvesInto:  262 },
+   263: { evolvesAt: 20, evolvesInto:  264 },
+   264: { evolvesAt: 35, evolvesInto:  862 },
+   265: { evolvesAt:  7, evolvesInto:  266 },
+   266: { evolvesAt: 10, evolvesInto:  267 },
+   270: { evolvesAt: 14, evolvesInto:  271 },
+   273: { evolvesAt: 14, evolvesInto:  274 },
+   276: { evolvesAt: 22, evolvesInto:  277 },
+   278: { evolvesAt: 25, evolvesInto:  279 },
+   280: { evolvesAt: 20, evolvesInto:  281 },
+   281: { evolvesAt: 30, evolvesInto:  282 },
+   283: { evolvesAt: 22, evolvesInto:  284 },
+   285: { evolvesAt: 23, evolvesInto:  286 },
+   287: { evolvesAt: 18, evolvesInto:  288 },
+   288: { evolvesAt: 36, evolvesInto:  289 },
+   290: { evolvesAt: 20, evolvesInto:  291 },
+   293: { evolvesAt: 20, evolvesInto:  294 },
+   294: { evolvesAt: 40, evolvesInto:  295 },
+   296: { evolvesAt: 24, evolvesInto:  297 },
+   298: { evolvesAt: 20, evolvesInto:  183 },
+   304: { evolvesAt: 32, evolvesInto:  305 },
+   305: { evolvesAt: 42, evolvesInto:  306 },
+   307: { evolvesAt: 37, evolvesInto:  308 },
+   309: { evolvesAt: 26, evolvesInto:  310 },
+   316: { evolvesAt: 26, evolvesInto:  317 },
+   318: { evolvesAt: 30, evolvesInto:  319 },
+   320: { evolvesAt: 40, evolvesInto:  321 },
+   322: { evolvesAt: 33, evolvesInto:  323 },
+   325: { evolvesAt: 32, evolvesInto:  326 },
+   328: { evolvesAt: 35, evolvesInto:  329 },
+   329: { evolvesAt: 45, evolvesInto:  330 },
+   331: { evolvesAt: 32, evolvesInto:  332 },
+   333: { evolvesAt: 35, evolvesInto:  334 },
+   339: { evolvesAt: 30, evolvesInto:  340 },
+   341: { evolvesAt: 30, evolvesInto:  342 },
+   343: { evolvesAt: 36, evolvesInto:  344 },
+   345: { evolvesAt: 40, evolvesInto:  346 },
+   347: { evolvesAt: 40, evolvesInto:  348 },
+   349: { evolvesAt: 20, evolvesInto:  350 },
+   353: { evolvesAt: 37, evolvesInto:  354 },
+   355: { evolvesAt: 37, evolvesInto:  356 },
+   360: { evolvesAt: 15, evolvesInto:  202 },
+   361: { evolvesAt: 42, evolvesInto:  362 },
+   363: { evolvesAt: 32, evolvesInto:  364 },
+   364: { evolvesAt: 44, evolvesInto:  365 },
+   371: { evolvesAt: 30, evolvesInto:  372 },
+   372: { evolvesAt: 50, evolvesInto:  373 },
+   374: { evolvesAt: 20, evolvesInto:  375 },
+   375: { evolvesAt: 45, evolvesInto:  376 },
+   387: { evolvesAt: 18, evolvesInto:  388 },
+   388: { evolvesAt: 32, evolvesInto:  389 },
+   390: { evolvesAt: 14, evolvesInto:  391 },
+   391: { evolvesAt: 36, evolvesInto:  392 },
+   393: { evolvesAt: 16, evolvesInto:  394 },
+   394: { evolvesAt: 36, evolvesInto:  395 },
+   396: { evolvesAt: 14, evolvesInto:  397 },
+   397: { evolvesAt: 34, evolvesInto:  398 },
+   399: { evolvesAt: 15, evolvesInto:  400 },
+   401: { evolvesAt: 10, evolvesInto:  402 },
+   403: { evolvesAt: 15, evolvesInto:  404 },
+   404: { evolvesAt: 30, evolvesInto:  405 },
+   406: { evolvesAt: 20, evolvesInto:  315 },
+   408: { evolvesAt: 30, evolvesInto:  409 },
+   410: { evolvesAt: 30, evolvesInto:  411 },
+   412: { evolvesAt: 20, evolvesInto:  413 },
+   415: { evolvesAt: 21, evolvesInto:  416 },
+   418: { evolvesAt: 26, evolvesInto:  419 },
+   420: { evolvesAt: 25, evolvesInto:  421 },
+   422: { evolvesAt: 30, evolvesInto:  423 },
+   425: { evolvesAt: 28, evolvesInto:  426 },
+   427: { evolvesAt: 20, evolvesInto:  428 },
+   431: { evolvesAt: 38, evolvesInto:  432 },
+   433: { evolvesAt: 20, evolvesInto:  358 },
+   434: { evolvesAt: 34, evolvesInto:  435 },
+   436: { evolvesAt: 33, evolvesInto:  437 },
+   438: { evolvesAt: 20, evolvesInto:  185 },
+   439: { evolvesAt: 20, evolvesInto:  122 },
+   440: { evolvesAt: 20, evolvesInto:  113 },
+   443: { evolvesAt: 24, evolvesInto:  444 },
+   444: { evolvesAt: 48, evolvesInto:  445 },
+   446: { evolvesAt: 20, evolvesInto:  143 },
+   447: { evolvesAt: 20, evolvesInto:  448 },
+   449: { evolvesAt: 34, evolvesInto:  450 },
+   451: { evolvesAt: 40, evolvesInto:  452 },
+   453: { evolvesAt: 37, evolvesInto:  454 },
+   456: { evolvesAt: 31, evolvesInto:  457 },
+   458: { evolvesAt: 20, evolvesInto:  226 },
+   459: { evolvesAt: 40, evolvesInto:  460 },
+   489: { evolvesAt: 20, evolvesInto:  490 },
+   495: { evolvesAt: 17, evolvesInto:  496 },
+   496: { evolvesAt: 36, evolvesInto:  497 },
+   498: { evolvesAt: 17, evolvesInto:  499 },
+   499: { evolvesAt: 36, evolvesInto:  500 },
+   501: { evolvesAt: 17, evolvesInto:  502 },
+   502: { evolvesAt: 36, evolvesInto:  503 },
+   504: { evolvesAt: 20, evolvesInto:  505 },
+   506: { evolvesAt: 16, evolvesInto:  507 },
+   507: { evolvesAt: 32, evolvesInto:  508 },
+   509: { evolvesAt: 20, evolvesInto:  510 },
+   519: { evolvesAt: 21, evolvesInto:  520 },
+   520: { evolvesAt: 32, evolvesInto:  521 },
+   522: { evolvesAt: 27, evolvesInto:  523 },
+   524: { evolvesAt: 25, evolvesInto:  525 },
+   527: { evolvesAt: 20, evolvesInto:  528 },
+   529: { evolvesAt: 31, evolvesInto:  530 },
+   532: { evolvesAt: 25, evolvesInto:  533 },
+   535: { evolvesAt: 25, evolvesInto:  536 },
+   536: { evolvesAt: 36, evolvesInto:  537 },
+   540: { evolvesAt: 20, evolvesInto:  541 },
+   541: { evolvesAt: 20, evolvesInto:  542 },
+   543: { evolvesAt: 22, evolvesInto:  544 },
+   544: { evolvesAt: 30, evolvesInto:  545 },
+   551: { evolvesAt: 29, evolvesInto:  552 },
+   552: { evolvesAt: 40, evolvesInto:  553 },
+   554: { evolvesAt: 35, evolvesInto:  555 },
+   557: { evolvesAt: 34, evolvesInto:  558 },
+   559: { evolvesAt: 39, evolvesInto:  560 },
+   562: { evolvesAt: 34, evolvesInto:  563 },
+   564: { evolvesAt: 37, evolvesInto:  565 },
+   566: { evolvesAt: 37, evolvesInto:  567 },
+   568: { evolvesAt: 36, evolvesInto:  569 },
+   570: { evolvesAt: 30, evolvesInto:  571 },
+   574: { evolvesAt: 32, evolvesInto:  575 },
+   575: { evolvesAt: 41, evolvesInto:  576 },
+   577: { evolvesAt: 32, evolvesInto:  578 },
+   578: { evolvesAt: 41, evolvesInto:  579 },
+   580: { evolvesAt: 35, evolvesInto:  581 },
+   582: { evolvesAt: 35, evolvesInto:  583 },
+   583: { evolvesAt: 47, evolvesInto:  584 },
+   585: { evolvesAt: 34, evolvesInto:  586 },
+   590: { evolvesAt: 39, evolvesInto:  591 },
+   595: { evolvesAt: 36, evolvesInto:  596 },
+   597: { evolvesAt: 40, evolvesInto:  598 },
+   599: { evolvesAt: 38, evolvesInto:  600 },
+   600: { evolvesAt: 49, evolvesInto:  601 },
+   602: { evolvesAt: 39, evolvesInto:  603 },
+   605: { evolvesAt: 42, evolvesInto:  606 },
+   607: { evolvesAt: 41, evolvesInto:  608 },
+   610: { evolvesAt: 38, evolvesInto:  611 },
+   611: { evolvesAt: 48, evolvesInto:  612 },
+   613: { evolvesAt: 37, evolvesInto:  614 },
+   619: { evolvesAt: 50, evolvesInto:  620 },
+   622: { evolvesAt: 43, evolvesInto:  623 },
+   624: { evolvesAt: 52, evolvesInto:  625 },
+   625: { evolvesAt: 20, evolvesInto:  983 },
+   627: { evolvesAt: 54, evolvesInto:  628 },
+   629: { evolvesAt: 54, evolvesInto:  630 },
+   633: { evolvesAt: 50, evolvesInto:  634 },
+   634: { evolvesAt: 64, evolvesInto:  635 },
+   636: { evolvesAt: 59, evolvesInto:  637 },
+   650: { evolvesAt: 16, evolvesInto:  651 },
+   651: { evolvesAt: 36, evolvesInto:  652 },
+   653: { evolvesAt: 16, evolvesInto:  654 },
+   654: { evolvesAt: 36, evolvesInto:  655 },
+   656: { evolvesAt: 16, evolvesInto:  657 },
+   657: { evolvesAt: 36, evolvesInto:  658 },
+   659: { evolvesAt: 20, evolvesInto:  660 },
+   661: { evolvesAt: 17, evolvesInto:  662 },
+   662: { evolvesAt: 35, evolvesInto:  663 },
+   664: { evolvesAt:  9, evolvesInto:  665 },
+   665: { evolvesAt: 12, evolvesInto:  666 },
+   667: { evolvesAt: 35, evolvesInto:  668 },
+   669: { evolvesAt: 19, evolvesInto:  670 },
+   672: { evolvesAt: 32, evolvesInto:  673 },
+   674: { evolvesAt: 32, evolvesInto:  675 },
+   677: { evolvesAt: 25, evolvesInto:  678 },
+   679: { evolvesAt: 35, evolvesInto:  680 },
+   686: { evolvesAt: 30, evolvesInto:  687 },
+   688: { evolvesAt: 39, evolvesInto:  689 },
+   690: { evolvesAt: 48, evolvesInto:  691 },
+   692: { evolvesAt: 37, evolvesInto:  693 },
+   696: { evolvesAt: 39, evolvesInto:  697 },
+   698: { evolvesAt: 39, evolvesInto:  699 },
+   704: { evolvesAt: 40, evolvesInto:  705 },
+   705: { evolvesAt: 50, evolvesInto:  706 },
+   712: { evolvesAt: 37, evolvesInto:  713 },
+   714: { evolvesAt: 48, evolvesInto:  715 },
+   722: { evolvesAt: 17, evolvesInto:  723 },
+   723: { evolvesAt: 34, evolvesInto:  724 },
+   725: { evolvesAt: 17, evolvesInto:  726 },
+   726: { evolvesAt: 34, evolvesInto:  727 },
+   728: { evolvesAt: 17, evolvesInto:  729 },
+   729: { evolvesAt: 34, evolvesInto:  730 },
+   731: { evolvesAt: 14, evolvesInto:  732 },
+   732: { evolvesAt: 28, evolvesInto:  733 },
+   734: { evolvesAt: 20, evolvesInto:  735 },
+   736: { evolvesAt: 20, evolvesInto:  737 },
+   737: { evolvesAt: 20, evolvesInto:  738 },
+   739: { evolvesAt: 20, evolvesInto:  740 },
+   742: { evolvesAt: 25, evolvesInto:  743 },
+   744: { evolvesAt: 25, evolvesInto:  745 },
+   747: { evolvesAt: 38, evolvesInto:  748 },
+   749: { evolvesAt: 30, evolvesInto:  750 },
+   751: { evolvesAt: 22, evolvesInto:  752 },
+   753: { evolvesAt: 34, evolvesInto:  754 },
+   755: { evolvesAt: 24, evolvesInto:  756 },
+   757: { evolvesAt: 33, evolvesInto:  758 },
+   759: { evolvesAt: 27, evolvesInto:  760 },
+   761: { evolvesAt: 18, evolvesInto:  762 },
+   762: { evolvesAt: 20, evolvesInto:  763 },
+   767: { evolvesAt: 30, evolvesInto:  768 },
+   769: { evolvesAt: 42, evolvesInto:  770 },
+   772: { evolvesAt: 20, evolvesInto:  773 },
+   782: { evolvesAt: 35, evolvesInto:  783 },
+   783: { evolvesAt: 45, evolvesInto:  784 },
+   789: { evolvesAt: 43, evolvesInto:  790 },
+   790: { evolvesAt: 53, evolvesInto:  791 },
+   803: { evolvesAt: 20, evolvesInto:  804 },
+   810: { evolvesAt: 16, evolvesInto:  811 },
+   811: { evolvesAt: 35, evolvesInto:  812 },
+   813: { evolvesAt: 16, evolvesInto:  814 },
+   814: { evolvesAt: 35, evolvesInto:  815 },
+   816: { evolvesAt: 16, evolvesInto:  817 },
+   817: { evolvesAt: 35, evolvesInto:  818 },
+   819: { evolvesAt: 24, evolvesInto:  820 },
+   821: { evolvesAt: 18, evolvesInto:  822 },
+   822: { evolvesAt: 38, evolvesInto:  823 },
+   824: { evolvesAt: 10, evolvesInto:  825 },
+   825: { evolvesAt: 30, evolvesInto:  826 },
+   827: { evolvesAt: 18, evolvesInto:  828 },
+   829: { evolvesAt: 20, evolvesInto:  830 },
+   831: { evolvesAt: 24, evolvesInto:  832 },
+   833: { evolvesAt: 22, evolvesInto:  834 },
+   835: { evolvesAt: 25, evolvesInto:  836 },
+   837: { evolvesAt: 18, evolvesInto:  838 },
+   838: { evolvesAt: 34, evolvesInto:  839 },
+   840: { evolvesAt: 20, evolvesInto:  841 },
+   843: { evolvesAt: 36, evolvesInto:  844 },
+   846: { evolvesAt: 26, evolvesInto:  847 },
+   848: { evolvesAt: 30, evolvesInto:  849 },
+   850: { evolvesAt: 28, evolvesInto:  851 },
+   852: { evolvesAt: 35, evolvesInto:  853 },
+   854: { evolvesAt: 20, evolvesInto:  855 },
+   856: { evolvesAt: 32, evolvesInto:  857 },
+   857: { evolvesAt: 42, evolvesInto:  858 },
+   859: { evolvesAt: 32, evolvesInto:  860 },
+   860: { evolvesAt: 42, evolvesInto:  861 },
+   868: { evolvesAt: 20, evolvesInto:  869 },
+   872: { evolvesAt: 20, evolvesInto:  873 },
+   878: { evolvesAt: 34, evolvesInto:  879 },
+   884: { evolvesAt: 20, evolvesInto: 1018 },
+   885: { evolvesAt: 50, evolvesInto:  886 },
+   886: { evolvesAt: 60, evolvesInto:  887 },
+   891: { evolvesAt: 20, evolvesInto:  892 },
+   906: { evolvesAt: 16, evolvesInto:  907 },
+   907: { evolvesAt: 36, evolvesInto:  908 },
+   909: { evolvesAt: 16, evolvesInto:  910 },
+   910: { evolvesAt: 36, evolvesInto:  911 },
+   912: { evolvesAt: 16, evolvesInto:  913 },
+   913: { evolvesAt: 36, evolvesInto:  914 },
+   915: { evolvesAt: 18, evolvesInto:  916 },
+   917: { evolvesAt: 15, evolvesInto:  918 },
+   919: { evolvesAt: 24, evolvesInto:  920 },
+   921: { evolvesAt: 18, evolvesInto:  922 },
+   922: { evolvesAt: 20, evolvesInto:  923 },
+   924: { evolvesAt: 25, evolvesInto:  925 },
+   926: { evolvesAt: 26, evolvesInto:  927 },
+   928: { evolvesAt: 25, evolvesInto:  929 },
+   929: { evolvesAt: 35, evolvesInto:  930 },
+   932: { evolvesAt: 24, evolvesInto:  933 },
+   933: { evolvesAt: 38, evolvesInto:  934 },
+   935: { evolvesAt: 20, evolvesInto:  936 },
+   940: { evolvesAt: 25, evolvesInto:  941 },
+   942: { evolvesAt: 30, evolvesInto:  943 },
+   944: { evolvesAt: 28, evolvesInto:  945 },
+   946: { evolvesAt: 20, evolvesInto:  947 },
+   948: { evolvesAt: 30, evolvesInto:  949 },
+   953: { evolvesAt: 20, evolvesInto:  954 },
+   955: { evolvesAt: 35, evolvesInto:  956 },
+   957: { evolvesAt: 24, evolvesInto:  958 },
+   958: { evolvesAt: 38, evolvesInto:  959 },
+   960: { evolvesAt: 26, evolvesInto:  961 },
+   963: { evolvesAt: 38, evolvesInto:  964 },
+   965: { evolvesAt: 40, evolvesInto:  966 },
+   969: { evolvesAt: 35, evolvesInto:  970 },
+   971: { evolvesAt: 30, evolvesInto:  972 },
+   996: { evolvesAt: 35, evolvesInto:  997 },
+   997: { evolvesAt: 54, evolvesInto:  998 },
+   999: { evolvesAt: 20, evolvesInto: 1000 },
+  1012: { evolvesAt: 20, evolvesInto: 1013 },
 };
 
 /**
@@ -565,7 +759,15 @@ const normalizeRouteProgression = (routesObj) => {
   });
 
   Object.keys(normalized).forEach(id => {
-    normalized[id] = applyVsRouteGates(normalized[id]);
+    const route = normalized[id];
+    const routeRegion = inferRouteRegion(route.id || id, route.group).id;
+    const evolvedRoute = route.type === 'farm'
+      ? {
+          ...route,
+          enemies: applyEvolutionFilter(route.enemies || [], routeRegion, route),
+        }
+      : route;
+    normalized[id] = applyVsRouteGates(evolvedRoute);
   });
 
   return normalized;

@@ -1,5 +1,5 @@
 {
-  "version": "2.7.1",
-  "date": "19/05/2026 17:56",
-  "notes": "Auditoria de rotas e raids: rotas bloqueiam geracoes futuras e raids liberam lendarios/misticos somente apos derrota no Modo VS."
+  "version": "2.7.2",
+  "date": "19/05/2026 18:05",
+  "notes": "Evolucao automatica de encontros: rotas de alto nivel agora substituem pre-evolucoes pela forma coerente com o nivel, usando a Pokedex completa."
 }

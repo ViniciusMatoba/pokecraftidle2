@@ -73,6 +73,7 @@ for (let id = 1; id <= 1025; id += 1) {
 
 const evolutionTargets = [];
 const evolutionsBySource = new Map();
+const levelEvolutionsBySource = new Map();
 for (const match of pokedexSource.matchAll(/^\s*(\d+)\s*:\s*\{([^\n]*)/gm)) {
   const sourceId = Number(match[1]);
   const line = match[2];
@@ -80,6 +81,20 @@ for (const match of pokedexSource.matchAll(/^\s*(\d+)\s*:\s*\{([^\n]*)/gm)) {
     .map((targetMatch) => Number(targetMatch[1]));
   if (targets.length) evolutionsBySource.set(sourceId, targets);
   evolutionTargets.push(...targets);
+
+  if (!line.includes('evolution:') || sourceId > 1025) continue;
+  const evolutionPart = line.slice(line.indexOf('evolution:'));
+  for (const objectMatch of evolutionPart.matchAll(/\{[^{}]*\}/g)) {
+    const objectText = objectMatch[0];
+    const levelMatch = objectText.match(/"?level"?\s*:\s*(\d+)/);
+    const idMatch = objectText.match(/"?id"?\s*:\s*(\d+)/);
+    if (!levelMatch || !idMatch) continue;
+    const evolvesAt = Number(levelMatch[1]);
+    const evolvesInto = Number(idMatch[1]);
+    if (evolvesAt > 0 && evolvesInto <= 1025 && evolvesInto !== sourceId) {
+      levelEvolutionsBySource.set(sourceId, { evolvesAt, evolvesInto });
+    }
+  }
 }
 
 const invalidEvolutionTargets = evolutionTargets.filter((id) => !dexIds.includes(id) && id <= 1025);
@@ -129,7 +144,23 @@ const ROUTE_LEVEL_STEP_LIMIT = {
 
 const routeProgressionIssues = [];
 const trainerBalanceIssues = [];
+const underEvolvedWildIssues = [];
 const routesByRegion = {};
+
+const expectedRouteEvolution = (enemy, routeRegion, route) => {
+  let id = Number(enemy.id);
+  const level = Number(enemy.level);
+  if (!Number.isFinite(level)) return id;
+
+  for (let step = 0; step < 4; step += 1) {
+    const evolution = levelEvolutionsBySource.get(id);
+    if (!evolution || level < evolution.evolvesAt || !isAllowedInRouteRegion(evolution.evolvesInto, routeRegion, route)) {
+      break;
+    }
+    id = evolution.evolvesInto;
+  }
+  return id;
+};
 
 Object.entries(ROUTES)
   .map(([key, route]) => ({ key, route, region: inferRouteRegion(route.id || key, route.group).id, range: routeLevelRange(route) }))
@@ -206,6 +237,22 @@ for (const [routeKey, route] of Object.entries(ROUTES)) {
       region: routeRegion,
       name: route.name,
       ids: toSorted(new Set(outOfRegion)),
+    });
+  }
+
+  if (route.type === 'farm') {
+    (route.enemies || []).forEach((enemy) => {
+      const expectedId = expectedRouteEvolution(enemy, routeRegion, route);
+      if (expectedId !== Number(enemy.id)) {
+        underEvolvedWildIssues.push({
+          route: routeKey,
+          region: routeRegion,
+          name: route.name,
+          id: Number(enemy.id),
+          expectedId,
+          level: Number(enemy.level),
+        });
+      }
     });
   }
 }
@@ -311,6 +358,9 @@ if (routeProgressionIssues.length) {
 if (trainerBalanceIssues.length) {
   failures.push(`Treinadores abaixo do minimo esperado (+3 niveis): ${trainerBalanceIssues.length} ocorrencias.`);
 }
+if (underEvolvedWildIssues.length) {
+  failures.push(`Rotas com Pokemon abaixo da forma esperada pelo nivel: ${underEvolvedWildIssues.length} ocorrencias.`);
+}
 if (strictObtainability && unobtainableBase.length) {
   failures.push(`Modo estrito: ${unobtainableBase.length} Pokemon base ainda nao sao obtiveis.`);
 }
@@ -338,6 +388,7 @@ const report = {
     ),
     outOfRegionWildRoutes: outOfRegionWildRoutes.length,
     outOfRegionSample: outOfRegionWildRoutes.slice(0, 12),
+    underEvolvedWildIssues: underEvolvedWildIssues.slice(0, 50),
     progressionIssues: routeProgressionIssues,
     trainerBalanceIssues: trainerBalanceIssues.slice(0, 50),
     progressionByRegion: Object.fromEntries(
@@ -393,6 +444,7 @@ if (jsonOutput) {
   console.log(`Backgrounds: ${report.backgrounds.uniqueRefs} refs, ${report.backgrounds.missing.length} ausentes`);
   console.log(`Formas catalogadas: ${report.forms.catalogFamilies} familias, ${report.forms.catalogVariants} variantes`);
   console.log(`Rotas com Pokemon de geracao futura antes do permitido: ${report.routes.outOfRegionWildRoutes}`);
+  console.log(`Rotas com Pokemon abaixo da evolucao esperada: ${underEvolvedWildIssues.length}`);
   console.log(`Raids: ${report.raids.curatedSpecies} especies curadas; lendarios/misticos bloqueados: ${report.raids.legendaryLockedSpecies}; com trava VS no pool curado: ${report.raids.legendaryGatedSpecies}; sem trava: ${report.raids.legendaryWithoutGate.length}`);
   if (report.obtainability.unobtainable) {
     console.log(`Aviso: ${report.obtainability.unobtainable} Pokemon base ainda nao sao obtiveis.`);
@@ -416,6 +468,12 @@ if (jsonOutput) {
     console.log('Treinadores abaixo do minimo esperado:');
     trainerBalanceIssues.slice(0, 10).forEach((issue) => {
       console.log(`  ${issue.route}: ${issue.trainer} Nv.${issue.trainerMin}, esperado ${issue.expectedMin}+`);
+    });
+  }
+  if (underEvolvedWildIssues.length) {
+    console.log('Pokemon selvagens abaixo da evolucao esperada:');
+    underEvolvedWildIssues.slice(0, 10).forEach((issue) => {
+      console.log(`  ${issue.route}: #${issue.id} Nv.${issue.level}, esperado #${issue.expectedId}`);
     });
   }
 }
