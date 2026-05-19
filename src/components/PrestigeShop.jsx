@@ -1352,7 +1352,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
 
       {/* ── MODAL: CONFIRMAÇÃO DE COMPRA ──────────────────────────────────── */}
       {confirmPurchase && createPortal(
-        <div className="fixed inset-0 z-[9999999] flex items-end justify-center pb-6 px-4"
+        <div className="fixed inset-0 z-[9999999] flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)' }}>
           <div className="w-full max-w-sm font-mono"
             style={{ animation: 'equipSlideIn 0.22s ease-out both' }}>
@@ -1407,7 +1407,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
 
       {/* ── MODAL: ITEM BLOQUEADO ──────────────────────────────────────────── */}
       {lockedInfo && createPortal(
-        <div className="fixed inset-0 z-[9999999] flex items-end justify-center pb-6 px-4"
+        <div className="fixed inset-0 z-[9999999] flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)' }}>
           <div className="w-full max-w-sm font-mono"
             style={{ animation: 'equipSlideIn 0.22s ease-out both' }}>
@@ -1440,7 +1440,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
 
       {/* ── MODAL: EQUIPAR APÓS COMPRA ─────────────────────────────────────── */}
       {equipPrompt && createPortal(
-        <div className="fixed inset-0 z-[9999999] flex items-end justify-center pb-6 px-4"
+        <div className="fixed inset-0 z-[9999999] flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(4px)' }}>
           <div className="w-full max-w-sm font-mono"
             style={{ animation: 'equipSlideIn 0.22s ease-out both' }}>

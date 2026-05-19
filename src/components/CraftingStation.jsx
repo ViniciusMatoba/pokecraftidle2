@@ -354,7 +354,7 @@ const CraftingStation = ({
         const canExecute = Object.entries(materialCost).every(([mat, amount]) => getAvail(mat) >= amount * qty)
           && (currencyCost === 0 || currency >= currencyCost);
         return createPortal(
-          <div className="fixed inset-0 z-[9999999] flex items-end justify-center p-4"
+          <div className="fixed inset-0 z-[9999999] flex items-center justify-center p-4"
             style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}>
             <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border-b-8 border-slate-200"
               style={{ animation: 'slideInUp 0.2s ease-out both' }}>
