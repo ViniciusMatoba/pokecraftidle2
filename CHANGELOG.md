@@ -1,5 +1,12 @@
 # Changelog - PokeCraft
 
+## [v2.5.6] - 18/05/2026 22:05
+### Melhorado
+- **Efeitos de Golpes**: adicionadas animacoes especificas para novos golpes marcantes, incluindo Inferno, Overheat, Whirlpool, Electro Ball, Bullet Seed, Future Sight, Close Combat, Hyper Voice, Protect, Reflect e Light Screen.
+- **Motor Visual**: suporte a multi-projeteis, ondas sonoras, barreiras, protecao, vortices, armadilhas de campo, orbitas de status e explosoes atrasadas.
+- **Fallbacks de Ataques**: golpes sem animacao propria agora usam padroes melhores por funcao do golpe, como multi-hit, som, vortex, hazards, telas defensivas e buffs.
+- **Performance Mobile**: efeitos seguem com limites de particulas para manter fluidez dentro da area do jogo em telas pequenas.
+
 ## [v2.5.5] - 18/05/2026 18:07
 ### Corrigido
 - **Golpes Duplicados**: `moves` e `learnedMoves` agora sao deduplicados por chave canonica, cobrindo nomes traduzidos, nomes em ingles, objetos de move e IDs internos.

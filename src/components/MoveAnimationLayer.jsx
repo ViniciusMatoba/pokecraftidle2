@@ -153,6 +153,43 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
     };
   }, [addNode]);
 
+  const spawnShield = useCallback((center, color, opts = {}) => {
+    const {
+      duration = 560,
+      delay = 0,
+      width = 92,
+      height = 118,
+      opacity = 0.5,
+      zIndex = 49,
+    } = opts;
+    const shield = document.createElement('div');
+    shield.style.cssText = `
+      position: absolute;
+      left: ${center.x}%;
+      top: ${center.y}%;
+      width: ${width}px;
+      height: ${height}px;
+      border: 3px solid ${color};
+      border-radius: 48% 52% 45% 55%;
+      transform: translate(-50%, -50%) scale(0.55);
+      opacity: 0;
+      pointer-events: none;
+      z-index: ${zIndex};
+      background: radial-gradient(circle at 50% 40%, rgba(255,255,255,0.45), ${color}33 48%, transparent 74%);
+      box-shadow: inset 0 0 22px ${color}, 0 0 24px ${color};
+      mix-blend-mode: screen;
+    `;
+    addNode(shield);
+    shield.animate([
+      { transform: 'translate(-50%, -50%) scale(0.55)', opacity: 0 },
+      { transform: 'translate(-50%, -50%) scale(1)', opacity },
+      { transform: 'translate(-50%, -50%) scale(1.06)', opacity: opacity * 0.55 },
+      { transform: 'translate(-50%, -50%) scale(1.16)', opacity: 0 },
+    ], { duration, delay, easing: 'ease-out', fill: 'forwards' }).onfinish = () => {
+      try { shield.remove(); } catch (_) {}
+    };
+  }, [addNode]);
+
   const spawnBeam = useCallback((from, to, color, opts = {}) => {
     const { duration = 420, delay = 0, width = 8, opacity = 0.8, zIndex = 47 } = opts;
     const dx = to.x - from.x;
@@ -310,6 +347,22 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
         triggerHit(duration * 0.68);
         break;
 
+      case 'multi_projectile':
+        for (let i = 0; i < clampCount(count, 8); i++) {
+          const lane = (i % 3) - 1;
+          spawnSprite(sprite, { x: from.x + jitter(5), y: from.y + lane * 5 + jitter(4) }, { x: target.x + jitter(16), y: target.y + lane * 8 + jitter(10) }, {
+            duration: duration * 0.58,
+            delay: i * 74,
+            startScale: 0.22,
+            endScale: 1.35 * powerScale,
+            rotateEnd: 180 + i * 32,
+            filter: `drop-shadow(0 0 8px ${color})`,
+          });
+        }
+        flashOverlay(color, 120, 0.15);
+        triggerHit(duration * 0.42);
+        break;
+
       case 'stream':
       case 'high_frequency_stream':
         for (let i = 0; i < clampCount(count * 2, 22); i++) {
@@ -426,6 +479,42 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
         spawnRing(target, color, { duration: duration * 0.6, endSize: 120 * powerScale, opacity: 0.42 });
         flashOverlay(color, 170, 0.22);
         triggerHit(60);
+        break;
+      }
+
+      case 'delayed_burst': {
+        for (let i = 0; i < 3; i++) spawnRing(target, color, { duration: 360, delay: i * 120, endSize: 70 + i * 28, opacity: 0.28 });
+        for (let i = 0; i < clampCount(count, 12); i++) {
+          const angle = (i / count) * Math.PI * 2;
+          spawnSprite(sprite, { x: target.x + Math.cos(angle) * 30, y: target.y + Math.sin(angle) * 22 }, target, {
+            duration: duration * 0.42,
+            delay: 360 + i * 34,
+            startScale: 0.18,
+            endScale: 1.9 * powerScale,
+            blend: 'screen',
+            filter: `drop-shadow(0 0 12px ${color})`,
+          });
+        }
+        flashOverlay(color, 260, 0.22, 340);
+        triggerHit(duration * 0.58);
+        break;
+      }
+
+      case 'tri_burst': {
+        const triColors = [TYPE_COLORS.Fire, TYPE_COLORS.Electric, TYPE_COLORS.Ice];
+        triColors.forEach((triColor, index) => {
+          spawnBeam(from, target, triColor, { duration: duration * 0.62, delay: index * 80, width: 6 * powerScale, opacity: 0.58 });
+          spawnSprite(sprite, from, { x: target.x + jitter(10), y: target.y + jitter(10) }, {
+            duration: duration * 0.55,
+            delay: index * 85,
+            startScale: 0.2,
+            endScale: 1.7 * powerScale,
+            blend: 'screen',
+            filter: `drop-shadow(0 0 10px ${triColor})`,
+          });
+        });
+        flashOverlay('#ffffff', 140, 0.22, 180);
+        triggerHit(duration * 0.52);
         break;
       }
 
@@ -566,6 +655,29 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
         triggerHit(duration * 0.55);
         break;
 
+      case 'vortex': {
+        const n = clampCount(count, 16);
+        for (let i = 0; i < n; i++) {
+          const angle = (i / n) * Math.PI * 2;
+          const radius = 34 - (i % 4) * 5;
+          const start = { x: target.x + Math.cos(angle) * radius, y: target.y + Math.sin(angle) * radius * 0.6 };
+          const end = { x: target.x + Math.cos(angle + 1.9) * 8, y: target.y + Math.sin(angle + 1.9) * 6 };
+          spawnSprite(sprite, start, end, {
+            duration: duration * 0.72,
+            delay: i * 42,
+            startScale: 0.25,
+            endScale: 1.35 * powerScale,
+            rotateEnd: 360,
+            blend: 'screen',
+            filter: `drop-shadow(0 0 9px ${color})`,
+          });
+        }
+        spawnRing(target, color, { duration: duration * 0.7, endSize: 112, opacity: 0.34 });
+        flashOverlay(color, 180, 0.16);
+        triggerHit(duration * 0.5);
+        break;
+      }
+
       case 'ice_beam':
         spawnBeam(from, target, color, { duration, width: 9 * powerScale, opacity: 0.68 });
         for (let i = 0; i < clampCount(count, 8); i++) {
@@ -636,6 +748,56 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
         triggerHit(duration * 0.35);
         break;
 
+      case 'status_orbit': {
+        const center = def?.self ? from : target;
+        const n = clampCount(count, 8);
+        for (let i = 0; i < n; i++) {
+          const angle = (i / n) * Math.PI * 2;
+          spawnSprite(sprite, { x: center.x + Math.cos(angle) * 24, y: center.y + Math.sin(angle) * 17 }, { x: center.x + Math.cos(angle + 1.6) * 12, y: center.y + Math.sin(angle + 1.6) * 9 }, {
+            duration: duration * 0.72,
+            delay: i * 58,
+            startScale: 0.28,
+            endScale: 1.05,
+            rotateEnd: 270,
+            blend: 'screen',
+            filter: `drop-shadow(0 0 10px ${color})`,
+          });
+        }
+        spawnRing(center, color, { duration, endSize: 95, opacity: 0.38 });
+        flashOverlay(color, 160, 0.12);
+        triggerHit(duration * 0.35);
+        break;
+      }
+
+      case 'barrier':
+      case 'protect': {
+        const center = def?.self ? from : target;
+        spawnShield(center, color, { duration, opacity: animType === 'protect' ? 0.56 : 0.44 });
+        for (let i = 0; i < clampCount(count, 8); i++) {
+          spawnRing(center, color, { duration: 320, delay: i * 55, endSize: 42 + i * 12, opacity: 0.22, borderWidth: 2 });
+        }
+        flashOverlay(color, 160, 0.1);
+        triggerHit(120);
+        break;
+      }
+
+      case 'trap_field':
+        for (let i = 0; i < clampCount(count, 10); i++) {
+          const baseX = target.x - 28 + i * 7 + jitter(5);
+          spawnSprite(sprite, { x: baseX, y: target.y + 34 }, { x: baseX + jitter(4), y: target.y + 16 + jitter(6) }, {
+            duration: 420,
+            delay: i * 48,
+            startScale: 0.18,
+            endScale: 0.95,
+            endOpacity: 0.58,
+            rotateEnd: 90 + i * 15,
+            filter: `drop-shadow(0 0 7px ${color})`,
+          });
+        }
+        spawnRing(target, color, { duration: 520, endSize: 130, opacity: 0.25 });
+        triggerHit(180);
+        break;
+
       case 'status_aura':
       case 'status_rings':
       case 'field_effect':
@@ -675,12 +837,23 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
         triggerHit(duration * 0.78);
         break;
 
+      case 'sound_wave':
+        for (let i = 0; i < clampCount(count, 10); i++) {
+          const t = i / Math.max(1, count - 1);
+          const center = { x: from.x + (target.x - from.x) * t, y: from.y + (target.y - from.y) * t };
+          spawnRing(center, color, { duration: 360, delay: i * 55, endSize: 48 + i * 9, opacity: 0.32, borderWidth: 2 });
+        }
+        spawnBeam(from, target, color, { duration: duration * 0.65, delay: 60, width: 18 * powerScale, opacity: 0.22 });
+        flashOverlay(color, 160, 0.14);
+        triggerHit(duration * 0.5);
+        break;
+
       default:
         spawnSprite(sprite, from, target, { duration, startScale: 0.35, endScale: 1.8 * powerScale });
         flashOverlay(color, 100, 0.16);
         triggerHit(duration * 0.75);
     }
-  }, [flashOverlay, playMiss, playOverlay, shakeLayer, spawnBeam, spawnRing, spawnSprite]);
+  }, [flashOverlay, playMiss, playOverlay, shakeLayer, spawnBeam, spawnRing, spawnShield, spawnSprite]);
 
   useImperativeHandle(ref, () => ({
     play: playAnimation,

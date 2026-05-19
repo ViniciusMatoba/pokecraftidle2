@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.5.5';
-export const VERSION = '2.5.5';
-export const APP_VERSION_DATE = '18/05/2026 18:07';
+export const APP_VERSION = '2.5.6';
+export const VERSION = '2.5.6';
+export const APP_VERSION_DATE = '18/05/2026 22:05';
 export const CHANGELOG = [
+  '## [V2.5.6] - 18/05/2026 22:05',
+  '### Efeitos de Golpes Aprimorados',
+  '- **Golpes com assinatura visual**: adicionadas animacoes especificas para golpes como Inferno, Overheat, Whirlpool, Electro Ball, Bullet Seed, Future Sight, Close Combat, Hyper Voice, Protect, Reflect e Light Screen.',
+  '- **Motor inspirado no Showdown**: o renderizador agora suporta multi-projeteis, ondas sonoras, barreiras, protecao, vortices, armadilhas de campo, orbitas de status e explosoes atrasadas.',
+  '- **Fallbacks mais inteligentes**: golpes sem animacao propria agora escolhem padroes por funcao do golpe, incluindo multi-hit, som, vortex, protecao, telas, hazards e buffs.',
+  '- **Mobile preservado**: efeitos continuam limitados por contagem maxima de particulas para manter fluidez em telas pequenas.',
+  '',
   '## [V2.5.5] - 18/05/2026 18:07',
   '### Golpes sem Duplicacao',
   '- **Chave canonica de golpe**: moves agora sao comparados pela chave interna do golpe, evitando duplicatas entre nome traduzido, nome em ingles, objeto de move e ID interno.',

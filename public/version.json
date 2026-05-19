@@ -1,5 +1,5 @@
 {
-  "version": "2.5.5",
-  "date": "18/05/2026 18:07",
-  "notes": "Golpes sem duplicacao: moves e learnedMoves agora sao normalizados por chave canonica ao abrir, aprender, evoluir, subir nivel ou trocar slots."
+  "version": "2.5.6",
+  "date": "18/05/2026 22:05",
+  "notes": "Efeitos de golpes aprimorados com novas animacoes especificas, fallbacks por funcao do ataque e suporte a multi-hit, som, barreiras, vortices e hazards."
 }

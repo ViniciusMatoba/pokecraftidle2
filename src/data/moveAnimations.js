@@ -66,6 +66,10 @@ export const MOVE_ANIMATIONS = {
   'heat-wave': common('Fire', { type: 'screen_waves', sprite: 'fireball', count: 8, duration: 760, background: '#7c2d12' }),
   'lava-plume': common('Fire', { type: 'burst', sprite: 'fireball', count: 10, duration: 620, shake: 'medium' }),
   'sacred-fire': common('Fire', { type: 'projectile_trail', sprite: 'bluefireball', count: 8, duration: 620, background: '#7c2d12' }),
+  inferno: common('Fire', { type: 'vortex', sprite: 'fireball', count: 12, duration: 820, background: '#450a0a', shake: 'medium' }),
+  overheat: common('Fire', { type: 'screen_waves', sprite: 'fireball', count: 14, duration: 900, background: '#7f1d1d', shake: 'heavy' }),
+  'flame-charge': common('Fire', { type: 'charge_projectile', sprite: 'fireball', count: 7, duration: 580, overlay: 'fire', shake: 'light' }),
+  'will-o-wisp': common('Fire', { type: 'status_orbit', sprite: 'bluefireball', count: 5, duration: 760, background: '#1e1b4b' }),
 
   // Water
   'water-gun': common('Water', { type: 'projectile_trail', sprite: 'waterwisp', count: 4, duration: 380 }),
@@ -76,6 +80,10 @@ export const MOVE_ANIMATIONS = {
   waterfall: common('Water', { type: 'charge_projectile', sprite: 'waterwisp', count: 6, duration: 560, shake: 'light' }),
   'aqua-jet': common('Water', { type: 'projectile', sprite: 'waterwisp', count: 3, duration: 280 }),
   'aqua-tail': common('Water', { type: 'slash', sprite: 'rightslash', count: 3, overlay: 'water' }),
+  whirlpool: common('Water', { type: 'vortex', sprite: 'waterwisp', count: 12, duration: 840, background: '#075985' }),
+  'muddy-water': common('Water', { type: 'wave', sprite: 'waterwisp', count: 9, duration: 820, color: '#a16207', background: '#422006', shake: 'light' }),
+  liquidation: common('Water', { type: 'charge_projectile', sprite: 'waterwisp', count: 8, duration: 620, overlay: 'water', shake: 'light' }),
+  'aqua-ring': common('Water', { type: 'status_aura', sprite: 'waterwisp', count: 8, duration: 760, self: true }),
 
   // Electric
   'thunder-shock': common('Electric', { type: 'lightning_strike', sprite: 'lightning', count: 2, duration: 320 }),
@@ -84,6 +92,10 @@ export const MOVE_ANIMATIONS = {
   discharge: common('Electric', { type: 'electric_field', sprite: 'lightning', count: 6, duration: 650, background: '#111827' }),
   spark: common('Electric', { type: 'charge_projectile', sprite: 'lightning', count: 4, duration: 420, overlay: 'electric' }),
   'volt-tackle': common('Electric', { type: 'charge_projectile', sprite: 'lightning', count: 8, duration: 620, background: '#111827', shake: 'medium' }),
+  'electro-ball': common('Electric', { type: 'projectile', sprite: 'lightball', count: 5, duration: 520, overlay: 'electric' }),
+  'wild-charge': common('Electric', { type: 'charge_projectile', sprite: 'lightning', count: 8, duration: 620, background: '#111827', shake: 'medium' }),
+  nuzzle: common('Electric', { type: 'impact_flash', sprite: 'lightning', count: 3, duration: 330, overlay: 'electric' }),
+  charge: common('Electric', { type: 'status_aura', sprite: 'lightning', count: 7, duration: 640, self: true }),
 
   // Ice
   'ice-beam': common('Ice', { type: 'ice_beam', sprite: 'icicle', count: 5, duration: 660, background: '#082f49' }),
@@ -91,6 +103,8 @@ export const MOVE_ANIMATIONS = {
   'ice-punch': common('Ice', { type: 'impact_flash', sprite: 'fist', overlay: 'ice', count: 4 }),
   'ice-fang': common('Ice', { type: 'dual_impact', sprite: 'topbite', overlay: 'ice', duration: 330 }),
   'icy-wind': common('Ice', { type: 'gust', sprite: 'icicle', count: 8, duration: 640, background: '#164e63' }),
+  'aurora-beam': common('Ice', { type: 'beam', sprite: 'shine', count: 7, duration: 680, background: '#0f766e' }),
+  'freeze-dry': common('Ice', { type: 'ice_beam', sprite: 'icicle', count: 7, duration: 700, background: '#082f49' }),
 
   // Grass
   'vine-whip': common('Grass', { type: 'slash', sprite: 'rightslash', count: 3, overlay: 'grass' }),
@@ -101,6 +115,12 @@ export const MOVE_ANIMATIONS = {
   'giga-drain': common('Grass', { type: 'drain', sprite: 'wisp', count: 6, duration: 760, background: '#365314' }),
   'mega-drain': common('Grass', { type: 'drain', sprite: 'wisp', count: 5, duration: 650 }),
   absorb: common('Grass', { type: 'drain', sprite: 'wisp', count: 3, duration: 520 }),
+  'seed-bomb': common('Grass', { type: 'burst', sprite: 'energyball', count: 8, duration: 560, overlay: 'grass', shake: 'light' }),
+  'bullet-seed': common('Grass', { type: 'multi_projectile', sprite: 'energyball', count: 5, duration: 560, overlay: 'grass' }),
+  'leech-seed': common('Grass', { type: 'drain', sprite: 'leaf1', count: 6, duration: 700 }),
+  spore: common('Grass', { type: 'status_cloud', sprite: 'wisp', count: 10, duration: 720, background: '#365314' }),
+  'sleep-powder': common('Grass', { type: 'status_cloud', sprite: 'wisp', count: 9, duration: 680, background: '#365314' }),
+  'stun-spore': common('Grass', { type: 'status_cloud', sprite: 'shine', count: 9, duration: 680, background: '#854d0e' }),
 
   // Ground / Rock
   earthquake: common('Ground', { type: 'quake', sprite: 'rock1', count: 10, duration: 900, background: '#3f2b17', shake: 'heavy' }),
@@ -110,6 +130,11 @@ export const MOVE_ANIMATIONS = {
   'rock-throw': common('Rock', { type: 'projectile_trail', sprite: 'rock1', count: 4, duration: 460 }),
   'rock-slide': common('Rock', { type: 'rock_rain', sprite: 'rock1', count: 9, duration: 720, shake: 'medium' }),
   'stone-edge': common('Rock', { type: 'rock_rise', sprite: 'rock1', count: 8, duration: 600, shake: 'medium' }),
+  'mud-shot': common('Ground', { type: 'projectile_trail', sprite: 'rock1', count: 5, duration: 460, color: '#a16207' }),
+  'bone-rush': common('Ground', { type: 'multi_projectile', sprite: 'bone', count: 5, duration: 560, shake: 'light' }),
+  bonemerang: common('Ground', { type: 'multi_projectile', sprite: 'bone', count: 2, duration: 520, shake: 'light' }),
+  'stealth-rock': common('Rock', { type: 'trap_field', sprite: 'rock1', count: 7, duration: 700, self: false }),
+  spikes: common('Ground', { type: 'trap_field', sprite: 'rock1', count: 7, duration: 700, self: false }),
 
   // Psychic / Ghost / Dark / Dragon / Fairy
   confusion: common('Psychic', { type: 'psychic_wave', sprite: 'wisp', count: 4, duration: 520 }),
@@ -127,6 +152,12 @@ export const MOVE_ANIMATIONS = {
   'moonblast': common('Fairy', { type: 'sparkle_burst', sprite: 'shine', count: 10, duration: 680, background: '#701a75' }),
   'dazzling-gleam': common('Fairy', { type: 'sparkle_burst', sprite: 'shine', count: 8, duration: 560 }),
   'play-rough': common('Fairy', { type: 'impact_flash', sprite: 'impact', overlay: 'fairy', count: 5, shake: 'light' }),
+  'zen-headbutt': common('Psychic', { type: 'charge_projectile', sprite: 'wisp', count: 5, duration: 520, overlay: 'psychic', shake: 'light' }),
+  'future-sight': common('Psychic', { type: 'delayed_burst', sprite: 'shine', count: 9, duration: 900, background: '#581c87', shake: 'medium' }),
+  'calm-mind': common('Psychic', { type: 'status_aura', sprite: 'wisp', count: 7, duration: 720, self: true }),
+  'sucker-punch': common('Dark', { type: 'contact_attack', sprite: 'impact', count: 4, duration: 300, overlay: 'dark', shake: 'light' }),
+  'foul-play': common('Dark', { type: 'impact_flash', sprite: 'shadowball', count: 5, duration: 420, overlay: 'dark' }),
+  outrage: common('Dragon', { type: 'impact_multi', sprite: 'impact', count: 6, duration: 620, overlay: 'dragon', background: '#312e81', shake: 'medium' }),
 
   // Steel / Poison / Flying / Fighting / Normal
   'metal-claw': common('Steel', { type: 'slash', sprite: 'rightslash', overlay: 'steel', count: 3 }),
@@ -146,12 +177,30 @@ export const MOVE_ANIMATIONS = {
   'quick-attack': common('Normal', { type: 'contact_attack', sprite: 'impact', count: 2, duration: 220 }),
   'body-slam': common('Normal', { type: 'contact_attack', sprite: 'impact', count: 4, duration: 420, shake: 'light' }),
   'hyper-beam': common('Normal', { type: 'charge_beam', sprite: 'shine', count: 10, duration: 980, background: '#111827', shake: 'heavy' }),
+  'gunk-shot': common('Poison', { type: 'projectile_trail', sprite: 'poisonwisp', count: 8, duration: 700, background: '#581c87', shake: 'medium' }),
+  'cross-poison': common('Poison', { type: 'slash', sprite: 'rightslash', count: 4, duration: 360, overlay: 'poison' }),
+  'air-slash': common('Flying', { type: 'slash', sprite: 'rightslash', count: 4, duration: 360, overlay: 'flying' }),
+  'brave-bird': common('Flying', { type: 'charge_projectile', sprite: 'wind', count: 9, duration: 680, background: '#1e3a8a', shake: 'medium' }),
+  'close-combat': common('Fighting', { type: 'impact_multi', sprite: 'fist', count: 7, duration: 680, overlay: 'fighting', shake: 'medium' }),
+  'aura-sphere': common('Fighting', { type: 'projectile', sprite: 'lightball', count: 4, duration: 560, overlay: 'fighting' }),
+  swift: common('Normal', { type: 'multi_projectile', sprite: 'star', count: 6, duration: 580 }),
+  'double-slap': common('Normal', { type: 'impact_multi', sprite: 'impact', count: 5, duration: 460 }),
+  'tri-attack': common('Normal', { type: 'tri_burst', sprite: 'shine', count: 6, duration: 640, background: '#1e293b' }),
+  'boomburst': common('Normal', { type: 'sound_wave', sprite: 'wisp', count: 8, duration: 780, background: '#0f172a', shake: 'medium' }),
+  'hyper-voice': common('Normal', { type: 'sound_wave', sprite: 'wisp', count: 6, duration: 620, shake: 'light' }),
 
   // Status and field moves
   'swords-dance': common('Normal', { type: 'status_swords', sprite: 'sword', count: 4, duration: 650, self: true }),
+  'dragon-dance': common('Dragon', { type: 'status_orbit', sprite: 'lightball', count: 6, duration: 720, self: true }),
+  'nasty-plot': common('Dark', { type: 'status_orbit', sprite: 'shadowball', count: 5, duration: 680, self: true }),
+  agility: common('Psychic', { type: 'status_rings', sprite: 'shine', count: 6, duration: 560, self: true }),
   growl: common('Normal', { type: 'status_rings', sprite: 'wisp', count: 3, duration: 460 }),
   leer: common('Normal', { type: 'status_rings', sprite: 'shine', count: 2, duration: 420 }),
   'tail-whip': common('Normal', { type: 'status_rings', sprite: 'shine', count: 2, duration: 420 }),
+  protect: common('Normal', { type: 'protect', sprite: 'shine', count: 4, duration: 560, self: true }),
+  substitute: common('Normal', { type: 'protect', sprite: 'wisp', count: 4, duration: 620, self: true }),
+  reflect: common('Psychic', { type: 'barrier', sprite: 'shine', count: 4, duration: 620, self: true }),
+  'light-screen': common('Psychic', { type: 'barrier', sprite: 'shine', count: 4, duration: 620, self: true }),
   recover: common('Normal', { type: 'heal', sprite: 'shine', count: 7, duration: 720, self: true }),
   roost: common('Flying', { type: 'heal', sprite: 'shine', count: 6, duration: 680, self: true }),
   'soft-boiled': common('Normal', { type: 'heal', sprite: 'shine', count: 6, duration: 680, self: true }),
@@ -184,8 +233,17 @@ export const resolveMoveAnimation = (moveName, moveData = {}) => {
   const mediumPower = power >= 60;
 
   if (category === 'Status' || power === 0) {
+    if (includesAny(moveKey, ['protect', 'detect', 'substitute', 'wide-guard', 'quick-guard'])) {
+      return common(type, { type: 'protect', sprite: 'shine', color, count: 5, duration: 560, self: true });
+    }
+    if (includesAny(moveKey, ['reflect', 'light-screen', 'aurora-veil', 'safeguard'])) {
+      return common(type, { type: 'barrier', sprite: 'shine', color, count: 5, duration: 640, self: true });
+    }
+    if (includesAny(moveKey, ['spikes', 'stealth-rock', 'web', 'toxic-spikes'])) {
+      return common(type, { type: 'trap_field', sprite: type === 'Rock' ? 'rock1' : base.sprite || 'impact', color, count: 7, duration: 700 });
+    }
     if (includesAny(moveKey, ['dance', 'calm-mind', 'nasty-plot', 'agility', 'growth', 'bulk-up', 'harden', 'withdraw', 'defense-curl'])) {
-      return common(type, { type: 'status_aura', sprite: 'shine', color, count: 5, duration: 620, self: true });
+      return common(type, { type: includesAny(moveKey, ['dance', 'plot']) ? 'status_orbit' : 'status_aura', sprite: base.sprite || 'shine', color, count: 6, duration: 660, self: true });
     }
     if (includesAny(moveKey, ['rain', 'sunny', 'sandstorm', 'hail', 'snowscape', 'terrain', 'room'])) {
       return common(type, { type: 'field_effect', sprite: base.sprite || 'shine', color, count: 10, duration: 760, background: color, self: true });
@@ -210,6 +268,15 @@ export const resolveMoveAnimation = (moveName, moveData = {}) => {
   }
   if (includesAny(moveKey, ['slash', 'cut', 'blade', 'scissor', 'chop', 'tail', 'claw', 'cutter'])) {
     return common(type, { type: 'slash', sprite: moveKey.includes('left') ? 'leftslash' : 'rightslash', color, count: highPower ? 4 : 3, duration: 320, overlay: type.toLowerCase(), shake: highPower ? 'light' : null });
+  }
+  if (includesAny(moveKey, ['double', 'triple', 'pin-missile', 'bullet-seed', 'fury', 'barrage', 'multi-attack', 'scale-shot', 'rock-blast'])) {
+    return common(type, { type: 'multi_projectile', sprite: base.sprite || 'impact', color, count: moveKey.includes('double') ? 2 : moveKey.includes('triple') ? 3 : 5, duration: 560, overlay: type.toLowerCase(), shake: mediumPower ? 'light' : null });
+  }
+  if (includesAny(moveKey, ['voice', 'sound', 'echo', 'boomburst', 'screech', 'snarl', 'uproar', 'sing'])) {
+    return common(type, { type: 'sound_wave', sprite: 'wisp', color, count: highPower ? 8 : 5, duration: highPower ? 760 : 580, background: highPower ? color : null, shake: highPower ? 'medium' : null });
+  }
+  if (includesAny(moveKey, ['whirlpool', 'spin', 'twister', 'vortex', 'wrap', 'bind', 'fire-spin', 'magma-storm'])) {
+    return common(type, { type: 'vortex', sprite: base.sprite || 'wisp', color, count: highPower ? 12 : 8, duration: highPower ? 820 : 660, background: mediumPower ? color : null, shake: highPower ? 'medium' : null });
   }
   if (includesAny(moveKey, ['thrower', 'pump', 'spray', 'breath', 'stream', 'cannon'])) {
     return common(type, { type: 'stream', sprite: base.sprite || 'lightball', color, count: highPower ? 12 : 8, duration: highPower ? 760 : 620, background: highPower ? color : null, shake: highPower ? 'medium' : null });
