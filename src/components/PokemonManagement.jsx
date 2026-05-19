@@ -122,6 +122,68 @@ const ABILITY_DESCRIPTIONS = {
   'Soul-Heart':      'Aumenta o Atk. Esp. em 1 estágio sempre que um Pokémon é nocauteado em batalha.',
   'Intrepid Sword':  'Aumenta o Ataque em 1 estágio ao entrar em batalha.',
   'Dauntless Shield':'Aumenta a Defesa em 1 estágio ao entrar em batalha.',
+  // ── Habilidades Adicionais ────────────────────────────────────────────────
+  'Poison Heal':     'Recupera 1/8 do HP máximo por turno quando envenenado, em vez de sofrer dano.',
+  'Cursed Body':     'Tem 30% de chance de desabilitar o golpe que atingiu este Pokémon.',
+  'Bulletproof':     'Imune a golpes do tipo projétil (Shadow Ball, Sludge Bomb, Focus Blast, etc.).',
+  'Soundproof':      'Imune a golpes baseados em som (Hyper Voice, Boomburst, Growl, etc.).',
+  'Steadfast':       'Aumenta a Velocidade em 1 estágio sempre que o Pokémon treme (flinch).',
+  'Clear Body':      'As estatísticas não podem ser reduzidas pelo inimigo.',
+  'White Smoke':     'As estatísticas não podem ser reduzidas pelo inimigo.',
+  'Color Change':    'O tipo do Pokémon muda para o tipo do último golpe recebido.',
+  'Cute Charm':      'Tem 30% de chance de encantar (infatuar) o inimigo que usar golpes físicos.',
+  'Hyper Cutter':    'O Ataque não pode ser reduzido pelo inimigo.',
+  'Truant':          'O Pokémon só pode atacar a cada 2 turnos.',
+  'Illuminate':      'Sem efeito em batalha; aumenta a taxa de encontros na rota.',
+  'Run Away':        'Sempre consegue fugir de batalhas selvagens.',
+  'Forecast':        'Muda o tipo de Castform para Fogo, Água ou Gelo conforme o clima.',
+  'Multitype':       'Muda o tipo de Arceus conforme a Placa (Plate) que ele segura.',
+  'Power Construct': 'Zygarde-10% e 50% transformam-se em Complete Form quando o HP cai abaixo de 50%.',
+  'Disguise':        'Absorve o primeiro golpe sem sofrer dano; o disfarce é destruído após o hit.',
+  'Full Metal Body': 'As estatísticas não podem ser reduzidas pelo inimigo.',
+  'Shadow Shield':   'Recebe apenas metade do dano quando o HP está cheio (igual a Multiscale).',
+  'Neuroforce':      'Aumenta em 25% o dano dos golpes super-efetivos.',
+  'Water Bubble':    'Recebe metade do dano de Fogo e dobra o poder dos golpes Água; imune a queimadura.',
+  'Fluffy':          'Reduz o dano físico à metade, mas dobra o dano recebido de golpes Fogo.',
+  'Triage':          'Golpes de recuperação (Giga Drain, Drain Punch, etc.) ganham prioridade +3.',
+  'Merciless':       'Golpes acertam crítico garantido contra inimigos envenenados.',
+  'Stamina':         'Aumenta a Defesa em 1 estágio ao ser atingido por um golpe.',
+  'Emergency Exit':  'Quando o HP cai abaixo de 50%, o Pokémon foge ou é trocado imediatamente.',
+  'Wimp Out':        'Quando o HP cai abaixo de 50%, o Pokémon foge ou é trocado imediatamente.',
+  'Water Compaction':'Aumenta a Defesa Especial em 2 estágios ao ser atingido por golpe Água.',
+  'Innards Out':     'Ao ser nocauteado, causa ao inimigo dano igual ao HP que tinha antes do golpe final.',
+  'Dancer':          'Quando qualquer Pokémon usa um golpe de dança, este Pokémon replica o mesmo golpe.',
+  'Battery':         'Aumenta o Ataque Especial dos aliados em 30% (dupla/tripla batalha).',
+  'Steely Spirit':   'Aumenta o poder dos golpes Aço do usuário e aliados em 50%.',
+  'As One (Glastrier)':  'Combina Unnerve e Chilling Neigh. Aumenta o Ataque ao nocautear um inimigo.',
+  'As One (Spectrier)':  'Combina Unnerve e Grim Neigh. Aumenta o Atk. Esp. ao nocautear um inimigo.',
+  'Chilling Neigh':  'Aumenta o Ataque em 1 estágio ao nocautear um inimigo.',
+  'Grim Neigh':      'Aumenta o Atk. Esp. em 1 estágio ao nocautear um inimigo.',
+  'Battle Bond':     'Greninja transforma-se em Greninja-Ash ao nocautear um oponente em batalha.',
+  'Schooling':       'Wishiwashi-Solo transforma-se em School Form quando o HP estiver acima de 25%.',
+  'Stakeout':        'Dobra o dano infligido a inimigos que acabaram de entrar em campo.',
+  'Corrosion':       'Pode envenenar qualquer tipo de Pokémon, incluindo Veneno e Aço.',
+  'Queenly Majesty': 'Impede o uso de golpes de prioridade pelo inimigo.',
+  'Dazzling':        'Impede o uso de golpes de prioridade pelo inimigo.',
+  'Tangling Hair':   'Reduz a Velocidade do inimigo em 1 estágio quando este usa golpe físico.',
+  'Receiver':        'Copia a habilidade de um aliado ao ser nocauteado.',
+  'Shields Down':    'Minior fica em Shell Form com HP acima de 50% e em Core Form abaixo.',
+  'Slush Rush':      'Dobra a Velocidade durante granizo.',
+  'Surge Surfer':    'Dobra a Velocidade em campo elétrico (Electric Terrain).',
+  'Psychic Surge':   'Cria Psychic Terrain ao entrar em batalha, bloqueando golpes de prioridade.',
+  'Electric Surge':  'Cria Electric Terrain ao entrar em batalha, potencializando golpes Elétrico.',
+  'Grassy Surge':    'Cria Grassy Terrain ao entrar em batalha, recuperando HP a cada turno.',
+  'Misty Surge':     'Cria Misty Terrain ao entrar em batalha, protegendo contra condições de status.',
+  'Libero':          'Muda o tipo do Pokémon para o tipo do golpe que está prestes a usar (igual a Protean).',
+  'Hunger Switch':   'Morpeko alterna entre Full Belly Mode e Hangry Mode a cada turno.',
+  'Power Spot':      'Aumenta o poder dos golpes dos aliados em dupla/tripla batalha.',
+  'Ice Face':        'Absorve o primeiro golpe físico sem sofrer dano; se reconstruí-lo em granizo.',
+  'Gorilla Tactics': 'Aumenta o Ataque em 50%, mas o Pokémon só pode usar o golpe que escolheu primeiro.',
+  'Cotton Down':     'Quando atingido, distribui algodão reduzindo a Velocidade de todos em campo em 1 estágio.',
+  'Mirror Armor':    'Reflete de volta as reduções de estatísticas impostas pelo inimigo.',
+  'Pastel Veil':     'Impede que o usuário e seus aliados sejam envenenados.',
+  'Ball Fetch':      'Sem efeito especial em batalha (habilidade de Yamper).',
+  'Wandering Spirit':'Troca sua habilidade com a do inimigo que usou golpe físico.',
 };
 
 const PokemonManagement = ({
@@ -1098,10 +1160,10 @@ const PokemonManagement = ({
                           <p className="text-[8px] font-black uppercase tracking-widest text-violet-600">Toque para ver detalhes</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[9px] font-black text-violet-700 bg-white px-2 py-1 rounded-lg border border-violet-100">
-                            {(gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0)} cápsulas
+                          <span className="text-[9px] font-black text-violet-700 bg-white px-2 py-1 rounded-lg border border-violet-100 flex items-center gap-1">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ability-capsule.png" alt="" className="w-3 h-3 object-contain" style={{imageRendering:'pixelated'}} onError={e=>{e.currentTarget.style.display='none'}} />
+                            {(gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0)}
                           </span>
-                          <span className="text-lg">ℹ️</span>
                         </div>
                       </div>
                       <div className="bg-white rounded-xl px-3 py-2 border border-violet-100 shadow-sm">
@@ -2161,54 +2223,110 @@ const PokemonManagement = ({
           onClick={() => setShowAbilityModal(false)}>
           <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[88dvh] flex flex-col"
             onClick={e => e.stopPropagation()}>
-            {/* Header */}
-            <div className="flex items-center gap-3 px-5 py-4 shrink-0"
-              style={{ background: 'linear-gradient(135deg,#6d28d9,#8b5cf6)' }}>
-              <div className="flex-1">
-                <p className="text-white/70 text-[9px] font-black uppercase tracking-widest">Treinamento Avançado</p>
-                <h2 className="text-white text-lg font-black uppercase">Habilidade</h2>
+
+            {/* Header com sprite do Pokémon */}
+            <div className="relative flex items-center gap-3 px-5 py-4 shrink-0 overflow-hidden"
+              style={{ background: 'linear-gradient(135deg,#4c1d95,#6d28d9,#8b5cf6)' }}>
+              {/* Sprite decorativo */}
+              <img
+                src={getPokemonSpriteUrl(activePokemonDetails.pokemon)}
+                alt=""
+                className="absolute right-14 bottom-0 w-20 h-20 object-contain opacity-20"
+                style={{ imageRendering: 'pixelated' }}
+              />
+              <div className="flex-1 relative z-10">
+                <p className="text-white/60 text-[9px] font-black uppercase tracking-widest">
+                  {activePokemonDetails.pokemon.name}
+                </p>
+                <h2 className="text-white text-lg font-black uppercase leading-tight">Habilidade</h2>
+                {/* Habilidade ativa em destaque */}
+                <div className="mt-1 inline-flex items-center gap-1.5 bg-white/20 rounded-full px-2.5 py-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-300 animate-pulse" />
+                  <span className="text-white text-[10px] font-black">
+                    {activePokemonDetails.pokemon.ability || '—'}
+                  </span>
+                  <span className="text-white/60 text-[8px] font-bold uppercase">ativa</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="bg-white/20 rounded-xl px-3 py-1.5">
-                  <p className="text-white text-[10px] font-black">{(gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0)} cápsulas</p>
+              <div className="flex items-center gap-2 relative z-10">
+                {/* Contador de cápsulas com ícone PokeAPI */}
+                <div className="bg-white/20 rounded-xl px-2.5 py-1.5 flex items-center gap-1.5">
+                  <img
+                    src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ability-capsule.png"
+                    alt="Cápsula"
+                    className="w-4 h-4 object-contain"
+                    style={{ imageRendering: 'pixelated' }}
+                    onError={e => { e.currentTarget.style.display = 'none'; }}
+                  />
+                  <p className="text-white text-[10px] font-black">{(gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0)}</p>
                 </div>
                 <button onClick={() => setShowAbilityModal(false)}
-                  className="w-8 h-8 rounded-full bg-white/20 text-white font-black flex items-center justify-center">✕</button>
+                  className="w-8 h-8 rounded-full bg-white/20 text-white font-black flex items-center justify-center hover:bg-white/30 transition-colors">✕</button>
               </div>
             </div>
 
             {/* Info box */}
-            <div className="px-5 pt-4 pb-2 shrink-0 bg-violet-50 border-b border-violet-100">
-              <p className="text-[11px] font-bold text-slate-600 leading-relaxed">
-                A <strong>Habilidade</strong> define um efeito passivo único em batalha. Para trocar, você precisa de <strong>1 Cápsula de Habilidade</strong>. A habilidade é atribuída aleatoriamente na captura.
+            <div className="px-5 pt-3 pb-2 shrink-0 bg-violet-50 border-b border-violet-100">
+              <p className="text-[10px] font-bold text-slate-500 leading-relaxed">
+                Cada Pokémon tem um <strong className="text-violet-700">pool de habilidades</strong> — troque usando 1 Cápsula. Encontre cápsulas em Raids de 3★ ou mais.
               </p>
             </div>
 
             {/* Lista de habilidades */}
-            <div className="overflow-y-auto flex-1 px-4 py-3 flex flex-col gap-2">
-              {getPokemonAbilityPool(POKEDEX[activePokemonDetails.pokemon.id] || activePokemonDetails.pokemon).map((ability) => {
+            <div className="overflow-y-auto flex-1 px-4 py-3 flex flex-col gap-2 custom-scrollbar">
+              {getPokemonAbilityPool(POKEDEX[activePokemonDetails.pokemon.id] || activePokemonDetails.pokemon).map((ability, idx) => {
                 const isActive = (activePokemonDetails.pokemon.ability || '') === ability;
-                const canSwitch = !isActive && (gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0) > 0 && !activePokemonDetails.pokemon.onExpedition;
+                const capsules = gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0;
+                const canSwitch = !isActive && capsules > 0 && !activePokemonDetails.pokemon.onExpedition;
+                const locked = !isActive && (capsules === 0 || activePokemonDetails.pokemon.onExpedition);
                 const desc = ABILITY_DESCRIPTIONS[ability];
                 return (
                   <button
                     key={ability}
                     onClick={() => { if (canSwitch) { changeAbility(ability); setShowAbilityModal(false); } }}
-                    disabled={isActive || (!canSwitch)}
+                    disabled={isActive || locked}
                     className={`w-full flex items-start gap-3 p-4 rounded-2xl border-2 transition-all text-left
-                      ${isActive ? 'border-violet-500 bg-violet-50' : canSwitch ? 'border-slate-200 bg-white hover:border-violet-300 active:scale-[0.98]' : 'border-slate-100 bg-slate-50 opacity-60 cursor-not-allowed'}`}>
-                    <div className="flex-1">
+                      ${isActive
+                        ? 'border-violet-500 bg-violet-50 shadow-sm shadow-violet-100'
+                        : canSwitch
+                          ? 'border-slate-200 bg-white hover:border-violet-300 hover:bg-violet-50/40 active:scale-[0.98]'
+                          : 'border-slate-100 bg-slate-50/50 opacity-50 cursor-not-allowed'}`}>
+
+                    {/* Indicador de posição no pool */}
+                    <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black mt-0.5
+                      ${isActive ? 'bg-violet-500 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                      {isActive ? '✓' : idx + 1}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <p className="font-black text-slate-800 text-sm">{ability}</p>
-                        {isActive && <span className="text-[9px] font-black text-violet-600 bg-violet-100 px-2 py-0.5 rounded-full">✓ Ativa</span>}
+                        <p className={`font-black text-sm ${isActive ? 'text-violet-800' : 'text-slate-800'}`}>{ability}</p>
+                        {isActive && (
+                          <span className="text-[8px] font-black text-violet-600 bg-violet-100 border border-violet-200 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                            Ativa agora
+                          </span>
+                        )}
+                        {!isActive && canSwitch && (
+                          <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                            Disponível
+                          </span>
+                        )}
                       </div>
-                      <p className="text-[10px] font-bold text-slate-500 leading-relaxed">
-                        {desc || 'Habilidade especial deste Pokémon.'}
+                      <p className={`text-[10px] font-bold leading-relaxed ${isActive ? 'text-violet-600' : 'text-slate-400'}`}>
+                        {desc || 'Habilidade especial deste Pokémon — efeito único em batalha.'}
                       </p>
                     </div>
+
                     {!isActive && canSwitch && (
-                      <div className="shrink-0 bg-violet-600 text-white text-[9px] font-black px-2 py-1 rounded-lg mt-0.5">
-                        1 💊
+                      <div className="shrink-0 flex items-center gap-1 bg-violet-600 text-white text-[9px] font-black px-2.5 py-1.5 rounded-xl mt-0.5">
+                        <img
+                          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ability-capsule.png"
+                          alt=""
+                          className="w-3.5 h-3.5 object-contain"
+                          style={{ imageRendering: 'pixelated' }}
+                          onError={e => { e.currentTarget.style.display = 'none'; }}
+                        />
+                        <span>1</span>
                       </div>
                     )}
                   </button>
@@ -2219,7 +2337,7 @@ const PokemonManagement = ({
             {(gameState.inventory?.items?.[ABILITY_ITEM_ID] || 0) === 0 && (
               <div className="px-5 py-3 bg-amber-50 border-t border-amber-100 shrink-0">
                 <p className="text-[10px] font-bold text-amber-700 text-center">
-                  ⚠️ Você não tem Cápsulas de Habilidade. Encontre-as em Raids!
+                  Sem Cápsulas de Habilidade — encontre-as em Raids de 3★ ou mais!
                 </p>
               </div>
             )}

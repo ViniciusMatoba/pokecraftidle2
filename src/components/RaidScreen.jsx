@@ -26,31 +26,53 @@ const PHASE_LABELS = {
   ended:    'Raid Encerrada',
 };
 
+const PKA = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
 const REWARD_ICONS = {
-  pokeballs:        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
-  great_ball:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png',
-  ultra_ball:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png',
-  fire_stone:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png',
-  water_stone:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png',
-  thunder_stone:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
-  moon_stone:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png',
-  sun_stone:        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sun-stone.png',
-  dawn_stone:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dawn-stone.png',
-  link_cable:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/up-grade.png',
-  stardust:         'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/stardust.png',
-  dragon_scale:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dragon-scale.png',
-  armor_fragment:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png',
-  mega_stone_shard: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/charizardite-x.png',
-  tm_flamethrower:  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-fire.png',
-  tm_thunderbolt:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-electric.png',
-  tm_ice_beam:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-ice.png',
-  rare_candy:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png',
-  exp_candy_xs:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png',
-  exp_candy_s:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png',
-  exp_candy_m:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png',
-  exp_candy_l:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png',
-  exp_candy_xl:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png',
-  currency:         'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png',
+  pokeballs:            `${PKA}poke-ball.png`,
+  great_ball:           `${PKA}great-ball.png`,
+  ultra_ball:           `${PKA}ultra-ball.png`,
+  link_cable:           `${PKA}up-grade.png`,
+  stardust:             `${PKA}stardust.png`,
+  dragon_scale:         `${PKA}dragon-scale.png`,
+  armor_fragment:       `${PKA}hard-stone.png`,
+  mega_stone_shard:     `${PKA}charizardite-x.png`,
+  tm_flamethrower:      `${PKA}tm-fire.png`,
+  tm_thunderbolt:       `${PKA}tm-electric.png`,
+  tm_ice_beam:          `${PKA}tm-ice.png`,
+  rare_candy:           `${PKA}rare-candy.png`,
+  exp_candy_xs:         `${PKA}rare-candy.png`,
+  exp_candy_s:          `${PKA}rare-candy.png`,
+  exp_candy_m:          `${PKA}rare-candy.png`,
+  exp_candy_l:          `${PKA}rare-candy.png`,
+  exp_candy_xl:         `${PKA}rare-candy.png`,
+  currency:             `${PKA}nugget.png`,
+  ability_capsule:      `${PKA}ability-capsule.png`,
+  // Pedras (legado — ainda podem aparecer em raids antigas salvas)
+  fire_stone:           `${PKA}fire-stone.png`,
+  water_stone:          `${PKA}water-stone.png`,
+  thunder_stone:        `${PKA}thunder-stone.png`,
+  moon_stone:           `${PKA}moon-stone.png`,
+  sun_stone:            `${PKA}sun-stone.png`,
+  dawn_stone:           `${PKA}dawn-stone.png`,
+  // Fragmentos de Pedras de Evolução
+  fire_stone_shard:     `${PKA}fire-stone.png`,
+  water_stone_shard:    `${PKA}water-stone.png`,
+  leaf_stone_shard:     `${PKA}leaf-stone.png`,
+  thunder_stone_shard:  `${PKA}thunder-stone.png`,
+  moon_stone_shard:     `${PKA}moon-stone.png`,
+  sun_stone_shard:      `${PKA}sun-stone.png`,
+  shiny_stone_shard:    `${PKA}shiny-stone.png`,
+  dusk_stone_shard:     `${PKA}dusk-stone.png`,
+  dawn_stone_shard:     `${PKA}dawn-stone.png`,
+  ice_stone_shard:      `${PKA}ice-stone.png`,
+  // Fragmentos de Itens Evolutivos
+  magmarizer_shard:     `${PKA}magmarizer.png`,
+  electirizer_shard:    `${PKA}electirizer.png`,
+  kings_rock_shard:     `${PKA}kings-rock.png`,
+  reaper_cloth_shard:   `${PKA}reaper-cloth.png`,
+  metal_coat_shard:     `${PKA}metal-coat.png`,
+  prism_scale_shard:    `${PKA}prism-scale.png`,
+  link_cable_part:      `${PKA}up-grade.png`,
 };
 
 const formatTime = (ms) => {
@@ -60,30 +82,51 @@ const formatTime = (ms) => {
 };
 
 const REWARD_INFO = {
-  pokeballs:        { name: 'Poké Ball',          desc: 'Pokébola básica usada para capturar Pokémon em rotas selvagens.' },
-  great_ball:       { name: 'Great Ball',          desc: 'Pokébola de maior eficácia. Aumenta a taxa de captura em relação à Poké Ball.' },
-  ultra_ball:       { name: 'Ultra Ball',          desc: 'Pokébola de alta performance. Uma das mais eficazes disponíveis.' },
-  fire_stone:       { name: 'Fire Stone',          desc: 'Pedra elementar que provoca a evolução de certos Pokémon do tipo Fogo.' },
-  water_stone:      { name: 'Water Stone',         desc: 'Pedra elementar que provoca a evolução de certos Pokémon do tipo Água.' },
-  thunder_stone:    { name: 'Thunder Stone',       desc: 'Pedra elementar que provoca a evolução de certos Pokémon do tipo Elétrico.' },
-  moon_stone:       { name: 'Moon Stone',          desc: 'Pedra mágica que brilha suavemente. Evolui Pokémon como Clefairy e Jigglypuff.' },
-  sun_stone:        { name: 'Sun Stone',           desc: 'Pedra que irradia calor solar. Evolui Pokémon como Gloom e Sunkern.' },
-  dawn_stone:       { name: 'Dawn Stone',          desc: 'Pedra que faísca como o amanhecer. Evolui Kirlia (macho) e Snorunt (fêmea).' },
-  link_cable:       { name: 'Link Cable',          desc: 'Simula uma conexão entre jogadores. Necessário para evoluir Pokémon que precisam de troca.' },
-  stardust:         { name: 'Stardust',            desc: 'Pó de estrela valioso. Usado como moeda de troca e em algumas receitas de forja.' },
-  dragon_scale:     { name: 'Dragon Scale',        desc: 'Escama de um Pokémon Dragão. Necessária para evoluir Seadra em Kingdra.' },
-  armor_fragment:   { name: 'Armor Fragment',      desc: 'Fragmento de armadura rara. Componente usado na Estação de Forja para criar itens poderosos.' },
-  mega_stone_shard: { name: 'Mega Stone Shard',    desc: 'Fragmento de Mega Pedra. Acumule para sintetizar uma Mega Pedra completa na Forja.' },
-  tm_flamethrower:  { name: 'TM — Lança-Chamas',  desc: 'MT que ensina o golpe Lança-Chamas: ataque Fogo especial de grande poder.' },
-  tm_thunderbolt:   { name: 'TM — Thunderbolt',   desc: 'MT que ensina Thunderbolt: ataque Elétrico especial confiável e preciso.' },
-  tm_ice_beam:      { name: 'TM — Ice Beam',       desc: 'MT que ensina Ice Beam: ataque Gelo especial que pode congelar o alvo.' },
-  rare_candy:       { name: 'Rare Candy',          desc: 'Bala mágica que sobe um nível instantaneamente em qualquer Pokémon.' },
-  exp_candy_xs:     { name: 'Exp. Candy XS',       desc: 'Bala de experiência pequena. Concede uma quantidade mínima de XP ao Pokémon.' },
-  exp_candy_s:      { name: 'Exp. Candy S',        desc: 'Bala de experiência pequena. Concede XP suficiente para ganhos rápidos em níveis baixos.' },
-  exp_candy_m:      { name: 'Exp. Candy M',        desc: 'Bala de experiência média. Boa fonte de XP para Pokémon em treinamento.' },
-  exp_candy_l:      { name: 'Exp. Candy L',        desc: 'Bala de experiência grande. Concede XP elevado — ideal para Pokémon de nível médio-alto.' },
-  exp_candy_xl:     { name: 'Exp. Candy XL',       desc: 'Bala de experiência máxima. Concede enorme quantidade de XP de uma só vez.' },
-  currency:         { name: 'PokéCoins',           desc: 'Moeda principal do jogo. Use na loja para comprar itens, pokébolas e upgrades.' },
+  pokeballs:            { name: 'Poké Ball',               desc: 'Pokébola básica usada para capturar Pokémon em rotas selvagens.' },
+  great_ball:           { name: 'Great Ball',               desc: 'Pokébola de maior eficácia. Aumenta a taxa de captura em relação à Poké Ball.' },
+  ultra_ball:           { name: 'Ultra Ball',               desc: 'Pokébola de alta performance. Uma das mais eficazes disponíveis.' },
+  link_cable:           { name: 'Link Cable',               desc: 'Simula uma conexão entre jogadores. Necessário para evoluir Pokémon que precisam de troca.' },
+  stardust:             { name: 'Stardust',                 desc: 'Pó de estrela valioso. Usado como moeda de troca e em algumas receitas de forja.' },
+  dragon_scale:         { name: 'Dragon Scale',             desc: 'Escama de Dragão. Necessária para evoluir Seadra → Kingdra. Forje com fragmentos Dragon.' },
+  armor_fragment:       { name: 'Armor Fragment',           desc: 'Fragmento de armadura rara. Componente usado na Estação de Forja para criar itens poderosos.' },
+  mega_stone_shard:     { name: 'Mega Stone Shard',         desc: 'Fragmento de Mega Pedra. Acumule para sintetizar uma Mega Pedra completa na Forja.' },
+  tm_flamethrower:      { name: 'TM — Lança-Chamas',       desc: 'MT que ensina o golpe Lança-Chamas: ataque Fogo especial de grande poder.' },
+  tm_thunderbolt:       { name: 'TM — Thunderbolt',        desc: 'MT que ensina Thunderbolt: ataque Elétrico especial confiável e preciso.' },
+  tm_ice_beam:          { name: 'TM — Ice Beam',            desc: 'MT que ensina Ice Beam: ataque Gelo especial que pode congelar o alvo.' },
+  rare_candy:           { name: 'Rare Candy',               desc: 'Bala mágica que sobe um nível instantaneamente em qualquer Pokémon.' },
+  exp_candy_xs:         { name: 'Exp. Candy XS',            desc: 'Bala de experiência pequena. Concede uma quantidade mínima de XP ao Pokémon.' },
+  exp_candy_s:          { name: 'Exp. Candy S',             desc: 'Bala de experiência pequena. Concede XP suficiente para ganhos rápidos em níveis baixos.' },
+  exp_candy_m:          { name: 'Exp. Candy M',             desc: 'Bala de experiência média. Boa fonte de XP para Pokémon em treinamento.' },
+  exp_candy_l:          { name: 'Exp. Candy L',             desc: 'Bala de experiência grande. Concede XP elevado — ideal para Pokémon de nível médio-alto.' },
+  exp_candy_xl:         { name: 'Exp. Candy XL',            desc: 'Bala de experiência máxima. Concede enorme quantidade de XP de uma só vez.' },
+  currency:             { name: 'PokéCoins',                desc: 'Moeda principal do jogo. Use na loja para comprar itens, pokébolas e upgrades.' },
+  ability_capsule:      { name: 'Cápsula de Habilidade',   desc: 'Permite trocar a habilidade de um Pokémon para outra do seu pool. Usada no menu Equipe.' },
+  // Pedras completas (legado)
+  fire_stone:           { name: 'Fire Stone',               desc: 'Pedra elementar de Fogo. Usada para evoluir Vulpix, Growlithe e outros.' },
+  water_stone:          { name: 'Water Stone',              desc: 'Pedra elementar de Água. Usada para evoluir Poliwhirl, Shellder e outros.' },
+  thunder_stone:        { name: 'Thunder Stone',            desc: 'Pedra elementar Elétrica. Usada para evoluir Pikachu, Eevee→Jolteon e outros.' },
+  moon_stone:           { name: 'Moon Stone',               desc: 'Pedra Lunar. Evolui Clefairy, Jigglypuff, Nidorina, Skitty e outros.' },
+  sun_stone:            { name: 'Sun Stone',                desc: 'Pedra Solar. Evolui Gloom, Sunkern, Cottonee, Petilil e outros.' },
+  dawn_stone:           { name: 'Dawn Stone',               desc: 'Pedra da Alvorada. Evolui Kirlia (macho) → Gallade e Snorunt (fêmea) → Froslass.' },
+  // Fragmentos de Pedras — drops temáticos das Raids
+  fire_stone_shard:     { name: 'Fragmento de Fogo',        desc: 'Fragmento de Fire Stone. Colete 5 e forje uma Fire Stone completa na Estação de Forja.' },
+  water_stone_shard:    { name: 'Fragmento de Água',        desc: 'Fragmento de Water Stone. Colete 5 e forje uma Water Stone completa na Estação de Forja.' },
+  leaf_stone_shard:     { name: 'Fragmento de Folha',       desc: 'Fragmento de Leaf Stone. Colete 5 e forje uma Leaf Stone completa na Estação de Forja.' },
+  thunder_stone_shard:  { name: 'Fragmento de Trovão',      desc: 'Fragmento de Thunder Stone. Colete 5 e forje uma Thunder Stone completa na Estação de Forja.' },
+  moon_stone_shard:     { name: 'Fragmento Lunar',          desc: 'Fragmento de Moon Stone. Colete 5 e forje uma Moon Stone completa na Estação de Forja.' },
+  sun_stone_shard:      { name: 'Fragmento Solar',          desc: 'Fragmento de Sun Stone. Colete 5 e forje uma Sun Stone completa na Estação de Forja.' },
+  shiny_stone_shard:    { name: 'Fragmento Brilhante',      desc: 'Fragmento de Shiny Stone. Colete 5 e forje uma Shiny Stone completa na Estação de Forja.' },
+  dusk_stone_shard:     { name: 'Fragmento Crepuscular',    desc: 'Fragmento de Dusk Stone. Colete 5 e forje uma Dusk Stone completa na Estação de Forja.' },
+  dawn_stone_shard:     { name: 'Fragmento da Alvorada',    desc: 'Fragmento de Dawn Stone. Colete 5 e forje uma Dawn Stone completa na Estação de Forja.' },
+  ice_stone_shard:      { name: 'Fragmento de Gelo',        desc: 'Fragmento de Ice Stone. Colete 5 e forje uma Ice Stone completa na Estação de Forja.' },
+  // Fragmentos de Itens Evolutivos
+  magmarizer_shard:     { name: 'Fragmento de Magmarizer',  desc: 'Fragmento do Magmarizer. Colete 5 e forje o item completo para evoluir Magmar → Magmortar.' },
+  electirizer_shard:    { name: 'Fragmento de Eletrizador', desc: 'Fragmento do Electirizer. Colete 5 e forje o item para evoluir Electabuzz → Electivire.' },
+  kings_rock_shard:     { name: 'Fragmento de Coroa Real',  desc: "Fragmento do King's Rock. Colete 5 e forje o item para evoluir Poliwhirl → Politoed ou Slowpoke → Slowking." },
+  reaper_cloth_shard:   { name: 'Fragmento do Manto Sombrio', desc: 'Fragmento do Reaper Cloth. Colete 5 e forje o item para evoluir Dusclops → Dusknoir.' },
+  metal_coat_shard:     { name: 'Fragmento Metálico',       desc: 'Fragmento do Metal Coat. Colete para forjar o item que evolui Onix → Steelix ou Scyther → Scizor.' },
+  prism_scale_shard:    { name: 'Fragmento de Escama Prisma', desc: 'Fragmento da Prism Scale. Colete 5 e forje o item para evoluir Feebas → Milotic.' },
+  link_cable_part:      { name: 'Peça de Cabo Link',        desc: 'Componente do Link Cable. Colete 5 e forje um Link Cable para evoluções via troca.' },
 };
 
 const RaidScreen = ({
@@ -395,15 +438,31 @@ const RaidScreen = ({
         <div style={{
           textAlign: 'center', background: 'rgba(15, 23, 42, 0.6)',
           backdropFilter: 'blur(10px)', borderRadius: 20, padding: '16px 10px',
-          border: `1px solid ${starColor}40`,
+          border: `1px solid ${raid.isEvent ? '#f59e0b88' : starColor + '40'}`,
         }}>
-          <p style={{ color: starColor, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 2, margin: '0 0 4px' }}>
+          {/* Banner de evento especial */}
+          {raid.isEvent && raid.eventLabel && (
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              background: 'linear-gradient(135deg,#92400e,#f59e0b)',
+              color: '#fff', fontSize: 10, fontWeight: 900,
+              borderRadius: 20, padding: '3px 12px', marginBottom: 6,
+              letterSpacing: 1, textTransform: 'uppercase',
+              boxShadow: '0 0 14px #f59e0b88',
+              animation: 'pulse 2s infinite ease-in-out',
+            }}>
+              <span>★</span>
+              <span>EVENTO — {raid.eventLabel.toUpperCase()}</span>
+              <span>★</span>
+            </div>
+          )}
+          <p style={{ color: raid.isEvent ? '#f59e0b' : starColor, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 2, margin: '0 0 4px' }}>
             {PHASE_LABELS[raid.phase] || 'Raid'}
           </p>
           <h2 style={{
             color: '#fff', fontWeight: 900, fontSize: 24,
             textTransform: 'uppercase', fontStyle: 'italic', margin: 0,
-            textShadow: `0 0 20px ${starColor}66`,
+            textShadow: `0 0 20px ${raid.isEvent ? '#f59e0b' : starColor}66`,
           }}>
             {raid.isShiny && <span style={{ marginRight: 8 }}>✨</span>}
             {raid.isAlpha && (
@@ -423,6 +482,9 @@ const RaidScreen = ({
             </span>
             {raid.isAlpha && (
               <span style={{ color: '#ef4444', fontSize: 11, fontWeight: 800 }}>+30% stats</span>
+            )}
+            {raid.isEvent && (
+              <span style={{ color: '#f59e0b', fontSize: 11, fontWeight: 900, letterSpacing: 1 }}>EVENTO</span>
             )}
           </div>
         </div>

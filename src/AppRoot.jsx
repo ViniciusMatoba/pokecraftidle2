@@ -11196,8 +11196,10 @@ export default function App() {
             bottom: '88px',
             right: '16px',
             zIndex: 8000,
-            background: RAID_STAR_COLOR[gameState.activeRaid.stars] || '#f59e0b',
-            border: 'none',
+            background: gameState.activeRaid.isEvent
+              ? 'linear-gradient(135deg,#92400e,#d97706)'
+              : (RAID_STAR_COLOR[gameState.activeRaid.stars] || '#f59e0b'),
+            border: gameState.activeRaid.isEvent ? '2px solid #f59e0b' : 'none',
             borderRadius: '50px',
             padding: '10px 16px',
             color: 'white',
@@ -11205,7 +11207,9 @@ export default function App() {
             fontSize: '13px',
             letterSpacing: '0.05em',
             textTransform: 'uppercase',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+            boxShadow: gameState.activeRaid.isEvent
+              ? '0 4px 20px #f59e0b66, 0 0 30px #d97706aa'
+              : '0 4px 20px rgba(0,0,0,0.4)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -11214,7 +11218,7 @@ export default function App() {
           }}
         >
           <span style={{ fontSize: '18px' }}>⚔️</span>
-          RAID {gameState.activeRaid.stars}⭐
+          {gameState.activeRaid.isEvent ? `EVENTO ${gameState.activeRaid.stars}⭐` : `RAID ${gameState.activeRaid.stars}⭐`}
         </button>
       )}
 
