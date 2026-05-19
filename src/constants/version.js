@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.5.8';
-export const VERSION = '2.5.8';
-export const APP_VERSION_DATE = '19/05/2026 11:30';
+export const APP_VERSION = '2.5.9';
+export const VERSION = '2.5.9';
+export const APP_VERSION_DATE = '19/05/2026 12:30';
 export const CHANGELOG = [
+  '## [V2.5.9] - 19/05/2026 12:30',
+  '### Combates Faltantes — Kanto, Johto, Hoenn e Sinnoh',
+  '- **Kanto**: +3 rivais (Azul em Cerulean, Victory Road e Campeão) e +2 Rockets (Torre Pokémon e Silph Co. Executive) → total 7+7.',
+  '- **Johto**: +2 rivais (Silver em Sprout Tower e Mahogany) e +4 Rockets (Ruínas de Alph, Proton, Petrel, Ariana) → total 7+7.',
+  '- **Hoenn**: +4 rivais (Brendan em Rustboro, Fallarbor, Rota 120 e Ever Grande) e +4 vilões (Aqua Petalburg, Magma Meteor Falls, Archie QG, Maxie QG) → total 7+7.',
+  '- **Sinnoh**: +4 rivais (Barry em Pastoria, Canalave, Acuidade e Snowpoint) e +3 Galáctica (Mars Lago Verity, Charon Veilstone, Jupiter Lago Acuidade) → total 7+7.',
+  '',
   '## [V2.5.8] - 19/05/2026 11:30',
   '### Lendários de Hoenn - Modo VS',
   '- **9 novos lendários**: Kyogre, Groudon, Regirock, Regice, Registeel, Latias, Latios, Jirachi e Deoxys adicionados na aba Lendários de Hoenn.',
