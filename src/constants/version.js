@@ -1,7 +1,16 @@
-export const APP_VERSION = '2.6.1';
-export const VERSION = '2.6.1';
-export const APP_VERSION_DATE = '19/05/2026 14:00';
+export const APP_VERSION = '2.6.2';
+export const VERSION = '2.6.2';
+export const APP_VERSION_DATE = '19/05/2026 15:00';
 export const CHANGELOG = [
+  '## [V2.6.2] - 19/05/2026 15:00',
+  '### Correção de Backgrounds — Hoenn e Sinnoh',
+  '- **Causa raiz corrigida**: `hoenn_generic` e `sinnoh_generic` referenciavam arquivos inexistentes (`bg_hoenn_route.webp` e `bg_sinnoh_route.webp`), quebrando todos os backgrounds que usavam esses fallbacks.',
+  '- **Battle Frontier**: agora exibe corretamente `bg_battle_frontier.webp`.',
+  '- **Sinnoh Rota 201 e 202**: mapeadas para `bg_route201.webp` e `bg_route202.webp`.',
+  '- **+47 entradas específicas adicionadas**: todas as rotas e cidades de Hoenn e Sinnoh que possuem arquivo de background dedicado agora têm entrada própria — sem depender do fallback genérico.',
+  '- Hoenn coberto: Littleroot, Oldale, Petalburg, Rustboro, Dewford, Slateport, Mauville, Fallarbor, Lavaridge, Fortree, Lilycove, Mossdeep, Sootopolis, Ever Grande, Victory Road, Battle Frontier, Sky Pillar e rotas intermediárias.',
+  '- Sinnoh coberto: Twinleaf, Sandgem, Jubilife, Eterna Forest, Mt. Coronet, Snowpoint, Sunyshore, Victory Road.',
+  '',
   '## [V2.6.1] - 19/05/2026 14:00',
   '### Sistema de Alimentos para Expedições',
   '- **Rações obrigatórias**: cada Pokémon consome 1 Ração por hora de expedição (3 Pokémon × 4h = 12 rações).',

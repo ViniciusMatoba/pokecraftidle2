@@ -500,8 +500,8 @@ export const BATTLE_BACKGROUNDS = {
   // --- REGIONAL GENERICS ---
   kanto_generic: { sky: bg('bg_kanto_grass.webp'), label: 'Kanto', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'oak_tree'] },
   johto_generic: { sky: bg('bg_new_bark_town.webp'), label: 'Johto', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'shrine'] },
-  hoenn_generic: { sky: bg('bg_hoenn_route.webp'), label: 'Hoenn', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'tropical_leaf'] },
-  sinnoh_generic: { sky: bg('bg_sinnoh_route.webp'), label: 'Sinnoh', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'pine_tree'] },
+  hoenn_generic: { sky: bg('bg_route101.webp'), label: 'Hoenn', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'tropical_leaf'] },
+  sinnoh_generic: { sky: bg('bg_route201.webp'), label: 'Sinnoh', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'pine_tree'] },
   unova_generic: { sky: bg('bg_unova_route.webp'), label: 'Unova', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'city_distant'] },
   kalos_generic: { sky: bg('bg_kalos_route.webp'), label: 'Kalos', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_grass', 'flower_lavender'] },
   alola_generic: { sky: bg('bg_alola_route.webp'), label: 'Alola', ground: '#e0d0a0', groundAccent: '#c0b080', timeOfDay: 'day', elements: ['palm_tree', 'ocean_view'] },
@@ -547,6 +547,60 @@ export const BATTLE_BACKGROUNDS = {
   paldea_desert: { sky: bg('bg_paldea_desert.webp'), label: 'Deserto de Paldea', ground: '#d4a373', groundAccent: '#a98467', timeOfDay: 'day', elements: ['cactus', 'sand_dune'] },
 
   hisui_sacred_plaza: { sky: bg('bg_hisui_sacred_plaza.webp'), label: 'Praça Sagrada', ground: '#140028', groundAccent: '#080010', timeOfDay: 'legendary', elements: ['ancient_pillar', 'celestial_light'] },
+
+  // ══════════════════════════════════════════════════════
+  // HOENN — rotas e cidades com background dedicado
+  // ══════════════════════════════════════════════════════
+  littleroot_town:   { sky: bg('bg_littleroot.webp'),       label: 'Littleroot Town',    ground: '#82b844', groundAccent: '#5a9e3a', timeOfDay: 'day',    elements: ['tree', 'fence', 'cloud'] },
+  oldale_town:       { sky: bg('bg_oldale_town.webp'),      label: 'Oldale Town',        ground: '#7cb850', groundAccent: '#5a9e3a', timeOfDay: 'day',    elements: ['tree', 'building', 'cloud'] },
+  route_102:         { sky: bg('bg_route102.webp'),         label: 'Rota 102 — Hoenn',   ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day',    elements: ['tall_grass', 'tree', 'cloud'] },
+  petalburg_city:    { sky: bg('bg_petalburg_city.webp'),   label: 'Petalburg City',     ground: '#70a858', groundAccent: '#4e7e3c', timeOfDay: 'day',    elements: ['building', 'tree', 'fence'] },
+  route_104:         { sky: bg('bg_route104.webp'),         label: 'Rota 104 — Hoenn',   ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day',    elements: ['tall_grass', 'ocean_small', 'cloud'] },
+  petalburg_woods:   { sky: bg('bg_petalburg_woods.webp'),  label: 'Petalburg Woods',    ground: '#3a6e28', groundAccent: '#2a5020', timeOfDay: 'forest', elements: ['big_tree', 'mushroom', 'forest_mist'] },
+  rustboro_city:     { sky: bg('bg_rustboro_city.webp'),    label: 'Rustboro City',      ground: '#a89880', groundAccent: '#8a7860', timeOfDay: 'day',    elements: ['building', 'rock', 'cloud'] },
+  route_116:         { sky: bg('bg_route116.webp'),         label: 'Rota 116 — Hoenn',   ground: '#80a050', groundAccent: '#5a7838', timeOfDay: 'day',    elements: ['rock', 'tall_grass', 'cloud'] },
+  rusturf_tunnel:    { sky: bg('bg_rusturf_tunnel.webp'),   label: 'Rusturf Tunnel',     ground: '#2a2020', groundAccent: '#1a1010', timeOfDay: 'cave',   elements: ['stalactite', 'rock', 'cave_glow'] },
+  dewford_town:      { sky: bg('bg_dewford_town.webp'),     label: 'Dewford Town',       ground: '#d0e8d0', groundAccent: '#a0c8a0', timeOfDay: 'day',    elements: ['ocean_wave', 'palm_tree', 'cloud'] },
+  granite_cave:      { sky: bg('bg_granite_cave.webp'),     label: 'Granite Cave',       ground: '#3a3050', groundAccent: '#252035', timeOfDay: 'cave',   elements: ['stalactite', 'moon_rock', 'cave_glow'] },
+  slateport_city:    { sky: bg('bg_slateport_city.webp'),   label: 'Slateport City',     ground: '#b0d8e0', groundAccent: '#80b0c0', timeOfDay: 'day',    elements: ['ocean_wave', 'building', 'cloud'] },
+  route_110:         { sky: bg('bg_route110.webp'),         label: 'Rota 110 — Hoenn',   ground: '#98c060', groundAccent: '#6a9040', timeOfDay: 'day',    elements: ['tall_grass', 'bike_path', 'cloud'] },
+  mauville_city:     { sky: bg('bg_mauville_city.webp'),   label: 'Mauville City',      ground: '#808080', groundAccent: '#606060', timeOfDay: 'day',    elements: ['building', 'neon_light', 'street_lamp'] },
+  route_111_desert:  { sky: bg('bg_route111_desert.webp'), label: 'Rota 111 — Deserto', ground: '#d4a373', groundAccent: '#a98467', timeOfDay: 'day',    elements: ['sand_dune', 'cactus', 'rock'] },
+  fiery_path:        { sky: bg('bg_fiery_path.webp'),      label: 'Fiery Path',         ground: '#7f1d1d', groundAccent: '#450a0a', timeOfDay: 'volcanic', elements: ['lava_pool', 'fire_pillar', 'magma_rock'] },
+  fallarbor_town:    { sky: bg('bg_fallarbor_town.webp'),  label: 'Fallarbor Town',     ground: '#a0a090', groundAccent: '#808070', timeOfDay: 'overcast', elements: ['ash_cloud', 'tree', 'building'] },
+  route_113:         { sky: bg('bg_route113.webp'),        label: 'Rota 113 — Cinzas',  ground: '#909080', groundAccent: '#707060', timeOfDay: 'overcast', elements: ['ash_cloud', 'tall_grass', 'cloud_grey'] },
+  meteor_falls:      { sky: bg('bg_meteor_falls.webp'),    label: 'Meteor Falls',       ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'cave',   elements: ['stalactite', 'waterfall', 'crystal_glow'] },
+  mt_chimney:        { sky: bg('bg_mt_chimney.webp'),      label: 'Mt. Chimney',        ground: '#7f1d1d', groundAccent: '#450a0a', timeOfDay: 'volcanic', elements: ['volcano_smoke', 'lava_pool', 'magma_rock'] },
+  lavaridge_town:    { sky: bg('bg_lavaridge_town.webp'),  label: 'Lavaridge Town',     ground: '#d06030', groundAccent: '#a04018', timeOfDay: 'volcanic', elements: ['volcano_smoke', 'building', 'palm_tree'] },
+  route_118_119:     { sky: bg('bg_route119.webp'),        label: 'Rotas 118-119',      ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day',    elements: ['tall_grass', 'tree', 'rain_drop'] },
+  fortree_city:      { sky: bg('bg_fortree_city.webp'),    label: 'Fortree City',       ground: '#5a9e3a', groundAccent: '#3a7020', timeOfDay: 'day',    elements: ['big_tree', 'bridge_plank', 'forest_mist'] },
+  mt_pyre:           { sky: bg('bg_mt_pyre.webp'),         label: 'Mt. Pyre',           ground: '#281030', groundAccent: '#180020', timeOfDay: 'haunted', elements: ['ghost_mist', 'gravestone', 'dead_tree'] },
+  lilycove_city:     { sky: bg('bg_lilycove_city.webp'),   label: 'Lilycove City',      ground: '#b0c8e8', groundAccent: '#8098c0', timeOfDay: 'day',    elements: ['ocean_wave', 'building', 'cloud'] },
+  ocean_routes:      { sky: bg('bg_ocean_routes.webp'),    label: 'Rotas Oceânicas',    ground: '#0e7490', groundAccent: '#155e75', timeOfDay: 'day',    elements: ['ocean_wave', 'lily_pad', 'sea_spray'] },
+  mossdeep_city:     { sky: bg('bg_mossdeep_city.webp'),   label: 'Mossdeep City',      ground: '#90b8d0', groundAccent: '#6090a8', timeOfDay: 'day',    elements: ['ocean_small', 'building', 'rocket_tower'] },
+  seafloor_cavern:   { sky: bg('bg_seafloor_cavern.webp'), label: 'Seafloor Cavern',    ground: '#083344', groundAccent: '#051e28', timeOfDay: 'cave',   elements: ['water', 'stalactite', 'ocean_wave'] },
+  sootopolis_city:   { sky: bg('bg_sootopolis_city.webp'), label: 'Sootopolis City',    ground: '#b0d0f0', groundAccent: '#80a8c8', timeOfDay: 'day',    elements: ['water', 'building', 'cliff'] },
+  cave_of_origin:    { sky: bg('bg_cave_of_origin.webp'),  label: 'Cave of Origin',     ground: '#1a0a38', groundAccent: '#0e0420', timeOfDay: 'legendary', elements: ['crystal_glow', 'ancient_rune', 'purple_crystal'] },
+  sky_pillar:        { sky: bg('bg_sky_pillar.webp'),      label: 'Sky Pillar',         ground: '#1e3a8a', groundAccent: '#1e40af', timeOfDay: 'dramatic', elements: ['ancient_pillar', 'cloud', 'wind_current'] },
+  pacifidlog_town:   { sky: bg('bg_pacifidlog.webp'),      label: 'Pacifidlog Town',    ground: '#0e7490', groundAccent: '#155e75', timeOfDay: 'day',    elements: ['ocean_wave', 'bridge_plank', 'lily_pad'] },
+  ever_grande_city:  { sky: bg('bg_ever_grande_city.webp'),label: 'Ever Grande City',   ground: '#78a860', groundAccent: '#508040', timeOfDay: 'day',    elements: ['flower', 'flower', 'tree', 'cloud'] },
+  victory_road_hoenn: { sky: bg('bg_victory_road_hoenn.webp'), label: 'Victory Road Hoenn', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'epic_cave', elements: ['stalactite', 'boulder', 'crystal_glow'] },
+  hoenn_battle_frontier: { sky: bg('bg_battle_frontier.webp'), label: 'Battle Frontier', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['arena_light', 'trophy_glow', 'tall_grass'] },
+  sky_pillar_summit: { sky: bg('bg_sky_pillar.webp'),      label: 'Topo do Sky Pillar', ground: '#0c1220', groundAccent: '#060810', timeOfDay: 'legendary', elements: ['ancient_pillar', 'wind_current', 'cloud_storm'] },
+
+  // ══════════════════════════════════════════════════════
+  // SINNOH — rotas e cidades com background dedicado
+  // ══════════════════════════════════════════════════════
+  twinleaf_town:       { sky: bg('bg_twinleaf.webp'),        label: 'Twinleaf Town',       ground: '#7cb850', groundAccent: '#5a9e3a', timeOfDay: 'day',    elements: ['tree', 'fence', 'cloud'] },
+  sinnoh_route_201:    { sky: bg('bg_route201.webp'),        label: 'Rota 201 — Sinnoh',   ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day',    elements: ['tall_grass', 'pine_tree', 'cloud'] },
+  sandgem_town:        { sky: bg('bg_sandgem.webp'),         label: 'Sandgem Town',        ground: '#d4b88a', groundAccent: '#b09060', timeOfDay: 'day',    elements: ['beach_sand', 'ocean_small', 'cloud'] },
+  sinnoh_route_202:    { sky: bg('bg_route202.webp'),        label: 'Rota 202 — Sinnoh',   ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day',    elements: ['tall_grass', 'pine_tree', 'flower'] },
+  jubilife_city:       { sky: bg('bg_jubilife.webp'),        label: 'Jubilife City',       ground: '#808080', groundAccent: '#606060', timeOfDay: 'day',    elements: ['skyscraper', 'billboard', 'street_lamp'] },
+  eterna_forest_sinnoh: { sky: bg('bg_eterna_forest.webp'), label: 'Eterna Forest',        ground: '#3a6e28', groundAccent: '#2a5020', timeOfDay: 'forest', elements: ['big_tree', 'forest_mist', 'mushroom'] },
+  mt_coronet_sinnoh:   { sky: bg('bg_mt_coronet.webp'),     label: 'Mt. Coronet',         ground: '#334155', groundAccent: '#1e293b', timeOfDay: 'dramatic', elements: ['sharp_rock', 'mountain_cliff', 'cloud_storm'] },
+  snowpoint_routes:    { sky: bg('bg_snowpoint.webp'),       label: 'Rotas de Snowpoint',  ground: '#f1f5f9', groundAccent: '#cbd5e1', timeOfDay: 'ice',    elements: ['ice_crystal', 'snow_drift', 'pine_tree'] },
+  sunyshore_routes:    { sky: bg('bg_sunyshore.webp'),       label: 'Rotas de Sunyshore',  ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day',    elements: ['tall_grass', 'ocean_small', 'lighthouse'] },
+  sinnoh_victory_training: { sky: bg('bg_victory_road_sinnoh.webp'), label: 'Victory Road Sinnoh', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'epic_cave', elements: ['stalactite', 'boulder', 'crystal_glow'] },
 
   // --- VILLAIN TEAMS ---
   villain_galactic: {

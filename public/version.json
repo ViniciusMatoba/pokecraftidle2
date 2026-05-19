@@ -1,5 +1,5 @@
 {
-  "version": "2.6.1",
-  "date": "19/05/2026 14:00",
-  "notes": "Expedições agora requerem Rações Pokémon (1 por Pokémon por hora). Modal de atalho para Forja e Poké Mart quando rações insuficientes."
+  "version": "2.6.2",
+  "date": "19/05/2026 15:00",
+  "notes": "Correção de backgrounds quebrados em Hoenn (Battle Frontier) e Sinnoh (Rotas 201/202). 47 entradas específicas adicionadas."
 }
