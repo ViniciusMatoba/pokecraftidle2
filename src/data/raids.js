@@ -11,6 +11,92 @@ export const EXP_CANDIES = {
 
 export const REGION_ORDER = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea'];
 
+const LEGENDARY_RAID_UNLOCK_FLAGS = {
+  144: ['articuno_defeated'],
+  145: ['zapdos_defeated'],
+  146: ['moltres_defeated'],
+  150: ['mewtwo_defeated'],
+  151: ['mew_defeated'],
+  243: ['raikou_defeated'],
+  244: ['entei_defeated'],
+  245: ['suicune_defeated'],
+  249: ['lugia_defeated'],
+  250: ['ho_oh_defeated'],
+  251: ['celebi_defeated'],
+  377: ['regirock_defeated'],
+  378: ['regice_defeated'],
+  379: ['registeel_defeated'],
+  380: ['latias_defeated'],
+  381: ['latios_defeated'],
+  382: ['kyogre_defeated'],
+  383: ['groudon_defeated'],
+  384: ['rayquaza_defeated'],
+  385: ['jirachi_defeated'],
+  386: ['deoxys_defeated'],
+  480: ['uxie_defeated'],
+  481: ['mesprit_defeated'],
+  482: ['azelf_defeated'],
+  483: ['dialga_defeated'],
+  484: ['palkia_defeated'],
+  485: ['heatran_defeated'],
+  486: ['regigigas_defeated'],
+  487: ['giratina_defeated'],
+  488: ['cresselia_defeated'],
+  491: ['darkrai_hisui_defeated'],
+  492: ['shaymin_hisui_defeated'],
+  493: ['arceus_defeated'],
+  638: ['cobalion_defeated'],
+  639: ['terrakion_defeated'],
+  640: ['virizion_defeated'],
+  641: ['tornadus_defeated'],
+  642: ['thundurus_defeated'],
+  643: ['reshiram_defeated'],
+  644: ['zekrom_defeated'],
+  645: ['landorus_defeated'],
+  646: ['kyurem_defeated'],
+  647: ['keldeo_defeated'],
+  648: ['meloetta_defeated'],
+  649: ['genesect_defeated'],
+  716: ['xerneas_defeated'],
+  717: ['yveltal_defeated'],
+  718: ['zygarde_defeated'],
+  719: ['diancie_defeated'],
+  720: ['hoopa_defeated'],
+  721: ['volcanion_defeated'],
+  785: ['tapu_koko_defeated'],
+  786: ['tapu_lele_defeated'],
+  787: ['tapu_bulu_defeated'],
+  788: ['tapu_fini_defeated'],
+  791: ['solgaleo_defeated'],
+  792: ['lunala_defeated'],
+  800: ['necrozma_defeated'],
+  888: ['zacian_defeated'],
+  889: ['zamazenta_defeated'],
+  890: ['eternatus_defeated'],
+  894: ['regieleki_defeated'],
+  895: ['regidrago_defeated'],
+  896: ['glastrier_defeated'],
+  898: ['calyrex_defeated'],
+  1007: ['koraidon_defeated'],
+  1008: ['miraidon_defeated'],
+  1017: ['ogerpon_defeated'],
+  1024: ['terapagos_defeated'],
+};
+
+const LEGENDARY_RAID_LOCKED_IDS = new Set([
+  ...Object.keys(LEGENDARY_RAID_UNLOCK_FLAGS).map(Number),
+  494, 719, 720, 721,
+  789, 790, 793, 794, 795, 796, 797, 798, 799, 801, 802, 803, 804, 805, 806, 807, 808, 809,
+  891, 892, 893, 897, 905,
+  1001, 1002, 1003, 1004, 1009, 1010, 1020, 1021, 1022, 1023, 1025,
+]);
+
+const isLegendaryUnlockedForRaid = (id, worldFlags = []) => {
+  const flags = LEGENDARY_RAID_UNLOCK_FLAGS[Number(id)];
+  if (flags) return flags.some(flag => worldFlags.includes(flag));
+  return !LEGENDARY_RAID_LOCKED_IDS.has(Number(id));
+};
+
 // ── Configurações de Raid ──────────────────────────────────────────────────
 export const RAID_HP_MULTIPLIER = {
   1: 2,   // 1★ — fácil, derrota rápida
@@ -342,7 +428,7 @@ const bstToStars = (bst) => {
 const STAR_BASE_LEVEL = { 1: 20, 2: 32, 3: 46, 4: 56, 5: 66 };
 
 // Constrói pool dinâmico com TODOS os Pokémon das regiões desbloqueadas
-const buildDynamicRaidPool = (regions, pokedex, maxStars) => {
+const buildDynamicRaidPool = (regions, pokedex, maxStars, worldFlags = []) => {
   const entries = [];
   for (const region of regions) {
     const range = REGION_DEX_RANGES[region];
@@ -350,6 +436,7 @@ const buildDynamicRaidPool = (regions, pokedex, maxStars) => {
     for (let id = range.min; id <= range.max; id++) {
       const base = pokedex[id];
       if (!base) continue;
+      if (!isLegendaryUnlockedForRaid(id, worldFlags)) continue;
       const bst = (base.hp || 45) + (base.attack || 45) + (base.defense || 45) +
                   (base.spAtk || 45) + (base.spDef || 45) + (base.speed || 45);
       const stars = bstToStars(bst);
@@ -426,11 +513,11 @@ export const getRaidStarWeights = (maxStars) => {
 };
 
 
-export const pickRaidPokemon = (region = 'kanto', maxStars = 5, previousRegions = [], pokedex = {}) => {
+export const pickRaidPokemon = (region = 'kanto', maxStars = 5, previousRegions = [], pokedex = {}, worldFlags = []) => {
   const allRegions = [...new Set([region, ...previousRegions])];
 
   // Pool dinâmico: TODOS os Pokémon das regiões desbloqueadas
-  const dynamicPool = buildDynamicRaidPool(allRegions, pokedex, maxStars);
+  const dynamicPool = buildDynamicRaidPool(allRegions, pokedex, maxStars, worldFlags);
 
   // Pool curado: entradas especiais com formas, shiny locks e nível tuningado
   const hasPrevious = previousRegions.length > 0;
@@ -439,7 +526,8 @@ export const pickRaidPokemon = (region = 'kanto', maxStars = 5, previousRegions 
     ? previousRegions[Math.floor(Math.random() * previousRegions.length)]
     : region;
   const curatedPool = (RAID_POKEMON_POOL[curatedRegion] || RAID_POKEMON_POOL.kanto)
-    .filter(p => p.stars <= maxStars);
+    .filter(p => p.stars <= maxStars)
+    .filter(p => isLegendaryUnlockedForRaid(p.id, worldFlags));
 
   // 55% pool dinâmico (garante todos os Pokémon), 45% pool curado (formas especiais)
   const useDynamic = dynamicPool.length > 0 && (curatedPool.length === 0 || Math.random() < 0.55);
@@ -468,7 +556,7 @@ export const pickRaidPokemon = (region = 'kanto', maxStars = 5, previousRegions 
   return tierPool[Math.floor(Math.random() * tierPool.length)];
 };
 
-export const createRaid = (region = 'kanto', pokedex = {}, badgeCount = 0) => {
+export const createRaid = (region = 'kanto', pokedex = {}, badgeCount = 0, worldFlags = []) => {
   // Calcula quais regiões o jogador já percorreu (para pool 35%)
   const regionIndex = REGION_ORDER.indexOf(region);
   const previousRegions = regionIndex > 0 ? REGION_ORDER.slice(0, regionIndex) : [];
@@ -479,7 +567,7 @@ export const createRaid = (region = 'kanto', pokedex = {}, badgeCount = 0) => {
   const isEvent = RAID_EVENT_POOL.length > 0 && Math.random() < 0.08;
   const template = isEvent
     ? RAID_EVENT_POOL[Math.floor(Math.random() * RAID_EVENT_POOL.length)]
-    : pickRaidPokemon(region, maxStars, previousRegions, pokedex);
+    : pickRaidPokemon(region, maxStars, previousRegions, pokedex, worldFlags);
 
   if (!template) return null;
 

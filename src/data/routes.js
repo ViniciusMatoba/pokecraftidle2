@@ -372,13 +372,35 @@ const LEVEL_EVOLUTIONS = {
  * Se o nível de um inimigo supera o threshold de evolução,
  * o ID é substituído pela forma evoluída (encadeado recursivamente).
  */
-const applyEvolutionFilter = (enemies) => {
+const getPokemonBaseRegion = (id) => {
+  const numeric = Number(id);
+  if (numeric >= 1 && numeric <= 151) return 'kanto';
+  if (numeric >= 152 && numeric <= 251) return 'johto';
+  if (numeric >= 252 && numeric <= 386) return 'hoenn';
+  if (numeric >= 387 && numeric <= 493) return 'sinnoh';
+  if (numeric >= 494 && numeric <= 649) return 'unova';
+  if (numeric >= 650 && numeric <= 721) return 'kalos';
+  if (numeric >= 722 && numeric <= 809) return 'alola';
+  if (numeric >= 810 && numeric <= 905) return 'galar';
+  if (numeric >= 906 && numeric <= 1025) return 'paldea';
+  return 'unknown';
+};
+
+const isPokemonAllowedForRouteRegion = (id, routeRegion = 'kanto', route = {}) => {
+  const group = String(route.group || '').toLowerCase();
+  if (group.includes('dominio') || String(route.id || '').includes('_dex_')) return true;
+  if (routeRegion === 'hisui') return true;
+  const pokemonRegion = getPokemonBaseRegion(id);
+  return ROUTE_PROGRESS_REGIONS.indexOf(pokemonRegion) <= ROUTE_PROGRESS_REGIONS.indexOf(routeRegion);
+};
+
+const applyEvolutionFilter = (enemies, routeRegion = 'kanto', route = {}) => {
   return enemies.map(enemy => {
     let { id, level } = enemy;
     // Cadeia de evolução (até 4 etapas de segurança)
     for (let i = 0; i < 4; i++) {
       const evo = LEVEL_EVOLUTIONS[id];
-      if (evo && level >= evo.evolvesAt) {
+      if (evo && level >= evo.evolvesAt && isPokemonAllowedForRouteRegion(evo.evolvesInto, routeRegion, route)) {
         id = evo.evolvesInto;
       } else {
         break;
@@ -535,7 +557,7 @@ const normalizeRouteProgression = (routesObj) => {
       const smoothed = keepRouteTrainersAboveWild(shifted);
       normalized[route.id] = applyVsRouteGates({
         ...smoothed,
-        enemies: applyEvolutionFilter(smoothed.enemies || []),
+        enemies: applyEvolutionFilter(smoothed.enemies || [], inferRouteRegion(route.id, route.group).id, smoothed),
         unlockLevel: Math.min(100, desiredMin),
       });
       previousMin = desiredMin;
@@ -1393,7 +1415,7 @@ const FUTURE_REGION_ROUTES = {
     enemies: [
       { id: 220, level: 58, name: 'Swinub',   rate: 0.25 },
       { id: 361, level: 60, name: 'Snorunt',  rate: 0.25 },
-      { id: 564, level: 59, name: 'Tirtouga', rate: 0.15 },
+      { id: 459, level: 59, name: 'Snover',   rate: 0.15 },
       { id: 712, level: 62, name: 'Bergmite', rate: 0.20 },
       { id: 713, level: 63, name: 'Avalugg-H', formKey: 'avalugg-hisui', rate: 0.15 },
     ],

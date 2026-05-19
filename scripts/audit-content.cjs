@@ -32,6 +32,15 @@ const regionOf = (id) => {
   return found ? found[0] : 'unknown';
 };
 
+const REGION_ORDER = Object.keys(REGION_RANGES);
+const isAllowedInRouteRegion = (id, routeRegion, route = {}) => {
+  const group = String(route.group || '').toLowerCase();
+  if (group.includes('dominio') || String(route.id || '').includes('_dex_')) return true;
+  if (routeRegion === 'hisui') return true;
+  const pokemonRegion = regionOf(id);
+  return REGION_ORDER.indexOf(pokemonRegion) <= REGION_ORDER.indexOf(routeRegion);
+};
+
 const byRegion = (ids) => Object.fromEntries(
   Object.keys(REGION_RANGES).map((region) => [
     region,
@@ -49,6 +58,7 @@ const expeditionSource = read('src/data/expeditions.js');
 const battleBgSource = read('src/data/battleBackgrounds.js');
 const appRootSource = read('src/AppRoot.jsx');
 const bossSource = read('src/components/BossScreen.jsx');
+const raidSource = read('src/data/raids.js');
 
 const dexIds = toSorted(new Set(
   [...pokedexSource.matchAll(/^\s*(\d+)\s*:\s*\{/gm)].map((match) => Number(match[1]))
@@ -189,7 +199,7 @@ for (const [routeKey, route] of Object.entries(ROUTES)) {
     if (wildByRouteRegion[routeRegion]) wildByRouteRegion[routeRegion].add(id);
   });
 
-  const outOfRegion = [...wildIds].filter((id) => regionOf(id) !== routeRegion);
+  const outOfRegion = [...wildIds].filter((id) => !isAllowedInRouteRegion(id, routeRegion, route));
   if (outOfRegion.length) {
     outOfRegionWildRoutes.push({
       route: routeKey,
@@ -201,6 +211,28 @@ for (const [routeKey, route] of Object.entries(ROUTES)) {
 }
 
 const invalidRouteSpecies = [...routeSpecies].filter((id) => !dexIds.includes(id));
+
+const evalRaids = () => {
+  const prepared = raidSource
+    .replace(/^\uFEFF/, '')
+    .replace(/^import[\s\S]*?;\s*/gm, '')
+    .replace(/export const /g, 'const ')
+    .replace(/export default /g, 'const __default = ');
+  return vm.runInNewContext(
+    `${prepared}\n;({ RAID_POKEMON_POOL, LEGENDARY_RAID_UNLOCK_FLAGS, LEGENDARY_RAID_LOCKED_IDS });`,
+    {
+      REGION_DEX_RANGES: Object.fromEntries(Object.entries(REGION_RANGES)
+        .map(([region, [min, max]]) => [region, { min, max }])),
+      console,
+    },
+    { filename: 'src/data/raids.js' }
+  );
+};
+
+const { RAID_POKEMON_POOL, LEGENDARY_RAID_UNLOCK_FLAGS, LEGENDARY_RAID_LOCKED_IDS } = evalRaids();
+const raidPoolIds = new Set(Object.values(RAID_POKEMON_POOL).flat().map(entry => Number(entry.id)).filter(Boolean));
+const raidLegendaryEntries = [...raidPoolIds].filter(id => LEGENDARY_RAID_UNLOCK_FLAGS[id]);
+const raidLegendaryWithoutGate = raidLegendaryEntries.filter(id => !(LEGENDARY_RAID_UNLOCK_FLAGS[id] || []).length);
 
 const obtainable = new Set(wildSpecies);
 let changed = true;
@@ -264,6 +296,12 @@ if (invalidEvolutionTargets.length) {
 if (invalidRouteSpecies.length) {
   failures.push(`Rotas/treinadores apontam para IDs invalidos: ${toSorted(new Set(invalidRouteSpecies)).join(', ')}.`);
 }
+if (outOfRegionWildRoutes.length) {
+  failures.push(`Rotas com Pokemon de geracao futura antes do permitido: ${outOfRegionWildRoutes.length} ocorrencias.`);
+}
+if (raidLegendaryWithoutGate.length) {
+  failures.push(`Lendarios de raid sem trava de Modo VS: ${raidLegendaryWithoutGate.join(', ')}.`);
+}
 if (missingBackgrounds.length) {
   failures.push(`Backgrounds ausentes: ${missingBackgrounds.join(', ')}.`);
 }
@@ -324,6 +362,12 @@ const report = {
     unobtainableForms: unobtainableForms.length,
     unobtainableFormsSample: unobtainableForms.slice(0, 40),
   },
+  raids: {
+    curatedSpecies: raidPoolIds.size,
+    legendaryGatedSpecies: raidLegendaryEntries.length,
+    legendaryLockedSpecies: LEGENDARY_RAID_LOCKED_IDS.size,
+    legendaryWithoutGate: raidLegendaryWithoutGate,
+  },
   forms: {
     catalogFamilies: formFamilyCount,
     catalogVariants: formVariantCount,
@@ -348,7 +392,8 @@ if (jsonOutput) {
   console.log(`Treinadores abaixo do minimo +3: ${trainerBalanceIssues.length}`);
   console.log(`Backgrounds: ${report.backgrounds.uniqueRefs} refs, ${report.backgrounds.missing.length} ausentes`);
   console.log(`Formas catalogadas: ${report.forms.catalogFamilies} familias, ${report.forms.catalogVariants} variantes`);
-  console.log(`Rotas com selvagens fora da regiao inferida: ${report.routes.outOfRegionWildRoutes}`);
+  console.log(`Rotas com Pokemon de geracao futura antes do permitido: ${report.routes.outOfRegionWildRoutes}`);
+  console.log(`Raids: ${report.raids.curatedSpecies} especies curadas; lendarios/misticos bloqueados: ${report.raids.legendaryLockedSpecies}; com trava VS no pool curado: ${report.raids.legendaryGatedSpecies}; sem trava: ${report.raids.legendaryWithoutGate.length}`);
   if (report.obtainability.unobtainable) {
     console.log(`Aviso: ${report.obtainability.unobtainable} Pokemon base ainda nao sao obtiveis.`);
   }

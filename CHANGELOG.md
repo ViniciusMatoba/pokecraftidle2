@@ -1,5 +1,12 @@
 # Changelog - PokeCraft
 
+## [v2.7.1] - 19/05/2026 17:56
+### Corrigido
+- **Rotas por Gera??o**: auditoria e normalizacao agora respeitam a regra cumulativa: Kanto apenas Kanto; Johto inclui Kanto+Johto; e as regioes seguintes acumulam as anteriores.
+- **Evolucao em Rotas Antigas**: evolucao automatica de encontros nao transforma Pokemon em especie de geracao futura antes da regiao correta.
+- **Raids Lendarias**: lendarios e misticos ficam bloqueados por padrao e so aparecem apos a derrota correspondente no Modo VS.
+- **Auditoria de Raids**: build agora informa especies curadas, lendarios/misticos bloqueados e se existe lendario sem trava.
+
 ## [v2.7.0] - 19/05/2026 17:43
 ### Melhorado
 - **Progressao do Modo VS**: lideres das regioes futuras agora respeitam piso de nivel baseado em rival/equipe vila do arco, evitando sequencias com nivel voltando para baixo.

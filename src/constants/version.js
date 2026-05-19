@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.7.0';
-export const VERSION = '2.7.0';
-export const APP_VERSION_DATE = '19/05/2026 17:43';
+export const APP_VERSION = '2.7.1';
+export const VERSION = '2.7.1';
+export const APP_VERSION_DATE = '19/05/2026 17:56';
 export const CHANGELOG = [
+  '## [V2.7.1] - 19/05/2026 17:56',
+  '### Auditoria de Rotas e Raids',
+  '- **Rotas por geracao**: a auditoria agora valida a regra cumulativa correta: Kanto apenas Kanto; Johto Kanto+Johto; Hoenn Kanto+Johto+Hoenn; e assim por diante.',
+  '- **Evolucao automatica protegida**: Pokemon em rotas antigas nao evoluem automaticamente para formas de geracao futura antes da regiao correta.',
+  '- **Raids lendarias**: lendarios e misticos ficam bloqueados por padrao e so entram no pool apos a flag de derrota correspondente no Modo VS.',
+  '- **Auditoria de raids**: build passa a reportar especies curadas, lendarios bloqueados e lendarios sem trava.',
+  '',
   '## [V2.7.0] - 19/05/2026 17:43',
   '### Progressao VS, Rotas e Habilidades',
   '- **Modo VS**: ginasios futuros agora normalizam nivel acima dos rivais/equipes vila do mesmo arco, evitando batalhas regressivas na sequencia.',

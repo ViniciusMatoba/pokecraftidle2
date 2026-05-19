@@ -1,5 +1,5 @@
 {
-  "version": "2.7.0",
-  "date": "19/05/2026 17:43",
-  "notes": "Progressao VS/rotas revisada, habilidades aplicadas no dano e modal, e novos efeitos visuais de golpes."
+  "version": "2.7.1",
+  "date": "19/05/2026 17:56",
+  "notes": "Auditoria de rotas e raids: rotas bloqueiam geracoes futuras e raids liberam lendarios/misticos somente apos derrota no Modo VS."
 }

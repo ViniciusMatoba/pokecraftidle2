@@ -3082,7 +3082,7 @@ export default function App() {
     if (!isRaidBusyNow && Math.random() < 0.005) {
       const region = gameState.activeRegion || 'kanto';
       const badgeCount = getRegionBadgeCount(gameState.badges || [], region);
-      const raid = createRaid(region, POKEDEX, badgeCount);
+      const raid = createRaid(region, POKEDEX, badgeCount, gameState.worldFlags || []);
       if (raid) {
         setGameState(prev => ({
           ...prev,
@@ -3322,7 +3322,7 @@ export default function App() {
       const isRaidBusy = gameState.activeRaid && gameState.activeRaid.phase !== 'ended';
       if (!isRaidBusy && Date.now() >= nextAt) {
         const badgeCount = getRegionBadgeCount(gameState.badges || [], region);
-        const raid = createRaid(region, POKEDEX, badgeCount);
+        const raid = createRaid(region, POKEDEX, badgeCount, gameState.worldFlags || []);
         if (raid) {
           setGameState(prev => ({
             ...prev,
@@ -6906,7 +6906,7 @@ export default function App() {
       if (!isRaidBusy && newBattlesSinceRaid >= RAID_BATTLE_TRIGGER) {
         const region = prev.activeRegion || 'kanto';
         const badgeCount = getRegionBadgeCount(prev.badges || [], region);
-        const raid = createRaid(region, POKEDEX, badgeCount);
+        const raid = createRaid(region, POKEDEX, badgeCount, prev.worldFlags || []);
         if (raid) {
           raidSpawnUpdate = { activeRaid: raid, battlesSinceLastRaid: 0 };
           localStorage.setItem(RAID_SPAWN_STORAGE_KEY, String(Date.now() + RAID_SPAWN_INTERVAL_MS));
