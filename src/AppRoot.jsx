@@ -46,7 +46,7 @@ import { calculateOfflineProgress, applyOfflineProgress } from './utils/offlineP
 import { GYMS, ELITE_FOUR } from './data/gyms';
 import { auth, db, trackEvent } from './firebase';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
-import { doc, getDoc, setDoc, deleteField, serverTimestamp, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, getDocFromServer, setDoc, deleteField, serverTimestamp, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
 import LZString from 'lz-string';
 import { 
   APP_VERSION, APP_VERSION_DATE, DEFAULT_GAME_STATE, GYM_LEVEL_CAPS, 
@@ -109,6 +109,59 @@ const bumpPlayerStats = (stats = {}, increments = {}) => {
 };
 
 const monitorAuthState = (callback) => onAuthStateChanged(auth, callback);
+
+const LEGACY_LOCAL_SAVE_KEY = 'poke_idle_save';
+const localSaveKeyForUser = (uid) => uid ? `poke_idle_save_${uid}` : LEGACY_LOCAL_SAVE_KEY;
+
+const parseStoredSave = (raw) => {
+  if (!raw) return null;
+  try {
+    const decompressed = LZString.decompress(raw);
+    const parsed = decompressed ? JSON.parse(decompressed) : JSON.parse(raw);
+    if (!parsed) return null;
+    if (parsed.gameState) return parsed;
+    return { gameState: parsed };
+  } catch {
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed?.gameState ? parsed : { gameState: parsed };
+    } catch {
+      return null;
+    }
+  }
+};
+
+const readLocalSaveEnvelope = (uid = null) => {
+  try {
+    const userKey = localSaveKeyForUser(uid);
+    const candidates = uid
+      ? [userKey, LEGACY_LOCAL_SAVE_KEY]
+      : [LEGACY_LOCAL_SAVE_KEY];
+
+    for (const key of candidates) {
+      const parsed = parseStoredSave(localStorage.getItem(key));
+      if (!parsed?.gameState) continue;
+      if (uid && parsed.uid && parsed.uid !== uid) continue;
+      return { ...parsed, storageKey: key };
+    }
+  } catch {
+    return null;
+  }
+  return null;
+};
+
+const writeLocalSaveEnvelope = (gameState, user = null) => {
+  if (!gameState) return;
+  const envelope = {
+    uid: user?.uid || null,
+    email: user?.email || null,
+    savedAt: Date.now(),
+    gameState,
+  };
+  const compressed = LZString.compress(JSON.stringify(envelope));
+  localStorage.setItem(localSaveKeyForUser(user?.uid), compressed);
+  localStorage.setItem(LEGACY_LOCAL_SAVE_KEY, compressed);
+};
 
 const fixPath = (path) => {
   if (typeof path !== 'string') return path;
@@ -717,24 +770,13 @@ export default function App() {
 
   const [gameState, setGameState] = useState(() => {
     try {
-      const saved = localStorage.getItem('poke_idle_save');
-      if (saved) {
-        // Tenta descomprimir (novo formato); cai no JSON.parse direto para saves antigos
-        let parsed;
-        try {
-          const decompressed = LZString.decompress(saved);
-          parsed = decompressed ? JSON.parse(decompressed) : JSON.parse(saved);
-        } catch {
-          parsed = JSON.parse(saved);
+      const parsed = readLocalSaveEnvelope();
+      if (parsed?.gameState) {
+        const merged = migrateGameState(parsed.gameState, { version: APP_VERSION });
+        if (!merged.migrationAudit?.ok) {
+          console.info('Local save migration audit:', merged.migrationAudit);
         }
-        if (parsed && parsed.gameState) {
-          const loaded = parsed.gameState;
-          const merged = migrateGameState(loaded, { version: APP_VERSION });
-          if (!merged.migrationAudit?.ok) {
-            console.info('Local save migration audit:', merged.migrationAudit);
-          }
-          return merged;
-        }
+        return merged;
       }
     } catch (e) {
       console.error('Error parsing save', e);
@@ -754,7 +796,13 @@ export default function App() {
     // 1. Tenta o save principal
     try {
       const docRef = doc(db, "saves", uid);
-      const docSnap = await getDoc(docRef);
+      let docSnap;
+      try {
+        docSnap = await getDocFromServer(docRef);
+      } catch (serverErr) {
+        console.warn('[Load] Leitura do servidor falhou, tentando cache local:', serverErr);
+        docSnap = await getDoc(docRef);
+      }
       if (docSnap.exists()) {
         const data = docSnap.data();
         if (data.compressedState) {
@@ -802,6 +850,7 @@ export default function App() {
       if (u) {
         setUser(u);
         setLoading(true);
+        isFullyLoadedRef.current = false;
 
         try {
           const savedData = await loadGameState(u.uid);
@@ -814,14 +863,10 @@ export default function App() {
             // (salvo pelo handler beforeunload/visibilitychange).
             let lastActiveAt = migratedData.playerStats?.lastSeenAt || null;
             try {
-              const localRaw = localStorage.getItem('poke_idle_save');
-              if (localRaw) {
-                const dec = LZString.decompress(localRaw);
-                const localParsed = dec ? JSON.parse(dec) : JSON.parse(localRaw);
-                const localTs = localParsed?.gameState?.playerStats?.lastSeenAt;
-                if (localTs && (!lastActiveAt || localTs > lastActiveAt)) {
-                  lastActiveAt = localTs; // localStorage tem timestamp mais recente
-                }
+              const localParsed = readLocalSaveEnvelope(u.uid);
+              const localTs = localParsed?.gameState?.playerStats?.lastSeenAt;
+              if (localTs && (!lastActiveAt || localTs > lastActiveAt)) {
+                lastActiveAt = localTs; // localStorage da mesma conta tem timestamp mais recente
               }
             } catch { /* ignora erros de leitura local */ }
 
@@ -860,15 +905,7 @@ export default function App() {
             }
           } else {
             // Não encontrou save na nuvem — tenta recuperar do localStorage
-            const localSaved = localStorage.getItem('poke_idle_save');
-            let localData = null;
-            if (localSaved) {
-              try {
-                const decompressed = LZString.decompress(localSaved);
-                const parsed = decompressed ? JSON.parse(decompressed) : JSON.parse(localSaved);
-                localData = parsed?.gameState || null;
-              } catch { localData = null; }
-            }
+            const localData = readLocalSaveEnvelope(u.uid)?.gameState || null;
             if (localData) {
               const migratedLocal = migrateGameState(localData, { version: APP_VERSION });
               setGameState(migratedLocal);
@@ -881,38 +918,25 @@ export default function App() {
         } catch (err) {
           console.error("❌ [Cloud] Error loading save:", err);
           // Em caso de erro de rede, tenta o localStorage antes de desistir
-          const localSaved = localStorage.getItem('poke_idle_save');
-          if (localSaved) {
-            try {
-              const decompressed = LZString.decompress(localSaved);
-              const parsed = decompressed ? JSON.parse(decompressed) : JSON.parse(localSaved);
-              const localData = parsed?.gameState || null;
-              if (localData) {
-                const migratedLocal = migrateGameState(localData, { version: APP_VERSION });
-                setGameState(migratedLocal);
-                isFullyLoadedRef.current = true;
-                notify('Carregado do save local (erro na nuvem). Progresso preservado.', 'error');
-                return;
-              }
-            } catch { /* ignora */ }
+          const localData = readLocalSaveEnvelope(u.uid)?.gameState || null;
+          if (localData) {
+            const migratedLocal = migrateGameState(localData, { version: APP_VERSION });
+            setGameState(migratedLocal);
+            isFullyLoadedRef.current = true;
+            notify('Carregado do save local desta conta (erro na nuvem). Progresso preservado.', 'error');
+            return;
           }
           // Não marca isFullyLoaded para evitar sobrescrever save real com estado vazio
           notify("Erro ao carregar save. Reconectando...", "error");
         }
       } else {
         setUser(null);
+        isFullyLoadedRef.current = false;
         // Ao deslogar, voltamos para o save local (se existir) ou padrão
-        const localSaved = localStorage.getItem('poke_idle_save');
-        if (localSaved) {
+        const localEnvelope = readLocalSaveEnvelope();
+        if (localEnvelope?.gameState) {
            try {
-             let parsed;
-             try {
-               const decompressed = LZString.decompress(localSaved);
-               parsed = decompressed ? JSON.parse(decompressed) : JSON.parse(localSaved);
-             } catch { parsed = JSON.parse(localSaved); }
-             if (parsed?.gameState) {
-               setGameState(migrateGameState(parsed.gameState, { version: APP_VERSION }));
-             }
+             setGameState(migrateGameState(localEnvelope.gameState, { version: APP_VERSION }));
            } catch(e) { setGameState(DEFAULT_GAME_STATE); }
         } else {
            setGameState(DEFAULT_GAME_STATE);
@@ -1888,8 +1912,7 @@ export default function App() {
     // Não salva localmente enquanto o load não completou (evita sobrescrever save com estado padrão)
     if (!isFullyLoadedRef.current) return;
     try {
-      const compressed = LZString.compress(JSON.stringify({ gameState }));
-      localStorage.setItem('poke_idle_save', compressed);
+      writeLocalSaveEnvelope(gameState, auth.currentUser);
     } catch (e) {
       if (e?.name === 'QuotaExceededError') {
         notify('Armazenamento local cheio. Salve na nuvem para não perder progresso!', 'error');
@@ -2025,8 +2048,11 @@ export default function App() {
 
       // 1. Salva o estado completo do jogo (comprimido)
       await setDoc(doc(db, "saves", user.uid), {
+        ownerUid: user.uid,
+        ownerEmail: user.email || null,
         compressedState,
         gameState: deleteField(),
+        updatedAtClient: Date.now(),
         updatedAt: serverTimestamp()
       }, { merge: true });
 
@@ -2198,8 +2224,7 @@ export default function App() {
           ...gameStateRef.current,
           playerStats: { ...gameStateRef.current.playerStats, lastSeenAt: Date.now() }
         };
-        const compressed = LZString.compress(JSON.stringify({ gameState: stateWithTimestamp }));
-        localStorage.setItem('poke_idle_save', compressed);
+        writeLocalSaveEnvelope(stateWithTimestamp, auth.currentUser);
       } catch (e) { /* sem-op se quota estourar */ }
     };
 
@@ -2273,8 +2298,11 @@ export default function App() {
       const cleanState = removeUndefinedFields({ ...gameState, version: gameState.version || APP_VERSION });
       const compressedState = LZString.compress(JSON.stringify(cleanState));
       await setDoc(doc(db, "saves", user.uid), {
+        ownerUid: user.uid,
+        ownerEmail: user.email || null,
         compressedState,
         gameState: deleteField(),
+        updatedAtClient: Date.now(),
         updatedAt: serverTimestamp()
       }, { merge: true });
       showConfirm({ type: 'success', title: 'Salvo!', message: 'Jogo salvo na nuvem com sucesso!', onConfirm: closeConfirm });

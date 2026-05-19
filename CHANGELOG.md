@@ -1,5 +1,12 @@
 # Changelog - PokeCraft
 
+## [v2.6.9] - 19/05/2026 17:24
+### Corrigido
+- **Save entre Dispositivos**: ao logar no computador, o jogo agora busca o save da conta diretamente de `saves/{uid}` no servidor antes de usar cache/localStorage.
+- **LocalStorage por Conta**: saves locais passam a ser gravados tambem por UID, evitando carregar progresso de outro e-mail no mesmo navegador.
+- **Protecao de Sobrescrita**: autosave fica bloqueado ate o carregamento da nuvem terminar, protegendo o save feito no celular contra estado inicial/local do computador.
+- **Auditoria de Save**: documentos de save agora registram UID, e-mail e timestamp local para facilitar verificacao futura.
+
 ## [v2.5.6] - 18/05/2026 22:05
 ### Melhorado
 - **Efeitos de Golpes**: adicionadas animacoes especificas para novos golpes marcantes, incluindo Inferno, Overheat, Whirlpool, Electro Ball, Bullet Seed, Future Sight, Close Combat, Hyper Voice, Protect, Reflect e Light Screen.

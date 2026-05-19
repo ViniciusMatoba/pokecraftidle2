@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.6.8';
-export const VERSION = '2.6.8';
-export const APP_VERSION_DATE = '19/05/2026 13:18';
+export const APP_VERSION = '2.6.9';
+export const VERSION = '2.6.9';
+export const APP_VERSION_DATE = '19/05/2026 17:24';
 export const CHANGELOG = [
+  '## [V2.6.9] - 19/05/2026 17:24',
+  '### Correcao de Save entre Celular e Computador',
+  '- **Carregamento por e-mail/UID**: ao logar, o jogo busca `saves/{uid}` diretamente do servidor antes de usar cache local.',
+  '- **LocalStorage por conta**: saves locais agora tambem sao gravados em chave vinculada ao UID, evitando misturar progresso de contas diferentes no mesmo navegador.',
+  '- **Trava anti-sobrescrita**: o autosave fica bloqueado ate o carregamento da nuvem terminar, impedindo que um estado local ou inicial sobrescreva o save bom.',
+  '- **Metadados de nuvem**: saves passam a registrar UID, e-mail e timestamp local para facilitar auditoria e suporte.',
+  '',
   '## [V2.6.8] - 19/05/2026 13:18',
   '### Novo — Drops de Raid Temáticos por Tipo',
   '- **Fragmentos de evolução temáticos** agora dropam em Raids de acordo com o tipo do Pokémon enfrentado:',

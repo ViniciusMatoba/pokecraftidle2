@@ -1,5 +1,5 @@
 {
-  "version": "2.6.8",
-  "date": "19/05/2026 13:18",
-  "notes": "Drops de raid temáticos por tipo (fragmentos de evolução) + todos os Pokémon podem aparecer em raids (pool dinâmico por BST) + 5 novos itens evolutivos na Forja."
+  "version": "2.6.9",
+  "date": "19/05/2026 17:24",
+  "notes": "Save entre celular e computador corrigido: carregamento por UID direto do servidor, localStorage por conta e trava para evitar sobrescrita antes do load da nuvem."
 }
