@@ -102,6 +102,21 @@ const canAppearAsWildTimeBonus = (id, route = {}, pokedex = {}) => {
   return baseLevel >= unlockLevel;
 };
 
+// Resolve o ID evoluído de um Pokémon para o nível dado (usa POKEDEX passado via parâmetro).
+const evolveForLevel = (id, level, pokedex) => {
+  let currentId = Number(id);
+  for (let i = 0; i < 4; i++) {
+    const entry = pokedex?.[currentId];
+    const evo = entry?.evolution;
+    if (!evo) break;
+    const evoList = Array.isArray(evo) ? evo : [evo];
+    const match = evoList.find(e => e?.level && e?.id && level >= Number(e.level));
+    if (!match) break;
+    currentId = Number(match.id);
+  }
+  return currentId;
+};
+
 const getTimeMultiplier = (entry, period, route, pokedex = {}) => {
   const id = Number(entry?.id);
   const types = getTypes(entry, pokedex);
@@ -155,9 +170,8 @@ export const getTimeAdjustedEnemyPool = (route, period = getTimeOfDay(), pokedex
   const extraLimit = options.preview ? 3 : 2;
   const extras = (TIME_EXTRA_POKEMON[period] || [])
     .filter(id => pokedex?.[id])
-    .filter(id => !unique.has(Number(id)))
-    .filter(id => !(isKantoRoute(route) && isJohtoPokemon(id)))
     .filter(id => canAppearAsWildTimeBonus(id, route, pokedex))
+    .filter(id => !(isKantoRoute(route) && isJohtoPokemon(id)))
     .filter(id => {
       const types = getTypes({ id }, pokedex);
       const biome = route?.biome || '';
@@ -166,8 +180,13 @@ export const getTimeAdjustedEnemyPool = (route, period = getTimeOfDay(), pokedex
       if (period === 'evening') return biome !== 'water' || types.includes('Electric') || types.includes('Poison');
       return biome !== 'cave';
     })
-    .slice(0, extraLimit)
-    .map(id => ({ id, level: baseLevel, spawnWeight: options.preview ? 80 : 18, timeBonus: true }));
+    .map(id => {
+      // Aplica evolução baseada no nível da rota para não adicionar formas base em rotas avançadas
+      const evolvedId = evolveForLevel(Number(id), baseLevel, pokedex);
+      return { id: evolvedId, level: baseLevel, spawnWeight: options.preview ? 80 : 18, timeBonus: true };
+    })
+    .filter(entry => !unique.has(entry.id)) // deduplicar pelo ID já evoluído
+    .slice(0, extraLimit);
 
   extras.forEach(entry => unique.set(Number(entry.id), entry));
 

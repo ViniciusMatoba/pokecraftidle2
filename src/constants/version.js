@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.7.9';
-export const VERSION = '2.7.9';
-export const APP_VERSION_DATE = '20/05/2026 07:30';
+export const APP_VERSION = '2.8.0';
+export const VERSION = '2.8.0';
+export const APP_VERSION_DATE = '20/05/2026 08:00';
 export const CHANGELOG = [
+  '## [V2.8.0] - 20/05/2026 08:00',
+  '### Sistema de Período — Correção de Encontros Extras por Horário',
+  '- **Bug corrigido**: Pokémon de forma base (Caterpie, Weedle, Pidgey, etc.) eram adicionados como bônus de horário em **qualquer rota**, sem considerar o nível da rota.',
+  '  - Exemplo: Caterpie (#10) aparecia no nível 47-48 na Rota 9 de Unova porque `TIME_EXTRA_POKEMON[day]` o injetava como extra sem aplicar evolução.',
+  '  - Causa: os extras eram adicionados com o `id` base sem passar pelo filtro de evolução.',
+  '  - Correção: `getTimeAdjustedEnemyPool()` agora chama `evolveForLevel()` nos extras antes de adicioná-los ao pool, garantindo que Caterpie→Butterfree, Weedle→Beedrill, Pidgey→Pidgeot etc. conforme o nível da rota.',
+  '- **Tabela de encontros da rota (preview)**: o popup de detalhes agora exibe as formas evoluídas corretas para o período selecionado.',
+  '',
   '## [V2.7.9] - 20/05/2026 07:30',
   '### Notificações — Correção de Barra Vazia',
   '- **Bug corrigido**: em certas situações (ex: login), aparecia uma barra de notificação em branco sem nenhum texto.',

@@ -1,5 +1,5 @@
 {
-  "version": "2.7.9",
-  "date": "20/05/2026 07:30",
-  "notes": "Correção de notificação vazia no login + Pokémon de forma base em domínios de tipo agora evoluem corretamente para o nível correspondente."
+  "version": "2.8.0",
+  "date": "20/05/2026 08:00",
+  "notes": "Correção de Pokémon base (Caterpie, Weedle, Pidgey) aparecendo em rotas avançadas como bônus de horário: agora evoluem conforme o nível da rota antes de entrar no pool de encontros."
 }
