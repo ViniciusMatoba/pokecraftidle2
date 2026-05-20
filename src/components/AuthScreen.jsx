@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { loginUser, registerUser } from '../auth';
 import { setPersistence, browserLocalPersistence, browserSessionPersistence, getAuth } from 'firebase/auth';
-import { APP_VERSION, APP_VERSION_DATE } from '../data/constants';
+import { APP_VERSION, APP_VERSION_DATE } from '../constants/version';
 import RankingModal from './RankingModal';
 import PrivacyModal from './PrivacyModal';
 

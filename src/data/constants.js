@@ -1,9 +1,3 @@
-import { APP_VERSION as V, APP_VERSION_DATE as D } from '../constants/version';
-
-export const APP_VERSION = V;
-export const APP_VERSION_DATE = D;
-
-
 export const NATURE_LIST = ['Adamant', 'Modest', 'Jolly', 'Timid', 'Bold', 'Calm', 'Impish', 'Careful', 'Brave', 'Quiet'];
 
 export const TYPE_COLORS = {

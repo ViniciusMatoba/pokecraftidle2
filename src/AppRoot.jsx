@@ -48,8 +48,9 @@ import { auth, db, trackEvent } from './firebase';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { doc, getDoc, getDocFromServer, setDoc, deleteField, serverTimestamp, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
 import LZString from 'lz-string';
-import { 
-  APP_VERSION, APP_VERSION_DATE, DEFAULT_GAME_STATE, GYM_LEVEL_CAPS, 
+import { APP_VERSION, APP_VERSION_DATE } from './constants/version';
+import {
+  DEFAULT_GAME_STATE, GYM_LEVEL_CAPS,
   NATURE_LIST, NATURES, TYPE_COLORS, trainerAvatars, ITEM_LABELS,
   STAMINA_RESTORE_TABLE, POKE_MART_DRINKS,
   BADGE_IDS, JOHTO_BADGE_IDS, HOENN_BADGE_IDS, SINNOH_BADGE_IDS,

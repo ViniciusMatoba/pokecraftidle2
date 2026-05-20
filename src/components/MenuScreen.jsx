@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { deleteUserAccount } from '../auth';
 import PrivacyModal from './PrivacyModal';
+import { APP_VERSION, APP_VERSION_DATE } from '../constants/version';
 import {
   ALOLA_BADGE_IDS,
-  APP_VERSION,
-  APP_VERSION_DATE,
   BADGE_IDS,
   GALAR_BADGE_IDS,
   HISUI_BADGE_IDS,
