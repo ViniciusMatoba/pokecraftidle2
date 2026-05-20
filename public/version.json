@@ -1,5 +1,5 @@
 {
-  "version": "2.9.3",
-  "date": "20/05/2026 20:00",
-  "notes": "Fix cloud save: dados locais agora sincronizam imediatamente com a nuvem — mesmo login em PC e celular funciona corretamente."
+  "version": "2.9.4",
+  "date": "20/05/2026 20:30",
+  "notes": "PC Storage: setas de navegação no modal de Pokémon + filtro automático por região (Usáveis Aqui)."
 }

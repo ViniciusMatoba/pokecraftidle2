@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.9.3';
-export const VERSION = '2.9.3';
-export const APP_VERSION_DATE = '20/05/2026 20:00';
+export const APP_VERSION = '2.9.4';
+export const VERSION = '2.9.4';
+export const APP_VERSION_DATE = '20/05/2026 20:30';
 export const CHANGELOG = [
+  '## [V2.9.4] - 20/05/2026 20:30',
+  '### Novo — Navegação por Setas no PC e Filtro por Região',
+  '- **Novo**: Modal de Pokémon aberto pelo PC agora tem setas ‹ › para navegar entre os Pokémons da lista filtrada atual, igual ao Time.',
+  '- **Novo**: Pontinhos de posição no rodapé do modal do PC (janela deslizante de até 9 pontos).',
+  '- **Novo**: Filtro do PC padrão é agora "Usáveis aqui" — mostra apenas Pokémon liberados para a região atual.',
+  '- **Regra**: Ao vencer a liga da região, todos os Pokémon do PC ficam liberados (exibe "Todas Liberadas").',
+  '- **Melhoria**: Dropdown de região mostra contagem de Pokémon em cada categoria.',
+  '',
   '## [V2.9.3] - 20/05/2026 20:00',
   '### Correção — Save na Nuvem entre Dispositivos',
   '- **Bug corrigido**: Ao restaurar um save local (mensagem "não havia save na nuvem"), o jogo agora sincroniza imediatamente os dados para a nuvem — outros dispositivos com o mesmo login já encontram o save atualizado.',

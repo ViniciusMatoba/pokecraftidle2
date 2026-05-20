@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { POKEDEX } from '../data/pokedex';
 import { MOVE_TRANSLATIONS } from '../data/translations';
@@ -218,7 +218,7 @@ const PokemonManagement = ({
   const [dragMoved, setDragMoved] = useState(false);
   const [pcSearch, setPcSearch] = useState('');
   const [pcSort, setPcSort] = useState('number');
-  const [pcRegion, setPcRegion] = useState(activeRegion || 'all');
+  const [pcRegion, setPcRegion] = useState('usable');
   const [showTeamReorder, setShowTeamReorder] = useState(false);
   const [moveSwapMode, setMoveSwapMode] = useState(null); // { activeIdx, currentMove }
   const [showNatureModal, setShowNatureModal] = useState(false);
@@ -251,13 +251,58 @@ const PokemonManagement = ({
     return getPokemonRegion(id);
   };
 
+  // Lista filtrada e ordenada do PC — usada tanto na grid quanto na navegação do modal
+  const pcFilteredList = useMemo(() => {
+    const worldFlags = gameState.worldFlags || [];
+    return (gameState.pc || [])
+      .map((p, idx) => ({ ...p, originalIndex: idx }))
+      .filter(p => {
+        const term = pcSearch.toLowerCase();
+        let matchesRegion;
+        if (pcRegion === 'all') {
+          matchesRegion = true;
+        } else if (pcRegion === 'usable') {
+          matchesRegion = isPokemonLegal(p, activeRegion, worldFlags);
+        } else {
+          matchesRegion = getDexRegion(p.id) === pcRegion;
+        }
+        return matchesRegion && (p.name.toLowerCase().includes(term) || String(p.id).includes(term));
+      })
+      .sort((a, b) => {
+        if (pcSort === 'alpha') return a.name.localeCompare(b.name);
+        if (pcSort === 'level') return b.level - a.level;
+        if (pcSort === 'type') return (a.type || 'Normal').localeCompare(b.type || 'Normal');
+        if (pcSort === 'number-desc') return b.id - a.id;
+        return a.id - b.id;
+      });
+  }, [gameState.pc, gameState.worldFlags, pcSearch, pcRegion, pcSort, activeRegion]);
+
+  const navigatePc = (direction) => {
+    if (!activePokemonDetails || activePokemonDetails.location !== 'pc') return;
+    const currentIdx = pcFilteredList.findIndex(p =>
+      p.instanceId
+        ? p.instanceId === activePokemonDetails.pokemon.instanceId
+        : p.originalIndex === activePokemonDetails.index
+    );
+    if (currentIdx === -1) return;
+    const newIdx = currentIdx + direction;
+    if (newIdx < 0 || newIdx >= pcFilteredList.length) return;
+    const next = pcFilteredList[newIdx];
+    setActivePokemonDetails({ pokemon: next, index: next.originalIndex, location: 'pc' });
+  };
+
   const availablePcRegions = (() => {
     // Calcula as regiões pelo número da Pokédex dos Pokémons no PC
     const regionsInPC = new Set(
       (gameState.pc || []).map(p => getDexRegion(p.id))
     );
+    const worldFlags = gameState.worldFlags || [];
+    const isChampion = !!(REGION_CHAMPION_FLAGS[activeRegion] && worldFlags.includes(REGION_CHAMPION_FLAGS[activeRegion]));
+    const usableCount = (gameState.pc || []).filter(p => isPokemonLegal(p, activeRegion, worldFlags)).length;
+    const regionLabel = REGION_LABELS[activeRegion] || activeRegion;
     return [
-      { id: 'all', label: 'Todas' },
+      { id: 'usable', label: isChampion ? `✅ Todas Liberadas (${usableCount})` : `✅ Usáveis em ${regionLabel} (${usableCount})` },
+      { id: 'all', label: `🗂 Todas (${(gameState.pc || []).length})` },
       ...REGION_ORDER
         .filter(r => regionsInPC.has(r))
         .map(r => ({ id: r, label: REGION_LABELS[r] || r })),
@@ -872,23 +917,10 @@ const PokemonManagement = ({
 
             <div className="grid grid-cols-2 gap-3">
               {(() => {
-                const filtered = (gameState.pc || [])
-                  .map((p, idx) => ({ ...p, originalIndex: idx }))
-                  .filter(p => {
-                    const term = pcSearch.toLowerCase();
-                    const matchesRegion = pcRegion === 'all' || getDexRegion(p.id) === pcRegion;
-                    return matchesRegion && (p.name.toLowerCase().includes(term) || String(p.id).includes(term));
-                  })
-                  .sort((a, b) => {
-                    if (pcSort === 'alpha') return a.name.localeCompare(b.name);
-                    if (pcSort === 'level') return b.level - a.level;
-                    if (pcSort === 'type') return (a.type || 'Normal').localeCompare(b.type || 'Normal');
-                    if (pcSort === 'number-desc') return b.id - a.id;
-                    return a.id - b.id;
-                  });
+                const filtered = pcFilteredList;
 
                 if (filtered.length === 0) {
-                  return <p className="col-span-2 text-center py-10 text-slate-400 font-bold uppercase italic">{pcSearch ? 'Nenhum Pokémon encontrado...' : 'O PC está vazio...'}</p>;
+                  return <p className="col-span-2 text-center py-10 text-slate-400 font-bold uppercase italic">{pcSearch ? 'Nenhum Pokémon encontrado...' : pcRegion === 'usable' ? 'Nenhum Pokémon liberado nesta região ainda.' : 'O PC está vazio...'}</p>;
                 }
 
                 return filtered.map((p) => {
@@ -1042,7 +1074,7 @@ const PokemonManagement = ({
                        loading="lazy"
                      />
 
-                     {/* Setas de navegação entre membros do time */}
+                     {/* Setas de navegação — Time */}
                      {activePokemonDetails.location === 'team' && (() => {
                        const team = gameState.team || [];
                        const idx = activePokemonDetails.index;
@@ -1069,6 +1101,51 @@ const PokemonManagement = ({
                                    className={`w-1.5 h-1.5 rounded-full transition-all ${i === idx ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/70'}`}
                                  />
                                ))}
+                             </div>
+                           )}
+                         </>
+                       );
+                     })()}
+
+                     {/* Setas de navegação — PC (navega pela lista filtrada atual) */}
+                     {activePokemonDetails.location === 'pc' && (() => {
+                       const currentIdx = pcFilteredList.findIndex(p =>
+                         p.instanceId
+                           ? p.instanceId === activePokemonDetails.pokemon.instanceId
+                           : p.originalIndex === activePokemonDetails.index
+                       );
+                       return (
+                         <>
+                           {currentIdx > 0 && (
+                             <button
+                               onClick={() => navigatePc(-1)}
+                               className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/30 hover:bg-black/50 backdrop-blur-sm flex items-center justify-center text-white font-black text-sm transition-all active:scale-90 shadow-lg"
+                               title="Pokémon anterior"
+                             >‹</button>
+                           )}
+                           {currentIdx < pcFilteredList.length - 1 && (
+                             <button
+                               onClick={() => navigatePc(1)}
+                               className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/30 hover:bg-black/50 backdrop-blur-sm flex items-center justify-center text-white font-black text-sm transition-all active:scale-90 shadow-lg"
+                               title="Próximo Pokémon"
+                             >›</button>
+                           )}
+                           {pcFilteredList.length > 1 && (
+                             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-20 max-w-[80%] overflow-hidden">
+                               {pcFilteredList.slice(
+                                 Math.max(0, currentIdx - 4),
+                                 Math.min(pcFilteredList.length, currentIdx + 5)
+                               ).map((_, relI) => {
+                                 const absI = Math.max(0, currentIdx - 4) + relI;
+                                 return (
+                                   <button key={absI} onClick={() => {
+                                     const p = pcFilteredList[absI];
+                                     setActivePokemonDetails({ pokemon: p, index: p.originalIndex, location: 'pc' });
+                                   }}
+                                     className={`w-1.5 h-1.5 rounded-full transition-all ${absI === currentIdx ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/70'}`}
+                                   />
+                                 );
+                               })}
                              </div>
                            )}
                          </>
