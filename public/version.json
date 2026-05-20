@@ -1,5 +1,5 @@
 {
-  "version": "2.8.5",
-  "date": "20/05/2026 15:00",
-  "notes": "Modo Manual por Turnos: botões ⚡AUTO/🎯TURNO no Painel Automático. No modo TURNO, clique no golpe para atacar — inimigo responde automaticamente."
+  "version": "2.8.6",
+  "date": "20/05/2026 12:46",
+  "notes": "Confirmação de Pokébola: janela de confirmação antes do arremesso, pausa total da batalha, diálogo de retry após falha."
 }

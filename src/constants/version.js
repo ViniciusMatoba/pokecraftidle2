@@ -1,7 +1,17 @@
-export const APP_VERSION = '2.8.5';
-export const VERSION = '2.8.5';
-export const APP_VERSION_DATE = '20/05/2026 15:00';
+export const APP_VERSION = '2.8.6';
+export const VERSION = '2.8.6';
+export const APP_VERSION_DATE = '20/05/2026 12:46';
 export const CHANGELOG = [
+  '## [V2.8.6] - 20/05/2026 12:46',
+  '### Diálogo de Confirmação de Pokébola',
+  '- **Novo**: Ao clicar numa Pokébola, aparece janela de confirmação com sprite do Pokémon, quantidade disponível e botões ✅/❌.',
+  '- **Pausa total**: durante o diálogo, todos os ataques automáticos, ticks de batalha e spawn de novos inimigos são bloqueados via `captureConfirmRef`.',
+  '- **Após falha**: ao terminar a animação de falha, aparece diálogo de retry "X escapou! Jogar outra [ball]?" com botão "⚔️ Continuar" para retomar a batalha normalmente.',
+  '- **Após sucesso**: animação completa → próximo Pokémon entra automaticamente (sem bloqueio).',
+  '- **Anti-freeze**: `captureConfirmRef` e `captureAnimatingRef` são independentes; `handleBattleTick`, `useAutoFarm` e auto-spawn useEffect checam ambos.',
+  '- **`handleCaptureThrow`**: nova função extraída, executa o arremesso e toda a lógica de captura após confirmação.',
+  '- **`handleCaptureCancel`**: limpa todos os flags e retoma a batalha sem consumir bola.',
+  '',
   '## [V2.8.5] - 20/05/2026 15:00',
   '### Modo Manual por Turnos (Battle Toggle)',
   '- **Novo**: Painel Automático agora tem botões ⚡ AUTO / 🎯 TURNO no topo.',

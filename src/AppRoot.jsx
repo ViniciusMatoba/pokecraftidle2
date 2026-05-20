@@ -1090,6 +1090,9 @@ export default function App() {
   const captureAnimatingRef = useRef(false);  // bloqueia auto-farm durante qualquer animação de captura
   const [isManualActing, setIsManualActing] = useState(false); // bloqueia botões durante turno do inimigo
   const manualMoveRef = useRef(null);          // índice do golpe escolhido pelo jogador no modo manual
+  const [captureConfirmEvent, setCaptureConfirmEvent] = useState(null); // { itemId, source, isRetry? }
+  const captureConfirmRef = useRef(false);     // bloqueia battle tick/spawn durante diálogo de confirmação
+  const captureFailRetryRef = useRef(null);    // { itemId, source } — após fail, mostra diálogo de retry
   const [floatingTexts, setFloatingTexts] = useState([]);
   const [weather, setWeather] = useState('none');
   const [weatherTurns, setWeatherTurns] = useState(0);
@@ -3293,13 +3296,13 @@ export default function App() {
     const viewsAllowingBattle = ['battles', 'pokemon_management', 'pokedex', 'menu', 'vs'];
     const isPaused = activeBuildingModal !== null;
 
-    // Durante animação de captura, o spawn é gerenciado por handleCaptureDone
-    if (captureAnimatingRef.current) return;
+    // Durante animação de captura ou diálogo de confirmação, spawn bloqueado
+    if (captureAnimatingRef.current || captureConfirmRef.current) return;
 
     if (viewsAllowingBattle.includes(currentView) && !isPaused && hasEnemies && (!currentEnemy || currentEnemy.hp <= 0)) {
       const delay = !currentEnemy ? 50 : 800;
       const timer = setTimeout(() => {
-        if (captureAnimatingRef.current) return; // re-check dentro do timer
+        if (captureAnimatingRef.current || captureConfirmRef.current) return; // re-check dentro do timer
         const routeNow = processedRoutes[gameState.currentRoute];
         const hasEnemiesNow = routeNow?.enemies?.length > 0 || routeNow?.trainers?.length > 0;
         if (viewsAllowingBattle.includes(currentView) && !isPaused && hasEnemiesNow && (!currentEnemy || currentEnemy.hp <= 0)) {
@@ -3837,8 +3840,8 @@ export default function App() {
   // TICK DE BATALHA
   // ⛏️” PROTECTED: handleBattleTick — NíO EDITAR SEM AUTORIZAÇíO EXPLíCITA
   const handleBattleTick = useCallback(() => {
-    // Bloqueia ticks durante animação de captura (arremesso, chacoalhos, resultado)
-    if (captureAnimatingRef.current) return;
+    // Bloqueia ticks durante animação de captura ou diálogo de confirmação
+    if (captureAnimatingRef.current || captureConfirmRef.current) return;
 
     const speedMultiplier = [1, 0.6, 0.3][(gameState.settings?.battleSpeed || 1) - 1] || 1;
     
@@ -4917,13 +4920,11 @@ export default function App() {
   const handleUseItem = useCallback((itemId, source = 'items') => {
     if (currentViewRef.current !== 'battles' || !currentEnemy) return;
 
-    // ── Pokébola: lógica fora do setGameState para evitar setState-in-setState ──
+    // ── Pokébola: abre diálogo de confirmação antes de arremessar ──
     if (itemId === 'pokeballs' || itemId === 'great_ball' || itemId === 'ultra_ball') {
-      // Verificar quantidade diretamente no estado atual
       const bag = source === 'items' ? (gameState.inventory?.items || {}) : (gameState.inventory?.materials || {});
       if (!bag[itemId] || bag[itemId] <= 0) return;
 
-      // Guardas (sem precisar de prev)
       if (currentEnemy.isTrainer || currentEnemy.isWildBoss) {
         const reason = currentEnemy.isWildBoss ? "Pokémons Chefões não podem ser capturados!" : "Você não pode capturar Pokémons de outros treinadores!";
         addLog(`🚫 ${reason}`, 'enemy');
@@ -4934,129 +4935,10 @@ export default function App() {
         return;
       }
 
-      let multiplier = 1.0;
-      if (itemId === 'great_ball') multiplier = 1.5;
-      if (itemId === 'ultra_ball') multiplier = 2.0;
-
-      const captureSuccess = Math.random() < getCaptureRate(currentEnemy, multiplier, POKEDEX);
-
-      // Dispara animação — fora do setGameState para referência estável
-      captureAnimatingRef.current = true; // bloqueia auto-farm durante toda a animação
-      setCaptureEvent({
-        ballType: itemId,
-        result: captureSuccess ? 'success' : 'fail',
-        pokemonId: currentEnemy.id,
-        pokemonName: currentEnemy.name,
-        isShiny: currentEnemy.isShiny,
-      });
-
-      if (captureSuccess) {
-        // Para o auto-farm: currentEnemy null → battleReady false → sem ataques durante animação
-        setCurrentEnemy(null);
-        // Sinaliza que handleCaptureDone deve spawnar novo inimigo ao fim da animação
-        captureSpawnRef.current = true;
-
-        addLog(`✨ Capturado! ${currentEnemy.name} agora é seu!`, 'system');
-        if (currentEnemy.isShiny) {
-          notify({ type: 'capture', title: '✨ SHINY capturado!', message: `${currentEnemy.name} brilhante foi capturado!`, duration: 6000 });
-        }
-        sfxCapture();
-        sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
-      }
-
-      // Atualiza inventário + equipe/PC num único setGameState (sem efeitos colaterais)
-      const capturedEnemy = currentEnemy; // captura a ref antes do setCurrentEnemy
-      setGameState(prev => {
-        const prevBag = source === 'items' ? (prev.inventory?.items || {}) : (prev.inventory?.materials || {});
-        if (!prevBag[itemId] || prevBag[itemId] <= 0) return prev; // double-check
-
-        let newInventory = {
-          ...prev.inventory,
-          [source]: { ...prevBag, [itemId]: prevBag[itemId] - 1 }
-        };
-
-        if (!captureSuccess) {
-          // fail: apenas consome a bola
-          return { ...prev, inventory: newInventory };
-        }
-
-        // success: adiciona Pokémon ao time/PC
-        const newCaughtData = { ...(prev.caughtData || {}), [capturedEnemy.id]: true };
-        const newPoke = assignRandomAbility({
-          ...capturedEnemy,
-          id: Number(capturedEnemy.id),
-          hp: capturedEnemy.maxHp,
-          xp: 0,
-          instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-          capturedRegion: prev.activeRegion || 'kanto',
-          ball: itemId || 'pokeballs',
-          stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
-        }, POKEDEX[Number(capturedEnemy.id)]);
-        const newMastery = processCaptureMastery({ ...capturedEnemy, id: Number(capturedEnemy.id) }, prev);
-
-        const { questUpdate, log: questLog } = updateQuestProgress(prev, 'capture');
-        if (questLog) addLog(questLog, 'drop');
-        if (questUpdate.inventory) newInventory.items = questUpdate.inventory.items;
-
-        // Unificação por Espécie
-        const alreadyCaught = ownsSpecies(prev, capturedEnemy);
-        if (alreadyCaught) {
-          addLog(`?? ${capturedEnemy.name} j? capturado! Maestria aumentada.`, 'system');
-          const findAndReplace = (list) => {
-            const newList = list.map(p => {
-              if (Number(p.id) === Number(capturedEnemy.id) && ((p.formKey || null) === (capturedEnemy.formKey || null))) {
-                if (capturedEnemy.isShiny) {
-                  const upgraded = applyShinyUpgrade(p, POKEDEX[Number(p.id)]);
-                  const newCount = upgraded.shinyCount;
-                  if (!p.isShiny) {
-                    addLog(`✨ Upgrade Shiny! ${p.name} agora é Brilhante! (+20% stats)`, 'system');
-                  } else {
-                    addLog(`✨ Shiny Stack x${newCount}! ${p.name} ficou ainda mais forte! (+${Math.round((1.2 + (newCount-1)*0.05 - 1)*100)}% total)`, 'system');
-                  }
-                  return upgraded;
-                }
-              }
-              return p;
-            });
-            return { newList };
-          };
-          const { newList: teamUpdate } = findAndReplace(prev.team);
-          const { newList: pcUpdate } = findAndReplace(prev.pc || []);
-          return {
-            ...prev,
-            inventory: newInventory,
-            speciesMastery: newMastery,
-            caughtData: newCaughtData,
-            team: teamUpdate,
-            pc: pcUpdate,
-            shinyCapturedCount: (prev.shinyCapturedCount || 0) + (capturedEnemy.isShiny ? 1 : 0),
-            playerStats: bumpPlayerStats(prev.playerStats, { pokemonCaptured: 1, shinyCaptured: capturedEnemy.isShiny ? 1 : 0 }),
-            ...questUpdate
-          };
-        }
-
-        // Primeira captura
-        const newTeam = [...prev.team];
-        const newPC = [...(prev.pc || [])];
-        if (newTeam.length < 6) {
-          newTeam.push(newPoke);
-        } else {
-          newPC.push(newPoke);
-          addLog(`${newPoke.name} foi enviado para o PC!`, 'system');
-        }
-        return {
-          ...prev,
-          inventory: newInventory,
-          team: newTeam,
-          pc: newPC,
-          caughtData: newCaughtData,
-          speciesMastery: newMastery,
-          shinyCapturedCount: (prev.shinyCapturedCount || 0) + (capturedEnemy.isShiny ? 1 : 0),
-          playerStats: bumpPlayerStats(prev.playerStats, { pokemonCaptured: 1, shinyCaptured: capturedEnemy.isShiny ? 1 : 0 }),
-          ...questUpdate
-        };
-      });
-      return; // não continua para o setGameState abaixo
+      // Pausa tudo e abre o diálogo de confirmação
+      captureConfirmRef.current = true;
+      setCaptureConfirmEvent({ itemId, source });
+      return;
     }
 
     // ── Outros itens (poções, stamina, etc.) ──
@@ -5177,17 +5059,158 @@ export default function App() {
   // Callback memoizado: chamado quando a animação de captura termina.
   // CRÍTICO: deve ser estável (useCallback) — mudança de referência reseta os timers do CaptureAnimation.
   const handleCaptureDone = useCallback(() => {
-    captureAnimatingRef.current = false; // libera auto-farm
+    captureAnimatingRef.current = false;
     setCaptureEvent(null);
+    // Caso sucesso → spawn próximo inimigo
     if (captureSpawnRef.current) {
       captureSpawnRef.current = false;
-      spawnEnemy(); // spawn APENAS após animação terminar
+      spawnEnemy();
+      return;
+    }
+    // Caso falha → mostra diálogo de retry (battle continua pausada)
+    if (captureFailRetryRef.current) {
+      const retryData = captureFailRetryRef.current;
+      captureFailRetryRef.current = null;
+      captureConfirmRef.current = true;
+      setCaptureConfirmEvent({ ...retryData, isRetry: true });
     }
   }, [spawnEnemy]);
 
+  // Executa o arremesso real da pokébola (chamado pelo diálogo de confirmação)
+  const handleCaptureThrow = useCallback((itemId, source) => {
+    // Fecha o diálogo e troca o bloqueio: confirm → animating
+    setCaptureConfirmEvent(null);
+    captureConfirmRef.current = false;
+
+    if (!currentEnemy || currentEnemy.hp <= 0) return;
+
+    const bag = source === 'items' ? (gameState.inventory?.items || {}) : (gameState.inventory?.materials || {});
+    if (!bag[itemId] || bag[itemId] <= 0) return;
+
+    let multiplier = 1.0;
+    if (itemId === 'great_ball') multiplier = 1.5;
+    if (itemId === 'ultra_ball') multiplier = 2.0;
+
+    const captureSuccess = Math.random() < getCaptureRate(currentEnemy, multiplier, POKEDEX);
+
+    captureAnimatingRef.current = true;
+    setCaptureEvent({
+      ballType: itemId,
+      result: captureSuccess ? 'success' : 'fail',
+      pokemonId: currentEnemy.id,
+      pokemonName: currentEnemy.name,
+      isShiny: currentEnemy.isShiny,
+    });
+
+    if (captureSuccess) {
+      setCurrentEnemy(null);
+      captureSpawnRef.current = true;
+      addLog(`✨ Capturado! ${currentEnemy.name} agora é seu!`, 'system');
+      if (currentEnemy.isShiny) {
+        notify({ type: 'capture', title: '✨ SHINY capturado!', message: `${currentEnemy.name} brilhante foi capturado!`, duration: 6000 });
+      }
+      sfxCapture();
+      sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
+    } else {
+      // Após animação de falha, handleCaptureDone mostrará o diálogo de retry
+      captureFailRetryRef.current = { itemId, source };
+    }
+
+    const capturedEnemy = currentEnemy;
+    setGameState(prev => {
+      const prevBag = source === 'items' ? (prev.inventory?.items || {}) : (prev.inventory?.materials || {});
+      if (!prevBag[itemId] || prevBag[itemId] <= 0) return prev;
+
+      let newInventory = {
+        ...prev.inventory,
+        [source]: { ...prevBag, [itemId]: prevBag[itemId] - 1 }
+      };
+
+      if (!captureSuccess) {
+        return { ...prev, inventory: newInventory };
+      }
+
+      const newCaughtData = { ...(prev.caughtData || {}), [capturedEnemy.id]: true };
+      const newPoke = assignRandomAbility({
+        ...capturedEnemy,
+        id: Number(capturedEnemy.id),
+        hp: capturedEnemy.maxHp,
+        xp: 0,
+        instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+        capturedRegion: prev.activeRegion || 'kanto',
+        ball: itemId || 'pokeballs',
+        stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
+      }, POKEDEX[Number(capturedEnemy.id)]);
+      const newMastery = processCaptureMastery({ ...capturedEnemy, id: Number(capturedEnemy.id) }, prev);
+
+      const { questUpdate, log: questLog } = updateQuestProgress(prev, 'capture');
+      if (questLog) addLog(questLog, 'drop');
+      if (questUpdate.inventory) newInventory.items = questUpdate.inventory.items;
+
+      const alreadyCaught = ownsSpecies(prev, capturedEnemy);
+      if (alreadyCaught) {
+        addLog(`🔄 ${capturedEnemy.name} já capturado! Maestria aumentada.`, 'system');
+        const findAndReplace = (list) => ({
+          newList: list.map(p => {
+            if (Number(p.id) === Number(capturedEnemy.id) && ((p.formKey || null) === (capturedEnemy.formKey || null))) {
+              if (capturedEnemy.isShiny) {
+                const upgraded = applyShinyUpgrade(p, POKEDEX[Number(p.id)]);
+                const newCount = upgraded.shinyCount;
+                if (!p.isShiny) addLog(`✨ Upgrade Shiny! ${p.name} agora é Brilhante! (+20% stats)`, 'system');
+                else addLog(`✨ Shiny Stack x${newCount}! ${p.name} ficou ainda mais forte! (+${Math.round((1.2 + (newCount-1)*0.05 - 1)*100)}% total)`, 'system');
+                return upgraded;
+              }
+            }
+            return p;
+          })
+        });
+        const { newList: teamUpdate } = findAndReplace(prev.team);
+        const { newList: pcUpdate } = findAndReplace(prev.pc || []);
+        return {
+          ...prev,
+          inventory: newInventory,
+          speciesMastery: newMastery,
+          caughtData: newCaughtData,
+          team: teamUpdate,
+          pc: pcUpdate,
+          shinyCapturedCount: (prev.shinyCapturedCount || 0) + (capturedEnemy.isShiny ? 1 : 0),
+          playerStats: bumpPlayerStats(prev.playerStats, { pokemonCaptured: 1, shinyCaptured: capturedEnemy.isShiny ? 1 : 0 }),
+          ...questUpdate
+        };
+      }
+
+      const newTeam = [...prev.team];
+      const newPC = [...(prev.pc || [])];
+      if (newTeam.length < 6) {
+        newTeam.push(newPoke);
+      } else {
+        newPC.push(newPoke);
+        addLog(`${newPoke.name} foi enviado para o PC!`, 'system');
+      }
+      return {
+        ...prev,
+        inventory: newInventory,
+        team: newTeam,
+        pc: newPC,
+        caughtData: newCaughtData,
+        speciesMastery: newMastery,
+        shinyCapturedCount: (prev.shinyCapturedCount || 0) + (capturedEnemy.isShiny ? 1 : 0),
+        playerStats: bumpPlayerStats(prev.playerStats, { pokemonCaptured: 1, shinyCaptured: capturedEnemy.isShiny ? 1 : 0 }),
+        ...questUpdate
+      };
+    });
+  }, [currentEnemy, gameState.inventory, addLog, notify, sfxCapture, sessionRef, setGameState]);
+
+  // Cancela a confirmação e retoma a batalha normalmente
+  const handleCaptureCancel = useCallback(() => {
+    setCaptureConfirmEvent(null);
+    captureConfirmRef.current = false;
+    captureFailRetryRef.current = null;
+  }, []);
+
   // Modo manual por turnos: jogador escolhe o golpe → executa troca completa
   const handleManualAttack = useCallback((moveIdx) => {
-    if (isManualActing || captureAnimatingRef.current) return;
+    if (isManualActing || captureAnimatingRef.current || captureConfirmRef.current) return;
     if (!currentEnemy || currentEnemy.hp <= 0) return;
 
     setIsManualActing(true);
@@ -11008,6 +11031,103 @@ export default function App() {
            </div>
         </div>
       )}
+      {/* ── Diálogo de Confirmação / Retry de Pokébola ── */}
+      {captureConfirmEvent && currentEnemy && (
+        (() => {
+          const { itemId, source, isRetry } = captureConfirmEvent;
+          const BALL_LABELS = { pokeballs: 'Pokébola', great_ball: 'Great Ball', ultra_ball: 'Ultra Ball' };
+          const BALL_IMGS = {
+            pokeballs: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
+            great_ball: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png',
+            ultra_ball: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png',
+          };
+          const ballLabel = BALL_LABELS[itemId] || 'Pokébola';
+          const ballImg   = BALL_IMGS[itemId] || BALL_IMGS.pokeballs;
+          const bag = source === 'items' ? (gameState.inventory?.items || {}) : (gameState.inventory?.materials || {});
+          const qty = bag[itemId] || 0;
+          const pokeName  = isRetry ? (captureConfirmEvent.pokemonName || currentEnemy?.name) : currentEnemy?.name;
+          const pokeId    = isRetry ? (captureConfirmEvent.pokemonId   || currentEnemy?.id)   : currentEnemy?.id;
+          const isShiny   = isRetry ? captureConfirmEvent.isShiny : currentEnemy?.isShiny;
+          const spriteUrl = pokeId
+            ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${isShiny ? 'shiny/' : ''}${pokeId}.png`
+            : null;
+
+          return (
+            <div
+              className="absolute inset-0 z-[200] flex items-end justify-center pb-6 px-4"
+              style={{ background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)' }}
+            >
+              <div
+                className="w-full max-w-[380px] rounded-3xl overflow-hidden shadow-2xl animate-bounceIn"
+                style={{ background: 'linear-gradient(160deg,#1e293b 0%,#0f172a 100%)', border: '1.5px solid rgba(255,255,255,0.08)' }}
+              >
+                {/* Sprite + cabeçalho */}
+                <div className="flex flex-col items-center pt-5 pb-3 px-5 gap-1">
+                  {spriteUrl && (
+                    <img
+                      src={spriteUrl}
+                      alt={pokeName}
+                      style={{ width: 80, height: 80, imageRendering: 'pixelated', objectFit: 'contain',
+                        filter: isShiny ? 'drop-shadow(0 0 10px gold)' : 'drop-shadow(0 0 8px rgba(99,179,237,0.5))' }}
+                    />
+                  )}
+                  <p
+                    className="font-black uppercase tracking-wide text-center"
+                    style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 11,
+                      color: isRetry ? '#f87171' : '#7dd3fc' }}
+                  >
+                    {isRetry ? `💨 ${pokeName} escapou!` : pokeName}
+                  </p>
+                </div>
+
+                {/* Pergunta */}
+                <div className="px-5 pb-3 text-center">
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <img src={ballImg} alt={ballLabel} style={{ width: 28, height: 28, imageRendering: 'pixelated' }} />
+                    <p className="text-white font-black text-sm">
+                      {isRetry ? `Jogar outra ${ballLabel}?` : `Usar ${ballLabel} em ${pokeName}?`}
+                    </p>
+                  </div>
+                  <p className="text-slate-400 text-[10px]">
+                    {qty > 0 ? `${qty} ${ballLabel}${qty !== 1 ? 's' : ''} disponív${qty !== 1 ? 'eis' : 'el'}` : `Sem ${ballLabel}s!`}
+                  </p>
+                </div>
+
+                {/* Botões */}
+                <div className="grid grid-cols-2 gap-3 px-5 pb-5">
+                  {/* Confirmar / Jogar outra */}
+                  <button
+                    onClick={() => qty > 0 && handleCaptureThrow(itemId, source)}
+                    disabled={qty <= 0}
+                    className="py-3 rounded-2xl font-black text-sm transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{
+                      background: qty > 0 ? 'linear-gradient(135deg,#3b82f6,#1d4ed8)' : '#334155',
+                      color: '#fff',
+                      boxShadow: qty > 0 ? '0 4px 16px rgba(59,130,246,0.4)' : 'none',
+                    }}
+                  >
+                    {isRetry ? '🎯 Jogar outra' : '✅ Sim, usar!'}
+                  </button>
+
+                  {/* Cancelar / Continuar Batalha */}
+                  <button
+                    onClick={handleCaptureCancel}
+                    className="py-3 rounded-2xl font-black text-sm transition-all active:scale-95"
+                    style={{
+                      background: 'rgba(255,255,255,0.08)',
+                      color: '#94a3b8',
+                      border: '1.5px solid rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    {isRetry ? '⚔️ Continuar' : '❌ Cancelar'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })()
+      )}
+
       {canShowAutoCaptureModal && (
         <AutoCaptureModal
           route={autoCaptureRoute}
