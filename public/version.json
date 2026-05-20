@@ -1,5 +1,5 @@
 {
-  "version": "2.7.3",
-  "date": "20/05/2026 10:30",
-  "notes": "Travas individuais por sprite na Loja de Prestígio: cada personagem tem condição temática única (badge mínimo, evento específico ou milestone de história)."
+  "version": "2.7.4",
+  "date": "20/05/2026 06:05",
+  "notes": "Fix: sprite do Ranking Global corrigido (URL errada para PokeAPI) + ícones de itens no Resumo da Jornada exibidos como imagem em vez de texto."
 }

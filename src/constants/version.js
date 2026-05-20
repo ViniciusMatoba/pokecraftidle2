@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.7.3';
-export const VERSION = '2.7.3';
-export const APP_VERSION_DATE = '20/05/2026 10:30';
+export const APP_VERSION = '2.7.4';
+export const VERSION = '2.7.4';
+export const APP_VERSION_DATE = '20/05/2026 06:05';
 export const CHANGELOG = [
+  '## [V2.7.4] - 20/05/2026 06:05',
+  '### Correção — Ranking Global e Resumo da Jornada',
+  '- **Ranking Global**: sprite do treinador corrigido — a URL estava apontando para PokeAPI (que não hospeda sprites de treinadores) com ID incorreto. Agora usa `AVATAR_SPRITES[avatar].sprite`, garantindo a URL correta do PokemonShowdown para qualquer avatar.',
+  '- **Resumo da Jornada**: ícones dos itens coletados estavam exibindo a URL como texto. Corrigido com detecção de URL (`startsWith(\'http\')`) para renderizar `<img>` em vez de `<span>`.',
+  '',
   '## [V2.7.3] - 20/05/2026 10:30',
   '### Loja de Prestígio — Travas Individuais por Sprite',
   '- **Giovanni**: desbloqueado ao limpar o Esconderijo da Rocket (não mais campeão de Kanto).',

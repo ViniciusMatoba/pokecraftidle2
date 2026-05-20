@@ -10110,7 +10110,11 @@ export default function App() {
                       return (
                         <div key={mat} className="flex items-center gap-1.5 bg-white border border-amber-200 rounded-xl px-2.5 py-1 shadow-sm">
                           {item.icon ? (
-                            <span className="text-xs">{item.icon}</span>
+                            item.icon.startsWith('http') ? (
+                              <img src={item.icon} className="w-4 h-4 object-contain" alt="" />
+                            ) : (
+                              <span className="text-xs">{item.icon}</span>
+                            )
                           ) : (
                             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-4 h-4 object-contain" alt="" />
                           )}

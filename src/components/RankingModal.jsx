@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { getGlobalRanking, getUserProfile } from '../services/ranking';
 import { auth } from '../firebase';
 import { TrainerCardModal } from './CommonUI';
+import { AVATAR_SPRITES } from '../data/cosmetics';
 
 const POKEAPI_ITEM_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
 
@@ -87,10 +88,10 @@ const RankingModal = ({ onClose }) => {
                       {/* Avatar & Info */}
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-2xl bg-slate-800 border border-slate-700 overflow-hidden">
-                           <img 
-                             src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/${player.avatar || 1}.png`} 
-                             className="w-full h-full object-contain scale-125 translate-y-1" 
-                             alt="" 
+                           <img
+                             src={AVATAR_SPRITES[player.avatar]?.sprite || AVATAR_SPRITES.red.sprite}
+                             className="w-full h-full object-contain scale-125 translate-y-1"
+                             alt=""
                            />
                         </div>
                         <div>
