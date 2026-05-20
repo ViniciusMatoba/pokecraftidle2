@@ -871,12 +871,13 @@ export default function App() {
               }
             } catch { /* ignora erros de leitura local */ }
 
+            let finalStateAfterLoad = migratedData;
             if (lastActiveAt) {
               const elapsedMs = Date.now() - lastActiveAt;
               const progress = calculateOfflineProgress(migratedData, ROUTES, elapsedMs);
               if (progress) {
-                const stateWithProgress = applyOfflineProgress(migratedData, progress);
-                setGameState(stateWithProgress);
+                finalStateAfterLoad = applyOfflineProgress(migratedData, progress);
+                setGameState(finalStateAfterLoad);
                 setOfflineProgress(progress);
                 trackEvent('offline_progress', {
                   hours_offline: Math.round(progress.cappedMs / 3_600_000 * 10) / 10,
@@ -900,6 +901,10 @@ export default function App() {
               region: migratedData.activeRegion || 'kanto',
             });
 
+            // Persiste o estado final (com progresso offline) na nuvem imediatamente
+            // para que outros dispositivos partam do ponto correto
+            saveToCloud(finalStateAfterLoad).catch(() => { /* silencia — retry automático */ });
+
             const hasRealProgress = (migratedData.worldFlags || []).length > 0 || (migratedData.badges || []).length > 0;
             if (hasRealProgress) {
               setCurrentView('city');
@@ -910,11 +915,18 @@ export default function App() {
             if (localData) {
               const migratedLocal = migrateGameState(localData, { version: APP_VERSION });
               setGameState(migratedLocal);
-              notify('Save local restaurado (não havia save na nuvem).', 'info');
+              isFullyLoadedRef.current = true;
+              notify('Sincronizando dados locais com a nuvem...', 'info');
+              // Empurra o save local para a nuvem imediatamente
+              // para que outros dispositivos encontrem o save ao fazer login
+              saveToCloud(migratedLocal).catch(e => {
+                console.error('[Save] Sincronização local→nuvem falhou:', e);
+                notify('Não foi possível sincronizar com a nuvem. Verifique sua conexão.', 'error');
+              });
             } else {
               setGameState(DEFAULT_GAME_STATE);
+              isFullyLoadedRef.current = true;
             }
-            isFullyLoadedRef.current = true;
           }
         } catch (err) {
           console.error("❌ [Cloud] Error loading save:", err);
@@ -2275,7 +2287,7 @@ export default function App() {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
       saveToCloud(data).catch(e => console.error("Auto save fail:", e));
-    }, 60_000); // 60s — equilibrio entre segurança e cota Firestore
+    }, 30_000); // 30s — equilibrio entre segurança e cota Firestore
   }, [saveToCloud]);
 
   // 3. beforeunload + visibilitychange — salva com lastSeenAt antes de fechar/minimizar

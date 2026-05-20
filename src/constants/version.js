@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.9.2';
-export const VERSION = '2.9.2';
-export const APP_VERSION_DATE = '20/05/2026 19:30';
+export const APP_VERSION = '2.9.3';
+export const VERSION = '2.9.3';
+export const APP_VERSION_DATE = '20/05/2026 20:00';
 export const CHANGELOG = [
+  '## [V2.9.3] - 20/05/2026 20:00',
+  '### Correção — Save na Nuvem entre Dispositivos',
+  '- **Bug corrigido**: Ao restaurar um save local (mensagem "não havia save na nuvem"), o jogo agora sincroniza imediatamente os dados para a nuvem — outros dispositivos com o mesmo login já encontram o save atualizado.',
+  '- **Bug corrigido**: Após carregar da nuvem com progresso offline, o estado atualizado é persistido na nuvem imediatamente, garantindo consistência entre PC e celular.',
+  '- **Melhoria**: Auto-save debounce reduzido de 60s para 30s — menor janela de perda de progresso ao fechar o jogo.',
+  '- **Melhoria**: Mensagem de sincronização mais clara ao restaurar dados locais.',
+  '',
   '## [V2.9.2] - 20/05/2026 19:30',
   '### Correção Crítica — Modal de Pokémon causando erro ao abrir',
   '- **Bug corrigido**: Variável `types` estava definida dentro de um IIFE (escopo do cabeçalho do modal) mas referenciada fora dele na seção de nome, causando ReferenceError ao abrir qualquer Pokémon.',

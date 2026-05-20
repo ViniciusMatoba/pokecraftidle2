@@ -1,5 +1,5 @@
 {
-  "version": "2.9.2",
-  "date": "20/05/2026 19:30",
-  "notes": "Fix crítico: corrige ReferenceError ao abrir modal de Pokémon — variável de tipos agora acessível em todo o modal."
+  "version": "2.9.3",
+  "date": "20/05/2026 20:00",
+  "notes": "Fix cloud save: dados locais agora sincronizam imediatamente com a nuvem — mesmo login em PC e celular funciona corretamente."
 }
