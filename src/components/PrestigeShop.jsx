@@ -92,9 +92,13 @@ const getUnlockReason = (item, badges, worldFlags) => {
   const reasons = [];
   if (item.unlockFlag) {
     if (!(worldFlags || []).includes(item.unlockFlag)) {
-      const parts = item.unlockFlag.split('_');
-      const region = REGION_FROM_FLAG[parts[0]] || parts[0];
-      reasons.push(parts[1] === 'champion' ? `Seja Campeão de ${region}` : `Inicie a região de ${region}`);
+      if (item.lockReason) {
+        reasons.push(item.lockReason);
+      } else {
+        const parts = item.unlockFlag.split('_');
+        const region = REGION_FROM_FLAG[parts[0]] || parts[0];
+        reasons.push(parts[1] === 'champion' ? `Seja Campeão de ${region}` : `Inicie a região de ${region}`);
+      }
     }
   }
   if ((item.minBadges || 0) > (badges || 0)) {

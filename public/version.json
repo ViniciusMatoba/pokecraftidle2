@@ -1,5 +1,5 @@
 {
-  "version": "2.7.2",
-  "date": "19/05/2026 18:05",
-  "notes": "Evolucao automatica de encontros: rotas de alto nivel agora substituem pre-evolucoes pela forma coerente com o nivel, usando a Pokedex completa."
+  "version": "2.7.3",
+  "date": "20/05/2026 10:30",
+  "notes": "Travas individuais por sprite na Loja de Prestígio: cada personagem tem condição temática única (badge mínimo, evento específico ou milestone de história)."
 }

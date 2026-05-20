@@ -1,7 +1,18 @@
-export const APP_VERSION = '2.7.2';
-export const VERSION = '2.7.2';
-export const APP_VERSION_DATE = '19/05/2026 18:05';
+export const APP_VERSION = '2.7.3';
+export const VERSION = '2.7.3';
+export const APP_VERSION_DATE = '20/05/2026 10:30';
 export const CHANGELOG = [
+  '## [V2.7.3] - 20/05/2026 10:30',
+  '### Loja de Prestígio — Travas Individuais por Sprite',
+  '- **Giovanni**: desbloqueado ao limpar o Esconderijo da Rocket (não mais campeão de Kanto).',
+  '- **Lorelei**: desbloqueada ao libertar a Silph Co. da Equipe Rocket.',
+  '- **Cyrus**: desbloqueado ao derrotar a Equipe Galáctica no Spear Pillar.',
+  '- **Rivais por progresso**: Prata (14 insígnias), Wally (20), Barry (28), Cheren/Bianca (36).',
+  '- **Líderes de ginásio por região**: Elesa (38), Korrina (42), Clemont (44), Hau (50), Lillie/Acerola (52), Gladion (54), Hop (58).',
+  '- **Galar avançado**: Marnie/Bea/Nessa/Allister (60), Piers (62), Raihan (63).',
+  '- **Paldea avançado**: Nemona/Arven (66), Iono (68), Kieran/Carmine (70).',
+  '- **Mensagem de bloqueio**: items com flag customizada exibem texto correto via campo `lockReason`.',
+  '',
   '## [V2.7.2] - 19/05/2026 18:05',
   '### Correcao de Encontros em Rotas',
   '- **Evolucao automatica completa**: o mapa de evolucao por nivel agora e gerado a partir da Pokedex completa, cobrindo Kanto ate Paldea.',
