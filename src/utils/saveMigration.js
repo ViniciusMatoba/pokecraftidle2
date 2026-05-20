@@ -3,12 +3,17 @@ import { REGION_BADGE_IDS, REGION_CHAMPION_FLAGS, REGION_ORDER, REGION_START_FLA
 import { getEarnedBadgeIds } from './progress';
 import { POKEDEX } from '../data/pokedex';
 
-// Garante que todo Pokémon salvo tenha o array `types` populado via Pokédex
+// Garante que todo Pokémon salvo tenha o array `types` populado via Pokédex.
+// Sempre sobrescreve a partir do Pokédex — corrige casos onde evolution copiou apenas o tipo primário.
 const fixPokemonTypes = (poke) => {
   if (!poke || typeof poke !== 'object') return poke;
-  if (Array.isArray(poke.types) && poke.types.length > 0) return poke;
   const entry = POKEDEX[Number(poke.id)];
-  const types = entry?.types || (entry?.type ? [entry.type] : (poke.type ? [poke.type] : ['Normal']));
+  if (!entry) return poke; // ID desconhecido, mantém o que tem
+  const types = (Array.isArray(entry.types) && entry.types.length > 0)
+    ? entry.types
+    : (entry.type ? [entry.type] : (poke.type ? [poke.type] : ['Normal']));
+  // Só patcha se realmente difere, para não criar objeto novo desnecessariamente
+  if (Array.isArray(poke.types) && poke.types.length === types.length && poke.types.every((t, i) => t === types[i])) return poke;
   return { ...poke, types };
 };
 

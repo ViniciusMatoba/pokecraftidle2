@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.9.0';
-export const VERSION = '2.9.0';
-export const APP_VERSION_DATE = '20/05/2026 19:30';
+export const APP_VERSION = '2.9.1';
+export const VERSION = '2.9.1';
+export const APP_VERSION_DATE = '20/05/2026 19:02';
 export const CHANGELOG = [
+  '## [V2.9.1] - 20/05/2026 19:02',
+  '### Correção Crítica — Modal de Pokémon exibindo tipo único',
+  '- **Bug corrigido**: Modal de detalhe do Pokémon (PokéManagement) agora consulta o Pokédex diretamente para obter os tipos, ignorando o valor potencialmente desatualizado salvo no objeto do Pokémon.',
+  '- **Migração aprimorada**: `fixPokemonTypes` agora sempre sobrescreve `types` a partir do Pokédex, corrigindo Pokémon que evoluíram antes do fix e ficaram com apenas o tipo primário no array.',
+  '- Badge de tipo no fundo e abaixo do nome agora usa a variável `types` calculada do Pokédex.',
+  '',
   '## [V2.9.0] - 20/05/2026 19:30',
   '### Correções de UI — 5 Bugs Visuais e Funcionais',
   '- **Bug corrigido**: 48 Mega Pedras sem imagem (usavam URL inexistente `mega-stone.png`) → substituídas por asset local `/items/mega_stone_shard.webp`.',

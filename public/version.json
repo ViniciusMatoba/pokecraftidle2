@@ -1,5 +1,5 @@
 {
-  "version": "2.9.0",
-  "date": "20/05/2026 19:30",
-  "notes": "5 bugs corrigidos: 48 Mega Pedras sem imagem, resumo da jornada com ícones quebrados, modal Pokébola no fundo, dual-type em todos os modais, migração de types para salvamentos antigos."
+  "version": "2.9.1",
+  "date": "20/05/2026 19:02",
+  "notes": "Fix crítico: modal de Pokémon agora lê tipos diretamente do Pokédex — corrige evoluções antigas que mostravam apenas o tipo primário."
 }

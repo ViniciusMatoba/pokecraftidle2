@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { POKEDEX } from '../data/pokedex';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '../data/candies';
 import { getTimeOfDay } from '../utils/timeSystem';
@@ -971,7 +972,11 @@ const PokemonManagement = ({
                </button>
                {(() => {
                  const poke = activePokemonDetails.pokemon;
-                 const types = (poke.types && poke.types.length > 0) ? poke.types : [poke.type || 'Normal'];
+                 // Sempre busca do Pokédex para garantir tipos corretos (corrige evoluções antigas)
+                 const _pokedexEntry = POKEDEX[Number(poke.id)];
+                 const types = (_pokedexEntry?.types?.length > 0)
+                   ? _pokedexEntry.types
+                   : (poke.types?.length > 0 ? poke.types : [poke.type || 'Normal']);
                  const t1 = types[0] || 'Normal';
                  const t2 = types[1] || null;
 
@@ -1086,7 +1091,7 @@ const PokemonManagement = ({
                             <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
                           </>
                         )}
-                        {(activePokemonDetails.pokemon.types || [activePokemonDetails.pokemon.type || 'Normal']).map(t => (
+                        {types.map(t => (
                           <span
                             key={t}
                             className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[8px] font-black uppercase tracking-wider text-white shadow-sm"
