@@ -958,6 +958,54 @@ export default function App() {
     };
   }, []);
 
+  // Verificação periódica de versão — garante que usuários logados sejam notificados
+  useEffect(() => {
+    const isNewer = (v1, v2) => {
+      const p1 = String(v1).split('.').map(Number);
+      const p2 = String(v2).split('.').map(Number);
+      for (let i = 0; i < 3; i++) {
+        if ((p1[i] || 0) > (p2[i] || 0)) return true;
+        if ((p1[i] || 0) < (p2[i] || 0)) return false;
+      }
+      return false;
+    };
+
+    const checkVersion = async () => {
+      try {
+        const res = await fetch('./version.json?v=' + Date.now(), {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache' }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (isNewer(data.version, APP_VERSION)) {
+          notify({
+            type: 'warning',
+            title: `Nova versão disponível: v${data.version}`,
+            message: 'Acesse o Menu → Atualizar para aplicar.',
+            duration: 12000,
+          });
+          // Força também update do SW para que esteja pronto ao clicar Atualizar
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistration().then(reg => reg?.update());
+          }
+        }
+      } catch (_) {}
+    };
+
+    // Verifica imediatamente ao montar e depois a cada 5 minutos
+    checkVersion();
+    const interval = setInterval(checkVersion, 5 * 60 * 1000);
+    // Verifica também ao voltar para a aba (usuário pode ter ficado muito tempo)
+    const onVisible = () => { if (document.visibilityState === 'visible') checkVersion(); };
+    document.addEventListener('visibilitychange', onVisible);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, []);
+
   // Preloader Effect
   useEffect(() => {
     const assets = {
