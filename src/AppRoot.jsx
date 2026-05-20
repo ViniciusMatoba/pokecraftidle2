@@ -1085,6 +1085,7 @@ export default function App() {
   const [moveIndex, setMoveIndex] = useState(0);
   const [battleLog, setBattleLog] = useState([]);
   const [currentEnemy, setCurrentEnemy] = useState(null);
+  const [captureEvent, setCaptureEvent] = useState(null);
   const [floatingTexts, setFloatingTexts] = useState([]);
   const [weather, setWeather] = useState('none');
   const [weatherTurns, setWeatherTurns] = useState(0);
@@ -4928,7 +4929,18 @@ export default function App() {
         if (itemId === 'ultra_ball') multiplier = 2.0;
 
         const catchRate = getCaptureRate(currentEnemy, multiplier, POKEDEX);
-        if (Math.random() < catchRate) {
+        const captureSuccess = Math.random() < catchRate;
+
+        // Dispara animação de arremesso de pokébola
+        setCaptureEvent({
+          ballType: itemId,
+          result: captureSuccess ? 'success' : 'fail',
+          pokemonId: currentEnemy.id,
+          pokemonName: currentEnemy.name,
+          isShiny: currentEnemy.isShiny,
+        });
+
+        if (captureSuccess) {
           addLog(`✨ Capturado! ${currentEnemy.name} agora é seu!`, 'system');
           if (currentEnemy.isShiny) {
             notify({ type: 'capture', title: '✨ SHINY capturado!', message: `${currentEnemy.name} brilhante foi capturado!`, duration: 6000 });
@@ -4980,7 +4992,7 @@ export default function App() {
             };
             let { newList: teamUpdate } = findAndReplace(prev.team);
             let { newList: pcUpdate } = findAndReplace(prev.pc || []);
-            setTimeout(() => spawnEnemy(), 1000);
+            setTimeout(() => spawnEnemy(), 4500);
             return {
               ...prev,
               inventory: newInventory,
@@ -5008,7 +5020,7 @@ export default function App() {
             addLog(`${newPoke.name} foi enviado para o PC!`, 'system');
           }
 
-          setTimeout(() => spawnEnemy(), 1000);
+          setTimeout(() => spawnEnemy(), 4500);
           return {
             ...prev,
             inventory: newInventory,
@@ -5024,8 +5036,8 @@ export default function App() {
             ...questUpdate
           };
         } else {
-          const enemyName = currentEnemy.name || 'Desconhecido';
-          addLog(`💨 O ${enemyName} escapou da Pokébola!`, 'enemy');
+          // fail — animação já foi disparada, consome a bola e mantém estado
+          return { ...prev, inventory: newInventory };
         }
       } else if (itemId === 'potions') {
         const activePoke = prev.team[activeMemberIndex];
@@ -8830,6 +8842,8 @@ export default function App() {
                     startKeyBattle(battle);
                   }
                 }}
+                captureEvent={captureEvent}
+                onCaptureDone={() => setCaptureEvent(null)}
           />
         </div>
       );

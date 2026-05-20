@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.8.1';
-export const VERSION = '2.8.1';
-export const APP_VERSION_DATE = '20/05/2026 09:30';
+export const APP_VERSION = '2.8.2';
+export const VERSION = '2.8.2';
+export const APP_VERSION_DATE = '20/05/2026 11:00';
 export const CHANGELOG = [
+  '## [V2.8.2] - 20/05/2026 11:00',
+  '### Animação de Captura de Pokémon',
+  '- **Novo**: Ao usar uma Pokébola, exibe animação completa de 5 fases: arremesso da bola → absorção do Pokémon → 3 chacoalhos → resultado (capturado ou fugiu) → fade-out.',
+  '- Sucesso: partículas douradas, check verde e mensagem "Capturado! [Nome] agora é seu!".',
+  '- Falha: bola quebra, Pokémon reaparece e mensagem "Fugiu! [Nome] escapou da Pokébola!".',
+  '- Sprites e cores da bola variam conforme o tipo usado (Pokébola, Super Bola, Ultra Bola).',
+  '- Novo inimigo é gerado após 4,5s (tempo da animação completa) em vez de 1s imediato.',
+  '',
   '## [V2.8.1] - 20/05/2026 09:30',
   '### Auditoria de Captura Regional — Cobertura Completa por Região',
   '- **Hoenn**: adicionados Makuhita (#296), Meditite (#307), Volbeat (#313), Illumise (#314), Roselia (#315), Gulpin (#316), Carvanha (#318), Wailmer (#320), Torkoal (#324), Spoink (#325), Spinda (#327), Cacnea (#331), Lunatone (#337), Solrock (#338), Barboach (#339), Baltoy (#343), Feebas (#349), Spheal (#363), Clamperl (#366), Bagon (#371) — distribuídos em `granite_cave`, `route_113`, `fiery_path`, `meteor_falls`, `route_111_desert`, `mt_chimney`, `route_118_119`, `ocean_routes`, `petalburg_woods` (Cascoon #268 já presente).',

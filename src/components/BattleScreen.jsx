@@ -9,6 +9,7 @@ import { TIME_CONFIG } from '../utils/timeSystem';
 import { WEATHER_TYPES } from '../data/weather';
 import { getPokeballDef } from '../data/pokeballs';
 import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokemonSprites';
+import CaptureAnimation from './CaptureAnimation';
 
 const ShinySparkles = () => (
   <div className="absolute inset-0 pointer-events-none z-30">
@@ -192,7 +193,8 @@ const BattleScreen = ({
   currentEnemy, gameState, activeMemberIndex, moveIndex, weather,
   setActiveMemberIndex, addLog, battleLog, floatingTexts,
   onUseItem, setGameState, setShowAutoCaptureModal, ROUTES, fixPath, TYPE_COLORS, onGoToCity, onChallengeBoss,
-  timeOfDay, showAutoConfigExternal = false, setShowAutoConfigExternal, bossTimer, currentLevelCap = 100
+  timeOfDay, showAutoConfigExternal = false, setShowAutoConfigExternal, bossTimer, currentLevelCap = 100,
+  captureEvent, onCaptureDone,
 }) => {
   const activePoke = gameState.team?.[activeMemberIndex];
   const autoConfig = gameState.autoCaptureConfig || { autoCapture: false, autoPotion: false, hpThreshold: 30, staminaThreshold: 30, autoStamina: false };
@@ -387,21 +389,29 @@ const BattleScreen = ({
 
         <div
           className="absolute inset-0"
-          style={{ 
+          style={{
             background: mainBackground,
-            backgroundSize: 'cover', 
+            backgroundSize: 'cover',
             backgroundPosition: 'center',
             filter: TIME_CONFIG[timeOfDay]?.skyFilter || 'none',
             transition: 'filter 2s ease',
           }}
         />
-        
+
         {/* Environmental Vignette */}
         {showVignette && <div className="screen-vignette" />}
         <div
           className="absolute inset-0 pointer-events-none z-[5]"
           style={{ background: TIME_CONFIG[timeOfDay]?.overlayColor || 'transparent', transition: 'background 2s ease' }}
         />
+
+        {/* ── Animação de captura ── */}
+        {captureEvent && (
+          <CaptureAnimation
+            captureEvent={captureEvent}
+            onDone={onCaptureDone}
+          />
+        )}
 
         {shinyFlash && !showTrainer && <ShinySparkles />}
 
