@@ -1,5 +1,5 @@
 {
-  "version": "2.7.8",
-  "date": "20/05/2026 06:45",
-  "notes": "Correção de níveis do pool curado de raids: Pokémon de regiões anteriores agora recebem o nível da região ativa do jogador (fresh-start), não da sua região de origem."
+  "version": "2.7.9",
+  "date": "20/05/2026 07:30",
+  "notes": "Correção de notificação vazia no login + Pokémon de forma base em domínios de tipo agora evoluem corretamente para o nível correspondente."
 }

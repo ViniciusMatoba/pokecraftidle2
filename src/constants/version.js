@@ -1,7 +1,19 @@
-export const APP_VERSION = '2.7.8';
-export const VERSION = '2.7.8';
-export const APP_VERSION_DATE = '20/05/2026 06:45';
+export const APP_VERSION = '2.7.9';
+export const VERSION = '2.7.9';
+export const APP_VERSION_DATE = '20/05/2026 07:30';
 export const CHANGELOG = [
+  '## [V2.7.9] - 20/05/2026 07:30',
+  '### Notificações — Correção de Barra Vazia',
+  '- **Bug corrigido**: em certas situações (ex: login), aparecia uma barra de notificação em branco sem nenhum texto.',
+  '  - Causa: `notify("texto", "tipo")` era chamado no formato legado de string; ao fazer spread do objeto `{ ...string, id }`, os índices de caractere eram espalhados sem `title` ou `message`, gerando uma notificação visualmente vazia.',
+  '  - Correção: `notify()` agora detecta automaticamente o formato legado e converte para `{ type, message }` antes de processar.',
+  '',
+  '### Rotas Pós-Jogo — Evolução em Domínios de Tipo',
+  '- **Bug corrigido**: Pokémon de forma base (Caterpie, Magikarp, etc.) apareciam em níveis elevados (70-100) nas rotas de Domínio de Tipo.',
+  '  - Causa: `buildTypeDomainEnemies()` gerava todos os Pokémon de um tipo em nível 70-100 sem aplicar filtro de evolução.',
+  '  - Causa secundária: `getLeveledSpeciesId()` tratava apenas `evolution` como objeto simples, ignorando as 102 entradas do Pokédex que usam formato de array.',
+  '  - Correção: `getLeveledSpeciesId()` agora suporta tanto formato objeto quanto array; aplicado a todos os inimigos de domínio após a geração.',
+  '',
   '## [V2.7.8] - 20/05/2026 06:45',
   '### Raids — Correção de Níveis do Pool Curado',
   '- **Bug corrigido**: Pokémon de regiões anteriores (pool curado "nostalgia") recebiam o nível da sua região de origem em vez da região ativa do jogador.',
