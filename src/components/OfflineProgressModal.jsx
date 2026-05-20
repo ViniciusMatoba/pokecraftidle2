@@ -186,7 +186,7 @@ function CaptureCard({ capture }) {
           </div>
           <div className="flex justify-between">
             <span className="text-indigo-300 text-[11px]">Tipo</span>
-            <span className="text-[11px] font-bold" style={{ color: typeColor }}>{capture.type}</span>
+            <span className="text-[11px] font-bold" style={{ color: typeColor }}>{(capture.types || [capture.type]).join(' / ')}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-indigo-300 text-[11px]">Raridade</span>

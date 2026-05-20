@@ -31,7 +31,7 @@ const AutoCaptureModal = ({ route, gameState, setGameState, onSave, onClose, onD
 
   const routePokemon = route.enemies?.map(e => {
     const data = POKEDEX[Number(e.id)];
-    return data ? { id: Number(e.id), name: data.name, type: data.type } : null;
+    return data ? { id: Number(e.id), name: data.name, type: data.type, types: data.types || [data.type] } : null;
   }).filter(Boolean) || [];
 
   const toggleTarget = (id) => {
@@ -159,7 +159,7 @@ const AutoCaptureModal = ({ route, gameState, setGameState, onSave, onClose, onD
                       </div>
                       <div className="text-left min-w-0">
                         <p className="text-slate-800 font-black text-[10px] leading-tight">{p.name}</p>
-                        <p className="text-slate-400 text-[8px] mt-0.5">{p.type}</p>
+                        <p className="text-slate-400 text-[8px] mt-0.5">{(p.types || [p.type]).join(' / ')}</p>
                         {caught && <p className="text-green-500 text-[8px] font-bold">Ja capturado</p>}
                       </div>
                     </button>

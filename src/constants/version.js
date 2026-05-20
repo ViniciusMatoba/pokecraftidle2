@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.8.8';
-export const VERSION = '2.8.8';
-export const APP_VERSION_DATE = '20/05/2026 15:30';
+export const APP_VERSION = '2.8.9';
+export const VERSION = '2.8.9';
+export const APP_VERSION_DATE = '20/05/2026 18:33';
 export const CHANGELOG = [
+  '## [V2.8.9] - 20/05/2026 18:33',
+  '### Correção de Tipos — Exibição e Efetividade para Pokémon de Tipo Duplo',
+  '- **Bug corrigido**: Badge de efetividade nas animações de batalha ("Super Efetivo!" / "Pouco Efetivo!") usava apenas o tipo primário do Pokémon, ignorando o segundo tipo. Agora calcula corretamente contra todos os tipos do defensor.',
+  '- **Corrigido**: AutoCapture, HouseScreen, ExpeditionsScreen e OfflineProgress agora exibem ambos os tipos (ex: "Fire / Psychic" em vez de "Fire").',
+  '- **Dado corrigido**: Butterfree (ID 12) tinha `types: ["Bug","Psychic"]` → corrigido para `types: ["Bug","Flying"]`.',
+  '',
   '## [V2.8.8] - 20/05/2026 15:30',
   '### Balanceamento de Níveis — Correção de Outliers por Região',
   '- **Kalos Rota 4**: unlockLevel 16→12; inimigos principais 14→11; Honedge 24→17; demais outliers normalizados (14-15).',

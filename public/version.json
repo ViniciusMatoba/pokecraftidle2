@@ -1,5 +1,5 @@
 {
-  "version": "2.8.8",
-  "date": "20/05/2026 15:30",
-  "notes": "Balanceamento de níveis: Kalos Rota 2→4 suavizada, outliers corrigidos em Galar (Rota 9 -24 níveis!), Alola, Paldea e Kalos."
+  "version": "2.8.9",
+  "date": "20/05/2026 18:33",
+  "notes": "Correção de tipos: badge de efetividade nas batalhas agora considera ambos os tipos do Pokémon; exibição dual-type em todas as telas; Butterfree corrigido para Bug/Flying."
 }

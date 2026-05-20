@@ -4205,7 +4205,8 @@ export default function App() {
 
         // Dispara evento de animação do golpe para o BattleScreen
         if (allyBonus?.damageMult) playerDmg = Math.floor(playerDmg * allyBonus.damageMult);
-        const eff = getTypeEffectiveness(move.type, updatedEnemyFinal.type);
+        const _enemyTypesForEff = (updatedEnemyFinal.types || [updatedEnemyFinal.type]).filter(Boolean);
+        const eff = _enemyTypesForEff.reduce((m, t) => m * getTypeEffectiveness(move.type, t), 1);
         window.dispatchEvent(new CustomEvent('pokemove', {
           detail: {
             name: move.name,
@@ -4613,7 +4614,8 @@ export default function App() {
               const enemyDmgRaw = calcDamage(updatedEnemyFinal, enemyMove, updatedTeamFinal[activeMemberIndex]);
 
               // Dispara evento de animação do golpe inimigo
-              const effE = getTypeEffectiveness(enemyMove.type, updatedTeamFinal[activeMemberIndex].type);
+              const _playerTypesForEff = (updatedTeamFinal[activeMemberIndex].types || [updatedTeamFinal[activeMemberIndex].type]).filter(Boolean);
+              const effE = _playerTypesForEff.reduce((m, t) => m * getTypeEffectiveness(enemyMove.type, t), 1);
               window.dispatchEvent(new CustomEvent('pokemove', {
                 detail: {
                   name: enemyMove.name,

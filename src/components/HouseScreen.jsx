@@ -255,10 +255,10 @@ const HouseScreen = ({
                       </div>
                       <div>
                         <p className="text-sm font-black text-white uppercase tracking-tighter">{p.name}</p>
-                        <p className="text-[9px] font-bold text-white/40 uppercase">Nível {p.level} • {p.type}</p>
+                        <p className="text-[9px] font-bold text-white/40 uppercase">Nível {p.level} • {(p.types || [p.type]).join(' / ')}</p>
                       </div>
                     </div>
-                    <button 
+                    <button
                       onClick={() => onRemoveCaretaker(p.instanceId)}
                       className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all"
                     >
@@ -554,7 +554,7 @@ const HouseScreen = ({
                         </div>
                         <div>
                           <p className="text-sm font-black text-white uppercase tracking-tighter">{p.name}</p>
-                          <p className="text-[9px] font-bold text-white/40 uppercase">Nível {p.level} • {p.type}</p>
+                          <p className="text-[9px] font-bold text-white/40 uppercase">Nível {p.level} • {(p.types || [p.type]).join(' / ')}</p>
                         </div>
                       </div>
                       {isRecommended && (
@@ -585,7 +585,7 @@ const HouseScreen = ({
                 />
               </div>
               <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-1">{selectedPokemonForDetails.name}</h3>
-              <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-6">Tipo {selectedPokemonForDetails.type}</p>
+              <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-6">Tipo {(selectedPokemonForDetails.types || [selectedPokemonForDetails.type]).join(' / ')}</p>
               
               <div className="bg-white/5 rounded-3xl p-6 border border-white/10 text-left mb-8">
                 <p className="text-[9px] font-black text-amber-400 uppercase tracking-wider mb-2">Função no Jardim:</p>

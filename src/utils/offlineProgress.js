@@ -73,6 +73,7 @@ function simulateCaptures(gameState, route, battles) {
           name: POKEDEX[Number(enemy.id)]?.name || enemy.name || `#${enemy.id}`,
           level: enemy.level,
           type: POKEDEX[Number(enemy.id)]?.type || enemy.type || 'Normal',
+          types: POKEDEX[Number(enemy.id)]?.types || [POKEDEX[Number(enemy.id)]?.type || enemy.type || 'Normal'],
           rarity: getPokemonRarity(enemy, POKEDEX),
           count: 0,
         };

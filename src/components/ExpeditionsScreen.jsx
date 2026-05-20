@@ -782,7 +782,7 @@ const ExpeditionsScreen = ({
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-white font-black text-xs truncate">{p.name}</p>
-                          <p className="text-white/50 text-[9px]">Nv. {p.level} - {p.type}</p>
+                          <p className="text-white/50 text-[9px]">Nv. {p.level} - {(p.types || [p.type]).join(' / ')}</p>
                           <EfficiencyBadge value={eff} />
                         </div>
                         {selected && (
