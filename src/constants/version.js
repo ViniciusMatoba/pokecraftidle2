@@ -1,7 +1,21 @@
-export const APP_VERSION = '2.8.7';
-export const VERSION = '2.8.7';
-export const APP_VERSION_DATE = '20/05/2026 14:51';
+export const APP_VERSION = '2.8.8';
+export const VERSION = '2.8.8';
+export const APP_VERSION_DATE = '20/05/2026 15:30';
 export const CHANGELOG = [
+  '## [V2.8.8] - 20/05/2026 15:30',
+  '### Balanceamento de Níveis — Correção de Outliers por Região',
+  '- **Kalos Rota 4**: unlockLevel 16→12; inimigos principais 14→11; Honedge 24→17; demais outliers normalizados (14-15).',
+  '- **Kalos Azure Bay**: Inkay 26→35, Binacle 24→34 (próximos ao nível 38 da rota).',
+  '- **Kalos Frost Cavern**: Phantump e Pumpkaboo 34→43 (próximos ao nível 46 da rota).',
+  '- **Galar Rota 5**: outliers Applin/Silicobra normalizados para 26-28.',
+  '- **Galar Glimwood Tangle**: outliers 30-34→35-36 (próximos ao nível 38 da rota).',
+  '- **Galar Rota 9**: Drakloak 24→44, Arctovish 30→44 — maior outlier do jogo corrigido (diferença era -24 níveis!).',
+  '- **Alola Aether Paradise**: Dewpider/Mareanie 26-28→33-34 (próximos ao nível 36 da rota).',
+  '- **Alola Ula\'ula Island**: Comfey/Togedemaru 34-36→42 (próximos ao nível 44 da rota).',
+  '- **Alola Vast Poni Canyon**: Pyukumuku 40→49 (próximo ao nível 52 da rota).',
+  '- **Paldea Medali**: outliers 26-28→37 (próximos ao nível 40 da rota).',
+  '- **Paldea Glaseado Mountain**: Snorunt/Bergmite 38-40→46 (próximos ao nível 50 da rota).',
+  '',
   '## [V2.8.7] - 20/05/2026 14:51',
   '### Correção de Sprites — Trio das Espadas (Unova)',
   '- **Bug corrigido**: Cobalion usava ID 580 (Ducklett!) → corrigido para ID 638 (Cobalion real).',
