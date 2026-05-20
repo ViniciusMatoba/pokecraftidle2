@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.9.1';
-export const VERSION = '2.9.1';
-export const APP_VERSION_DATE = '20/05/2026 19:02';
+export const APP_VERSION = '2.9.2';
+export const VERSION = '2.9.2';
+export const APP_VERSION_DATE = '20/05/2026 19:30';
 export const CHANGELOG = [
+  '## [V2.9.2] - 20/05/2026 19:30',
+  '### Correção Crítica — Modal de Pokémon causando erro ao abrir',
+  '- **Bug corrigido**: Variável `types` estava definida dentro de um IIFE (escopo do cabeçalho do modal) mas referenciada fora dele na seção de nome, causando ReferenceError ao abrir qualquer Pokémon.',
+  '- **Fix**: Cálculo de `_modalTypes` movido para o escopo externo do portal, usando POKEDEX como fonte primária; ambas as seções do modal (cabeçalho e corpo) agora acessam a mesma variável corretamente.',
+  '',
   '## [V2.9.1] - 20/05/2026 19:02',
   '### Correção Crítica — Modal de Pokémon exibindo tipo único',
   '- **Bug corrigido**: Modal de detalhe do Pokémon (PokéManagement) agora consulta o Pokédex diretamente para obter os tipos, ignorando o valor potencialmente desatualizado salvo no objeto do Pokémon.',

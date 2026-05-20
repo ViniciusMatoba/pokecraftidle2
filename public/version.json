@@ -1,5 +1,5 @@
 {
-  "version": "2.9.1",
-  "date": "20/05/2026 19:02",
-  "notes": "Fix crítico: modal de Pokémon agora lê tipos diretamente do Pokédex — corrige evoluções antigas que mostravam apenas o tipo primário."
+  "version": "2.9.2",
+  "date": "20/05/2026 19:30",
+  "notes": "Fix crítico: corrige ReferenceError ao abrir modal de Pokémon — variável de tipos agora acessível em todo o modal."
 }

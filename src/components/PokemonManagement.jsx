@@ -964,7 +964,14 @@ const PokemonManagement = ({
         )}
       </div>
 
-      {activePokemonDetails && typeof document !== 'undefined' && createPortal((
+      {activePokemonDetails && typeof document !== 'undefined' && createPortal((() => {
+        // Resolve tipos do Pokémon ativo fora dos IIFEs para que fique acessível em todo o modal
+        const _modalPoke = activePokemonDetails.pokemon;
+        const _modalPokedexEntry = POKEDEX[Number(_modalPoke.id)];
+        const _modalTypes = (_modalPokedexEntry?.types?.length > 0)
+          ? _modalPokedexEntry.types
+          : (_modalPoke.types?.length > 0 ? _modalPoke.types : [_modalPoke.type || 'Normal']);
+        return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
            <div className="bg-white w-[82vw] max-w-[360px] max-h-[82dvh] rounded-[2rem] shadow-2xl border-b-[8px] border-slate-200 overflow-hidden relative animate-slideInUp flex flex-col">
                <button onClick={() => setActivePokemonDetails(null)} className="absolute top-4 right-4 bg-white/20 w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/30 backdrop-blur-md transition-all z-20 text-white font-black text-xs">
@@ -972,11 +979,8 @@ const PokemonManagement = ({
                </button>
                {(() => {
                  const poke = activePokemonDetails.pokemon;
-                 // Sempre busca do Pokédex para garantir tipos corretos (corrige evoluções antigas)
-                 const _pokedexEntry = POKEDEX[Number(poke.id)];
-                 const types = (_pokedexEntry?.types?.length > 0)
-                   ? _pokedexEntry.types
-                   : (poke.types?.length > 0 ? poke.types : [poke.type || 'Normal']);
+                 // Usa os tipos já resolvidos no escopo externo
+                 const types = _modalTypes;
                  const t1 = types[0] || 'Normal';
                  const t2 = types[1] || null;
 
@@ -1091,7 +1095,7 @@ const PokemonManagement = ({
                             <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
                           </>
                         )}
-                        {types.map(t => (
+                        {_modalTypes.map(t => (
                           <span
                             key={t}
                             className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[8px] font-black uppercase tracking-wider text-white shadow-sm"
@@ -1950,7 +1954,8 @@ const PokemonManagement = ({
                </div>
             </div>
          </div>
-      ), document.body)}
+        );
+      })(), document.body)}
 
       {/* ── Modal de Troca de Pokébola ────────────────────────── */}
       {showBallSwapModal && activePokemonDetails && createPortal(
