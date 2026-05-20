@@ -1,11 +1,12 @@
-// Service Worker — versão lida dinamicamente do version.json
-// Ao mudar a versão do app, o cache é invalidado automaticamente.
-let CACHE_NAME = 'pokecraft-cache-v1.98.15';
+// Service Worker — versão sincronizada com version.json
+// IMPORTANTE: esta linha DEVE ser atualizada a cada bump de versão
+// para que o browser detecte o novo SW e invalide o cache antigo.
+let CACHE_NAME = 'pokecraft-cache-v2.7.8';
 
 // Busca versão atual para manter cache sincronizado
 async function getCacheName() {
   try {
-    const res = await fetch('./version.json?_sw=1');
+    const res = await fetch('./version.json?_sw=' + Date.now(), { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
       return `pokecraft-cache-v${data.version}`;
@@ -22,12 +23,15 @@ const STATIC_ASSETS = [
   './version.json',
 ];
 
-// Instalação: cacheia ativos estáticos iniciais
+// Instalação: usa getCacheName() para garantir cache com versão correta desde o início
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS).catch(() => {});
+    getCacheName().then((cacheName) => {
+      CACHE_NAME = cacheName;
+      return caches.open(cacheName).then((cache) => {
+        return cache.addAll(STATIC_ASSETS).catch(() => {});
+      });
     })
   );
 });
