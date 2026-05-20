@@ -68,7 +68,7 @@ import { getTimeOfDay, TIME_CONFIG, getTimeAdjustedEnemyPool } from './utils/tim
 import AutoCaptureModal from './components/AutoCaptureModal';
 import ConfirmModal from './components/ConfirmModal';
 import RankingModal from './components/RankingModal';
-import RareDropModal from './components/RareDropModal';
+import RareDropModal, { isRareDropDismissed } from './components/RareDropModal';
 
 import { QUESTS, updateQuestProgress, getAvailableQuest } from './data/quests';
 import NotificationSystem, { notify } from './components/NotificationSystem';
@@ -700,7 +700,7 @@ const RegionIntroScreen = ({
               <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${s.id}.png`}
                 className="w-16 h-16 object-contain" alt={s.name} />
               <span className="text-[10px] font-black uppercase text-slate-800">{s.name}</span>
-              <span className="text-[8px] font-black uppercase text-slate-400">{s.type}</span>
+              <span className="text-[8px] font-black uppercase text-slate-400">{(s.types || [s.type]).join(' / ')}</span>
             </button>
           ))}
         </div>
@@ -7105,7 +7105,8 @@ export default function App() {
     if (newRecipes?.length > 0 && !recipeFoundModal) {
       setTimeout(() => setRecipeFoundModal(newRecipes[0]), 400);
     } else if (rareDrops?.length > 0 && !rareDropModal && !recipeFoundModal) {
-      setTimeout(() => setRareDropModal(rareDrops[0]), 400);
+      const nextDrop = rareDrops.find(d => !isRareDropDismissed(d.type));
+      if (nextDrop) setTimeout(() => setRareDropModal(nextDrop), 400);
     }
     if (currentEnemy.isTrainer && currentEnemy.trainerReward) {
       const actualReward = getTrainerCurrencyReward(currentEnemy.trainerReward || 0);
@@ -7751,9 +7752,9 @@ export default function App() {
                       <span style={{
                         fontSize:'10px', fontWeight:900, textTransform:'uppercase',
                         padding:'2px 8px', borderRadius:'8px', color:'white',
-                        background: starter.type === 'Grass' ? '#16a34a' : starter.type === 'Fire' ? '#dc2626' : starter.type === 'Water' ? '#2563eb' : starter.type === 'Electric' ? '#ca8a04' : '#64748b'
+                        background: (starter.types?.[0] || starter.type) === 'Grass' ? '#16a34a' : (starter.types?.[0] || starter.type) === 'Fire' ? '#dc2626' : (starter.types?.[0] || starter.type) === 'Water' ? '#2563eb' : (starter.types?.[0] || starter.type) === 'Electric' ? '#ca8a04' : '#64748b'
                       }}>
-                        {starter.type}
+                        {(starter.types || [starter.type]).join(' / ')}
                       </span>
                       <span className="text-[11px] text-[#94a3b8] font-bold">
                         VER DETALHES
@@ -8222,7 +8223,7 @@ export default function App() {
                     >
                       <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${starter.id}.png`} className="w-16 h-16 object-contain" alt={starter.name} />
                       <span className="text-[10px] font-black uppercase text-slate-800 leading-none">{starter.name}</span>
-                      <span className="text-[8px] font-black uppercase text-slate-400">{starter.type}</span>
+                      <span className="text-[8px] font-black uppercase text-slate-400">{(starter.types || [starter.type]).join(' / ')}</span>
                     </button>
                   ))}
                 </div>
@@ -8283,7 +8284,7 @@ export default function App() {
                     >
                       <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${starter.id}.png`} className="w-16 h-16 object-contain" alt={starter.name} />
                       <span className="text-[10px] font-black uppercase text-slate-800 leading-none">{starter.name}</span>
-                      <span className="text-[8px] font-black uppercase text-slate-400">{starter.type}</span>
+                      <span className="text-[8px] font-black uppercase text-slate-400">{(starter.types || [starter.type]).join(' / ')}</span>
                     </button>
                   ))}
                 </div>
@@ -10277,8 +10278,8 @@ export default function App() {
                       return (
                         <div key={mat} className="flex items-center gap-1.5 bg-white border border-amber-200 rounded-xl px-2.5 py-1 shadow-sm">
                           {item.icon ? (
-                            item.icon.startsWith('http') ? (
-                              <img src={item.icon} className="w-4 h-4 object-contain" alt="" />
+                            (item.icon.startsWith('http') || item.icon.startsWith('/')) ? (
+                              <img src={item.icon} className="w-4 h-4 object-contain" alt="" onError={e => { e.target.style.display='none'; }} />
                             ) : (
                               <span className="text-xs">{item.icon}</span>
                             )
@@ -11056,7 +11057,7 @@ export default function App() {
 
           return (
             <div
-              className="absolute inset-0 z-[200] flex items-end justify-center pb-6 px-4"
+              className="absolute inset-0 z-[200] flex items-center justify-center px-4"
               style={{ background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)' }}
             >
               <div
@@ -11791,7 +11792,7 @@ export default function App() {
                 <img src={recipeFoundModal.img} alt={recipeFoundModal.name}
                   className="w-12 h-12 object-contain"
                   style={{ imageRendering: 'pixelated', filter: 'drop-shadow(0 0 6px #f59e0b66)' }}
-                  onError={e => { e.target.style.display = 'none'; }} />
+                  onError={e => { e.target.src = '/items/mega_stone_shard.webp'; }} />
               </div>
               <div className="flex-1 min-w-0">
                 <p style={{ color: '#fbbf24', fontWeight: 900, fontSize: 13, textTransform: 'uppercase', marginBottom: 3 }}>

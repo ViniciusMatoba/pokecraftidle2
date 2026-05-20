@@ -13,7 +13,7 @@ const TYPE_COLORS = {
 // ── Card de Pokémon elegível para Mega ────────────────────────────────────────
 const MegaCandidateCard = ({ pokemon, teamIndex, onSelect, selected }) => {
   const compatibles = getCompatibleMegaStones(pokemon.id);
-  const accentColor = TYPE_COLORS[pokemon.type] || '#3b82f6';
+  const accentColor = TYPE_COLORS[pokemon.types?.[0] || pokemon.type] || '#3b82f6';
 
   if (compatibles.length === 0) return null;
 

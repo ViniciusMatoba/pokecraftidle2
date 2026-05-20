@@ -351,6 +351,7 @@ const EvolutionScreen = ({
                                      id: evoData.id,
                                      name: nextPoke.name,
                                      type: nextPoke.type,
+                                     types: nextPoke.types || [nextPoke.type],
                                      maxHp:    calcHp(nextPoke.hp || nextPoke.maxHp || 40, p.level),
                                      hp:       calcHp(nextPoke.hp || nextPoke.maxHp || 40, p.level),
                                      attack:   calcStat(nextPoke.attack   || 40, p.level),

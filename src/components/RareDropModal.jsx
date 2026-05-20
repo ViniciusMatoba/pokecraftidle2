@@ -2,6 +2,11 @@ import React from 'react';
 
 const POKEAPI_ITEM = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
 
+const DISMISSED_KEY = 'pokecraft_dismissed_rare_drops';
+const getDismissed = () => { try { return JSON.parse(localStorage.getItem(DISMISSED_KEY) || '[]'); } catch { return []; } };
+const addDismissed = (type) => { try { const d = getDismissed(); if (!d.includes(type)) { d.push(type); localStorage.setItem(DISMISSED_KEY, JSON.stringify(d)); } } catch {} };
+export const isRareDropDismissed = (type) => getDismissed().includes(type);
+
 const TYPE_STYLES = {
   recipe: {
     eyebrow: 'Receita encontrada',
@@ -40,6 +45,12 @@ export default function RareDropModal({
   primaryLabel = 'Continuar',
 }) {
   if (!drop) return null;
+
+  const handleDismissAndClose = (e) => {
+    e.stopPropagation();
+    addDismissed(drop.type);
+    onClose?.();
+  };
 
   const style = TYPE_STYLES[drop.type] || TYPE_STYLES.rare;
   const icon = drop.img || drop.icon || `${POKEAPI_ITEM}${style.item}`;
@@ -127,6 +138,13 @@ export default function RareDropModal({
             className="h-12 rounded-2xl bg-white/10 text-xs font-black uppercase tracking-widest text-white active:scale-95"
           >
             Continuar na rota
+          </button>
+          <button
+            type="button"
+            onClick={handleDismissAndClose}
+            className="h-9 rounded-xl bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white/40 hover:text-white/60 active:scale-95 transition-all"
+          >
+            🔕 Não mostrar mais este tipo
           </button>
         </div>
       </div>

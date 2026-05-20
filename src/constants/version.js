@@ -1,7 +1,17 @@
-export const APP_VERSION = '2.8.9';
-export const VERSION = '2.8.9';
-export const APP_VERSION_DATE = '20/05/2026 18:33';
+export const APP_VERSION = '2.9.0';
+export const VERSION = '2.9.0';
+export const APP_VERSION_DATE = '20/05/2026 19:30';
 export const CHANGELOG = [
+  '## [V2.9.0] - 20/05/2026 19:30',
+  '### Correções de UI — 5 Bugs Visuais e Funcionais',
+  '- **Bug corrigido**: 48 Mega Pedras sem imagem (usavam URL inexistente `mega-stone.png`) → substituídas por asset local `/items/mega_stone_shard.webp`.',
+  '- **Bug corrigido**: Modal de receita encontrada agora exibe fallback quando imagem falha ao carregar.',
+  '- **Bug corrigido**: Resumo da Jornada exibia caminhos locais de ícones como texto em vez de imagem (`armor_fragment`, `mega_stone_shard` etc.).',
+  '- **Bug corrigido**: Modal de confirmação de Pokébola aparecia na parte inferior da tela → centralizado verticalmente.',
+  '- **Bug corrigido**: Pokémon evoluídos perdiam o campo `types` → `EvolutionScreen` agora copia `types` do Pokédex; migração automática corrige salvamentos antigos em `team`, `pc` e times regionais.',
+  '- **Novo**: RareDropModal tem botão "🔕 Não mostrar mais este tipo" — silencia aquele tipo de drop permanentemente (salvo em localStorage).',
+  '- **Tipos em todos os modais**: seleção de starter (Kanto/Johto/Hoenn/regionais), MegaEvolutionScreen — todos exibem ambos os tipos agora.',
+  '',
   '## [V2.8.9] - 20/05/2026 18:33',
   '### Correção de Tipos — Exibição e Efetividade para Pokémon de Tipo Duplo',
   '- **Bug corrigido**: Badge de efetividade nas animações de batalha ("Super Efetivo!" / "Pouco Efetivo!") usava apenas o tipo primário do Pokémon, ignorando o segundo tipo. Agora calcula corretamente contra todos os tipos do defensor.',

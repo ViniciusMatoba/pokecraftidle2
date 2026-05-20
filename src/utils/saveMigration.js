@@ -1,6 +1,16 @@
 import { DEFAULT_GAME_STATE } from '../data/constants';
 import { REGION_BADGE_IDS, REGION_CHAMPION_FLAGS, REGION_ORDER, REGION_START_FLAGS } from '../data/regionStandards';
 import { getEarnedBadgeIds } from './progress';
+import { POKEDEX } from '../data/pokedex';
+
+// Garante que todo Pokémon salvo tenha o array `types` populado via Pokédex
+const fixPokemonTypes = (poke) => {
+  if (!poke || typeof poke !== 'object') return poke;
+  if (Array.isArray(poke.types) && poke.types.length > 0) return poke;
+  const entry = POKEDEX[Number(poke.id)];
+  const types = entry?.types || (entry?.type ? [entry.type] : (poke.type ? [poke.type] : ['Normal']));
+  return { ...poke, types };
+};
 
 const asArray = (value) => Array.isArray(value) ? value : [];
 
@@ -114,13 +124,13 @@ export const migrateGameState = (savedState = {}, options = {}) => {
     ...DEFAULT_GAME_STATE,
     ...loaded,
     version: options.version || loaded.version || DEFAULT_GAME_STATE.version,
-    team: asArray(loaded.team).length ? loaded.team : DEFAULT_GAME_STATE.team,
-    pc: asArray(loaded.pc),
+    team: (asArray(loaded.team).length ? loaded.team : DEFAULT_GAME_STATE.team).map(fixPokemonTypes),
+    pc: asArray(loaded.pc).map(fixPokemonTypes),
     badges,
     worldFlags,
     inventory: mergeInventory(loaded.inventory || {}),
-    regional_teams: mergeRegionalLists(loaded.regional_teams, loaded.regionalTeams),
-    regional_pc: mergeRegionalLists(loaded.regional_pc, loaded.regionalPc),
+    regional_teams: Object.fromEntries(Object.entries(mergeRegionalLists(loaded.regional_teams, loaded.regionalTeams)).map(([k, v]) => [k, asArray(v).map(fixPokemonTypes)])),
+    regional_pc: Object.fromEntries(Object.entries(mergeRegionalLists(loaded.regional_pc, loaded.regionalPc)).map(([k, v]) => [k, asArray(v).map(fixPokemonTypes)])),
     stages: loaded.stages || DEFAULT_GAME_STATE.stages,
     caughtData: loaded.caughtData || DEFAULT_GAME_STATE.caughtData,
     speciesMastery: loaded.speciesMastery || DEFAULT_GAME_STATE.speciesMastery,
