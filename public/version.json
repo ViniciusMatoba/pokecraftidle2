@@ -1,5 +1,5 @@
 {
-  "version": "2.8.2",
-  "date": "20/05/2026 11:00",
-  "notes": "Animação de captura: ao usar Pokébola exibe arremesso, absorção, 3 chacoalhos e resultado (capturado ou fugiu) com sprites e cores da bola."
+  "version": "2.8.3",
+  "date": "20/05/2026 12:30",
+  "notes": "Backgrounds de ginásios corrigidos em Unova, Kalos, Alola, Galar e Paldea. Sinnoh também melhorado com backgrounds temáticos por tipo."
 }

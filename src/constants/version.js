@@ -1,7 +1,16 @@
-export const APP_VERSION = '2.8.2';
-export const VERSION = '2.8.2';
-export const APP_VERSION_DATE = '20/05/2026 11:00';
+export const APP_VERSION = '2.8.3';
+export const VERSION = '2.8.3';
+export const APP_VERSION_DATE = '20/05/2026 12:30';
 export const CHANGELOG = [
+  '## [V2.8.3] - 20/05/2026 12:30',
+  '### Backgrounds de Ginásios — Correção Completa (Sinnoh → Paldea)',
+  '- **Bug corrigido**: Ginásios de Unova (1–4) referenciavam arquivos `.png` inexistentes (`bg_unova_gym_striaton.png` etc.) → todos substituídos por `bg_type_*_domain.webp` temático por tipo.',
+  '- **Bug corrigido**: `expedition_campo_lutador.webp`, `expedition_vulcao.webp`, `expedition_templo_psiquico.webp` e `expedition_torre_fantasma.webp` não existiam → usados em Korrina (Kalos), Hala (Alola), Kabu/Bea (Galar), Olympia (Kalos) e Ryme/Tulip (Paldea).',
+  '- **Bug corrigido**: Raihan/Galar (Dragão) usava `bg_unova_elite.webp` → substituído por `bg_type_dragon_domain.webp`.',
+  '- **Melhoria Sinnoh**: Roark, Maylene, Crasher Wake, Fantina e Byron deixam o genérico `bg_sinnoh_gym.webp` e passam a usar backgrounds temáticos por tipo (`rock`, `fighting`, `water`, `ghost`, `steel`).',
+  '- **Melhoria Alola**: Ilima, Lana, Nanu, Mina e Hapu agora usam backgrounds regionais específicos (Verdant Cavern, Akala, Ula\'ula, Poni Canyon).',
+  '- **Melhoria Galar**: Nessa e Gordie agora usam `bg_galar_hulbury.webp` e `bg_galar_circhester.webp` em vez de generics.',
+  '',
   '## [V2.8.2] - 20/05/2026 11:00',
   '### Animação de Captura de Pokémon',
   '- **Novo**: Ao usar uma Pokébola, exibe animação completa de 5 fases: arremesso da bola → absorção do Pokémon → 3 chacoalhos → resultado (capturado ou fugiu) → fade-out.',
