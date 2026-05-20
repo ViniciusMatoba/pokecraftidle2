@@ -1,5 +1,5 @@
 {
-  "version": "2.7.4",
-  "date": "20/05/2026 06:05",
-  "notes": "Fix: sprite do Ranking Global corrigido (URL errada para PokeAPI) + ícones de itens no Resumo da Jornada exibidos como imagem em vez de texto."
+  "version": "2.7.8",
+  "date": "20/05/2026 06:45",
+  "notes": "Correção de níveis do pool curado de raids: Pokémon de regiões anteriores agora recebem o nível da região ativa do jogador (fresh-start), não da sua região de origem."
 }

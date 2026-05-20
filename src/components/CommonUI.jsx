@@ -838,7 +838,7 @@ export const TrainerCardModal = ({ userData, onClose }) => {
       <div className="w-full max-w-sm relative animate-bounceIn">
         <button onClick={onClose} className="absolute -top-14 right-0 w-11 h-11 bg-red-600 text-white rounded-full flex items-center justify-center font-black border-2 border-red-400 shadow-lg active:scale-95 z-10 shrink-0">X</button>
         <TrainerCard
-          trainer={{ name: userData.name, avatarImg: `https://play.pokemonshowdown.com/sprites/trainers/red.png`, titleId: userData.titleId }}
+          trainer={{ name: userData.name, titleId: userData.titleId }}
           badges={userData.badgesList || []}
           caughtCount={userData.caughtCount || 0}
           caughtData={userData.caughtData || {}}
@@ -849,6 +849,9 @@ export const TrainerCardModal = ({ userData, onClose }) => {
           shinyCount={userData.shinyCapturedCount || 0}
           trainerBattleWins={userData.trainerBattleWins || 0}
           appearance={userData.appearance || {}}
+          selectedTitle={userData.selectedTitle || userData.prestige?.activeTitle || userData.titleId || null}
+          prestige={userData.prestige || {}}
+          gymDefeatCounts={userData.gymDefeatCounts || {}}
         />
         <p className="mt-6 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest animate-pulse">Perfil Global</p>
       </div>

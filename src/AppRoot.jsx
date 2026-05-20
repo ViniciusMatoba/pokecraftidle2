@@ -2514,15 +2514,25 @@ export default function App() {
     if (isPhysical && ['huge-power', 'pure-power'].includes(attackerAbility)) atk *= 2;
     if (isPhysical && (attacker.status || []).length && attackerAbility === 'guts') atk *= 1.5;
     if (isPhysical && (attacker.status || []).includes('burn') && attackerAbility !== 'guts') atk *= 0.5;
+    // Hustle: +50% Ataque físico
+    if (isPhysical && attackerAbility === 'hustle') atk *= 1.5;
 
-    let def = defBase * defMult;
+    // Unaware: ignora stages defensivos do defensor
+    const unawareActive = attackerAbility === 'unaware';
+    let def = defBase * (unawareActive ? 1 : defMult);
     if (isPhysical && (defender.status || []).length && defenderAbility === 'marvel-scale') def *= 1.5;
+    // Ice Scales: reduz dano especial à metade (aplica na defesa efetiva)
+    if (!isPhysical && !abilityBreaker && defenderAbility === 'ice-scales') def *= 2;
     def = Math.max(1, def);
 
     const attackerTypes = (attacker.types || [attacker.type]).filter(Boolean);
     const defenderTypes = (defender.types || [defender.type]).filter(Boolean);
     const stab = attackerTypes.includes(moveType) ? (attackerAbility === 'adaptability' ? 2.0 : 1.5) : 1.0;
-    const effectiveness = defenderTypes.reduce((mult, type) => mult * getTypeEffectiveness(moveType, type), 1);
+    // Scrappy: Golpes Normais e Luta ignoram a imunidade de Fantasma
+    const defTypesForEff = (attackerAbility === 'scrappy' && ['Normal', 'Fighting'].includes(moveType))
+      ? defenderTypes.filter(t => t !== 'Ghost')
+      : defenderTypes;
+    const effectiveness = defTypesForEff.reduce((mult, type) => mult * getTypeEffectiveness(moveType, type), 1);
     if (effectiveness === 0) return 0;
 
     const soundMove = ['boomburst', 'hyper-voice', 'echoed-voice', 'round', 'snarl', 'bug-buzz', 'metal-sound', 'sing', 'growl'].some(key => moveKey.includes(key));
@@ -2567,6 +2577,8 @@ export default function App() {
     if (attackerAbility === 'neuroforce' && effectiveness > 1) base *= 1.25;
     if (attackerAbility === 'sand-force' && weather === 'sandstorm' && ['Rock', 'Ground', 'Steel'].includes(moveType)) base *= 1.3;
 
+    if (attackerAbility === 'rocky-payload' && moveType === 'Rock') base *= 1.5;
+
     if (!abilityBreaker) {
       if (defenderAbility === 'thick-fat' && ['Fire', 'Ice'].includes(moveType)) base *= 0.5;
       if (defenderAbility === 'heatproof' && moveType === 'Fire') base *= 0.5;
@@ -2576,6 +2588,8 @@ export default function App() {
       if (defenderAbility === 'fur-coat' && isPhysical) base *= 0.5;
       if (['multiscale', 'shadow-shield'].includes(defenderAbility) && defender.hp >= defender.maxHp) base *= 0.5;
       if (defenderAbility === 'punk-rock' && soundMove) base *= 0.5;
+      // Filter / Solid Rock / Prism Armor: -25% em golpes super efetivos
+      if (['filter', 'solid-rock', 'prism-armor'].includes(defenderAbility) && effectiveness > 1) base *= 0.75;
     }
 
     if (attacker.isWorldBoss || defender.isWorldBoss) {

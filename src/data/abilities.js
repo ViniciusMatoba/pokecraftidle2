@@ -64,6 +64,126 @@ export const ABILITY_DESCRIPTIONS = {
   intimidate: 'Nos jogos, reduz o Ataque do inimigo ao entrar em batalha.',
   sturdy: 'Nos jogos, evita nocaute com HP cheio uma vez.',
   pressure: 'Nos jogos, aumenta o gasto de PP do inimigo.',
+
+  // ── Contato — aplicação de status ────────────────────────────────────────
+  static: 'Ao receber golpe de contato, tem 30% de chance de paralisar o oponente.',
+  flame_body: 'Ao receber golpe de contato, tem 30% de chance de queimar o oponente.',
+  poison_point: 'Ao receber golpe de contato, tem 30% de chance de envenenar o oponente.',
+  effect_spore: 'Ao receber golpe de contato, tem 30% de chance de causar sono, paralisia ou veneno.',
+
+  // ── Contato — dano de recuo ao atacante ──────────────────────────────────
+  rough_skin: 'O oponente perde 1/8 do HP maximo ao acertar um golpe de contato.',
+  iron_barbs: 'O oponente perde 1/8 do HP maximo ao acertar um golpe de contato.',
+
+  // ── Cura e recuperação ────────────────────────────────────────────────────
+  natural_cure: 'Cura automaticamente todos os status negativos ao ser substituido.',
+  shed_skin: 'Tem 30% de chance por turno de curar automaticamente o status negativo.',
+  regenerator: 'Recupera 1/3 do HP ao ser substituido em batalha.',
+  healer: 'Tem 30% de chance por turno de curar o status de um aliado.',
+  rain_dish: 'Recupera HP gradualmente durante a chuva.',
+
+  // ── Boost por condição ou nocaute ─────────────────────────────────────────
+  speed_boost: 'A Velocidade sobe em um estagio a cada turno de batalha.',
+  moxie: 'Ao nocautear um oponente, o Ataque sobe em um estagio.',
+  beast_boost: 'Ao nocautear um oponente, aumenta a estatistica mais alta do usuario.',
+  soul_heart: 'Sempre que qualquer Pokemon e nocauteado, o Ataque Especial sobe em um estagio.',
+  intrepid_sword: 'Ao entrar em batalha, o Ataque sobe em um estagio automaticamente.',
+  dauntless_shield: 'Ao entrar em batalha, a Defesa sobe em um estagio automaticamente.',
+
+  // ── Estatísticas ignoradas / invertidas ───────────────────────────────────
+  unaware: 'Ignora todas as mudancas de estagio do oponente ao calcular dano recebido e causado.',
+  competitive: 'Quando qualquer estatistica e reduzida, o Ataque Especial sobe em 2 estagios.',
+  defiant: 'Quando qualquer estatistica e reduzida, o Ataque sobe em 2 estagios.',
+  contrary: 'Todas as mudancas de estagio sao invertidas — aumentos viram reducoes e vice-versa.',
+  simple: 'Todas as mudancas de estagio de estatisticas sao dobradas.',
+
+  // ── Troca de tipo ────────────────────────────────────────────────────────
+  protean: 'O tipo do usuario muda para o tipo do golpe que vai usar, antes de atacar.',
+  libero: 'O tipo do usuario muda para o tipo do golpe que vai usar, antes de atacar.',
+  color_change: 'Muda o proprio tipo para o tipo do golpe recebido ao ser atingido.',
+
+  // ── Velocidade no clima ───────────────────────────────────────────────────
+  swift_swim: 'Dobra a Velocidade durante clima de chuva.',
+  chlorophyll: 'Dobra a Velocidade durante clima de sol forte.',
+  sand_rush: 'Dobra a Velocidade durante tempestade de areia.',
+  slush_rush: 'Dobra a Velocidade durante neve ou granizo.',
+  solar_power: 'Em sol forte, o Ataque Especial sobe 50%, mas perde HP a cada turno.',
+
+  // ── Defesa contra super efetivos ──────────────────────────────────────────
+  ice_scales: 'Recebe metade do dano de todos os golpes especiais.',
+  filter: 'Golpes super efetivos causam 25% menos dano ao usuario.',
+  solid_rock: 'Golpes super efetivos causam 25% menos dano ao usuario.',
+  prism_armor: 'Golpes super efetivos causam 25% menos dano ao usuario.',
+
+  // ── Imunidades a dano indireto ────────────────────────────────────────────
+  magic_guard: 'Imune a todo dano indireto: veneno, queimadura, recuo, clima e armadilhas.',
+  rock_head: 'Nao sofre dano de recuo causado pelos proprios golpes.',
+
+  // ── Terrenos ─────────────────────────────────────────────────────────────
+  grassy_surge: 'Invoca Terreno Gramado ao entrar em batalha, fortalecendo golpes de Planta.',
+  misty_surge: 'Invoca Terreno Nevoeiro ao entrar em batalha, bloqueando status negativos.',
+  electric_surge: 'Invoca Terreno Eletrico ao entrar em batalha, fortalecendo golpes Eletricos.',
+  psychic_surge: 'Invoca Terreno Psiquico ao entrar em batalha, fortalecendo golpes Psiquicos.',
+  hadron_engine: 'Invoca Terreno Eletrico e aumenta o Ataque Especial nesse terreno.',
+  orichalcum_pulse: 'Invoca sol forte ao entrar em batalha e aumenta o Ataque nesse clima.',
+
+  // ── Golpes especiais: imunidade e penetração ──────────────────────────────
+  scrappy: 'Golpes Normais e Luta podem acertar e causar dano em Pokemon do tipo Fantasma.',
+  inner_focus: 'Imune a recuo (flinch); nao e afetado pela reducao de Ataque de Intimidate.',
+  magic_bounce: 'Nos jogos, reflete golpes de status de volta ao oponente.',
+  infiltrator: 'Nos jogos, golpes ignoram Reflect, Light Screen e Aurora Veil.',
+  no_guard: 'Garante que todos os golpes do usuario acertem, mas tambem sempre e acertado.',
+  serene_grace: 'Dobra a chance de efeitos secundarios dos golpes (paralisia, queimadura, etc.).',
+
+  // ── Passivas ofensivas ────────────────────────────────────────────────────
+  hustle: 'Aumenta o Ataque fisico em 50%, mas reduz a precisao de golpes fisicos em 20%.',
+  reckless: 'Aumenta em 20% o poder de golpes que causam dano de recuo ao usuario.',
+  sniper: 'Aumenta o dano de golpes criticos para 2.25x em vez de 1.5x.',
+  super_luck: 'Aumenta a taxa base de golpes criticos do usuario.',
+  analytic: 'Aumenta o dano em 30% quando o usuario e o ultimo a atacar no turno.',
+  gorilla_tactics: 'Aumenta o Ataque em 50%, mas o usuario fica preso usando apenas um golpe.',
+  rocky_payload: 'Aumenta em 50% o poder de golpes do tipo Pedra.',
+  triage: 'Golpes de recuperacao de HP recebem prioridade maxima.',
+  sheer_force_keep: 'Aumenta golpes com efeito secundario em 30%, mas remove o efeito.',
+
+  // ── Passivas defensivas / evasão ──────────────────────────────────────────
+  battle_armor: 'Imune a golpes criticos.',
+  shell_armor: 'Imune a golpes criticos.',
+  wonder_skin: 'Golpes de status tem 50% de chance de falhar contra o usuario.',
+  keen_eye: 'A precisao do usuario nao pode ser reduzida.',
+  own_tempo: 'Imune a confusao e aos efeitos de Intimidate.',
+  oblivious: 'Imune a encantamento, provocacao e reducao de Ataque de Intimidate.',
+  tangled_feet: 'Enquanto confuso, a esquiva do usuario dobra.',
+
+  // ── Passivas de campo / suporte ───────────────────────────────────────────
+  pickup: 'Pode encontrar itens apos batalhas no campo.',
+  frisk: 'Ao entrar em batalha, revela o item segurado pelo oponente.',
+  download: 'Aumenta Ataque ou Ataque Especial ao entrar com base nas defesas do oponente.',
+  trace: 'Copia a habilidade do oponente ao entrar em batalha.',
+  moody: 'A cada turno, uma estatistica aleatoria sobe 2 estagios e outra cai 1.',
+  unburden: 'Dobra a Velocidade apos consumir ou perder o item segurado.',
+  stall: 'O usuario sempre ataca por ultimo no turno, independente da Velocidade.',
+  truant: 'O usuario descansa sem poder agir a cada turno alternado.',
+  receiver: 'Copia a habilidade de um aliado nocauteado.',
+  power_of_alchemy: 'Copia a habilidade de um aliado nocauteado.',
+
+  // ── Habilidades especiais de Pokemon únicos ───────────────────────────────
+  disguise: 'Absorve o primeiro golpe sem tomar dano (rasga a fantasia de Mimikyu).',
+  ice_face: 'Absorve o primeiro golpe fisico sem tomar dano (gelo derrete ao ser atingido).',
+  neutralizing_gas: 'Desativa as habilidades de todos os Pokemon enquanto estiver em batalha.',
+  good_as_gold: 'Imune a todos os golpes de status do oponente.',
+  earth_eater: 'Fica imune a golpes de Terra e recupera HP em vez de tomar dano.',
+  purifying_salt: 'Imune a status negativos e recebe metade do dano de golpes Fantasma.',
+  armor_tail: 'Impede o oponente de usar golpes com prioridade positiva.',
+  zero_to_hero: 'Ao ser substituido, transforma-se permanentemente na Forma Heroica.',
+  commander: 'Ao entrar com Dondozo, assume o comando e impulsiona as estatisticas do aliado.',
+  sword_of_ruin: 'Reduz a Defesa de todos os adversarios em 25% enquanto em batalha.',
+  tablets_of_ruin: 'Reduz o Ataque de todos os adversarios em 25% enquanto em batalha.',
+  vessel_of_ruin: 'Reduz o Ataque Especial de todos os adversarios em 25% enquanto em batalha.',
+  beads_of_ruin: 'Reduz a Defesa Especial de todos os adversarios em 25% enquanto em batalha.',
+  toxic_chain: 'Golpes tem chance de envenenar gravemente o oponente.',
+  wind_rider: 'Imune a golpes de vento; o Ataque sobe ao ser alvo de Tailwind.',
+  electromorphosis: 'Ao receber dano, carrega energia para fortalecer o proximo golpe Eletrico.',
 };
 
 export const getAbilityDescription = (ability = '') => (

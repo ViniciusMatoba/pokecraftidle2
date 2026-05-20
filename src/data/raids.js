@@ -98,12 +98,18 @@ const isLegendaryUnlockedForRaid = (id, worldFlags = []) => {
 };
 
 // ── Configurações de Raid ──────────────────────────────────────────────────
+// HP calibrado para 60 s de batalha (~50 turnos em velocidade 1 = 1200 ms/turno).
+// Fórmula de referência: HP_raid = ((2*baseHp*level)/100 + level + 10) * mult
+// Meta de turnos necessários com dano médio de 50-70/turno:
+//   1★ →  2-4  turnos (clear rápido)  |  2★ → 5-10 turnos
+//   3★ → 12-20 turnos                 |  4★ → 25-38 turnos
+//   5★ → 35-48 turnos (time forte exigido)
 export const RAID_HP_MULTIPLIER = {
-  1: 2,   // 1★ — fácil, derrota rápida
-  2: 4,   // 2★ — moderado
-  3: 9,   // 3★ — desafiador
-  4: 18,  // 4★ — difícil mas possível (era 50)
-  5: 40,  // 5★ — muito difícil, requer time forte (era 150)
+  1: 2,   // 1★ — trivial, clear instantâneo
+  2: 3,   // 2★ — leve desafio  (era 4)
+  3: 6,   // 3★ — moderado      (era 9)
+  4: 10,  // 4★ — desafiador    (era 18)
+  5: 15,  // 5★ — difícil, time forte necessário  (era 40)
 };
 export const RAID_CATCH_ATTEMPTS = {
   1: 5, 2: 5, 3: 5, 4: 5, 5: 5
@@ -424,11 +430,42 @@ const bstToStars = (bst) => {
   return 5;
 };
 
-// Nível base por tier de estrelas (variância +/-2 é aplicada em createRaid)
-const STAR_BASE_LEVEL = { 1: 20, 2: 32, 3: 46, 4: 56, 5: 66 };
+// Nível base por tier de estrelas — por região, alinhado com GYM_LEVEL_CAPS.
+// Regra: nível da raid ≤ cap do jogador com o mínimo de insígnias para desbloquear aquele tier.
+//   1★ desbloqueado com 0 insígnias → nível ≈ cap@0 insígnias
+//   2★ desbloqueado com 2 insígnias → nível ≈ cap@2 insígnias
+//   3★ desbloqueado com 4 insígnias → nível ≈ cap@4 insígnias
+//   4★ desbloqueado com 6 insígnias → nível ≈ cap@6 insígnias
+//   5★ desbloqueado com 8 insígnias → nível pós-campeonato (cap liberado)
+const REGION_STAR_LEVELS = {
+  // kanto  caps:  14→21→24→32→43→46→50→55→100
+  kanto:  { 1: 14, 2: 22, 3: 40, 4: 48, 5: 54 },
+  // johto  caps:  15→20→25→30→35→40→45→50→100
+  johto:  { 1: 16, 2: 24, 3: 35, 4: 44, 5: 50 },
+  // hoenn  caps:  15→19→24→29→31→33→42→55→100
+  hoenn:  { 1: 16, 2: 24, 3: 32, 4: 44, 5: 54 },
+  // sinnoh caps:  14→22→28→33→39→45→51→58→100
+  sinnoh: { 1: 16, 2: 28, 3: 38, 4: 50, 5: 58 },
+  // unova  caps:  14→20→26→32→39→45→52→64→100
+  unova:  { 1: 16, 2: 26, 3: 38, 4: 50, 5: 62 },
+  // kalos  caps:  12→25→32→34→40→48→59→68→100
+  kalos:  { 1: 14, 2: 30, 3: 40, 4: 56, 5: 66 },
+  // alola  caps:  18→26→30→34→38→48→58→76→100
+  alola:  { 1: 20, 2: 30, 3: 44, 4: 58, 5: 66 },
+  // galar  caps:  20→24→27→36→38→42→46→55→100
+  galar:  { 1: 22, 2: 28, 3: 40, 4: 48, 5: 58 },
+  // paldea caps:  15→20→28→35→42→48→55→62→100
+  paldea: { 1: 18, 2: 30, 3: 44, 4: 54, 5: 64 },
+  // hisui  caps:  30→40→50→58→65→73→82→92→100
+  hisui:  { 1: 32, 2: 44, 3: 58, 4: 68, 5: 80 },
+};
 
-// Constrói pool dinâmico com TODOS os Pokémon das regiões desbloqueadas
-const buildDynamicRaidPool = (regions, pokedex, maxStars, worldFlags = []) => {
+const getStarBaseLevel = (region, stars) =>
+  (REGION_STAR_LEVELS[region] || REGION_STAR_LEVELS.kanto)[stars] || 20;
+
+// Constrói pool dinâmico com TODOS os Pokémon das regiões desbloqueadas.
+// primaryRegion determina a tabela de níveis usada (região onde a raid está ocorrendo).
+const buildDynamicRaidPool = (regions, pokedex, maxStars, worldFlags = [], primaryRegion = 'kanto') => {
   const entries = [];
   for (const region of regions) {
     const range = REGION_DEX_RANGES[region];
@@ -441,7 +478,7 @@ const buildDynamicRaidPool = (regions, pokedex, maxStars, worldFlags = []) => {
                   (base.spAtk || 45) + (base.spDef || 45) + (base.speed || 45);
       const stars = bstToStars(bst);
       if (stars > maxStars) continue;
-      entries.push({ id, stars, level: STAR_BASE_LEVEL[stars] || 20, name: base.name });
+      entries.push({ id, stars, level: getStarBaseLevel(primaryRegion, stars), name: base.name });
     }
   }
   return entries;
@@ -491,23 +528,27 @@ export const rollRaidRewards = (stars) => {
   return table.filter(reward => Math.random() < reward.chance);
 };
 
-// Máximo de estrelas desbloqueadas com base no número de insígnias
+// Máximo de estrelas desbloqueadas com base no número de insígnias da região ativa.
+// 0 insígnias → apenas 1★ (primeiro ginásio ainda não vencido)
+// Regra: 1 nova estrela a cada 2 insígnias ganhas.
 export const RAID_MAX_STARS_BY_BADGES = (badgeCount) => {
-  if (badgeCount < 2) return 1;
-  if (badgeCount < 4) return 2;
-  if (badgeCount < 6) return 3;
-  if (badgeCount < 8) return 4;
-  return 5;
+  if (badgeCount < 1)  return 1; // sem insígnias → só 1★ (raids de nível inicial)
+  if (badgeCount < 3)  return 2; // 1-2 insígnias → até 2★
+  if (badgeCount < 5)  return 3; // 3-4 insígnias → até 3★
+  if (badgeCount < 7)  return 4; // 5-6 insígnias → até 4★
+  return 5;                       // 7+ insígnias → até 5★ (penúltimo/último ginásio)
 };
 
-// Tabela de pesos por tier de estrelas (conforme maxStars desbloqueado)
+// Distribuição de peso por tier de estrelas (conforme maxStars desbloqueado).
+// O tier recém-desbloqueado sempre tem chance menor — cresce com a progressão.
+// Ex: com maxStars=2, raids 2★ aparecem apenas 30% das vezes (jogador ainda fraco para o tier).
 export const getRaidStarWeights = (maxStars) => {
   const table = {
     1: [{ stars: 1, w: 1.0 }],
-    2: [{ stars: 1, w: 0.6 }, { stars: 2, w: 0.4 }],
-    3: [{ stars: 1, w: 0.2 }, { stars: 2, w: 0.5 }, { stars: 3, w: 0.3 }],
-    4: [{ stars: 2, w: 0.2 }, { stars: 3, w: 0.5 }, { stars: 4, w: 0.3 }],
-    5: [{ stars: 3, w: 0.1 }, { stars: 4, w: 0.4 }, { stars: 5, w: 0.5 }],
+    2: [{ stars: 1, w: 0.70 }, { stars: 2, w: 0.30 }],
+    3: [{ stars: 1, w: 0.25 }, { stars: 2, w: 0.50 }, { stars: 3, w: 0.25 }],
+    4: [{ stars: 2, w: 0.30 }, { stars: 3, w: 0.45 }, { stars: 4, w: 0.25 }],
+    5: [{ stars: 3, w: 0.20 }, { stars: 4, w: 0.45 }, { stars: 5, w: 0.35 }],
   };
   return table[maxStars] || table[5];
 };
@@ -516,10 +557,12 @@ export const getRaidStarWeights = (maxStars) => {
 export const pickRaidPokemon = (region = 'kanto', maxStars = 5, previousRegions = [], pokedex = {}, worldFlags = []) => {
   const allRegions = [...new Set([region, ...previousRegions])];
 
-  // Pool dinâmico: TODOS os Pokémon das regiões desbloqueadas
-  const dynamicPool = buildDynamicRaidPool(allRegions, pokedex, maxStars, worldFlags);
+  // Pool dinâmico: TODOS os Pokémon das regiões desbloqueadas, níveis alinhados à região ativa
+  const dynamicPool = buildDynamicRaidPool(allRegions, pokedex, maxStars, worldFlags, region);
 
-  // Pool curado: entradas especiais com formas, shiny locks e nível tuningado
+  // Pool curado: entradas especiais com formas e shiny locks.
+  // Níveis de 1★ e 2★ são substituídos pela tabela regional para garantir progressão correta.
+  // Níveis de 3★+ do pool curado são mantidos (já calibrados manualmente).
   const hasPrevious = previousRegions.length > 0;
   const usePreviousCurated = hasPrevious && Math.random() < 0.35;
   const curatedRegion = usePreviousCurated
@@ -527,7 +570,11 @@ export const pickRaidPokemon = (region = 'kanto', maxStars = 5, previousRegions 
     : region;
   const curatedPool = (RAID_POKEMON_POOL[curatedRegion] || RAID_POKEMON_POOL.kanto)
     .filter(p => p.stars <= maxStars)
-    .filter(p => isLegendaryUnlockedForRaid(p.id, worldFlags));
+    .filter(p => isLegendaryUnlockedForRaid(p.id, worldFlags))
+    .map(p => p.stars <= 2
+      ? { ...p, level: getStarBaseLevel(region, p.stars) }
+      : p
+    );
 
   // 55% pool dinâmico (garante todos os Pokémon), 45% pool curado (formas especiais)
   const useDynamic = dynamicPool.length > 0 && (curatedPool.length === 0 || Math.random() < 0.55);
