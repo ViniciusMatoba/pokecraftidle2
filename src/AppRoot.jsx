@@ -1086,6 +1086,8 @@ export default function App() {
   const [battleLog, setBattleLog] = useState([]);
   const [currentEnemy, setCurrentEnemy] = useState(null);
   const [captureEvent, setCaptureEvent] = useState(null);
+  const captureSpawnRef = useRef(false);      // sinaliza que handleCaptureDone deve spawnar novo inimigo
+  const captureAnimatingRef = useRef(false);  // bloqueia auto-farm durante qualquer animação de captura
   const [floatingTexts, setFloatingTexts] = useState([]);
   const [weather, setWeather] = useState('none');
   const [weatherTurns, setWeatherTurns] = useState(0);
@@ -3289,9 +3291,13 @@ export default function App() {
     const viewsAllowingBattle = ['battles', 'pokemon_management', 'pokedex', 'menu', 'vs'];
     const isPaused = activeBuildingModal !== null;
 
+    // Durante animação de captura, o spawn é gerenciado por handleCaptureDone
+    if (captureAnimatingRef.current) return;
+
     if (viewsAllowingBattle.includes(currentView) && !isPaused && hasEnemies && (!currentEnemy || currentEnemy.hp <= 0)) {
       const delay = !currentEnemy ? 50 : 800;
       const timer = setTimeout(() => {
+        if (captureAnimatingRef.current) return; // re-check dentro do timer
         const routeNow = processedRoutes[gameState.currentRoute];
         const hasEnemiesNow = routeNow?.enemies?.length > 0 || routeNow?.trainers?.length > 0;
         if (viewsAllowingBattle.includes(currentView) && !isPaused && hasEnemiesNow && (!currentEnemy || currentEnemy.hp <= 0)) {
@@ -3829,6 +3835,9 @@ export default function App() {
   // TICK DE BATALHA
   // ⛏️” PROTECTED: handleBattleTick — NíO EDITAR SEM AUTORIZAÇíO EXPLíCITA
   const handleBattleTick = useCallback(() => {
+    // Bloqueia ticks durante animação de captura (arremesso, chacoalhos, resultado)
+    if (captureAnimatingRef.current) return;
+
     const speedMultiplier = [1, 0.6, 0.3][(gameState.settings?.battleSpeed || 1) - 1] || 1;
     
     // Bônus de Aliado Ativo
@@ -4903,143 +4912,160 @@ export default function App() {
 
   const handleUseItem = useCallback((itemId, source = 'items') => {
     if (currentViewRef.current !== 'battles' || !currentEnemy) return;
-    
-    setGameState(prev => {
-      const bag = source === 'items' ? (prev.inventory?.items || {}) : (prev.inventory?.materials || {});
-      if (!bag[itemId] || bag[itemId] <= 0) return prev;
-      
-      let newInventory = { 
-        ...prev.inventory,
-        [source]: { ...bag, [itemId]: bag[itemId] - 1 }
-      };
-      
-      if (itemId === 'pokeballs' || itemId === 'great_ball' || itemId === 'ultra_ball') {
-        if (currentEnemy.isTrainer || currentEnemy.isWildBoss) {
-          const reason = currentEnemy.isWildBoss ? "Pokémons Chefões não podem ser capturados!" : "Você não pode capturar Pokémons de outros treinadores!";
-          addLog(`🚫 ${reason}`, 'enemy');
-          return prev;
+
+    // ── Pokébola: lógica fora do setGameState para evitar setState-in-setState ──
+    if (itemId === 'pokeballs' || itemId === 'great_ball' || itemId === 'ultra_ball') {
+      // Verificar quantidade diretamente no estado atual
+      const bag = source === 'items' ? (gameState.inventory?.items || {}) : (gameState.inventory?.materials || {});
+      if (!bag[itemId] || bag[itemId] <= 0) return;
+
+      // Guardas (sem precisar de prev)
+      if (currentEnemy.isTrainer || currentEnemy.isWildBoss) {
+        const reason = currentEnemy.isWildBoss ? "Pokémons Chefões não podem ser capturados!" : "Você não pode capturar Pokémons de outros treinadores!";
+        addLog(`🚫 ${reason}`, 'enemy');
+        return;
+      }
+      if ((currentEnemy.types || [currentEnemy.type]).includes('Ghost') && !canCaptureGhostPokemon(gameState)) {
+        addLog('A energia fantasma ainda esta instavel. Avance por Lavender antes de capturar Pokemon Fantasma.', 'enemy');
+        return;
+      }
+
+      let multiplier = 1.0;
+      if (itemId === 'great_ball') multiplier = 1.5;
+      if (itemId === 'ultra_ball') multiplier = 2.0;
+
+      const captureSuccess = Math.random() < getCaptureRate(currentEnemy, multiplier, POKEDEX);
+
+      // Dispara animação — fora do setGameState para referência estável
+      captureAnimatingRef.current = true; // bloqueia auto-farm durante toda a animação
+      setCaptureEvent({
+        ballType: itemId,
+        result: captureSuccess ? 'success' : 'fail',
+        pokemonId: currentEnemy.id,
+        pokemonName: currentEnemy.name,
+        isShiny: currentEnemy.isShiny,
+      });
+
+      if (captureSuccess) {
+        // Para o auto-farm: currentEnemy null → battleReady false → sem ataques durante animação
+        setCurrentEnemy(null);
+        // Sinaliza que handleCaptureDone deve spawnar novo inimigo ao fim da animação
+        captureSpawnRef.current = true;
+
+        addLog(`✨ Capturado! ${currentEnemy.name} agora é seu!`, 'system');
+        if (currentEnemy.isShiny) {
+          notify({ type: 'capture', title: '✨ SHINY capturado!', message: `${currentEnemy.name} brilhante foi capturado!`, duration: 6000 });
         }
-        if ((currentEnemy.types || [currentEnemy.type]).includes('Ghost') && !canCaptureGhostPokemon(prev)) {
-          addLog('A energia fantasma ainda esta instavel. Avance por Lavender antes de capturar Pokemon Fantasma.', 'enemy');
-          return prev;
+        sfxCapture();
+        sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
+      }
+
+      // Atualiza inventário + equipe/PC num único setGameState (sem efeitos colaterais)
+      const capturedEnemy = currentEnemy; // captura a ref antes do setCurrentEnemy
+      setGameState(prev => {
+        const prevBag = source === 'items' ? (prev.inventory?.items || {}) : (prev.inventory?.materials || {});
+        if (!prevBag[itemId] || prevBag[itemId] <= 0) return prev; // double-check
+
+        let newInventory = {
+          ...prev.inventory,
+          [source]: { ...prevBag, [itemId]: prevBag[itemId] - 1 }
+        };
+
+        if (!captureSuccess) {
+          // fail: apenas consome a bola
+          return { ...prev, inventory: newInventory };
         }
 
-        let multiplier = 1.0;
-        if (itemId === 'great_ball') multiplier = 1.5;
-        if (itemId === 'ultra_ball') multiplier = 2.0;
+        // success: adiciona Pokémon ao time/PC
+        const newCaughtData = { ...(prev.caughtData || {}), [capturedEnemy.id]: true };
+        const newPoke = assignRandomAbility({
+          ...capturedEnemy,
+          id: Number(capturedEnemy.id),
+          hp: capturedEnemy.maxHp,
+          xp: 0,
+          instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+          capturedRegion: prev.activeRegion || 'kanto',
+          ball: itemId || 'pokeballs',
+          stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
+        }, POKEDEX[Number(capturedEnemy.id)]);
+        const newMastery = processCaptureMastery({ ...capturedEnemy, id: Number(capturedEnemy.id) }, prev);
 
-        const catchRate = getCaptureRate(currentEnemy, multiplier, POKEDEX);
-        const captureSuccess = Math.random() < catchRate;
+        const { questUpdate, log: questLog } = updateQuestProgress(prev, 'capture');
+        if (questLog) addLog(questLog, 'drop');
+        if (questUpdate.inventory) newInventory.items = questUpdate.inventory.items;
 
-        // Dispara animação de arremesso de pokébola
-        setCaptureEvent({
-          ballType: itemId,
-          result: captureSuccess ? 'success' : 'fail',
-          pokemonId: currentEnemy.id,
-          pokemonName: currentEnemy.name,
-          isShiny: currentEnemy.isShiny,
-        });
-
-        if (captureSuccess) {
-          addLog(`✨ Capturado! ${currentEnemy.name} agora é seu!`, 'system');
-          if (currentEnemy.isShiny) {
-            notify({ type: 'capture', title: '✨ SHINY capturado!', message: `${currentEnemy.name} brilhante foi capturado!`, duration: 6000 });
-          }
-          sfxCapture();
-          sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
-
-          const newCaughtData = { ...(prev.caughtData || {}), [currentEnemy.id]: true };
-          const newPoke = assignRandomAbility({
-            ...currentEnemy,
-            id: Number(currentEnemy.id),
-            hp: currentEnemy.maxHp,
-            xp: 0,
-            instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-            capturedRegion: prev.activeRegion || 'kanto',
-            ball: itemId || 'pokeballs',
-            stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
-          }, POKEDEX[Number(currentEnemy.id)]);
-          const newMastery = processCaptureMastery({ ...currentEnemy, id: Number(currentEnemy.id) }, prev);
-          
-          const { questUpdate, log: questLog } = updateQuestProgress(prev, 'capture');
-          if (questLog) addLog(questLog, 'drop');
-          if (questUpdate.inventory) newInventory.items = questUpdate.inventory.items;
-
-
-          // Unificação por Espécie: Se já tem na caughtData (antes dessa captura), apenas aumenta maestria
-          const alreadyCaught = ownsSpecies(prev, currentEnemy);
-          if (alreadyCaught) {
-            addLog(`?? ${currentEnemy.name} j? capturado! Maestria aumentada.`, 'system');
-            const findAndReplace = (list) => {
-              let updated = false;
-              const newList = list.map(p => {
-                if (Number(p.id) === Number(currentEnemy.id) && ((p.formKey || null) === (currentEnemy.formKey || null))) {
-                  updated = true;
-                  if (currentEnemy.isShiny) {
-                    const upgraded = applyShinyUpgrade(p, POKEDEX[Number(p.id)]);
-                    const newCount = upgraded.shinyCount;
-                    if (!p.isShiny) {
-                      addLog(`✨ Upgrade Shiny! ${p.name} agora é Brilhante! (+20% stats)`, 'system');
-                    } else {
-                      addLog(`✨ Shiny Stack x${newCount}! ${p.name} ficou ainda mais forte! (+${Math.round((1.2 + (newCount-1)*0.05 - 1)*100)}% total)`, 'system');
-                    }
-                    return upgraded;
+        // Unificação por Espécie
+        const alreadyCaught = ownsSpecies(prev, capturedEnemy);
+        if (alreadyCaught) {
+          addLog(`?? ${capturedEnemy.name} j? capturado! Maestria aumentada.`, 'system');
+          const findAndReplace = (list) => {
+            const newList = list.map(p => {
+              if (Number(p.id) === Number(capturedEnemy.id) && ((p.formKey || null) === (capturedEnemy.formKey || null))) {
+                if (capturedEnemy.isShiny) {
+                  const upgraded = applyShinyUpgrade(p, POKEDEX[Number(p.id)]);
+                  const newCount = upgraded.shinyCount;
+                  if (!p.isShiny) {
+                    addLog(`✨ Upgrade Shiny! ${p.name} agora é Brilhante! (+20% stats)`, 'system');
+                  } else {
+                    addLog(`✨ Shiny Stack x${newCount}! ${p.name} ficou ainda mais forte! (+${Math.round((1.2 + (newCount-1)*0.05 - 1)*100)}% total)`, 'system');
                   }
+                  return upgraded;
                 }
-                return p;
-              });
-              return { newList, updated };
-            };
-            let { newList: teamUpdate } = findAndReplace(prev.team);
-            let { newList: pcUpdate } = findAndReplace(prev.pc || []);
-            setTimeout(() => spawnEnemy(), 4500);
-            return {
-              ...prev,
-              inventory: newInventory,
-              speciesMastery: newMastery,
-              caughtData: newCaughtData,
-              team: teamUpdate,
-              pc: pcUpdate,
-              shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
-              playerStats: bumpPlayerStats(prev.playerStats, {
-                pokemonCaptured: 1,
-                shinyCaptured: currentEnemy.isShiny ? 1 : 0,
-              }),
-              ...questUpdate
-            };
-          }
-
-          // Primeira Captura
-          const newTeam = [...prev.team];
-          const newPC = [...(prev.pc || [])];
-          
-          if (newTeam.length < 6) {
-            newTeam.push(newPoke);
-          } else {
-            newPC.push(newPoke);
-            addLog(`${newPoke.name} foi enviado para o PC!`, 'system');
-          }
-
-          setTimeout(() => spawnEnemy(), 4500);
+              }
+              return p;
+            });
+            return { newList };
+          };
+          const { newList: teamUpdate } = findAndReplace(prev.team);
+          const { newList: pcUpdate } = findAndReplace(prev.pc || []);
           return {
             ...prev,
             inventory: newInventory,
-            team: newTeam,
-            pc: newPC,
-            caughtData: newCaughtData,
             speciesMastery: newMastery,
-            shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
-            playerStats: bumpPlayerStats(prev.playerStats, {
-              pokemonCaptured: 1,
-              shinyCaptured: currentEnemy.isShiny ? 1 : 0,
-            }),
+            caughtData: newCaughtData,
+            team: teamUpdate,
+            pc: pcUpdate,
+            shinyCapturedCount: (prev.shinyCapturedCount || 0) + (capturedEnemy.isShiny ? 1 : 0),
+            playerStats: bumpPlayerStats(prev.playerStats, { pokemonCaptured: 1, shinyCaptured: capturedEnemy.isShiny ? 1 : 0 }),
             ...questUpdate
           };
-        } else {
-          // fail — animação já foi disparada, consome a bola e mantém estado
-          return { ...prev, inventory: newInventory };
         }
-      } else if (itemId === 'potions') {
+
+        // Primeira captura
+        const newTeam = [...prev.team];
+        const newPC = [...(prev.pc || [])];
+        if (newTeam.length < 6) {
+          newTeam.push(newPoke);
+        } else {
+          newPC.push(newPoke);
+          addLog(`${newPoke.name} foi enviado para o PC!`, 'system');
+        }
+        return {
+          ...prev,
+          inventory: newInventory,
+          team: newTeam,
+          pc: newPC,
+          caughtData: newCaughtData,
+          speciesMastery: newMastery,
+          shinyCapturedCount: (prev.shinyCapturedCount || 0) + (capturedEnemy.isShiny ? 1 : 0),
+          playerStats: bumpPlayerStats(prev.playerStats, { pokemonCaptured: 1, shinyCaptured: capturedEnemy.isShiny ? 1 : 0 }),
+          ...questUpdate
+        };
+      });
+      return; // não continua para o setGameState abaixo
+    }
+
+    // ── Outros itens (poções, stamina, etc.) ──
+    setGameState(prev => {
+      const bag = source === 'items' ? (prev.inventory?.items || {}) : (prev.inventory?.materials || {});
+      if (!bag[itemId] || bag[itemId] <= 0) return prev;
+
+      let newInventory = {
+        ...prev.inventory,
+        [source]: { ...bag, [itemId]: bag[itemId] - 1 }
+      };
+
+      if (itemId === 'potions') {
         const activePoke = prev.team[activeMemberIndex];
         if (activePoke) {
           const newTeam = prev.team.map((p, i) => i === activeMemberIndex ? { ...p, hp: Math.min(p.maxHp, p.hp + 20) } : p);
@@ -5143,6 +5169,17 @@ export default function App() {
       return { ...prev, inventory: newInventory };
     });
   }, [currentEnemy, activeMemberIndex, addLog, spawnEnemy]);
+
+  // Callback memoizado: chamado quando a animação de captura termina.
+  // CRÍTICO: deve ser estável (useCallback) — mudança de referência reseta os timers do CaptureAnimation.
+  const handleCaptureDone = useCallback(() => {
+    captureAnimatingRef.current = false; // libera auto-farm
+    setCaptureEvent(null);
+    if (captureSpawnRef.current) {
+      captureSpawnRef.current = false;
+      spawnEnemy(); // spawn APENAS após animação terminar
+    }
+  }, [spawnEnemy]);
 
   const startKeyBattle = useCallback((battleData) => {
     const teamMember = (battleData.team && battleData.team.length > 0) ? battleData.team[0] : null;
@@ -8843,7 +8880,7 @@ export default function App() {
                   }
                 }}
                 captureEvent={captureEvent}
-                onCaptureDone={() => setCaptureEvent(null)}
+                onCaptureDone={handleCaptureDone}
           />
         </div>
       );

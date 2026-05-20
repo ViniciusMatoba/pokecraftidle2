@@ -1,7 +1,17 @@
-export const APP_VERSION = '2.8.3';
-export const VERSION = '2.8.3';
-export const APP_VERSION_DATE = '20/05/2026 12:30';
+export const APP_VERSION = '2.8.4';
+export const VERSION = '2.8.4';
+export const APP_VERSION_DATE = '20/05/2026 14:00';
 export const CHANGELOG = [
+  '## [V2.8.4] - 20/05/2026 14:00',
+  '### Animação de Captura — Correção de Travamento e Spawn Prematuro',
+  '- **Bug corrigido**: Pokébola travava no centro da tela porque `onCaptureDone` era recriada a cada render (função inline), cancelando e reiniciando os timers internos do `CaptureAnimation` indefinidamente.',
+  '- **Correção**: `handleCaptureDone` agora é um `useCallback` memoizado — referência estável garante que os timers das fases não sejam interrompidos.',
+  '- **Bug corrigido**: Novo Pokémon podia aparecer antes da animação terminar. O `spawnEnemy()` agora é disparado exclusivamente dentro de `handleCaptureDone`, após o fade-out da animação.',
+  '- **Bug corrigido**: `setCaptureEvent` e `setTimeout(spawnEnemy)` estavam dentro de `setGameState` (anti-pattern React). Reestruturado para rodar fora, com `capturedEnemy` capturado por closure.',
+  '- **Novo**: `captureAnimatingRef` bloqueia o auto-farm (ataques automáticos e spawn de inimigos) durante toda a animação — tanto em sucesso quanto em falha.',
+  '- **Sucesso**: `setCurrentEnemy(null)` é chamado imediatamente para limpar a arena; novo inimigo entra só quando a animação finaliza.',
+  '- **Falha**: Inimigo permanece vivo mas auto-farm fica pausado durante os ~5s da animação; ao fim, batalha retoma normalmente.',
+  '',
   '## [V2.8.3] - 20/05/2026 12:30',
   '### Backgrounds de Ginásios — Correção Completa (Sinnoh → Paldea)',
   '- **Bug corrigido**: Ginásios de Unova (1–4) referenciavam arquivos `.png` inexistentes (`bg_unova_gym_striaton.png` etc.) → todos substituídos por `bg_type_*_domain.webp` temático por tipo.',

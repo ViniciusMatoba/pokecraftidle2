@@ -1,5 +1,5 @@
 {
-  "version": "2.8.3",
-  "date": "20/05/2026 12:30",
-  "notes": "Backgrounds de ginásios corrigidos em Unova, Kalos, Alola, Galar e Paldea. Sinnoh também melhorado com backgrounds temáticos por tipo."
+  "version": "2.8.4",
+  "date": "20/05/2026 14:00",
+  "notes": "Correção da animação de captura: pokébola não trava mais no centro, novo inimigo entra somente após a animação terminar, auto-farm pausado durante toda a animação."
 }
