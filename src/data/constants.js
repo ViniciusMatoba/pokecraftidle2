@@ -164,6 +164,7 @@ export const DEFAULT_GAME_STATE = {
     muteAll: false,
     showBattleLog: true,
     compactNumbers: false,
+    manualBattle: false,
   },
   activeQuest: null,
   lastQuestTime: null,

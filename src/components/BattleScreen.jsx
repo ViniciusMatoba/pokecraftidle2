@@ -195,6 +195,7 @@ const BattleScreen = ({
   onUseItem, setGameState, setShowAutoCaptureModal, ROUTES, fixPath, TYPE_COLORS, onGoToCity, onChallengeBoss,
   timeOfDay, showAutoConfigExternal = false, setShowAutoConfigExternal, bossTimer, currentLevelCap = 100,
   captureEvent, onCaptureDone,
+  manualBattle = false, isManualActing = false, onManualAttack,
 }) => {
   const activePoke = gameState.team?.[activeMemberIndex];
   const autoConfig = gameState.autoCaptureConfig || { autoCapture: false, autoPotion: false, hpThreshold: 30, staminaThreshold: 30, autoStamina: false };
@@ -765,7 +766,28 @@ const BattleScreen = ({
 
       {/*    GOLPES    */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-3 py-2.5 flex-shrink-0">
-        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Ataques <span className="normal-case font-normal">(toque para detalhes)</span></p>
+        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
+          {manualBattle ? '⚔️ Golpes' : 'Ataques'}{' '}
+          <span className="normal-case font-normal">
+            {manualBattle ? '(toque para atacar)' : '(toque para detalhes)'}
+          </span>
+        </p>
+
+        {/* Indicador de turno — visível apenas no modo manual */}
+        {manualBattle && (
+          <div
+            className="flex items-center justify-center gap-2 py-1.5 rounded-xl text-[10px] font-black mb-2 transition-all"
+            style={{
+              background: isManualActing
+                ? 'rgba(239,68,68,0.12)'
+                : 'rgba(34,197,94,0.12)',
+              color: isManualActing ? '#ef4444' : '#16a34a',
+            }}
+          >
+            {isManualActing ? '⏳ Inimigo respondendo...' : '🟢 Sua vez! Escolha um golpe'}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-3">
           {(activePoke?.moves || []).map((moveRef, index) => {
             const moveName = typeof moveRef === 'string' ? moveRef : moveRef.name;
@@ -775,12 +797,41 @@ const BattleScreen = ({
 
             const isActive = index === (moveIndex % (activePoke?.moves?.length || 1));
             const isSelected = selectedMove?.name === moveData.name;
+
+            // No modo manual, clique ataca; fora do modo manual, clique mostra detalhes
+            const handleClick = () => {
+              if (manualBattle) {
+                if (!isManualActing) onManualAttack?.(index);
+              } else {
+                setSelectedMove(isSelected ? null : moveData);
+              }
+            };
+
+            // Estilo do botão de golpe varia conforme o modo
+            const manualHighlight = manualBattle && !isManualActing;
+            const manualDisabled  = manualBattle && isManualActing;
+
             return (
               <div key={index}>
                 <div
-                  onClick={() => setSelectedMove(isSelected ? null : moveData)}
-                  className={`flex items-center gap-2 px-3 py-4 rounded-xl border-2 transition-all cursor-pointer min-h-[64px] ${isActive ? 'border-pokeYellow bg-yellow-50' : 'border-slate-100 bg-slate-50/50 opacity-60'} ${isSelected ? 'ring-2 ring-pokeBlue' : ''}`}>
-                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${isActive ? 'bg-pokeYellow' : 'bg-slate-300'}`} />
+                  onClick={handleClick}
+                  className={`flex items-center gap-2 px-3 py-4 rounded-xl border-2 transition-all min-h-[64px]
+                    ${manualHighlight
+                      ? 'border-blue-400 bg-blue-50 cursor-pointer hover:brightness-95 active:scale-[0.97] ring-1 ring-blue-200'
+                      : manualDisabled
+                        ? 'border-slate-200 bg-slate-100 opacity-40 cursor-not-allowed'
+                        : isActive
+                          ? 'border-pokeYellow bg-yellow-50 cursor-pointer'
+                          : 'border-slate-100 bg-slate-50/50 opacity-60 cursor-pointer'
+                    }
+                    ${!manualBattle && isSelected ? 'ring-2 ring-pokeBlue' : ''}
+                  `}
+                >
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                    manualHighlight ? 'bg-blue-400' :
+                    manualDisabled  ? 'bg-slate-300' :
+                    isActive        ? 'bg-pokeYellow' : 'bg-slate-300'
+                  }`} />
                   <div className="flex-1 min-w-0">
                     <p className="text-[10px] font-black uppercase text-slate-800 truncate leading-none">{moveLabel}</p>
                     <div className="flex items-center gap-1 mt-0.5">
@@ -791,7 +842,7 @@ const BattleScreen = ({
                     </div>
                   </div>
                 </div>
-                {isSelected && (
+                {!manualBattle && isSelected && (
                   <div className="mt-1 px-3 py-2 bg-blue-50 border-2 border-pokeBlue rounded-xl text-[9px] text-slate-700 font-bold leading-tight animate-fadeIn">
                     {getMoveDesc(moveData)}
                   </div>

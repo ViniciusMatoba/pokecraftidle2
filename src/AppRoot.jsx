@@ -1088,6 +1088,8 @@ export default function App() {
   const [captureEvent, setCaptureEvent] = useState(null);
   const captureSpawnRef = useRef(false);      // sinaliza que handleCaptureDone deve spawnar novo inimigo
   const captureAnimatingRef = useRef(false);  // bloqueia auto-farm durante qualquer animação de captura
+  const [isManualActing, setIsManualActing] = useState(false); // bloqueia botões durante turno do inimigo
+  const manualMoveRef = useRef(null);          // índice do golpe escolhido pelo jogador no modo manual
   const [floatingTexts, setFloatingTexts] = useState([]);
   const [weather, setWeather] = useState('none');
   const [weatherTurns, setWeatherTurns] = useState(0);
@@ -4021,7 +4023,8 @@ export default function App() {
 
       // Turno do Jogador
       const moves = myPoke.moves || [];
-      const move = (moves.length > 0 && moves[moveIndex % moves.length]) || { name: 'Investida', power: 40, type: 'Normal', category: 'Physical' };
+      const effectiveMoveIdx = (manualMoveRef.current !== null) ? manualMoveRef.current : moveIndex;
+      const move = (moves.length > 0 && moves[effectiveMoveIdx % moves.length]) || { name: 'Investida', power: 40, type: 'Normal', category: 'Physical' };
       
       let updatedTeamFinal = [...updatedTeam];
       let updatedEnemyFinal = { ...updatedEnemy };
@@ -4908,7 +4911,8 @@ export default function App() {
     return nextDelay;
   }, [currentEnemy, activeMemberIndex, moveIndex, calcDamage, addFloat, setCurrentEnemy, gameState.team, gameState.stamina, gameState.settings, isStoryVsEnemy, openStoryBattleResult, processDrops, spawnEnemy, handleGoToCity, showRaidRouteNotice, weather, weatherTurns, processedRoutes, activateWeatherFromMove]);
 
-  useAutoFarm(gameState.team[activeMemberIndex], gameState.currentRoute, handleBattleTick, battleReady);
+  const isManualMode = !!gameState.settings?.manualBattle;
+  useAutoFarm(gameState.team[activeMemberIndex], gameState.currentRoute, handleBattleTick, battleReady && !isManualMode);
 
   const handleUseItem = useCallback((itemId, source = 'items') => {
     if (currentViewRef.current !== 'battles' || !currentEnemy) return;
@@ -5180,6 +5184,20 @@ export default function App() {
       spawnEnemy(); // spawn APENAS após animação terminar
     }
   }, [spawnEnemy]);
+
+  // Modo manual por turnos: jogador escolhe o golpe → executa troca completa
+  const handleManualAttack = useCallback((moveIdx) => {
+    if (isManualActing || captureAnimatingRef.current) return;
+    if (!currentEnemy || currentEnemy.hp <= 0) return;
+
+    setIsManualActing(true);
+    manualMoveRef.current = moveIdx;
+    const delay = handleBattleTick() || 2000;
+    manualMoveRef.current = null;
+
+    // Mantém botões desativados pelo tempo do turno (entre 1.5 e 3s)
+    setTimeout(() => setIsManualActing(false), Math.max(1500, Math.min(delay || 2000, 3000)));
+  }, [isManualActing, currentEnemy, handleBattleTick]);
 
   const startKeyBattle = useCallback((battleData) => {
     const teamMember = (battleData.team && battleData.team.length > 0) ? battleData.team[0] : null;
@@ -8881,6 +8899,9 @@ export default function App() {
                 }}
                 captureEvent={captureEvent}
                 onCaptureDone={handleCaptureDone}
+                manualBattle={isManualMode}
+                isManualActing={isManualActing}
+                onManualAttack={handleManualAttack}
           />
         </div>
       );
@@ -10991,6 +11012,7 @@ export default function App() {
         <AutoCaptureModal
           route={autoCaptureRoute}
           gameState={gameState}
+          setGameState={setGameState}
           onSave={handleSaveAutoCaptureConfig}
           onClose={handleCloseAutoCaptureModal}
           onDisable={handleDisableAutoCapture}
@@ -11133,6 +11155,44 @@ export default function App() {
 
               {/* ── BODY ── */}
               <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-4 flex flex-col gap-3 bg-slate-50">
+
+                {/* ── MODO DE BATALHA ── */}
+                <div className="rounded-2xl border-2 bg-slate-800 shadow-sm overflow-hidden" style={{ borderColor: '#1e293b' }}>
+                  <div className="px-4 pt-3 pb-2">
+                    <p className="text-slate-300 text-[10px] font-black uppercase tracking-[0.16em] mb-2.5">🎮 Modo de Batalha</p>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setGameState(prev => ({ ...prev, settings: { ...prev.settings, manualBattle: false } }))}
+                        className={`flex-1 py-2.5 rounded-xl text-[10px] font-black transition-all active:scale-95 ${
+                          !isManualMode
+                            ? 'bg-green-500 text-white shadow-md shadow-green-500/30'
+                            : 'bg-white/10 text-white/50 hover:bg-white/15'
+                        }`}
+                      >
+                        ⚡ AUTO
+                        <div className="text-[9px] font-normal opacity-80 mt-0.5">Farm automático</div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setGameState(prev => ({ ...prev, settings: { ...prev.settings, manualBattle: true } }))}
+                        className={`flex-1 py-2.5 rounded-xl text-[10px] font-black transition-all active:scale-95 ${
+                          isManualMode
+                            ? 'bg-blue-500 text-white shadow-md shadow-blue-500/30'
+                            : 'bg-white/10 text-white/50 hover:bg-white/15'
+                        }`}
+                      >
+                        🎯 TURNO
+                        <div className="text-[9px] font-normal opacity-80 mt-0.5">Você escolhe o golpe</div>
+                      </button>
+                    </div>
+                    {isManualMode && (
+                      <p className="text-[9px] text-blue-300 mt-2 text-center leading-tight pb-1">
+                        Toque nos golpes para atacar. O inimigo responde automaticamente.
+                      </p>
+                    )}
+                  </div>
+                </div>
 
                 {/* ── AUTO-CAPTURA ── */}
                 <div className="rounded-2xl border-2 bg-white shadow-sm overflow-hidden" style={{ borderColor: gameState.autoCapture ? '#bfdbfe' : '#f1f5f9' }}>

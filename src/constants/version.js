@@ -1,7 +1,18 @@
-export const APP_VERSION = '2.8.4';
-export const VERSION = '2.8.4';
-export const APP_VERSION_DATE = '20/05/2026 14:00';
+export const APP_VERSION = '2.8.5';
+export const VERSION = '2.8.5';
+export const APP_VERSION_DATE = '20/05/2026 15:00';
 export const CHANGELOG = [
+  '## [V2.8.5] - 20/05/2026 15:00',
+  '### Modo Manual por Turnos (Battle Toggle)',
+  '- **Novo**: Painel Automático agora tem botões ⚡ AUTO / 🎯 TURNO no topo.',
+  '- **AUTO**: comportamento atual — farm automático contínuo.',
+  '- **TURNO**: auto-farm pausado; 4 botões de golpe ficam clicáveis com destaque azul.',
+  '- Um clique no golpe = turno completo: seu Pokémon ataca → inimigo contra-ataca automaticamente.',
+  '- Botões bloqueados durante a resposta do inimigo com indicador "⏳ Inimigo respondendo...".',
+  '- Após o turno, indicador volta para "🟢 Sua vez!" e botões reativam.',
+  '- Troca de volta para AUTO retoma o farm automático imediatamente.',
+  '- Configuração salva em `gameState.settings.manualBattle` (persiste entre sessões).',
+  '',
   '## [V2.8.4] - 20/05/2026 14:00',
   '### Animação de Captura — Correção de Travamento e Spawn Prematuro',
   '- **Bug corrigido**: Pokébola travava no centro da tela porque `onCaptureDone` era recriada a cada render (função inline), cancelando e reiniciando os timers internos do `CaptureAnimation` indefinidamente.',

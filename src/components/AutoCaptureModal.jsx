@@ -19,7 +19,7 @@ const MODE_OPTIONS = [
   { id: 'specific_plus_shiny', label: 'Especificos + Shinies', desc: 'Captura os escolhidos e qualquer Shiny', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lure-ball.png' },
 ];
 
-const AutoCaptureModal = ({ route, gameState, onSave, onClose, onDisable }) => {
+const AutoCaptureModal = ({ route, gameState, setGameState, onSave, onClose, onDisable }) => {
   const existingConfig = gameState.autoCaptureConfig?.routeConfigs?.[route.id] || {};
   const globalConfig = gameState.autoCaptureConfig || {};
 
@@ -27,6 +27,7 @@ const AutoCaptureModal = ({ route, gameState, onSave, onClose, onDisable }) => {
   const [ballPriority, setBallPriority] = useState(existingConfig.ballPriority || globalConfig.ballPriority || 'auto');
   const [hpThreshold, setHpThreshold] = useState(existingConfig.hpThreshold || globalConfig.hpThreshold || 30);
   const [targetIds, setTargetIds] = useState(existingConfig.targetIds || []);
+  const [manualBattle, setManualBattle] = useState(gameState.settings?.manualBattle ?? false);
 
   const routePokemon = route.enemies?.map(e => {
     const data = POKEDEX[Number(e.id)];
@@ -66,6 +67,47 @@ const AutoCaptureModal = ({ route, gameState, onSave, onClose, onDisable }) => {
         </div>
 
         <div className="modal-scroll-content p-5 flex flex-col gap-5 bg-slate-50">
+
+          {/* ── Modo de Batalha ── */}
+          <div className="p-3 rounded-2xl bg-slate-800 border border-white/10">
+            <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.18em] mb-2.5">🎮 Modo de Batalha</p>
+            <div className="flex gap-2">
+              <button
+                className={`flex-1 py-2.5 rounded-xl text-[10px] font-black transition-all active:scale-95 ${
+                  !manualBattle
+                    ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
+                    : 'bg-white/10 text-white/50 hover:bg-white/15'
+                }`}
+                onClick={() => {
+                  setManualBattle(false);
+                  setGameState && setGameState(prev => ({ ...prev, settings: { ...prev.settings, manualBattle: false } }));
+                }}
+              >
+                ⚡ AUTO
+                <div className="text-[9px] font-normal opacity-80 mt-0.5">Farm automático</div>
+              </button>
+              <button
+                className={`flex-1 py-2.5 rounded-xl text-[10px] font-black transition-all active:scale-95 ${
+                  manualBattle
+                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
+                    : 'bg-white/10 text-white/50 hover:bg-white/15'
+                }`}
+                onClick={() => {
+                  setManualBattle(true);
+                  setGameState && setGameState(prev => ({ ...prev, settings: { ...prev.settings, manualBattle: true } }));
+                }}
+              >
+                🎯 TURNO
+                <div className="text-[9px] font-normal opacity-80 mt-0.5">Você escolhe o golpe</div>
+              </button>
+            </div>
+            {manualBattle && (
+              <p className="text-[9px] text-blue-300 mt-2 text-center leading-tight">
+                Toque nos golpes para atacar. O inimigo responde automaticamente.
+              </p>
+            )}
+          </div>
+
           <div>
             <p className="text-[11px] font-black text-slate-700 uppercase tracking-[0.16em] mb-3">Modo de Captura</p>
             <div className="flex flex-col gap-2">
