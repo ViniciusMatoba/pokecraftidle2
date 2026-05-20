@@ -535,26 +535,26 @@ const FUTURE_REGION_LEGENDARIES = [
   // ─────────────── UNOVA ───────────────────────────────────────────────────
   {
     region: 'unova', id: 'cobalion', category: 'legendary', name: 'Cobalion',
-    subtitle: 'O Guerreiro de Aço', sprite: _sp(580),
+    subtitle: 'O Guerreiro de Aço', sprite: _sp(638),
     quote: '"Meu aço não cede. Prove que seu coração é digno."',
     reward: 2000, unlockFlag: 'cobalion_defeated', requiresFlag: 'unova_champion',
-    team: [{ id: 580, level: 72 }], background: "url('/bg_unova_route.webp') center/cover no-repeat",
+    team: [{ id: 638, level: 72 }], background: "url('/bg_unova_route.webp') center/cover no-repeat",
     location: 'Mistralton Cave',
   },
   {
     region: 'unova', id: 'terrakion', category: 'legendary', name: 'Terrakion',
-    subtitle: 'O Guerreiro da Rocha', sprite: _sp(638),
+    subtitle: 'O Guerreiro da Rocha', sprite: _sp(639),
     quote: '"Aqueles que oprimem os fracos serão varridos pela minha força!"',
     reward: 2000, unlockFlag: 'terrakion_defeated', requiresFlag: 'cobalion_defeated',
-    team: [{ id: 638, level: 74 }], background: "url('/bg_unova_route.webp') center/cover no-repeat",
+    team: [{ id: 639, level: 74 }], background: "url('/bg_unova_route.webp') center/cover no-repeat",
     location: 'Victory Road - Unova',
   },
   {
     region: 'unova', id: 'virizion', category: 'legendary', name: 'Virizion',
-    subtitle: 'O Guerreiro da Pradaria', sprite: _sp(639),
+    subtitle: 'O Guerreiro da Pradaria', sprite: _sp(640),
     quote: '"Com elegância e velocidade, corto qualquer oponente."',
     reward: 2000, unlockFlag: 'virizion_defeated', requiresFlag: 'terrakion_defeated',
-    team: [{ id: 639, level: 74 }], background: "url('/bg_unova_route.webp') center/cover no-repeat",
+    team: [{ id: 640, level: 74 }], background: "url('/bg_unova_route.webp') center/cover no-repeat",
     location: 'Pinwheel Forest',
   },
   {

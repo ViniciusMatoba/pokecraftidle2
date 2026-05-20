@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.8.6';
-export const VERSION = '2.8.6';
-export const APP_VERSION_DATE = '20/05/2026 12:46';
+export const APP_VERSION = '2.8.7';
+export const VERSION = '2.8.7';
+export const APP_VERSION_DATE = '20/05/2026 14:51';
 export const CHANGELOG = [
+  '## [V2.8.7] - 20/05/2026 14:51',
+  '### Correção de Sprites — Trio das Espadas (Unova)',
+  '- **Bug corrigido**: Cobalion usava ID 580 (Ducklett!) → corrigido para ID 638 (Cobalion real).',
+  '- **Bug corrigido**: Terrakion usava ID 638 (Cobalion) → corrigido para ID 639 (Terrakion real).',
+  '- **Bug corrigido**: Virizion usava ID 639 (Terrakion) → corrigido para ID 640 (Virizion real).',
+  '- Sprites e equipes dos três lendários agora correspondem aos Pokémon corretos.',
+  '',
   '## [V2.8.6] - 20/05/2026 12:46',
   '### Diálogo de Confirmação de Pokébola',
   '- **Novo**: Ao clicar numa Pokébola, aparece janela de confirmação com sprite do Pokémon, quantidade disponível e botões ✅/❌.',
