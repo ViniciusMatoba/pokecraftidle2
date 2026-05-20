@@ -16,7 +16,12 @@ let _addNotification = null;
 let _lastNotificationKey = '';
 let _lastNotificationAt = 0;
 
-export const notify = (notif) => {
+export const notify = (notif, typeArg) => {
+  // Suporte ao formato legado: notify('mensagem', 'tipo')
+  if (typeof notif === 'string') {
+    notif = { type: typeArg || 'info', message: notif };
+  }
+  if (!notif || typeof notif !== 'object') return;
   const key = `${notif.type || ''}|${notif.title || ''}|${notif.message || ''}`;
   const now = Date.now();
   if (key === _lastNotificationKey && now - _lastNotificationAt < 1200) return;

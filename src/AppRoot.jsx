@@ -1462,13 +1462,15 @@ export default function App() {
     const getLeveledSpeciesId = (pokemonId, level, maxId = 9999) => {
       let currentId = Number(pokemonId);
       let guard = 0;
-      while (guard < 3) {
+      while (guard < 4) {
         const base = POKEDEX[currentId] || POKEDEX[String(currentId)];
         const evo = base?.evolution;
-        const nextId = Number(evo?.id);
-        if (!evo || !nextId || !evo.level || level < evo.level) break;
-        if (nextId > maxId) break;  // ← NOVA LINHA: bloqueia gerações futuras
-        currentId = nextId;
+        if (!evo) break;
+        // Suporta evolution como objeto ({id, level}) e como array ([{id, level}, ...])
+        const evoList = Array.isArray(evo) ? evo : [evo];
+        const levelEvo = evoList.find(e => e?.level && e?.id && level >= e.level && Number(e.id) <= maxId);
+        if (!levelEvo) break;
+        currentId = Number(levelEvo.id);
         guard += 1;
       }
       return currentId;
@@ -1536,7 +1538,12 @@ export default function App() {
 
     Object.values(newRoutes).forEach(route => {
       if (!route?.postGameDomain) return;
-      const enemies = route.prismDomain ? buildPrismDomainEnemies() : buildTypeDomainEnemies(route.typeDomain);
+      const rawEnemies = route.prismDomain ? buildPrismDomainEnemies() : buildTypeDomainEnemies(route.typeDomain);
+      // Aplica evolução: domínios pós-jogo têm Pokémon em lv 70-100, nunca deve aparecer forma base
+      const enemies = rawEnemies.map(enemy => ({
+        ...enemy,
+        id: getLeveledSpeciesId(enemy.id, enemy.level, 1025),
+      }));
       route.enemies = enemies;
       const trainerTeam = enemies
         .filter(enemy => enemy.level >= 90)
