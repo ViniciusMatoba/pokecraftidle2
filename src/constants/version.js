@@ -1,7 +1,19 @@
-export const APP_VERSION = '2.8.0';
-export const VERSION = '2.8.0';
-export const APP_VERSION_DATE = '20/05/2026 08:00';
+export const APP_VERSION = '2.8.1';
+export const VERSION = '2.8.1';
+export const APP_VERSION_DATE = '20/05/2026 09:30';
 export const CHANGELOG = [
+  '## [V2.8.1] - 20/05/2026 09:30',
+  '### Auditoria de Captura Regional — Cobertura Completa por Região',
+  '- **Hoenn**: adicionados Makuhita (#296), Meditite (#307), Volbeat (#313), Illumise (#314), Roselia (#315), Gulpin (#316), Carvanha (#318), Wailmer (#320), Torkoal (#324), Spoink (#325), Spinda (#327), Cacnea (#331), Lunatone (#337), Solrock (#338), Barboach (#339), Baltoy (#343), Feebas (#349), Spheal (#363), Clamperl (#366), Bagon (#371) — distribuídos em `granite_cave`, `route_113`, `fiery_path`, `meteor_falls`, `route_111_desert`, `mt_chimney`, `route_118_119`, `ocean_routes`, `petalburg_woods` (Cascoon #268 já presente).',
+  '- **Sinnoh**: adicionados Combee (#415), Pachirisu (#417), Cherubi (#420), Shellos (#422), Drifloon (#425), Glameow (#431), Chatot (#441), Riolu (#447), Hippopotas (#449), Skorupi (#451), Carnivine (#455) — distribuídos em `sinnoh_route_201`, `eterna_forest_sinnoh`, `sinnoh_route_209`, `valor_lakefront`, `mt_coronet_sinnoh`, `sunyshore_routes`.',
+  '- **Unova**: adicionados Woobat (#527), Drilbur (#529), Audino (#531), Throh (#538), Sawk (#539), Basculin (#550), Maractus (#556), Zorua (#570), Minccino (#572), Gothita (#574), Solosis (#577), Emolga (#587), Karrablast (#588), Foongus (#590), Ferroseed (#597), Elgyem (#605), Litwick (#607), Shelmet (#616), Druddigon (#621), Rufflet (#627), Heatmor (#631), Durant (#632) — distribuídos em `unova_route_3`, `unova_route_4`, `unova_pinwheel_forest`, `unova_chargestone_cave`, `unova_twist_mountain`, `unova_route_9`, `unova_victory_road`.',
+  '- **Kalos**: adicionados Honedge (#679), Spritzee (#682), Swirlix (#684), Inkay (#686), Binacle (#688), Helioptile (#694), Dedenne (#702), Klefki (#707), Phantump (#708), Pumpkaboo (#710) — distribuídos em `kalos_route_4`, `kalos_azure_bay`, `kalos_glittering_cave`, `kalos_frost_cavern`.',
+  '- **Alola**: adicionados Cutiefly (#742), Wishiwashi (#746), Mareanie (#747), Fomantis (#753), Wimpod (#767), Pyukumuku (#771), Komala (#775), Togedemaru (#777), Bruxish (#779), Dhelmise (#781) — distribuídos nas rotas por ilha.',
+  '- **Galar**: adicionados Cramorant (#845), Arrokuda (#846), Toxel (#848), Sizzlipede (#850), Impidimp (#859), Milcery (#868), Pincurchin (#871), Morpeko (#877), Cufant (#878), Dreepy (#885) — distribuídos em `galar_route_5`, `galar_glimwood_tangle`, `galar_wild_area_south`, `galar_mine_1`, `galar_route_9`.',
+  '- **Paldea**: adicionados Flittle (#919), Cyclizar (#926), Orthworm (#927), Squawkabilly (#931), Klawf (#937), Shroodle (#940), Maschiff (#944), Glimmet (#950), Tinkatink (#957), Bombirdier (#962), Finizen (#963), Varoom (#965), Frigibax (#996) e Paradox Pokémon Flutter Mane (#985), Slither Wing (#986), Sandy Shocks (#988), Iron Treads (#989), Iron Bundle (#990), Iron Hands (#992), Iron Jugulis (#993), Iron Moth (#994), Iron Leaves (#1019).',
+  '- **Kanto**: adicionados Ponyta (#77) em `route_7_8`, Staryu (#120) em `seafoam_islands`, Mr. Mime (#122) em `route_5_6`.',
+  '- **LEVEL_EVOLUTIONS**: confirmada e mantida entrada `268→269` (Cascoon→Dustox); duplicata de Eevee removida; mapeamento `884→1018` (Duraludon→Archaludon) verificado como correto.',
+  '',
   '## [V2.8.0] - 20/05/2026 08:00',
   '### Sistema de Período — Correção de Encontros Extras por Horário',
   '- **Bug corrigido**: Pokémon de forma base (Caterpie, Weedle, Pidgey, etc.) eram adicionados como bônus de horário em **qualquer rota**, sem considerar o nível da rota.',
