@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { loginUser, registerUser } from '../auth';
 import { setPersistence, browserLocalPersistence, browserSessionPersistence, getAuth } from 'firebase/auth';
 import { APP_VERSION, APP_VERSION_DATE } from '../constants/version';
+import { forceAppRefresh } from '../utils/appUpdate';
 import RankingModal from './RankingModal';
 import PrivacyModal from './PrivacyModal';
 
@@ -21,25 +22,6 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
   const [showRanking, setShowRanking] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
   const [privacyModalTab, setPrivacyModalTab] = useState(null); // 'privacy' | 'terms' | null
-
-  const forceAppRefresh = async () => {
-    if ('serviceWorker' in navigator) {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(registrations.map(registration => {
-        registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
-        registration.active?.postMessage({ type: 'SKIP_WAITING' });
-        return registration.unregister();
-      }));
-    }
-
-    if ('caches' in window) {
-      const cacheNames = await caches.keys();
-      await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
-    }
-
-    window.location.replace(`${window.location.pathname}?v=${Date.now()}`);
-    window.location.reload(true);
-  };
 
   const handleCheckUpdate = async () => {
     setUpdateStatus('checking');

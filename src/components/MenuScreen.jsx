@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { deleteUserAccount } from '../auth';
 import PrivacyModal from './PrivacyModal';
 import { APP_VERSION, APP_VERSION_DATE } from '../constants/version';
+import { forceAppRefresh } from '../utils/appUpdate';
 import {
   ALOLA_BADGE_IDS,
   BADGE_IDS,
@@ -339,10 +340,10 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [privacyModalTab, setPrivacyModalTab] = useState(null);
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     setUpdating(true);
     localStorage.setItem('pokecraft_last_reload', String(Date.now()));
-    setTimeout(() => window.location.reload(true), 400);
+    await forceAppRefresh();
   };
 
   const menuItems = [
