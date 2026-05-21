@@ -2869,7 +2869,7 @@ export default function App() {
         rareDrops.push({
           type: 'mega',
           name: `${qty}x Fragmento de Mega Pedra`,
-          icon: '/items/mega_stone_shard.webp',
+          icon: fixPath('/items/mega_stone_shard.webp'),
           description: 'Fragmento usado nas forjas de Mega Pedra liberadas em Kalos.',
           meta: `${enemy.name || POKEDEX[Number(enemy.id)]?.name || 'Pokemon'} - Nv.${enemy.level || '?'}`,
         });
@@ -11853,7 +11853,7 @@ export default function App() {
                 <img src={recipeFoundModal.img} alt={recipeFoundModal.name}
                   className="w-12 h-12 object-contain"
                   style={{ imageRendering: 'pixelated', filter: 'drop-shadow(0 0 6px #f59e0b66)' }}
-                  onError={e => { e.target.src = '/items/mega_stone_shard.webp'; }} />
+                  onError={e => { e.target.onerror = null; e.target.src = fixPath('/items/mega_stone_shard.webp'); }} />
               </div>
               <div className="flex-1 min-w-0">
                 <p style={{ color: '#fbbf24', fontWeight: 900, fontSize: 13, textTransform: 'uppercase', marginBottom: 3 }}>

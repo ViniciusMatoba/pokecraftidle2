@@ -1046,7 +1046,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
           <div className={`w-12 h-12 rounded-2xl border border-white shadow-inner flex items-center justify-center shrink-0 ${
             mission.complete && !mission.claimed ? 'bg-yellow-100' : 'bg-slate-100'
           }`}>
-            <img src={itemIcon(mission.icon)} alt="" className="w-9 h-9 object-contain" onError={e => { e.target.style.display = 'none'; }} />
+            <img src={itemIcon(mission.icon)} alt="" className="w-9 h-9 object-contain" onError={e => { e.target.onerror = null; e.target.src = `${POKEAPI_ITEM}poke-ball.png`; }} />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-black uppercase italic text-slate-800 leading-none flex items-center gap-1.5">

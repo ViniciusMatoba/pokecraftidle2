@@ -1,5 +1,5 @@
 {
-  "version": "2.9.7",
-  "date": "21/05/2026 00:00",
-  "notes": "Fix: imagens das missões diárias/semanais corrigidas (extensão .png). Fix: modal de drop raro não pisca mais (onerror loop resolvido)."
+  "version": "2.9.8",
+  "date": "21/05/2026 10:00",
+  "notes": "Fix profundo: imagens de missões com fallback visual, RareDropModal com path BASE_URL correto e fallback duplo. Lendários não aparecem em raids sem desbloqueio no Modo VS."
 }

@@ -579,7 +579,12 @@ export const pickRaidPokemon = (region = 'kanto', maxStars = 5, previousRegions 
   // 55% pool dinâmico (garante todos os Pokémon), 45% pool curado (formas especiais)
   const useDynamic = dynamicPool.length > 0 && (curatedPool.length === 0 || Math.random() < 0.55);
   let pool = useDynamic ? dynamicPool : curatedPool;
-  if (!pool.length) pool = dynamicPool.length ? dynamicPool : (RAID_POKEMON_POOL[region] || RAID_POKEMON_POOL.kanto);
+  if (!pool.length) {
+    // Fallback: aplica filtro de lendários também aqui para evitar aparecerem sem desbloqueio
+    const rawFallback = RAID_POKEMON_POOL[region] || RAID_POKEMON_POOL.kanto;
+    const filteredFallback = rawFallback.filter(p => isLegendaryUnlockedForRaid(p.id, worldFlags));
+    pool = dynamicPool.length ? dynamicPool : (filteredFallback.length ? filteredFallback : rawFallback.filter(p => !LEGENDARY_RAID_LOCKED_IDS.has(p.id)));
+  }
 
   // Filtra pelo maxStars permitido pelas insígnias
   const eligible = pool.filter(p => p.stars <= maxStars);

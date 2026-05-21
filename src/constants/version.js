@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.9.7';
-export const VERSION = '2.9.7';
-export const APP_VERSION_DATE = '21/05/2026 00:00';
+export const APP_VERSION = '2.9.8';
+export const VERSION = '2.9.8';
+export const APP_VERSION_DATE = '21/05/2026 10:00';
 export const CHANGELOG = [
+  '## [V2.9.8] - 21/05/2026 10:00',
+  '### Correção Profunda — Imagens e Lendários em Raids',
+  '- **Bug corrigido**: RareDropModal agora resolve paths locais com `import.meta.env.BASE_URL` (compatível com Vite `base: "./"`) — sem mais dependência de caminho absoluto.',
+  '- **Bug corrigido**: Fallback de imagem em dois níveis no RareDropModal: local asset → PokeAPI CDN. Nenhum loop infinito possível.',
+  '- **Bug corrigido**: Ícones das missões agora exibem `poke-ball.png` como fallback visual em vez de desaparecer (onError `display:none` substituído).',
+  '- **Bug corrigido**: Ícone de receita encontrada (`recipeFoundModal`) usa `fixPath` no `onError` — nunca vai para caminho quebrado.',
+  '- **Bug crítico corrigido**: Lendários e míticos NÃO aparecem mais em raids antes de serem derrotados no Modo VS ou na aba Lendários — fallback do pool de raids agora também aplica o filtro `isLegendaryUnlockedForRaid`.',
+  '',
   '## [V2.9.7] - 21/05/2026 00:00',
   '### Correção — Imagens de Missões e Modal de Drop Raro',
   '- **Bug corrigido**: Ícones das missões diárias e semanais apareciam em branco — extensão `.webp` corrigida para `.png` (PokeAPI só serve `.png`).',

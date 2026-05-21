@@ -2,6 +2,10 @@ import React from 'react';
 
 const POKEAPI_ITEM = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
 
+// Resolve paths de assets locais usando BASE_URL do Vite (suporta base: './')
+const _base = (import.meta.env.BASE_URL || './').replace(/\/$/, '');
+const localAsset = (path) => `${_base}${path.startsWith('/') ? path : `/${path}`}`;
+
 const DISMISSED_KEY = 'pokecraft_dismissed_rare_drops';
 const getDismissed = () => { try { return JSON.parse(localStorage.getItem(DISMISSED_KEY) || '[]'); } catch { return []; } };
 const addDismissed = (type) => { try { const d = getDismissed(); if (!d.includes(type)) { d.push(type); localStorage.setItem(DISMISSED_KEY, JSON.stringify(d)); } } catch {} };
@@ -11,7 +15,6 @@ const TYPE_STYLES = {
   recipe: {
     eyebrow: 'Receita encontrada',
     title: 'Nova forja desbloqueada',
-    // fallback usa URL completa do PokeAPI — item real que existe
     fallbackIcon: `${POKEAPI_ITEM}tm-case.png`,
     accent: '#f59e0b',
     bg: 'linear-gradient(160deg,#1c1410 0%,#2d1f0a 100%)',
@@ -26,8 +29,9 @@ const TYPE_STYLES = {
   mega: {
     eyebrow: 'Fragmento raro',
     title: 'Mega Evolucao',
-    // usa asset local — mega-stone.png não existe no PokeAPI
-    fallbackIcon: '/items/mega_stone_shard.webp',
+    // Primário: asset local (via localAsset). Fallback 2º nível: PokeAPI (caso CDN Firebase lento)
+    localIcon: localAsset('/items/mega_stone_shard.webp'),
+    fallbackIcon: `${POKEAPI_ITEM}dusk-stone.png`,
     accent: '#a855f7',
     bg: 'linear-gradient(160deg,#171126 0%,#2d174d 100%)',
   },
@@ -55,7 +59,19 @@ export default function RareDropModal({
   };
 
   const style = TYPE_STYLES[drop.type] || TYPE_STYLES.rare;
-  const icon = drop.img || drop.icon || style.fallbackIcon;
+
+  // Para tipo mega: garante uso do path local resolvido com BASE_URL.
+  // drop.icon pode vir de AppRoot (já fixPath'd), mas localAsset é o fallback primário garantido.
+  const resolvedLocal = style.localIcon; // só existe para type 'mega'
+  const icon = resolvedLocal || drop.img || drop.icon || style.fallbackIcon;
+
+  const handleImgError = (e) => {
+    // Previne loop infinito. Tenta 1 fallback: se estava no ícone local, vai para PokeAPI.
+    e.currentTarget.onerror = null;
+    if (e.currentTarget.src !== style.fallbackIcon) {
+      e.currentTarget.src = style.fallbackIcon;
+    }
+  };
 
   return (
     <div
@@ -90,7 +106,7 @@ export default function RareDropModal({
               alt=""
               className="h-14 w-14 object-contain"
               style={{ imageRendering: 'pixelated', filter: `drop-shadow(0 0 12px ${style.accent}88)` }}
-              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = style.fallbackIcon; }}
+              onError={handleImgError}
             />
           </div>
           <p className="text-[9px] font-black uppercase tracking-[0.28em]" style={{ color: style.accent }}>
