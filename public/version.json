@@ -1,5 +1,5 @@
 {
-  "version": "2.9.5",
-  "date": "20/05/2026 21:00",
-  "notes": "Missões: badge no menu, notificações de conclusão, banner de recompensas prontas e cards com destaque visual."
+  "version": "2.9.6",
+  "date": "20/05/2026 21:30",
+  "notes": "Fix: modal de drop raro de Fragmento de Mega Pedra agora exibe imagem correta."
 }

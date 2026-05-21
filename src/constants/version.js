@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.9.5';
-export const VERSION = '2.9.5';
-export const APP_VERSION_DATE = '20/05/2026 21:00';
+export const APP_VERSION = '2.9.6';
+export const VERSION = '2.9.6';
+export const APP_VERSION_DATE = '20/05/2026 21:30';
 export const CHANGELOG = [
+  '## [V2.9.6] - 20/05/2026 21:30',
+  '### Correção — Imagem do Modal de Drop Raro (Fragmento de Mega Pedra)',
+  '- **Bug corrigido**: Modal de drop raro de Fragmento de Mega Pedra exibia imagem quebrada — `mega-stone.png` não existe no PokeAPI.',
+  '- **Fix em AppRoot**: `icon` do raredrop tipo `mega` agora usa asset local `/items/mega_stone_shard.webp`.',
+  '- **Fix em RareDropModal**: `TYPE_STYLES.mega.fallbackIcon` e `onError` passaram a usar o asset local em vez de URL quebrada do PokeAPI.',
+  '',
   '## [V2.9.5] - 20/05/2026 21:00',
   '### Novo — Notificações e Badge de Missões',
   '- **Novo**: Badge vermelho no botão Missões no Menu mostra quantas recompensas estão prontas para coletar (missões diárias + semanais + login diário).',

@@ -2869,7 +2869,7 @@ export default function App() {
         rareDrops.push({
           type: 'mega',
           name: `${qty}x Fragmento de Mega Pedra`,
-          icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/mega-stone.png',
+          icon: '/items/mega_stone_shard.webp',
           description: 'Fragmento usado nas forjas de Mega Pedra liberadas em Kalos.',
           meta: `${enemy.name || POKEDEX[Number(enemy.id)]?.name || 'Pokemon'} - Nv.${enemy.level || '?'}`,
         });

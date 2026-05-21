@@ -11,28 +11,30 @@ const TYPE_STYLES = {
   recipe: {
     eyebrow: 'Receita encontrada',
     title: 'Nova forja desbloqueada',
-    item: 'tm-case.png',
+    // fallback usa URL completa do PokeAPI — item real que existe
+    fallbackIcon: `${POKEAPI_ITEM}tm-case.png`,
     accent: '#f59e0b',
     bg: 'linear-gradient(160deg,#1c1410 0%,#2d1f0a 100%)',
   },
   shiny: {
     eyebrow: 'Encontro raro',
     title: 'Pokemon shiny',
-    item: 'shiny-charm.png',
+    fallbackIcon: `${POKEAPI_ITEM}shiny-charm.png`,
     accent: '#facc15',
     bg: 'linear-gradient(160deg,#15120a 0%,#31240b 100%)',
   },
   mega: {
     eyebrow: 'Fragmento raro',
     title: 'Mega Evolucao',
-    item: 'mega-stone.png',
+    // usa asset local — mega-stone.png não existe no PokeAPI
+    fallbackIcon: '/items/mega_stone_shard.webp',
     accent: '#a855f7',
     bg: 'linear-gradient(160deg,#171126 0%,#2d174d 100%)',
   },
   rare: {
     eyebrow: 'Drop raro',
     title: 'Item especial',
-    item: 'star-piece.png',
+    fallbackIcon: `${POKEAPI_ITEM}star-piece.png`,
     accent: '#38bdf8',
     bg: 'linear-gradient(160deg,#081827 0%,#12304a 100%)',
   },
@@ -53,7 +55,7 @@ export default function RareDropModal({
   };
 
   const style = TYPE_STYLES[drop.type] || TYPE_STYLES.rare;
-  const icon = drop.img || drop.icon || `${POKEAPI_ITEM}${style.item}`;
+  const icon = drop.img || drop.icon || style.fallbackIcon;
 
   return (
     <div
@@ -88,7 +90,7 @@ export default function RareDropModal({
               alt=""
               className="h-14 w-14 object-contain"
               style={{ imageRendering: 'pixelated', filter: `drop-shadow(0 0 12px ${style.accent}88)` }}
-              onError={(e) => { e.currentTarget.src = `${POKEAPI_ITEM}${style.item}`; }}
+              onError={(e) => { e.currentTarget.src = style.fallbackIcon; }}
             />
           </div>
           <p className="text-[9px] font-black uppercase tracking-[0.28em]" style={{ color: style.accent }}>
