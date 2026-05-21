@@ -90,7 +90,7 @@ export default function RareDropModal({
               alt=""
               className="h-14 w-14 object-contain"
               style={{ imageRendering: 'pixelated', filter: `drop-shadow(0 0 12px ${style.accent}88)` }}
-              onError={(e) => { e.currentTarget.src = style.fallbackIcon; }}
+              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = style.fallbackIcon; }}
             />
           </div>
           <p className="text-[9px] font-black uppercase tracking-[0.28em]" style={{ color: style.accent }}>

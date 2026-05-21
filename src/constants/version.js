@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.9.6';
-export const VERSION = '2.9.6';
-export const APP_VERSION_DATE = '20/05/2026 21:30';
+export const APP_VERSION = '2.9.7';
+export const VERSION = '2.9.7';
+export const APP_VERSION_DATE = '21/05/2026 00:00';
 export const CHANGELOG = [
+  '## [V2.9.7] - 21/05/2026 00:00',
+  '### Correção — Imagens de Missões e Modal de Drop Raro',
+  '- **Bug corrigido**: Ícones das missões diárias e semanais apareciam em branco — extensão `.webp` corrigida para `.png` (PokeAPI só serve `.png`).',
+  '- **Bug corrigido**: Modal de drop raro não piscava mais após a correção do loop infinito no `onError` (adicionado `onerror = null` antes de trocar o src).',
+  '',
   '## [V2.9.6] - 20/05/2026 21:30',
   '### Correção — Imagem do Modal de Drop Raro (Fragmento de Mega Pedra)',
   '- **Bug corrigido**: Modal de drop raro de Fragmento de Mega Pedra exibia imagem quebrada — `mega-stone.png` não existe no PokeAPI.',

@@ -1,5 +1,5 @@
 {
-  "version": "2.9.6",
-  "date": "20/05/2026 21:30",
-  "notes": "Fix: modal de drop raro de Fragmento de Mega Pedra agora exibe imagem correta."
+  "version": "2.9.7",
+  "date": "21/05/2026 00:00",
+  "notes": "Fix: imagens das missões diárias/semanais corrigidas (extensão .png). Fix: modal de drop raro não pisca mais (onerror loop resolvido)."
 }
