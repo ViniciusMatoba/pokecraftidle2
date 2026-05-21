@@ -76,7 +76,7 @@ import { getCaptureRate, pickWeightedEncounter } from './utils/pokemonDifficulty
 import { preloadAssets } from './utils/preloader';
 import { calculatePowerScore, getBadgeCount } from './utils/progress';
 import { migrateGameState } from './utils/saveMigration';
-import { ensureRetentionState } from './data/retention';
+import { ensureRetentionState, getRetentionViewModel, RETENTION_DAILY_MISSIONS, RETENTION_WEEKLY_MISSIONS } from './data/retention';
 import { 
   TROPHIES, SHOP_TITLES, POKEDEX_FRAMES, UI_THEMES, 
   ALLIES, MINE_LEVELS, FISHING_RODS, POKECENTER_DONATIONS, GYM_BANNERS 
@@ -1074,6 +1074,8 @@ export default function App() {
   const [activeBuildingModal, setActiveBuildingModal] = useState(null);
   const [forgeCategory, setForgeCategory] = useState(null); // null = abre na 1ª aba; 'food' = abre em Ração
   const [pendingFriendRequests, setPendingFriendRequests] = useState([]);
+  // Ref para detectar missões que acabaram de completar (evita notificar duas vezes)
+  const completedMissionIdsRef = useRef(new Set());
 
   const [activeMaterialModal, setActiveMaterialModal] = useState(null);
   const [evolutionPending, setEvolutionPending] = useState(null);
@@ -2223,6 +2225,45 @@ export default function App() {
     });
     return () => unsub();
   }, []);
+
+  // ── Detector de missões concluídas e login diário ──────────────────────────
+  useEffect(() => {
+    if (!isFullyLoadedRef.current) return;
+    const model = getRetentionViewModel(gameState);
+
+    // Notifica login diário disponível (apenas uma vez por sessão)
+    const loginNotifiedKey = 'pokecraft_login_reward_notified_' + (model.retention?.login?.lastClaimDate || 'none');
+    if (model.canClaimLogin && !sessionStorage.getItem(loginNotifiedKey)) {
+      sessionStorage.setItem(loginNotifiedKey, '1');
+      notify({
+        type: 'quest',
+        title: '🎁 Recompensa Diária',
+        message: 'Seu login diário está pronto! Abra Missões para coletar.',
+        duration: 6000,
+      });
+    }
+
+    // Detecta missões que acabaram de completar (daily + weekly)
+    const allMissions = [
+      ...model.dailyMissions.map(m => ({ ...m, period: 'daily' })),
+      ...model.weeklyMissions.map(m => ({ ...m, period: 'weekly' })),
+    ];
+    allMissions.forEach(m => {
+      if (m.complete && !m.claimed && !completedMissionIdsRef.current.has(m.id)) {
+        completedMissionIdsRef.current.add(m.id);
+        notify({
+          type: 'quest',
+          title: '✅ Missão Concluída!',
+          message: `"${m.title}" — abra Missões para coletar a recompensa.`,
+          duration: 7000,
+        });
+      }
+      // Remove do set quando for coletada (para poder notificar novamente no próximo ciclo)
+      if (m.claimed) {
+        completedMissionIdsRef.current.delete(m.id);
+      }
+    });
+  }, [gameState]);
 
   const saveBossDamage = useCallback(async (damage) => {
     const user = auth.currentUser;
@@ -9059,7 +9100,13 @@ export default function App() {
            </div>
         </div>
       );
-      case 'menu': return (
+      case 'menu': {
+        const _missionModel = getRetentionViewModel(gameState);
+        const _missionsReadyCount = [
+          ..._missionModel.dailyMissions,
+          ..._missionModel.weeklyMissions,
+        ].filter(m => m.complete && !m.claimed).length + (_missionModel.canClaimLogin ? 1 : 0);
+        return (
         <MenuScreen
           {...props}
           gameState={gameState}
@@ -9075,13 +9122,15 @@ export default function App() {
           onUseExpCandy={handleUseExpCandy}
           onOpenFriends={() => setActiveBuildingModal('friends')}
           pendingFriendRequestsCount={pendingFriendRequests.length}
+          missionsNotificationCount={_missionsReadyCount}
           setVsInitialTab={setVsInitialTab}
           setVsInitialCategory={setVsInitialCategory}
           setVsInitialRegion={setVsInitialRegion}
           muted={muted}
           onToggleMute={toggleMute}
         />
-      );
+        );
+      }
 
       case 'battle_result': {
         const isVictory = battleResult?.outcome === 'victory';

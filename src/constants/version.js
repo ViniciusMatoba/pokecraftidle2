@@ -1,7 +1,16 @@
-export const APP_VERSION = '2.9.4';
-export const VERSION = '2.9.4';
-export const APP_VERSION_DATE = '20/05/2026 20:30';
+export const APP_VERSION = '2.9.5';
+export const VERSION = '2.9.5';
+export const APP_VERSION_DATE = '20/05/2026 21:00';
 export const CHANGELOG = [
+  '## [V2.9.5] - 20/05/2026 21:00',
+  '### Novo — Notificações e Badge de Missões',
+  '- **Novo**: Badge vermelho no botão Missões no Menu mostra quantas recompensas estão prontas para coletar (missões diárias + semanais + login diário).',
+  '- **Novo**: Toast notification quando uma missão é concluída — "✅ Missão Concluída! Abra Missões para coletar."',
+  '- **Novo**: Toast notification ao entrar no jogo com login diário disponível — "🎁 Recompensa Diária pronta!".',
+  '- **Novo**: Banner vermelho no topo de Missões listando todas as recompensas prontas para coletar.',
+  '- **Novo**: Cards de missão com borda pulsante dourada e ⭐ quando estão prontos para coletar.',
+  '- **Novo**: Botão de login diário animado (bounce) quando há recompensa disponível.',
+  '',
   '## [V2.9.4] - 20/05/2026 20:30',
   '### Novo — Navegação por Setas no PC e Filtro por Região',
   '- **Novo**: Modal de Pokémon aberto pelo PC agora tem setas ‹ › para navegar entre os Pokémons da lista filtrada atual, igual ao Time.',

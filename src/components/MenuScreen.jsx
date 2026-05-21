@@ -329,7 +329,7 @@ const ExpCandyModal = ({ candy, gameState, onUse, onClose }) => {
   );
 };
 
-const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onExportSave, onImportSave, onShowTutorial, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0, setVsInitialTab, setVsInitialCategory, setVsInitialRegion, muted, onToggleMute }) => {
+const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onExportSave, onImportSave, onShowTutorial, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0, missionsNotificationCount = 0, setVsInitialTab, setVsInitialCategory, setVsInitialRegion, muted, onToggleMute }) => {
   const [updating, setUpdating] = useState(false);
   const [subView, setSubView] = useState('main'); // 'main' ou 'settings'
   const [activeTab, setActiveTab] = useState('balls');
@@ -350,7 +350,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
     { id: 'guide',    name: 'Guia da Jornada', icon: `${POKEAPI_ITEM}town-map.png`,       desc: 'Proximo passo e drops',    color: 'bg-blue-50 border-blue-200 text-blue-700' },
     { id: 'pokedex',  name: 'Pokedex',       icon: '📕',                                   desc: 'Registro de especies',    color: 'bg-red-50 border-red-200 text-red-600' },
     { id: 'backpack', name: 'Mochila',        icon: '🎒',                                   desc: 'Itens e Equipamentos',    color: 'bg-orange-50 border-orange-200 text-orange-600' },
-    { id: 'missions', name: 'Missoes',        icon: '/assets/icons/quests.webp',             desc: 'Login diario e metas',    color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
+    { id: 'missions', name: 'Missoes',        icon: '/assets/icons/quests.webp',             desc: 'Login diario e metas',    color: 'bg-yellow-50 border-yellow-200 text-yellow-700', badge: missionsNotificationCount },
     { id: 'friends',  name: 'Rede de Amigos', icon: `${POKEAPI_ITEM}vs-seeker.png`,        desc: 'Amigos, batalhas e desafios', color: 'bg-blue-50 border-blue-200 text-blue-700', badge: pendingFriendRequestsCount },
     { id: 'stats',    name: 'Estatisticas',   icon: `${POKEAPI_ITEM}data-card-01.png`,      desc: 'Dados da Jornada',        color: 'bg-cyan-50 border-cyan-200 text-cyan-700' },
     { id: 'regions',  name: 'Progresso Regional', icon: `${POKEAPI_ITEM}town-map.png`,      desc: 'Dex, rotas, insignias e liga', color: 'bg-emerald-50 border-emerald-200 text-emerald-700' },
@@ -1031,13 +1031,29 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
     };
 
     const MissionCard = ({ mission, period }) => (
-      <div className={`rounded-2xl border-2 p-4 shadow-sm ${mission.claimed ? 'bg-emerald-50 border-emerald-200' : mission.complete ? 'bg-yellow-50 border-yellow-300' : 'bg-white border-slate-200'}`}>
+      <div className={`rounded-2xl border-2 p-4 shadow-sm relative overflow-hidden transition-all ${
+        mission.claimed
+          ? 'bg-emerald-50 border-emerald-200 opacity-70'
+          : mission.complete
+            ? 'bg-yellow-50 border-yellow-400 shadow-yellow-200 shadow-md'
+            : 'bg-white border-slate-200'
+      }`}>
+        {/* Brilho pulsante quando pronta para coletar */}
+        {mission.complete && !mission.claimed && (
+          <div className="absolute inset-0 pointer-events-none rounded-2xl border-2 border-yellow-400 animate-pulse opacity-60" />
+        )}
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-white shadow-inner flex items-center justify-center shrink-0">
+          <div className={`w-12 h-12 rounded-2xl border border-white shadow-inner flex items-center justify-center shrink-0 ${
+            mission.complete && !mission.claimed ? 'bg-yellow-100' : 'bg-slate-100'
+          }`}>
             <img src={itemIcon(mission.icon)} alt="" className="w-9 h-9 object-contain" onError={e => { e.target.style.display = 'none'; }} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-black uppercase italic text-slate-800 leading-none">{mission.title}</p>
+            <p className="text-sm font-black uppercase italic text-slate-800 leading-none flex items-center gap-1.5">
+              {mission.complete && !mission.claimed && <span className="text-yellow-500 animate-bounce">⭐</span>}
+              {mission.claimed && <span className="text-emerald-500">✅</span>}
+              {mission.title}
+            </p>
             <p className="text-[10px] font-bold text-slate-500 mt-1 leading-tight">{mission.description}</p>
           </div>
         </div>
@@ -1055,27 +1071,45 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
         </div>
         <div className="mt-3 flex items-center gap-2">
           <p className="flex-1 text-[9px] font-black uppercase text-slate-400 leading-tight">
-            {formatRewardSummary(mission.reward)}
+            🎁 {formatRewardSummary(mission.reward)}
           </p>
           <button
             onClick={() => claimMission(period, mission.id)}
             disabled={!mission.complete || mission.claimed}
-            className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${
+            className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all active:scale-95 ${
               mission.claimed
-                ? 'bg-emerald-100 text-emerald-600'
+                ? 'bg-emerald-100 text-emerald-600 cursor-default'
                 : mission.complete
-                  ? 'bg-pokeRed text-white shadow-md active:scale-95'
-                  : 'bg-slate-100 text-slate-400'
+                  ? 'bg-pokeRed text-white shadow-md animate-pulse'
+                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
             }`}
           >
-            {mission.claimed ? 'Coletado' : mission.complete ? 'Coletar' : 'Em progresso'}
+            {mission.claimed ? '✅ Coletado' : mission.complete ? '🎁 Coletar!' : 'Em progresso'}
           </button>
         </div>
       </div>
     );
 
+    const readyMissions = [...model.dailyMissions, ...model.weeklyMissions].filter(m => m.complete && !m.claimed);
+    const totalReady = readyMissions.length + (model.canClaimLogin ? 1 : 0);
+
     return (
       <div className="animate-slideUp flex flex-col gap-4">
+        {/* Banner de alerta quando há recompensas prontas */}
+        {totalReady > 0 && (
+          <div className="rounded-2xl p-4 bg-red-500 text-white flex items-center gap-3 shadow-lg animate-pulse">
+            <span className="text-2xl shrink-0">🎁</span>
+            <div className="flex-1">
+              <p className="font-black uppercase text-sm leading-none">
+                {totalReady === 1 ? '1 recompensa pronta!' : `${totalReady} recompensas prontas!`}
+              </p>
+              <p className="text-[10px] font-bold text-white/80 mt-1">
+                {readyMissions.map(m => m.title).concat(model.canClaimLogin ? ['Login Diário'] : []).join(' • ')}
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="rounded-[2rem] p-5 shadow-xl border-b-8 border-yellow-600 bg-gradient-to-br from-yellow-400 to-orange-500 text-white relative overflow-hidden">
           <img src={assetPath('/assets/icons/quests.webp')} alt="" className="absolute -right-4 -top-5 w-28 h-28 opacity-20 rotate-12" />
           <p className="text-[10px] font-black uppercase tracking-[0.25em] text-yellow-100">Jornada diaria</p>
@@ -1086,11 +1120,11 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
             disabled={!model.canClaimLogin}
             className={`mt-4 w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs border-b-4 transition-all ${
               model.canClaimLogin
-                ? 'bg-white text-orange-600 border-yellow-100 active:scale-95 shadow-lg'
+                ? 'bg-white text-orange-600 border-yellow-100 active:scale-95 shadow-lg animate-bounce'
                 : 'bg-white/25 text-white/70 border-white/10'
             }`}
           >
-            {model.canClaimLogin ? `Coletar Dia ${model.loginReward.cycleDay}` : 'Recompensa ja coletada'}
+            {model.canClaimLogin ? `🎁 Coletar Dia ${model.loginReward.cycleDay}` : '✅ Recompensa ja coletada'}
           </button>
           <p className="mt-2 text-[10px] font-black uppercase text-white/80">{formatRewardSummary(model.loginReward.reward)}</p>
         </div>
