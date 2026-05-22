@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { hasProgressRequirement } from '../utils/progress';
 import { TYPE_COLOR_HEX } from '../data/gyms';
 import { BadgeSVG } from './CommonUI';
@@ -327,7 +327,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
       reward: normalizedLevel * 1200,
       unlockFlag: region === 'alola' ? `${region}_trial_${index + 1}_cleared` : badge,
       badgeToGive: badge,
-      requiresFlag: index === 0 ? (villainBattles[0]?.unlockFlag || cfg.start) : prevBadge,
+      requiresFlag: index === 0 ? (villainBattles[0]?.unlockFlag || cfg.start) : (region === 'alola' ? `${region}_trial_${index}_cleared` : prevBadge),
       badge, badgeOrder: badgeIndex + 1, type, typeIcon: typeIconUrl(type),
       team: team(ids, normalizedLevel), background: (cfg.gymBgs && cfg.gymBgs[index]) ? cfg.gymBgs[index] : cfg.bg, location: `${cfg.label} - ${subtitle}`,
     };
