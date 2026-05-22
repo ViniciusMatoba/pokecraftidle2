@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.9.8';
-export const VERSION = '2.9.8';
-export const APP_VERSION_DATE = '21/05/2026 10:00';
+export const APP_VERSION = '2.10.0';
+export const VERSION = '2.10.0';
+export const APP_VERSION_DATE = '22/05/2026 16:00';
 export const CHANGELOG = [
+  '## [V2.10.0] - 22/05/2026 16:00',
+  '### Click-to-Go Expansion',
+  '- **Novo**: Atalhos rápidos de "Treinar" e "Forjar" agora aparecem diretamente na tela de Evolução quando você não tem o nível ou o item necessário para evoluir o Pokémon.',
+  '- **Novo**: A Estação de Forja agora lista "Onde encontrar" os fragmentos necessários nas receitas bloqueadas, e inclui um botão de viagem rápida ("Ir agora") direto para a raid ou rota correspondente.',
+  '- **Bug corrigido**: Diversos erros de sintaxe e quebra de layout em modais (como o de Captura Alpha e Receita Encontrada) foram estabilizados e convertidos para o novo layout fluido `modal-panel-mobile`.',
+  '',
   '## [V2.9.8] - 21/05/2026 10:00',
   '### Correção Profunda — Imagens e Lendários em Raids',
   '- **Bug corrigido**: RareDropModal agora resolve paths locais com `import.meta.env.BASE_URL` (compatível com Vite `base: "./"`) — sem mais dependência de caminho absoluto.',
