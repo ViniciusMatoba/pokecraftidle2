@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.10.0';
-export const VERSION = '2.10.0';
-export const APP_VERSION_DATE = '22/05/2026 16:00';
+export const APP_VERSION = '2.10.1';
+export const VERSION = '2.10.1';
+export const APP_VERSION_DATE = '22/05/2026 17:30';
 export const CHANGELOG = [
+  '## [V2.10.1] - 22/05/2026 17:30',
+  '### Correção Crítica — PC Storage quebrando o jogo',
+  '- **Bug corrigido**: Tela de erro "Cannot convert undefined or null to object" ao abrir o PC Storage — causado pela dependência `react-window` listada no package.json mas não instalada nos node_modules após o pull do v2.10.0.',
+  '- **Fix**: Dependência instalada e bundle recompilado corretamente.',
+  '',
   '## [V2.10.0] - 22/05/2026 16:00',
   '### Click-to-Go Expansion',
   '- **Novo**: Atalhos rápidos de "Treinar" e "Forjar" agora aparecem diretamente na tela de Evolução quando você não tem o nível ou o item necessário para evoluir o Pokémon.',

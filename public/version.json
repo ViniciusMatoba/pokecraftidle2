@@ -1,5 +1,5 @@
 {
-  "version": "2.10.0",
-  "date": "22/05/2026 12:56",
-  "notes": "Sistema 'Click-to-Go' Expandido. O gerenciador de Pokemon agora possui botões atalho para forjar pedras faltando, desbloquear região caso não tenha acesso e atalho de treinar para evoluções. A Forja possui atalho de viagem automática para as Rotas de onde as receitas dropam."
+  "version": "2.10.1",
+  "date": "22/05/2026 17:30",
+  "notes": "Fix crítico: PC Storage não abria mais (react-window ausente nos node_modules após pull do v2.10.0)."
 }
