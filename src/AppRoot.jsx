@@ -2616,16 +2616,28 @@ export default function App() {
     if (moveType === 'Normal' && attackerAbility === 'refrigerate') moveType = 'Ice';
     if (moveType === 'Normal' && attackerAbility === 'aerilate') moveType = 'Flying';
 
-    const power = move.power || moveData.power || 0;
+    let power = move.power || moveData.power || 0;
     if (!power) return 0;
 
     const level = attacker.level || 5;
     const getStatMult = (stage = 0) => (2 + Math.max(0, stage)) / (2 - Math.min(0, stage));
     const isPhysical = (moveData.category || 'Physical') === 'Physical';
-    const atkBase = isPhysical ? getEffectiveStat(attacker, 'attack') : getEffectiveStat(attacker, 'spAtk');
-    const defBase = isPhysical ? getEffectiveStat(defender, 'defense') : getEffectiveStat(defender, 'spDef');
-    const atkMult = isPhysical ? getStatMult(attacker.stages?.attack) : getStatMult(attacker.stages?.spAtk);
-    const defMult = isPhysical ? getStatMult(defender.stages?.defense) : getStatMult(defender.stages?.spDef);
+    let atkBase = isPhysical ? getEffectiveStat(attacker, 'attack') : getEffectiveStat(attacker, 'spAtk');
+    let defBase = isPhysical ? getEffectiveStat(defender, 'defense') : getEffectiveStat(defender, 'spDef');
+
+    if (attacker.heldItem === 'choice_band' && isPhysical) atkBase *= 1.5;
+    if (attacker.heldItem === 'choice_specs' && !isPhysical) atkBase *= 1.5;
+    if (defender.heldItem === 'assault_vest' && !isPhysical) defBase *= 1.5;
+    if (attacker.heldItem === 'clear_amulet') {
+      // Clear Amulet impede que stats de ataque caiam abaixo do base multiplier (ignora debuffs no atacante)
+      // Vai ser tratado no accStageMult / defMult / atkMult abaixo, então aqui só marca
+    }
+
+    let atkMult = isPhysical ? getStatMult(attacker.stages?.attack) : getStatMult(attacker.stages?.spAtk);
+    let defMult = isPhysical ? getStatMult(defender.stages?.defense) : getStatMult(defender.stages?.spDef);
+
+    if (attacker.heldItem === 'clear_amulet' && atkMult < 1) atkMult = 1;
+    if (defender.heldItem === 'clear_amulet' && defMult < 1) defMult = 1;
 
     let atk = atkBase * atkMult;
     if (isPhysical && ['huge-power', 'pure-power'].includes(attackerAbility)) atk *= 2;
@@ -2658,6 +2670,13 @@ export default function App() {
     const punchMove = ['punch', 'fist'].some(key => moveKey.includes(key));
     const slashMove = ['slash', 'cut', 'claw', 'blade', 'scythe', 'razor'].some(key => moveKey.includes(key));
     const contactMove = isPhysical && !['earthquake', 'rock-slide', 'stone-edge', 'mud-shot', 'bone-rush', 'bonemerang'].some(key => moveKey.includes(key));
+    
+    // Loaded Dice garante que multihits acertem 4-5 vezes, e não 2-5 vezes (vai afetar processamento de hits fora de calcDamage também, mas aumentamos dano base como paliativo caso multihits já tenham sido condensados no power. Wait, na idle multihits já estão no poder base ou são rolados?)
+    // Para simplificar no Idle, Loaded Dice = +30% power em golpes que geralmente são multi-hit (fury-swipes, etc) ou chance extra no Battle Engine.
+    const multiHitMove = ['fury-swipes', 'bullet-seed', 'icicle-spear', 'rock-blast', 'pin-missile', 'bone-rush', 'tail-slap'].some(key => moveKey.includes(key));
+    if (attacker.heldItem === 'loaded_dice' && multiHitMove) {
+      power *= 1.5; // Simulate hitting more times
+    }
 
     if (!abilityBreaker) {
       if (defenderAbility === 'levitate' && moveType === 'Ground') return 0;
@@ -2715,11 +2734,23 @@ export default function App() {
       const heldItem = playerPokemon.heldItem;
       const itemData = Object.values(CRAFTING_RECIPES).flat().find(r => r.id === heldItem);
       const isBossItem = itemData?.isBossItem || false;
+      
+      // MECÂNICA: Escudo Mítico de Boss/Raid
+      // Se o inimigo for Boss, ele recebe 90% a menos de dano (Escudo), a não ser que o jogador use o Penetration Pendant.
+      if (defender.isWorldBoss) {
+        if (heldItem === 'penetration_pendant') {
+          // Ignora o escudo
+          base *= 1.30; // Bônus base do item
+        } else {
+          // Escudo Mítico ativo
+          base *= 0.10; 
+        }
+      }
+
       if (isBossItem) {
         if (playerIsAttacker) {
           if (heldItem === 'adrenaline_potion') base *= 1.25;
-          if (heldItem === 'penetration_pendant') base *= 1.30;
-        } else if (heldItem === 'titan_shield') base *= 0.80;
+        } else if (heldItem === 'titan_shield') base *= 0.80; // Defesa contra o boss
       }
       if (playerIsAttacker) {
         const psBossBonus = Math.min(2.5, Math.max(0, powerScore || 0) / 200000);
@@ -3711,8 +3742,10 @@ export default function App() {
         speed: pokedexEntry.speed || 60,
         status: [],
         stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
+        equippedNature: NATURE_LIST[Math.floor(Math.random() * NATURE_LIST.length)],
         fromRaid: true,
       }, pokedexEntry);
+      newPoke.unlockedNatures = [newPoke.equippedNature];
 
       // Aplica bônus alfa se aplicável
       if (raid.isAlpha) {
@@ -3796,14 +3829,30 @@ export default function App() {
       // ── Lógica normal (não alfa) ──
       const alreadyOwns = ownedSameSpecies.length > 0;
       if (alreadyOwns && !raid.isShiny) {
-        // Duplicata: converte em EXP Candy
+        // Duplicata: converte em EXP Candy e desbloqueia Nature
         const candyMap = { 1: 'exp_candy_xs', 2: 'exp_candy_s', 3: 'exp_candy_m', 4: 'exp_candy_l', 5: 'exp_candy_xl' };
         const candyId = candyMap[raid.stars] || 'exp_candy_s';
         const candyQty = raid.stars >= 4 ? 2 : 1;
-        addLog(`📦 ${raid.name} já está no seu PC! Recebeu ${candyQty}x ${EXP_CANDIES[candyId]?.name} no lugar.`, 'system');
+        const rolledNature = NATURE_LIST[Math.floor(Math.random() * NATURE_LIST.length)];
+        addLog(`📦 ${raid.name} já capturado! Recebeu ${candyQty}x ${candyId} e desbloqueou a Nature ${rolledNature}!`, 'system');
+        
+        const applyNatureToExisting = (list) => list.map(p => {
+          if (isSameRaidPokemon(p)) {
+            let updatedP = { ...p };
+            updatedP.unlockedNatures = updatedP.unlockedNatures || [updatedP.equippedNature || 'Hardy'];
+            if (!updatedP.unlockedNatures.includes(rolledNature)) {
+              updatedP.unlockedNatures = [...updatedP.unlockedNatures, rolledNature];
+            }
+            return updatedP;
+          }
+          return p;
+        });
+
         showRaidRouteNotice(raid, 'captured');
         setGameState(s => ({
           ...s,
+          team: applyNatureToExisting(s.team),
+          pc: applyNatureToExisting(s.pc || []),
           inventory: { ...s.inventory, items: { ...newItems, [candyId]: (newItems[candyId] || 0) + candyQty } },
           activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
           raidStats: { ...(s.raidStats || {}), captured: (s.raidStats?.captured || 0) + 1 },
@@ -4170,9 +4219,27 @@ export default function App() {
           }
 
         } else {
+          // Status condition
+          if (fx.statusEffect) {
+            const target = fx.statusEffect.target === 'enemy' ? updatedEnemyFinal : updatedTeamFinal[activeMemberIndex];
+            if (target.heldItem === 'covert_cloak' && fx.statusEffect.target === 'enemy') {
+               // Imune por causa do Covert Cloak
+            } else {
+              target.status = [...(target.status || []), fx.statusEffect.status];
+              if (fx.statusEffect.target === 'enemy') {
+                addLog(`${myPoke.name} usou ${move.name}! ${updatedEnemyFinal.name} sofreu ${fx.statusEffect.status}!`, 'system');
+                addFloat(fx.statusEffect.status.toUpperCase(), '#c084fc');
+              } else {
+                addLog(`${myPoke.name} usou ${move.name}! ${myPoke.name} sofreu ${fx.statusEffect.status}!`, 'system');
+                addFloat(fx.statusEffect.status.toUpperCase(), '#c084fc', 'player');
+              }
+            }
+          }
+          
           // Stat changes
           fx.statChanges.forEach(c => {
             if (c.target === 'enemy') {
+              if (updatedEnemyFinal.heldItem === 'covert_cloak' && c.change < 0) return; // Covert Cloak
               const cur = updatedEnemyFinal.stages?.[c.stat] || 0;
               const newVal = Math.max(-6, Math.min(6, cur + c.change));
               updatedEnemyFinal.stages = { ...updatedEnemyFinal.stages, [c.stat]: newVal };
@@ -4215,20 +4282,6 @@ export default function App() {
             }
             addLog(`${myPoke.name} usou ${move.name}! Evasão subiu!`, 'system');
             addFloat('↑ EVA', '#3b82f6', 'player');
-          }
-
-          // Status condition
-          if (fx.statusEffect) {
-            const statusNames = { burn:'🔥 Queimadura', poison:'☠️ Veneno', toxic:'☠️ Veneno Grave', sleep:'💤 Sono', paralyze:'⚡ Paralisia', confuse:'💫 Confusão', freeze:'❄️ Congelamento' };
-            const _checkStatus = fx.statusEffect === 'toxic' ? 'toxic' : fx.statusEffect;
-            const _alreadyHas = (updatedEnemyFinal.status || []).some(s => s === 'poison' || s === 'toxic' || s === _checkStatus);
-            if (!_alreadyHas) {
-              updatedEnemyFinal.status = [...(updatedEnemyFinal.status || []), fx.statusEffect];
-              if (fx.statusEffect === 'toxic') updatedEnemyFinal.toxicTurns = 1;
-              addLog(`${statusNames[fx.statusEffect]||fx.statusEffect}: ${updatedEnemyFinal.name} foi afetado!`, 'enemy');
-            } else {
-              addLog(`${myPoke.name} usou ${move.name}... mas não surtiu efeito!`, 'system');
-            }
           }
 
           if (!playerWeatherChanged && fx.statChanges.length === 0 && !fx.accuracy_change && !fx.statusEffect && !fx.evasion_change) {
@@ -4421,30 +4474,40 @@ export default function App() {
         let _secStatusApplied = false;
         if (!_secStatusApplied && !_enemySt.includes('burn') &&
             ((BURN30.has(_nm) && Math.random() < 0.30) || (BURN10.has(_nm) && Math.random() < 0.10))) {
-          updatedEnemyFinal.status = [..._enemySt, 'burn'];
-          addLog(`🔥 ${updatedEnemyFinal.name} foi queimado!`, 'enemy');
-          _secStatusApplied = true;
+          if (updatedEnemyFinal.heldItem !== 'covert_cloak') {
+              updatedEnemyFinal.status = [..._enemySt, 'burn'];
+              addLog(`🔥 ${updatedEnemyFinal.name} foi queimado!`, 'enemy');
+              _secStatusApplied = true;
+          }
         }
         if (!_secStatusApplied && !_enemySt.includes('paralyze') && !_enemySt.includes('burn') &&
             ((PARA30.has(_nm) && Math.random() < 0.30) || (PARA10.has(_nm) && Math.random() < 0.10))) {
-          updatedEnemyFinal.status = [..._enemySt, 'paralyze'];
-          addLog(`⚡ ${updatedEnemyFinal.name} foi paralisado!`, 'enemy');
-          _secStatusApplied = true;
+          if (updatedEnemyFinal.heldItem !== 'covert_cloak') {
+              updatedEnemyFinal.status = [..._enemySt, 'paralyze'];
+              addLog(`⚡ ${updatedEnemyFinal.name} foi paralisado!`, 'enemy');
+              _secStatusApplied = true;
+          }
         }
         if (!_secStatusApplied && !_enemySt.includes('poison') && !_enemySt.includes('toxic') &&
             (POIS30.has(_nm) && Math.random() < 0.30)) {
-          updatedEnemyFinal.status = [..._enemySt, 'poison'];
-          addLog(`☠️ ${updatedEnemyFinal.name} foi envenenado!`, 'enemy');
-          _secStatusApplied = true;
+          if (updatedEnemyFinal.heldItem !== 'covert_cloak') {
+              updatedEnemyFinal.status = [..._enemySt, 'poison'];
+              addLog(`☠️ ${updatedEnemyFinal.name} foi envenenado!`, 'enemy');
+              _secStatusApplied = true;
+          }
         }
         if (!_secStatusApplied && FRZE10.has(_nm) && !_enemySt.includes('freeze') && Math.random() < 0.10) {
-          updatedEnemyFinal.status = [..._enemySt, 'freeze'];
-          addLog(`❄️ ${updatedEnemyFinal.name} foi congelado!`, 'enemy');
-          _secStatusApplied = true;
+          if (updatedEnemyFinal.heldItem !== 'covert_cloak') {
+              updatedEnemyFinal.status = [..._enemySt, 'freeze'];
+              addLog(`❄️ ${updatedEnemyFinal.name} foi congelado!`, 'enemy');
+              _secStatusApplied = true;
+          }
         }
         if (!_secStatusApplied && CONF10.has(_nm) && !_enemySt.includes('confuse') && Math.random() < 0.10) {
-          updatedEnemyFinal.status = [..._enemySt, 'confuse'];
-          addLog(`💫 ${updatedEnemyFinal.name} ficou confuso!`, 'enemy');
+          if (updatedEnemyFinal.heldItem !== 'covert_cloak') {
+              updatedEnemyFinal.status = [..._enemySt, 'confuse'];
+              addLog(`💫 ${updatedEnemyFinal.name} ficou confuso!`, 'enemy');
+          }
         }
 
         // 5. DEBUFF INIMIGO AO CAUSAR DANO (chance)
@@ -4455,30 +4518,40 @@ export default function App() {
         // Baixar Velocidade (30%)
         const SPD_DOWN_30  = new Set(['bubble-beam','constrict','bubble','hammer-arm','scale-shot','ice-hammer']);
         if (SPD_DOWN_100.has(_nm)) {
-          updatedEnemyFinal.stages = { ..._es, speed: Math.max(-6, (_es.speed || 0) - 1) };
-          addLog(`📉 Velocidade de ${updatedEnemyFinal.name} caiu!`, 'enemy');
+            if (updatedEnemyFinal.heldItem !== 'covert_cloak') {
+              updatedEnemyFinal.stages = { ..._es, speed: Math.max(-6, (_es.speed || 0) - 1) };
+              addLog(`📉 Velocidade de ${updatedEnemyFinal.name} caiu!`, 'enemy');
+            }
         } else if (SPD_DOWN_30.has(_nm) && Math.random() < 0.30) {
-          updatedEnemyFinal.stages = { ..._es, speed: Math.max(-6, (_es.speed || 0) - 1) };
-          addLog(`📉 Velocidade de ${updatedEnemyFinal.name} caiu!`, 'enemy');
+            if (updatedEnemyFinal.heldItem !== 'covert_cloak') {
+              updatedEnemyFinal.stages = { ..._es, speed: Math.max(-6, (_es.speed || 0) - 1) };
+              addLog(`📉 Velocidade de ${updatedEnemyFinal.name} caiu!`, 'enemy');
+            }
         }
         // Baixar Def. Especial (30%)
         const SPDEF_DOWN = new Set(['acid','psychic','shadow-ball','bug-buzz','focus-blast','energy-ball',
           'earth-power','flash-cannon','acid-spray','seed-flare','lumina-crash']);
         if (SPDEF_DOWN.has(_nm) && Math.random() < 0.30 && _nm !== 'lumina-crash') {
-          updatedEnemyFinal.stages = { ..._es, spDef: Math.max(-6, (_es.spDef || 0) - 1) };
-          addLog(`📉 Def. Especial de ${updatedEnemyFinal.name} caiu!`, 'enemy');
+            if (updatedEnemyFinal.heldItem !== 'covert_cloak') {
+              updatedEnemyFinal.stages = { ..._es, spDef: Math.max(-6, (_es.spDef || 0) - 1) };
+              addLog(`📉 Def. Especial de ${updatedEnemyFinal.name} caiu!`, 'enemy');
+            }
         }
         // Baixar Defesa (30%)
         const DEF_DOWN = new Set(['crunch','crush-claw','shadow-ball','brick-break','rock-smash',
           'razor-shell','sacred-sword']);
         if (DEF_DOWN.has(_nm) && Math.random() < 0.30) {
-          updatedEnemyFinal.stages = { ..._es, defense: Math.max(-6, (_es.defense || 0) - 1) };
-          addLog(`📉 Defesa de ${updatedEnemyFinal.name} caiu!`, 'enemy');
+            if (updatedEnemyFinal.heldItem !== 'covert_cloak') {
+              updatedEnemyFinal.stages = { ..._es, defense: Math.max(-6, (_es.defense || 0) - 1) };
+              addLog(`📉 Defesa de ${updatedEnemyFinal.name} caiu!`, 'enemy');
+            }
         }
         // Nuzzle: sempre paralisa
         if (_nm === 'nuzzle' && !_enemySt.includes('paralyze')) {
-          updatedEnemyFinal.status = [..._enemySt, 'paralyze'];
-          addLog(`⚡ ${updatedEnemyFinal.name} foi paralisado!`, 'enemy');
+            if (updatedEnemyFinal.heldItem !== 'covert_cloak') {
+              updatedEnemyFinal.status = [..._enemySt, 'paralyze'];
+              addLog(`⚡ ${updatedEnemyFinal.name} foi paralisado!`, 'enemy');
+            }
         }
       }
       // ── Fim dos Efeitos Secundários ────────────────────────────────────────
@@ -4630,6 +4703,7 @@ export default function App() {
                     updatedEnemyFinal.stages = { ...updatedEnemyFinal.stages, [c.stat]: Math.max(-6, Math.min(6, cur + c.change)) };
                     addLog(`⚠️ ${updatedEnemyFinal.name} usou ${enemyMove.name}! ${statNames[c.stat]||c.stat} ${c.change > 0 ? 'subiu' : 'caiu'}!`, 'enemy');
                   } else {
+                    if (updatedTeamFinal[activeMemberIndex].heldItem === 'covert_cloak' && c.change < 0) return;
                     const cur = updatedTeamFinal[activeMemberIndex].stages?.[c.stat] || 0;
                     updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, [c.stat]: Math.max(-6, Math.min(6, cur + c.change)) } };
                     addLog(`⚠️ ${updatedEnemyFinal.name} usou ${enemyMove.name}! ${statNames[c.stat]||c.stat} de ${updatedTeamFinal[activeMemberIndex].name} ${c.change < 0 ? 'caiu' : 'subiu'}!`, 'enemy');
@@ -4637,6 +4711,7 @@ export default function App() {
                 });
 
                 if (fxE.accuracy_change) {
+                  if (updatedTeamFinal[activeMemberIndex].heldItem === 'covert_cloak') return;
                   const cur = updatedTeamFinal[activeMemberIndex].stages?.accuracy || 0;
                   updatedTeamFinal[activeMemberIndex] = { ...updatedTeamFinal[activeMemberIndex], stages: { ...updatedTeamFinal[activeMemberIndex].stages, accuracy: Math.max(-6, Math.min(6, cur + fxE.accuracy_change.change)) } };
                   addLog(`⚠️ ${updatedEnemyFinal.name} usou ${enemyMove.name}! Precisão de ${updatedTeamFinal[activeMemberIndex].name} caiu!`, 'enemy');
@@ -5186,6 +5261,7 @@ export default function App() {
       }
 
       const newCaughtData = { ...(prev.caughtData || {}), [capturedEnemy.id]: true };
+      const rolledNature = NATURE_LIST[Math.floor(Math.random() * NATURE_LIST.length)];
       const newPoke = assignRandomAbility({
         ...capturedEnemy,
         id: Number(capturedEnemy.id),
@@ -5194,7 +5270,9 @@ export default function App() {
         instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
         capturedRegion: prev.activeRegion || 'kanto',
         ball: itemId || 'pokeballs',
-        stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
+        stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
+        equippedNature: rolledNature,
+        unlockedNatures: [rolledNature]
       }, POKEDEX[Number(capturedEnemy.id)]);
       const newMastery = processCaptureMastery({ ...capturedEnemy, id: Number(capturedEnemy.id) }, prev);
 
@@ -5208,13 +5286,22 @@ export default function App() {
         const findAndReplace = (list) => ({
           newList: list.map(p => {
             if (Number(p.id) === Number(capturedEnemy.id) && ((p.formKey || null) === (capturedEnemy.formKey || null))) {
-              if (capturedEnemy.isShiny) {
-                const upgraded = applyShinyUpgrade(p, POKEDEX[Number(p.id)]);
-                const newCount = upgraded.shinyCount;
-                if (!p.isShiny) addLog(`✨ Upgrade Shiny! ${p.name} agora é Brilhante! (+20% stats)`, 'system');
-                else addLog(`✨ Shiny Stack x${newCount}! ${p.name} ficou ainda mais forte! (+${Math.round((1.2 + (newCount-1)*0.05 - 1)*100)}% total)`, 'system');
-                return upgraded;
+              let updatedP = { ...p };
+              const rolledNature = NATURE_LIST[Math.floor(Math.random() * NATURE_LIST.length)];
+              updatedP.unlockedNatures = updatedP.unlockedNatures || [updatedP.equippedNature || 'Hardy'];
+              if (!updatedP.unlockedNatures.includes(rolledNature)) {
+                updatedP.unlockedNatures = [...updatedP.unlockedNatures, rolledNature];
+                addLog(`🌿 Nova Nature desbloqueada para ${updatedP.name}: ${rolledNature}!`, 'system');
               }
+
+              if (capturedEnemy.isShiny) {
+                const upgraded = applyShinyUpgrade(updatedP, POKEDEX[Number(updatedP.id)]);
+                const newCount = upgraded.shinyCount;
+                if (!updatedP.isShiny) addLog(`✨ Upgrade Shiny! ${updatedP.name} agora é Brilhante! (+20% stats)`, 'system');
+                else addLog(`✨ Shiny Stack x${newCount}! ${updatedP.name} ficou ainda mais forte! (+${Math.round((1.2 + (newCount-1)*0.05 - 1)*100)}% total)`, 'system');
+                updatedP = upgraded;
+              }
+              return updatedP;
             }
             return p;
           })
@@ -7262,16 +7349,24 @@ export default function App() {
                 if (alreadyCaught) {
                   const findAndReplace = (list) => list.map(p => {
                     if (Number(p.id) === Number(currentEnemy.id)) {
-                      if (currentEnemy.isShiny) {
-                        const upgraded = applyShinyUpgrade(p, POKEDEX[Number(p.id)]);
-                        const newCount = upgraded.shinyCount;
-                        if (!p.isShiny) {
-                          addLog(`✨ Upgrade Shiny! ${p.name} agora é Brilhante! (+20% stats)`, 'system');
-                        } else {
-                          addLog(`✨ Shiny Stack x${newCount}! ${p.name} ficou ainda mais forte!`, 'system');
-                        }
-                        return upgraded;
+                      let updatedP = { ...p };
+                      const rolledNature = NATURE_LIST[Math.floor(Math.random() * NATURE_LIST.length)];
+                      updatedP.unlockedNatures = updatedP.unlockedNatures || [updatedP.equippedNature || 'Hardy'];
+                      if (!updatedP.unlockedNatures.includes(rolledNature)) {
+                        updatedP.unlockedNatures = [...updatedP.unlockedNatures, rolledNature];
+                        addLog(`🌿 Nova Nature desbloqueada para ${updatedP.name}: ${rolledNature}!`, 'system');
                       }
+                      if (currentEnemy.isShiny) {
+                        const upgraded = applyShinyUpgrade(updatedP, POKEDEX[Number(updatedP.id)]);
+                        const newCount = upgraded.shinyCount;
+                        if (!updatedP.isShiny) {
+                          addLog(`✨ Upgrade Shiny! ${updatedP.name} agora é Brilhante! (+20% stats)`, 'system');
+                        } else {
+                          addLog(`✨ Shiny Stack x${newCount}! ${updatedP.name} ficou ainda mais forte!`, 'system');
+                        }
+                        updatedP = upgraded;
+                      }
+                      return updatedP;
                     }
                     return p;
                   });
@@ -7291,7 +7386,8 @@ export default function App() {
                   };
                 } else {
                   // Primeira Captura
-                  const newPoke = assignRandomAbility({ ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9), capturedRegion: prev.activeRegion || 'kanto', ball: selectedBall || 'pokeballs' }, POKEDEX[Number(currentEnemy.id)]);
+                  const rolledNature = NATURE_LIST[Math.floor(Math.random() * NATURE_LIST.length)];
+                  const newPoke = assignRandomAbility({ ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9), capturedRegion: prev.activeRegion || 'kanto', ball: selectedBall || 'pokeballs', equippedNature: rolledNature, unlockedNatures: [rolledNature] }, POKEDEX[Number(currentEnemy.id)]);
                   const newTeam = [...prev.team];
                   const newPC = [...(prev.pc || [])];
                   if (newTeam.length < 6) newTeam.push(newPoke); else newPC.push(newPoke);

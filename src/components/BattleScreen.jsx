@@ -440,6 +440,15 @@ const BattleScreen = ({
                 <h2 className="text-lg font-black text-white uppercase italic leading-none drop-shadow-md">
                   {currentEnemy.trainerName || currentEnemy.pokemonName || currentEnemy.name}
                 </h2>
+                {activePoke?.heldItem !== 'penetration_pendant' ? (
+                  <span className="text-[8px] font-black text-white bg-red-600/80 px-2 py-0.5 rounded border border-red-400 mt-1 uppercase tracking-widest inline-block self-start shadow-md animate-pulse">
+                    🛡️ Escudo Mítico Ativo (-90% Dano)
+                  </span>
+                ) : (
+                  <span className="text-[8px] font-black text-white bg-emerald-600/80 px-2 py-0.5 rounded border border-emerald-400 mt-1 uppercase tracking-widest inline-block self-start shadow-md">
+                    ⚔️ Escudo Quebrado (Penetration Pendant)
+                  </span>
+                )}
               </div>
               <div className="text-right">
                 <span className="text-xl font-black text-amber-500 italic drop-shadow-md">LV ???</span>

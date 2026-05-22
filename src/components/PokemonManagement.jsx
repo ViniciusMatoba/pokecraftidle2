@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { List } from 'react-window';
 import { POKEDEX } from '../data/pokedex';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '../data/candies';
@@ -219,6 +220,7 @@ const PokemonManagement = ({
   const [pcSearch, setPcSearch] = useState('');
   const [pcSort, setPcSort] = useState('number');
   const [pcRegion, setPcRegion] = useState('usable');
+  const [pcShinyOnly, setPcShinyOnly] = useState(false);
   const [showTeamReorder, setShowTeamReorder] = useState(false);
   const [moveSwapMode, setMoveSwapMode] = useState(null); // { activeIdx, currentMove }
   const [showNatureModal, setShowNatureModal] = useState(false);
@@ -257,6 +259,7 @@ const PokemonManagement = ({
     return (gameState.pc || [])
       .map((p, idx) => ({ ...p, originalIndex: idx }))
       .filter(p => {
+        if (pcShinyOnly && !p.isShiny) return false;
         const term = pcSearch.toLowerCase();
         let matchesRegion;
         if (pcRegion === 'all') {
@@ -269,13 +272,18 @@ const PokemonManagement = ({
         return matchesRegion && (p.name.toLowerCase().includes(term) || String(p.id).includes(term));
       })
       .sort((a, b) => {
+        if (pcSort === 'status-sum') {
+          const sumA = (a.maxHp||0) + (a.attack||0) + (a.defense||0) + (a.spAtk||0) + (a.spDef||0) + (a.speed||0);
+          const sumB = (b.maxHp||0) + (b.attack||0) + (b.defense||0) + (b.spAtk||0) + (b.spDef||0) + (b.speed||0);
+          if (sumB !== sumA) return sumB - sumA;
+        }
         if (pcSort === 'alpha') return a.name.localeCompare(b.name);
         if (pcSort === 'level') return b.level - a.level;
         if (pcSort === 'type') return (a.type || 'Normal').localeCompare(b.type || 'Normal');
         if (pcSort === 'number-desc') return b.id - a.id;
         return a.id - b.id;
       });
-  }, [gameState.pc, gameState.worldFlags, pcSearch, pcRegion, pcSort, activeRegion]);
+  }, [gameState.pc, gameState.worldFlags, pcSearch, pcRegion, pcSort, pcShinyOnly, activeRegion]);
 
   const navigatePc = (direction) => {
     if (!activePokemonDetails || activePokemonDetails.location !== 'pc') return;
@@ -911,85 +919,120 @@ const PokemonManagement = ({
                     <option value="alpha">Ordem Alfabética (A-Z)</option>
                     <option value="level">Maior Nível</option>
                     <option value="type">Por Tipo</option>
+                    <option value="status-sum">Maiores Status Base</option>
                   </select>
+                  <button
+                    onClick={() => setPcShinyOnly(!pcShinyOnly)}
+                    className={`rounded-xl py-2.5 px-4 text-xs font-bold transition-all ${pcShinyOnly ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-400' : 'bg-slate-50 text-slate-400 border-2 border-transparent'}`}
+                  >
+                    ✨ Shinys
+                  </button>
                </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="h-full w-full" style={{ height: '600px' }}>
               {(() => {
                 const filtered = pcFilteredList;
 
                 if (filtered.length === 0) {
-                  return <p className="col-span-2 text-center py-10 text-slate-400 font-bold uppercase italic">{pcSearch ? 'Nenhum Pokémon encontrado...' : pcRegion === 'usable' ? 'Nenhum Pokémon liberado nesta região ainda.' : 'O PC está vazio...'}</p>;
+                  return <p className="text-center py-10 text-slate-400 font-bold uppercase italic">{pcSearch ? 'Nenhum Pokémon encontrado...' : pcRegion === 'usable' ? 'Nenhum Pokémon liberado nesta região ainda.' : 'O PC está vazio...'}</p>;
                 }
 
-                return filtered.map((p) => {
-                  const worldFlags = gameState.worldFlags || [];
-                  const isLegal = isPokemonLegal(p, activeRegion, worldFlags);
-                  const isAllowedByLevel = validateTeamAccess ? validateTeamAccess(p, activeRegion) : true;
-                  const canSelect = isLegal && isAllowedByLevel && !p.onExpedition;
+                const rowCount = Math.ceil(filtered.length / 2);
+                const worldFlags = gameState.worldFlags || [];
+
+                const PcRow = ({ index, style, data }) => {
+                  const { filtered, worldFlags, activeRegion, validateTeamAccess } = data;
+                  const p1 = filtered[index * 2];
+                  const p2 = filtered[index * 2 + 1];
+
+                  const renderCard = (p) => {
+                    if (!p) return <div className="flex-1" />;
+                    const isLegal = isPokemonLegal(p, activeRegion, worldFlags);
+                    const isAllowedByLevel = validateTeamAccess ? validateTeamAccess(p, activeRegion) : true;
+                    const canSelect = isLegal && isAllowedByLevel && !p.onExpedition;
+                    
+                    return (
+                      <div 
+                        key={p.instanceId || `pc-${p.id}-${p.originalIndex}`} 
+                        onClick={() => setActivePokemonDetails({ pokemon: p, index: p.originalIndex, location: 'pc' })} 
+                        className={`flex-1 bg-white p-3 rounded-2xl border-2 flex flex-col items-center gap-2 group relative cursor-pointer hover:border-pokeGold transition-all ${
+                          !isLegal ? 'opacity-50 grayscale border-red-100' : 'border-slate-100'
+                        }`}
+                      >
+                         <img
+                           src={getPokemonSpriteUrl(p)}
+                           onError={e => {
+                             if (p.isMega && p.megaSprite && !e.target.dataset.triedBase) {
+                               e.target.dataset.triedBase = '1';
+                               e.target.src = getPokemonSpriteFallbackUrl(p);
+                             }
+                           }}
+                           className="w-12 h-12 object-contain"
+                           alt={p.name}
+                           loading="lazy"
+                         />
+                         
+                         {/* Ícone de Cadeado Regional */}
+                         {!isLegal && (
+                           <div className="absolute top-1 left-1 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center shadow-sm" title="Pokémon estrangeiros só podem ser usados após vencer a Liga desta região.">
+                             <span className="text-[10px]">🔒</span>
+                           </div>
+                         )}
+
+                         <div className="text-center">
+                           <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none flex items-center justify-center gap-1">
+                             {p.name}
+                             {p.isShiny && (
+                               <span className="text-yellow-500 text-[8px]">
+                                 ✨{p.shinyCount > 1 ? ` x${p.shinyCount}` : ''}
+                               </span>
+                             )}
+                           </p>
+                           <p className="text-[8px] font-bold text-slate-400 mt-0.5">Nv. {p.level}</p>
+                           {p.onExpedition && (
+                             <p className="text-[7px] font-black text-blue-500 uppercase mt-0.5 animate-pulse">🚢 Expedição</p>
+                           )}
+                         </div>
+
+                         {canSelect ? (
+                           <button 
+                             onClick={(e) => { e.stopPropagation(); moveToTeam(p.originalIndex, p.instanceId); }} 
+                             className="absolute top-1 right-1 bg-blue-50 text-blue-500 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75"
+                           >
+                             <span className="font-black text-[8px] uppercase">+ Team</span>
+                           </button>
+                         ) : (
+                           <div 
+                             className="absolute top-1 right-1 bg-slate-100 text-slate-400 p-1.5 rounded-lg opacity-100 scale-75"
+                             title={!isLegal ? 'Pokémon estrangeiros só podem ser usados após vencer a Liga desta região.' : p.onExpedition ? 'Em expedição' : 'Nível muito alto'}
+                           >
+                             <span className="font-black text-[8px] uppercase">🔒</span>
+                           </div>
+                         )}
+                      </div>
+                    );
+                  };
 
                   return (
-                    <div 
-                      key={p.instanceId || `pc-${p.id}-${p.originalIndex}`} 
-                      onClick={() => setActivePokemonDetails({ pokemon: p, index: p.originalIndex, location: 'pc' })} 
-                      className={`bg-white p-3 rounded-2xl border-2 flex flex-col items-center gap-2 group relative cursor-pointer hover:border-pokeGold transition-all ${
-                        !isLegal ? 'opacity-50 grayscale border-red-100' : 'border-slate-100'
-                      }`}
-                    >
-                       <img
-                         src={getPokemonSpriteUrl(p)}
-                         onError={e => {
-                           if (p.isMega && p.megaSprite && !e.target.dataset.triedBase) {
-                             e.target.dataset.triedBase = '1';
-                             e.target.src = getPokemonSpriteFallbackUrl(p);
-                           }
-                         }}
-                         className="w-12 h-12 object-contain"
-                         alt={p.name}
-                         loading="lazy"
-                       />
-                       
-                       {/* Ícone de Cadeado Regional */}
-                       {!isLegal && (
-                         <div className="absolute top-1 left-1 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center shadow-sm" title="Pokémon estrangeiros só podem ser usados após vencer a Liga desta região.">
-                           <span className="text-[10px]">🔒</span>
-                         </div>
-                       )}
-
-                       <div className="text-center">
-                         <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none flex items-center justify-center gap-1">
-                           {p.name}
-                           {p.isShiny && (
-                             <span className="text-yellow-500 text-[8px]">
-                               ✨{p.shinyCount > 1 ? ` x${p.shinyCount}` : ''}
-                             </span>
-                           )}
-                         </p>
-                         <p className="text-[8px] font-bold text-slate-400 mt-0.5">Nv. {p.level}</p>
-                         {p.onExpedition && (
-                           <p className="text-[7px] font-black text-blue-500 uppercase mt-0.5 animate-pulse">🚢 Expedição</p>
-                         )}
-                       </div>
-
-                       {canSelect ? (
-                         <button 
-                           onClick={(e) => { e.stopPropagation(); moveToTeam(p.originalIndex, p.instanceId); }} 
-                           className="absolute top-1 right-1 bg-blue-50 text-blue-500 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75"
-                         >
-                           <span className="font-black text-[8px] uppercase">+ Team</span>
-                         </button>
-                       ) : (
-                         <div 
-                           className="absolute top-1 right-1 bg-slate-100 text-slate-400 p-1.5 rounded-lg opacity-100 scale-75"
-                           title={!isLegal ? 'Pokémon estrangeiros só podem ser usados após vencer a Liga desta região.' : p.onExpedition ? 'Em expedição' : 'Nível muito alto'}
-                         >
-                           <span className="font-black text-[8px] uppercase">🔒</span>
-                         </div>
-                       )}
+                    <div style={style} className="flex gap-3 pb-3 pr-2">
+                      {renderCard(p1)}
+                      {renderCard(p2)}
                     </div>
                   );
-                });
+                };
+
+                return (
+                  <List
+                    height={600}
+                    itemCount={rowCount}
+                    itemSize={130}
+                    width="100%"
+                    itemData={{ filtered, worldFlags, activeRegion, validateTeamAccess }}
+                  >
+                    {PcRow}
+                  </List>
+                );
               })()}
             </div>
           </div>
@@ -1204,7 +1247,7 @@ const PokemonManagement = ({
                     <button
                       onClick={() => setShowNatureModal(true)}
                       className={`w-full p-4 rounded-2xl border-2 transition-all shadow-sm text-left active:scale-[0.98]
-                        ${masteryCount >= 5 ? 'border-pokeBlue bg-blue-50/70 hover:bg-blue-100/60' : 'border-blue-100 bg-blue-50/40 opacity-80'}`}
+                        ${(activePokemonDetails.pokemon.unlockedNatures?.length > 1) ? 'border-pokeBlue bg-blue-50/70 hover:bg-blue-100/60' : 'border-blue-100 bg-blue-50/40 opacity-80'}`}
                     >
                       <div className="flex justify-between items-center mb-2">
                         <div>
@@ -1230,8 +1273,8 @@ const PokemonManagement = ({
                           </div>
                         );
                       })()}
-                      {masteryCount < 5 && (
-                        <p className="text-[8px] font-bold text-red-500 uppercase mt-2">🔒 Faltam {5 - masteryCount} capturas para desbloquear</p>
+                      {(!activePokemonDetails.pokemon.unlockedNatures || activePokemonDetails.pokemon.unlockedNatures.length <= 1) && (
+                        <p className="text-[8px] font-bold text-red-500 uppercase mt-2">🔒 Capture cópias para desbloquear Natures</p>
                       )}
                     </button>
 
@@ -2229,7 +2272,7 @@ const PokemonManagement = ({
             {/* Info box */}
             <div className="px-5 pt-4 pb-2 shrink-0 bg-blue-50 border-b border-blue-100">
               <p className="text-[11px] font-bold text-slate-600 leading-relaxed">
-                A <strong>Natureza</strong> define bônus e penalidade de uma estatística. Cada natureza aumenta um stat em <strong className="text-emerald-600">+10%</strong> e reduz outro em <strong className="text-red-500">-10%</strong>. Novas naturezas são desbloqueadas a cada 5 capturas desta espécie.
+                A <strong>Natureza</strong> define bônus e penalidade de uma estatística. Cada natureza aumenta um stat em <strong className="text-emerald-600">+10%</strong> e reduz outro em <strong className="text-red-500">-10%</strong>. Novas naturezas são desbloqueadas ao capturar mais cópias deste Pokémon.
               </p>
               {(() => {
                 const nat = activePokemonDetails.pokemon.equippedNature;
@@ -2266,7 +2309,7 @@ const PokemonManagement = ({
 
               {NATURE_LIST.map((name, i) => {
                 const mods = NATURES[name];
-                const unlocked = masteryCount >= (i + 1) * 5;
+                const unlocked = activePokemonDetails.pokemon.unlockedNatures?.includes(name);
                 const isActive = activePokemonDetails.pokemon.equippedNature === name;
                 return (
                   <button
@@ -2284,7 +2327,7 @@ const PokemonManagement = ({
                             <span className="text-[9px] font-black text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full">-{STAT_LABELS[mods.minus]}</span>
                           </>
                         ) : (
-                          <span className="text-[9px] font-bold text-slate-400">🔒 Desbloqueia com {(i + 1) * 5} capturas</span>
+                          <span className="text-[9px] font-bold text-slate-400">🔒 Encontre uma cópia com essa Nature para desbloquear</span>
                         )}
                       </div>
                     </div>
@@ -2296,7 +2339,7 @@ const PokemonManagement = ({
 
             <div className="px-5 py-4 border-t border-slate-100 shrink-0">
               <p className="text-[10px] font-bold text-slate-400 text-center">
-                {Math.floor(masteryCount / 5)} de {NATURE_LIST.length} naturezas desbloqueadas ({masteryCount} capturas)
+                {activePokemonDetails.pokemon.unlockedNatures?.length || 0} de {NATURE_LIST.length} naturezas desbloqueadas
               </p>
             </div>
           </div>
