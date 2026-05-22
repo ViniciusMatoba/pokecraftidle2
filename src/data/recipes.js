@@ -506,6 +506,14 @@ export const CRAFTING_RECIPES = {
     { id: 'life_orb',      name: 'Life Orb',         img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/life-orb.png',       cost: { dragon_essence: 30, mystic_dust: 20, currency: 25000 },    effect: '+30% Dmg, -8% HP/turno' },
     { id: 'expert_belt',   name: 'Expert Belt',      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/expert-belt.png',    cost: { fighting_essence: 60, steel_essence: 20, currency: 15000 },effect: '+20% Dmg Super-Efetivo' },
     { id: 'focus_sash',    name: 'Focus Sash',       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/focus-sash.png',     cost: { psychic_essence: 40, silk: 30, currency: 18000 },          effect: 'Sobrevive 1 golpe fatal' },
+    // ── Competitivo & Gen 9 ───────────────────────────────────────────────────
+    { id: 'choice_band',   name: 'Choice Band',      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-band.png',    cost: { fighting_essence: 80, steel_essence: 40, currency: 20000 },effect: '+50% Ataque (Físico)' },
+    { id: 'choice_specs',  name: 'Choice Specs',     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-specs.png',   cost: { psychic_essence: 80, steel_essence: 40, currency: 20000 },effect: '+50% Sp.Atk' },
+    { id: 'choice_scarf',  name: 'Choice Scarf',     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-scarf.png',   cost: { flying_essence: 80, silk: 40, currency: 20000 },          effect: '+50% Velocidade' },
+    { id: 'assault_vest',  name: 'Assault Vest',     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/assault-vest.png',   cost: { fighting_essence: 60, normal_essence: 60, currency: 18000 },effect: '+50% Sp.Def' },
+    { id: 'loaded_dice',   name: 'Loaded Dice',      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/loaded-dice.png',    cost: { normal_essence: 50, rock_essence: 30, currency: 15000 },  effect: 'Garante 4-5 hits (golpes múltiplos)' },
+    { id: 'clear_amulet',  name: 'Clear Amulet',     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/clear-amulet.png',   cost: { psychic_essence: 50, mystic_dust: 30, currency: 15000 },  effect: 'Previne redução de stats' },
+    { id: 'covert_cloak',  name: 'Covert Cloak',     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/covert-cloak.png',   cost: { ghost_essence: 50, silk: 30, currency: 15000 },           effect: 'Imune a efeitos secundários do oponente' },
   ],
   elite_relics: [
     { 

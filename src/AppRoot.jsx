@@ -40,6 +40,7 @@ const GymScreen = lazy(() => import('./components/GymScreen'));
 const ChallengesScreen = lazy(() => import('./components/ChallengesScreen'));
 const HouseScreen = lazy(() => import('./components/HouseScreen'));
 const ExpeditionsScreen = lazy(() => import('./components/ExpeditionsScreen'));
+const BattleTowerScreen = lazy(() => import('./components/BattleTowerScreen'));
 import { MoveCategoryIcon, StatusBadges, QuickInventory, TrainerCard, BadgeSVG } from './components/CommonUI';
 import OfflineProgressModal from './components/OfflineProgressModal';
 import { calculateOfflineProgress, applyOfflineProgress } from './utils/offlineProgress';
@@ -4311,6 +4312,9 @@ export default function App() {
 
         // Dispara evento de animação do golpe para o BattleScreen
         if (allyBonus?.damageMult) playerDmg = Math.floor(playerDmg * allyBonus.damageMult);
+        if (prev.currentRoute === 'tower' && prev.tower?.activeRun?.boons?.some(b => b.id === 'attack_up')) {
+          playerDmg = Math.floor(playerDmg * 1.15);
+        }
         const _enemyTypesForEff = (updatedEnemyFinal.types || [updatedEnemyFinal.type]).filter(Boolean);
         const eff = _enemyTypesForEff.reduce((m, t) => m * getTypeEffectiveness(move.type, t), 1);
         window.dispatchEvent(new CustomEvent('pokemove', {
@@ -4739,7 +4743,10 @@ export default function App() {
                 }
               }
             } else {
-              const enemyDmgRaw = calcDamage(updatedEnemyFinal, enemyMove, updatedTeamFinal[activeMemberIndex]);
+              let enemyDmgRaw = calcDamage(updatedEnemyFinal, enemyMove, updatedTeamFinal[activeMemberIndex]);
+              if (prev.currentRoute === 'tower' && prev.tower?.activeRun?.boons?.some(b => b.id === 'defense_up')) {
+                enemyDmgRaw = Math.floor(enemyDmgRaw * 0.85);
+              }
 
               // Dispara evento de animação do golpe inimigo
               const _playerTypesForEff = (updatedTeamFinal[activeMemberIndex].types || [updatedTeamFinal[activeMemberIndex].type]).filter(Boolean);
@@ -7195,7 +7202,8 @@ export default function App() {
             stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
           };
         }
-        return { ...p, xp: newXp, hp: Math.min(p.maxHp, p.hp + Math.ceil(p.maxHp * 0.50)), 
+        const isTower = prev.currentRoute === 'tower';
+        return { ...p, xp: newXp, hp: isTower ? p.hp : Math.min(p.maxHp, p.hp + Math.ceil(p.maxHp * 0.50)), 
           status: (p.status || []).filter(s => s !== 'confuse'),
           stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 } 
         };
@@ -7205,7 +7213,7 @@ export default function App() {
       const newBattlesSinceRaid = (prev.battlesSinceLastRaid || 0) + 1;
       let raidSpawnUpdate = {};
       const isRaidBusy = prev.activeRaid && prev.activeRaid.phase !== 'ended';
-      if (!isRaidBusy && newBattlesSinceRaid >= RAID_BATTLE_TRIGGER) {
+      if (!isRaidBusy && newBattlesSinceRaid >= RAID_BATTLE_TRIGGER && prev.currentRoute !== 'tower') {
         const region = prev.activeRegion || 'kanto';
         const badgeCount = getRegionBadgeCount(prev.badges || [], region);
         const raid = createRaid(region, POKEDEX, badgeCount, prev.worldFlags || []);
@@ -7424,6 +7432,38 @@ export default function App() {
         return prev;
       });
       isProcessingVictory.current = false;
+
+      setGameState(st => {
+        if (st.currentRoute === 'tower') {
+          const run = st.tower?.activeRun;
+          if (run) {
+             const nextFloor = run.floor + 1;
+             const isCheckpoint = (nextFloor - 1) % 10 === 0 && nextFloor > 1; // Se acabou de bater o boss
+             
+             // Aplica passivas (Vampirismo)
+             const hasVampirism = run.boons?.some(b => b.id === 'vampirism');
+             let healedTeam = [...st.team];
+             if (hasVampirism) {
+                 healedTeam = healedTeam.map(p => {
+                    if (p.hp > 0) return { ...p, hp: Math.min(p.maxHp, p.hp + Math.ceil(p.maxHp * 0.1)) };
+                    return p;
+                 });
+             }
+
+             const newRun = { ...run, floor: nextFloor, shopPending: true, team: healedTeam };
+             const updatedTower = { ...st.tower, activeRun: newRun };
+             if (isCheckpoint) {
+                updatedTower.checkpoint = newRun;
+             }
+             setCurrentView('battle_tower');
+             return { ...st, tower: updatedTower, team: healedTeam };
+          }
+        }
+        return st;
+      });
+
+      if (gameState.currentRoute === 'tower') return;
+
       if (currentEnemy.unlockFlag === 'rival_1_defeated') {
         setCurrentView('prof_oak_starters_announcement');
       } else if (currentEnemy.unlockFlag === 'unova_rival_1_defeated') {
@@ -8580,6 +8620,19 @@ export default function App() {
            </div>
         </div>
       );
+      case 'battle_tower': return (
+        <Suspense fallback={<div className="h-full flex items-center justify-center text-white">Carregando Torre...</div>}>
+          <BattleTowerScreen
+            gameState={gameState}
+            setGameState={setGameState}
+            setCurrentView={setCurrentView}
+            setCurrentEnemy={setCurrentEnemy}
+            onOpenTowerCombat={(encounter) => {
+              setCurrentView('battles'); // ou podemos fazer uma view específica tower_battles
+            }}
+          />
+        </Suspense>
+      );
       case 'city': return (
         <>
           <CityScreen 
@@ -9124,6 +9177,7 @@ export default function App() {
           getEvolutionRegionLockMessage={getEvolutionRegionLockMessage}
           CRAFTING_RECIPES={CRAFTING_RECIPES}
           currentEnemy={currentEnemy}
+          setForgeTargetItem={setForgeTargetItem}
         />
       );
 
@@ -9183,6 +9237,8 @@ export default function App() {
                   hasRecipe={(id) => hasForgeRecipe(gameState, id)}
                   recipeGuides={FORGE_RECIPE_DROP_GUIDE}
                   initialItem={forgeTargetItem}
+                  setCurrentView={setCurrentView}
+                  setGameState={setGameState}
                 />
               </Suspense>
 
@@ -11059,9 +11115,9 @@ export default function App() {
         return (
           <div className="absolute inset-0 z-[9995] flex items-end justify-center p-4 pb-6"
             style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)' }}>
-            <div className="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl border-b-8 border-green-200 overflow-hidden animate-slideInUp">
+            <div className="modal-panel-mobile bg-white shadow-2xl border-b-[8px] border-green-700 flex flex-col">
               {/* Header */}
-              <div className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #166534 0%, #15803d 60%, #16a34a 100%)' }}>
+              <div className="relative shrink-0 overflow-hidden" style={{ background: 'linear-gradient(135deg, #166534 0%, #15803d 60%, #16a34a 100%)' }}>
                 <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
                 <div className="relative px-6 pt-6 pb-4 flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
@@ -11078,7 +11134,7 @@ export default function App() {
               </div>
 
               {/* Conteúdo */}
-              <div className="px-6 py-5">
+              <div className="modal-scroll-content px-6 py-5">
                 <p className="text-slate-600 text-sm font-semibold leading-relaxed mb-4">
                   Bem-vindo à <strong>Safari Zone</strong>! Aqui as regras são diferentes:
                   Pokémon selvagens não podem ser enfraquecidos — use <strong>Safari Balls</strong>
@@ -11127,9 +11183,10 @@ export default function App() {
                     {entryCost.toLocaleString()} P$
                   </span>
                 </div>
+              </div>
 
-                {/* Botões */}
-                <div className="flex gap-3">
+              {/* Botões */}
+              <div className="px-6 pb-6 pt-2 shrink-0 flex gap-3">
                   <button
                     onClick={() => setSafariEntryModal(null)}
                     className="flex-1 h-12 rounded-xl border-2 border-slate-200 font-black uppercase text-sm text-slate-500 hover:bg-slate-50 transition-all">
@@ -11142,7 +11199,6 @@ export default function App() {
                     {canAfford ? `Entrar — ${entryCost} P$` : 'Sem Pokédollars'}
                   </button>
                 </div>
-              </div>
             </div>
           </div>
         );
@@ -11775,12 +11831,12 @@ export default function App() {
           style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(10px)' }}
         >
           <div
-            className="relative w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl"
+            className="modal-panel-mobile relative shadow-2xl flex flex-col"
             style={{ background: 'linear-gradient(160deg,#1a0a0a 0%,#2d1010 100%)', border: '2px solid #ef444488' }}
           >
             {/* Barra vermelha topo */}
-            <div style={{ height: 4, background: 'linear-gradient(90deg,transparent,#ef4444,#dc2626,#ef4444,transparent)' }} />
-            <div style={{ padding: '28px 24px 24px' }}>
+            <div className="shrink-0" style={{ height: 4, background: 'linear-gradient(90deg,transparent,#ef4444,#dc2626,#ef4444,transparent)' }} />
+            <div className="modal-scroll-content px-6 pt-7 pb-2">
               {/* Ícone alfa */}
               <div style={{ textAlign: 'center', marginBottom: 16 }}>
                 <div style={{
@@ -11841,9 +11897,10 @@ export default function App() {
                   <p style={{ color: '#64748b', fontSize: 10 }}>versão atual</p>
                 </div>
               </div>
+            </div>
 
-              {/* Botões */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {/* Botões */}
+            <div className="px-6 pb-6 pt-2 shrink-0 flex flex-col gap-2.5">
                 <button
                   onClick={() => {
                     // Substitui o shiny pelo alfa
@@ -11897,7 +11954,6 @@ export default function App() {
                   📦 Manter os dois no PC
                 </button>
               </div>
-            </div>
           </div>
         </div>
       )}
@@ -11920,18 +11976,19 @@ export default function App() {
           onTouchStart={(e) => e.stopPropagation()}
         >
           <div
-            className="relative w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl"
+            className="modal-panel-mobile relative shadow-2xl flex flex-col"
             style={{ background: 'linear-gradient(160deg,#1c1410 0%,#2d1f0a 100%)', border: '2px solid #f59e0b55' }}
             onClick={e => e.stopPropagation()}
           >
             {/* Brilho dourado topo */}
-            <div style={{
+            <div className="shrink-0" style={{
               position: 'absolute', top: 0, left: 0, right: 0, height: 3,
               background: 'linear-gradient(90deg,transparent,#f59e0b,#fbbf24,#f59e0b,transparent)',
             }} />
 
-            {/* Header */}
-            <div className="pt-6 pb-3 px-6 text-center">
+            <div className="modal-scroll-content">
+              {/* Header */}
+              <div className="pt-6 pb-3 px-6 text-center">
               <div className="text-5xl mb-2" style={{ filter: 'drop-shadow(0 0 16px #f59e0b)' }}>📜</div>
               <p style={{ color: '#f59e0b', fontSize: 9, fontWeight: 900, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: 4 }}>
                 {recipeFoundModal.isNew ? '✨ Nova Receita Encontrada!' : '📜 Receita Obtida'}
@@ -11974,9 +12031,10 @@ export default function App() {
                 🔨 Agora você pode forjar este item na <span style={{ color: '#f59e0b' }}>Forja</span>!
               </p>
             </div>
+            </div>
 
             {/* Botão */}
-            <div className="px-6 pb-6">
+            <div className="px-6 pb-6 pt-2 shrink-0">
               <button
                 onClick={() => {
                   setForgeTargetItem(recipeFoundModal.id);

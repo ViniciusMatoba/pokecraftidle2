@@ -213,6 +213,8 @@ const PokemonManagement = ({
   CRAFTING_RECIPES,
   setMegaEvolutionPending,
   currentEnemy,
+  setVsInitialTab,
+  setForgeTargetItem,
 }) => {
   const [candyExpanded, setCandyExpanded] = useState(false);
   const [dragTeamIndex, setDragTeamIndex] = useState(null);
@@ -1861,13 +1863,46 @@ const PokemonManagement = ({
                                   </div>
 
                                   {/* Action */}
-                                  <div className="shrink-0">
-                                    {isItemEvo ? (
-                                      hasItem && evolutionAllowed && timeMet && (
+                                  <div className="shrink-0 flex items-center gap-2">
+                                    {!evolutionAllowed ? (
+                                        <button 
+                                          onClick={() => {
+                                             if (setVsInitialTab) setVsInitialTab('gyms');
+                                             if (setCurrentView) setCurrentView('vs');
+                                             setActivePokemonDetails(null);
+                                          }}
+                                          className="bg-slate-200 text-slate-500 font-black text-[9px] px-3 py-2 rounded-lg shadow-sm uppercase active:scale-95 transition-all hover:bg-slate-300"
+                                        >
+                                          🗺️ Liberar Região
+                                        </button>
+                                    ) : isItemEvo && !hasItem ? (
+                                        <button 
+                                          onClick={() => {
+                                             if (setForgeTargetItem) {
+                                                setForgeTargetItem(evo.item);
+                                             }
+                                             if (setCurrentView) setCurrentView('forge_screen');
+                                             setActivePokemonDetails(null);
+                                          }}
+                                          className="bg-slate-200 text-slate-500 font-black text-[9px] px-3 py-2 rounded-lg shadow-sm uppercase active:scale-95 transition-all hover:bg-slate-300"
+                                        >
+                                          🔨 Forjar Item
+                                        </button>
+                                    ) : !isItemEvo && !levelMet ? (
+                                        <button 
+                                          onClick={() => {
+                                             setActivePokemonDetails(null);
+                                          }}
+                                          className="bg-slate-200 text-slate-500 font-black text-[9px] px-3 py-2 rounded-lg shadow-sm uppercase active:scale-95 transition-all hover:bg-slate-300"
+                                        >
+                                          ⚔️ Treinar
+                                        </button>
+                                    ) : isItemEvo ? (
+                                      timeMet && (
                                         <button onClick={() => !activePokemonDetails.pokemon.onExpedition && handleStoneEvolution(evo.item, evo)} disabled={activePokemonDetails.pokemon.onExpedition} className="bg-amber-500 text-white font-black text-[9px] px-3 py-2 rounded-lg shadow-lg uppercase active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">Usar Item</button>
                                       )
                                     ) : (
-                                      levelMet && evolutionAllowed && timeMet && (
+                                      timeMet && (
                                         <button 
                                           disabled={activePokemonDetails.pokemon.onExpedition}
                                           onClick={() => { 

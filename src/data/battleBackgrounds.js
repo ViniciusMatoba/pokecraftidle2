@@ -519,7 +519,7 @@ export const BATTLE_BACKGROUNDS = {
   
   kalos_cave:   { sky: bg('bg_kalos_cave.webp'), label: 'Caverna de Kalos', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['crystal_shard', 'cave_entrance'] },
   kalos_forest: { sky: bg('bg_kalos_forest.webp'), label: 'Floresta de Kalos', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_tree', 'forest_mist'] },
-  kalos_league: { sky: bg('bg_kalos_elite.webp'), label: 'Liga Kalos', ground: '#334155', groundAccent: '#1e293b', timeOfDay: 'league', elements: ['league_pillar', 'gold_star'] },
+  kalos_league: { sky: bg('bg_kalos_elite.png'), label: 'Liga Kalos', ground: '#334155', groundAccent: '#1e293b', timeOfDay: 'league', elements: ['league_pillar', 'gold_star'] },
 
   alola_verdant_cavern: { sky: bg('bg_alola_verdant_cavern.webp'), label: 'Verdant Cavern', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['palm_tree', 'cave_entrance'] },
   alola_akala_island: { sky: bg('bg_alola_akala.webp'), label: 'Akala Island', ground: '#e0d0a0', groundAccent: '#c0b080', timeOfDay: 'day', elements: ['palm_tree', 'ocean_view'] },

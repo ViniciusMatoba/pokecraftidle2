@@ -277,6 +277,12 @@ export const DEFAULT_GAME_STATE = {
   },
   battlesSinceLastRaid: 0,  // contador de batalhas para trigger
   selectedStarters: {},
+  tower: {
+    activeRun: null,
+    highestFloor: 0,
+    bp: 0,
+    upgrades: {}
+  },
 };
 
 export const ITEM_LABELS = {
@@ -452,6 +458,15 @@ export const ITEM_LABELS = {
   dawn_stone:        { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dawn-stone.png', name: 'Pedra da Alvorada' },
   dusk_stone:        { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dusk-stone.png', name: 'Pedra do Crepúsculo' },
   rare_candy:        { icon: '/items/rare_candy.webp', name: 'Rare Candy' },
+  
+  // ── Competitivo & Gen 9 ───────────────────────────────────────────────────
+  choice_band:       { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-band.png', name: 'Choice Band' },
+  choice_specs:      { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-specs.png', name: 'Choice Specs' },
+  choice_scarf:      { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-scarf.png', name: 'Choice Scarf' },
+  assault_vest:      { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/assault-vest.png', name: 'Assault Vest' },
+  loaded_dice:       { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/loaded-dice.png', name: 'Loaded Dice' },
+  clear_amulet:      { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/clear-amulet.png', name: 'Clear Amulet' },
+  covert_cloak:      { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/covert-cloak.png', name: 'Covert Cloak' },
 
   // Drops de Expedição — Kanto
   pearl:             { icon: '🔮', name: 'Pérola' },

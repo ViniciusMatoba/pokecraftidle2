@@ -127,6 +127,17 @@ const CityScreen = ({
     },
   ];
 
+  if ((gameState.worldFlags || []).includes('champion')) {
+    cityBuildings.push({
+      id: 'battle_tower',
+      name: 'Battle Tower',
+      icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/battle-pass.png',
+      desc: 'Modo Roguelike! Sobreviva a andares infinitos com regras especiais.',
+      action: () => setCurrentView && setCurrentView('battle_tower'),
+      color: 'border-red-600 bg-red-50',
+    });
+  }
+
   const hasHouseUnlocked = (gameState.badges || []).includes('boulder_badge')
     || (gameState.worldFlags || []).includes('oak_house_shown');
   const canBuyHouse = (gameState.currency || 0) >= HOUSE_PURCHASE_COST;
@@ -364,14 +375,14 @@ const CityScreen = ({
             onTouchStart={(e) => e.stopPropagation()}
           >
              <div
-               className="w-full max-w-[420px] bg-white rounded-[2.5rem] shadow-2xl animate-bounceIn overflow-hidden flex flex-col"
+               className="modal-panel-mobile bg-white shadow-2xl animate-bounceIn flex flex-col"
                onClick={e => { e.preventDefault(); e.stopPropagation(); }}
                onPointerDown={(e) => e.stopPropagation()}
                onMouseDown={(e) => e.stopPropagation()}
                onTouchStart={(e) => e.stopPropagation()}
              >
                 {/* Header Novo - Estilo Esmeralda */}
-                <div className="bg-emerald-600 px-6 py-5 flex items-center justify-between shadow-xl shrink-0 z-20 border-b border-white/10">
+                <div className="bg-emerald-600 px-6 py-5 flex items-center justify-between shadow-xl shrink-0 z-20 border-b border-white/10 rounded-t-[24px] overflow-hidden">
                    <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner overflow-hidden">
                          <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" className="w-10 h-10 object-contain drop-shadow-md" alt="Oak" />
@@ -384,10 +395,10 @@ const CityScreen = ({
                    <button onClick={() => setActiveOakModal(false)} className="w-11 h-11 rounded-full bg-white/10 text-white font-black flex items-center justify-center hover:bg-white/20 transition-colors shrink-0" aria-label="Fechar">x</button>
                 </div>
 
-                <div className="overflow-y-auto custom-scrollbar p-6 flex flex-col gap-6" style={{ maxHeight: '70vh' }}>
-                   <div className="bg-emerald-50 p-5 rounded-3xl border-2 border-emerald-100 italic text-slate-700 font-bold text-sm relative">
+                <div className="modal-scroll-content p-6 flex flex-col gap-6">
+                   <div className="bg-emerald-50 px-6 py-5 rounded-3xl border-2 border-emerald-100 italic text-slate-700 font-bold text-sm relative break-words">
                       <div className="absolute -top-3 -left-2 text-4xl text-emerald-200 opacity-50">"</div>
-                      <p>{oakTips[oakTipIndex]}</p>
+                      <p className="break-words">{oakTips[oakTipIndex]}</p>
                       <button
                         onClick={() => setOakTipIndex((oakTipIndex + 1) % oakTips.length)}
                         className="mt-4 text-[9px] font-black uppercase text-emerald-600 flex items-center gap-2 hover:underline"
@@ -406,14 +417,14 @@ const CityScreen = ({
                            </div>
                            <div className="text-left min-w-0 flex-1">
                               <h4 className="font-black text-slate-800 uppercase italic text-base leading-none mb-2 truncate">{poke.name}</h4>
-                              <p className="text-[11px] font-bold text-slate-500 leading-relaxed italic line-clamp-3">"{poke.desc}"</p>
+                              <p className="text-[11px] font-bold text-slate-500 leading-relaxed italic line-clamp-3 break-words">"{poke.desc}"</p>
                            </div>
                         </div>
                       ))}
                    </div>
                 </div>
 
-                <div className="px-6 pt-2 pb-6 border-t border-slate-100 shrink-0 bg-slate-50">
+                <div className="px-6 pt-2 pb-6 border-t border-slate-100 shrink-0 bg-slate-50 rounded-b-[24px]">
                    <button
                      onClick={() => setActiveOakModal(false)}
                      className="w-full min-h-[56px] bg-slate-800 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-lg active:scale-95 border-b-4 border-slate-950"

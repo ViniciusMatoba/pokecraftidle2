@@ -30,6 +30,8 @@ const CraftingStation = ({
   initialItem = null,
   isAnyModalOpen = false,
   isForgeConfirmOpen = false,
+  setCurrentView,
+  setGameState,
 }) => {
   const categories = useMemo(() => Object.keys(recipes || {}), [recipes]);
   const [activeCategory, setActiveCategory] = useState(initialCategory || categories[0] || '');
@@ -280,11 +282,28 @@ const CraftingStation = ({
                       </div>
                     ) : (
                       /* Dica de onde dropar */
-                      <div className="mt-2 flex items-start gap-1.5">
-                        <span className="text-sm shrink-0">📍</span>
-                        <p className="text-[9px] text-amber-700 font-bold leading-tight">
-                          {guide?.label || 'Derrote Pokémon nas rotas para encontrar esta receita.'}
-                        </p>
+                      <div className="mt-2 flex flex-col gap-2">
+                        <div className="flex items-start gap-1.5">
+                          <span className="text-sm shrink-0">📍</span>
+                          <p className="text-[9px] text-amber-700 font-bold leading-tight">
+                            {guide?.label || 'Derrote Pokémon nas rotas para encontrar esta receita.'}
+                          </p>
+                        </div>
+                        {guide?.routeId && (
+                           <button 
+                             onClick={() => {
+                                if (setGameState) {
+                                  setGameState(prev => ({ ...prev, currentRoute: guide.routeId }));
+                                }
+                                if (setCurrentView) {
+                                  setCurrentView('battles');
+                                }
+                             }}
+                             className="bg-amber-100 hover:bg-amber-200 text-amber-700 font-black text-[9px] uppercase tracking-widest px-3 py-2 rounded-xl transition-all shadow-sm active:scale-95 text-center flex items-center justify-center gap-1.5 w-fit"
+                           >
+                             <span className="text-xs">🏃</span> Viajar para Rota
+                           </button>
+                        )}
                       </div>
                     )}
                   </div>

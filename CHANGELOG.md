@@ -1,3 +1,15 @@
+## [v2.10.0] - 22/05/2026 12:56
+### Adicionado / Melhorado
+- **Sistema 'Click-to-Go' Expandido**:
+  - **Gerenciador de Pokémon (Evoluções)**: Inclusão de atalhos em tempo real. Evoluções com níveis faltantes exibem o atalho "⚔️ Treinar"; evoluções com pedras em falta recebem "🔨 Forjar Item", que guia diretamente à Forja com o item pré-selecionado; evoluções com travas regionais ganham "🗺️ Liberar Região".
+  - **Forja Inteligente**: Adicionado botão "🏃 Viajar para Rota" na dica de receita trancada, o qual teleporta o jogador automaticamente para a zona e inicia as batalhas para "farmar".
+
+## [v2.9.9] - 22/05/2026 12:38
+### Melhorado
+- **Ajuste de UI e Responsividade em Modals**: Padronização visual com painéis de altura flexível (`max-h-[92dvh]`) em toda a interface do jogo (Alpha Capture, Recipe Found, Safari Zone, Quest Modal e Dicas do Prof. Carvalho).
+- **Prevenção de Textos Cortados**: Adicionado sistema de isolamento de rolagem (`modal-scroll-content`) para que textos extensos não joguem botões essenciais para fora da tela em dispositivos móveis.
+- **Paddings de Borda Curva**: Implementado paddings horizontais maiores (`px-6`) em contêineres e `break-words` nativo para garantir que a curvatura das bordas não encubra letras iniciais ou em itálico.
+
 ## [V2.7.2] - 19/05/2026 18:05
 ### Correcao de Encontros em Rotas
 - **Evolucao automatica completa**: o mapa de evolucao por nivel agora e gerado a partir da Pokedex completa, cobrindo Kanto ate Paldea.

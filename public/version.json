@@ -1,5 +1,5 @@
 {
-  "version": "2.9.8",
-  "date": "21/05/2026 10:00",
-  "notes": "Fix profundo: imagens de missões com fallback visual, RareDropModal com path BASE_URL correto e fallback duplo. Lendários não aparecem em raids sem desbloqueio no Modo VS."
+  "version": "2.10.0",
+  "date": "22/05/2026 12:56",
+  "notes": "Sistema 'Click-to-Go' Expandido. O gerenciador de Pokemon agora possui botões atalho para forjar pedras faltando, desbloquear região caso não tenha acesso e atalho de treinar para evoluções. A Forja possui atalho de viagem automática para as Rotas de onde as receitas dropam."
 }

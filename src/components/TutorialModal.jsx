@@ -122,7 +122,7 @@ const TutorialModal = ({ onClose }) => {
         aria-modal="true"
         role="dialog"
       >
-        <div className="px-4 pt-4 pb-3 shrink-0">
+        <div className="px-6 pt-5 pb-3 shrink-0">
           <div className="mb-4 flex gap-1.5">
             {STEPS.map((item, i) => (
               <div
@@ -147,7 +147,7 @@ const TutorialModal = ({ onClose }) => {
           </div>
         </div>
 
-        <div className="modal-readable-scroll px-4 pb-4">
+        <div className="modal-readable-scroll px-6 pb-5">
           <div className="mb-4 flex items-center justify-center rounded-[1.75rem] border border-white/10 bg-black/15 py-3">
             <img
               src={current.hero}
@@ -177,7 +177,7 @@ const TutorialModal = ({ onClose }) => {
           </div>
         </div>
 
-        <div className="grid shrink-0 grid-cols-[auto_1fr] gap-2 border-t border-white/10 bg-black/15 px-4 py-4">
+        <div className="grid shrink-0 grid-cols-[auto_1fr] gap-2 border-t border-white/10 bg-black/15 px-6 py-5">
           {step > 0 ? (
             <button
               onClick={() => setStep(s => s - 1)}
