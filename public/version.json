@@ -1,5 +1,5 @@
 {
-  "version": "2.11.10",
+  "version": "2.11.11",
   "date": "23/05/2026 16:42",
   "notes": "Build - lazy loading em VS/Ginasios e chunks mais leves"
 }

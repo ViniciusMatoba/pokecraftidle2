@@ -2,9 +2,9 @@ name: Build & Deploy — PokéCraft Idle
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   pull_request:
-    branches: [main]
+    branches: [main, master]
 
 jobs:
   # ── Job 1: Build + verificação ──────────────────────────────────────────────
@@ -48,7 +48,7 @@ jobs:
     name: Deploy Firebase Hosting
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name == 'push'
 
     steps:
       - name: Checkout código
@@ -73,7 +73,7 @@ jobs:
     name: Deploy GitHub Pages (fallback)
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name == 'push'
     permissions:
       contents: write
 

@@ -1,8 +1,8 @@
-export const APP_VERSION = '2.11.10';
-export const VERSION = '2.11.10';
+export const APP_VERSION = '2.11.11';
+export const VERSION = '2.11.11';
 export const APP_VERSION_DATE = '23/05/2026 16:42';
 export const CHANGELOG = [
-  '## [V2.11.10] - 23/05/2026 16:42',
+  '## [V2.11.11] - 23/05/2026 16:42',
   '### Build - Lazy VS/Ginasios',
   '- **Chunks mais leves**: `VsScreen` e `GymScreen` agora carregam `ChallengesScreen` e `GymScreen` internos via `React.lazy`, removendo imports estaticos que anulavam code splitting.',
   '- **Entrada menor**: o chunk inicial deixou de embutir a tela de desafios; `ChallengesScreen` e `GymScreen` passaram a sair como chunks proprios.',
