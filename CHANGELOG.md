@@ -1,3 +1,8 @@
+## [v2.11.9] - 23/05/2026 16:39
+### Build - Chunk Vendor
+- **Performance de bundle**: React e bibliotecas de `node_modules` agora ficam no mesmo chunk `vendor`, removendo o ciclo `vendor -> vendor-react -> vendor` apontado pelo Vite.
+- **Build mais limpo**: eliminada a advertência circular de chunks sem alterar fluxo de jogo.
+
 ## [v2.11.8] - 23/05/2026 16:35
 ### Performance Mobile - Pokédex
 - **Grade virtualizada**: a Pokédex agora renderiza apenas os cards visíveis com `react-window`, reduzindo DOM, imagens montadas e custo de scroll em celulares.
