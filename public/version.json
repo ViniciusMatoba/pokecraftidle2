@@ -1,5 +1,5 @@
 {
-  "version": "2.11.4",
-  "date": "23/05/2026 15:29",
-  "notes": "Sprint 4 — Atomicidade Firestore (writeBatch) e Acessibilidade de Modais"
+  "version": "2.11.5",
+  "date": "23/05/2026 15:39",
+  "notes": "Correção crítica — Battle Tower não iniciava (Rules of Hooks + inventário corrompido)"
 }

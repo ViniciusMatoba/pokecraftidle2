@@ -2,16 +2,28 @@ import { POKEDEX } from '../data/pokedex';
 
 // Helper: Pega Pokémon base (estágio inicial)
 export const getTowerStarters = () => {
-  const basics = Object.values(POKEDEX).filter(p => !p.evolutionOf && !p.isLegendary && !p.isMythical && !p.form);
+  const basics = Object.values(POKEDEX).filter(p =>
+    !p.evolutionOf && !p.isLegendary && !p.isMythical && !p.form && p.baseStats
+  );
   const shuffled = basics.sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, 3).map(p => ({
-    id: p.id,
-    level: 5,
-    exp: 0,
-    currentHp: p.baseStats.hp * 2, // Dummy HP, será recalculado no BattleScreen
-    maxHp: p.baseStats.hp * 2,
-    moves: p.moves?.levelUp?.filter(m => m.level <= 5).map(m => m.move) || ['tackle']
-  }));
+  return shuffled.slice(0, 3).map(p => {
+    const maxHp = Math.max(1, (p.baseStats?.hp || 45) * 2);
+    const moves = (p.moves?.levelUp || [])
+      .filter(m => m.level <= 5)
+      .map(m => m.move)
+      .filter(Boolean);
+    return {
+      id: p.id,
+      name: p.name,
+      level: 5,
+      exp: 0,
+      hp: maxHp,
+      currentHp: maxHp,
+      maxHp,
+      types: p.types || [p.type || 'Normal'],
+      moves: moves.length > 0 ? moves : ['tackle'],
+    };
+  });
 };
 
 export const createInitialTowerState = () => ({
@@ -31,19 +43,35 @@ export const generateFloorShop = (floor) => {
   
   if (Math.random() < 0.3) { // 30% chance de recrutamento
     const recruitLevel = 5 + Math.floor(floor * 2);
-    const basics = Object.values(POKEDEX).filter(p => !p.evolutionOf && !p.isLegendary && !p.isMythical && !p.form);
+    const basics = Object.values(POKEDEX).filter(p =>
+      !p.evolutionOf && !p.isLegendary && !p.isMythical && !p.form && p.baseStats
+    );
     const p = basics[Math.floor(Math.random() * basics.length)];
-    shop.push({
-      type: 'recruit',
-      pokemon: {
-        id: p.id, level: recruitLevel, exp: 0,
-        currentHp: p.baseStats.hp * 2, maxHp: p.baseStats.hp * 2,
-        moves: p.moves?.levelUp?.filter(m => m.level <= recruitLevel).map(m => m.move).slice(-4) || ['tackle']
-      },
-      name: `Recrutar ${p.name}`,
-      desc: `Adiciona ao seu time (Nível ${recruitLevel}).`,
-      cost: 50
-    });
+    if (p) {
+      const maxHp = Math.max(1, (p.baseStats?.hp || 45) * 2);
+      const moves = (p.moves?.levelUp || [])
+        .filter(m => m.level <= recruitLevel)
+        .map(m => m.move)
+        .filter(Boolean)
+        .slice(-4);
+      shop.push({
+        type: 'recruit',
+        pokemon: {
+          id: p.id,
+          name: p.name,
+          level: recruitLevel,
+          exp: 0,
+          hp: maxHp,
+          currentHp: maxHp,
+          maxHp,
+          types: p.types || [p.type || 'Normal'],
+          moves: moves.length > 0 ? moves : ['tackle'],
+        },
+        name: `Recrutar ${p.name}`,
+        desc: `Adiciona ao seu time (Nível ${recruitLevel}).`,
+        cost: 50,
+      });
+    }
   }
   return shop;
 };
@@ -52,16 +80,15 @@ export const startTowerRun = (starterPokemon) => {
   return {
     floor: 1,
     team: [starterPokemon],
+    // BUG-FIX: inventário plano — a UI acessa inv.potions/inv.revives diretamente
+    // (estrutura aninhada items:{} causava NaN no display e escrita incorreta na loja)
     inventory: {
       coins: 0,
-      items: {
-        potions: 0,
-        super_potions: 0,
-        revives: 0
-      }
+      potions: 0,
+      revives: 0,
     },
-    boons: [], // Bônus roguelike adquiridos
-    shop: generateFloorShop(1)
+    boons: [],
+    shop: generateFloorShop(1),
   };
 };
 

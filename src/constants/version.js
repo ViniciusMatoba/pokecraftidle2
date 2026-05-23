@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.11.4';
-export const VERSION = '2.11.4';
-export const APP_VERSION_DATE = '23/05/2026 15:29';
+export const APP_VERSION = '2.11.5';
+export const VERSION = '2.11.5';
+export const APP_VERSION_DATE = '23/05/2026 15:39';
 export const CHANGELOG = [
+  '## [V2.11.5] - 23/05/2026 15:39',
+  '### Correção — Battle Tower não iniciava',
+  '- **Bug crítico (BattleTowerScreen)**: `useEffect` estava declarado após `return` condicionais (`phase === lobby/draft`), violando as Rules of Hooks do React — o hook nunca era chamado nos dois primeiros estados, e ao mudar para `run` o React detectava hooks extras e crashava a tela.',
+  '- **Bug (towerLogic)**: `startTowerRun` retornava `inventory.items.potions` (estrutura aninhada) mas a UI lia `inventory.potions` diretamente e a loja escrevia `newInv[offer.id]` na raiz — inventário corrompido e exibição NaN. Corrigido para estrutura plana `{coins, potions, revives}`.',
+  '- **Bug (getTowerStarters / generateFloorShop)**: Pokémon gerados sem `hp`, `name`, `types` e `currentHp` — cards do time exibiam valores indefinidos. Adicionados todos os campos obrigatórios com guards contra `baseStats` nulo.',
+  '- **Melhoria**: `useEffect` do shopPending agora usa `generateFloorShop` importado estaticamente (eliminando o `import()` dinâmico duplicado que o build já sinalizava como warning).',
+  '',
   '## [V2.11.4] - 23/05/2026 15:29',
   '### Sprint 4 — Atomicidade Firestore e Acessibilidade de Modais',
   '- **Segurança (SEC-08)**: `saveToCloud` convertido para `writeBatch` — os 3 documentos críticos (`saves`, `users`, `userRegions`) agora são escritos atomicamente. Se qualquer escrita falhar, nenhuma é comitada, eliminando o risco de estado inconsistente entre documentos.',
