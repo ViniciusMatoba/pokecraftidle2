@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.7';
-export const VERSION = '2.11.7';
-export const APP_VERSION_DATE = '23/05/2026 16:30';
+export const APP_VERSION = '2.11.8';
+export const VERSION = '2.11.8';
+export const APP_VERSION_DATE = '23/05/2026 16:35';
 export const CHANGELOG = [
+  '## [V2.11.8] - 23/05/2026 16:35',
+  '### Performance Mobile - Pokédex',
+  '- **Grade virtualizada**: a Pokédex agora renderiza apenas os cards visíveis com `react-window`, reduzindo DOM, imagens montadas e custo de scroll em celulares.',
+  '- **Filtro mais leve**: `AppRoot` deixou de recriar um objeto POKEDEX filtrado a cada abertura da tela; o limite desbloqueado agora é aplicado dentro da própria Pokédex.',
+  '- **Layout responsivo preservado**: a grade mantém 3/4/5 colunas conforme largura da tela, com overscan curto para scroll mais suave.',
+  '',
   '## [V2.11.7] - 23/05/2026 16:30',
   '### Battle Tower - Estabilizacao de Turnos',
   '- **Fluxo seguro de hooks**: a tela `TowerBattleScreen` agora mantém todos os hooks antes do estado de fallback, evitando renderizações inconsistentes quando uma batalha pendente não existe.',

@@ -1,5 +1,5 @@
 {
-  "version": "2.11.7",
-  "date": "23/05/2026 16:30",
-  "notes": "Battle Tower - estabilizacao de turnos, itens e encerramento da run"
+  "version": "2.11.8",
+  "date": "23/05/2026 16:35",
+  "notes": "Performance mobile - Pokédex virtualizada e filtro mais leve"
 }

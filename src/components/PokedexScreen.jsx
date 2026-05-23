@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { Grid } from 'react-window';
 import { TYPE_COLOR_HEX } from '../data/gyms';
 import { isRouteUnlocked } from '../data/routes';
 import { getMegaSprite } from '../data/megaEvolutions';
@@ -11,9 +12,68 @@ const REGION_LABEL = {
   hisui: 'Hisui', paldea: 'Paldea',
 };
 
+const getPokedexColumnCount = () => {
+  if (typeof window === 'undefined') return 3;
+  const width = window.innerWidth || 390;
+  if (width >= 768) return 5;
+  if (width >= 640) return 4;
+  return 3;
+};
+
+const PokedexGridCell = memo(({
+  columnIndex,
+  rowIndex,
+  style,
+  columnCount,
+  items,
+  possessedIds,
+  onSelect,
+}) => {
+  const index = rowIndex * columnCount + columnIndex;
+  const p = items[index];
+  if (!p) return <div style={style} />;
+
+  const isCaught = possessedIds.has(p.id);
+
+  return (
+    <div style={style} className="p-1.5">
+      <button
+        onClick={() => onSelect(p)}
+        className={`relative h-full w-full rounded-3xl border-2 transition-all flex flex-col items-center justify-center p-2 group ${isCaught ? 'bg-white border-slate-200 hover:border-pokeBlue' : 'bg-slate-200 border-transparent opacity-40 grayscale'}`}
+      >
+        <span className="absolute top-2 left-3 text-[8px] font-black text-slate-300">#{p.id}</span>
+        <img
+          src={p.isRegionalForm || p.formKey ? getPokemonSpriteUrl(p) : p.id >= 10000 ? getMegaSprite(p.id) : getPokemonSpriteUrl(p)}
+          onError={e => {
+            if (!e.target.dataset.triedBase && p.id >= 10000) {
+              e.target.dataset.triedBase = '1';
+              const baseId = p.id % 10000;
+              e.target.src = getPokemonSpriteFallbackUrl({ id: baseId });
+            }
+          }}
+          className="w-12 h-12 object-contain group-hover:scale-110 transition-transform"
+          alt={p.name}
+          loading="lazy"
+        />
+        <span className="text-[9px] font-black uppercase text-slate-600 truncate w-full text-center">{isCaught ? p.name : '???'}</span>
+        {isCaught && <div className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full"></div>}
+      </button>
+    </div>
+  );
+});
+
+PokedexGridCell.displayName = 'PokedexGridCell';
+
 const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 151, routes = {}, gameState = {}, onGoToRoute, onBack }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPoke, setSelectedPoke] = useState(null);
+  const [columnCount, setColumnCount] = useState(getPokedexColumnCount);
+
+  useEffect(() => {
+    const handleResize = () => setColumnCount(getPokedexColumnCount());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Mapeia IDs que o jogador possui atualmente (time + box).
   const possessedIds = useMemo(() => {
@@ -24,8 +84,10 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 15
   }, [caughtData, team, box, dexLimit]);
 
   const pokedexList = useMemo(() => {
-    return Object.values(POKEDEX).sort((a, b) => a.id - b.id);
-  }, [POKEDEX]);
+    return Object.values(POKEDEX)
+      .filter(p => Number(p.id) <= dexLimit)
+      .sort((a, b) => a.id - b.id);
+  }, [POKEDEX, dexLimit]);
 
   const filteredList = useMemo(() => {
     if (!searchTerm) return pokedexList;
@@ -36,6 +98,13 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 15
   }, [pokedexList, searchTerm]);
 
   const caughtCount = possessedIds.size;
+  const rowCount = Math.ceil(filteredList.length / columnCount);
+  const gridCellProps = useMemo(() => ({
+    columnCount,
+    items: filteredList,
+    possessedIds,
+    onSelect: setSelectedPoke,
+  }), [columnCount, filteredList, possessedIds]);
 
   // Mapa pokemonId → lista de rotas onde aquele pokémon aparece como inimigo selvagem
   const pokemonRouteMap = useMemo(() => {
@@ -83,37 +152,18 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 15
       </div>
 
       {/* List */}
-      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50">
-         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-            {filteredList.map(p => {
-              const isCaught = possessedIds.has(p.id);
-              return (
-                <button 
-                  key={p.id}
-                  onClick={() => setSelectedPoke(p)}
-                  className={`relative aspect-square rounded-3xl border-2 transition-all flex flex-col items-center justify-center p-2 group ${isCaught ? 'bg-white border-slate-200 hover:border-pokeBlue' : 'bg-slate-200 border-transparent opacity-40 grayscale'}`}
-                >
-                   <span className="absolute top-2 left-3 text-[8px] font-black text-slate-300">#{p.id}</span>
-                    <img 
-                      src={p.isRegionalForm || p.formKey ? getPokemonSpriteUrl(p) : p.id >= 10000 ? getMegaSprite(p.id) : getPokemonSpriteUrl(p)}
-                      onError={e => {
-                        if (!e.target.dataset.triedBase && p.id >= 10000) {
-                          e.target.dataset.triedBase = '1';
-                          // Fallback para o ID base se for um ID Mega/Alternativo
-                          const baseId = p.id % 10000;
-                          e.target.src = getPokemonSpriteFallbackUrl({ id: baseId });
-                        }
-                      }}
-                      className="w-12 h-12 object-contain group-hover:scale-110 transition-transform" 
-                      alt={p.name} 
-                      loading="lazy"
-                    />
-                   <span className="text-[9px] font-black uppercase text-slate-600 truncate w-full text-center">{isCaught ? p.name : '???'}</span>
-                   {isCaught && <div className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full"></div>}
-                </button>
-              );
-            })}
-         </div>
+      <div className="flex-1 min-h-0 custom-scrollbar bg-slate-50">
+         <Grid
+           cellComponent={PokedexGridCell}
+           cellProps={gridCellProps}
+           columnCount={columnCount}
+           columnWidth={`${100 / columnCount}%`}
+           rowCount={rowCount}
+           rowHeight={116}
+           overscanCount={3}
+           className="custom-scrollbar px-2 py-3"
+           style={{ height: '100%', width: '100%' }}
+         />
       </div>
 
       {/* Detail Modal */}

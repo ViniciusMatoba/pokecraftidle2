@@ -9564,7 +9564,7 @@ export default function App() {
       case 'pokedex': return (
         <Suspense fallback={<div className="h-full bg-slate-900 flex items-center justify-center text-pokeGold font-black uppercase tracking-[0.5em] animate-pulse">Sincronizando Pokédex...</div>}>
           <PokedexScreen
-            POKEDEX={Object.fromEntries(Object.entries(POKEDEX).filter(([id]) => Number(id) <= getUnlockedDexLimit(gameState)))}
+            POKEDEX={POKEDEX}
             caughtData={gameState.caughtData}
             team={gameState.team}
             box={gameState.pc}
