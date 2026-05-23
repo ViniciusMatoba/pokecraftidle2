@@ -1,8 +1,8 @@
-export const APP_VERSION = '2.11.0';
-export const VERSION = '2.11.0';
+export const APP_VERSION = '2.11.1';
+export const VERSION = '2.11.1';
 export const APP_VERSION_DATE = '23/05/2026 14:04';
 export const CHANGELOG = [
-  '## [V2.11.0] - 23/05/2026 14:04',
+  '## [V2.11.1] - 23/05/2026 14:04',
   '### Segurança, Sincronização Otimizada, CI/CD e Beta Testing',
   '- **Novo (Segurança)**: Ofuscação de Saves (Cifra XOR Dinâmica) e Assinatura Anti-Cheat (HMAC-SHA256) em LocalStorage para blindar rankings públicos.',
   '- **Novo (Beta Testing)**: Canal Integrado de Reportar Bugs direto no Menu com anexo automático de dados de diagnóstico (UserAgent, tela/rota ativa, métricas do save e integridade).',
