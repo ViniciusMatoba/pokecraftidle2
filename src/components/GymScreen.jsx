@@ -1,11 +1,18 @@
-import React, { useState } from 'react';
+import React, { Suspense, lazy, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { GYMS, ELITE_FOUR, TYPE_COLOR_HEX } from '../data/gyms';
 import { BadgeSVG } from './CommonUI';
 import { getBadgeCount, hasBadge as hasProgressBadge, hasProgressRequirement } from '../utils/progress';
 import { getTrainerCurrencyReward } from '../utils/economy';
-import ChallengesScreen from './ChallengesScreen';
 import { getUnlockedRegions, REGION_LABELS, REGION_BADGE_IDS } from '../data/regionStandards';
+
+const ChallengesScreen = lazy(() => import('./ChallengesScreen'));
+
+const GymPanelFallback = () => (
+  <div className="min-h-64 flex items-center justify-center text-white/40 text-[10px] font-black uppercase tracking-widest">
+    Carregando desafios...
+  </div>
+);
 
 const _BASE = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
 const fixBgPath = (bg) => {
@@ -499,18 +506,20 @@ const GymScreen = ({ gameState, onChallengeGym, onChallenge, onClose, initialSec
         {/* Scroll content */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar px-5 py-6 flex flex-col gap-7">
           {leagueRegion !== 'kanto' ? (
-            <ChallengesScreen
-              gameState={gameState}
-              onChallenge={onChallenge}
-              onClose={onClose}
-              isEmbedded={true}
-              filterCategories={[leagueRegion]}
-              forcedRegion={leagueRegion}
-              setCurrentView={setCurrentView}
-              setVsInitialTab={setVsInitialTab}
-              initialCategory={leagueRegion}
-              setVsInitialCategory={setVsInitialCategory}
-            />
+            <Suspense fallback={<GymPanelFallback />}>
+              <ChallengesScreen
+                gameState={gameState}
+                onChallenge={onChallenge}
+                onClose={onClose}
+                isEmbedded={true}
+                filterCategories={[leagueRegion]}
+                forcedRegion={leagueRegion}
+                setCurrentView={setCurrentView}
+                setVsInitialTab={setVsInitialTab}
+                initialCategory={leagueRegion}
+                setVsInitialCategory={setVsInitialCategory}
+              />
+            </Suspense>
           ) : (
             <>
 

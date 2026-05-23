@@ -1,3 +1,9 @@
+## [v2.11.10] - 23/05/2026 16:42
+### Build - Lazy VS/Ginasios
+- **Chunks mais leves**: `VsScreen` e `GymScreen` agora carregam `ChallengesScreen` e `GymScreen` internos via `React.lazy`, removendo imports estaticos que anulavam code splitting.
+- **Entrada menor**: o chunk inicial deixou de embutir a tela de desafios; `ChallengesScreen` e `GymScreen` passaram a sair como chunks proprios.
+- **Build limpo**: removidos os avisos restantes de import dinamico/estatico misto do Vite.
+
 ## [v2.11.9] - 23/05/2026 16:39
 ### Build - Chunk Vendor
 - **Performance de bundle**: React e bibliotecas de `node_modules` agora ficam no mesmo chunk `vendor`, removendo o ciclo `vendor -> vendor-react -> vendor` apontado pelo Vite.

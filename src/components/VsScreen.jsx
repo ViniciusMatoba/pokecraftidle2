@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
-import GymScreen from './GymScreen';
-import ChallengesScreen from './ChallengesScreen';
+import React, { Suspense, lazy, useState } from 'react';
 import BossScreen from './BossScreen';
 import { getUnlockedRegions, REGION_LABELS } from '../data/regionStandards';
+
+const GymScreen = lazy(() => import('./GymScreen'));
+const ChallengesScreen = lazy(() => import('./ChallengesScreen'));
+
+const VsPanelFallback = () => (
+  <div className="h-full flex items-center justify-center text-white/40 text-[10px] font-black uppercase tracking-widest">
+    Carregando...
+  </div>
+);
 
 const VsScreen = ({ gameState, powerScore = 0, onChallengeGym, onChallenge, onClose, setCurrentView, initialTab, setVsInitialTab, initialCategory, setVsInitialCategory, initialRegion, setVsInitialRegion }) => {
   const normalizeTab = (tab) => tab === 'johto' ? 'gyms' : (tab || 'challenges');
@@ -95,61 +102,63 @@ const VsScreen = ({ gameState, powerScore = 0, onChallengeGym, onChallenge, onCl
 
         {/* Content */}
         <div className="flex-1 overflow-hidden relative bg-slate-950 pt-4">
-          {activeTab === 'challenges' && (
-            <ChallengesScreen
-              gameState={gameState}
-              onChallenge={onChallenge}
-              onClose={onClose}
-              isEmbedded={true}
-              filterCategories={['rival', 'rocket']}
-              forcedRegion={region}
-              setCurrentView={setCurrentView}
-              setVsInitialTab={setVsInitialTab}
-              initialCategory={initialCategory}
-              setVsInitialCategory={setVsInitialCategory}
-              setVsInitialRegion={setVsInitialRegion}
-            />
-          )}
-          {activeTab === 'gyms' && (
-            <GymScreen
-              gameState={gameState}
-              onChallengeGym={onChallengeGym}
-              onChallenge={onChallenge}
-              onClose={onClose}
-              initialSection={initialCategory}
-              forcedRegion={region}
-              isEmbedded={true}
-              setCurrentView={setCurrentView}
-              setVsInitialTab={setVsInitialTab}
-              setVsInitialCategory={setVsInitialCategory}
-            />
-          )}
-          {activeTab === 'legendary' && (
-            <ChallengesScreen
-              gameState={gameState}
-              onChallenge={onChallenge}
-              onClose={onClose}
-              isEmbedded={true}
-              filterCategories={['legendary']}
-              forcedRegion={region}
-              setCurrentView={setCurrentView}
-              setVsInitialTab={setVsInitialTab}
-              setVsInitialRegion={setVsInitialRegion}
-            />
-          )}
-          {activeTab === 'rematch' && (
-            <ChallengesScreen
-              gameState={gameState}
-              onChallenge={onChallenge}
-              onClose={onClose}
-              isEmbedded={true}
-              filterCategories={['rematch']}
-              forcedRegion={region}
-              setCurrentView={setCurrentView}
-              setVsInitialTab={setVsInitialTab}
-              setVsInitialRegion={setVsInitialRegion}
-            />
-          )}
+          <Suspense fallback={<VsPanelFallback />}>
+            {activeTab === 'challenges' && (
+              <ChallengesScreen
+                gameState={gameState}
+                onChallenge={onChallenge}
+                onClose={onClose}
+                isEmbedded={true}
+                filterCategories={['rival', 'rocket']}
+                forcedRegion={region}
+                setCurrentView={setCurrentView}
+                setVsInitialTab={setVsInitialTab}
+                initialCategory={initialCategory}
+                setVsInitialCategory={setVsInitialCategory}
+                setVsInitialRegion={setVsInitialRegion}
+              />
+            )}
+            {activeTab === 'gyms' && (
+              <GymScreen
+                gameState={gameState}
+                onChallengeGym={onChallengeGym}
+                onChallenge={onChallenge}
+                onClose={onClose}
+                initialSection={initialCategory}
+                forcedRegion={region}
+                isEmbedded={true}
+                setCurrentView={setCurrentView}
+                setVsInitialTab={setVsInitialTab}
+                setVsInitialCategory={setVsInitialCategory}
+              />
+            )}
+            {activeTab === 'legendary' && (
+              <ChallengesScreen
+                gameState={gameState}
+                onChallenge={onChallenge}
+                onClose={onClose}
+                isEmbedded={true}
+                filterCategories={['legendary']}
+                forcedRegion={region}
+                setCurrentView={setCurrentView}
+                setVsInitialTab={setVsInitialTab}
+                setVsInitialRegion={setVsInitialRegion}
+              />
+            )}
+            {activeTab === 'rematch' && (
+              <ChallengesScreen
+                gameState={gameState}
+                onChallenge={onChallenge}
+                onClose={onClose}
+                isEmbedded={true}
+                filterCategories={['rematch']}
+                forcedRegion={region}
+                setCurrentView={setCurrentView}
+                setVsInitialTab={setVsInitialTab}
+                setVsInitialRegion={setVsInitialRegion}
+              />
+            )}
+          </Suspense>
           {activeTab === 'boss' && (
             <BossScreen
               gameState={gameState}
