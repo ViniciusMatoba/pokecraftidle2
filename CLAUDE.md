@@ -2,6 +2,46 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+---
+
+## ⚠️ REGRA PRIMORDIAL — BUMP DE VERSÃO
+
+**TODA VEZ que o número de versão for alterado, os 5 arquivos abaixo DEVEM ser atualizados na mesma sessão, sem exceção. Nunca deixe um arquivo para trás.**
+
+### Checklist obrigatório de bump de versão
+
+| # | Arquivo | O que alterar |
+|---|---------|---------------|
+| 1 | `src/constants/version.js` | `APP_VERSION`, `VERSION`, `APP_VERSION_DATE` e novo bloco no topo do `CHANGELOG[]` |
+| 2 | `package.json` | campo `"version"` |
+| 3 | `package-lock.json` | campo `"version"` nas **linhas 3 e 9** (raiz + entrada `""` dos packages) |
+| 4 | `public/version.json` | campos `"version"`, `"date"` e `"notes"` |
+| 5 | `public/sw.js` | `let CACHE_NAME = 'pokecraft-cache-vX.Y.Z'` |
+
+> O script `scripts/update-sw-version.cjs` atualiza o `sw.js` automaticamente durante `npm run build` (prebuild), mas **`package-lock.json` exige edição manual** — foi a fonte de dessincronização no passado.
+
+### Data/hora: sempre Brasília (UTC-3)
+
+Antes de escrever qualquer timestamp, rodar este comando PowerShell para obter a hora real:
+
+```powershell
+[System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, 'E. South America Standard Time').ToString('dd/MM/yyyy HH:mm')
+```
+
+Nunca usar hora estimada ou futura — apenas o valor retornado pelo comando acima.
+
+### Verificação pós-bump
+
+Após atualizar os 5 arquivos, rodar este grep de confirmação antes de commitar:
+
+```bash
+grep -rn "2\.\(VERSÃO_ANTERIOR\)\." src/constants/version.js package.json package-lock.json public/version.json public/sw.js
+```
+
+O resultado deve ser **zero linhas** nos campos de versão ativa (exceto entradas históricas do CHANGELOG).
+
+---
+
 ## Comandos Essenciais
 
 ```bash
@@ -128,17 +168,7 @@ O jogador pode criar sua própria liga com até 8 ginásios + Elite Four + Campe
 
 ## Versionamento
 
-Versão em 5 lugares — manter todos sincronizados ao bump:
-1. `src/constants/version.js` — `APP_VERSION`, `VERSION`, `APP_VERSION_DATE`, `CHANGELOG[]`
-2. `package.json` — campo `version`
-3. `public/version.json` — `version`, `date`, `notes`
-4. `public/sw.js` — `let CACHE_NAME = 'pokecraft-cache-vX.Y.Z'` (também atualizado automaticamente pelo script `scripts/update-sw-version.cjs` no `prebuild`)
-5. `package-lock.json` — campos `"version"` nas linhas 3 e 9 (raiz e entrada `""` dos packages)
-
-**Data/hora**: sempre usar horário de Brasília (UTC-3). Verificar com PowerShell:
-```powershell
-[System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, 'E. South America Standard Time').ToString('dd/MM/yyyy HH:mm')
-```
+> **Ver REGRA PRIMORDIAL no topo deste arquivo** — checklist completo dos 5 arquivos a atualizar e o comando PowerShell para hora de Brasília.
 
 ## LGPD
 
