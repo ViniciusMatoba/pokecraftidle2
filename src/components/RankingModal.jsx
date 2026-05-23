@@ -62,6 +62,9 @@ const RankingModal = ({ onClose }) => {
       onClick={onClose}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ranking-modal-title"
         className="bg-[#1a1a1a] w-full max-w-2xl rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col overflow-hidden animate-bounceIn"
         style={{ maxHeight: '90vh' }}
         onClick={e => e.stopPropagation()}
@@ -73,7 +76,7 @@ const RankingModal = ({ onClose }) => {
               <img src={POKEAPI_ITEM_URL + 'kings-rock.png'} className="h-9 w-9 object-contain" alt="" />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">Ranking Global</h2>
+              <h2 id="ranking-modal-title" className="text-2xl font-black text-white uppercase italic tracking-tighter">Ranking Global</h2>
               <p className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em]">Os Maiores Treinadores do Mundo</p>
             </div>
           </div>

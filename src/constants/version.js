@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.3';
-export const VERSION = '2.11.3';
-export const APP_VERSION_DATE = '23/05/2026 15:13';
+export const APP_VERSION = '2.11.4';
+export const VERSION = '2.11.4';
+export const APP_VERSION_DATE = '23/05/2026 15:29';
 export const CHANGELOG = [
+  '## [V2.11.4] - 23/05/2026 15:29',
+  '### Sprint 4 — Atomicidade Firestore e Acessibilidade de Modais',
+  '- **Segurança (SEC-08)**: `saveToCloud` convertido para `writeBatch` — os 3 documentos críticos (`saves`, `users`, `userRegions`) agora são escritos atomicamente. Se qualquer escrita falhar, nenhuma é comitada, eliminando o risco de estado inconsistente entre documentos.',
+  '- **UX (UX-02 continuação)**: Migração de acessibilidade expandida — `QuestModal` e `TutorialModal` migrados para `ModalOverlay` com focus trap e Escape completos; `PrivacyModal` e `OfflineProgressModal` convertidos para `createPortal` com `role="dialog"`, `aria-modal="true"`, `aria-labelledby` e handler de Escape; `RankingModal` recebeu attrs ARIA no painel interno.',
+  '- **UX (UX-02 inline)**: Atributos `role="dialog"` e `aria-modal="true"` adicionados nos painéis internos de: `GymScreen` (GymAlertModal + painel principal), `ChallengesScreen` (detalhe de desafio + modal de alerta), `TravelScreen` (detalhes da rota), `PokedexScreen` (detalhe do Pokémon).',
+  '',
   '## [V2.11.3] - 23/05/2026 15:13',
   '### Sprint 3 — Firestore, Performance, Textos WCAG e Modais Acessíveis',
   '- **Segurança (SEC-06)**: Regras do Firestore reforçadas — validação de campos obrigatórios (`compressedState`, `updatedAt`), limite de 950 KB por documento de save, uid do documento deve bater com o auth; ranking do Boss validado com teto de dano de 99.999.999 para bloquear valores impossíveis.',

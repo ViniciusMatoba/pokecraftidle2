@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ModalOverlay from './ModalOverlay';
 
 const itemIcon = (name) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${name}.png`;
 const pokemonSprite = (id) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
@@ -115,12 +116,16 @@ const TutorialModal = ({ onClose }) => {
   const isLast = step === STEPS.length - 1;
 
   return (
-    <div className="fixed inset-0 z-[99990] flex items-center justify-center bg-slate-950/90 p-3 backdrop-blur-md animate-fadeIn">
+    <ModalOverlay
+      onClose={onClose}
+      labelId="tutorial-modal-title"
+      backdropClass="bg-slate-950/90 backdrop-blur-md"
+      zIndex="99990"
+      closeOnBackdrop={false}
+    >
       <section
         className="modal-readable-panel w-full max-w-[420px] overflow-hidden border border-white/15 shadow-2xl animate-slideUp"
         style={{ background: current.bg, borderRadius: 28 }}
-        aria-modal="true"
-        role="dialog"
       >
         <div className="px-6 pt-5 pb-3 shrink-0">
           <div className="mb-4 flex gap-1.5">
@@ -139,7 +144,7 @@ const TutorialModal = ({ onClose }) => {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-white/60">{current.tag}</p>
-              <h2 className="mt-1 text-[clamp(1.55rem,7vw,2.35rem)] font-black uppercase italic leading-[0.95] text-white drop-shadow-md">
+              <h2 id="tutorial-modal-title" className="mt-1 text-[clamp(1.55rem,7vw,2.35rem)] font-black uppercase italic leading-[0.95] text-white drop-shadow-md">
                 {current.title}
               </h2>
               <p className="mt-2 text-xs font-black uppercase tracking-widest text-white/65">{current.subtitle}</p>
@@ -196,7 +201,7 @@ const TutorialModal = ({ onClose }) => {
           </button>
         </div>
       </section>
-    </div>
+    </ModalOverlay>
   );
 };
 

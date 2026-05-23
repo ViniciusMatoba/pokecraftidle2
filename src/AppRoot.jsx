@@ -47,7 +47,7 @@ import { calculateOfflineProgress, applyOfflineProgress } from './utils/offlineP
 import { GYMS, ELITE_FOUR } from './data/gyms';
 import { auth, db, trackEvent } from './firebase';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
-import { doc, getDoc, getDocFromServer, setDoc, deleteField, serverTimestamp, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, getDocFromServer, setDoc, writeBatch, deleteField, serverTimestamp, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
 import LZString from 'lz-string';
 import { secureSave, readSecureSave } from './utils/security';
 import { APP_VERSION, APP_VERSION_DATE, CHANGELOG } from './constants/version';
@@ -2194,8 +2194,12 @@ export default function App() {
 
       lastSyncRef.current = Date.now();
 
+      // SEC-08 — writeBatch: garante atomicidade nos 3 documentos críticos
+      // Se qualquer escrita falhar, nenhuma é comitada (sem estado inconsistente)
+      const batch = writeBatch(db);
+
       // 1. Salva o estado completo do jogo (comprimido)
-      await setDoc(doc(db, "saves", user.uid), {
+      batch.set(doc(db, "saves", user.uid), {
         ownerUid: user.uid,
         ownerEmail: user.email || null,
         compressedState,
@@ -2205,7 +2209,7 @@ export default function App() {
       }, { merge: true });
 
       // 2. Sincroniza dados públicos
-      await setDoc(doc(db, "users", user.uid), {
+      batch.set(doc(db, "users", user.uid), {
         name: dataToSave.trainer?.name || "Treinador",
         nameLower: (dataToSave.trainer?.name || "Treinador").toLowerCase().trim(),
         avatar: dataToSave.trainer?.avatar || 1,
@@ -2232,13 +2236,15 @@ export default function App() {
 
       // 3. Sincroniza região publicada
       if (dataToSave.myRegion?.published) {
-        await setDoc(doc(db, 'userRegions', user.uid), {
+        batch.set(doc(db, 'userRegions', user.uid), {
           ...(dataToSave.myRegion || {}),
           ownerName: dataToSave.trainer?.name || 'Treinador',
           ownerUid: user.uid,
           updatedAt: serverTimestamp(),
         }, { merge: true });
       }
+
+      await batch.commit();
 
       // 4. Snapshot diário — 1 vez por dia, mantém os últimos 3 dias como backup
       const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD UTC

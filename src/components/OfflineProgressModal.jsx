@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { formatOfflineTime } from '../utils/offlineProgress';
 
 const MATERIAL_INFO = {
@@ -203,6 +204,13 @@ export default function OfflineProgressModal({ progress, onClose }) {
   if (!progress) return null;
 
   const [section, setSection] = useState('team'); // 'team' | 'items' | 'captures'
+  const panelRef = useRef(null);
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); onClose?.(); } };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
 
   const hasMaterials = Object.keys(progress.materials).length > 0;
   const hasCaptures = progress.captures?.length > 0;
@@ -215,12 +223,16 @@ export default function OfflineProgressModal({ progress, onClose }) {
     { id: 'captures', label: 'Capturas', icon: '🔴', show: true },
   ].filter(t => t.show);
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
       style={{ background: 'rgba(0,0,0,0.80)', backdropFilter: 'blur(6px)' }}
     >
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="offline-progress-title"
         className="relative w-full max-w-sm rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col"
         style={{
           background: 'linear-gradient(160deg, #1e1b4b 0%, #312e81 60%, #1e1b4b 100%)',
@@ -231,7 +243,7 @@ export default function OfflineProgressModal({ progress, onClose }) {
         {/* Header */}
         <div className="px-6 pt-6 pb-4 text-center flex-shrink-0">
           <div className="text-4xl mb-1">🌙</div>
-          <h2 className="text-white font-black text-xl tracking-wide">Bem-vindo de volta!</h2>
+          <h2 id="offline-progress-title" className="text-white font-black text-xl tracking-wide">Bem-vindo de volta!</h2>
           <p className="text-indigo-300 text-sm mt-1">
             Fora por <span className="text-white font-bold">{timeStr}</span>
             {' · '}
@@ -356,6 +368,7 @@ export default function OfflineProgressModal({ progress, onClose }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

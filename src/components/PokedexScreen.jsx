@@ -141,7 +141,7 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 15
 
         return (
           <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-            <div className="bg-white w-[82vw] max-w-[360px] h-[82dvh] max-h-[720px] rounded-[2rem] shadow-2xl border-b-[8px] border-slate-200 overflow-hidden relative animate-slideInUp flex flex-col">
+            <div role="dialog" aria-modal="true" aria-label="Detalhes do Pokémon" className="bg-white w-[82vw] max-w-[360px] h-[82dvh] max-h-[720px] rounded-[2rem] shadow-2xl border-b-[8px] border-slate-200 overflow-hidden relative animate-slideInUp flex flex-col">
               <button onClick={() => setSelectedPoke(null)} className="absolute top-4 right-4 bg-white/20 w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/30 backdrop-blur-md transition-all z-20 text-white font-black text-xs">
                 x
               </button>

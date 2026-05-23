@@ -185,9 +185,9 @@ const EliteCard = ({ member, index, earned, locked, onClick }) => {
 
 const GymAlertModal = ({ req, onGo, onClose }) => (
   <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md animate-fadeIn">
-    <div className="bg-slate-900 w-full max-w-xs rounded-[2.5rem] p-8 border border-white/10 shadow-2xl animate-bounceIn text-center">
+    <div role="dialog" aria-modal="true" aria-labelledby="gym-alert-title" className="bg-slate-900 w-full max-w-xs rounded-[2.5rem] p-8 border border-white/10 shadow-2xl animate-bounceIn text-center">
       <div className="text-4xl mb-4">LOCK</div>
-      <h3 className="text-white font-black uppercase italic tracking-tighter text-xl mb-4">Caminho Bloqueado!</h3>
+      <h3 id="gym-alert-title" className="text-white font-black uppercase italic tracking-tighter text-xl mb-4">Caminho Bloqueado!</h3>
       <p className="text-white/60 text-sm font-bold mb-8 leading-relaxed">
         Para desafiar este Lider, você precisa primeiro:<br/>
         <span className="text-red-400 font-black">"{req}"</span>
@@ -267,6 +267,9 @@ const GymDetailModal = ({ gym, earned, locked, onChallenge, onClose, gameState, 
       )}
 
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Ginásio Pokémon"
         className="modal-panel-mobile bg-slate-950 shadow-2xl overflow-hidden border-2 border-white/10 flex flex-col"
         style={{ backgroundColor: '#020617' }}
         onClick={e => e.stopPropagation()}

@@ -570,7 +570,7 @@ const TravelScreen = ({
            {/* Modal de Detalhes da Rota */}
       {selectedRoute && typeof document !== 'undefined' && createPortal((
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 md:p-4 bg-slate-900/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white w-full max-w-[420px] md:max-w-md rounded-[2rem] shadow-2xl overflow-hidden flex flex-col animate-bounceIn" style={{ maxHeight: '94dvh' }}>
+          <div role="dialog" aria-modal="true" aria-label="Detalhes da Rota" className="bg-white w-full max-w-[420px] md:max-w-md rounded-[2rem] shadow-2xl overflow-hidden flex flex-col animate-bounceIn" style={{ maxHeight: '94dvh' }}>
             <div className="overflow-y-auto custom-scrollbar flex-1">
             <div className="h-36 sm:h-40 relative flex-shrink-0">
               <img src={getBgPath(selectedRoute)} className="w-full h-full object-cover" alt="" />

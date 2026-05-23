@@ -1,21 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 const PrivacyModal = ({ onClose, initialTab = 'privacy' }) => {
   const [tab, setTab] = useState(initialTab);
+  const panelRef = useRef(null);
 
-  return (
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    const first = panel.querySelector('button');
+    first?.focus();
+    const onKey = (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); onClose?.(); }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return createPortal(
     <div
       className="fixed inset-0 z-[99999] flex items-end justify-center bg-black/70 backdrop-blur-sm animate-fadeIn"
       onClick={onClose}
     >
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="privacy-modal-title"
         className="w-full max-w-md bg-white rounded-t-[2rem] shadow-2xl flex flex-col overflow-hidden animate-slideUp"
         style={{ maxHeight: '90dvh' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div className="bg-slate-900 px-6 py-4 flex items-center justify-between shrink-0">
-          <h2 className="text-white font-black uppercase italic tracking-tighter text-lg leading-none">
+          <h2 id="privacy-modal-title" className="text-white font-black uppercase italic tracking-tighter text-lg leading-none">
             {tab === 'privacy' ? 'Política de Privacidade' : 'Termos de Uso'}
           </h2>
           <button
@@ -166,7 +184,8 @@ const PrivacyModal = ({ onClose, initialTab = 'privacy' }) => {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

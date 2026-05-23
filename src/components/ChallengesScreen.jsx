@@ -3265,13 +3265,13 @@ const ChallengesScreen = ({
 
       {selectedChallenge && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setSelectedChallenge(null)}>
-          <div className="modal-panel-mobile rounded-[2rem] overflow-hidden shadow-2xl animate-bounceIn border-2 border-white/10 flex flex-col" style={{ background: fixBgPath(selectedChallenge.background || selectedChallenge.bg) }} onClick={e => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" aria-labelledby="challenge-detail-title" className="modal-panel-mobile rounded-[2rem] overflow-hidden shadow-2xl animate-bounceIn border-2 border-white/10 flex flex-col" style={{ background: fixBgPath(selectedChallenge.background || selectedChallenge.bg) }} onClick={e => e.stopPropagation()}>
             <div className="absolute inset-0 pointer-events-none opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
             <div className="relative z-10 px-5 py-4 flex items-center gap-4 shrink-0 border-b border-white/10 bg-black/20">
                 <img src={selectedChallenge.sprite} alt={selectedChallenge.name} className="w-20 h-20 object-contain drop-shadow-2xl shrink-0" onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'; }} />
                 <div className="flex-1 min-w-0 pr-10">
                   <p className="text-white/50 text-[9px] font-black uppercase tracking-widest">{selectedChallenge.subtitle}</p>
-                  <h3 className="text-white font-black text-lg uppercase italic leading-tight">{selectedChallenge.name}</h3>
+                  <h3 id="challenge-detail-title" className="text-white font-black text-lg uppercase italic leading-tight">{selectedChallenge.name}</h3>
                 </div>
                 <button onClick={() => setSelectedChallenge(null)} className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/20 text-white font-black flex items-center justify-center hover:bg-white/30 transition-colors">x</button>
               </div>
@@ -3315,9 +3315,9 @@ const ChallengesScreen = ({
 
       {alertMessage && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md animate-fadeIn" onClick={() => setAlertMessage(null)}>
-           <div className="bg-slate-950 w-full max-w-sm rounded-[3rem] shadow-2xl p-8 animate-bounceIn text-center border-4 border-red-500" onClick={e => e.stopPropagation()}>
+           <div role="dialog" aria-modal="true" aria-labelledby="challenge-alert-title" className="bg-slate-950 w-full max-w-sm rounded-[3rem] shadow-2xl p-8 animate-bounceIn text-center border-4 border-red-500" onClick={e => e.stopPropagation()}>
               <div className="text-4xl mb-4">🚫</div>
-              <h3 className="text-xl font-black text-white uppercase italic mb-4">Acesso Bloqueado</h3>
+              <h3 id="challenge-alert-title" className="text-xl font-black text-white uppercase italic mb-4">Acesso Bloqueado</h3>
               <p className="text-sm font-bold text-white/60 mb-8">{alertMessage}</p>
               <button 
                 onClick={() => setAlertMessage(null)}

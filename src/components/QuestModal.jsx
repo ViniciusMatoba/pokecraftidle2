@@ -1,4 +1,5 @@
 import React from 'react';
+import ModalOverlay from './ModalOverlay';
 
 const QuestModal = ({ activeQuest, quest, onClose, onAccept, onDecline }) => {
   const data = quest || activeQuest;
@@ -7,7 +8,12 @@ const QuestModal = ({ activeQuest, quest, onClose, onAccept, onDecline }) => {
   const closeAction = onDecline || onClose;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-fadeIn">
+    <ModalOverlay
+      onClose={closeAction}
+      labelId="quest-modal-title"
+      backdropClass="bg-slate-900/90 backdrop-blur-md"
+      zIndex="9999"
+    >
       <div className="modal-panel-mobile bg-white shadow-2xl overflow-hidden flex flex-col border-b-[8px] border-blue-900 animate-bounceIn">
         <div className="bg-blue-600 px-5 py-4 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -18,7 +24,7 @@ const QuestModal = ({ activeQuest, quest, onClose, onAccept, onDecline }) => {
               <p className="text-white/70 text-[10px] font-black uppercase tracking-widest break-words">
                 {onAccept ? 'Nova Missao' : 'Missao Ativa'}
               </p>
-              <h3 className="text-white text-lg font-black uppercase italic leading-tight break-words">
+              <h3 id="quest-modal-title" className="text-white text-lg font-black uppercase italic leading-tight break-words">
                 {data.title}
               </h3>
             </div>
@@ -28,7 +34,7 @@ const QuestModal = ({ activeQuest, quest, onClose, onAccept, onDecline }) => {
             className="w-11 h-11 rounded-full bg-white/20 text-white font-black flex items-center justify-center hover:bg-white/30 transition-colors shrink-0"
             aria-label="Fechar"
           >
-            x
+            ✕
           </button>
         </div>
 
@@ -69,7 +75,7 @@ const QuestModal = ({ activeQuest, quest, onClose, onAccept, onDecline }) => {
           )}
         </div>
       </div>
-    </div>
+    </ModalOverlay>
   );
 };
 
