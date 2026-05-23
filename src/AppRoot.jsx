@@ -49,7 +49,9 @@ import { auth, db, trackEvent } from './firebase';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { doc, getDoc, getDocFromServer, setDoc, deleteField, serverTimestamp, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
 import LZString from 'lz-string';
-import { APP_VERSION, APP_VERSION_DATE } from './constants/version';
+import { secureSave, readSecureSave } from './utils/security';
+import { APP_VERSION, APP_VERSION_DATE, CHANGELOG } from './constants/version';
+import ChangelogModal from './components/ChangelogModal';
 import {
   DEFAULT_GAME_STATE, GYM_LEVEL_CAPS,
   NATURE_LIST, NATURES, TYPE_COLORS, trainerAvatars, ITEM_LABELS,
@@ -69,6 +71,7 @@ import { getTimeOfDay, TIME_CONFIG, getTimeAdjustedEnemyPool } from './utils/tim
 import AutoCaptureModal from './components/AutoCaptureModal';
 import ConfirmModal from './components/ConfirmModal';
 import RankingModal from './components/RankingModal';
+import BugReportModal from './components/BugReportModal';
 import RareDropModal, { isRareDropDismissed } from './components/RareDropModal';
 
 import { QUESTS, updateQuestProgress, getAvailableQuest } from './data/quests';
@@ -117,6 +120,28 @@ const localSaveKeyForUser = (uid) => uid ? `poke_idle_save_${uid}` : LEGACY_LOCA
 
 const parseStoredSave = (raw) => {
   if (!raw) return null;
+  
+  // 1. Novo formato seguro, assinado e ofuscado (começa com pksv1:)
+  if (raw.startsWith('pksv1:')) {
+    try {
+      const { envelope, isValid } = readSecureSave(raw);
+      if (!isValid) {
+        console.error('⚠️ [Anti-Cheat] Integridade violada: Assinatura inválida detectada!');
+        window.isSaveTampered = true;
+        if (envelope && envelope.gameState) {
+          envelope.gameState.isTampered = true;
+        }
+      }
+      if (!envelope) return null;
+      if (envelope.gameState) return envelope;
+      return { gameState: envelope };
+    } catch (e) {
+      console.error('❌ Erro crítico ao processar save seguro:', e);
+      return null;
+    }
+  }
+
+  // 2. Formato legado sem assinatura (LZString ou JSON cru) - fluxo de migração retrocompatível
   try {
     const decompressed = LZString.decompress(raw);
     const parsed = decompressed ? JSON.parse(decompressed) : JSON.parse(raw);
@@ -154,15 +179,22 @@ const readLocalSaveEnvelope = (uid = null) => {
 
 const writeLocalSaveEnvelope = (gameState, user = null) => {
   if (!gameState) return;
+  
   const envelope = {
     uid: user?.uid || null,
     email: user?.email || null,
     savedAt: Date.now(),
     gameState,
   };
-  const compressed = LZString.compress(JSON.stringify(envelope));
-  localStorage.setItem(localSaveKeyForUser(user?.uid), compressed);
-  localStorage.setItem(LEGACY_LOCAL_SAVE_KEY, compressed);
+
+  // Propaga a flag de integridade caso já tenha sido violada anteriormente nesta sessão
+  if (window.isSaveTampered || gameState.isTampered) {
+    envelope.gameState.isTampered = true;
+  }
+
+  const secured = secureSave(envelope);
+  localStorage.setItem(localSaveKeyForUser(user?.uid), secured);
+  localStorage.setItem(LEGACY_LOCAL_SAVE_KEY, secured);
 };
 
 const fixPath = (path) => {
@@ -758,6 +790,8 @@ export default function App() {
   const [isPowerRankModalOpen, setIsPowerRankModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState(null);
   const [showRanking, setShowRanking] = useState(false);
+  const [showBugReport, setShowBugReport] = useState(false);
+  const [showChangelog, setShowChangelog] = useState(false);
   const showConfirm = (config) => setConfirmModal(config);
   const closeConfirm = () => setConfirmModal(null);
 
@@ -1195,6 +1229,8 @@ export default function App() {
   const lastSyncRef = useRef(0);
   const saveTimeoutRef = useRef(null);
   const bossSaveTimeoutRef = useRef(null);
+  const saveLocalTimeoutRef = useRef(null);
+  const cloudSaveIntervalRef = useRef(null);
   const gameStateHashRef = useRef(null);   // dirty flag — hash do último estado salvo com sucesso
   const saveRetryRef = useRef(0);          // contador de tentativas de retry de save
   const saveRetryTimerRef = useRef(null);  // timer de retry de save
@@ -1986,17 +2022,25 @@ export default function App() {
     gameStateRef.current = gameState;
   }, [gameState]);
 
-  // 1. Sincronização LocalStorage (Sempre que o estado mudar)
+  // 1. Sincronização LocalStorage Deboundada (Performance Otimizada)
   useEffect(() => {
-    // Não salva localmente enquanto o load não completou (evita sobrescrever save com estado padrão)
     if (!isFullyLoadedRef.current) return;
-    try {
-      writeLocalSaveEnvelope(gameState, auth.currentUser);
-    } catch (e) {
-      if (e?.name === 'QuotaExceededError') {
-        notify('Armazenamento local cheio. Salve na nuvem para não perder progresso!', 'error');
+    
+    if (saveLocalTimeoutRef.current) clearTimeout(saveLocalTimeoutRef.current);
+    
+    saveLocalTimeoutRef.current = setTimeout(() => {
+      try {
+        writeLocalSaveEnvelope(gameState, auth.currentUser);
+      } catch (e) {
+        if (e?.name === 'QuotaExceededError') {
+          notify('Armazenamento local cheio. Salve na nuvem para não perder progresso!', 'error');
+        }
       }
-    }
+    }, 10_000); // 10s de debounce
+    
+    return () => {
+      if (saveLocalTimeoutRef.current) clearTimeout(saveLocalTimeoutRef.current);
+    };
   }, [gameState]);
 
   useEffect(() => {
@@ -2080,6 +2124,11 @@ export default function App() {
   const saveToCloud = useCallback(async (dataToSave, { isRetry = false, retryCount = 0 } = {}) => {
     const user = auth.currentUser;
     if (!user) return;
+
+    if (window.isSaveTampered || dataToSave.isTampered) {
+      console.warn('[Anti-Cheat] Sincronização em nuvem bloqueada devido a save adulterado.');
+      return;
+    }
 
     // Nunca salvar se o load ainda não completou — evita sobrescrever save real com estado vazio
     if (!isFullyLoadedRef.current) {
@@ -2270,6 +2319,12 @@ export default function App() {
     const user = auth.currentUser;
     if (!user || damage <= 0) return;
     
+    if (window.isSaveTampered || gameState.isTampered) {
+      console.warn('[Anti-Cheat] Submissão de dano ao Boss bloqueada devido a save adulterado.');
+      notify('⚠️ Ranking desabilitado: Integridade do save comprometida.', 'error');
+      return;
+    }
+    
     try {
       // 1. Atualizar Mini-Ranking Global do Boss
       const userRef = doc(db, "bossRankings", user.uid);
@@ -2328,12 +2383,17 @@ export default function App() {
   const debouncedSave = useCallback((data) => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
+      if (!isFullyLoadedRef.current) return;
+      const currentHash = computeStateHash(data);
+      if (currentHash && currentHash === gameStateHashRef.current) {
+        console.log('[Debounced Save] Sem alterações — save na nuvem ignorado.');
+        return;
+      }
       saveToCloud(data).catch(e => console.error("Auto save fail:", e));
-    }, 30_000); // 30s — equilibrio entre segurança e cota Firestore
+    }, 15_000); // 15s de debounce
   }, [saveToCloud]);
 
   // 3. beforeunload + visibilitychange — salva com lastSeenAt antes de fechar/minimizar
-  // Usa gameStateRef para não precisar re-registrar listeners a cada mudança de estado
   useEffect(() => {
     const saveLocal = () => {
       if (!isFullyLoadedRef.current || !gameStateRef.current) return;
@@ -2343,19 +2403,27 @@ export default function App() {
           playerStats: { ...gameStateRef.current.playerStats, lastSeenAt: Date.now() }
         };
         writeLocalSaveEnvelope(stateWithTimestamp, auth.currentUser);
-      } catch (e) { /* sem-op se quota estourar */ }
+      } catch (e) { /* sem-op */ }
     };
 
     const handleVisibility = () => {
       if (!document.hidden) return;
-      saveLocal(); // salva sempre no localStorage
-      // Também tenta salvar na nuvem com lastSeenAt atualizado (para offline progress funcionar)
+      saveLocal(); // Salva sempre na LocalStorage
+      
+      // Tenta salvar na nuvem se estiver sujo e se a última sincronização foi há mais de 10s
       if (isFullyLoadedRef.current && gameStateRef.current) {
-        const stateWithTimestamp = {
-          ...gameStateRef.current,
-          playerStats: { ...gameStateRef.current.playerStats, lastSeenAt: Date.now() }
-        };
-        saveToCloud(stateWithTimestamp).catch(() => { /* silencia erros de rede */ });
+        const currentHash = computeStateHash(gameStateRef.current);
+        const isDirty = currentHash && currentHash !== gameStateHashRef.current;
+        const timeSinceLastSync = Date.now() - lastSyncRef.current;
+        
+        if (isDirty && timeSinceLastSync > 10_000) {
+          console.log('[Visibilitychange] Estado sujo detectado. Sincronizando com nuvem...');
+          const stateWithTimestamp = {
+            ...gameStateRef.current,
+            playerStats: { ...gameStateRef.current.playerStats, lastSeenAt: Date.now() }
+          };
+          saveToCloud(stateWithTimestamp).catch(() => {});
+        }
       }
     };
 
@@ -2365,7 +2433,30 @@ export default function App() {
       window.removeEventListener('beforeunload', saveLocal);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [saveToCloud]); // inclui saveToCloud nas deps
+  }, [saveToCloud]);
+
+  // 3.1. Sincronização na Nuvem Inteligente e Periódica (1 minuto)
+  useEffect(() => {
+    if (loading || !user) return undefined;
+    
+    cloudSaveIntervalRef.current = setInterval(() => {
+      if (!isFullyLoadedRef.current || !gameStateRef.current) return;
+      
+      const currentHash = computeStateHash(gameStateRef.current);
+      const isDirty = currentHash && currentHash !== gameStateHashRef.current;
+      
+      if (isDirty) {
+        console.log('[Autosave Nuvem] Estado sujo detectado. Sincronizando com Firestore...');
+        saveToCloud(gameStateRef.current).catch(e => console.error('[Autosave Nuvem] Erro:', e));
+      }
+    }, 60_000); // 1 minuto (60.000 ms)
+    
+    return () => {
+      if (cloudSaveIntervalRef.current) {
+        clearInterval(cloudSaveIntervalRef.current);
+      }
+    };
+  }, [loading, user, saveToCloud]);
 
   // 4. Online/Offline — avisa o jogador e resync automático ao reconectar
   useEffect(() => {
@@ -2411,24 +2502,27 @@ export default function App() {
       });
       return;
     }
+    
+    if (window.isSaveTampered || gameState.isTampered) {
+      showConfirm({
+        type: 'error',
+        title: 'Acesso Negado',
+        message: 'Não é possível salvar na nuvem: Integridade do save local comprometida.',
+        onConfirm: closeConfirm
+      });
+      return;
+    }
+
     try {
-      lastSyncRef.current = Date.now();
-      const cleanState = removeUndefinedFields({ ...gameState, version: gameState.version || APP_VERSION });
-      const compressedState = LZString.compress(JSON.stringify(cleanState));
-      await setDoc(doc(db, "saves", user.uid), {
-        ownerUid: user.uid,
-        ownerEmail: user.email || null,
-        compressedState,
-        gameState: deleteField(),
-        updatedAtClient: Date.now(),
-        updatedAt: serverTimestamp()
-      }, { merge: true });
+      // Limpa o hash para contornar o dirty check e salvar imediatamente na nuvem
+      gameStateHashRef.current = null;
+      await saveToCloud(gameState);
       showConfirm({ type: 'success', title: 'Salvo!', message: 'Jogo salvo na nuvem com sucesso!', onConfirm: closeConfirm });
     } catch (e) {
       console.error("Manual Save Fail:", e);
       showConfirm({ type: 'error', title: 'Erro ao salvar', message: 'Não foi possível salvar na nuvem: ' + e.message, onConfirm: closeConfirm });
     }
-  }, [gameState]);
+  }, [gameState, saveToCloud]);
 
   // ── Export / Import de save como arquivo JSON ────────────────────────────────
   const exportSave = useCallback(() => {
@@ -4222,17 +4316,19 @@ export default function App() {
         } else {
           // Status condition
           if (fx.statusEffect) {
-            const target = fx.statusEffect.target === 'enemy' ? updatedEnemyFinal : updatedTeamFinal[activeMemberIndex];
-            if (target.heldItem === 'covert_cloak' && fx.statusEffect.target === 'enemy') {
-               // Imune por causa do Covert Cloak
-            } else {
-              target.status = [...(target.status || []), fx.statusEffect.status];
-              if (fx.statusEffect.target === 'enemy') {
-                addLog(`${myPoke.name} usou ${move.name}! ${updatedEnemyFinal.name} sofreu ${fx.statusEffect.status}!`, 'system');
-                addFloat(fx.statusEffect.status.toUpperCase(), '#c084fc');
-              } else {
-                addLog(`${myPoke.name} usou ${move.name}! ${myPoke.name} sofreu ${fx.statusEffect.status}!`, 'system');
-                addFloat(fx.statusEffect.status.toUpperCase(), '#c084fc', 'player');
+            const statusName = typeof fx.statusEffect === 'string' ? fx.statusEffect : fx.statusEffect.status;
+            const statusTarget = typeof fx.statusEffect === 'string' ? (fx.statusTarget || 'enemy') : (fx.statusEffect.target || 'enemy');
+            if (statusName) {
+              const target = statusTarget === 'enemy' ? updatedEnemyFinal : updatedTeamFinal[activeMemberIndex];
+              if (!(target.heldItem === 'covert_cloak' && statusTarget === 'enemy')) {
+                target.status = [...(target.status || []).filter(s => s !== statusName), statusName];
+                if (statusTarget === 'enemy') {
+                  addLog(`${myPoke.name} usou ${move.name}! ${updatedEnemyFinal.name} sofreu ${statusName}!`, 'system');
+                  addFloat(statusName.toUpperCase(), '#c084fc');
+                } else {
+                  addLog(`${myPoke.name} usou ${move.name}! ${myPoke.name} sofreu ${statusName}!`, 'system');
+                  addFloat(statusName.toUpperCase(), '#c084fc', 'player');
+                }
               }
             }
           }
@@ -5430,6 +5526,7 @@ export default function App() {
       background: battleData.background || null,
       locationName: battleData.location || battleData.name,
       gymId: battleData.id,
+      cameFromVs: true,
     });
     setCurrentView('battles');
     // BGM agora gerenciado pelas configurações
@@ -5490,7 +5587,8 @@ export default function App() {
         locationName: "Fenda Dimensional",
         spawnTime: Date.now(),
         opponentTeam: [boss],
-        opponentTeamIndex: 0
+        opponentTeamIndex: 0,
+        cameFromVs: true
       });
       setCurrentView('battles');
       addLog(`⚠️ ALERTA: ${battleData.name} emergiu da fenda! HP SEGMENTADO DETECTADO!`, 'system');
@@ -5569,7 +5667,8 @@ export default function App() {
       locationName: gymData.location || gymData.city,
       spawnTime: Date.now(),
       opponentTeam: teamList,
-      opponentTeamIndex: 0
+      opponentTeamIndex: 0,
+      cameFromVs: true
     });
     setCurrentView('battles');
     // BGM agora gerenciado pelas configurações
@@ -7016,7 +7115,8 @@ export default function App() {
             leaderSprite: currentEnemy.trainerSprite,
             badge: currentEnemy.badgeToGive,
             reward: getTrainerCurrencyReward(currentEnemy.trainerReward || 1000),
-            expShare: newShare
+            expShare: newShare,
+            cameFromVs: currentEnemy.cameFromVs
           });
         }, 800);
         
@@ -7480,6 +7580,7 @@ export default function App() {
           reward: getTrainerCurrencyReward(currentEnemy.trainerReward || 500),
           expShare: null,
           nextView: 'battles',
+          cameFromVs: currentEnemy.cameFromVs
         });
       } else if (currentEnemy.isGymLeader || currentEnemy.isBoss) {
         // Elite Four / Boss sem insígnia — modal de vitória sem badge
@@ -7492,6 +7593,7 @@ export default function App() {
             reward: getTrainerCurrencyReward(currentEnemy.trainerReward || 2000),
             expShare: null,
             nextView: 'city',
+            cameFromVs: currentEnemy.cameFromVs
           });
         }
         handleGoToCity();
@@ -7659,6 +7761,33 @@ export default function App() {
                    >
                      <img src={POKEAPI_ITEM_URL + 'kings-rock.png'} className="h-6 w-6 object-contain" alt="" />
                      Ranking Global
+                   </button>
+
+                   {/* Botão de Histórico de Versões */}
+                   <button
+                     onClick={() => setShowChangelog(true)}
+                     style={{
+                       width: '100%',
+                       marginTop: '8px',
+                       padding: '16px',
+                       borderRadius: '24px',
+                       fontWeight: '900',
+                       fontSize: '14px',
+                       textTransform: 'uppercase',
+                       letterSpacing: '1px',
+                       background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05))',
+                       color: '#FFD700',
+                       border: '2px solid rgba(255, 215, 0, 0.3)',
+                       boxShadow: '0 4px 15px rgba(255, 215, 0, 0.1)',
+                       cursor: 'pointer',
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       gap: '10px',
+                     }}
+                   >
+                     <span style={{ fontSize: '1.2rem' }}>📜</span>
+                     Histórico de Atualizações
                    </button>
 
 
@@ -9280,6 +9409,7 @@ export default function App() {
           setVsInitialRegion={setVsInitialRegion}
           muted={muted}
           onToggleMute={toggleMute}
+          onReportBug={() => setShowBugReport(true)}
         />
         );
       }
@@ -10350,23 +10480,34 @@ export default function App() {
         const handleClose = () => {
           const nextView = showGymVictoryModal.nextView;
           const isStoryBattle = cat === 'rival' || cat === 'rocket' || cat === 'villain' || cat === 'team';
+          const cameFromVs = showGymVictoryModal.cameFromVs;
 
           setShowGymVictoryModal(null);
           setCurrentEnemy(null);
 
           if (isStoryBattle) {
-            // Batalha de história: perguntar destino ao jogador
-            showConfirm({
-              type: 'confirm',
-              title: 'Onde deseja ir?',
-              message: 'Seus Pokémon podem precisar de recuperação.',
-              confirmLabel: '🗺️ Rotas',
-              cancelLabel: '🏥 Cidade',
-              onConfirm: () => { closeConfirm(); setCurrentView('battles'); },
-              onCancel:  () => { closeConfirm(); handleGoToCity(); },
-            });
-          } else if (nextView && nextView !== 'city') {
+            if (cameFromVs) {
+              setCurrentView('vs');
+            } else {
+              // Batalha de história: perguntar destino ao jogador
+              showConfirm({
+                type: 'confirm',
+                title: 'Onde deseja ir?',
+                message: 'Seus Pokémon podem precisar de recuperação.',
+                confirmLabel: '🗺️ Rotas',
+                cancelLabel: '🏥 Cidade',
+                onConfirm: () => { closeConfirm(); setCurrentView('routes'); },
+                onCancel:  () => { closeConfirm(); handleGoToCity(); },
+              });
+            }
+          } else if (cameFromVs) {
+            setCurrentView('vs');
+          } else if (nextView === 'city') {
+            handleGoToCity();
+          } else if (nextView) {
             setCurrentView(nextView);
+          } else {
+            handleGoToCity();
           }
         };
 
@@ -12054,6 +12195,23 @@ export default function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {showBugReport && (
+        <BugReportModal
+          isOpen={showBugReport}
+          onClose={() => setShowBugReport(false)}
+          gameState={gameState}
+          currentView={currentView}
+          user={user}
+        />
+      )}
+
+      {showChangelog && (
+        <ChangelogModal
+          isOpen={showChangelog}
+          onClose={() => setShowChangelog(false)}
+        />
       )}
     </div>
   );

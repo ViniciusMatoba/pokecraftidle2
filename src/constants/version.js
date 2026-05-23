@@ -1,7 +1,19 @@
-export const APP_VERSION = '2.10.1';
-export const VERSION = '2.10.1';
-export const APP_VERSION_DATE = '22/05/2026 17:30';
+export const APP_VERSION = '2.11.0';
+export const VERSION = '2.11.0';
+export const APP_VERSION_DATE = '23/05/2026 14:04';
 export const CHANGELOG = [
+  '## [V2.11.0] - 23/05/2026 14:04',
+  '### Segurança, Sincronização Otimizada, CI/CD e Beta Testing',
+  '- **Novo (Segurança)**: Ofuscação de Saves (Cifra XOR Dinâmica) e Assinatura Anti-Cheat (HMAC-SHA256) em LocalStorage para blindar rankings públicos.',
+  '- **Novo (Beta Testing)**: Canal Integrado de Reportar Bugs direto no Menu com anexo automático de dados de diagnóstico (UserAgent, tela/rota ativa, métricas do save e integridade).',
+  '- **Novo (Login)**: Histórico de Atualizações interativo adicionado diretamente na tela inicial para os jogadores acompanharem as novidades do beta.',
+  '- **Otimização (Performance)**: Autosave local deboundado para 10s, eliminando gargalos de CPU com compressão LZString síncrona frequente.',
+  '- **Otimização (Firebase)**: Cloud Save periódico inteligente a cada 1 minuto (apenas se dirty/estado modificado) e sincronização throttled no encerramento (unload/hide).',
+  '- **Otimização (Manual)**: Salvamento manual (`triggerSave`) unificado chamando `saveToCloud`, forçando snapshots diários e atualizando estatísticas e rankings públicos.',
+  '- **Esteira CI/CD**: Pipeline automatizada do GitHub Actions (`verify.yml`) validando código, dados, testes e builds de produção a cada push/PR.',
+  '- **Testes Visuais**: Plano de testes de interface estruturado e arquivos de exemplo com Vitest e JSDOM.',
+  '- **Bugs de Gameplay Corrigidos**: Eliminado crash fatal em golpes de status (`toUpperCase` de `undefined`), corrigida fuga para combates de rota após batalhas do Modo VS, e resolvido deadlock no atalho "Ir Para" na rota Aether Paradise do mapa.',
+  '',
   '## [V2.10.1] - 22/05/2026 17:30',
   '### Correção Crítica — PC Storage quebrando o jogo',
   '- **Bug corrigido**: Tela de erro "Cannot convert undefined or null to object" ao abrir o PC Storage — causado pela dependência `react-window` listada no package.json mas não instalada nos node_modules após o pull do v2.10.0.',

@@ -329,7 +329,7 @@ const ExpCandyModal = ({ candy, gameState, onUse, onClose }) => {
   );
 };
 
-const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onExportSave, onImportSave, onShowTutorial, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0, missionsNotificationCount = 0, setVsInitialTab, setVsInitialCategory, setVsInitialRegion, muted, onToggleMute }) => {
+const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onExportSave, onImportSave, onShowTutorial, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0, missionsNotificationCount = 0, setVsInitialTab, setVsInitialCategory, setVsInitialRegion, muted, onToggleMute, onReportBug }) => {
   const [updating, setUpdating] = useState(false);
   const [subView, setSubView] = useState('main'); // 'main' ou 'settings'
   const [activeTab, setActiveTab] = useState('balls');
@@ -355,6 +355,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
     { id: 'stats',    name: 'Estatisticas',   icon: `${POKEAPI_ITEM}data-card-01.png`,      desc: 'Dados da Jornada',        color: 'bg-cyan-50 border-cyan-200 text-cyan-700' },
     { id: 'regions',  name: 'Progresso Regional', icon: `${POKEAPI_ITEM}town-map.png`,      desc: 'Dex, rotas, insignias e liga', color: 'bg-emerald-50 border-emerald-200 text-emerald-700' },
     { id: 'settings', name: 'Configuracoes',  icon: `${POKEAPI_ITEM}vs-seeker.png`,         desc: 'Ajustes do sistema',      color: 'bg-indigo-50 border-indigo-200 text-indigo-600' },
+    { id: 'bug_report', name: 'Reportar Bug', icon: '🐛',                                   desc: 'Reportar erro ou problema', color: 'bg-red-50 border-red-200 text-red-700' },
     { id: 'save',     name: 'Salvar Jogo',    icon: '💾',                                   desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
     { id: 'exit',     name: 'Sair do Jogo',   icon: `${POKEAPI_ITEM}escape-rope.png`,       desc: 'Voltar ao inicio',        color: 'bg-slate-50 border-slate-200 text-slate-600' },
   ];
@@ -386,6 +387,9 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
                   onConfirm: closeConfirm
                 });
               }
+            }
+            else if (item.id === 'bug_report') {
+              if (onReportBug) onReportBug();
             }
             else if (item.id === 'pokedex') setCurrentView('pokedex');
             else if (item.id === 'settings') setSubView('settings');

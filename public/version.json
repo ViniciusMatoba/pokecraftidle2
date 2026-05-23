@@ -1,5 +1,5 @@
 {
-  "version": "2.10.1",
-  "date": "22/05/2026 17:30",
-  "notes": "Fix crítico: PC Storage não abria mais (react-window ausente nos node_modules após pull do v2.10.0)."
+  "version": "2.11.0",
+  "date": "23/05/2026 14:04",
+  "notes": "Segurança, Sincronização Otimizada, CI/CD e Beta Testing"
 }

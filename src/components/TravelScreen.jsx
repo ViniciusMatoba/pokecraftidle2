@@ -395,17 +395,41 @@ const TravelScreen = ({
     } else if (req === 'has_starter') {
       setCurrentView('city');
       setSelectedRoute(null);
-    } else if (req.includes('_cleared')) {
-      const routeMap = {
-        'viridian_forest_cleared': 'viridian_forest',
-        'mt_moon_cleared': 'mt_moon',
-        'rock_tunnel_cleared': 'rock_tunnel',
-        'mansion_cleared': 'pokemon_mansion'
-      };
-      const targetId = routeMap[req];
-      if (targetId && ROUTES[targetId]) {
-        if (checkRouteUnlocked(ROUTES[targetId], gameState)) {
-          setSelectedRoute({ id: targetId, ...ROUTES[targetId] });
+    } else if (req.includes('_stamp')) {
+      // Suporte para Stamps (Badges) das regiões futuras no MODO VS (ex: ulaula_stamp, akala_stamp)
+      if (setVsInitialTab) setVsInitialTab('gyms');
+      const region = req.split('_')[0];
+      if (['melemele', 'akala', 'ulaula', 'poni', 'ultra', 'alola'].includes(region)) {
+        if (setVsInitialCategory) setVsInitialCategory('alola');
+        if (setVsInitialRegion) setVsInitialRegion('alola');
+      } else if (['fieldlands', 'mirelands', 'coastlands', 'highlands', 'icelands', 'volo', 'hisui'].includes(region)) {
+        if (setVsInitialCategory) setVsInitialCategory('hisui');
+        if (setVsInitialRegion) setVsInitialRegion('hisui');
+      }
+      setCurrentView('vs');
+      setSelectedRoute(null);
+    } else if (req.includes('_cleared') || req.includes('_defeated')) {
+      // Suporte para Clears (Vilões/Rivais/Eventos) das regiões no MODO VS (ex: alola_villain_4_cleared)
+      const regionPrefix = req.split('_')[0];
+      if (['unova', 'kalos', 'alola', 'galar', 'paldea', 'hisui'].includes(regionPrefix)) {
+        if (setVsInitialTab) setVsInitialTab('challenges');
+        if (setVsInitialCategory) setVsInitialCategory(req.includes('rival') ? 'rival' : 'rocket');
+        if (setVsInitialRegion) setVsInitialRegion(regionPrefix);
+        setCurrentView('vs');
+        setSelectedRoute(null);
+      } else {
+        // Fallback Kanto (Rotas de farm físicas)
+        const routeMap = {
+          'viridian_forest_cleared': 'viridian_forest',
+          'mt_moon_cleared': 'mt_moon',
+          'rock_tunnel_cleared': 'rock_tunnel',
+          'mansion_cleared': 'pokemon_mansion'
+        };
+        const targetId = routeMap[req];
+        if (targetId && ROUTES[targetId]) {
+          if (checkRouteUnlocked(ROUTES[targetId], gameState)) {
+            setSelectedRoute({ id: targetId, ...ROUTES[targetId] });
+          }
         }
       }
     }

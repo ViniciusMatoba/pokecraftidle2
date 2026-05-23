@@ -2,7 +2,7 @@ import { POKEDEX } from '../data/pokedex';
 import { getCaptureRate, getPokemonRarity } from './pokemonDifficulty';
 
 const TICK_MS = 2500;
-const MAX_OFFLINE_MS = 8 * 60 * 60 * 1000; // cap 8h
+const MAX_OFFLINE_MS = 12 * 60 * 60 * 1000; // cap 12h
 const MIN_OFFLINE_MS = 60 * 1000; // mínimo 1 minuto para mostrar o modal
 const BATTLES_PER_MS = 1 / TICK_MS;
 

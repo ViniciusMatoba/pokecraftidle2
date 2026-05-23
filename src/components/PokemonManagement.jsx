@@ -271,7 +271,7 @@ const PokemonManagement = ({
         } else {
           matchesRegion = getDexRegion(p.id) === pcRegion;
         }
-        return matchesRegion && (p.name.toLowerCase().includes(term) || String(p.id).includes(term));
+        return matchesRegion && ((p.name || '').toLowerCase().includes(term) || String(p.id).includes(term));
       })
       .sort((a, b) => {
         if (pcSort === 'status-sum') {
@@ -279,7 +279,7 @@ const PokemonManagement = ({
           const sumB = (b.maxHp||0) + (b.attack||0) + (b.defense||0) + (b.spAtk||0) + (b.spDef||0) + (b.speed||0);
           if (sumB !== sumA) return sumB - sumA;
         }
-        if (pcSort === 'alpha') return a.name.localeCompare(b.name);
+        if (pcSort === 'alpha') return (a.name || '').localeCompare(b.name || '');
         if (pcSort === 'level') return b.level - a.level;
         if (pcSort === 'type') return (a.type || 'Normal').localeCompare(b.type || 'Normal');
         if (pcSort === 'number-desc') return b.id - a.id;
@@ -762,7 +762,7 @@ const PokemonManagement = ({
     });
   };
 
-  const masteryCount = activePokemonDetails ? (gameState.speciesMastery[activePokemonDetails.pokemon.id] || 0) : 0;
+  const masteryCount = activePokemonDetails ? ((gameState.speciesMastery || {})[activePokemonDetails.pokemon.id] || 0) : 0;
   const path = activePokemonDetails ? getMasteryPath(activePokemonDetails.pokemon.id) : null;
   const typeColorMap = {
     Normal: '#9ea0aa', Fire: '#ff9741', Water: '#3391d4', Grass: '#38bf4f',
@@ -943,8 +943,7 @@ const PokemonManagement = ({
                 const rowCount = Math.ceil(filtered.length / 2);
                 const worldFlags = gameState.worldFlags || [];
 
-                const PcRow = ({ index, style, data }) => {
-                  const { filtered, worldFlags, activeRegion, validateTeamAccess } = data;
+                const PcRow = ({ index, style, filtered, worldFlags, activeRegion, validateTeamAccess }) => {
                   const p1 = filtered[index * 2];
                   const p2 = filtered[index * 2 + 1];
 
@@ -1026,14 +1025,13 @@ const PokemonManagement = ({
 
                 return (
                   <List
-                    height={600}
-                    itemCount={rowCount}
-                    itemSize={130}
-                    width="100%"
-                    itemData={{ filtered, worldFlags, activeRegion, validateTeamAccess }}
-                  >
-                    {PcRow}
-                  </List>
+                    defaultHeight={600}
+                    rowCount={rowCount}
+                    rowHeight={130}
+                    rowComponent={PcRow}
+                    rowProps={{ filtered, worldFlags, activeRegion, validateTeamAccess }}
+                    style={{ height: '600px' }}
+                  />
                 );
               })()}
             </div>
