@@ -809,7 +809,7 @@ export default function App() {
       const parsed = readLocalSaveEnvelope();
       if (parsed?.gameState) {
         const merged = migrateGameState(parsed.gameState, { version: APP_VERSION });
-        if (!merged.migrationAudit?.ok) {
+        if (!merged.migrationAudit?.ok && import.meta.env.DEV) {
           console.info('Local save migration audit:', merged.migrationAudit);
         }
         return merged;
@@ -2132,7 +2132,7 @@ export default function App() {
 
     // Nunca salvar se o load ainda não completou — evita sobrescrever save real com estado vazio
     if (!isFullyLoadedRef.current) {
-      console.warn('[Save] Bloqueado: load ainda não completou.');
+      if (import.meta.env.DEV) console.warn('[Save] Bloqueado: load ainda não completou.');
       return;
     }
 
@@ -2143,14 +2143,14 @@ export default function App() {
       (dataToSave.badges?.length > 0) ||
       (dataToSave.worldFlags?.length > 0);
     if (!_hasProgress && !dataToSave._allowEmptySave) {
-      console.warn('[Save] Bloqueado: estado sem progresso detectado, save ignorado.');
+      if (import.meta.env.DEV) console.warn('[Save] Bloqueado: estado sem progresso detectado, save ignorado.');
       return;
     }
 
     // Dirty flag: não escreve no Firestore se o estado não mudou desde o último save
     const currentHash = computeStateHash(dataToSave);
     if (!isRetry && currentHash && currentHash === gameStateHashRef.current) {
-      console.log('[Save] Sem mudanças detectadas — save ignorado (dirty flag).');
+      if (import.meta.env.DEV) console.log('[Save] Sem mudanças detectadas — save ignorado (dirty flag).');
       return;
     }
 
@@ -2234,9 +2234,9 @@ export default function App() {
             ...prev,
             playerStats: { ...prev.playerStats, lastSnapshotDate: today }
           }));
-          console.log(`[Save] Snapshot diário criado: ${today}`);
+          if (import.meta.env.DEV) console.log(`[Save] Snapshot diário criado: ${today}`);
         } catch (snapErr) {
-          console.warn('[Save] Snapshot diário falhou (não crítico):', snapErr);
+          if (import.meta.env.DEV) console.warn('[Save] Snapshot diário falhou (não crítico):', snapErr);
         }
       }
 
@@ -2386,7 +2386,7 @@ export default function App() {
       if (!isFullyLoadedRef.current) return;
       const currentHash = computeStateHash(data);
       if (currentHash && currentHash === gameStateHashRef.current) {
-        console.log('[Debounced Save] Sem alterações — save na nuvem ignorado.');
+        if (import.meta.env.DEV) console.log('[Debounced Save] Sem alterações — save na nuvem ignorado.');
         return;
       }
       saveToCloud(data).catch(e => console.error("Auto save fail:", e));
@@ -2417,7 +2417,7 @@ export default function App() {
         const timeSinceLastSync = Date.now() - lastSyncRef.current;
         
         if (isDirty && timeSinceLastSync > 10_000) {
-          console.log('[Visibilitychange] Estado sujo detectado. Sincronizando com nuvem...');
+          if (import.meta.env.DEV) console.log('[Visibilitychange] Estado sujo detectado. Sincronizando com nuvem...');
           const stateWithTimestamp = {
             ...gameStateRef.current,
             playerStats: { ...gameStateRef.current.playerStats, lastSeenAt: Date.now() }
@@ -2446,7 +2446,7 @@ export default function App() {
       const isDirty = currentHash && currentHash !== gameStateHashRef.current;
       
       if (isDirty) {
-        console.log('[Autosave Nuvem] Estado sujo detectado. Sincronizando com Firestore...');
+        if (import.meta.env.DEV) console.log('[Autosave Nuvem] Estado sujo detectado. Sincronizando com Firestore...');
         saveToCloud(gameStateRef.current).catch(e => console.error('[Autosave Nuvem] Erro:', e));
       }
     }, 60_000); // 1 minuto (60.000 ms)

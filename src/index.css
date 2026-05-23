@@ -122,6 +122,22 @@ body {
   touch-action: manipulation;
 }
 
+/* Feedback visual claro para botões desabilitados */
+.app-shell button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: auto; /* mantém cursor-not-allowed visível */
+}
+
+/* Suporte a prefers-reduced-motion — respeita acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 .modal-panel-mobile {
   width: min(calc(100vw - 24px), 420px);
   max-width: 400px;

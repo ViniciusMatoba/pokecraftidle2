@@ -1,7 +1,20 @@
-export const APP_VERSION = '2.11.0';
-export const VERSION = '2.11.0';
-export const APP_VERSION_DATE = '23/05/2026 14:04';
+export const APP_VERSION = '2.11.1';
+export const VERSION = '2.11.1';
+export const APP_VERSION_DATE = '23/05/2026 15:00';
 export const CHANGELOG = [
+  '## [V2.11.1] - 23/05/2026 15:00',
+  '### Correções de Bugs, Segurança e Performance — Sprint Auditoria',
+  '- **Bug corrigido (BUG-01)**: `regional_pc` e `lastFarmingRoute` adicionados ao estado inicial — novos jogadores não travam mais ao acessar o PC regional ou o progresso offline.',
+  '- **Bug corrigido (BUG-03)**: Moeda nunca fica negativa — `Math.max(0)` aplicado em todas as 7 operações de débito (forja, casa, sementes, aliado, mina, expansão, poké mart).',
+  '- **Bug corrigido (BUG-04)**: Modo `shiny_only` do Auto-Capture offline agora captura Pokémon não-obtidos em vez de ignorar todas as capturas (shinies não spawnam offline).',
+  '- **Bug corrigido (BUG-05)**: Cálculo de acurácia protegido contra divisor inválido na borda do estágio −6.',
+  '- **PC Storage**: `react-window` v2 API corrigida — `rowComponent`/`rowProps` em vez de `itemData`/children; null-guards adicionados em todos os acessos de dados de Pokémon.',
+  '- **Segurança (SEC-03)**: Credenciais Firebase removidas do código-fonte — exclusivamente via variáveis de ambiente `.env`.',
+  '- **Performance (PERF-02)**: `structuredClone()` substitui `JSON.parse(JSON.stringify())` na clonagem das ROUTES (3–5× mais rápido).',
+  '- **Performance (PERF-03)**: 9 `console.log/warn` de debug silenciados em produção com guarda `import.meta.env.DEV`.',
+  '- **UX (UX-03)**: Media query `prefers-reduced-motion` adicionada — respeita a configuração de acessibilidade do sistema operacional.',
+  '- **UX (UX-06)**: Botões desabilitados agora exibem `opacity: 0.45` e `cursor: not-allowed` globalmente no `.app-shell`.',
+  '',
   '## [V2.11.0] - 23/05/2026 14:04',
   '### Segurança, Sincronização Otimizada, CI/CD e Beta Testing',
   '- **Novo (Segurança)**: Ofuscação de Saves (Cifra XOR Dinâmica) e Assinatura Anti-Cheat (HMAC-SHA256) em LocalStorage para blindar rankings públicos.',

@@ -269,6 +269,12 @@ export const DEFAULT_GAME_STATE = {
   },
 
   // Raid
+  // Rota de farm mais recente (para cálculo de progresso offline)
+  lastFarmingRoute: null,
+
+  // PC por região (complementar ao regional_teams)
+  regional_pc: {},
+
   activeRaid: null,
   raidStats: {
     total: 0,      // raids completadas

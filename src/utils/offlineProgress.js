@@ -57,7 +57,8 @@ function simulateCaptures(gameState, route, battles) {
 
     // Filtra por modo de captura
     const alreadyCaught = !!caughtData[String(enemy.id)];
-    if (mode === 'shiny_only') continue; // shinies não aparecem no farm offline
+    // shinies não spawnam offline — trata shiny_only como not_caught para não perder capturas
+    if (mode === 'shiny_only' && alreadyCaught) continue;
     if (mode === 'not_caught' && alreadyCaught) continue;
     if (mode === 'specific' && !cfg.targetIds?.includes(Number(enemy.id))) continue;
 
