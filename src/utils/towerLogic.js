@@ -1,14 +1,16 @@
 import { POKEDEX } from '../data/pokedex';
 
 // Helper: Pega Pokémon base (estágio inicial)
+// BUG-FIX: stats são planos no POKEDEX (p.hp, p.attack…), NÃO aninhados em p.baseStats.
+// Moves ficam em p.learnset (array {level, move}), NÃO em p.moves.levelUp.
 export const getTowerStarters = () => {
   const basics = Object.values(POKEDEX).filter(p =>
-    !p.evolutionOf && !p.isLegendary && !p.isMythical && !p.form && p.baseStats
+    !p.evolutionOf && !p.isLegendary && !p.isMythical && !p.form && p.hp
   );
   const shuffled = basics.sort(() => 0.5 - Math.random());
   return shuffled.slice(0, 3).map(p => {
-    const maxHp = Math.max(1, (p.baseStats?.hp || 45) * 2);
-    const moves = (p.moves?.levelUp || [])
+    const maxHp = Math.max(1, Math.floor(2 * (p.hp || 45) * 5 / 100) + 5 + 10);
+    const moves = (p.learnset || [])
       .filter(m => m.level <= 5)
       .map(m => m.move)
       .filter(Boolean);
@@ -44,12 +46,12 @@ export const generateFloorShop = (floor) => {
   if (Math.random() < 0.3) { // 30% chance de recrutamento
     const recruitLevel = 5 + Math.floor(floor * 2);
     const basics = Object.values(POKEDEX).filter(p =>
-      !p.evolutionOf && !p.isLegendary && !p.isMythical && !p.form && p.baseStats
+      !p.evolutionOf && !p.isLegendary && !p.isMythical && !p.form && p.hp
     );
     const p = basics[Math.floor(Math.random() * basics.length)];
     if (p) {
-      const maxHp = Math.max(1, (p.baseStats?.hp || 45) * 2);
-      const moves = (p.moves?.levelUp || [])
+      const maxHp = Math.max(1, Math.floor(2 * (p.hp || 45) * recruitLevel / 100) + recruitLevel + 10);
+      const moves = (p.learnset || [])
         .filter(m => m.level <= recruitLevel)
         .map(m => m.move)
         .filter(Boolean)

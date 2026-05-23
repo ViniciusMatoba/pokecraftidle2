@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { getTowerStarters, startTowerRun, generateTowerEncounter, generateFloorShop, getRandomBoons, resumeTowerRun } from '../utils/towerLogic';
+import { getTowerStarters, startTowerRun, generateTowerEncounter, generateFloorShop, resumeTowerRun } from '../utils/towerLogic';
 import { TYPE_COLOR_HEX } from '../data/gyms';
 import { POKEDEX } from '../data/pokedex';
 
-const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, setCurrentEnemy, onOpenTowerCombat }) => {
+const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowerCombat }) => {
   const tower = gameState.tower || { activeRun: null, highestFloor: 0, bp: 0, upgrades: {} };
 
   const [phase, setPhase] = useState(tower.activeRun ? 'run' : 'lobby');
@@ -69,7 +69,6 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, setCurrent
 
   const handleBattle = () => {
     const encounter = generateTowerEncounter(tower.activeRun.floor);
-    setCurrentEnemy(encounter);
     onOpenTowerCombat(encounter);
   };
 

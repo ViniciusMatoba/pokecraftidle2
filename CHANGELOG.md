@@ -1,3 +1,10 @@
+## [v2.11.6] - 23/05/2026 16:12
+### Battle Tower - Combate Manual por Turno
+- **Novo fluxo de batalha**: criada a tela `TowerBattleScreen` para resolver combates da Battle Tower manualmente por turno, separada do loop idle/automatico das rotas.
+- **Integracao de rota**: `AppRoot` agora abre a view `tower_battle`, guarda o encontro em `gameState.tower.battleEncounter` e impede que o encontro da torre seja tratado como `currentEnemy` do sistema antigo.
+- **Batalha estilo oficial/Showdown**: turnos consideram prioridade, velocidade, STAB, efetividade de tipo, accuracy, roll de dano, status principais, troca forcada e troca voluntaria.
+- **Persistencia da run**: vitorias sincronizam HP, moedas da torre, progresso de andar, checkpoints e bonus como Vampirismo; derrotas encerram a run e restauram time/inventario real.
+
 ## [v2.10.0] - 22/05/2026 12:56
 ### Adicionado / Melhorado
 - **Sistema 'Click-to-Go' Expandido**:

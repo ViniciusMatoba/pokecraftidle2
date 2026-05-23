@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.11.5';
-export const VERSION = '2.11.5';
-export const APP_VERSION_DATE = '23/05/2026 15:39';
+export const APP_VERSION = '2.11.6';
+export const VERSION = '2.11.6';
+export const APP_VERSION_DATE = '23/05/2026 16:12';
 export const CHANGELOG = [
+  '## [V2.11.6] - 23/05/2026 16:12',
+  '### Battle Tower - Combate Manual por Turno',
+  '- **Novo fluxo de batalha**: criada a tela `TowerBattleScreen` para resolver combates da Battle Tower manualmente por turno, separada do loop idle/automatico das rotas.',
+  '- **Integracao de rota**: `AppRoot` agora abre a view `tower_battle`, guarda o encontro em `gameState.tower.battleEncounter` e impede que o encontro da torre seja tratado como `currentEnemy` do sistema antigo.',
+  '- **Batalha estilo oficial/Showdown**: turnos consideram prioridade, velocidade, STAB, efetividade de tipo, accuracy, roll de dano, status principais, troca forcada e troca voluntaria.',
+  '- **Persistencia da run**: vitorias sincronizam HP, moedas da torre, progresso de andar, checkpoints e bonus como Vampirismo; derrotas encerram a run e restauram time/inventario real.',
+  '',
   '## [V2.11.5] - 23/05/2026 15:39',
   '### Correção — Battle Tower não iniciava',
   '- **Bug crítico (BattleTowerScreen)**: `useEffect` estava declarado após `return` condicionais (`phase === lobby/draft`), violando as Rules of Hooks do React — o hook nunca era chamado nos dois primeiros estados, e ao mudar para `run` o React detectava hooks extras e crashava a tela.',

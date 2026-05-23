@@ -41,6 +41,7 @@ const ChallengesScreen = lazy(() => import('./components/ChallengesScreen'));
 const HouseScreen = lazy(() => import('./components/HouseScreen'));
 const ExpeditionsScreen = lazy(() => import('./components/ExpeditionsScreen'));
 const BattleTowerScreen = lazy(() => import('./components/BattleTowerScreen'));
+const TowerBattleScreen = lazy(() => import('./components/TowerBattleScreen'));
 import { MoveCategoryIcon, StatusBadges, QuickInventory, TrainerCard, BadgeSVG } from './components/CommonUI';
 import OfflineProgressModal from './components/OfflineProgressModal';
 import { calculateOfflineProgress, applyOfflineProgress } from './utils/offlineProgress';
@@ -8783,8 +8784,25 @@ export default function App() {
             setCurrentView={setCurrentView}
             setCurrentEnemy={setCurrentEnemy}
             onOpenTowerCombat={(encounter) => {
-              setCurrentView('battles'); // ou podemos fazer uma view específica tower_battles
+              setCurrentEnemy(null);
+              setGameState(prev => ({
+                ...prev,
+                tower: {
+                  ...prev.tower,
+                  battleEncounter: encounter,
+                },
+              }));
+              setCurrentView('tower_battle');
             }}
+          />
+        </Suspense>
+      );
+      case 'tower_battle': return (
+        <Suspense fallback={<div className="h-full flex items-center justify-center text-white">Carregando batalha...</div>}>
+          <TowerBattleScreen
+            gameState={gameState}
+            setGameState={setGameState}
+            setCurrentView={setCurrentView}
           />
         </Suspense>
       );
