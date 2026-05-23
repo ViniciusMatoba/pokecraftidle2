@@ -1,0 +1,76 @@
+{
+  "hosting": {
+    "public": "dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "headers": [
+      {
+        "source": "sw.js",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+          { "key": "Pragma",        "value": "no-cache" },
+          { "key": "Expires",       "value": "0" },
+          { "key": "Content-Type",  "value": "application/javascript" }
+        ]
+      },
+      {
+        "source": "version.json",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+          { "key": "Pragma",        "value": "no-cache" },
+          { "key": "Expires",       "value": "0" }
+        ]
+      },
+      {
+        "source": "index.html",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+          { "key": "Pragma",        "value": "no-cache" },
+          { "key": "Expires",       "value": "0" }
+        ]
+      },
+      {
+        "source": "**/*.js",
+        "headers": [{ "key": "Content-Type", "value": "application/javascript" }]
+      },
+      {
+        "source": "**/*.css",
+        "headers": [{ "key": "Content-Type", "value": "text/css" }]
+      },
+      {
+        "source": "**/*.mjs",
+        "headers": [{ "key": "Content-Type", "value": "application/javascript" }]
+      },
+      {
+        "source": "assets/**",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        ]
+      },
+      {
+        "source": "**/*.@(png|jpg|jpeg|gif|webp|svg|ico)",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=31536000" }
+        ]
+      },
+      {
+        "source": "**/*.@(mp3|ogg|wav)",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=31536000" }
+        ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

@@ -1,0 +1,60 @@
+      {(!loading && user && gameState.worldFlags?.includes('has_starter')) && (
+        <nav className="bg-white border-t-4 border-slate-200 grid grid-cols-5 z-50 shadow-lg relative"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', minHeight: '4.5rem', flexShrink: 0 }}
+        >
+          <button onClick={() => {
+            const currentR = processedRoutes[gameState.currentRoute];
+            const isFarming = currentR && currentR.type === 'farm';
+            
+             if (currentView === 'battles') {
+              // Se já está na batalha, abrir o mapa requer confirmação
+              showConfirm({
+                title: 'Interromper Treino?',
+                message: 'Deseja abrir o mapa das Rotas? Isso interromperá seu treino atual.',
+                onConfirm: () => {
+                  setCurrentView('routes');
+                  closeConfirm();
+                }
+              });
+            } else if (isFarming) {
+              // Se está em qualquer outra tela (Menu, Pokemon, etc) e estava treinando, volta para a batalha
+              setCurrentView('battles');
+            } else {
+              // Comportamento padrão (ir para o mapa)
+              setCurrentView('routes');
+            }
+          }} className={`flex flex-col items-center justify-center py-2 transition-all ${['routes', 'battles'].includes(currentView) ? 'text-pokeBlue scale-110' : 'text-slate-400 opacity-60'}`}>
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png" className="w-7 h-7 object-contain" alt="Routes" />
+            <span className="text-[9px] font-black uppercase mt-0.5">Rotas</span>
+          </button>
+          <button onClick={() => setCurrentView('pokemon_management')} className={`flex flex-col items-center justify-center py-2 transition-all ${currentView === 'pokemon_management' ? 'text-pokeRed scale-110' : 'text-slate-400 opacity-60'}`}>
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-7 h-7 object-contain" alt="Pokemons" />
+            <span className="text-[9px] font-black uppercase mt-0.5">Pokémons</span>
+          </button>
+          <button onClick={() => setCurrentView('vs')} className={`flex flex-col items-center justify-center py-2 transition-all ${['vs', 'gyms', 'challenges'].includes(currentView) ? 'text-pokeGold scale-110' : 'text-slate-400 opacity-60'}`}>
+            <span className="text-2xl h-7 flex items-center">âš”ï¸ </span>
+            <span className="text-[9px] font-black uppercase mt-0.5">Modo VS</span>
+          </button>
+          <button onClick={() => {
+            if (currentView === 'battles') {
+              showConfirm({
+                title: 'Voltar para a Cidade?',
+                message: 'Deseja interromper o treino e ir para a cidade?',
+                onConfirm: () => {
+                  handleGoToCity();
+                  closeConfirm();
+                }
+              });
+              return;
+            }
+            handleGoToCity();
+          }} className={`flex flex-col items-center justify-center py-2 transition-all ${currentView === 'city' ? 'text-indigo-500 scale-110' : 'text-slate-400 opacity-60'}`}>
+            <span className="text-2xl h-7 flex items-center">🚀 ¢</span>
+            <span className="text-[9px] font-black uppercase mt-0.5">Cidade</span>
+          </button>
+          <button onClick={() => setCurrentView('menu')} className={`flex flex-col items-center justify-center py-2 transition-all ${currentView === 'menu' ? 'text-slate-800 scale-110' : 'text-slate-400 opacity-60'}`}>
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png" className="w-7 h-7 object-contain" alt="Menu" />
+            <span className="text-[9px] font-black uppercase mt-0.5">Menu</span>
+          </button>
+        </nav>
+      )}

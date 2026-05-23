@@ -1,0 +1,56 @@
+# Variáveis de ambiente (NUNCA commitar)
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Arquivos de debug e temporários
+build_error.txt
+build_error_2.txt
+build_output.txt
+lint_current.txt
+audit_results.txt
+temp_spawn.txt
+footer_debug.txt
+debug-map.mjs
+debug-tdz.mjs
+debug_approot.cjs
+debug_bundle.py
+debug_chars.cjs
+fix.cjs
+
+# Scripts de desenvolvimento interno (manter no repo se úteis, ou mover para /scripts)
+# compact_moves.py
+# compress_pokedex.py
+# fetch_*.cjs
+# fix_challenges.py
+# replace*.cjs
+# audit_megas.ps1
+
+# Firebase
+.firebase/

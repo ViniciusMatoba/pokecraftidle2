@@ -1,0 +1,65 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuth() && request.auth.uid == uid;
+    }
+
+    // Config do app: leitura publica para checagem de versao na tela de login.
+    match /config/{document} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Saves: apenas o proprio jogador le e escreve.
+    match /saves/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Snapshots diarios de backup: apenas o proprio jogador acessa.
+    match /saves/{uid}/snapshots/{day} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Perfis publicos: qualquer autenticado le, so o dono escreve.
+    match /users/{uid} {
+      allow read: if isAuth();
+      allow write: if isOwner(uid);
+    }
+
+    // Regioes publicadas: qualquer autenticado le, so o dono escreve.
+    match /userRegions/{uid} {
+      allow read: if isAuth();
+      allow write: if isOwner(uid);
+    }
+
+    // Rankings do Boss: qualquer autenticado le, so o dono escreve.
+    match /bossRankings/{uid} {
+      allow read: if isAuth();
+      allow write: if isOwner(uid);
+    }
+
+    // Solicitacoes: destinatario le/deleta; remetente cria apenas por si.
+    match /friends/{uid}/requests/{fromUid} {
+      allow read, delete: if isOwner(uid);
+      allow create: if isAuth() && request.auth.uid == fromUid;
+      allow update: if false;
+    }
+
+    // Lista de amigos: so o dono le e escreve.
+    match /friends/{uid}/list/{friendUid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Tudo mais bloqueado por padrao.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
