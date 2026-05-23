@@ -128,10 +128,17 @@ O jogador pode criar sua própria liga com até 8 ginásios + Elite Four + Campe
 
 ## Versionamento
 
-Versão em 3 lugares — manter sincronizados ao bump:
-1. `src/constants/version.js` — `APP_VERSION`, `APP_VERSION_DATE`, `CHANGELOG[]`
+Versão em 5 lugares — manter todos sincronizados ao bump:
+1. `src/constants/version.js` — `APP_VERSION`, `VERSION`, `APP_VERSION_DATE`, `CHANGELOG[]`
 2. `package.json` — campo `version`
 3. `public/version.json` — `version`, `date`, `notes`
+4. `public/sw.js` — `let CACHE_NAME = 'pokecraft-cache-vX.Y.Z'` (também atualizado automaticamente pelo script `scripts/update-sw-version.cjs` no `prebuild`)
+5. `package-lock.json` — campos `"version"` nas linhas 3 e 9 (raiz e entrada `""` dos packages)
+
+**Data/hora**: sempre usar horário de Brasília (UTC-3). Verificar com PowerShell:
+```powershell
+[System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, 'E. South America Standard Time').ToString('dd/MM/yyyy HH:mm')
+```
 
 ## LGPD
 
