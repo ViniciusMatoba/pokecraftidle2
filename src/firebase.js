@@ -17,13 +17,13 @@ const getFallback = (val, fallback) => {
 };
 
 const firebaseConfig = {
-  apiKey:            getFallback(import.meta.env.VITE_FIREBASE_API_KEY, "AIzaSyC5hxL1_5ZrbQI3VWBfFsBY3DaOD3gt0oA"),
-  authDomain:        getFallback(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN, "pokecraftidle.firebaseapp.com"),
-  projectId:         getFallback(import.meta.env.VITE_FIREBASE_PROJECT_ID, "pokecraftidle"),
-  storageBucket:     getFallback(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET, "pokecraftidle.firebasestorage.app"),
-  messagingSenderId: getFallback(import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID, "136347940441"),
-  appId:             getFallback(import.meta.env.VITE_FIREBASE_APP_ID, "1:136347940441:web:ac16d3aff155352287e348"),
-  measurementId:     getFallback(import.meta.env.VITE_FIREBASE_MEASUREMENT_ID, "G-0CG76TEDB2"),
+  apiKey: "AIzaSyC5hxL1_5ZrbQI3VWBfFsBY3DaOD3gt0oA",
+  authDomain: "pokecraftidle.firebaseapp.com",
+  projectId: "pokecraftidle",
+  storageBucket: "pokecraftidle.firebasestorage.app",
+  messagingSenderId: "136347940441",
+  appId: "1:136347940441:web:ac16d3aff155352287e348",
+  measurementId: "G-0CG76TEDB2",
 };
 
 const app       = initializeApp(firebaseConfig);
