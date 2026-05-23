@@ -1,15 +1,15 @@
 export const APP_VERSION = '2.11.3';
 export const VERSION = '2.11.3';
-export const APP_VERSION_DATE = '23/05/2026 17:30';
+export const APP_VERSION_DATE = '23/05/2026 15:13';
 export const CHANGELOG = [
-  '## [V2.11.3] - 23/05/2026 17:30',
+  '## [V2.11.3] - 23/05/2026 15:13',
   '### Sprint 3 — Firestore, Performance, Textos WCAG e Modais Acessíveis',
   '- **Segurança (SEC-06)**: Regras do Firestore reforçadas — validação de campos obrigatórios (`compressedState`, `updatedAt`), limite de 950 KB por documento de save, uid do documento deve bater com o auth; ranking do Boss validado com teto de dano de 99.999.999 para bloquear valores impossíveis.',
   '- **Performance (PERF-01)**: `calculateOfflineProgress` agora roda via `requestIdleCallback` (com fallback `setTimeout` para Safari < 16.4) — o jogo carrega imediatamente sem freeze de até ~300ms na thread principal durante o login.',
   '- **UX (UX-01)**: Mínimo de font-size global de 11px aplicado via CSS custom properties em botões, labels, pills de status e textos dentro de modais — reduz drasticamente as 467 violações WCAG AA sem quebrar o layout de badges compactos (classe `.text-badge` para exceções explícitas).',
   '- **UX (UX-02)**: Criado componente `ModalOverlay` — wrapper reutilizável com `role="dialog"`, `aria-modal="true"`, focus trap Tab/Shift+Tab, Escape para fechar e foco automático no primeiro elemento. Migrados: `ChangelogModal`, `DecisionModal` e `BugReportModal`.',
   '',
-  '## [V2.11.2] - 23/05/2026 16:30',
+  '## [V2.11.2] - 23/05/2026 14:45',
   '### Sprint 2 — Acessibilidade, Segurança de Save e Evolução',
   '- **Bug corrigido (BUG-06)**: Stale closure corrigido em `EvolutionScreen` — `evolutionPending` capturado no início do handler para evitar referência desatualizada dentro do state updater; side-effects (`addLog`) movidos para fora do `setGameState`.',
   '- **Bug corrigido (BUG-06+)**: Guards de null adicionados (`if (!pending || !evoData || !nextPoke) return`) — evita crash quando evolução é disparada com estado inválido.',
@@ -19,7 +19,7 @@ export const CHANGELOG = [
   '- **UX (UX-02)**: `ConfirmModal` agora tem `role="dialog"`, `aria-modal="true"` e `aria-labelledby` — compatível com leitores de tela; focus trap com Tab/Shift+Tab; fecha com Escape; foca automaticamente o botão primário ao abrir; clique no backdrop fecha o modal.',
   '- **UX (UX-04)**: Escala global de z-index definida como CSS custom properties (`--z-content`, `--z-strip`, `--z-header-nav`, `--z-overlay`, `--z-modal`, `--z-confirm`, `--z-toast`, `--z-topmost`) — todos os z-index do `index.css` agora usam as variáveis para consistência.',
   '',
-  '## [V2.11.1] - 23/05/2026 15:00',
+  '## [V2.11.1] - 23/05/2026 14:25',
   '### Correções de Bugs, Segurança e Performance — Sprint Auditoria',
   '- **Bug corrigido (BUG-01)**: `regional_pc` e `lastFarmingRoute` adicionados ao estado inicial — novos jogadores não travam mais ao acessar o PC regional ou o progresso offline.',
   '- **Bug corrigido (BUG-03)**: Moeda nunca fica negativa — `Math.max(0)` aplicado em todas as 7 operações de débito (forja, casa, sementes, aliado, mina, expansão, poké mart).',
