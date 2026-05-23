@@ -1,24 +1,26 @@
 import React from 'react';
 import { CHANGELOG, APP_VERSION, APP_VERSION_DATE } from '../constants/version';
+import ModalOverlay from './ModalOverlay';
 
 export default function ChangelogModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div 
-      className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn"
-      onClick={onClose}
+    <ModalOverlay
+      onClose={onClose}
+      labelId="changelog-modal-title"
+      backdropClass="bg-black/80 backdrop-blur-sm"
+      zIndex="100000"
     >
-      <div 
+      <div
         className="w-full max-w-lg rounded-[2.5rem] bg-[#0F2D3A] border-4 border-[#FFD700] shadow-2xl overflow-hidden animate-slideUp flex flex-col max-h-[85vh] text-left"
-        onClick={e => e.stopPropagation()}
         style={{ fontFamily: 'Outfit, sans-serif' }}
       >
         {/* Header */}
         <div className="px-6 py-5 border-b border-white/10 shrink-0 flex justify-between items-center bg-black/20">
           <div>
-            <p className="text-[9px] font-black text-[#FFD700] uppercase tracking-[0.25em] leading-none">POKÉCRAFT IDLE 2</p>
-            <h2 className="text-xl font-black text-white uppercase italic mt-1.5">📜 Histórico de Atualizações</h2>
+            <p className="text-badge font-black text-[#FFD700] uppercase tracking-[0.25em] leading-none" style={{fontSize:'9px'}}>POKÉCRAFT IDLE 2</p>
+            <h2 id="changelog-modal-title" className="text-xl font-black text-white uppercase italic mt-1.5">📜 Histórico de Atualizações</h2>
           </div>
           <button 
             onClick={onClose}
@@ -90,6 +92,6 @@ export default function ChangelogModal({ isOpen, onClose }) {
           </button>
         </div>
       </div>
-    </div>
+    </ModalOverlay>
   );
 }

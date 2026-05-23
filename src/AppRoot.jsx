@@ -914,28 +914,38 @@ export default function App() {
               }
             } catch { /* ignora erros de leitura local */ }
 
+            // PERF-01: exibe o jogo imediatamente com o save carregado e adia o cálculo
+            // de progresso offline para quando o browser estiver ocioso (requestIdleCallback).
+            // Isso elimina o freeze de UI de até ~300ms que o calculateOfflineProgress causava
+            // bloqueando a thread principal logo após o carregamento do Firebase.
+            setGameState(migratedData);
+            isFullyLoadedRef.current = true;
+
             let finalStateAfterLoad = migratedData;
             if (lastActiveAt) {
               const elapsedMs = Date.now() - lastActiveAt;
-              const progress = calculateOfflineProgress(migratedData, ROUTES, elapsedMs);
-              if (progress) {
-                finalStateAfterLoad = applyOfflineProgress(migratedData, progress);
-                setGameState(finalStateAfterLoad);
-                setOfflineProgress(progress);
-                trackEvent('offline_progress', {
-                  hours_offline: Math.round(progress.cappedMs / 3_600_000 * 10) / 10,
-                  xp_gained: progress.xp || 0,
-                  battles: progress.battles || 0,
-                  route_id: progress.routeId || 'unknown',
-                });
+              const runOfflineCalc = () => {
+                const progress = calculateOfflineProgress(migratedData, ROUTES, elapsedMs);
+                if (progress) {
+                  finalStateAfterLoad = applyOfflineProgress(migratedData, progress);
+                  setGameState(finalStateAfterLoad);
+                  setOfflineProgress(progress);
+                  trackEvent('offline_progress', {
+                    hours_offline: Math.round(progress.cappedMs / 3_600_000 * 10) / 10,
+                    xp_gained: progress.xp || 0,
+                    battles: progress.battles || 0,
+                    route_id: progress.routeId || 'unknown',
+                  });
+                  saveToCloud(finalStateAfterLoad).catch(() => {});
+                }
+              };
+              // requestIdleCallback com fallback para ambientes sem suporte (Safari < 16.4)
+              if (typeof requestIdleCallback === 'function') {
+                requestIdleCallback(runOfflineCalc, { timeout: 2000 });
               } else {
-                setGameState(migratedData);
+                setTimeout(runOfflineCalc, 100);
               }
-            } else {
-              setGameState(migratedData);
             }
-
-            isFullyLoadedRef.current = true;
 
             // Analytics: sessão iniciada
             trackEvent('session_start', {
@@ -944,9 +954,11 @@ export default function App() {
               region: migratedData.activeRegion || 'kanto',
             });
 
-            // Persiste o estado final (com progresso offline) na nuvem imediatamente
-            // para que outros dispositivos partam do ponto correto
-            saveToCloud(finalStateAfterLoad).catch(() => { /* silencia — retry automático */ });
+            // Sincronização imediata com a nuvem apenas se NÃO há progresso offline para calcular
+            // (quando há, o saveToCloud já é chamado dentro do runOfflineCalc acima)
+            if (!lastActiveAt) {
+              saveToCloud(migratedData).catch(() => { /* silencia — retry automático */ });
+            }
 
             const hasRealProgress = (migratedData.worldFlags || []).length > 0 || (migratedData.badges || []).length > 0;
             if (hasRealProgress) {

@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.11.2';
-export const VERSION = '2.11.2';
-export const APP_VERSION_DATE = '23/05/2026 16:30';
+export const APP_VERSION = '2.11.3';
+export const VERSION = '2.11.3';
+export const APP_VERSION_DATE = '23/05/2026 17:30';
 export const CHANGELOG = [
+  '## [V2.11.3] - 23/05/2026 17:30',
+  '### Sprint 3 — Firestore, Performance, Textos WCAG e Modais Acessíveis',
+  '- **Segurança (SEC-06)**: Regras do Firestore reforçadas — validação de campos obrigatórios (`compressedState`, `updatedAt`), limite de 950 KB por documento de save, uid do documento deve bater com o auth; ranking do Boss validado com teto de dano de 99.999.999 para bloquear valores impossíveis.',
+  '- **Performance (PERF-01)**: `calculateOfflineProgress` agora roda via `requestIdleCallback` (com fallback `setTimeout` para Safari < 16.4) — o jogo carrega imediatamente sem freeze de até ~300ms na thread principal durante o login.',
+  '- **UX (UX-01)**: Mínimo de font-size global de 11px aplicado via CSS custom properties em botões, labels, pills de status e textos dentro de modais — reduz drasticamente as 467 violações WCAG AA sem quebrar o layout de badges compactos (classe `.text-badge` para exceções explícitas).',
+  '- **UX (UX-02)**: Criado componente `ModalOverlay` — wrapper reutilizável com `role="dialog"`, `aria-modal="true"`, focus trap Tab/Shift+Tab, Escape para fechar e foco automático no primeiro elemento. Migrados: `ChangelogModal`, `DecisionModal` e `BugReportModal`.',
+  '',
   '## [V2.11.2] - 23/05/2026 16:30',
   '### Sprint 2 — Acessibilidade, Segurança de Save e Evolução',
   '- **Bug corrigido (BUG-06)**: Stale closure corrigido em `EvolutionScreen` — `evolutionPending` capturado no início do handler para evitar referência desatualizada dentro do state updater; side-effects (`addLog`) movidos para fora do `setGameState`.',

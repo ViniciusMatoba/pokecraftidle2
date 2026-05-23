@@ -1,8 +1,11 @@
 rules_version = '2';
 
+// PokéCraft Idle 2 — Regras de Segurança do Firestore
+// Atualizado em: v2.11.3 — validação de campos, tamanho e integridade
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ─── helpers ──────────────────────────────────────────────────
     function isAuth() {
       return request.auth != null;
     }
@@ -11,53 +14,95 @@ service cloud.firestore {
       return isAuth() && request.auth.uid == uid;
     }
 
-    // Config do app: leitura publica para checagem de versao na tela de login.
+    // Valida que o payload de save tem os campos mínimos esperados
+    // e que o uid do documento bate com o uid do autor.
+    function isValidSavePayload(uid) {
+      let data = request.resource.data;
+      return
+        // Campos obrigatórios presentes
+        data.keys().hasAll(['compressedState', 'updatedAt']) &&
+        // compressedState é string e não está vazio
+        data.compressedState is string &&
+        data.compressedState.size() > 0 &&
+        // Tamanho máximo do estado comprimido: ~950 KB
+        // (Firestore permite 1MB por documento; deixamos margem para metadados)
+        data.compressedState.size() <= 950000 &&
+        // uid salvo no documento deve bater com o auth
+        (
+          !data.keys().hasAny(['uid']) ||
+          data.uid == uid
+        );
+    }
+
+    // Valida payload de dano ao Boss para o ranking
+    function isValidBossDamage() {
+      let data = request.resource.data;
+      return
+        data.keys().hasAll(['damage', 'uid']) &&
+        data.damage is number &&
+        data.damage >= 0 &&
+        // Teto anti-cheat: dano impossível de atingir legitimamente em 60s
+        data.damage <= 99_999_999 &&
+        data.uid == request.auth.uid;
+    }
+
+    // ─── config do app ────────────────────────────────────────────
+    // Leitura pública (checagem de versão na tela de login).
+    // Escrita bloqueada para todos — só via Firebase Console / Admin SDK.
     match /config/{document} {
       allow read: if true;
       allow write: if false;
     }
 
-    // Saves: apenas o proprio jogador le e escreve.
+    // ─── saves do jogador ─────────────────────────────────────────
+    // Apenas o próprio jogador lê e escreve o seu save.
+    // Escrita validada: campos obrigatórios + tamanho + uid consistente.
     match /saves/{uid} {
-      allow read, write: if isOwner(uid);
+      allow read: if isOwner(uid);
+      allow write: if isOwner(uid) && isValidSavePayload(uid);
     }
 
-    // Snapshots diarios de backup: apenas o proprio jogador acessa.
+    // Snapshots diários: mesmo owner, tamanho máximo idêntico.
     match /saves/{uid}/snapshots/{day} {
-      allow read, write: if isOwner(uid);
+      allow read: if isOwner(uid);
+      allow write: if isOwner(uid) && isValidSavePayload(uid);
     }
 
-    // Perfis publicos: qualquer autenticado le, so o dono escreve.
+    // ─── perfis públicos ──────────────────────────────────────────
+    // Qualquer autenticado lê; apenas o dono escreve.
     match /users/{uid} {
       allow read: if isAuth();
       allow write: if isOwner(uid);
     }
 
-    // Regioes publicadas: qualquer autenticado le, so o dono escreve.
+    // ─── regiões publicadas ───────────────────────────────────────
     match /userRegions/{uid} {
       allow read: if isAuth();
       allow write: if isOwner(uid);
     }
 
-    // Rankings do Boss: qualquer autenticado le, so o dono escreve.
+    // ─── rankings do Boss ─────────────────────────────────────────
+    // Leitura pública para o ranking; escrita validada (anti-cheat de dano).
     match /bossRankings/{uid} {
       allow read: if isAuth();
-      allow write: if isOwner(uid);
+      allow write: if isOwner(uid) && isValidBossDamage();
     }
 
-    // Solicitacoes: destinatario le/deleta; remetente cria apenas por si.
+    // ─── sistema de amigos ────────────────────────────────────────
+    // Solicitações: destinatário lê/deleta; remetente cria (apenas por si mesmo).
     match /friends/{uid}/requests/{fromUid} {
       allow read, delete: if isOwner(uid);
       allow create: if isAuth() && request.auth.uid == fromUid;
       allow update: if false;
     }
 
-    // Lista de amigos: so o dono le e escreve.
+    // Lista de amigos: só o dono lê e escreve.
     match /friends/{uid}/list/{friendUid} {
       allow read, write: if isOwner(uid);
     }
 
-    // Tudo mais bloqueado por padrao.
+    // ─── fallback ─────────────────────────────────────────────────
+    // Tudo que não foi explicitamente liberado acima é bloqueado.
     match /{document=**} {
       allow read, write: if false;
     }

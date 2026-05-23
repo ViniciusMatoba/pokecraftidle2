@@ -1,12 +1,12 @@
 import React from 'react';
+import ModalOverlay from './ModalOverlay';
 
 /**
- * DecisionModal
- * 
- * Um modal premium para resoluçao de conflitos e decisoes pos-nocaute.
- * Design alinhado com o sistema de orquestraçao do AppRoot.
+ * DecisionModal — UX-02
+ * Modal premium para resolução de conflitos e decisões pós-nocaute.
+ * Agora com role="dialog", aria-modal, focus trap e Escape para fechar.
  */
-const DecisionModal = ({ 
+const DecisionModal = ({
   title = "Decisao Necessaria",
   subtitle = "Escolha sua açao",
   options = [], // { id, label, icon, color, onClick, desc }
@@ -14,22 +14,28 @@ const DecisionModal = ({
   showClose = false
 }) => {
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-fadeIn">
+    <ModalOverlay
+      onClose={showClose ? onClose : undefined}
+      labelId="decision-modal-title"
+      backdropClass="bg-slate-950/90 backdrop-blur-md"
+      zIndex="10000"
+      closeOnBackdrop={showClose}
+    >
       <div className="modal-panel-mobile bg-white overflow-hidden shadow-2xl animate-slideInUp flex flex-col border-b-[8px] border-slate-200">
-        
+
         {/* Header */}
         <div className="px-6 py-5 bg-slate-900 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-4 min-w-0 flex-1">
             <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0 border border-white/10">
-              <img 
-                src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png" 
-                className="w-8 h-8 object-contain" 
-                alt="Icon" 
+              <img
+                src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png"
+                className="w-8 h-8 object-contain"
+                alt=""
               />
             </div>
             <div className="min-w-0">
               <p className="text-pokeBlue text-[10px] font-black uppercase tracking-[0.2em] mb-1">{subtitle}</p>
-              <h3 className="text-white text-xl font-black uppercase italic leading-tight">
+              <h3 id="decision-modal-title" className="text-white text-xl font-black uppercase italic leading-tight">
                 {title}
               </h3>
             </div>
@@ -38,8 +44,9 @@ const DecisionModal = ({
             <button
               onClick={onClose}
               className="w-9 h-9 rounded-full bg-white/10 text-white font-black flex items-center justify-center hover:bg-white/20 transition-colors shrink-0"
+              aria-label="Fechar"
             >
-              x
+              ✕
             </button>
           )}
         </div>
@@ -53,7 +60,7 @@ const DecisionModal = ({
               className="group relative flex items-center gap-3 p-4 rounded-[1.5rem] bg-white border-2 border-slate-100 hover:border-pokeBlue hover:shadow-xl hover:shadow-blue-900/5 transition-all active:scale-[0.97] text-left overflow-hidden"
             >
               {/* Option Icon */}
-              <div 
+              <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-110 transition-transform"
                 style={{ backgroundColor: opt.color || '#3b82f6' }}
               >
@@ -93,7 +100,7 @@ const DecisionModal = ({
           </div>
         </div>
       </div>
-    </div>
+    </ModalOverlay>
   );
 };
 

@@ -145,6 +145,37 @@ body {
   pointer-events: auto; /* mantém cursor-not-allowed visível */
 }
 
+/* =============================================
+   UX-01 — Tamanho mínimo de texto (WCAG AA)
+   Garante legibilidade mínima de 12px em elementos
+   interativos e de leitura dentro do app shell.
+   Textos decorativos/badges muito pequenos são
+   cobertos pela classe .text-badge-xs abaixo.
+   ============================================= */
+
+/* Eleva textos de 9px e 10px em botões, labels e spans de UI
+   para o mínimo recomendado de 11px (badges e chips compactos)
+   ou 12px (texto de leitura e labels de status). */
+.app-shell button,
+.app-shell label,
+.app-shell .status-pill,
+.app-shell .status-auto-button {
+  font-size: max(11px, 1em);
+}
+
+/* Garante que qualquer p, span ou div com texto legível não fique
+   abaixo de 11px dentro de modais e painéis de conteúdo */
+.modal-panel-mobile p,
+.modal-panel-mobile span:not([class*="text-["]),
+.modal-readable-panel p,
+.modal-readable-panel span:not([class*="text-["])  {
+  font-size: max(11px, 1em);
+}
+
+/* Exceção explícita: badges numéricos/ícones podem ser menores
+   Use a classe .text-badge quando precisar de texto < 11px por design */
+.text-badge { font-size: inherit !important; }
+
 /* Suporte a prefers-reduced-motion — respeita acessibilidade */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

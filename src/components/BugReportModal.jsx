@@ -3,6 +3,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { APP_VERSION } from '../constants/version';
 import NotificationSystem, { notify } from './NotificationSystem';
+import ModalOverlay from './ModalOverlay';
 
 export default function BugReportModal({ isOpen, onClose, gameState, currentView, user }) {
   const [category, setCategory] = useState('combat');
@@ -66,13 +67,14 @@ export default function BugReportModal({ isOpen, onClose, gameState, currentView
   };
 
   return (
-    <div 
-      className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn"
-      onClick={onClose}
+    <ModalOverlay
+      onClose={onClose}
+      labelId="bugreport-modal-title"
+      backdropClass="bg-black/75 backdrop-blur-sm"
+      zIndex="100000"
     >
-      <div 
+      <div
         className="w-full max-w-md rounded-[2.5rem] bg-white border-4 border-red-500 shadow-2xl overflow-hidden animate-slideUp relative flex flex-col max-h-[90vh]"
-        onClick={e => e.stopPropagation()}
         style={{ fontFamily: 'Outfit, sans-serif' }}
       >
         {/* Barra superior de design */}
@@ -81,8 +83,8 @@ export default function BugReportModal({ isOpen, onClose, gameState, currentView
         {/* Header */}
         <div className="px-6 pt-6 pb-4 border-b border-slate-100 shrink-0 flex justify-between items-center bg-slate-50">
           <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">BETA TESTING</p>
-            <h2 className="text-xl font-black text-slate-800 uppercase italic mt-1">🐛 Reportar Bug / Sugestão</h2>
+            <p className="text-badge font-black text-slate-400 uppercase tracking-widest leading-none" style={{fontSize:'10px'}}>BETA TESTING</p>
+            <h2 id="bugreport-modal-title" className="text-xl font-black text-slate-800 uppercase italic mt-1">🐛 Reportar Bug / Sugestão</h2>
           </div>
           <button 
             onClick={onClose}
@@ -198,6 +200,6 @@ export default function BugReportModal({ isOpen, onClose, gameState, currentView
           )}
         </div>
       </div>
-    </div>
+    </ModalOverlay>
   );
 }
