@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.11.6';
-export const VERSION = '2.11.6';
-export const APP_VERSION_DATE = '23/05/2026 16:12';
+export const APP_VERSION = '2.11.7';
+export const VERSION = '2.11.7';
+export const APP_VERSION_DATE = '23/05/2026 16:30';
 export const CHANGELOG = [
+  '## [V2.11.7] - 23/05/2026 16:30',
+  '### Battle Tower - Estabilizacao de Turnos',
+  '- **Fluxo seguro de hooks**: a tela `TowerBattleScreen` agora mantém todos os hooks antes do estado de fallback, evitando renderizações inconsistentes quando uma batalha pendente não existe.',
+  '- **Protecao contra toques duplos**: ações de ataque, item e troca recebem trava curta de resolução para impedir múltiplos turnos disparados pelo mesmo toque em mobile.',
+  '- **Itens em turno oficial**: poção e revive usados durante seleção de ação agora consomem turno e permitem resposta do oponente, aproximando a torre do fluxo manual estilo jogos oficiais.',
+  '- **Encerramento limpo da run**: desistência limpa `battleEncounter` pendente e o botão de batalha ignora chamadas sem run ativa.',
+  '',
   '## [V2.11.6] - 23/05/2026 16:12',
   '### Battle Tower - Combate Manual por Turno',
   '- **Novo fluxo de batalha**: criada a tela `TowerBattleScreen` para resolver combates da Battle Tower manualmente por turno, separada do loop idle/automatico das rotas.',

@@ -62,12 +62,14 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
         activeRun: null,
         realTeam: null,
         realInventory: null,
+        battleEncounter: null,
       },
     }));
     setPhase('lobby');
   };
 
   const handleBattle = () => {
+    if (!tower.activeRun) return;
     const encounter = generateTowerEncounter(tower.activeRun.floor);
     onOpenTowerCombat(encounter);
   };

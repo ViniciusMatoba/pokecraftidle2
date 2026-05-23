@@ -356,24 +356,28 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
   const [result, setResult] = useState(null); // null | 'victory' | 'defeat'
   const [localInv, setLocalInv] = useState({ ...((run?.inventory) || { coins: 0, potions: 0, revives: 0 }) });
   const [showItems, setShowItems] = useState(false);
+  const [isResolvingTurn, setIsResolvingTurn] = useState(false);
   const logRef = useRef(null);
+  const actionLockRef = useRef(false);
+
+  const lockAction = useCallback(() => {
+    if (actionLockRef.current) return false;
+    actionLockRef.current = true;
+    setIsResolvingTurn(true);
+    return true;
+  }, []);
+
+  const releaseActionLock = useCallback(() => {
+    window.setTimeout(() => {
+      actionLockRef.current = false;
+      setIsResolvingTurn(false);
+    }, 120);
+  }, []);
 
   // Auto-scroll do log
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [log]);
-
-  // Guards
-  if (!encounter || !run || initEnemyTeam.length === 0) {
-    return (
-      <div className="h-full flex items-center justify-center bg-slate-950 text-white">
-        <div className="text-center p-6">
-          <p className="text-white/50 text-sm mb-4">Batalha não encontrada.</p>
-          <button onClick={() => setCurrentView('battle_tower')} className="px-6 py-3 bg-slate-800 rounded-xl text-white font-bold hover:bg-slate-700">Voltar</button>
-        </div>
-      </div>
-    );
-  }
 
   // ── Vitória / Derrota ──────────────────────────────────────────────────────
 
@@ -445,7 +449,7 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
   // ── Execução de turno ──────────────────────────────────────────────────────
 
   const executeTurn = useCallback((playerMoveKey) => {
-    if (phase !== 'select_move') return;
+    if (phase !== 'select_move' || !lockAction()) return;
     setShowItems(false);
 
     // Cópia profunda dos times
@@ -491,8 +495,8 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
     const allEnemyFainted = eTeam.every(p => p.currentHp <= 0);
     const allPlayerFainted = pTeam.every(p => p.currentHp <= 0);
 
-    if (allEnemyFainted) { setResult('victory'); setPhase('ended'); return; }
-    if (allPlayerFainted) { setResult('defeat'); setPhase('ended'); return; }
+    if (allEnemyFainted) { setResult('victory'); setPhase('ended'); releaseActionLock(); return; }
+    if (allPlayerFainted) { setResult('defeat'); setPhase('ended'); releaseActionLock(); return; }
 
     // Troca automática de inimigo
     let newEIdx = eIdx;
@@ -511,37 +515,77 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
     } else {
       setPhase('select_move');
     }
-  }, [phase, playerTeam, enemyTeam, playerActive, enemyActive]);
+    releaseActionLock();
+  }, [phase, playerTeam, enemyTeam, playerActive, enemyActive, lockAction, releaseActionLock]);
+
+  const resolveEnemyTurnAfterSupport = useCallback((targetIdx, nextPlayerTeam) => {
+    const eTeam = enemyTeam.map(p => ({ ...p, stages: { ...(p.stages || {}) } }));
+    const pTeam = nextPlayerTeam.map(p => ({ ...p, stages: { ...(p.stages || {}) } }));
+    const logs = [];
+
+    if (eTeam[enemyActive]?.currentHp > 0 && pTeam[targetIdx]?.currentHp > 0) {
+      const enemyMoveKey = enemyPickMove(eTeam[enemyActive], pTeam[targetIdx]);
+      doAttack(eTeam, enemyActive, pTeam, targetIdx, enemyMoveKey, false, logs);
+    }
+
+    applyEndOfTurnDoT(pTeam, targetIdx, true, logs);
+    applyEndOfTurnDoT(eTeam, enemyActive, false, logs);
+
+    setPlayerTeam(pTeam);
+    setEnemyTeam(eTeam);
+    setLog(prev => [...prev, ...logs].slice(-40));
+
+    if (pTeam.every(p => p.currentHp <= 0)) {
+      setResult('defeat');
+      setPhase('ended');
+    } else if (pTeam[targetIdx]?.currentHp <= 0) {
+      setPhase('switch_required');
+    } else {
+      setPhase('select_move');
+    }
+    releaseActionLock();
+  }, [enemyTeam, enemyActive, releaseActionLock]);
 
   // ── Itens ──────────────────────────────────────────────────────────────────
 
   const handleUsePotion = useCallback((targetIdx) => {
     const poke = playerTeam[targetIdx];
-    if (!poke || poke.currentHp <= 0 || localInv.potions <= 0) return;
+    if (!poke || poke.currentHp <= 0 || localInv.potions <= 0 || phase !== 'select_move' || !lockAction()) return;
     const healed = Math.min(poke.maxHp, poke.currentHp + 50);
-    setPlayerTeam(prev => prev.map((p, i) => i === targetIdx ? { ...p, currentHp: healed } : p));
+    const nextTeam = playerTeam.map((p, i) => i === targetIdx ? { ...p, currentHp: healed } : p);
+    setPlayerTeam(nextTeam);
     setLocalInv(prev => ({ ...prev, potions: prev.potions - 1 }));
     setLog(prev => [...prev, `🧪 ${poke.name} recuperou 50 HP!`]);
     setShowItems(false);
-  }, [playerTeam, localInv]);
+    resolveEnemyTurnAfterSupport(playerActive, nextTeam);
+  }, [playerTeam, localInv, phase, lockAction, resolveEnemyTurnAfterSupport, playerActive]);
 
   const handleUseRevive = useCallback((targetIdx) => {
     const poke = playerTeam[targetIdx];
-    if (!poke || poke.currentHp > 0 || localInv.revives <= 0) return;
+    if (!poke || poke.currentHp > 0 || localInv.revives <= 0 || !lockAction()) return;
     const reviveHp = Math.ceil(poke.maxHp * 0.5);
-    setPlayerTeam(prev => prev.map((p, i) => i === targetIdx ? { ...p, currentHp: reviveHp } : p));
+    const nextTeam = playerTeam.map((p, i) => i === targetIdx ? { ...p, currentHp: reviveHp } : p);
+    setPlayerTeam(nextTeam);
     setLocalInv(prev => ({ ...prev, revives: prev.revives - 1 }));
     setLog(prev => [...prev, `💊 ${poke.name} foi revivido com ${reviveHp} HP!`]);
     setShowItems(false);
-    if (phase === 'switch_required') setPhase('select_move');
-  }, [playerTeam, localInv, phase]);
+    if (phase === 'select_move') {
+      resolveEnemyTurnAfterSupport(playerActive, nextTeam);
+    } else {
+      setPhase('select_move');
+      releaseActionLock();
+    }
+  }, [playerTeam, localInv, phase, lockAction, releaseActionLock, resolveEnemyTurnAfterSupport, playerActive]);
 
   // ── Troca de Pokémon ───────────────────────────────────────────────────────
 
   const handleSwitch = useCallback((newIdx) => {
-    if (newIdx === playerActive) return;
+    if (newIdx === playerActive || !lockAction()) return;
     const poke = playerTeam[newIdx];
-    if (!poke || poke.currentHp <= 0) return;
+    if (!poke || poke.currentHp <= 0) {
+      releaseActionLock();
+      return;
+    }
     setPlayerActive(newIdx);
     setLog(prev => [...prev, `🔄 Vai ${poke.name}!`]);
     setShowItems(false);
@@ -560,8 +604,10 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
       setLog(prev => [...prev, ...logs].slice(-40));
       if (pTeam.every(p => p.currentHp <= 0)) { setResult('defeat'); setPhase('ended'); }
       else if (pTeam[newIdx].currentHp <= 0) setPhase('switch_required');
+      else setPhase('select_move');
     }
-  }, [playerActive, playerTeam, enemyTeam, enemyActive, phase]);
+    releaseActionLock();
+  }, [playerActive, playerTeam, enemyTeam, enemyActive, phase, lockAction, releaseActionLock]);
 
   // ── Dados derivados ────────────────────────────────────────────────────────
 
@@ -571,6 +617,17 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
   const eHpPct = activeEnemy ? Math.max(0, (activeEnemy.currentHp / activeEnemy.maxHp) * 100) : 0;
   const aliveTeammates = playerTeam.filter((p, i) => i !== playerActive && p.currentHp > 0);
   const hasSwitchable = aliveTeammates.length > 0;
+
+  if (!encounter || !run || initEnemyTeam.length === 0) {
+    return (
+      <div className="h-full flex items-center justify-center bg-slate-950 text-white">
+        <div className="text-center p-6">
+          <p className="text-white/50 text-sm mb-4">Batalha não encontrada.</p>
+          <button onClick={() => setCurrentView('battle_tower')} className="px-6 py-3 bg-slate-800 rounded-xl text-white font-bold hover:bg-slate-700">Voltar</button>
+        </div>
+      </div>
+    );
+  }
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -773,6 +830,7 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
                     <button
                       key={i}
                       onClick={() => executeTurn(moveKey)}
+                      disabled={isResolvingTurn}
                       className={`border rounded-xl py-3 px-2 text-left transition-all active:scale-95 ${typeClass}`}
                     >
                       <p className="font-black text-xs uppercase truncate">{move.name}</p>
@@ -788,6 +846,7 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowItems(true)}
+                  disabled={isResolvingTurn}
                   className="flex-1 bg-slate-800 hover:bg-slate-700 border border-white/10 text-white/70 rounded-xl py-2 text-[10px] font-black uppercase tracking-widest transition-colors"
                 >
                   💊 Itens
@@ -795,6 +854,7 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
                 {hasSwitchable && (
                   <button
                     onClick={() => setShowItems('switch')}
+                    disabled={isResolvingTurn}
                     className="flex-1 bg-slate-800 hover:bg-slate-700 border border-white/10 text-white/70 rounded-xl py-2 text-[10px] font-black uppercase tracking-widest transition-colors"
                   >
                     🔄 Trocar
