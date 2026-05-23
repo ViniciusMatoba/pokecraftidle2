@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 const META = {
@@ -47,10 +47,53 @@ const ConfirmModal = ({
   const isAlert = type === 'alert';
   const meta = META[type] || META.confirm;
   const closeAction = onCancel || onConfirm;
+  const dialogRef = useRef(null);
+  const titleId = 'confirm-modal-title';
+
+  // UX-02: Focus trap + foco inicial no botão principal ao abrir
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    // Foca o botão de confirmação (primeiro foco ao abrir)
+    const firstFocusable = dialog.querySelector('button:not([disabled])');
+    firstFocusable?.focus();
+
+    const handleKeyDown = (e) => {
+      // Fecha com Escape
+      if (e.key === 'Escape') { e.preventDefault(); closeAction?.(); return; }
+
+      // Focus trap — mantém Tab/Shift+Tab dentro do modal
+      if (e.key !== 'Tab') return;
+      const focusable = Array.from(dialog.querySelectorAll(
+        'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )).filter(el => el.offsetParent !== null);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last  = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+
+    dialog.addEventListener('keydown', handleKeyDown);
+    return () => dialog.removeEventListener('keydown', handleKeyDown);
+  }, [closeAction]);
 
   const content = (
-    <div className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="modal-panel-mobile bg-white overflow-hidden shadow-2xl animate-slideInUp flex flex-col border-b-[8px] border-slate-200">
+    <div
+      className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
+      onClick={(e) => { if (e.target === e.currentTarget) closeAction?.(); }}
+    >
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        className="modal-panel-mobile bg-white overflow-hidden shadow-2xl animate-slideInUp flex flex-col border-b-[8px] border-slate-200"
+      >
         <div className="px-5 py-4 flex items-center justify-between gap-3 shrink-0" style={{ background: meta.color }}>
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
@@ -58,7 +101,7 @@ const ConfirmModal = ({
             </div>
             <div className="min-w-0">
               <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{meta.subtitle}</p>
-              <h3 className="text-white text-lg font-black uppercase italic leading-tight">
+              <h3 id={titleId} className="text-white text-lg font-black uppercase italic leading-tight">
                 {title || meta.title}
               </h3>
             </div>
@@ -68,7 +111,7 @@ const ConfirmModal = ({
             className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/20 text-white font-black flex items-center justify-center hover:bg-white/30 transition-colors"
             aria-label="Fechar"
           >
-            x
+            ✕
           </button>
         </div>
 

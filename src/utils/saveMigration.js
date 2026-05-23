@@ -17,6 +17,39 @@ const fixPokemonTypes = (poke) => {
   return { ...poke, types };
 };
 
+/**
+ * SEC-02 — Clamp de stats: protege contra saves adulterados ou corrompidos.
+ * - level: sempre entre 1 e 100
+ * - hp: nunca negativo, nunca maior que maxHp
+ * - atributos de combate: nunca negativos
+ * Não altera Pokémon válidos (cálculo barato — só cria objeto novo se algo divergir).
+ */
+const clampPokemonStats = (poke) => {
+  if (!poke || typeof poke !== 'object') return poke;
+  const level   = Math.min(100, Math.max(1, Math.floor(Number(poke.level) || 1)));
+  const maxHp   = Math.max(1, Math.floor(Number(poke.maxHp) || 1));
+  const hp      = Math.min(maxHp, Math.max(0, Math.floor(Number(poke.hp) || 0)));
+  const attack  = Math.max(0, Math.floor(Number(poke.attack)  || 0));
+  const defense = Math.max(0, Math.floor(Number(poke.defense) || 0));
+  const spAtk   = Math.max(0, Math.floor(Number(poke.spAtk)   || 0));
+  const spDef   = Math.max(0, Math.floor(Number(poke.spDef)   || 0));
+  const speed   = Math.max(0, Math.floor(Number(poke.speed)   || 0));
+  const xp      = Math.max(0, Math.floor(Number(poke.xp)      || 0));
+
+  // Retorna o mesmo objeto se nada mudou (evita re-renders desnecessários)
+  if (
+    poke.level === level && poke.maxHp === maxHp && poke.hp === hp &&
+    poke.attack === attack && poke.defense === defense &&
+    poke.spAtk === spAtk && poke.spDef === spDef &&
+    poke.speed === speed && poke.xp === xp
+  ) return poke;
+
+  return { ...poke, level, maxHp, hp, attack, defense, spAtk, spDef, speed, xp };
+};
+
+// Pipeline de sanitização por Pokémon: tipos + stats
+const sanitizePokemon = (poke) => clampPokemonStats(fixPokemonTypes(poke));
+
 const asArray = (value) => Array.isArray(value) ? value : [];
 
 const unique = (values) => Array.from(new Set(asArray(values).filter(Boolean)));
@@ -128,14 +161,16 @@ export const migrateGameState = (savedState = {}, options = {}) => {
   const migrated = {
     ...DEFAULT_GAME_STATE,
     ...loaded,
+    // SEC-02: clamp de moeda — nunca negativa, nunca NaN
+    currency: Math.max(0, Math.floor(Number(loaded.currency) || 0)),
     version: options.version || loaded.version || DEFAULT_GAME_STATE.version,
-    team: (asArray(loaded.team).length ? loaded.team : DEFAULT_GAME_STATE.team).map(fixPokemonTypes),
-    pc: asArray(loaded.pc).map(fixPokemonTypes),
+    team: (asArray(loaded.team).length ? loaded.team : DEFAULT_GAME_STATE.team).map(sanitizePokemon),
+    pc: asArray(loaded.pc).map(sanitizePokemon),
     badges,
     worldFlags,
     inventory: mergeInventory(loaded.inventory || {}),
-    regional_teams: Object.fromEntries(Object.entries(mergeRegionalLists(loaded.regional_teams, loaded.regionalTeams)).map(([k, v]) => [k, asArray(v).map(fixPokemonTypes)])),
-    regional_pc: Object.fromEntries(Object.entries(mergeRegionalLists(loaded.regional_pc, loaded.regionalPc)).map(([k, v]) => [k, asArray(v).map(fixPokemonTypes)])),
+    regional_teams: Object.fromEntries(Object.entries(mergeRegionalLists(loaded.regional_teams, loaded.regionalTeams)).map(([k, v]) => [k, asArray(v).map(sanitizePokemon)])),
+    regional_pc: Object.fromEntries(Object.entries(mergeRegionalLists(loaded.regional_pc, loaded.regionalPc)).map(([k, v]) => [k, asArray(v).map(sanitizePokemon)])),
     stages: loaded.stages || DEFAULT_GAME_STATE.stages,
     caughtData: loaded.caughtData || DEFAULT_GAME_STATE.caughtData,
     speciesMastery: loaded.speciesMastery || DEFAULT_GAME_STATE.speciesMastery,

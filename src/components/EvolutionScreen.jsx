@@ -319,17 +319,23 @@ const EvolutionScreen = ({
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0' }}>
                     <button
                      onClick={() => {
-                         const evoData = evolutionPending.targetEvolution || POKEDEX[evolutionPending.id]?.evolution;
+                         // Captura snapshot de evolutionPending para evitar stale closure
+                         // dentro do setGameState updater (que pode ser chamado de forma assíncrona)
+                         const pending = evolutionPending;
+                         if (!pending) return;
+                         const evoData = pending.targetEvolution || POKEDEX[pending.id]?.evolution;
+                         if (!evoData) return;
                          const nextPoke = POKEDEX[evoData.id];
-                         if (isEvolutionAllowedForRegion && !isEvolutionAllowedForRegion(evolutionPending, evoData.id, activeRegion)) {
-                            addLog(getEvolutionRegionLockMessage?.(evolutionPending.name, nextPoke?.name, activeRegion) || `${evolutionPending.name} nao pode evoluir nesta regiao.`, 'system');
+                         if (!nextPoke) return;
+                         if (isEvolutionAllowedForRegion && !isEvolutionAllowedForRegion(pending, evoData.id, activeRegion)) {
+                            addLog(getEvolutionRegionLockMessage?.(pending.name, nextPoke?.name, activeRegion) || `${pending.name} nao pode evoluir nesta regiao.`, 'system');
                             setEvolutionPending(null);
                             return;
                          }
                          setGameState(prev => {
                             const evolvedId = Number(evoData.id);
                             const newTeam = prev.team.map((p, i) => {
-                               if (i === evolutionPending.teamIndex) {
+                               if (i === pending.teamIndex) { // usa snapshot, não closure
                                   const shinyMult = p.isShiny ? 1.2 : 1.0;
                                   const calcStat = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + 5) * shinyMult));
                                   const calcHp   = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + lv + 10) * shinyMult));
@@ -383,17 +389,16 @@ const EvolutionScreen = ({
 
                             // Remover duplicatas em outros slots do time (exceto o que acabou de evoluir)
                             const finalTeam = newTeam.filter((p, i) => {
-                               if (i !== evolutionPending.teamIndex && Number(p.id) === evolvedId) {
+                               if (i !== pending.teamIndex && Number(p.id) === evolvedId) { // usa snapshot
                                   duplicatesRemoved++;
                                   return false;
                                }
                                return true;
                             });
 
-                            // Notificar sobre remoções e conceder candies
-                            if (duplicatesRemoved > 0) {
-                               addLog(`🍬 ${duplicatesRemoved} ${nextPoke.name} duplicado(s) convertido(s) em EXP Candy S!`, 'system');
-                            }
+                            // Nota: addLog é um side-effect e NÃO deve ser chamado dentro do
+                            // state updater (React pode invocar o updater múltiplas vezes em StrictMode).
+                            // A notificação de duplicatas é tratada abaixo, após o setGameState.
 
                             const prevCandyCount = prev.inventory?.items?.exp_candy_s || 0;
 
@@ -408,7 +413,8 @@ const EvolutionScreen = ({
                                caughtData: { ...prev.caughtData, [evoData.id]: true },
                             };
                          });
-                         addLog(`✨ Parabéns! Seu ${evolutionPending.name} evoluiu para ${nextPoke.name}!`, 'system');
+                         // Side-effects fora do updater — seguros e executados uma única vez
+                         addLog(`✨ Parabéns! Seu ${pending.name} evoluiu para ${nextPoke.name}!`, 'system');
                          setEvolutionPending(null);
                        }}
                      style={{

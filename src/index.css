@@ -1,6 +1,22 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
+/* =============================================
+   UX-04 — Escala global de z-index
+   Todos os z-index do app devem referenciar
+   estas variáveis para evitar conflitos.
+   ============================================= */
+:root {
+  --z-content:      0;   /* game-content / fundo */
+  --z-strip:       45;   /* game-status-strip / screen-vignette */
+  --z-header-nav:  50;   /* header + nav fixos */
+  --z-overlay:     60;   /* overlays de batalha / vignette de cena */
+  --z-modal:       70;   /* modais de conteúdo */
+  --z-confirm:     80;   /* modais de confirmação (acima dos de conteúdo) */
+  --z-toast:       90;   /* notificações / toasts */
+  --z-topmost:    100;   /* stat arrows, splash, camada mais alta */
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -28,7 +44,7 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
-  z-index: 1;
+  z-index: var(--z-content);
 }
 
 .app-shell {
@@ -53,7 +69,7 @@ body {
   left: 0;
   right: 0;
   height: 36px;
-  z-index: 45;
+  z-index: var(--z-strip);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -214,7 +230,7 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 50;
+  z-index: var(--z-header-nav);
 }
 
 /* Nav fixo dentro do container */
@@ -223,7 +239,7 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 50;
+  z-index: var(--z-header-nav);
 }
 
 @media (min-width: 768px) {
@@ -235,7 +251,7 @@ body {
     width: 120px; height: 6px;
     background: rgba(0,0,0,0.2);
     border-radius: 0 0 6px 6px;
-    z-index: 100;
+    z-index: var(--z-topmost);
   }
 
   .app-shell ::-webkit-scrollbar { width: 3px; }
@@ -391,7 +407,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 100;
+  z-index: var(--z-topmost);
 }
 
 .stat-arrow-down {
@@ -405,7 +421,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 100;
+  z-index: var(--z-topmost);
 }
 
 @keyframes statArrowUp {
@@ -425,7 +441,7 @@ body {
   position: absolute; inset: 0;
   box-shadow: inset 0 0 60px rgba(0,0,0,0.4);
   pointer-events: none;
-  z-index: 45;
+  z-index: var(--z-strip);
   animation: vignetteFlicker 0.5s ease-in-out;
 }
 

@@ -141,17 +141,25 @@ const parseStoredSave = (raw) => {
     }
   }
 
-  // 2. Formato legado sem assinatura (LZString ou JSON cru) - fluxo de migração retrocompatível
+  // 2. Formato legado sem assinatura (LZString ou JSON cru) — fluxo de migração retrocompatível.
+  // SEC-07: saves legados não têm assinatura HMAC, mas são imediatamente sobrescritos no
+  // formato seguro pksv1: no primeiro autosave/writeLocalSaveEnvelope — janela de risco mínima.
+  // Não marcamos como tampered: o jogador pode ter salvo antes da v2.11.0 legitimamente.
   try {
     const decompressed = LZString.decompress(raw);
     const parsed = decompressed ? JSON.parse(decompressed) : JSON.parse(raw);
     if (!parsed) return null;
-    if (parsed.gameState) return parsed;
-    return { gameState: parsed };
+    const envelope = parsed.gameState ? parsed : { gameState: parsed };
+    // Marca como legado para forçar re-assinatura imediata no próximo save
+    if (envelope.gameState) envelope._legacySave = true;
+    return envelope;
   } catch {
     try {
       const parsed = JSON.parse(raw);
-      return parsed?.gameState ? parsed : { gameState: parsed };
+      if (!parsed) return null;
+      const envelope = parsed?.gameState ? parsed : { gameState: parsed };
+      if (envelope.gameState) envelope._legacySave = true;
+      return envelope;
     } catch {
       return null;
     }

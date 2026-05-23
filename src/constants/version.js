@@ -1,7 +1,17 @@
-export const APP_VERSION = '2.11.1';
-export const VERSION = '2.11.1';
-export const APP_VERSION_DATE = '23/05/2026 15:00';
+export const APP_VERSION = '2.11.2';
+export const VERSION = '2.11.2';
+export const APP_VERSION_DATE = '23/05/2026 16:30';
 export const CHANGELOG = [
+  '## [V2.11.2] - 23/05/2026 16:30',
+  '### Sprint 2 — Acessibilidade, Segurança de Save e Evolução',
+  '- **Bug corrigido (BUG-06)**: Stale closure corrigido em `EvolutionScreen` — `evolutionPending` capturado no início do handler para evitar referência desatualizada dentro do state updater; side-effects (`addLog`) movidos para fora do `setGameState`.',
+  '- **Bug corrigido (BUG-06+)**: Guards de null adicionados (`if (!pending || !evoData || !nextPoke) return`) — evita crash quando evolução é disparada com estado inválido.',
+  '- **Segurança (SEC-02)**: Validação e clamp de stats aplicados a TODOS os Pokémon no carregamento do save — `level` entre 1 e 100, `hp` entre 0 e `maxHp`, atributos de combate nunca negativos, `xp` nunca negativo. Saves adulterados com stats impossíveis são normalizados automaticamente.',
+  '- **Segurança (SEC-02+)**: `currency` clampada para ≥ 0 e ≥ inteiro durante a migração do save — impossível carregar save com moeda negativa ou NaN.',
+  '- **Segurança (SEC-07)**: Saves legados (pré-v2.11.0 sem assinatura HMAC) marcados com `_legacySave: true` ao carregar — convertidos para formato seguro `pksv1:` no primeiro autosave.',
+  '- **UX (UX-02)**: `ConfirmModal` agora tem `role="dialog"`, `aria-modal="true"` e `aria-labelledby` — compatível com leitores de tela; focus trap com Tab/Shift+Tab; fecha com Escape; foca automaticamente o botão primário ao abrir; clique no backdrop fecha o modal.',
+  '- **UX (UX-04)**: Escala global de z-index definida como CSS custom properties (`--z-content`, `--z-strip`, `--z-header-nav`, `--z-overlay`, `--z-modal`, `--z-confirm`, `--z-toast`, `--z-topmost`) — todos os z-index do `index.css` agora usam as variáveis para consistência.',
+  '',
   '## [V2.11.1] - 23/05/2026 15:00',
   '### Correções de Bugs, Segurança e Performance — Sprint Auditoria',
   '- **Bug corrigido (BUG-01)**: `regional_pc` e `lastFarmingRoute` adicionados ao estado inicial — novos jogadores não travam mais ao acessar o PC regional ou o progresso offline.',
