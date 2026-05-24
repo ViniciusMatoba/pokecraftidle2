@@ -45,7 +45,7 @@ service cloud.firestore {
         data.damage is number &&
         data.damage >= 0 &&
         // Teto anti-cheat: dano impossível de atingir legitimamente em 60s
-        data.damage <= 99_999_999 &&
+        data.damage <= 99999999 &&
         data.uid == request.auth.uid;
     }
 
