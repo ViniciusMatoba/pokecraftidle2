@@ -417,7 +417,8 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
       };
       if (isCheckpoint) updatedTower.checkpoint = newRun;
 
-      return { ...prev, tower: updatedTower, team: finalTeam };
+      // ISOLAMENTO: NÃO toca gameState.team — time da Torre vive em tower.activeRun.team
+      return { ...prev, tower: updatedTower };
     });
     setCurrentView('battle_tower');
   }, [playerTeam, localInv, encounter, setGameState, setCurrentView]);
@@ -427,18 +428,15 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
       const r = prev.tower?.activeRun;
       const gainedBp = (r?.floor || 1) * 10;
       const highest = Math.max(prev.tower?.highestFloor || 0, r?.floor || 0);
+      // ISOLAMENTO: gameState.team nunca foi alterado, então não precisa de restore
       return {
         ...prev,
-        team: prev.tower?.realTeam || prev.team,
-        inventory: prev.tower?.realInventory || prev.inventory,
         currentRoute: 'pallet_town',
         tower: {
           ...prev.tower,
           bp: (prev.tower?.bp || 0) + gainedBp,
           highestFloor: highest,
           activeRun: null,
-          realTeam: null,
-          realInventory: null,
           battleEncounter: null,
         },
       };
@@ -631,21 +629,43 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
+  // Cor de fundo baseada no tipo do inimigo ativo
+  const enemyTypeColor = {
+    Fire:'#7f1d1d', Water:'#1e3a5f', Grass:'#14532d', Electric:'#713f12',
+    Ice:'#164e63', Fighting:'#7c2d12', Poison:'#4a1d96', Ground:'#78350f',
+    Flying:'#1e1b4b', Psychic:'#831843', Bug:'#365314', Rock:'#292524',
+    Ghost:'#2e1065', Dragon:'#312e81', Dark:'#1c1917', Steel:'#334155',
+    Fairy:'#831843', Normal:'#1e293b',
+  }[activeEnemy?.types?.[0]] || '#0f172a';
+
   return (
-    <div className="h-full flex flex-col bg-slate-950 overflow-hidden">
+    <div className="h-full flex flex-col overflow-hidden relative">
+
+      {/* ── Background de batalha ─────────────────────────────────────────── */}
+      <div className="absolute inset-0 z-0" style={{ background: `linear-gradient(180deg, ${enemyTypeColor}cc 0%, #0f172a 55%, #0f172a 100%)` }}>
+        {/* Grade sutil estilo arena */}
+        <div className="absolute inset-0" style={{
+          backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 48px,rgba(255,255,255,0.025) 48px,rgba(255,255,255,0.025) 49px),repeating-linear-gradient(90deg,transparent,transparent 48px,rgba(255,255,255,0.025) 48px,rgba(255,255,255,0.025) 49px)',
+        }} />
+        {/* Vinheta */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+      </div>
+
+      {/* ── Conteúdo (z-10) ──────────────────────────────────────────────── */}
+      <div className="relative z-10 flex flex-col h-full overflow-hidden">
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2 shrink-0">
         <div>
           <p className="text-white/40 text-[9px] font-black uppercase tracking-widest">Battle Tower</p>
-          <h2 className="text-white font-black text-base uppercase italic tracking-tight leading-none">
-            {encounter.isBoss ? <span className="text-purple-400">⭐ Boss — Andar {run.floor}</span> : `Andar ${run.floor}`}
+          <h2 className="text-white font-black text-base uppercase italic tracking-tight leading-none drop-shadow-lg">
+            {encounter.isBoss ? <span className="text-purple-300">⭐ Boss — Andar {run.floor}</span> : `Andar ${run.floor}`}
           </h2>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-yellow-400 font-black text-xs">{localInv.coins ?? 0} 🪙</span>
-          <span className="text-white/60 font-bold text-xs">🧪{localInv.potions ?? 0}</span>
-          <span className="text-white/60 font-bold text-xs">💊{localInv.revives ?? 0}</span>
+          <span className="text-yellow-400 font-black text-xs drop-shadow">🪙 {localInv.coins ?? 0}</span>
+          <span className="text-blue-300 font-bold text-xs">🧪{localInv.potions ?? 0}</span>
+          <span className="text-red-300 font-bold text-xs">💊{localInv.revives ?? 0}</span>
         </div>
       </div>
 
@@ -653,7 +673,7 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
       <div className="flex-1 flex flex-col min-h-0 px-4 pb-2 gap-2 overflow-hidden">
 
         {/* Inimigo */}
-        <div className="bg-slate-900/80 border border-white/10 rounded-2xl p-3">
+        <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-3 shadow-xl">
           <div className="flex items-start justify-between mb-1.5">
             <div>
               <h3 className="text-white font-black text-sm uppercase italic flex items-center gap-1.5">
@@ -705,8 +725,8 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
         {/* Log de batalha */}
         <div
           ref={logRef}
-          className="bg-black/40 border border-white/5 rounded-xl px-3 py-2 overflow-y-auto flex-1 min-h-0"
-          style={{ maxHeight: '120px' }}
+          className="bg-black/50 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2 overflow-y-auto flex-1 min-h-0 shadow-inner"
+          style={{ maxHeight: '110px' }}
         >
           {log.map((entry, i) => (
             <p key={i} className={`text-[10px] font-medium leading-relaxed ${i === log.length - 1 ? 'text-white' : 'text-white/50'}`}>
@@ -716,7 +736,7 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
         </div>
 
         {/* Jogador */}
-        <div className="bg-slate-900/80 border border-white/10 rounded-2xl p-3">
+        <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-3 shadow-xl">
           <div className="flex items-center gap-3">
             <img
               src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${activePoke?.id}.png`}
@@ -946,6 +966,7 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
 
         </div>
       </div>
+      </div>{/* fim z-10 wrapper */}
     </div>
   );
 };

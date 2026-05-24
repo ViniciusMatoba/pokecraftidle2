@@ -1,80 +1,208 @@
-import React, { useState, useEffect } from 'react';
-import { getTowerStarters, startTowerRun, generateTowerEncounter, generateFloorShop, resumeTowerRun } from '../utils/towerLogic';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  getTowerStarters, startTowerRun, generateTowerEncounter,
+  generateFloorShop, resumeTowerRun, getRandomBoons,
+} from '../utils/towerLogic';
 import { TYPE_COLOR_HEX } from '../data/gyms';
 import { POKEDEX } from '../data/pokedex';
+import { MOVES } from '../data/moves';
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const TYPE_PILL = 'text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-white/10 text-white border border-white/20';
+
+// Move colorido por tipo
+const TYPE_MOVE_CLS = {
+  Fire:'bg-red-600/20 border-red-500/40 text-red-400',
+  Water:'bg-blue-600/20 border-blue-500/40 text-blue-400',
+  Grass:'bg-green-600/20 border-green-500/40 text-green-400',
+  Electric:'bg-yellow-500/20 border-yellow-400/40 text-yellow-300',
+  Ice:'bg-cyan-500/20 border-cyan-400/40 text-cyan-400',
+  Fighting:'bg-orange-600/20 border-orange-500/40 text-orange-400',
+  Poison:'bg-purple-600/20 border-purple-500/40 text-purple-400',
+  Ground:'bg-amber-700/20 border-amber-600/40 text-amber-500',
+  Flying:'bg-indigo-500/20 border-indigo-400/40 text-indigo-400',
+  Psychic:'bg-pink-600/20 border-pink-500/40 text-pink-400',
+  Bug:'bg-lime-600/20 border-lime-500/40 text-lime-400',
+  Rock:'bg-stone-600/20 border-stone-500/40 text-stone-400',
+  Ghost:'bg-violet-800/20 border-violet-700/40 text-violet-400',
+  Dragon:'bg-violet-600/20 border-violet-500/40 text-violet-400',
+  Dark:'bg-slate-700/20 border-slate-600/40 text-slate-300',
+  Steel:'bg-slate-400/20 border-slate-300/40 text-slate-200',
+  Fairy:'bg-pink-400/20 border-pink-300/40 text-pink-300',
+  Normal:'bg-slate-600/20 border-slate-500/40 text-slate-300',
+};
+
+const moveTypeClass = (moveKey) => {
+  const move = MOVES[moveKey];
+  return TYPE_MOVE_CLS[move?.type] || TYPE_MOVE_CLS.Normal;
+};
+
+const moveName = (moveKey) => MOVES[moveKey]?.name || moveKey;
+const moveCategory = (moveKey) => {
+  const cat = MOVES[moveKey]?.category;
+  if (cat === 'Physical') return 'Físico';
+  if (cat === 'Special') return 'Especial';
+  return 'Status';
+};
+const movePower = (moveKey) => MOVES[moveKey]?.power || null;
+
+// ── Componente ────────────────────────────────────────────────────────────────
 
 const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowerCombat }) => {
-  const tower = gameState.tower || { activeRun: null, highestFloor: 0, bp: 0, upgrades: {} };
+  const tower = gameState.tower || { activeRun: null, highestFloor: 0, bp: 0 };
 
+  // Pool do jogador: time real + PC
+  const playerPool = [
+    ...(gameState.team || []),
+    ...(gameState.pc || []),
+  ];
+
+  // Fase principal: lobby | draft | move_selection | run
   const [phase, setPhase] = useState(tower.activeRun ? 'run' : 'lobby');
   const [draftOptions, setDraftOptions] = useState([]);
 
-  // BUG-FIX: useEffect DEVE ficar antes de qualquer return condicional.
-  // React exige que hooks sejam chamados na mesma ordem a cada render —
-  // colocá-lo depois de um early return viola as Rules of Hooks e causa crash.
+  // Seleção de golpes: qual Pokémon está esperando seleção e os moves escolhidos
+  const [pendingPoke, setPendingPoke] = useState(null);   // Pokémon aguardando seleção de golpes
+  const [selectedMoves, setSelectedMoves] = useState([]); // Golpes escolhidos (até 4)
+
+  // Modal de Shop (pós-batalha)
+  const [showShopModal, setShowShopModal] = useState(false);
+
   const run = tower.activeRun;
+
+  // Detecta shopPending e abre o modal automaticamente
   useEffect(() => {
     if (!run?.shopPending) return;
+    // Garante que o shop está gerado e marca como não-pending
     setGameState(prev => {
       if (!prev.tower?.activeRun?.shopPending) return prev;
       const newRun = {
         ...prev.tower.activeRun,
         shopPending: false,
-        shop: generateFloorShop(prev.tower.activeRun.floor),
+        shop: generateFloorShop(
+          prev.tower.activeRun.floor,
+          playerPool,
+          prev.tower.activeRun.team
+        ),
       };
       return { ...prev, tower: { ...prev.tower, activeRun: newRun } };
     });
-  }, [run?.shopPending, setGameState]);
+    setShowShopModal(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [run?.shopPending]);
+
+  // ── Handlers: Lobby ────────────────────────────────────────────────────────
 
   const handleStartDraft = () => {
-    setDraftOptions(getTowerStarters());
+    setDraftOptions(getTowerStarters(playerPool));
     setPhase('draft');
   };
 
-  const handleSelectDraft = (pokemonInfo) => {
-    const newRun = startTowerRun(pokemonInfo);
+  // ── Handlers: Draft / Seleção de moves ────────────────────────────────────
+
+  const handleSelectDraft = (poke) => {
+    if (poke.needsMoveSelection) {
+      // Pokémon tem > 4 moves — precisa de seleção
+      setPendingPoke(poke);
+      setSelectedMoves(poke.moves.slice(0, 4)); // pré-seleciona os últimos 4
+      setPhase('move_selection');
+    } else {
+      // Pokémon já tem ≤ 4 moves — inicia direto
+      confirmDraft(poke);
+    }
+  };
+
+  const toggleMove = (moveKey) => {
+    setSelectedMoves(prev => {
+      if (prev.includes(moveKey)) return prev.filter(m => m !== moveKey);
+      if (prev.length >= 4) return prev; // Limite de 4
+      return [...prev, moveKey];
+    });
+  };
+
+  const confirmMoveSelection = () => {
+    if (selectedMoves.length === 0) return;
+    const finalPoke = { ...pendingPoke, moves: selectedMoves, needsMoveSelection: false };
+    confirmDraft(finalPoke);
+    setPendingPoke(null);
+    setSelectedMoves([]);
+  };
+
+  const confirmDraft = (poke) => {
+    // ISOLAMENTO: NÃO toca gameState.team — só atualiza tower.activeRun
+    const newRun = startTowerRun(poke);
     setGameState(prev => ({
       ...prev,
-      team: newRun.team,
       currentRoute: 'tower',
       tower: {
         ...prev.tower,
         activeRun: newRun,
-        realTeam: prev.team,
-        realInventory: prev.inventory,
+        // Guarda checkpoint vazio ao início (para o "continuar" no lobby)
       },
     }));
     setPhase('run');
   };
 
+  // ── Handlers: Run ─────────────────────────────────────────────────────────
+
   const handleEndRun = () => {
-    const gainedBp = tower.activeRun ? tower.activeRun.floor * 10 : 0;
-    const highest = Math.max(tower.highestFloor, tower.activeRun?.floor || 0);
+    const gainedBp = run ? run.floor * 10 : 0;
+    const highest = Math.max(tower.highestFloor || 0, run?.floor || 0);
     setGameState(prev => ({
       ...prev,
-      team: prev.tower.realTeam || prev.team,
-      inventory: prev.tower.realInventory || prev.inventory,
       currentRoute: 'pallet_town',
       tower: {
         ...prev.tower,
         bp: (prev.tower.bp || 0) + gainedBp,
         highestFloor: highest,
         activeRun: null,
-        realTeam: null,
-        realInventory: null,
         battleEncounter: null,
       },
     }));
+    setShowShopModal(false);
     setPhase('lobby');
   };
 
   const handleBattle = () => {
     if (!tower.activeRun) return;
+    setShowShopModal(false);
     const encounter = generateTowerEncounter(tower.activeRun.floor);
     onOpenTowerCombat(encounter);
   };
 
-  // ── Lobby ──────────────────────────────────────────────────────────────
+  // Handler para compra de recruta com seleção de moves
+  const handleRecruitWithMoves = (pokemon) => {
+    if (pokemon.needsMoveSelection) {
+      setPendingPoke({ ...pokemon, _isRecruit: true });
+      setSelectedMoves(pokemon.moves.slice(0, 4));
+      setPhase('move_selection');
+      setShowShopModal(false);
+    }
+  };
+
+  // Confirma seleção de moves para um recruta
+  const confirmRecruitMoveSelection = () => {
+    if (selectedMoves.length === 0 || !pendingPoke) return;
+    const finalPoke = { ...pendingPoke, moves: selectedMoves, needsMoveSelection: false };
+    setGameState(prev => {
+      const prevRun = prev.tower?.activeRun;
+      if (!prevRun) return prev;
+      return {
+        ...prev,
+        tower: {
+          ...prev.tower,
+          activeRun: { ...prevRun, team: [...prevRun.team, finalPoke] },
+        },
+      };
+    });
+    setPendingPoke(null);
+    setSelectedMoves([]);
+    setPhase('run');
+    setShowShopModal(true);
+  };
+
+  // ── Fase: Lobby ────────────────────────────────────────────────────────────
   if (phase === 'lobby') {
     return (
       <div className="h-full flex flex-col bg-slate-950 animate-fadeIn p-6 overflow-y-auto">
@@ -87,11 +215,13 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
         </div>
 
         <div className="flex flex-col gap-6 flex-1">
+          {/* Recorde */}
           <div className="bg-gradient-to-br from-red-600/20 to-red-900/20 border-2 border-red-500/30 rounded-3xl p-6 text-center">
             <h3 className="text-red-400 font-black uppercase tracking-widest text-[10px] mb-2">Recorde de Escalada</h3>
-            <div className="text-5xl font-black text-white italic drop-shadow-md">Andar {tower.highestFloor}</div>
+            <div className="text-5xl font-black text-white italic drop-shadow-md">Andar {tower.highestFloor || 0}</div>
           </div>
 
+          {/* BP */}
           <div className="bg-slate-900 border border-white/10 rounded-3xl p-6">
             <div className="flex justify-between items-center mb-4">
               <p className="text-white/70 font-bold text-sm uppercase tracking-widest">Battle Points (BP)</p>
@@ -102,16 +232,24 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
             </button>
           </div>
 
+          {/* Pokémon disponíveis no pool */}
+          {playerPool.length > 0 && (
+            <div className="bg-slate-900/60 border border-white/5 rounded-2xl px-4 py-3">
+              <p className="text-white/40 text-[9px] font-black uppercase tracking-widest mb-1">Pokémon disponíveis para o draft</p>
+              <p className="text-white/70 text-sm font-bold">{playerPool.length} Pokémon capturados</p>
+            </div>
+          )}
+
+          {/* Botões */}
           {tower.checkpoint ? (
             <div className="mt-auto flex flex-col gap-3">
               <button
                 onClick={() => {
-                  const resumed = resumeTowerRun(tower.checkpoint);
+                  const resumed = resumeTowerRun(tower.checkpoint, playerPool, tower.checkpoint.team);
                   setGameState(prev => ({
                     ...prev,
-                    team: resumed.team,
                     currentRoute: 'tower',
-                    tower: { ...prev.tower, activeRun: resumed, realTeam: prev.team, realInventory: prev.inventory },
+                    tower: { ...prev.tower, activeRun: resumed },
                   }));
                   setPhase('run');
                 }}
@@ -139,12 +277,15 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
     );
   }
 
-  // ── Draft ──────────────────────────────────────────────────────────────
+  // ── Fase: Draft ───────────────────────────────────────────────────────────
   if (phase === 'draft') {
     return (
-      <div className="h-full flex flex-col bg-slate-950 p-6 animate-fadeIn">
-        <h2 className="text-center text-white font-black uppercase italic tracking-tighter text-2xl mb-2 mt-4">Escolha seu Inicial</h2>
-        <p className="text-center text-white/50 text-[10px] uppercase tracking-widest mb-8">Todos começam no Nível 5</p>
+      <div className="h-full flex flex-col bg-slate-950 p-6 animate-fadeIn overflow-y-auto">
+        <button onClick={() => setPhase('lobby')} className="text-white/40 hover:text-white text-[10px] font-black uppercase tracking-widest mb-4 text-left">← Voltar</button>
+        <h2 className="text-center text-white font-black uppercase italic tracking-tighter text-2xl mb-1">Escolha seu Inicial</h2>
+        <p className="text-center text-white/50 text-[10px] uppercase tracking-widest mb-6">
+          {playerPool.length > 0 ? 'Seus Pokémon capturados' : 'Pokémon aleatórios (capture mais para ter mais opções!)'}
+        </p>
 
         <div className="flex flex-col gap-4">
           {draftOptions.map((poke, i) => {
@@ -164,12 +305,19 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
                   alt={data.name}
                 />
                 <div className="flex-1 z-10">
-                  <h3 className="text-white font-black text-lg uppercase italic">{data.name}</h3>
-                  <div className="flex gap-2 mt-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-white font-black text-lg uppercase italic">{data.name}</h3>
+                    <span className="text-white/40 text-[10px] font-bold">Nv {poke.level}</span>
+                  </div>
+                  <div className="flex gap-2 mt-1 flex-wrap">
                     {(data.types || []).map(t => (
-                      <span key={t} className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-white/10 text-white border border-white/20">{t}</span>
+                      <span key={t} className={TYPE_PILL}>{t}</span>
                     ))}
                   </div>
+                  <p className="text-white/40 text-[9px] mt-1.5">
+                    {poke.allMoves?.length || poke.moves?.length || 0} golpes aprendidos
+                    {poke.needsMoveSelection && <span className="text-yellow-400 ml-1">— escolher 4</span>}
+                  </p>
                 </div>
               </button>
             );
@@ -179,160 +327,340 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
     );
   }
 
-  // ── Run ────────────────────────────────────────────────────────────────
-  if (!run) return null;
+  // ── Fase: Seleção de golpes ────────────────────────────────────────────────
+  if (phase === 'move_selection') {
+    const poke = pendingPoke;
+    const data = poke ? POKEDEX[poke.id] : null;
+    const allMoves = poke?.allMoves || [];
+    const isRecruit = poke?._isRecruit;
 
-  const isBossFloor = run.floor % 10 === 0;
-  // BUG-FIX: inventário agora é plano {coins, potions, revives}.
-  // startTowerRun retornava {coins, items:{potions,revives}} que incompatibilizava
-  // com os acessos diretos run.inventory.potions e a escrita newInv[offer.id].
-  const inv = run.inventory || { coins: 0, potions: 0, revives: 0 };
-
-  return (
-    <div className="h-full flex flex-col bg-slate-950 p-6 animate-fadeIn overflow-y-auto">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <p className="text-white/40 text-[10px] font-black uppercase tracking-widest">Progresso da Torre</p>
-          <h2 className="text-white text-3xl font-black uppercase italic tracking-tighter">
-            {isBossFloor ? <span className="text-red-500">Boss Floor {run.floor}</span> : `Andar ${run.floor}`}
-          </h2>
-        </div>
-        <button onClick={handleEndRun} className="text-red-400 text-[10px] uppercase font-black px-3 py-2 border border-red-500/30 rounded-xl hover:bg-red-500/20">
-          Desistir
-        </button>
-      </div>
-
-      {/* Time */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        {(run.team || []).map((poke, i) => {
-          const data = POKEDEX[poke.id];
-          if (!data) return null;
-          const hpPct = Math.max(0, ((poke.currentHp ?? poke.hp ?? poke.maxHp) / poke.maxHp) * 100);
-          const isFainted = hpPct === 0;
-          return (
-            <div key={i} className={`bg-slate-900 border border-white/10 rounded-2xl p-3 flex flex-col ${isFainted ? 'opacity-50 grayscale' : ''}`}>
-              <div className="flex justify-between items-start mb-2">
-                <img
-                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png`}
-                  className="w-10 h-10 object-contain drop-shadow-md"
-                  alt={data.name}
-                />
-                <span className="text-white/40 font-black text-[9px] uppercase">Nv {poke.level}</span>
-              </div>
-              <h4 className="text-white font-black text-xs uppercase truncate mb-1">{data.name}</h4>
-              <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                <div
-                  className={`h-full ${hpPct > 50 ? 'bg-green-500' : hpPct > 20 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                  style={{ width: `${hpPct}%` }}
-                />
-              </div>
-              <p className="text-[8px] font-bold text-white/50 text-right mt-1">
-                {Math.ceil(poke.currentHp ?? poke.hp ?? poke.maxHp)}/{poke.maxHp}
-              </p>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Shop */}
-      <div className="bg-slate-900 border border-white/10 rounded-2xl p-4 mb-4">
-        <p className="text-white/50 text-[10px] font-black uppercase tracking-widest mb-3">Shop da Torre</p>
-
-        <div className="flex gap-2 mb-3">
-          <div className="flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-lg border border-white/10">
-            <span className="text-[10px] font-black uppercase text-white/50">Moedas:</span>
-            <span className="text-yellow-400 font-black text-xs">{inv.coins ?? 0}</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-lg border border-white/10">
-            <span className="text-[10px] font-black uppercase text-white/50">Poções:</span>
-            <span className="text-white font-black text-xs">{inv.potions ?? 0}</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-lg border border-white/10">
-            <span className="text-[10px] font-black uppercase text-white/50">Revives:</span>
-            <span className="text-white font-black text-xs">{inv.revives ?? 0}</span>
+    return (
+      <div className="h-full flex flex-col bg-slate-950 p-5 animate-fadeIn overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-5">
+          {data && (
+            <img
+              src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png`}
+              className="w-14 h-14 drop-shadow-lg"
+              alt={data.name}
+            />
+          )}
+          <div>
+            <h2 className="text-white font-black text-xl uppercase italic tracking-tighter">
+              {data?.name} — Golpes
+            </h2>
+            <p className="text-white/50 text-[10px] font-bold uppercase tracking-widest">
+              Escolha exatamente 4 golpes para a batalha
+            </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-2">
-          {(run.shop || []).map((offer, idx) => {
-            const isRecruit = offer.type === 'recruit';
-            const isTeamFull = isRecruit && (run.team || []).length >= 6;
-            const isReviveBoon = offer.type === 'boon' && offer.boon?.id === 'revive_one';
-            const hasFainted = (run.team || []).some(p => (p.hp <= 0 || (p.currentHp ?? p.hp) <= 0));
-            const canAfford = (inv.coins ?? 0) >= offer.cost && !isTeamFull && !(isReviveBoon && !hasFainted);
+        {/* Contador */}
+        <div className={`flex items-center justify-between mb-4 px-4 py-2.5 rounded-xl border ${selectedMoves.length === 4 ? 'bg-green-900/20 border-green-500/30' : 'bg-slate-900 border-white/10'}`}>
+          <span className="text-white/60 text-xs font-bold uppercase tracking-widest">Selecionados</span>
+          <span className={`font-black text-lg ${selectedMoves.length === 4 ? 'text-green-400' : 'text-white'}`}>
+            {selectedMoves.length} / 4
+          </span>
+        </div>
+
+        {/* Lista de todos os golpes */}
+        <div className="flex flex-col gap-2 mb-5 flex-1">
+          {allMoves.map((moveKey) => {
+            const move = MOVES[moveKey];
+            const isSelected = selectedMoves.includes(moveKey);
+            const typeClass = TYPE_MOVE_CLS[move?.type] || TYPE_MOVE_CLS.Normal;
+            const canSelect = isSelected || selectedMoves.length < 4;
 
             return (
               <button
-                key={idx}
-                onClick={() => {
+                key={moveKey}
+                onClick={() => toggleMove(moveKey)}
+                className={`flex items-center gap-3 p-3 rounded-xl border transition-all text-left ${
+                  isSelected
+                    ? `${typeClass} ring-2 ring-white/30 scale-[1.01]`
+                    : canSelect
+                    ? `${typeClass} opacity-70 hover:opacity-100`
+                    : 'bg-slate-900 border-white/5 opacity-30 cursor-not-allowed'
+                }`}
+              >
+                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 ${isSelected ? 'bg-white border-white' : 'border-white/30'}`}>
+                  {isSelected && <span className="text-slate-900 text-xs font-black">✓</span>}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-black text-xs uppercase truncate">{move?.name || moveKey}</p>
+                  <p className="text-[8px] opacity-70 font-bold">
+                    {move?.type} · {move?.category === 'Physical' ? 'Físico' : move?.category === 'Special' ? 'Especial' : 'Status'}
+                    {move?.power ? ` · 💥 ${move.power}` : ''}
+                    {move?.accuracy && move.accuracy < 100 ? ` · 🎯 ${move.accuracy}%` : ''}
+                  </p>
+                </div>
+                <div className={`w-2 h-2 rounded-full ${isSelected ? 'bg-white' : 'bg-white/20'}`} />
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Confirmar */}
+        <button
+          onClick={isRecruit ? confirmRecruitMoveSelection : confirmMoveSelection}
+          disabled={selectedMoves.length === 0}
+          className={`w-full py-4 rounded-2xl font-black uppercase text-base tracking-widest transition-all border-b-4 ${
+            selectedMoves.length === 4
+              ? 'bg-green-600 border-green-800 text-white hover:bg-green-500 hover:scale-[1.01] active:scale-95'
+              : selectedMoves.length > 0
+              ? 'bg-slate-700 border-slate-800 text-white hover:bg-slate-600'
+              : 'bg-slate-900 border-slate-900 text-white/30 cursor-not-allowed'
+          }`}
+        >
+          {selectedMoves.length === 4 ? '✅ Confirmar Golpes' : `Selecione ${4 - selectedMoves.length} golpe${4 - selectedMoves.length !== 1 ? 's' : ''} ainda`}
+        </button>
+      </div>
+    );
+  }
+
+  // ── Fase: Run ─────────────────────────────────────────────────────────────
+  if (!run) return null;
+
+  const isBossFloor = run.floor % 10 === 0;
+  const inv = run.inventory || { coins: 0, potions: 0, revives: 0 };
+
+  return (
+    <div className="h-full flex flex-col bg-slate-950 animate-fadeIn overflow-hidden relative">
+
+      {/* Modal de Shop (pós-batalha) */}
+      {showShopModal && (
+        <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col">
+          <div className="flex-1 overflow-y-auto p-5">
+            {/* Título do modal */}
+            <div className="text-center mb-5 pt-2">
+              <p className="text-white/50 text-[10px] font-black uppercase tracking-widest">Vitória!</p>
+              <h2 className="text-white font-black text-2xl uppercase italic tracking-tighter">
+                🛒 Shop — Andar {run.floor}
+              </h2>
+              {isBossFloor && <p className="text-purple-400 text-xs font-bold mt-1">⭐ Andar Boss derrubado!</p>}
+            </div>
+
+            {/* Saldo */}
+            <div className="flex gap-2 mb-4 justify-center flex-wrap">
+              {[
+                { label: '🪙 Moedas', val: inv.coins ?? 0, cls: 'text-yellow-400' },
+                { label: '🧪 Poções', val: inv.potions ?? 0, cls: 'text-blue-400' },
+                { label: '💊 Revives', val: inv.revives ?? 0, cls: 'text-red-400' },
+              ].map(({ label, val, cls }) => (
+                <div key={label} className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 rounded-xl border border-white/10">
+                  <span className="text-white/50 text-[9px] font-black uppercase">{label}:</span>
+                  <span className={`font-black text-sm ${cls}`}>{val}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Itens do shop */}
+            <div className="flex flex-col gap-3">
+              {(run.shop || []).map((offer, idx) => {
+                const isRecruit = offer.type === 'recruit';
+                const isTeamFull = isRecruit && (run.team || []).length >= 6;
+                const isReviveBoon = offer.type === 'boon' && offer.boon?.id === 'revive_one';
+                const hasFainted = (run.team || []).some(p => (p.currentHp ?? p.hp ?? 1) <= 0);
+                const canAfford = (inv.coins ?? 0) >= offer.cost
+                  && !isTeamFull
+                  && !(isReviveBoon && !hasFainted);
+
+                // Recruit com seleção de moves abre a tela de seleção
+                const handleBuy = () => {
                   if (!canAfford) return;
+                  if (isRecruit && offer.pokemon?.needsMoveSelection) {
+                    // Debita moedas primeiro
+                    setGameState(prev => {
+                      const prevRun = prev.tower?.activeRun;
+                      if (!prevRun) return prev;
+                      const newInv = { ...prevRun.inventory, coins: (prevRun.inventory.coins ?? 0) - offer.cost };
+                      const newShop = (prevRun.shop || []).filter((_, i) => i !== idx);
+                      return { ...prev, tower: { ...prev.tower, activeRun: { ...prevRun, inventory: newInv, shop: newShop } } };
+                    });
+                    handleRecruitWithMoves(offer.pokemon);
+                    return;
+                  }
+
                   setGameState(prev => {
                     const prevRun = prev.tower?.activeRun;
                     if (!prevRun) return prev;
                     const newInv = { ...prevRun.inventory, coins: (prevRun.inventory.coins ?? 0) - offer.cost };
-                    const newTowerRun = { ...prevRun, inventory: newInv, team: [...prevRun.team] };
+                    const newRun2 = { ...prevRun, inventory: newInv, team: [...prevRun.team] };
 
                     if (offer.type === 'item') {
-                      // BUG-FIX: escrita direta no inventário plano
                       newInv[offer.id] = (newInv[offer.id] || 0) + 1;
                     } else if (offer.type === 'boon') {
                       if (offer.boon?.id === 'revive_one') {
-                        const faintedIdx = newTowerRun.team.findIndex(p => (p.hp ?? 0) <= 0 || (p.currentHp ?? 0) <= 0);
-                        if (faintedIdx !== -1) {
-                          const revived = { ...newTowerRun.team[faintedIdx] };
-                          const halfHp = Math.ceil(revived.maxHp * 0.5);
-                          revived.hp = halfHp;
-                          revived.currentHp = halfHp;
-                          newTowerRun.team[faintedIdx] = revived;
+                        const fIdx = newRun2.team.findIndex(p => (p.currentHp ?? p.hp ?? 1) <= 0);
+                        if (fIdx !== -1) {
+                          const rev = { ...newRun2.team[fIdx] };
+                          const half = Math.ceil(rev.maxHp * 0.5);
+                          rev.currentHp = half; rev.hp = half;
+                          newRun2.team[fIdx] = rev;
                         }
                       } else {
-                        newTowerRun.boons = [...(newTowerRun.boons || []), offer.boon];
+                        newRun2.boons = [...(newRun2.boons || []), offer.boon];
                       }
                     } else if (offer.type === 'recruit') {
-                      newTowerRun.team.push(offer.pokemon);
+                      newRun2.team.push(offer.pokemon);
                     }
 
-                    newTowerRun.shop = (newTowerRun.shop || []).filter((_, i) => i !== idx);
-                    return { ...prev, tower: { ...prev.tower, activeRun: newTowerRun }, team: newTowerRun.team };
+                    newRun2.shop = (newRun2.shop || []).filter((_, i) => i !== idx);
+                    return { ...prev, tower: { ...prev.tower, activeRun: newRun2 } };
                   });
-                }}
-                disabled={!canAfford}
-                className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all ${
-                  canAfford
-                    ? 'bg-slate-800 border-white/20 hover:bg-slate-700 hover:scale-[1.01] active:scale-[0.98]'
-                    : 'bg-slate-900 border-white/5 opacity-50 cursor-not-allowed'
-                }`}
-              >
-                <div>
-                  <h5 className={`font-black text-xs uppercase ${
-                    offer.type === 'boon' ? 'text-amber-400' : offer.type === 'recruit' ? 'text-blue-400' : 'text-white'
-                  }`}>
-                    {offer.name} {isTeamFull && <span className="text-red-500">(Time Cheio)</span>}
-                  </h5>
-                  {offer.desc && <p className="text-[9px] font-bold text-white/50 mt-0.5">{offer.desc}</p>}
+                };
+
+                return (
+                  <button
+                    key={idx}
+                    onClick={handleBuy}
+                    disabled={!canAfford}
+                    className={`flex items-center justify-between p-4 rounded-2xl border text-left transition-all ${
+                      canAfford
+                        ? 'bg-slate-800 border-white/20 hover:bg-slate-700 hover:scale-[1.01] active:scale-[0.98]'
+                        : 'bg-slate-900/60 border-white/5 opacity-40 cursor-not-allowed'
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <h5 className={`font-black text-sm uppercase truncate ${
+                        offer.type === 'boon' ? 'text-amber-400'
+                        : offer.type === 'recruit' ? 'text-blue-400'
+                        : 'text-white'
+                      }`}>
+                        {offer.type === 'recruit' && (
+                          <img
+                            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${offer.pokemon?.id}.png`}
+                            className="w-8 h-8 inline-block -mt-1 mr-1"
+                            alt=""
+                          />
+                        )}
+                        {offer.name}
+                        {isTeamFull && <span className="text-red-400 text-[9px] ml-1">(time cheio)</span>}
+                      </h5>
+                      {offer.desc && <p className="text-white/40 text-[10px] font-medium mt-0.5">{offer.desc}</p>}
+                    </div>
+                    <div className="ml-3 shrink-0">
+                      <span className={`font-black text-sm ${canAfford ? 'text-yellow-400' : 'text-white/30'}`}>
+                        {offer.cost} 🪙
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+              {(!run.shop || run.shop.length === 0) && (
+                <p className="text-center text-white/30 text-[10px] font-black uppercase tracking-widest py-4">Loja esgotada</p>
+              )}
+            </div>
+          </div>
+
+          {/* Botão de fechar shop e lutar */}
+          <div className="p-5 border-t border-white/10 bg-slate-950/90">
+            <button
+              onClick={() => setShowShopModal(false)}
+              className={`w-full py-5 rounded-3xl font-black uppercase text-lg italic tracking-tighter shadow-xl border-b-6 hover:scale-[1.02] active:scale-95 transition-all ${
+                isBossFloor
+                  ? 'bg-purple-600 border-purple-900 text-white shadow-purple-900/40'
+                  : 'bg-white text-slate-900 border-slate-300 shadow-slate-900/20'
+              }`}
+            >
+              Fechar Loja → Andar {run.floor}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Tela de Run principal (por baixo do modal) ─────────────────────── */}
+      <div className="h-full flex flex-col p-6 overflow-y-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <p className="text-white/40 text-[10px] font-black uppercase tracking-widest">Progresso da Torre</p>
+            <h2 className="text-white text-3xl font-black uppercase italic tracking-tighter">
+              {isBossFloor
+                ? <span className="text-purple-400">⭐ Boss — Andar {run.floor}</span>
+                : `Andar ${run.floor}`}
+            </h2>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 text-yellow-400 font-black text-sm">
+              <span>{inv.coins ?? 0}</span><span>🪙</span>
+            </div>
+            <button
+              onClick={handleEndRun}
+              className="text-red-400 text-[9px] uppercase font-black px-3 py-1.5 border border-red-500/30 rounded-xl hover:bg-red-500/20"
+            >
+              Desistir
+            </button>
+          </div>
+        </div>
+
+        {/* Time da Torre */}
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          {(run.team || []).map((poke, i) => {
+            const data = POKEDEX[poke.id];
+            if (!data) return null;
+            const hpPct = Math.max(0, ((poke.currentHp ?? poke.hp ?? poke.maxHp) / poke.maxHp) * 100);
+            const isFainted = hpPct === 0;
+            return (
+              <div key={i} className={`bg-slate-900 border border-white/10 rounded-2xl p-3 flex flex-col ${isFainted ? 'opacity-40 grayscale' : ''}`}>
+                <div className="flex justify-between items-start mb-2">
+                  <img
+                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png`}
+                    className="w-10 h-10 object-contain drop-shadow-md"
+                    alt={data.name}
+                  />
+                  <span className="text-white/40 font-black text-[9px] uppercase">Nv {poke.level}</span>
                 </div>
-                <div className="flex items-center gap-1 shrink-0 ml-2">
-                  <span className="text-[10px] font-black text-yellow-500">{offer.cost} 🪙</span>
+                <h4 className="text-white font-black text-xs uppercase truncate mb-1">{data.name}</h4>
+                <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full ${hpPct > 50 ? 'bg-green-500' : hpPct > 20 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                    style={{ width: `${hpPct}%` }}
+                  />
                 </div>
-              </button>
+                <p className="text-[8px] font-bold text-white/50 text-right mt-1">
+                  {Math.ceil(poke.currentHp ?? poke.hp ?? poke.maxHp)}/{poke.maxHp} HP
+                </p>
+              </div>
             );
           })}
-          {(!run.shop || run.shop.length === 0) && (
-            <div className="text-center py-4 text-white/30 text-[10px] font-black uppercase tracking-widest">Loja Esgotada</div>
-          )}
+        </div>
+
+        {/* Boons ativos */}
+        {(run.boons || []).length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {run.boons.map((b, i) => (
+              <span key={i} className="text-[9px] font-black px-2 py-1 bg-amber-900/30 border border-amber-600/30 text-amber-400 rounded-lg uppercase">
+                ✨ {b.name}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Botão de shop (abrir novamente) */}
+        {(run.shop || []).length > 0 && !showShopModal && (
+          <button
+            onClick={() => setShowShopModal(true)}
+            className="w-full mb-4 py-3 rounded-2xl font-black uppercase text-sm tracking-widest bg-slate-800 border border-white/10 text-white/70 hover:bg-slate-700 hover:text-white transition-all"
+          >
+            🛒 Ver Shop ({run.shop.length} {run.shop.length === 1 ? 'item' : 'itens'})
+          </button>
+        )}
+
+        {/* Botão de batalha */}
+        <div className="mt-auto">
+          <button
+            onClick={handleBattle}
+            className={`w-full py-5 rounded-3xl font-black uppercase text-lg italic tracking-tighter shadow-xl border-b-8 hover:scale-[1.02] active:scale-95 transition-all ${
+              isBossFloor
+                ? 'bg-purple-600 border-purple-900 text-white shadow-purple-900/40'
+                : 'bg-white text-slate-900 border-slate-300 shadow-slate-900/20'
+            }`}
+          >
+            {isBossFloor ? '⭐ Desafiar Boss' : '⚔️ Próximo Andar'}
+          </button>
         </div>
       </div>
-
-      <button
-        onClick={handleBattle}
-        className={`w-full py-5 rounded-3xl font-black uppercase text-lg italic tracking-tighter shadow-xl border-b-8 hover:scale-[1.02] active:scale-95 transition-all ${
-          isBossFloor
-            ? 'bg-purple-600 border-purple-800 text-white shadow-purple-900/40'
-            : 'bg-white text-slate-900 border-slate-300 shadow-slate-900/20'
-        }`}
-      >
-        {isBossFloor ? '⚔️ Desafiar Chefe' : '⚔️ Próximo Andar'}
-      </button>
     </div>
   );
 };

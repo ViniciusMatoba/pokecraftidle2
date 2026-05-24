@@ -528,21 +528,29 @@ const PokemonManagement = ({
     
     // Validação de Acesso Regional
     if (validateTeamAccess && !validateTeamAccess(poke, activeRegion)) {
-      const isChampion = (gameState.worldFlags || []).includes(`region_champion_${activeRegion}`) || 
-                        (gameState.worldFlags || []).includes(REGION_CHAMPION_FLAGS[activeRegion]);
+      const worldFlags = gameState.worldFlags || [];
+      const isLegal = isPokemonLegal(poke, activeRegion, worldFlags);
+      const isChampion = worldFlags.includes(REGION_CHAMPION_FLAGS[activeRegion]);
+      const activeLabel = REGION_LABELS[activeRegion] || activeRegion;
+      const pokeRegion = poke.capturedRegion || getDexRegion(poke.id);
+      const pokeLabel = REGION_LABELS[pokeRegion] || pokeRegion;
 
-      let reason = "Este Pokémon não pode ser usado nesta região no momento.";
-      if (poke.level > (GYM_LEVEL_CAPS[activeRegion]?.[Object.values(GYM_LEVEL_CAPS[activeRegion]).length - 1] || 100)) {
-         reason = "Nível muito alto para o seu limite atual de insígnias.";
-      } else if (!isChampion && getDexRegion(poke.id) !== activeRegion && activeRegion !== 'kanto') {
-         // Kanto permite tudo se for campeão, mas outras regiões podem ter restrições.
-         // Mantemos a lógica de validateTeamAccess para o grosso das regras.
-         // Se validateTeamAccess retornou falso, já parou acima.
+      let reason;
+      if (!isLegal) {
+        const regionIndex = REGION_ORDER.indexOf(pokeRegion);
+        const activeIndex = REGION_ORDER.indexOf(activeRegion);
+        if (isChampion && regionIndex > activeIndex) {
+          reason = `${poke.name} é de ${pokeLabel}, uma região futura. Pokémon de regiões futuras não podem ser usados em ${activeLabel}.`;
+        } else {
+          reason = `${poke.name} foi capturado em ${pokeLabel}. Pokémon de outras regiões só podem ser usados após você vencer a Liga de ${activeLabel}.`;
+        }
+      } else {
+        reason = `${poke.name} está no nível ${poke.level}, acima do limite atual de insígnias em ${activeLabel}. Ganhe mais insígnias para usar este Pokémon.`;
       }
 
       showConfirm({
-        title: 'Acesso Negado',
-        message: `Regra Regional: ${reason}`,
+        title: '🔒 Pokémon Bloqueado',
+        message: reason,
         onConfirm: closeConfirm
       });
       return;
@@ -952,13 +960,30 @@ const PokemonManagement = ({
                     const isLegal = isPokemonLegal(p, activeRegion, worldFlags);
                     const isAllowedByLevel = validateTeamAccess ? validateTeamAccess(p, activeRegion) : true;
                     const canSelect = isLegal && isAllowedByLevel && !p.onExpedition;
-                    
+
+                    // Tooltip informativo para Pokémon bloqueados
+                    const lockReason = (() => {
+                      if (p.onExpedition) return '🚢 Em expedição — retorne para usar no time';
+                      if (!isLegal) {
+                        const pokeRegion = p.capturedRegion || getPokemonRegion(p.id);
+                        const activeLabel = REGION_LABELS[activeRegion] || activeRegion;
+                        const pokeLabel = REGION_LABELS[pokeRegion] || pokeRegion;
+                        const isChampion = worldFlags.includes(REGION_CHAMPION_FLAGS[activeRegion]);
+                        if (isChampion) return `🔒 Capturado em ${pokeLabel} — região futura bloqueada em ${activeLabel}`;
+                        return `🔒 Capturado em ${pokeLabel} — derrote a Liga de ${activeLabel} para desbloquear Pokémon anteriores`;
+                      }
+                      if (!isAllowedByLevel) return `🔒 Nível muito alto — ganhe mais insígnias em ${REGION_LABELS[activeRegion] || activeRegion}`;
+                      return '';
+                    })();
+
                     return (
-                      <div 
-                        key={p.instanceId || `pc-${p.id}-${p.originalIndex}`} 
-                        onClick={() => setActivePokemonDetails({ pokemon: p, index: p.originalIndex, location: 'pc' })} 
+                      <div
+                        key={p.instanceId || `pc-${p.id}-${p.originalIndex}`}
+                        onClick={() => setActivePokemonDetails({ pokemon: p, index: p.originalIndex, location: 'pc' })}
                         className={`flex-1 bg-white p-3 rounded-2xl border-2 flex flex-col items-center gap-2 group relative cursor-pointer hover:border-pokeGold transition-all ${
-                          !isLegal ? 'opacity-50 grayscale border-red-100' : 'border-slate-100'
+                          !isLegal ? 'opacity-40 grayscale border-red-200' :
+                          !isAllowedByLevel ? 'opacity-60 border-orange-200' :
+                          'border-slate-100'
                         }`}
                       >
                          <img
@@ -973,11 +998,16 @@ const PokemonManagement = ({
                            alt={p.name}
                            loading="lazy"
                          />
-                         
-                         {/* Ícone de Cadeado Regional */}
-                         {!isLegal && (
-                           <div className="absolute top-1 left-1 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center shadow-sm" title="Pokémon estrangeiros só podem ser usados após vencer a Liga desta região.">
-                             <span className="text-[10px]">🔒</span>
+
+                         {/* Cadeado regional com tooltip */}
+                         {!canSelect && lockReason && (
+                           <div
+                             className={`absolute top-1 left-1 w-5 h-5 rounded-full flex items-center justify-center shadow-sm text-white text-[10px] ${
+                               !isLegal ? 'bg-red-500' : !isAllowedByLevel ? 'bg-orange-500' : 'bg-slate-400'
+                             }`}
+                             title={lockReason}
+                           >
+                             🔒
                            </div>
                          )}
 
@@ -994,19 +1024,25 @@ const PokemonManagement = ({
                            {p.onExpedition && (
                              <p className="text-[7px] font-black text-blue-500 uppercase mt-0.5 animate-pulse">🚢 Expedição</p>
                            )}
+                           {/* Label de região origem para Pokémon bloqueados */}
+                           {!isLegal && (
+                             <p className="text-[7px] font-bold text-red-400 uppercase mt-0.5">
+                               {REGION_LABELS[p.capturedRegion || getPokemonRegion(p.id)] || '?'}
+                             </p>
+                           )}
                          </div>
 
                          {canSelect ? (
-                           <button 
-                             onClick={(e) => { e.stopPropagation(); moveToTeam(p.originalIndex, p.instanceId); }} 
+                           <button
+                             onClick={(e) => { e.stopPropagation(); moveToTeam(p.originalIndex, p.instanceId); }}
                              className="absolute top-1 right-1 bg-blue-50 text-blue-500 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all scale-75"
                            >
                              <span className="font-black text-[8px] uppercase">+ Team</span>
                            </button>
                          ) : (
-                           <div 
+                           <div
                              className="absolute top-1 right-1 bg-slate-100 text-slate-400 p-1.5 rounded-lg opacity-100 scale-75"
-                             title={!isLegal ? 'Pokémon estrangeiros só podem ser usados após vencer a Liga desta região.' : p.onExpedition ? 'Em expedição' : 'Nível muito alto'}
+                             title={lockReason}
                            >
                              <span className="font-black text-[8px] uppercase">🔒</span>
                            </div>

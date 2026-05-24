@@ -74,6 +74,9 @@ import ConfirmModal from './components/ConfirmModal';
 import RankingModal from './components/RankingModal';
 import BugReportModal from './components/BugReportModal';
 import RareDropModal, { isRareDropDismissed } from './components/RareDropModal';
+import SaveConflictModal from './components/SaveConflictModal';
+import AvatarSelectScreen from './components/AvatarSelectScreen';
+import { loadAvatarMeta, initAvatarMetaSlot1, getSlotDocId } from './services/avatars';
 
 import { QUESTS, updateQuestProgress, getAvailableQuest } from './data/quests';
 import NotificationSystem, { notify } from './components/NotificationSystem';
@@ -117,7 +120,10 @@ const bumpPlayerStats = (stats = {}, increments = {}) => {
 const monitorAuthState = (callback) => onAuthStateChanged(auth, callback);
 
 const LEGACY_LOCAL_SAVE_KEY = 'poke_idle_save';
-const localSaveKeyForUser = (uid) => uid ? `poke_idle_save_${uid}` : LEGACY_LOCAL_SAVE_KEY;
+const localSaveKeyForUser = (uid, slot = 1) => {
+  if (!uid) return LEGACY_LOCAL_SAVE_KEY;
+  return slot > 1 ? `poke_idle_save_${uid}_s${slot}` : `poke_idle_save_${uid}`;
+};
 
 const parseStoredSave = (raw) => {
   if (!raw) return null;
@@ -167,11 +173,12 @@ const parseStoredSave = (raw) => {
   }
 };
 
-const readLocalSaveEnvelope = (uid = null) => {
+const readLocalSaveEnvelope = (uid = null, slot = 1) => {
   try {
-    const userKey = localSaveKeyForUser(uid);
+    const userKey = localSaveKeyForUser(uid, slot);
+    // Slot 1 também tenta a chave legada como fallback
     const candidates = uid
-      ? [userKey, LEGACY_LOCAL_SAVE_KEY]
+      ? (slot === 1 ? [userKey, LEGACY_LOCAL_SAVE_KEY] : [userKey])
       : [LEGACY_LOCAL_SAVE_KEY];
 
     for (const key of candidates) {
@@ -186,12 +193,13 @@ const readLocalSaveEnvelope = (uid = null) => {
   return null;
 };
 
-const writeLocalSaveEnvelope = (gameState, user = null) => {
+const writeLocalSaveEnvelope = (gameState, user = null, slot = 1) => {
   if (!gameState) return;
-  
+
   const envelope = {
     uid: user?.uid || null,
     email: user?.email || null,
+    slot,
     savedAt: Date.now(),
     gameState,
   };
@@ -202,8 +210,9 @@ const writeLocalSaveEnvelope = (gameState, user = null) => {
   }
 
   const secured = secureSave(envelope);
-  localStorage.setItem(localSaveKeyForUser(user?.uid), secured);
-  localStorage.setItem(LEGACY_LOCAL_SAVE_KEY, secured);
+  localStorage.setItem(localSaveKeyForUser(user?.uid, slot), secured);
+  // Slot 1 também mantém a chave legada para backward compat
+  if (slot === 1) localStorage.setItem(LEGACY_LOCAL_SAVE_KEY, secured);
 };
 
 const fixPath = (path) => {
@@ -784,6 +793,13 @@ const handleSelectTitleInApp = (newTitleId, setGameState) => {
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [saveConflict, setSaveConflict] = useState(null); // { cloudSave, cloudSavedAt, localSave, localSavedAt }
+  // ── Multi-Avatar ────────────────────────────────────────────────────────────
+  const [currentSlot, setCurrentSlot] = useState(1);
+  const currentSlotRef = useRef(1);
+  const [avatarMeta, setAvatarMeta] = useState(null); // { avatars: [{slot, nick, createdAt}] }
+  const [showAvatarSelect, setShowAvatarSelect] = useState(false);
+  // ────────────────────────────────────────────────────────────────────────────
   const [isPreloaded, setIsPreloaded] = useState(false);
   const [preloadProgress, setPreloadProgress] = useState(0);
   const [selectedAvatar, setSelectedAvatar] = useState(null);
@@ -837,10 +853,12 @@ export default function App() {
     });
   }, []);
 
-  const loadGameState = async (uid) => {
+  const loadGameState = async (uid, slot = 1) => {
+    // Retorna { gameState, cloudSavedAt } para permitir comparação com save local
+    const docId = getSlotDocId(uid, slot);
     // 1. Tenta o save principal
     try {
-      const docRef = doc(db, "saves", uid);
+      const docRef = doc(db, "saves", docId);
       let docSnap;
       try {
         docSnap = await getDocFromServer(docRef);
@@ -850,14 +868,15 @@ export default function App() {
       }
       if (docSnap.exists()) {
         const data = docSnap.data();
+        const cloudSavedAt = data.updatedAtClient || 0;
         if (data.compressedState) {
           const decompressed = LZString.decompress(data.compressedState);
           if (decompressed) {
             const parsed = JSON.parse(decompressed);
-            if (parsed) return parsed;
+            if (parsed) return { gameState: parsed, cloudSavedAt };
           }
         }
-        if (data.gameState) return data.gameState; // legado não comprimido
+        if (data.gameState) return { gameState: data.gameState, cloudSavedAt }; // legado não comprimido
       }
     } catch (e) {
       console.error('[Load] Falha no save principal:', e);
@@ -866,7 +885,7 @@ export default function App() {
     // 2. Fallback: tenta os snapshots diários (últimos 3 dias, mais recente primeiro)
     try {
       const { orderBy, limit } = await import('firebase/firestore');
-      const snapshotsRef = collection(db, 'saves', uid, 'snapshots');
+      const snapshotsRef = collection(db, 'saves', docId, 'snapshots');
       const q = query(snapshotsRef, orderBy('createdAt', 'desc'), limit(3));
       const snaps = await getDocs(q);
       for (const snap of snaps.docs) {
@@ -876,9 +895,11 @@ export default function App() {
           if (decompressed) {
             const parsed = JSON.parse(decompressed);
             if (parsed) {
+              // snapshots têm createdAt como serverTimestamp; usa toMillis() se disponível
+              const snapTs = data.createdAt?.toMillis?.() || 0;
               console.warn(`[Load] Save principal falhou — restaurado do snapshot ${snap.id}`);
               notify(`Save restaurado do backup de ${snap.id}. Verifique seu progresso.`, 'warning');
-              return parsed;
+              return { gameState: parsed, cloudSavedAt: snapTs };
             }
           }
         }
@@ -897,10 +918,58 @@ export default function App() {
         setLoading(true);
         isFullyLoadedRef.current = false;
 
+        // ── Multi-Avatar: verifica metadados de avatar ───────────────────────
         try {
-          const savedData = await loadGameState(u.uid);
+          const meta = await loadAvatarMeta(u.uid);
+          setAvatarMeta(meta);
 
-          if (savedData) {
+          if (meta && meta.avatars && meta.avatars.length > 1) {
+            // Múltiplos avatares: suspende o load e exibe a tela de seleção
+            setShowAvatarSelect(true);
+            setLoading(false);
+            return;
+          }
+          // 1 avatar (ou sem meta): segue com slot 1
+        } catch (metaErr) {
+          console.warn('[Avatar] Erro ao carregar meta, prosseguindo com slot 1:', metaErr);
+        }
+        currentSlotRef.current = 1;
+        setCurrentSlot(1);
+        // ────────────────────────────────────────────────────────────────────
+
+        try {
+          const loadResult = await loadGameState(u.uid, 1);
+
+          if (loadResult) {
+            const { gameState: savedData, cloudSavedAt } = loadResult;
+
+            // ── Detecção de conflito local vs nuvem ─────────────────────────────
+            // Se o save LOCAL deste dispositivo for significativamente mais recente
+            // que a nuvem, mostra modal para o jogador escolher qual usar.
+            // Threshold: 5 minutos — diferenças menores são ignoradas (autosave lag).
+            const CONFLICT_THRESHOLD_MS = 5 * 60 * 1000;
+            let localParsedForConflict = null;
+            try {
+              localParsedForConflict = readLocalSaveEnvelope(u.uid, 1);
+            } catch { /* ignora */ }
+
+            const localSavedAt = localParsedForConflict?.savedAt || 0;
+            const localGameState = localParsedForConflict?.gameState || null;
+
+            if (localGameState && localSavedAt > cloudSavedAt + CONFLICT_THRESHOLD_MS) {
+              // Save local é mais recente: exibe modal de conflito e suspende o load
+              console.warn(`[Sync] Conflito: local ${new Date(localSavedAt).toISOString()} > nuvem ${new Date(cloudSavedAt).toISOString()}`);
+              setSaveConflict({
+                cloudSave: savedData,
+                cloudSavedAt,
+                localSave: localGameState,
+                localSavedAt,
+              });
+              setLoading(false);
+              return; // O effect de resolução de conflito prossegue o carregamento
+            }
+            // ────────────────────────────────────────────────────────────────────
+
             const migratedData = migrateGameState(savedData, { version: APP_VERSION });
 
             // Calcula progresso offline desde o último acesso.
@@ -908,7 +977,7 @@ export default function App() {
             // (salvo pelo handler beforeunload/visibilitychange).
             let lastActiveAt = migratedData.playerStats?.lastSeenAt || null;
             try {
-              const localParsed = readLocalSaveEnvelope(u.uid);
+              const localParsed = readLocalSaveEnvelope(u.uid, 1);
               const localTs = localParsed?.gameState?.playerStats?.lastSeenAt;
               if (localTs && (!lastActiveAt || localTs > lastActiveAt)) {
                 lastActiveAt = localTs; // localStorage da mesma conta tem timestamp mais recente
@@ -967,7 +1036,7 @@ export default function App() {
             }
           } else {
             // Não encontrou save na nuvem — tenta recuperar do localStorage
-            const localData = readLocalSaveEnvelope(u.uid)?.gameState || null;
+            const localData = readLocalSaveEnvelope(u.uid, 1)?.gameState || null;
             if (localData) {
               const migratedLocal = migrateGameState(localData, { version: APP_VERSION });
               setGameState(migratedLocal);
@@ -987,7 +1056,7 @@ export default function App() {
         } catch (err) {
           console.error("❌ [Cloud] Error loading save:", err);
           // Em caso de erro de rede, tenta o localStorage antes de desistir
-          const localData = readLocalSaveEnvelope(u.uid)?.gameState || null;
+          const localData = readLocalSaveEnvelope(u.uid, 1)?.gameState || null;
           if (localData) {
             const migratedLocal = migrateGameState(localData, { version: APP_VERSION });
             setGameState(migratedLocal);
@@ -1923,7 +1992,11 @@ export default function App() {
           processed.instanceId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
         }
         if (needsRegion) {
-          processed.capturedRegion = p.capturedRegion || 'kanto';
+          // Usa a região do Pokédex Nacional como fallback (não hardcoda 'kanto'),
+          // para que Pokémon antigos sem capturedRegion não sejam erroneamente
+          // bloqueados na região onde deveriam ser legais.
+          // Ex: Meganium (#154, Johto) recebe capturedRegion='johto', não 'kanto'.
+          processed.capturedRegion = p.capturedRegion || getPokemonRegion(Number(p.id)) || 'kanto';
         }
       }
       return processed;
@@ -2051,7 +2124,7 @@ export default function App() {
     
     saveLocalTimeoutRef.current = setTimeout(() => {
       try {
-        writeLocalSaveEnvelope(gameState, auth.currentUser);
+        writeLocalSaveEnvelope(gameState, auth.currentUser, currentSlotRef.current);
       } catch (e) {
         if (e?.name === 'QuotaExceededError') {
           notify('Armazenamento local cheio. Salve na nuvem para não perder progresso!', 'error');
@@ -2195,12 +2268,16 @@ export default function App() {
 
       lastSyncRef.current = Date.now();
 
+      // Determina o docId correto para o slot atual (slot 1 = uid puro, backward compat)
+      const saveSlot = currentSlotRef.current || 1;
+      const saveDocId = getSlotDocId(user.uid, saveSlot);
+
       // SEC-08 — writeBatch: garante atomicidade nos 3 documentos críticos
       // Se qualquer escrita falhar, nenhuma é comitada (sem estado inconsistente)
       const batch = writeBatch(db);
 
       // 1. Salva o estado completo do jogo (comprimido)
-      batch.set(doc(db, "saves", user.uid), {
+      batch.set(doc(db, "saves", saveDocId), {
         ownerUid: user.uid,
         ownerEmail: user.email || null,
         compressedState,
@@ -2209,8 +2286,8 @@ export default function App() {
         updatedAt: serverTimestamp()
       }, { merge: true });
 
-      // 2. Sincroniza dados públicos
-      batch.set(doc(db, "users", user.uid), {
+      // 2. Sincroniza dados públicos (perfil por slot — slot 1 = uid puro para backward compat)
+      batch.set(doc(db, "users", saveDocId), {
         name: dataToSave.trainer?.name || "Treinador",
         nameLower: (dataToSave.trainer?.name || "Treinador").toLowerCase().trim(),
         avatar: dataToSave.trainer?.avatar || 1,
@@ -2252,7 +2329,7 @@ export default function App() {
       const lastSnapshot = dataToSave.playerStats?.lastSnapshotDate;
       if (lastSnapshot !== today) {
         try {
-          await setDoc(doc(db, 'saves', user.uid, 'snapshots', today), {
+          await setDoc(doc(db, 'saves', saveDocId, 'snapshots', today), {
             compressedState,
             createdAt: serverTimestamp()
           });
@@ -2429,7 +2506,7 @@ export default function App() {
           ...gameStateRef.current,
           playerStats: { ...gameStateRef.current.playerStats, lastSeenAt: Date.now() }
         };
-        writeLocalSaveEnvelope(stateWithTimestamp, auth.currentUser);
+        writeLocalSaveEnvelope(stateWithTimestamp, auth.currentUser, currentSlotRef.current);
       } catch (e) { /* sem-op */ }
     };
 
@@ -2550,6 +2627,121 @@ export default function App() {
       showConfirm({ type: 'error', title: 'Erro ao salvar', message: 'Não foi possível salvar na nuvem: ' + e.message, onConfirm: closeConfirm });
     }
   }, [gameState, saveToCloud]);
+
+  // ── Multi-Avatar: seleção/troca de slot ─────────────────────────────────────
+  const handleSlotSelected = useCallback(async (slot, meta) => {
+    setShowAvatarSelect(false);
+    if (meta) setAvatarMeta(meta);
+    setCurrentSlot(slot);
+    currentSlotRef.current = slot;
+    setLoading(true);
+    isFullyLoadedRef.current = false;
+
+    const u = auth.currentUser;
+    if (!u) { setLoading(false); return; }
+
+    try {
+      const loadResult = await loadGameState(u.uid, slot);
+
+      if (loadResult) {
+        const { gameState: savedData, cloudSavedAt } = loadResult;
+
+        // Detecção de conflito local vs nuvem
+        const CONFLICT_THRESHOLD_MS = 5 * 60 * 1000;
+        let localParsedForConflict = null;
+        try { localParsedForConflict = readLocalSaveEnvelope(u.uid, slot); } catch { /* ignora */ }
+        const localSavedAt = localParsedForConflict?.savedAt || 0;
+        const localGameState = localParsedForConflict?.gameState || null;
+
+        if (localGameState && localSavedAt > cloudSavedAt + CONFLICT_THRESHOLD_MS) {
+          setSaveConflict({ cloudSave: savedData, cloudSavedAt, localSave: localGameState, localSavedAt });
+          setLoading(false);
+          return;
+        }
+
+        const migratedData = migrateGameState(savedData, { version: APP_VERSION });
+        setGameState(migratedData);
+        isFullyLoadedRef.current = true;
+
+        // Offline progress
+        const lastActiveAt = migratedData.playerStats?.lastSeenAt || null;
+        if (lastActiveAt) {
+          const runOfflineCalc = () => {
+            const progress = calculateOfflineProgress(migratedData, ROUTES, Date.now() - lastActiveAt);
+            if (progress) {
+              const finalState = applyOfflineProgress(migratedData, progress);
+              setGameState(finalState);
+              setOfflineProgress(progress);
+              saveToCloud(finalState).catch(() => {});
+            }
+          };
+          if (typeof requestIdleCallback === 'function') requestIdleCallback(runOfflineCalc, { timeout: 2000 });
+          else setTimeout(runOfflineCalc, 100);
+        }
+
+        const hasRealProgress = (migratedData.worldFlags || []).length > 0 || (migratedData.badges || []).length > 0;
+        setCurrentView(hasRealProgress ? 'city' : 'landing');
+      } else {
+        // Slot novo ou sem save na nuvem
+        const localData = readLocalSaveEnvelope(u.uid, slot)?.gameState || null;
+        if (localData) {
+          const migratedLocal = migrateGameState(localData, { version: APP_VERSION });
+          setGameState(migratedLocal);
+          isFullyLoadedRef.current = true;
+          saveToCloud(migratedLocal).catch(() => {});
+          const hasProgress = (migratedLocal.worldFlags || []).length > 0 || (migratedLocal.badges || []).length > 0;
+          setCurrentView(hasProgress ? 'city' : 'landing');
+        } else {
+          // Slot completamente novo: começa do zero
+          setGameState(DEFAULT_GAME_STATE);
+          isFullyLoadedRef.current = true;
+          setCurrentView('landing');
+        }
+      }
+    } catch (err) {
+      console.error('[Avatar] Erro ao carregar slot:', err);
+      setGameState(DEFAULT_GAME_STATE);
+      isFullyLoadedRef.current = true;
+      setCurrentView('landing');
+    }
+    setLoading(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [saveToCloud]);
+
+  const handleAvatarLogout = useCallback(async () => {
+    try { await firebaseSignOut(auth); } catch { /* ignora */ }
+    setUser(null);
+    setAvatarMeta(null);
+    setShowAvatarSelect(false);
+    setCurrentSlot(1);
+    currentSlotRef.current = 1;
+    setCurrentView('landing');
+  }, []);
+
+  const handleOpenAvatarSelect = useCallback(() => {
+    setShowAvatarSelect(true);
+  }, []);
+  // ────────────────────────────────────────────────────────────────────────────
+
+  // ── Resolução de conflito de save (local vs nuvem) ──────────────────────────
+  const resolveSaveConflict = useCallback(async (choice) => {
+    if (!saveConflict) return;
+    const rawData = choice === 'local' ? saveConflict.localSave : saveConflict.cloudSave;
+    const migrated = migrateGameState(rawData, { version: APP_VERSION });
+    setGameState(migrated);
+    isFullyLoadedRef.current = true;
+    setSaveConflict(null);
+    if (choice === 'local') {
+      // Sobe o save local para a nuvem imediatamente, tornando-o o save oficial
+      saveToCloud(migrated).catch(e => console.error('[Conflict] Push local→nuvem falhou:', e));
+      notify('Save deste dispositivo carregado e sincronizado com a nuvem. ✅', 'success');
+    } else {
+      notify('Save da nuvem carregado. ✅', 'success');
+    }
+    const hasRealProgress = (migrated.worldFlags || []).length > 0 || (migrated.badges || []).length > 0;
+    setCurrentView(hasRealProgress ? 'city' : 'landing');
+  }, [saveConflict, saveToCloud]);
+  // ────────────────────────────────────────────────────────────────────────────
 
   // ── Export / Import de save como arquivo JSON ────────────────────────────────
   const exportSave = useCallback(() => {
@@ -7560,35 +7752,10 @@ export default function App() {
       });
       isProcessingVictory.current = false;
 
-      setGameState(st => {
-        if (st.currentRoute === 'tower') {
-          const run = st.tower?.activeRun;
-          if (run) {
-             const nextFloor = run.floor + 1;
-             const isCheckpoint = (nextFloor - 1) % 10 === 0 && nextFloor > 1; // Se acabou de bater o boss
-             
-             // Aplica passivas (Vampirismo)
-             const hasVampirism = run.boons?.some(b => b.id === 'vampirism');
-             let healedTeam = [...st.team];
-             if (hasVampirism) {
-                 healedTeam = healedTeam.map(p => {
-                    if (p.hp > 0) return { ...p, hp: Math.min(p.maxHp, p.hp + Math.ceil(p.maxHp * 0.1)) };
-                    return p;
-                 });
-             }
-
-             const newRun = { ...run, floor: nextFloor, shopPending: true, team: healedTeam };
-             const updatedTower = { ...st.tower, activeRun: newRun };
-             if (isCheckpoint) {
-                updatedTower.checkpoint = newRun;
-             }
-             setCurrentView('battle_tower');
-             return { ...st, tower: updatedTower, team: healedTeam };
-          }
-        }
-        return st;
-      });
-
+      // TOWER: batalhas da Torre agora rodam em 'tower_battle' (TowerBattleScreen),
+      // que não passa por handleBattleTick. A vitória/derrota é resolvida diretamente
+      // em TowerBattleScreen.handleVictory / handleDefeat.
+      // Este bloco não dispara mais para batalhas da Torre.
       if (gameState.currentRoute === 'tower') return;
 
       if (currentEnemy.unlockFlag === 'rival_1_defeated') {
@@ -7638,6 +7805,17 @@ export default function App() {
     );
     
     if (!user) return <AuthScreen onAuthSuccess={() => {}} installPrompt={installPrompt} handleInstallPWA={handleInstallPWA} isIOS={isIOS} isStandalone={isStandalone} />;
+
+    // Seleção de avatar (múltiplos slots)
+    if (showAvatarSelect) return (
+      <AvatarSelectScreen
+        uid={user.uid}
+        avatarMeta={avatarMeta}
+        onSelectSlot={handleSlotSelected}
+        onMetaUpdate={setAvatarMeta}
+        onLogout={handleAvatarLogout}
+      />
+    );
 
     switch(currentView) {
       case 'landing': {
@@ -11589,6 +11767,17 @@ export default function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal de conflito de save (local vs nuvem) — z-[9999], bloqueia tudo até resolver */}
+      {saveConflict && (
+        <SaveConflictModal
+          cloudSave={saveConflict.cloudSave}
+          cloudSavedAt={saveConflict.cloudSavedAt}
+          localSave={saveConflict.localSave}
+          localSavedAt={saveConflict.localSavedAt}
+          onChoose={resolveSaveConflict}
+        />
       )}
 
       {/* Modal de confirmação global */}

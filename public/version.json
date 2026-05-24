@@ -1,5 +1,5 @@
 {
-  "version": "2.11.12",
-  "date": "23/05/2026 16:42",
-  "notes": "Build - lazy loading em VS/Ginasios e chunks mais leves"
+  "version": "2.11.17",
+  "date": "23/05/2026 22:01",
+  "notes": "Backward Compat — Correcao de snapshot diario para avatares nos slots 2 e 3"
 }

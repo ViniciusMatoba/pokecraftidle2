@@ -1,158 +1,194 @@
 import { POKEDEX } from '../data/pokedex';
 
-// Helper: Pega Pokémon base (estágio inicial)
-// BUG-FIX: stats são planos no POKEDEX (p.hp, p.attack…), NÃO aninhados em p.baseStats.
-// Moves ficam em p.learnset (array {level, move}), NÃO em p.moves.levelUp.
-export const getTowerStarters = () => {
-  const basics = Object.values(POKEDEX).filter(p =>
-    !p.evolutionOf && !p.isLegendary && !p.isMythical && !p.form && p.hp
-  );
-  const shuffled = basics.sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, 3).map(p => {
-    const maxHp = Math.max(1, Math.floor(2 * (p.hp || 45) * 5 / 100) + 5 + 10);
-    const moves = (p.learnset || [])
-      .filter(m => m.level <= 5)
-      .map(m => m.move)
-      .filter(Boolean);
-    return {
-      id: p.id,
-      name: p.name,
-      level: 5,
-      exp: 0,
-      hp: maxHp,
-      currentHp: maxHp,
-      maxHp,
-      types: p.types || [p.type || 'Normal'],
-      moves: moves.length > 0 ? moves : ['tackle'],
-    };
-  });
-};
+// ── Helpers internos ──────────────────────────────────────────────────────────
 
-export const createInitialTowerState = () => ({
-  activeRun: null, // null significa que não há run em andamento
-  highestFloor: 0,
-  bp: 0,
-  upgrades: {}, // meta-upgrades se houver
-  checkpoint: null // Guarda o estado do último checkpoint
-});
+// HP pelo cálculo simplificado Gen V: floor(2*base*level/100) + level + 10
+const calcTowerHp = (baseHp, level) =>
+  Math.max(1, Math.floor(2 * (baseHp || 45) * level / 100) + level + 10);
 
-export const generateFloorShop = (floor) => {
-  const shop = [
-    { type: 'item', id: 'potions', name: 'Tower Potion (Cura 50 HP)', cost: 20 },
-    { type: 'item', id: 'revives', name: 'Tower Revive (Revive 50%)', cost: 100 },
-    ...getRandomBoons(1).map(b => ({ type: 'boon', boon: b, name: b.name, desc: b.desc, cost: 150 }))
-  ];
-  
-  if (Math.random() < 0.3) { // 30% chance de recrutamento
-    const recruitLevel = 5 + Math.floor(floor * 2);
-    const basics = Object.values(POKEDEX).filter(p =>
-      !p.evolutionOf && !p.isLegendary && !p.isMythical && !p.form && p.hp
-    );
-    const p = basics[Math.floor(Math.random() * basics.length)];
-    if (p) {
-      const maxHp = Math.max(1, Math.floor(2 * (p.hp || 45) * recruitLevel / 100) + recruitLevel + 10);
-      const moves = (p.learnset || [])
-        .filter(m => m.level <= recruitLevel)
-        .map(m => m.move)
-        .filter(Boolean)
-        .slice(-4);
-      shop.push({
-        type: 'recruit',
-        pokemon: {
-          id: p.id,
-          name: p.name,
-          level: recruitLevel,
-          exp: 0,
-          hp: maxHp,
-          currentHp: maxHp,
-          maxHp,
-          types: p.types || [p.type || 'Normal'],
-          moves: moves.length > 0 ? moves : ['tackle'],
-        },
-        name: `Recrutar ${p.name}`,
-        desc: `Adiciona ao seu time (Nível ${recruitLevel}).`,
-        cost: 50,
-      });
-    }
-  }
-  return shop;
-};
+// Constrói objeto de Pokémon para a run da Torre a partir de um Pokémon do PC/time
+// Mantém o nível real do Pokémon e seus moves aprendidos até aquele nível.
+const buildRunPoke = (playerPoke, overrideLevel) => {
+  const base = POKEDEX[playerPoke.id];
+  if (!base) return null;
 
-export const startTowerRun = (starterPokemon) => {
+  const level = overrideLevel || playerPoke.level || 5;
+  const maxHp = calcTowerHp(base.hp, level);
+
+  // Moves do learnset até o nível atual (todos, sem limitar a 4 aqui)
+  // A seleção de 4 acontece na UI (tela de move_selection)
+  const allMoves = (base.learnset || [])
+    .filter(m => m.level <= level)
+    .map(m => m.move)
+    .filter(Boolean)
+    // Remove duplicatas mantendo a última ocorrência
+    .filter((m, i, arr) => arr.lastIndexOf(m) === i);
+
   return {
-    floor: 1,
-    team: [starterPokemon],
-    // BUG-FIX: inventário plano — a UI acessa inv.potions/inv.revives diretamente
-    // (estrutura aninhada items:{} causava NaN no display e escrita incorreta na loja)
-    inventory: {
-      coins: 0,
-      potions: 0,
-      revives: 0,
-    },
-    boons: [],
-    shop: generateFloorShop(1),
+    id: base.id,
+    name: base.name,
+    level,
+    exp: 0,
+    maxHp,
+    currentHp: maxHp,
+    hp: maxHp,
+    types: base.types || [base.type || 'Normal'],
+    // allMoves: todos os moves disponíveis (para seleção de 4)
+    allMoves: allMoves.length > 0 ? allMoves : ['tackle'],
+    // moves: começa com os 4 mais recentes — se allMoves > 4, a UI vai pedir seleção
+    moves: allMoves.length > 4 ? allMoves.slice(-4) : (allMoves.length > 0 ? allMoves : ['tackle']),
+    needsMoveSelection: allMoves.length > 4,
   };
 };
 
-export const resumeTowerRun = (checkpoint) => {
+// Fallback quando o jogador não tem Pokémon no PC (início de jogo)
+const fallbackStarters = () => {
+  const basics = Object.values(POKEDEX).filter(p =>
+    !p.evolutionOf && !p.isLegendary && !p.isMythical && !p.form && p.hp
+  );
+  const shuffled = [...basics].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 3).map(p => buildRunPoke({ id: p.id, level: 5 })).filter(Boolean);
+};
+
+// ── Exports públicos ──────────────────────────────────────────────────────────
+
+export const createInitialTowerState = () => ({
+  activeRun: null,
+  highestFloor: 0,
+  bp: 0,
+  upgrades: {},
+  checkpoint: null,
+});
+
+/**
+ * Retorna 3 opções de Pokémon para o draft inicial.
+ * FONTE: Pokémon já capturados pelo jogador (team + pc).
+ * Fallback para básicos do POKEDEX se o jogador não tiver nada capturado.
+ */
+export const getTowerStarters = (playerPool = []) => {
+  // Agrupa por espécie (id), usa o exemplar de maior nível de cada espécie
+  const bySpecies = new Map();
+  for (const p of playerPool) {
+    if (!p.id || !POKEDEX[p.id]) continue;
+    const existing = bySpecies.get(p.id);
+    if (!existing || (p.level || 1) > (existing.level || 1)) {
+      bySpecies.set(p.id, p);
+    }
+  }
+
+  const pool = [...bySpecies.values()];
+  if (pool.length === 0) return fallbackStarters();
+
+  const shuffled = [...pool].sort(() => 0.5 - Math.random());
+  const chosen = shuffled.slice(0, Math.min(3, shuffled.length));
+
+  // Se tiver menos de 3 espécies únicas, completa com fallback
+  const result = chosen.map(p => buildRunPoke(p)).filter(Boolean);
+  if (result.length < 3) {
+    const extras = fallbackStarters().slice(0, 3 - result.length);
+    result.push(...extras);
+  }
+  return result;
+};
+
+export const getRandomBoons = (count = 3) => {
+  const shuffled = [...TOWER_BOONS].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+};
+
+/**
+ * Gera o shop disponível após cada batalha.
+ * recrutas vêm do pool de Pokémon do jogador que ainda não estão no time da Torre.
+ */
+export const generateFloorShop = (floor, playerPool = [], currentTowerTeam = []) => {
+  const shop = [
+    { type: 'item', id: 'potions', name: 'Tower Potion (Cura 50 HP)', cost: 20 },
+    { type: 'item', id: 'revives', name: 'Tower Revive (Revive 50%)', cost: 100 },
+    ...getRandomBoons(1).map(b => ({ type: 'boon', boon: b, name: b.name, desc: b.desc, cost: 150 })),
+  ];
+
+  // Tenta adicionar um recruta do pool do jogador (30% de chance)
+  if (Math.random() < 0.3) {
+    const towerIds = new Set(currentTowerTeam.map(p => p.id));
+    const bySpecies = new Map();
+    for (const p of playerPool) {
+      if (!p.id || !POKEDEX[p.id] || towerIds.has(p.id)) continue;
+      const existing = bySpecies.get(p.id);
+      if (!existing || (p.level || 1) > (existing.level || 1)) bySpecies.set(p.id, p);
+    }
+
+    const candidates = [...bySpecies.values()];
+    if (candidates.length > 0) {
+      const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+      const recruitLevel = Math.max(chosen.level || 5, 5 + Math.floor(floor * 1.5));
+      const built = buildRunPoke(chosen, recruitLevel);
+      if (built) {
+        shop.push({
+          type: 'recruit',
+          pokemon: built,
+          name: `Recrutar ${built.name}`,
+          desc: `Adiciona ao time (Nv ${recruitLevel})${built.needsMoveSelection ? ' — escolher golpes' : ''}.`,
+          cost: 50 + floor * 5,
+        });
+      }
+    }
+  }
+
+  return shop;
+};
+
+export const startTowerRun = (starterPokemon) => ({
+  floor: 1,
+  team: [starterPokemon],
+  inventory: { coins: 0, potions: 0, revives: 0 },
+  boons: [],
+  shop: generateFloorShop(1),
+  shopPending: false,
+});
+
+export const resumeTowerRun = (checkpoint, playerPool = [], towerTeam = []) => {
   const run = JSON.parse(JSON.stringify(checkpoint));
-  if (!run.shop) run.shop = generateFloorShop(run.floor);
+  if (!run.shop) run.shop = generateFloorShop(run.floor, playerPool, towerTeam);
   return run;
 };
 
 export const getCheckpointFloor = (currentFloor) => {
-  // Retorna o último andar terminado em 1 (11, 21, 31...)
   if (currentFloor <= 10) return 1;
   return Math.floor((currentFloor - 1) / 10) * 10 + 1;
 };
 
 export const generateTowerEncounter = (floor) => {
-  // A cada 10 andares é um Boss
   const isBoss = floor % 10 === 0;
-  
   const enemyLevel = 5 + Math.floor(floor * 2.2);
 
+  // Inimigos: qualquer Pokémon do POKEDEX (desafio desconhecido é o ponto da Torre)
   const pool = Object.values(POKEDEX).filter(p => {
     if (floor < 20 && p.isLegendary) return false;
     return true;
   });
 
-  const numEnemies = isBoss ? Math.min(6, 3 + Math.floor(floor / 10)) : Math.min(6, 1 + Math.floor(floor / 5));
-  const team = [];
+  const numEnemies = isBoss
+    ? Math.min(6, 3 + Math.floor(floor / 10))
+    : Math.min(6, 1 + Math.floor(floor / 5));
 
+  const team = [];
   for (let i = 0; i < numEnemies; i++) {
     const p = pool[Math.floor(Math.random() * pool.length)];
-    team.push({
-      id: p.id,
-      level: isBoss ? enemyLevel + 2 : enemyLevel
-    });
+    team.push({ id: p.id, level: isBoss ? enemyLevel + 2 : enemyLevel });
   }
-
-  // Gera a Shop do Andar: 3 itens + 1 Benção
-  const shopOfferings = [
-    { type: 'item', id: 'potions', name: 'Tower Potion (Cura 50 HP)', cost: 20 },
-    { type: 'item', id: 'revives', name: 'Tower Revive (Revive 50%)', cost: 100 },
-    ...getRandomBoons(1).map(b => ({ type: 'boon', boon: b, name: b.name, desc: b.desc, cost: 150 }))
-  ];
 
   return {
     isBoss,
     enemyLevel,
     team,
     rewardCoins: isBoss ? floor * 50 : floor * 10,
-    shop: shopOfferings
   };
 };
 
 export const TOWER_BOONS = [
-  { id: 'vampirism', name: 'Vampirismo', desc: 'Recupera 10% do HP máx de todos os vivos após vencer.', type: 'heal' },
-  { id: 'attack_up', name: 'Fúria', desc: '+15% de Dano de Ataque para a equipe toda.', type: 'buff' },
-  { id: 'defense_up', name: 'Muralha', desc: '-15% de Dano Recebido pela equipe toda.', type: 'buff' },
-  { id: 'exp_boost', name: 'Mente Focada', desc: '+50% XP ganha nas batalhas da torre.', type: 'utility' },
-  { id: 'revive_one', name: 'Anjo da Guarda', desc: 'Revive instantaneamente 1 Pokémon caído com 50% HP.', type: 'instant' }
+  { id: 'vampirism',  name: 'Vampirismo',    desc: 'Recupera 10% do HP máx de todos os vivos após vencer.',   type: 'heal' },
+  { id: 'attack_up',  name: 'Fúria',         desc: '+15% de Dano de Ataque para a equipe toda.',              type: 'buff' },
+  { id: 'defense_up', name: 'Muralha',        desc: '-15% de Dano Recebido pela equipe toda.',                 type: 'buff' },
+  { id: 'exp_boost',  name: 'Mente Focada',  desc: '+50% XP ganha nas batalhas da torre.',                    type: 'utility' },
+  { id: 'revive_one', name: 'Anjo da Guarda', desc: 'Revive instantaneamente 1 Pokémon caído com 50% HP.',     type: 'instant' },
 ];
-
-export const getRandomBoons = (count = 3) => {
-  const shuffled = [...TOWER_BOONS].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
-};

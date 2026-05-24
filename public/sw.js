@@ -1,7 +1,7 @@
 // Service Worker — versão sincronizada com version.json
 // IMPORTANTE: esta linha DEVE ser atualizada a cada bump de versão
 // para que o browser detecte o novo SW e invalide o cache antigo.
-let CACHE_NAME = 'pokecraft-cache-v2.11.12';
+let CACHE_NAME = 'pokecraft-cache-v2.11.17';
 
 // Busca versão atual para manter cache sincronizado
 async function getCacheName() {

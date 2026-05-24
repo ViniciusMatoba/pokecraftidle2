@@ -111,9 +111,11 @@ export const isPokemonAllowedInRegion = (pokemonId, activeRegion = 'kanto') => {
 };
 
 /**
- * Rule: A Pokemon is only legal if:
- * a) Its originRegion matches currentRegion.
- * b) OR the player has the champion flag for the currentRegion.
+ * Rule: A Pokemon is legal if:
+ * a) Its capturedRegion (or Dex origin) matches the activeRegion.
+ * b) OR the player is Champion of the activeRegion AND the Pokémon is from
+ *    a PREVIOUS region (not a future one). Kanto is index 0, so being
+ *    Kanto champion doesn't unlock extra regions (there are none before it).
  */
 export const isPokemonLegal = (pokemon, activeRegion = 'kanto', worldFlags = []) => {
   if (!pokemon) return false;
@@ -123,13 +125,18 @@ export const isPokemonLegal = (pokemon, activeRegion = 'kanto', worldFlags = [])
   const pokemonId = typeof pokemon === 'object' ? pokemon.id : pokemon;
   const capturedRegion = typeof pokemon === 'object' ? pokemon.capturedRegion : null;
 
-  // Rule A: Matches current region (Priority: capturedRegion > National Dex Origin)
+  // Rule A: Pokémon from current region → always allowed
   const pokemonRegion = capturedRegion || getPokemonRegion(pokemonId);
   if (pokemonRegion === activeRegion) return true;
 
-  // Rule B: Player is Champion of the current region
+  // Rule B: Champion of the current region → previous regions unlocked
+  // (strictly BEFORE current region in REGION_ORDER; future regions remain locked)
   const championFlag = REGION_CHAMPION_FLAGS[activeRegion];
-  if (championFlag && worldFlags.includes(championFlag)) return true;
+  if (championFlag && worldFlags.includes(championFlag)) {
+    const pokemonRegionIndex = REGION_ORDER.indexOf(pokemonRegion);
+    const activeRegionIndex = REGION_ORDER.indexOf(activeRegion);
+    if (pokemonRegionIndex >= 0 && pokemonRegionIndex < activeRegionIndex) return true;
+  }
 
   return false;
 };
