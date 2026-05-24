@@ -200,7 +200,7 @@ const FUTURE_REGION_CHALLENGE_DATA = {
       { suffix: 'rival_4', name: 'Akari - Costa Cobalto', level: 50, req: 'coastlands_stamp', ids: [727, 403, 418, 123, 100] },
       { suffix: 'rival_5', name: 'Akari - Terras Altas', level: 58, req: 'highlands_stamp', ids: [727, 418, 123, 100, 713] },
       { suffix: 'rival_6', name: 'Akari - Gelos Alabastro', level: 65, req: 'icelands_stamp', ids: [727, 418, 123, 100, 713, 487] },
-      { suffix: 'rival_victory', name: 'Akari - Praça Sagrada', level: 78, req: 'volo_stamp', ids: [724, 418, 123, 100, 713, 487] },
+      { suffix: 'rival_victory', name: 'Akari - Praça Sagrada', level: 78, req: 'lake_stamp', ids: [724, 418, 123, 100, 713, 487] },
     ],
     villains: [
       { suffix: 'villain_1',    name: 'Recruta Galática',   sprite: psTrainer('galacticgrunt'), level: 18, req: 'hisui_started',     ids: [396, 399],           subtitle: 'Patrulha Galática',       quote: '"Esta área é propriedade da Expedição Galática!"' },
@@ -238,7 +238,7 @@ const FUTURE_REGION_CHALLENGE_DATA = {
       { suffix: 'rival_victory', name: 'Nemona - Academia Uva/Naranja', level: 65, req: 'ice_badge_paldea', ids: [914, 936, 940, 975, 978, 1008] },
     ],
     villains: [
-      { suffix: 'villain_1', name: 'Giacomo - Base Dark', sprite: psTrainer('giacomo'), level: 21, req: 'paldea_started', ids: [861, 877], subtitle: 'Base Star Sombria', quote: '"Intrusos na base? Hora de ensinar uma licao!"' },
+      { suffix: 'villain_1', name: 'Giacomo - Base Dark', sprite: psTrainer('giacomo'), level: 17, req: 'paldea_started', ids: [861, 877], subtitle: 'Base Star Sombria', quote: '"Intrusos na base? Hora de ensinar uma licao!"' },
       { suffix: 'villain_2', name: 'Mela - Base Fire', sprite: psTrainer('mela'), level: 27, req: 'grass_badge_paldea', ids: [963, 851, 59], subtitle: 'Base Star Ardente', quote: '"Meu fogo não vai se apagar!"' },
       { suffix: 'villain_3', name: 'Atticus - Base Poison', sprite: psTrainer('atticus'), level: 34, req: 'electric_badge_paldea', ids: [945, 952, 317], subtitle: 'Base Star Toxica', quote: '"Arte e veneno sao a mesma coisa!"' },
       { suffix: 'villain_4', name: 'Ortega - Base Fairy', sprite: psTrainer('ortega'), level: 45, req: 'normal_badge_paldea', ids: [868, 869, 282, 282], subtitle: 'Base Star Fantasiosa', quote: '"Voce e corajoso por desafiar a minha base!"' },

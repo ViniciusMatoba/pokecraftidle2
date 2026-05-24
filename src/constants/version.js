@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.11.23';
-export const VERSION = '2.11.23';
-export const APP_VERSION_DATE = '24/05/2026 09:55';
+export const APP_VERSION = '2.11.24';
+export const VERSION = '2.11.24';
+export const APP_VERSION_DATE = '24/05/2026 10:09';
 export const CHANGELOG = [
+  '## [V2.11.24] - 24/05/2026 10:09',
+  '### Hisui e Paldea — Correção de Ordem de Progressão',
+  '- **Hisui rival_victory**: Akari (lv78) agora exige `lake_stamp` (Irida, lv73) em vez de `volo_stamp` (Volo Líder, lv82) — rival fica disponível no nível correto antes da liga, sem exigir vencer um boss mais forte primeiro.',
+  '- **Paldea villain_1**: Giacomo baixado de lv21 para lv17 — alinha com o padrão das outras regiões (+2 acima do 1º ginásio) e evita que Katy (lv15) fique trancada atrás de um inimigo 6 níveis acima.',
+  '',
   '## [V2.11.23] - 24/05/2026 09:55',
   '### Alola — Correção Completa de Progressão + Forja + Deploy Automático de Regras',
   '- **Alola bloqueio crítico**: `villain_boss` (Guzma) e `rival_5/6/victory` agora exigem stamps que realmente são dados (`ulaula_stamp`, `poni_stamp`) em vez de `alola_elite_stamp`/`ultra_stamp` que nunca eram concedidos.',

@@ -1,5 +1,5 @@
 {
-  "version": "2.11.23",
-  "date": "24/05/2026 09:55",
-  "notes": "Alola: bloqueio de progressão resolvido, saltos de nível corrigidos, rotas e badges da liga ajustados; forja em modal de cidade navega corretamente; regras Firestore agora deployadas automaticamente no release"
+  "version": "2.11.24",
+  "date": "24/05/2026 10:09",
+  "notes": "Hisui: rival_victory corrigida para lake_stamp; Paldea: Giacomo lv21→lv17 alinhando com padrão das outras regiões"
 }
