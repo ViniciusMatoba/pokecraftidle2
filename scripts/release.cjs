@@ -152,6 +152,10 @@ console.log('\n🏗️  Build + Deploy para GitHub Pages...');
 run('npm run build');
 run(`node node_modules/gh-pages/bin/gh-pages.js -d dist`);
 
+// ─── Deploy das regras do Firestore ──────────────────────────────────────────
+console.log('\n🔒 Deploy das regras do Firestore...');
+run('firebase deploy --only firestore:rules --project pokemon-munchikin', { allowFail: true });
+
 // Limpa stash residual se tudo deu certo
 runCapture('git stash drop 2>/dev/null || true');
 

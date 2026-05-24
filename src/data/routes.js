@@ -683,9 +683,9 @@ const ROUTE_VS_REQUIREMENT_GATES = {
   alola_akala_island: ['alola_villain_2_cleared'],
   alola_wela_volcano: ['alola_rival_3_defeated', 'akala_stamp'],
   alola_aether_paradise: ['alola_villain_4_cleared', 'ulaula_stamp'],
-  alola_ula_ula_island: ['alola_villain_boss_cleared'],
-  alola_vast_poni_canyon: ['alola_rival_6_defeated', 'alola_champion_stamp'],
-  alola_mount_lanakila: ['alola_villain_6_cleared', 'ultra_stamp'],
+  alola_ula_ula_island: ['alola_villain_4_cleared', 'ulaula_stamp'],   // Fix: não exige mais villain_boss (Guzma desbloqueado após ula_ula)
+  alola_vast_poni_canyon: ['alola_villain_boss_cleared', 'poni_stamp'], // Fix: Guzma libera Poni (faz sentido narrativo)
+  alola_mount_lanakila: ['alola_rival_6_defeated'],                     // Fix: apenas Hau-Poni necessário; sem ultra_stamp (nunca concedido)
 
   galar_wild_area_south: ['galar_rival_1_defeated'],
   galar_mine_1: ['galar_villain_1_cleared', 'grass_badge_galar'],

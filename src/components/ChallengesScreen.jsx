@@ -117,23 +117,23 @@ const FUTURE_REGION_CHALLENGE_DATA = {
       ['Hapu', 'Ground', 58, [750, 330, 450], 'Grande Julgamento - Kahuna Poni'],
     ],
     leaderSubtitleOverride: true,
-    league: [['Hala', 'Fighting', 82, [297, 739, 740]], ['Olivia Elite', 'Rock', 84, [476, 703, 745]], ['Acerola', 'Ghost', 86, [478, 426, 778]], ['Kahili', 'Flying', 88, [628, 741, 733]], ['Kukui', 'Mixed', 92, [745, 727, 724, 730]]],
+    league: [['Hala', 'Fighting', 82, [297, 739, 740], 'alola_elite_stamp'], ['Olivia Elite', 'Rock', 84, [476, 703, 745]], ['Acerola', 'Ghost', 86, [478, 426, 778]], ['Kahili', 'Flying', 88, [628, 741, 733]], ['Kukui', 'Mixed', 92, [745, 727, 724, 730], 'alola_champion_stamp']],
     rivals: [
       { suffix: 'rival_1', name: 'Hau - Melemele I', level: 12, req: 'alola_started', ids: [722, 728] },
       { suffix: 'rival_2', name: 'Hau - Melemele II', level: 20, req: 'melemele_stamp', ids: [724, 728, 702] },
       { suffix: 'rival_3', name: 'Hau - Akala', level: 28, req: 'akala_stamp', ids: [726, 730, 702, 738] },
       { suffix: 'rival_4', name: 'Hau - Ulaula I', level: 35, req: 'ulaula_stamp', ids: [726, 730, 738, 745] },
-      { suffix: 'rival_5', name: 'Hau - Ulaula II', level: 42, req: 'alola_elite_stamp', ids: [726, 730, 738, 741, 745] },
-      { suffix: 'rival_6', name: 'Hau - Poni', level: 52, req: 'alola_champion_stamp', ids: [727, 730, 738, 741, 745] },
-      { suffix: 'rival_victory', name: 'Hau - Mount Lanakila', level: 65, req: 'ultra_stamp', ids: [727, 730, 738, 741, 745, 702] },
+      { suffix: 'rival_5', name: 'Hau - Ulaula II', level: 42, req: 'ulaula_stamp', ids: [726, 730, 738, 741, 745] },
+      { suffix: 'rival_6', name: 'Hau - Poni', level: 52, req: 'poni_stamp', ids: [727, 730, 738, 741, 745] },
+      { suffix: 'rival_victory', name: 'Hau - Mount Lanakila', level: 65, req: 'poni_stamp', ids: [727, 730, 738, 741, 745, 702] },
     ],
     villains: [
       { suffix: 'villain_1', name: 'Recruta Skull', sprite: psTrainer('skullgrunt'), level: 18, req: 'alola_started', ids: [509, 728], subtitle: 'Patrulha Skull', quote: '"Nós somos a Team Skull! Yeahhh!"' },
-      { suffix: 'villain_2', name: 'Recruta Skull', sprite: psTrainer('skullgrunt'), level: 28, req: 'melemele_stamp', ids: [571, 509, 728], subtitle: 'Bloqueio Skull', quote: '"Não vai passar sem enfrentar a Skull!"' },
+      { suffix: 'villain_2', name: 'Recruta Skull', sprite: psTrainer('skullgrunt'), level: 22, req: 'melemele_stamp', ids: [571, 509, 728], subtitle: 'Bloqueio Skull', quote: '"Não vai passar sem enfrentar a Skull!"' },
       { suffix: 'villain_3', name: 'Admin Plumeria', sprite: psTrainer('skullgrunt'), level: 36, req: 'akala_stamp', ids: [571, 452, 435], subtitle: 'Admin da Team Skull', quote: '"Voce tocou nos meus garotos. Hora de pagar!"' },
       { suffix: 'villain_4', name: 'Recruta Skull II', sprite: psTrainer('skullgrunt'), level: 44, req: 'ulaula_stamp', ids: [452, 571, 758, 509], subtitle: 'Po Town Skull', quote: '"Esta cidade e nossa! Fora daqui!"' },
-      { suffix: 'villain_boss', name: 'Guzma', sprite: psTrainer('guzma'), level: 52, req: 'alola_champion_stamp', ids: [754, 571, 452, 738, 697], subtitle: 'Lider da Team Skull', quote: '"Guzma vai te destruir! Thats what Guzma do!"' },
-      { suffix: 'villain_6', name: 'Plumeria - Revanche', sprite: psTrainer('skullgrunt'), level: 62, req: 'ultra_stamp', ids: [571, 452, 435, 169, 454], subtitle: 'Epilogo Skull', quote: '"Juro que vou proteger meu bando!"' },
+      { suffix: 'villain_boss', name: 'Guzma', sprite: psTrainer('guzma'), level: 52, req: 'ulaula_stamp', ids: [754, 571, 452, 738, 697], subtitle: 'Lider da Team Skull', quote: '"Guzma vai te destruir! Thats what Guzma do!"' },
+      { suffix: 'villain_6', name: 'Plumeria - Revanche', sprite: psTrainer('skullgrunt'), level: 62, req: 'poni_stamp', ids: [571, 452, 435, 169, 454], subtitle: 'Epilogo Skull', quote: '"Juro que vou proteger meu bando!"' },
       { suffix: 'villain_final', name: 'Guzma - Aether', sprite: psTrainer('guzma'), level: 68, req: 'alola_champion', ids: [754, 571, 452, 738, 697, 130], subtitle: 'Confronto Final Alola', quote: '"Voce ainda me desafia? Guzma vai destruir tudo!"' },
     ],
   },
@@ -337,7 +337,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
   // For Alola the last gym leader unlocks rival_victory, which then unlocks league
   const lastGymUnlock = region === 'alola' ? `${region}_trial_${cfg.leaders.length}_cleared` : cfg.badges[cfg.badges.length - 1];
   const rivalVictoryUnlock = rivalEntries.at(-1)?.unlock || `${region}_${rivalEntries.at(-1)?.suffix}_defeated`;
-  const leagueBattles = cfg.league.map(([name, type, level, ids], index) => ({
+  const leagueBattles = cfg.league.map(([name, type, level, ids, leagueBadge], index) => ({
     region, id: index === cfg.league.length - 1 ? `${region}_champion` : `${region}_elite_${index + 1}`,
     category: region, name, subtitle: index === cfg.league.length - 1 ? `Campeao de ${cfg.label}` : `Elite Four #${index + 1}`,
     sprite: trainerSprite(name),
@@ -345,6 +345,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
     reward: level * 1600,
     unlockFlag: index === cfg.league.length - 1 ? cfg.champion : `${region}_elite_${index + 1}_defeated`,
     requiresFlag: index === 0 ? rivalVictoryUnlock : `${region}_elite_${index}_defeated`,
+    badgeToGive: leagueBadge || null,
     type, typeIcon: typeIconUrl(type), team: team(ids, level), background: cfg.leagueBg || "url('/bg_elite_four.webp') center/cover no-repeat",
     location: `${cfg.label} Pokémon League`,
   }));

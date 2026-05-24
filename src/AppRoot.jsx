@@ -11319,6 +11319,8 @@ export default function App() {
                       onCraft={handleCraft}
                       hasRecipe={(id) => hasForgeRecipe(gameState, id)}
                       recipeGuides={FORGE_RECIPE_DROP_GUIDE}
+                      setCurrentView={(view) => { setActiveBuildingModal(null); setCurrentView(view); }}
+                      setGameState={setGameState}
                       isAnyModalOpen={isAnyModalOpen}
                       isForgeConfirmOpen={isForgeConfirmOpen}
                       initialCategory={forgeCategory}

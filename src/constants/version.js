@@ -1,7 +1,16 @@
-export const APP_VERSION = '2.11.22';
-export const VERSION = '2.11.22';
-export const APP_VERSION_DATE = '24/05/2026 01:07';
+export const APP_VERSION = '2.11.23';
+export const VERSION = '2.11.23';
+export const APP_VERSION_DATE = '24/05/2026 09:55';
 export const CHANGELOG = [
+  '## [V2.11.23] - 24/05/2026 09:55',
+  '### Alola — Correção Completa de Progressão + Forja + Deploy Automático de Regras',
+  '- **Alola bloqueio crítico**: `villain_boss` (Guzma) e `rival_5/6/victory` agora exigem stamps que realmente são dados (`ulaula_stamp`, `poni_stamp`) em vez de `alola_elite_stamp`/`ultra_stamp` que nunca eram concedidos.',
+  '- **Alola salto de nível**: `villain_2` (Recruta Skull) ajustado de lv28 para lv22, eliminando gap injusto após melemele_stamp.',
+  '- **Alola rotas**: condições de desbloqueio corrigidas — `ula_ula_island` exige `villain_4_cleared + ulaula_stamp`; `vast_poni_canyon` exige `villain_boss_cleared + poni_stamp`; `mount_lanakila` exige apenas `rival_6_defeated`.',
+  '- **Alola League badges**: Hala concede `alola_elite_stamp` e Kukui concede `alola_champion_stamp` ao serem derrotados pela primeira vez.',
+  '- **Forja (cidade modal)**: botão "Viajar para Rota" agora navega corretamente mesmo quando a forja é aberta pelo modal de cidade — `setCurrentView` e `setGameState` passados para a segunda instância de `CraftingStation`.',
+  '- **Release script**: `npm run release` agora faz deploy automático das regras do Firestore ao final de cada release (nunca mais haverá descompasso entre código e regras de segurança).',
+  '',
   '## [V2.11.22] - 24/05/2026 01:07',
   '### Integridade de Conta, Amigos e Forja',
   '- **Amigos**: aceite de solicitação agora usa batch atômico e regras Firestore permitem criar o espelho na lista do remetente apenas enquanto a solicitação pendente existir.',

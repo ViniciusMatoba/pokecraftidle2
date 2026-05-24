@@ -1,5 +1,5 @@
 {
-  "version": "2.11.22",
-  "date": "24/05/2026 01:07",
-  "notes": "Correções de amizade, exclusão completa de conta, guias da forja e dirty hash da Battle Tower"
+  "version": "2.11.23",
+  "date": "24/05/2026 09:55",
+  "notes": "Alola: bloqueio de progressão resolvido, saltos de nível corrigidos, rotas e badges da liga ajustados; forja em modal de cidade navega corretamente; regras Firestore agora deployadas automaticamente no release"
 }
