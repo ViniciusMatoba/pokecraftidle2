@@ -1,5 +1,5 @@
 {
-  "version": "2.11.20",
-  "date": "24/05/2026 00:20",
-  "notes": "Battle Tower - XP, level up e progressao de golpes na run"
+  "version": "2.11.21",
+  "date": "24/05/2026 00:49",
+  "notes": "Auditoria — 6 correções críticas de migração/segurança e 69 novos testes (86 total)"
 }

@@ -22,6 +22,18 @@ import {
 
 export const MAX_AVATARS = 3;
 
+// 1.5 — Nick: 2-16 chars, apenas letras (incluindo acentuadas), números, hífen, underscore e espaço.
+// Proíbe `/`, `\` e outros chars que criam subcoleções involuntárias em IDs Firestore.
+const NICK_REGEX = /^[a-zA-Z0-9áéíóúàâêôãõçüñ\-_ ]{2,16}$/u;
+
+const validateNick = (nick) => {
+  const trimmed = (nick || '').trim();
+  if (!NICK_REGEX.test(trimmed)) {
+    throw new Error('Nick deve ter 2 a 16 caracteres e usar apenas letras, números, hífen ou underscore.');
+  }
+  return trimmed;
+};
+
 /** Retorna o docId do Firestore para um dado uid + slot (slot 1 = uid puro, backward compat) */
 export const getSlotDocId = (uid, slot) => (slot > 1 ? `${uid}_s${slot}` : uid);
 
@@ -54,10 +66,12 @@ export const initAvatarMetaSlot1 = async (uid, nick) => {
 export const checkNickAvailable = async (nick) => {
   if (!nick || nick.trim().length < 2) return false;
   try {
+    validateNick(nick); // rejeita chars inválidos antes de ir ao Firestore
     const key = nick.trim().toLowerCase();
     const snap = await getDoc(doc(db, 'nicknames', key));
     return !snap.exists();
   } catch (e) {
+    if (e.message?.includes('Nick deve')) return false; // nick inválido = indisponível
     console.error('[Avatar] checkNickAvailable failed:', e);
     return false;
   }
@@ -68,6 +82,7 @@ export const checkNickAvailable = async (nick) => {
  * Lança erro se o nick já está em uso por outro uid/slot.
  */
 export const reserveNick = async (uid, slot, nick) => {
+  validateNick(nick); // lança se chars inválidos ou fora do range 2-16
   const key = nick.trim().toLowerCase();
   const nickRef = doc(db, 'nicknames', key);
   await runTransaction(db, async (tx) => {

@@ -1,7 +1,17 @@
-export const APP_VERSION = '2.11.20';
-export const VERSION = '2.11.20';
-export const APP_VERSION_DATE = '24/05/2026 00:20';
+export const APP_VERSION = '2.11.21';
+export const VERSION = '2.11.21';
+export const APP_VERSION_DATE = '24/05/2026 00:49';
 export const CHANGELOG = [
+  '## [V2.11.21] - 24/05/2026 00:49',
+  '### Auditoria — Correções Críticas e Cobertura de Testes',
+  '- **Fix 1.1 (prestige.purchasedTitles)**: saves antigos sem o campo não crasham mais na PrestigeShop — `purchasedTitles: []` agora é sempre garantido pelo migrador.',
+  '- **Fix 1.2 (tower deep merge)**: saves com `tower` parcial (ex: apenas `activeRun`) não perdem mais `highestFloor`, `bp` e `upgrades` — deep merge explícito aplicado.',
+  '- **Fix 1.3 (capturedRegion)**: Pokémon de saves antigos sem `capturedRegion` recebem a região correta via Pokédex na migração; nenhum mais exibe "undefined" na UI.',
+  '- **Fix 1.4 (subscribeToFriendRequests)**: listener de amizade cancela e reinicia ao trocar de conta — dados de conta A não vazam para sessão da conta B.',
+  '- **Fix 1.5 (nick validation)**: nicks com `/` ou `\\` são rejeitados antes de chegar ao Firestore, impedindo subcoleções acidentais.',
+  '- **Fix 1.6 (isPokemonAllowedInRegion)**: IDs inválidos (> 1025) agora retornam `false` corretamente em vez de passar como permitidos.',
+  '- **Testes**: 69 novos testes adicionados (86 total em 7 arquivos) cobrindo regionStandards, progress, pokemonDifficulty, saveMigration e towerLogic.',
+  '',
   '## [V2.11.20] - 24/05/2026 00:20',
   '### Battle Tower - XP e Level Up',
   '- **Progressao por batalha**: vitorias na Battle Tower agora concedem XP para a equipe da run, com ganho reduzido para Pokemon caidos.',

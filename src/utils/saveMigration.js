@@ -1,5 +1,5 @@
 import { DEFAULT_GAME_STATE } from '../data/constants';
-import { REGION_BADGE_IDS, REGION_CHAMPION_FLAGS, REGION_ORDER, REGION_START_FLAGS } from '../data/regionStandards';
+import { REGION_BADGE_IDS, REGION_CHAMPION_FLAGS, REGION_ORDER, REGION_START_FLAGS, getPokemonRegion } from '../data/regionStandards';
 import { getEarnedBadgeIds } from './progress';
 import { POKEDEX } from '../data/pokedex';
 
@@ -47,8 +47,15 @@ const clampPokemonStats = (poke) => {
   return { ...poke, level, maxHp, hp, attack, defense, spAtk, spDef, speed, xp };
 };
 
-// Pipeline de sanitização por Pokémon: tipos + stats
-const sanitizePokemon = (poke) => clampPokemonStats(fixPokemonTypes(poke));
+// Pipeline de sanitização por Pokémon: tipos + stats + capturedRegion
+// 1.3 — capturedRegion ausente em saves pré-v2.11.15; preenchido aqui para evitar
+// exibição "undefined" na PokemonManagement e chamadas extras em isPokemonLegal.
+const sanitizePokemon = (poke) => {
+  const typed = clampPokemonStats(fixPokemonTypes(poke));
+  if (!typed) return typed;
+  if (typed.capturedRegion) return typed;
+  return { ...typed, capturedRegion: getPokemonRegion(Number(typed.id)) || 'kanto' };
+};
 
 const asArray = (value) => Array.isArray(value) ? value : [];
 
@@ -184,11 +191,19 @@ export const migrateGameState = (savedState = {}, options = {}) => {
     },
     prestige: {
       trophies: [],
+      purchasedTitles: [],   // 1.1 — garante array mesmo em saves sem PrestigeShop
       activeTitle: null,
       pokedexFrame: 'default',
       uiTheme: 'default',
       hallOfFameEntry: null,
       ...(loaded.prestige || {}),
+    },
+    tower: {                 // 1.2 — deep merge evita perder bp/upgrades/highestFloor
+      activeRun: null,
+      highestFloor: 0,
+      bp: 0,
+      upgrades: {},
+      ...(loaded.tower || {}),
     },
     mine: {
       unlocked: false,

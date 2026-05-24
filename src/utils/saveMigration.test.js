@@ -84,4 +84,94 @@ describe('saveMigration - Sistema de Migração de Save', () => {
     const audit = auditGameState(validState);
     expect(audit.ok).toBe(true);
   });
+
+  // ── Fix 1.1 — prestige.purchasedTitles ─────────────────────────────────────
+  it('garante prestige.purchasedTitles como array mesmo em saves antigos sem o campo', () => {
+    const oldSave = { prestige: { trophies: ['trophy_kanto'] } }; // sem purchasedTitles
+    const migrated = migrateGameState(oldSave);
+    expect(Array.isArray(migrated.prestige.purchasedTitles)).toBe(true);
+    expect(migrated.prestige.trophies).toContain('trophy_kanto'); // preserva o que tinha
+  });
+
+  it('preserva purchasedTitles existente em saves já migrados', () => {
+    const modernSave = { prestige: { purchasedTitles: ['title_ace', 'title_hero'] } };
+    const migrated = migrateGameState(modernSave);
+    expect(migrated.prestige.purchasedTitles).toEqual(['title_ace', 'title_hero']);
+  });
+
+  // ── Fix 1.2 — tower deep merge ──────────────────────────────────────────────
+  it('garante tower com todos os campos padrão mesmo para saves sem tower', () => {
+    const noTower = { currency: 100 };
+    const migrated = migrateGameState(noTower);
+    expect(migrated.tower).toBeDefined();
+    expect(migrated.tower.activeRun).toBe(null);
+    expect(migrated.tower.highestFloor).toBe(0);
+    expect(migrated.tower.bp).toBe(0);
+    expect(typeof migrated.tower.upgrades).toBe('object');
+  });
+
+  it('faz deep merge de tower parcial — não perde highestFloor e bp ao ter activeRun', () => {
+    const partialTower = {
+      tower: { activeRun: { floor: 5, team: [] } } // sem highestFloor nem bp
+    };
+    const migrated = migrateGameState(partialTower);
+    expect(migrated.tower.activeRun).toBeDefined();
+    expect(migrated.tower.highestFloor).toBe(0);  // default preenchido
+    expect(migrated.tower.bp).toBe(0);            // default preenchido
+  });
+
+  it('preserva highestFloor e bp de saves que já têm esses campos', () => {
+    const completeTower = {
+      tower: { activeRun: null, highestFloor: 42, bp: 500, upgrades: { xp: 1 } }
+    };
+    const migrated = migrateGameState(completeTower);
+    expect(migrated.tower.highestFloor).toBe(42);
+    expect(migrated.tower.bp).toBe(500);
+    expect(migrated.tower.upgrades.xp).toBe(1);
+  });
+
+  // ── Fix 1.3 — capturedRegion normalization ──────────────────────────────────
+  it('preenche capturedRegion de Pokémon antigos sem o campo via Pokédex', () => {
+    const oldSave = {
+      team: [
+        { id: 25, name: 'Pikachu', level: 10 },    // Kanto, sem capturedRegion
+        { id: 152, name: 'Chikorita', level: 5 },   // Johto, sem capturedRegion
+      ],
+    };
+    const migrated = migrateGameState(oldSave);
+    expect(migrated.team[0].capturedRegion).toBe('kanto');
+    expect(migrated.team[1].capturedRegion).toBe('johto');
+  });
+
+  it('preserva capturedRegion existente em Pokémon já migrados', () => {
+    const modernSave = {
+      team: [{ id: 25, name: 'Pikachu', level: 10, capturedRegion: 'johto' }],
+    };
+    const migrated = migrateGameState(modernSave);
+    // capturedRegion explícita deve ser preservada (pode ter sido capturado em rota de Johto)
+    expect(migrated.team[0].capturedRegion).toBe('johto');
+  });
+
+  // ── clampPokemonStats — proteção contra saves adulterados ────────────────────
+  it('clamp: normaliza level fora dos limites (1-100)', () => {
+    const corrupted = { team: [{ id: 1, level: 999, hp: 50, maxHp: 100 }] };
+    const migrated = migrateGameState(corrupted);
+    expect(migrated.team[0].level).toBe(100);
+
+    const negLevel = { team: [{ id: 1, level: -5, hp: 50, maxHp: 100 }] };
+    const migrated2 = migrateGameState(negLevel);
+    expect(migrated2.team[0].level).toBe(1);
+  });
+
+  it('clamp: hp nunca excede maxHp', () => {
+    const corrupted = { team: [{ id: 1, level: 5, hp: 9999, maxHp: 100 }] };
+    const migrated = migrateGameState(corrupted);
+    expect(migrated.team[0].hp).toBeLessThanOrEqual(migrated.team[0].maxHp);
+  });
+
+  it('clamp: currency nunca fica negativa', () => {
+    const corrupted = { currency: -50000 };
+    const migrated = migrateGameState(corrupted);
+    expect(migrated.currency).toBe(0);
+  });
 });

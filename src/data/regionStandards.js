@@ -107,6 +107,9 @@ export const getUnlockedDexLimit = (gameState = {}) => {
 
 export const isPokemonAllowedInRegion = (pokemonId, activeRegion = 'kanto') => {
   const pokemonRegion = getPokemonRegion(pokemonId);
+  // 1.6 — 'future' (ID > 1025) retorna indexOf = -1, o que tornaria -1 <= N sempre true.
+  // IDs inválidos nunca devem ser considerados permitidos.
+  if (!pokemonRegion || pokemonRegion === 'future') return false;
   return REGION_ORDER.indexOf(pokemonRegion) <= REGION_ORDER.indexOf(activeRegion);
 };
 

@@ -2371,14 +2371,16 @@ export default function App() {
   }, []);
 
   // ── Listener em tempo real: solicitações de amizade pendentes ─────────────
+  // 1.4 — deps inclui user?.uid para cancelar listener ao trocar de conta (evita
+  // vazamento de dados de amigos entre contas diferentes no mesmo browser).
   useEffect(() => {
-    const user = auth.currentUser;
-    if (!user) return;
-    const unsub = subscribeToFriendRequests(user.uid, (requests) => {
+    const uid = user?.uid;
+    if (!uid) return;
+    const unsub = subscribeToFriendRequests(uid, (requests) => {
       setPendingFriendRequests(requests);
     });
     return () => unsub();
-  }, []);
+  }, [user?.uid]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Detector de missões concluídas e login diário ──────────────────────────
   useEffect(() => {
