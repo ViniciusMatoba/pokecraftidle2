@@ -3,8 +3,19 @@ import { POKEDEX } from '../data/pokedex';
 // ── Helpers internos ──────────────────────────────────────────────────────────
 
 // HP pelo cálculo simplificado Gen V: floor(2*base*level/100) + level + 10
-const calcTowerHp = (baseHp, level) =>
+export const calcTowerHp = (baseHp, level) =>
   Math.max(1, Math.floor(2 * (baseHp || 45) * level / 100) + level + 10);
+
+const getTowerLearnableMoves = (base, level) => {
+  const allMoves = (base.learnset || [])
+    .filter(m => m.level <= level)
+    .map(m => m.move)
+    .filter(Boolean)
+    .filter((m, i, arr) => arr.lastIndexOf(m) === i);
+  return allMoves.length > 0 ? allMoves : ['tackle'];
+};
+
+const getTowerXpNeeded = (level) => Math.pow(level + 1, 3) - Math.pow(level, 3);
 
 // Constrói objeto de Pokémon para a run da Torre a partir de um Pokémon do PC/time
 // Mantém o nível real do Pokémon e seus moves aprendidos até aquele nível.
@@ -14,15 +25,7 @@ const buildRunPoke = (playerPoke, overrideLevel) => {
 
   const level = overrideLevel || playerPoke.level || 5;
   const maxHp = calcTowerHp(base.hp, level);
-
-  // Moves do learnset até o nível atual (todos, sem limitar a 4 aqui)
-  // A seleção de 4 acontece na UI (tela de move_selection)
-  const allMoves = (base.learnset || [])
-    .filter(m => m.level <= level)
-    .map(m => m.move)
-    .filter(Boolean)
-    // Remove duplicatas mantendo a última ocorrência
-    .filter((m, i, arr) => arr.lastIndexOf(m) === i);
+  const allMoves = getTowerLearnableMoves(base, level);
 
   return {
     id: base.id,
@@ -34,11 +37,92 @@ const buildRunPoke = (playerPoke, overrideLevel) => {
     hp: maxHp,
     types: base.types || [base.type || 'Normal'],
     // allMoves: todos os moves disponíveis (para seleção de 4)
-    allMoves: allMoves.length > 0 ? allMoves : ['tackle'],
+    allMoves,
     // moves: começa com os 4 mais recentes — se allMoves > 4, a UI vai pedir seleção
-    moves: allMoves.length > 4 ? allMoves.slice(-4) : (allMoves.length > 0 ? allMoves : ['tackle']),
+    moves: allMoves.length > 4 ? allMoves.slice(-4) : allMoves,
     needsMoveSelection: allMoves.length > 4,
   };
+};
+
+export const calculateTowerXpReward = (encounter = {}, boons = []) => {
+  const enemyTeam = Array.isArray(encounter.team) ? encounter.team : [];
+  const enemyXp = enemyTeam.reduce((sum, enemy) => {
+    const base = POKEDEX[enemy.id];
+    const baseXp = Number(base?.baseXp || base?.base_experience || 64);
+    const enemyLevel = Number(enemy.level || encounter.enemyLevel || 5);
+    return sum + Math.max(8, Math.floor((enemyLevel * baseXp) / 12));
+  }, 0);
+  const floorBonus = Math.max(0, Number(encounter.enemyLevel || 5) - 5) * 4;
+  const bossMult = encounter.isBoss ? 1.35 : 1;
+  const boonMult = boons.some(b => b.id === 'exp_boost') ? 1.5 : 1;
+  return Math.max(1, Math.floor((enemyXp + floorBonus) * bossMult * boonMult));
+};
+
+export const applyTowerExperience = (team = [], encounter = {}, boons = []) => {
+  const xpReward = calculateTowerXpReward(encounter, boons);
+  const summary = [];
+
+  const updatedTeam = team.map((poke) => {
+    const base = POKEDEX[poke.id];
+    if (!base) return poke;
+
+    const wasFainted = (poke.currentHp ?? poke.hp ?? 0) <= 0;
+    const gainedXp = wasFainted ? Math.max(1, Math.floor(xpReward * 0.35)) : xpReward;
+    const startLevel = Math.min(100, Math.max(1, Number(poke.level || 1)));
+    let level = startLevel;
+    let exp = Math.max(0, Number(poke.exp ?? poke.xp ?? 0)) + gainedXp;
+
+    while (level < 100) {
+      const needed = getTowerXpNeeded(level);
+      if (exp < needed) break;
+      exp -= needed;
+      level += 1;
+    }
+
+    const previousMoves = poke.allMoves || getTowerLearnableMoves(base, startLevel);
+    const allMoves = getTowerLearnableMoves(base, level);
+    const learnedMoves = allMoves.filter(move => !previousMoves.includes(move));
+    const currentMoves = (poke.moves || []).filter(Boolean);
+    const movesWithAutoLearn = learnedMoves.reduce((moves, move) => {
+      if (moves.includes(move) || moves.length >= 4) return moves;
+      return [...moves, move];
+    }, currentMoves);
+
+    const oldMaxHp = poke.maxHp || calcTowerHp(base.hp, startLevel);
+    const maxHp = calcTowerHp(base.hp, level);
+    const hpGain = Math.max(0, maxHp - oldMaxHp);
+    const currentHp = wasFainted
+      ? 0
+      : Math.min(maxHp, Math.max(1, Number(poke.currentHp ?? poke.hp ?? oldMaxHp)) + hpGain);
+    const needsMoveSelection = allMoves.length > 4 && learnedMoves.some(move => !movesWithAutoLearn.includes(move));
+
+    if (gainedXp > 0 || level > startLevel || learnedMoves.length > 0) {
+      summary.push({
+        id: poke.id,
+        name: poke.name || base.name,
+        xp: gainedXp,
+        startLevel,
+        level,
+        levelsGained: level - startLevel,
+        learnedMoves,
+        needsMoveSelection,
+      });
+    }
+
+    return {
+      ...poke,
+      level,
+      exp,
+      maxHp,
+      currentHp,
+      hp: currentHp,
+      allMoves,
+      moves: movesWithAutoLearn.length > 0 ? movesWithAutoLearn.slice(0, 4) : allMoves.slice(0, 4),
+      needsMoveSelection,
+    };
+  });
+
+  return { team: updatedTeam, xpReward, summary };
 };
 
 // Fallback quando o jogador não tem Pokémon no PC (início de jogo)

@@ -3,6 +3,7 @@ import { POKEDEX } from '../data/pokedex';
 import { MOVES } from '../data/moves';
 import { getTypeEffectiveness } from '../data/typeChart';
 import { BATTLE_BACKGROUNDS } from '../data/battleBackgrounds';
+import { applyTowerExperience, calculateTowerXpReward } from '../utils/towerLogic';
 
 // ── Helpers fora do componente ────────────────────────────────────────────────
 
@@ -417,8 +418,11 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
         return { ...runPoke, currentHp: bp.currentHp, hp: bp.currentHp };
       });
 
+      // XP e level up da run da Torre
+      const xpResult = applyTowerExperience(syncedTeam, encounter, r.boons || []);
+
       // Vampirismo
-      let finalTeam = syncedTeam;
+      let finalTeam = xpResult.team;
       if (r.boons?.some(b => b.id === 'vampirism')) {
         finalTeam = finalTeam.map(p => {
           if ((p.currentHp || 0) > 0) {
@@ -430,7 +434,16 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
       }
 
       const newInventory = { ...localInv, coins: (localInv.coins || 0) + (encounter?.rewardCoins || 0) };
-      const newRun = { ...r, floor: nextFloor, shopPending: true, team: finalTeam, inventory: newInventory, battleEncounter: null };
+      const newRun = {
+        ...r,
+        floor: nextFloor,
+        shopPending: true,
+        team: finalTeam,
+        inventory: newInventory,
+        battleEncounter: null,
+        lastXpGained: xpResult.xpReward,
+        lastXpSummary: xpResult.summary,
+      };
       const updatedTower = {
         ...prev.tower,
         activeRun: newRun,
@@ -663,6 +676,7 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
   const towerGround = towerBackground?.ground || '#0f172a';
   const towerGroundAccent = towerBackground?.groundAccent || enemyTypeColor;
   const towerSceneLabel = towerBackground?.label || 'Battle Tower';
+  const towerXpPreview = calculateTowerXpReward(encounter, run.boons || []);
 
   return (
     <div className="h-full flex flex-col overflow-hidden relative">
@@ -830,7 +844,10 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
                 {result === 'victory' ? '🏆 Vitória!' : '💀 Derrota...'}
               </p>
               {result === 'victory' && (
-                <p className="text-yellow-400 font-bold text-sm mb-3">+{encounter.rewardCoins} 🪙  — Avançando para o Andar {run.floor + 1}!</p>
+                <div className="mb-3">
+                  <p className="text-yellow-400 font-bold text-sm">+{encounter.rewardCoins} 🪙  — Avançando para o Andar {run.floor + 1}!</p>
+                  <p className="text-cyan-300 font-black text-[10px] uppercase tracking-widest mt-1">+{towerXpPreview} XP para a equipe</p>
+                </div>
               )}
               {result === 'defeat' && (
                 <p className="text-white/60 font-bold text-sm mb-3">Ganhou {run.floor * 10} BP</p>

@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.11.19';
-export const VERSION = '2.11.19';
-export const APP_VERSION_DATE = '23/05/2026 22:24';
+export const APP_VERSION = '2.11.20';
+export const VERSION = '2.11.20';
+export const APP_VERSION_DATE = '24/05/2026 00:20';
 export const CHANGELOG = [
+  '## [V2.11.20] - 24/05/2026 00:20',
+  '### Battle Tower - XP e Level Up',
+  '- **Progressao por batalha**: vitorias na Battle Tower agora concedem XP para a equipe da run, com ganho reduzido para Pokemon caidos.',
+  '- **Level up isolado da torre**: Pokemon da run sobem de nivel, recalculam HP e preservam o isolamento do time real do jogador.',
+  '- **Mente Focada funcional**: o boon agora aplica +50% XP de verdade; bosses tambem concedem bonus de XP.',
+  '- **Novos golpes**: level ups atualizam golpes aprendidos e sinalizam quando o jogador precisa ajustar os 4 golpes da torre.',
+  '',
   '## [V2.11.19] - 23/05/2026 22:24',
   '### Battle Tower - Experiencia Visual e Shop',
   '- **Novo background do shop**: adicionada arte dedicada para a loja/area de descanso da Battle Tower, com balcão, itens, luzes de arena e skyline noturno.',

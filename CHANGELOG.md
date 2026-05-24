@@ -1,3 +1,9 @@
+## [v2.11.20] - 24/05/2026 00:20
+### Battle Tower - XP e Level Up
+- **Progressao por batalha**: vitorias agora concedem XP para a equipe da run, com ganho reduzido para Pokemon caidos.
+- **Level up isolado da torre**: Pokemon da run sobem de nivel, recalculam HP e nao alteram o time real do jogador.
+- **Boons e golpes**: `Mente Focada` aplica +50% XP, bosses concedem bonus, e novos golpes ficam disponiveis para ajuste.
+
 ## [v2.11.19] - 23/05/2026 22:24
 ### Battle Tower - Experiencia Visual e Shop
 - **Novo background do shop**: adicionada arte dedicada para a loja/area de descanso da Battle Tower.

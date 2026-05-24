@@ -52,6 +52,7 @@ const moveCategory = (moveKey) => {
   return 'Status';
 };
 const movePower = (moveKey) => MOVES[moveKey]?.power || null;
+const towerXpNeeded = (level) => Math.pow((level || 1) + 1, 3) - Math.pow(level || 1, 3);
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
@@ -71,6 +72,7 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
   // Seleção de golpes: qual Pokémon está esperando seleção e os moves escolhidos
   const [pendingPoke, setPendingPoke] = useState(null);   // Pokémon aguardando seleção de golpes
   const [selectedMoves, setSelectedMoves] = useState([]); // Golpes escolhidos (até 4)
+  const [pendingTeamIndex, setPendingTeamIndex] = useState(null);
 
   // Modal de Shop (pós-batalha)
   const [showShopModal, setShowShopModal] = useState(false);
@@ -112,6 +114,7 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
       // Pokémon tem > 4 moves — precisa de seleção
       setPendingPoke(poke);
       setSelectedMoves(poke.moves.slice(0, 4)); // pré-seleciona os últimos 4
+      setPendingTeamIndex(null);
       setPhase('move_selection');
     } else {
       // Pokémon já tem ≤ 4 moves — inicia direto
@@ -129,7 +132,23 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
 
   const confirmMoveSelection = () => {
     if (selectedMoves.length === 0) return;
-    const finalPoke = { ...pendingPoke, moves: selectedMoves, needsMoveSelection: false };
+    const finalPoke = { ...pendingPoke, moves: selectedMoves, needsMoveSelection: false, _isTowerTeam: undefined };
+    if (pendingTeamIndex !== null) {
+      setGameState(prev => {
+        const prevRun = prev.tower?.activeRun;
+        if (!prevRun) return prev;
+        const team = [...(prevRun.team || [])];
+        if (!team[pendingTeamIndex]) return prev;
+        team[pendingTeamIndex] = { ...team[pendingTeamIndex], ...finalPoke, _isTowerTeam: undefined };
+        return { ...prev, tower: { ...prev.tower, activeRun: { ...prevRun, team } } };
+      });
+      setPendingPoke(null);
+      setPendingTeamIndex(null);
+      setSelectedMoves([]);
+      setPhase('run');
+      setShowShopModal(true);
+      return;
+    }
     confirmDraft(finalPoke);
     setPendingPoke(null);
     setSelectedMoves([]);
@@ -182,15 +201,26 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
     if (pokemon.needsMoveSelection) {
       setPendingPoke({ ...pokemon, _isRecruit: true });
       setSelectedMoves(pokemon.moves.slice(0, 4));
+      setPendingTeamIndex(null);
       setPhase('move_selection');
       setShowShopModal(false);
     }
   };
 
+  const handleEditTowerMoves = (teamIndex) => {
+    const poke = run?.team?.[teamIndex];
+    if (!poke) return;
+    setPendingPoke({ ...poke, _isTowerTeam: true });
+    setSelectedMoves((poke.moves || []).slice(0, 4));
+    setPendingTeamIndex(teamIndex);
+    setShowShopModal(false);
+    setPhase('move_selection');
+  };
+
   // Confirma seleção de moves para um recruta
   const confirmRecruitMoveSelection = () => {
     if (selectedMoves.length === 0 || !pendingPoke) return;
-    const finalPoke = { ...pendingPoke, moves: selectedMoves, needsMoveSelection: false };
+    const finalPoke = { ...pendingPoke, moves: selectedMoves, needsMoveSelection: false, _isRecruit: undefined };
     setGameState(prev => {
       const prevRun = prev.tower?.activeRun;
       if (!prevRun) return prev;
@@ -203,6 +233,7 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
       };
     });
     setPendingPoke(null);
+    setPendingTeamIndex(null);
     setSelectedMoves([]);
     setPhase('run');
     setShowShopModal(true);
@@ -352,6 +383,7 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
     const data = poke ? POKEDEX[poke.id] : null;
     const allMoves = poke?.allMoves || [];
     const isRecruit = poke?._isRecruit;
+    const requiredMoves = Math.min(4, Math.max(1, allMoves.length));
 
     return (
       <div
@@ -374,16 +406,16 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
               {data?.name} — Golpes
             </h2>
             <p className="text-white/50 text-[10px] font-bold uppercase tracking-widest">
-              Escolha exatamente 4 golpes para a batalha
+              Escolha {requiredMoves === 4 ? 'exatamente 4 golpes' : `${requiredMoves} golpe${requiredMoves !== 1 ? 's' : ''}`} para a batalha
             </p>
           </div>
         </div>
 
         {/* Contador */}
-        <div className={`flex items-center justify-between mb-4 px-4 py-2.5 rounded-xl border backdrop-blur-md ${selectedMoves.length === 4 ? 'bg-green-900/30 border-green-500/30' : 'bg-slate-950/60 border-white/10'}`}>
+        <div className={`flex items-center justify-between mb-4 px-4 py-2.5 rounded-xl border backdrop-blur-md ${selectedMoves.length === requiredMoves ? 'bg-green-900/30 border-green-500/30' : 'bg-slate-950/60 border-white/10'}`}>
           <span className="text-white/60 text-xs font-bold uppercase tracking-widest">Selecionados</span>
-          <span className={`font-black text-lg ${selectedMoves.length === 4 ? 'text-green-400' : 'text-white'}`}>
-            {selectedMoves.length} / 4
+          <span className={`font-black text-lg ${selectedMoves.length === requiredMoves ? 'text-green-400' : 'text-white'}`}>
+            {selectedMoves.length} / {requiredMoves}
           </span>
         </div>
 
@@ -427,16 +459,14 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
         {/* Confirmar */}
         <button
           onClick={isRecruit ? confirmRecruitMoveSelection : confirmMoveSelection}
-          disabled={selectedMoves.length === 0}
+          disabled={selectedMoves.length !== requiredMoves}
           className={`w-full py-4 rounded-2xl font-black uppercase text-base tracking-widest transition-all border-b-4 ${
-            selectedMoves.length === 4
+            selectedMoves.length === requiredMoves
               ? 'bg-green-600 border-green-800 text-white hover:bg-green-500 hover:scale-[1.01] active:scale-95'
-              : selectedMoves.length > 0
-              ? 'bg-slate-700 border-slate-800 text-white hover:bg-slate-600'
               : 'bg-slate-900 border-slate-900 text-white/30 cursor-not-allowed'
           }`}
         >
-          {selectedMoves.length === 4 ? '✅ Confirmar Golpes' : `Selecione ${4 - selectedMoves.length} golpe${4 - selectedMoves.length !== 1 ? 's' : ''} ainda`}
+          {selectedMoves.length === requiredMoves ? '✅ Confirmar Golpes' : `Selecione ${requiredMoves - selectedMoves.length} golpe${requiredMoves - selectedMoves.length !== 1 ? 's' : ''} ainda`}
         </button>
         </div>
       </div>
@@ -488,6 +518,32 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
                 </div>
               ))}
             </div>
+
+            {(run.lastXpSummary || []).length > 0 && (
+              <div className="mb-4 rounded-2xl border border-cyan-300/20 bg-cyan-950/35 p-3 backdrop-blur-md">
+                <p className="text-cyan-200 text-[9px] font-black uppercase tracking-widest mb-2">Progressão da equipe</p>
+                <div className="flex flex-col gap-1.5">
+                  {run.lastXpSummary.slice(0, 6).map((entry, idx) => (
+                    <div key={`${entry.id}-${idx}`} className="flex items-center justify-between gap-2 text-[10px] font-bold">
+                      <span className="text-white/75 truncate">
+                        {entry.name}
+                        {entry.levelsGained > 0 && (
+                          <span className="ml-1 text-green-300">Nv {entry.startLevel} → {entry.level}</span>
+                        )}
+                      </span>
+                      <span className="text-cyan-200 shrink-0">+{entry.xp} XP</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {(run.team || []).some(p => p.needsMoveSelection) && (
+              <div className="mb-4 rounded-2xl border border-amber-300/25 bg-amber-950/35 p-3 backdrop-blur-md">
+                <p className="text-amber-200 text-[10px] font-black uppercase tracking-widest">Novos golpes disponíveis</p>
+                <p className="text-white/50 text-[10px] mt-1">Ajuste os golpes antes de continuar a escalada.</p>
+              </div>
+            )}
 
             {/* Itens do shop */}
             <div className="flex flex-col gap-3">
@@ -635,6 +691,8 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
             const data = POKEDEX[poke.id];
             if (!data) return null;
             const hpPct = Math.max(0, ((poke.currentHp ?? poke.hp ?? poke.maxHp) / poke.maxHp) * 100);
+            const xpNeeded = towerXpNeeded(poke.level);
+            const xpPct = Math.max(0, Math.min(100, ((poke.exp || 0) / xpNeeded) * 100));
             const isFainted = hpPct === 0;
             return (
               <div key={i} className={`${GLASS_PANEL} rounded-2xl p-3 flex flex-col ${isFainted ? 'opacity-40 grayscale' : ''}`}>
@@ -656,6 +714,20 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
                 <p className="text-[8px] font-bold text-white/50 text-right mt-1">
                   {Math.ceil(poke.currentHp ?? poke.hp ?? poke.maxHp)}/{poke.maxHp} HP
                 </p>
+                <div className="mt-2 h-1 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-cyan-400" style={{ width: `${xpPct}%` }} />
+                </div>
+                <p className="text-[8px] font-bold text-cyan-200/70 text-right mt-1">
+                  {poke.exp || 0}/{xpNeeded} XP
+                </p>
+                {poke.needsMoveSelection && (
+                  <button
+                    onClick={() => handleEditTowerMoves(i)}
+                    className="mt-2 w-full rounded-lg border border-amber-300/30 bg-amber-400/15 py-1.5 text-[8px] font-black uppercase tracking-widest text-amber-100 hover:bg-amber-400/25"
+                  >
+                    Ajustar golpes
+                  </button>
+                )}
               </div>
             );
           })}
