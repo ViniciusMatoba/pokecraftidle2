@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.11.32';
-export const VERSION = '2.11.32';
-export const APP_VERSION_DATE = '24/05/2026 11:43';
+export const APP_VERSION = '2.11.33';
+export const VERSION = '2.11.33';
+export const APP_VERSION_DATE = '24/05/2026 11:54';
 export const CHANGELOG = [
+  '## [V2.11.33] - 24/05/2026 11:54',
+  '### Formas Regionais — Tratamento como Pokémon Distintos',
+  '- **Tipos preservados na migração**: `fixPokemonTypes` agora consulta `REGIONAL_FORM_METADATA` antes do Pokédex base — Ninetales-Alola (Ice/Fairy), Sandslash-Alola (Ice/Steel), Marowak-Alola (Fire/Ghost) e todas as outras formas regionais mantêm seus tipos corretos após carregar o save.',
+  '- **Tipos corretos no modal do PC**: ao abrir os detalhes de uma forma regional no PC/Time, o painel exibe os tipos da forma (ex: Ice/Fairy para Ninetales-Alola) em vez dos tipos do Pokédex base (Fire).',
+  '- **Aba de região correta no PC**: formas regionais aparecem na aba de sua região de origem — Ninetales-Alola vai para a aba "Alola", não para "Kanto"; Marowak-Alola vai para "Alola", não "Kanto".',
+  '- **Coexistência garantida**: Ninetales e Ninetales-Alola podem ser capturados e existir no PC/Time simultaneamente — o sistema já distinguia por `formKey` na captura, agora também na exibição e filtragem.',
+  '- **Testes**: 2 novos testes cobrem preservação de tipos regionais na migração e coexistência de base+forma no PC.',
+  '',
   '## [V2.11.32] - 24/05/2026 11:43',
   '### Backgrounds de Liga — Alola, Galar, Paldea, Hisui e Kalos',
   '- **`alola_league` adicionado** ao `battleBackgrounds.js`: batalhas na Liga Alola agora usam `bg_alola_elite.webp` em vez do fallback genérico da rota.',

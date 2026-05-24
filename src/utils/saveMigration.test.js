@@ -174,4 +174,42 @@ describe('saveMigration - Sistema de Migração de Save', () => {
     const migrated = migrateGameState(corrupted);
     expect(migrated.currency).toBe(0);
   });
+
+  it('formas regionais preservam tipos próprios ao migrar (não usa tipos do Pokédex base)', () => {
+    // Ninetales-Alola (id=38) deve ter Ice/Fairy, não Fire como o Ninetales base
+    const save = {
+      team: [
+        { id: 38, name: 'Ninetales Alola', level: 30, formKey: 'ninetales-alola', isRegionalForm: true, types: ['Ice', 'Fairy'] }
+      ],
+      pc: [
+        { id: 37, name: 'Vulpix Alola', level: 15, formKey: 'vulpix-alola', isRegionalForm: true, types: ['Ice'] },
+        // Simula save corrompido onde types foram sobrescritos pelo dex base
+        { id: 20, name: 'Raticate Alola', level: 25, formKey: 'raticate-alola', isRegionalForm: true, types: ['Normal'] }
+      ]
+    };
+    const migrated = migrateGameState(save);
+    // Ninetales-Alola: Ice/Fairy (não Fire)
+    expect(migrated.team[0].types).toEqual(['Ice', 'Fairy']);
+    // Vulpix-Alola: Ice (não Fire)
+    expect(migrated.pc[0].types).toEqual(['Ice']);
+    // Raticate-Alola: deve ser restaurado para Dark/Normal (estava com Normal corrompido)
+    expect(migrated.pc[1].types).toEqual(['Dark', 'Normal']);
+  });
+
+  it('formas regionais e formas base com mesmo id coexistem no PC', () => {
+    // Ninetales (base) e Ninetales-Alola devem ser tratados como Pokémon distintos
+    const save = {
+      pc: [
+        { id: 38, name: 'Ninetales', level: 40, types: ['Fire'], instanceId: 'base-001' },
+        { id: 38, name: 'Ninetales Alola', level: 35, formKey: 'ninetales-alola', isRegionalForm: true, types: ['Ice', 'Fairy'], instanceId: 'alola-001' }
+      ]
+    };
+    const migrated = migrateGameState(save);
+    expect(migrated.pc).toHaveLength(2);
+    // Base form mantém Fire
+    const base = migrated.pc.find(p => !p.formKey);
+    const regional = migrated.pc.find(p => p.formKey === 'ninetales-alola');
+    expect(base.types).toEqual(['Fire']);
+    expect(regional.types).toEqual(['Ice', 'Fairy']);
+  });
 });

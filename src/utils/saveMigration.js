@@ -2,11 +2,24 @@ import { DEFAULT_GAME_STATE } from '../data/constants';
 import { REGION_BADGE_IDS, REGION_CHAMPION_FLAGS, REGION_ORDER, REGION_START_FLAGS, getPokemonRegion } from '../data/regionStandards';
 import { getEarnedBadgeIds } from './progress';
 import { POKEDEX } from '../data/pokedex';
+import { REGIONAL_FORM_METADATA } from '../data/regionalForms';
 
-// Garante que todo Pokémon salvo tenha o array `types` populado via Pokédex.
-// Sempre sobrescreve a partir do Pokédex — corrige casos onde evolution copiou apenas o tipo primário.
+// Garante que todo Pokémon salvo tenha o array `types` populado corretamente.
+// Formas regionais usam os tipos da forma, não os do Pokédex base.
+// Ex: Ninetales-Alola (id=38, formKey='ninetales-alola') → ['Ice','Fairy'], não ['Fire'].
 const fixPokemonTypes = (poke) => {
   if (!poke || typeof poke !== 'object') return poke;
+
+  // Formas regionais: tipos próprios têm prioridade sobre o Pokédex base
+  if (poke.formKey) {
+    const regionalMeta = REGIONAL_FORM_METADATA[poke.formKey];
+    if (regionalMeta?.types?.length > 0) {
+      const rTypes = regionalMeta.types;
+      if (Array.isArray(poke.types) && poke.types.length === rTypes.length && poke.types.every((t, i) => t === rTypes[i])) return poke;
+      return { ...poke, types: rTypes };
+    }
+  }
+
   const entry = POKEDEX[Number(poke.id)];
   if (!entry) return poke; // ID desconhecido, mantém o que tem
   const types = (Array.isArray(entry.types) && entry.types.length > 0)

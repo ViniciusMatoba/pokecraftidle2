@@ -1,5 +1,5 @@
 {
-  "version": "2.11.32",
-  "date": "24/05/2026 11:43",
-  "notes": "Backgrounds de liga adicionados para Alola, Galar, Paldea e Hisui; corrigida extensão .png→.webp no Kalos; leagueBg de Hisui adicionado ao ChallengesScreen"
+  "version": "2.11.33",
+  "date": "24/05/2026 11:54",
+  "notes": "Formas regionais tratadas como Pokémon distintos: tipos preservados na migração, aba correta no PC, modal com tipos corretos"
 }

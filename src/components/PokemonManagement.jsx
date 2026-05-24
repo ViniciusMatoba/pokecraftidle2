@@ -13,6 +13,7 @@ import { getPokemonTmCompatibility } from '../data/tmCompatibility';
 
 import { GYM_LEVEL_CAPS } from '../data/constants';
 import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER, isPokemonLegal } from '../data/regionStandards';
+import { REGIONAL_FORM_METADATA } from '../data/regionalForms';
 
 const STAT_LABELS = {
   attack: 'Ataque',
@@ -255,6 +256,16 @@ const PokemonManagement = ({
     return getPokemonRegion(id);
   };
 
+  // Para formas regionais, usa a região da forma (ex: 'alola' para ninetales-alola).
+  // Para Pokémon base, usa a região do Pokédex Nacional pelo id.
+  const getPcRegion = (p) => {
+    if (p.formKey) {
+      const meta = REGIONAL_FORM_METADATA[p.formKey];
+      if (meta?.formRegion) return meta.formRegion;
+    }
+    return getDexRegion(p.id);
+  };
+
   // Lista filtrada e ordenada do PC — usada tanto na grid quanto na navegação do modal
   const pcFilteredList = useMemo(() => {
     const worldFlags = gameState.worldFlags || [];
@@ -269,7 +280,7 @@ const PokemonManagement = ({
         } else if (pcRegion === 'usable') {
           matchesRegion = isPokemonLegal(p, activeRegion, worldFlags);
         } else {
-          matchesRegion = getDexRegion(p.id) === pcRegion;
+          matchesRegion = getPcRegion(p) === pcRegion;
         }
         return matchesRegion && ((p.name || '').toLowerCase().includes(term) || String(p.id).includes(term));
       })
@@ -302,9 +313,9 @@ const PokemonManagement = ({
   };
 
   const availablePcRegions = (() => {
-    // Calcula as regiões pelo número da Pokédex dos Pokémons no PC
+    // Calcula as regiões considerando formas regionais (ex: ninetales-alola → alola, não kanto)
     const regionsInPC = new Set(
-      (gameState.pc || []).map(p => getDexRegion(p.id))
+      (gameState.pc || []).map(p => getPcRegion(p))
     );
     const worldFlags = gameState.worldFlags || [];
     const isChampion = !!(REGION_CHAMPION_FLAGS[activeRegion] && worldFlags.includes(REGION_CHAMPION_FLAGS[activeRegion]));
@@ -1079,9 +1090,13 @@ const PokemonManagement = ({
         // Resolve tipos do Pokémon ativo fora dos IIFEs para que fique acessível em todo o modal
         const _modalPoke = activePokemonDetails.pokemon;
         const _modalPokedexEntry = POKEDEX[Number(_modalPoke.id)];
-        const _modalTypes = (_modalPokedexEntry?.types?.length > 0)
-          ? _modalPokedexEntry.types
-          : (_modalPoke.types?.length > 0 ? _modalPoke.types : [_modalPoke.type || 'Normal']);
+        // Formas regionais têm tipos próprios — usar REGIONAL_FORM_METADATA, não o Pokédex base
+        const _regionalFormMeta = _modalPoke.formKey ? REGIONAL_FORM_METADATA[_modalPoke.formKey] : null;
+        const _modalTypes = (_regionalFormMeta?.types?.length > 0)
+          ? _regionalFormMeta.types
+          : (_modalPokedexEntry?.types?.length > 0)
+            ? _modalPokedexEntry.types
+            : (_modalPoke.types?.length > 0 ? _modalPoke.types : [_modalPoke.type || 'Normal']);
         return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
            <div className="bg-white w-[82vw] max-w-[360px] max-h-[82dvh] rounded-[2rem] shadow-2xl border-b-[8px] border-slate-200 overflow-hidden relative animate-slideInUp flex flex-col">
