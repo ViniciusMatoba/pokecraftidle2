@@ -71,6 +71,44 @@ export function useSound() {
   const sfxCapture = useCallback(() => playSFX('capture'), [playSFX]);
   const sfxHeal = useCallback(() => playSFX('heal'), [playSFX]);
   const sfxGym = useCallback(() => playSFX('gym'), [playSFX]);
+  const sfxShiny = useCallback(() => {
+    if (mutedRef.current) return;
+
+    const now = Date.now();
+    if (lastPlayTime.current.shiny && now - lastPlayTime.current.shiny < 1200) return;
+    lastPlayTime.current.shiny = now;
+
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.0001, ctx.currentTime);
+      master.gain.exponentialRampToValueAtTime(0.16, ctx.currentTime + 0.02);
+      master.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.72);
+      master.connect(ctx.destination);
+
+      [880, 1175, 1568].forEach((freq, index) => {
+        const start = ctx.currentTime + index * 0.09;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, start);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.18, start + 0.18);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.11, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.26);
+        osc.connect(gain);
+        gain.connect(master);
+        osc.start(start);
+        osc.stop(start + 0.32);
+      });
+
+      setTimeout(() => ctx.close().catch(() => {}), 900);
+    } catch (e) {
+      console.warn('Shiny SFX failed:', e);
+    }
+  }, []);
 
   const playBGM = useCallback((url, volume, loop = true, onEnded = null) => {
     const vol = volume !== undefined ? volume : bgmVolumeRef.current;
@@ -170,5 +208,5 @@ export function useSound() {
     };
   }, []);
 
-  return { playBGM, stopBGM, setBgmVolume, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxGym, stopSFX, toggleMute, isMuted, muted };
+  return { playBGM, stopBGM, setBgmVolume, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxGym, sfxShiny, stopSFX, toggleMute, isMuted, muted };
 }

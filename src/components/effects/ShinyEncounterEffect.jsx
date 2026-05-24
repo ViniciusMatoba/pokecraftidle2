@@ -27,13 +27,13 @@ export default function ShinyEncounterEffect({ active = false, compact = false, 
       <style>{`
         @keyframes shiny-screen-flash {
           0% { opacity: 0; transform: scale(0.96); }
-          16% { opacity: 0.9; transform: scale(1); }
-          100% { opacity: 0; transform: scale(1.08); }
+          18% { opacity: 0.42; transform: scale(1); }
+          100% { opacity: 0; transform: scale(1.02); }
         }
         @keyframes shiny-ring-pop {
           0% { opacity: 0; transform: translate(-50%, -50%) scale(0.28) rotate(0deg); }
-          22% { opacity: 0.95; }
-          100% { opacity: 0; transform: translate(-50%, -50%) scale(2.15) rotate(38deg); }
+          22% { opacity: 0.72; }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(1.78) rotate(28deg); }
         }
         @keyframes shiny-star-pop {
           0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2) rotate(-20deg); }
@@ -47,8 +47,8 @@ export default function ShinyEncounterEffect({ active = false, compact = false, 
           100% { opacity: 0; transform: translate(-50%, -10px) scale(0.92); }
         }
         @keyframes shiny-aura-breathe {
-          0%, 100% { opacity: 0.42; transform: translate(-50%, -50%) scale(0.92); }
-          50% { opacity: 0.74; transform: translate(-50%, -50%) scale(1.08); }
+          0%, 100% { opacity: 0.28; transform: translate(-50%, -50%) scale(0.95); }
+          50% { opacity: 0.46; transform: translate(-50%, -50%) scale(1.03); }
         }
         @keyframes shiny-drift {
           0% { opacity: 0; transform: translateY(8px) scale(0.6) rotate(0deg); }
@@ -61,9 +61,9 @@ export default function ShinyEncounterEffect({ active = false, compact = false, 
         <div
           className="absolute inset-0"
           style={{
-            background: 'radial-gradient(circle at 68% 40%, rgba(254,240,138,0.9), rgba(250,204,21,0.24) 34%, transparent 68%)',
+            background: 'radial-gradient(circle at 68% 40%, rgba(254,240,138,0.42), rgba(250,204,21,0.11) 34%, transparent 66%)',
             mixBlendMode: 'screen',
-            animation: 'shiny-screen-flash 900ms ease-out forwards',
+            animation: 'shiny-screen-flash 650ms ease-out forwards',
           }}
         />
       )}
@@ -73,11 +73,11 @@ export default function ShinyEncounterEffect({ active = false, compact = false, 
         style={{
           left: compact ? '50%' : '68%',
           top: compact ? '50%' : '42%',
-          width: compact ? 94 : 126,
-          height: compact ? 94 : 126,
-          background: 'radial-gradient(circle, rgba(254,243,199,0.55), rgba(250,204,21,0.16) 48%, transparent 70%)',
-          boxShadow: '0 0 26px rgba(250,204,21,0.7)',
-          animation: persistent ? 'shiny-aura-breathe 2.2s ease-in-out infinite' : 'shiny-ring-pop 1200ms ease-out forwards',
+          width: compact ? 88 : 116,
+          height: compact ? 88 : 116,
+          background: 'radial-gradient(circle, rgba(254,243,199,0.36), rgba(250,204,21,0.1) 48%, transparent 70%)',
+          boxShadow: '0 0 18px rgba(250,204,21,0.48)',
+          animation: persistent ? 'shiny-aura-breathe 2.8s ease-in-out infinite' : 'shiny-ring-pop 1050ms ease-out forwards',
         }}
       />
 
@@ -101,7 +101,7 @@ export default function ShinyEncounterEffect({ active = false, compact = false, 
           style={{
             left: compact ? `${star.x}%` : `calc(68% + ${(star.x - 50) * 1.15}px)`,
             top: compact ? `${star.y}%` : `calc(42% + ${(star.y - 50) * 1.05}px)`,
-            filter: 'drop-shadow(0 0 8px rgba(250,204,21,0.95))',
+            filter: 'drop-shadow(0 0 5px rgba(250,204,21,0.75))',
             animation: `shiny-star-pop 1050ms ease-out ${star.delay}s forwards`,
           }}
         >

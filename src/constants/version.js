@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.11.26';
-export const VERSION = '2.11.26';
-export const APP_VERSION_DATE = '24/05/2026 10:31';
+export const APP_VERSION = '2.11.27';
+export const VERSION = '2.11.27';
+export const APP_VERSION_DATE = '24/05/2026 10:35';
 export const CHANGELOG = [
+  '## [V2.11.27] - 24/05/2026 10:35',
+  '### Conforto Visual — Flashes, Tremores e Shiny',
+  '- **Flashes reduzidos**: brilho de encontro shiny, captura e golpes agora usa opacidades menores para evitar estouro visual em telas mobile.',
+  '- **Tremor global suavizado**: a tela inteira só treme em crítico ou dano muito alto; super efetivo comum mantém feedback local sem sacudir tudo.',
+  '- **Animações de golpes mais confortáveis**: shake da camada de efeitos, flicker de dano, vinheta e flash crítico foram reduzidos em intensidade e duração.',
+  '- **SFX shiny**: encontros shiny agora tocam um som curto de brilho sintetizado via WebAudio, respeitando mute e sem adicionar arquivo pesado ao bundle.',
+  '',
   '## [V2.11.26] - 24/05/2026 10:31',
   '### Música — Loop Contínuo Sem Interrupções',
   '- **Derrota não para mais a música**: removidos os `stopBGM` dos caminhos de derrota (time exausto, batalhas VS e batalhas normais) — o SFX de derrota ainda toca, mas a BGM continua sem corte.',

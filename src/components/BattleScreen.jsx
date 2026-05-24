@@ -19,6 +19,7 @@ const BattleScreen = ({
   timeOfDay, showAutoConfigExternal = false, setShowAutoConfigExternal, bossTimer, currentLevelCap = 100,
   captureEvent, onCaptureDone,
   manualBattle = false, isManualActing = false, onManualAttack,
+  onShinyEncounter,
 }) => {
   const activePoke = gameState.team?.[activeMemberIndex];
   const autoConfig = gameState.autoCaptureConfig || { autoCapture: false, autoPotion: false, hpThreshold: 30, staminaThreshold: 30, autoStamina: false };
@@ -63,9 +64,9 @@ const BattleScreen = ({
         triggerReaction(target, 'reaction-shake');
         if (!detail.noEffect && detail.effectiveness !== 0) triggerReaction(target, 'reaction-flicker');
 
-        if (detail.critical || detail.effectiveness > 1 || (detail.damage || 0) >= 80) {
+        if (detail.critical || (detail.damage || 0) >= 120) {
           setScreenShake(true);
-          setTimeout(() => setScreenShake(false), detail.critical ? 420 : 260);
+          setTimeout(() => setScreenShake(false), detail.critical ? 220 : 140);
         }
 
         // Trigger stat arrows if any
@@ -86,7 +87,7 @@ const BattleScreen = ({
         const eliteKeywords = ['pump', 'thrower', 'blast', 'earthquake', 'storm', 'hyper', 'origin', 'meteor', 'v-create'];
         if (eliteKeywords.some(kw => String(name || '').toLowerCase().includes(kw)) || detail.critical) {
           setShowVignette(true);
-          setTimeout(() => setShowVignette(false), 800);
+          setTimeout(() => setShowVignette(false), 520);
         }
       };
 
@@ -121,10 +122,11 @@ const BattleScreen = ({
     const t = setTimeout(() => setShowTrainer(false), introDuration);
     if (currentEnemy?.isShiny) {
       setShinyFlash(true);
-      setTimeout(() => setShinyFlash(false), 2000);
+      onShinyEncounter?.();
+      setTimeout(() => setShinyFlash(false), 1500);
     }
     return () => clearTimeout(t);
-  }, [currentEnemy?.instanceId, currentEnemy?.id]);
+  }, [currentEnemy?.instanceId, currentEnemy?.id, onShinyEncounter]);
 
   const [playerShinyFlash, setPlayerShinyFlash] = useState(false);
   useEffect(() => {

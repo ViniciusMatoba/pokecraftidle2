@@ -101,7 +101,7 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
     };
   }, [addNode]);
 
-  const flashOverlay = useCallback((color, duration = 160, opacity = 0.26, delay = 0) => {
+  const flashOverlay = useCallback((color, duration = 160, opacity = 0.16, delay = 0) => {
     if (!layerRef.current || !color) return;
     const div = document.createElement('div');
     div.style.cssText = `
@@ -225,8 +225,8 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
 
   const shakeLayer = useCallback((level = 'light') => {
     if (!layerRef.current) return;
-    const distance = level === 'heavy' ? 8 : level === 'medium' ? 5 : 3;
-    const duration = level === 'heavy' ? 420 : level === 'medium' ? 300 : 220;
+    const distance = level === 'heavy' ? 4 : level === 'medium' ? 3 : 2;
+    const duration = level === 'heavy' ? 260 : level === 'medium' ? 210 : 170;
     layerRef.current.animate([
       { transform: 'translate(0, 0)' },
       { transform: `translate(${-distance}px, ${distance}px)` },
@@ -299,8 +299,8 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
     const noEffect = meta.effectiveness === 0 || meta.noEffect;
 
     if (onAttack) onAttack();
-    if (def?.background) flashOverlay(def.background, Math.max(360, duration), meta.critical ? 0.34 : 0.18);
-    if (meta.critical) flashOverlay('#ffffff', 180, 0.42, Math.max(80, duration * 0.45));
+    if (def?.background) flashOverlay(def.background, Math.max(320, duration), meta.critical ? 0.22 : 0.12);
+    if (meta.critical) flashOverlay('#ffffff', 140, 0.22, Math.max(80, duration * 0.45));
     if (def?.overlay && !meta.missed) playOverlay(def.overlay, target, color);
     if (meta.missed) {
       playMiss(from, to, color, sprite, duration);

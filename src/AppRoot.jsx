@@ -806,7 +806,7 @@ export default function App() {
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [avatarTab, setAvatarTab] = useState('male');
   const { 
-    playBGM, stopBGM, setBgmVolume, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxGym, stopSFX,
+    playBGM, stopBGM, setBgmVolume, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxGym, sfxShiny, stopSFX,
     toggleMute, isMuted, muted
   } = useSound();
   
@@ -9470,6 +9470,7 @@ export default function App() {
                 manualBattle={isManualMode}
                 isManualActing={isManualActing}
                 onManualAttack={handleManualAttack}
+                onShinyEncounter={sfxShiny}
           />
         </div>
       );

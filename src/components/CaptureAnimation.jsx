@@ -17,8 +17,8 @@ import { getPokeballDef } from '../data/pokeballs';
 
 const PHASES = ['throw', 'absorb', 'shake', 'result', 'exit'];
 const PHASE_DURATIONS = { throw: 700, absorb: 500, shake: 2100, result: 1400, exit: 400 };
-const SUCCESS_PARTICLES = Array.from({ length: 14 }, (_, i) => {
-  const angle = (i / 14) * Math.PI * 2;
+const SUCCESS_PARTICLES = Array.from({ length: 12 }, (_, i) => {
+  const angle = (i / 12) * Math.PI * 2;
   const dist = 54 + (i % 4) * 11;
   return {
     sx: `${Math.cos(angle) * dist}px`,
@@ -74,7 +74,7 @@ export default function CaptureAnimation({ captureEvent, onDone }) {
       style={{
         background: phase === 'result' || phase === 'exit'
           ? success
-            ? 'radial-gradient(ellipse at center, rgba(250,245,200,0.92) 0%, rgba(250,245,200,0.65) 60%, transparent 100%)'
+            ? 'radial-gradient(ellipse at center, rgba(250,245,200,0.38) 0%, rgba(250,245,200,0.18) 58%, transparent 100%)'
             : 'radial-gradient(ellipse at center, rgba(255,80,80,0.18) 0%, transparent 70%)'
           : 'transparent',
         opacity: phase === 'exit' ? 0 : 1,
@@ -91,17 +91,17 @@ export default function CaptureAnimation({ captureEvent, onDone }) {
         /* ── Absorção (inimigo desaparece) ── */
         @keyframes pokeAbsorb {
           0%   { opacity: 1; transform: scale(1);   filter: brightness(1); }
-          40%  { opacity: 0.7; transform: scale(0.7); filter: brightness(3) saturate(0); }
-          100% { opacity: 0; transform: scale(0.1);  filter: brightness(5); }
+          40%  { opacity: 0.68; transform: scale(0.7); filter: brightness(1.9) saturate(0); }
+          100% { opacity: 0; transform: scale(0.1);  filter: brightness(2.4); }
         }
         /* ── Chacoalhar ── */
         @keyframes ballShake {
           0%   { transform: rotate(0deg)   translateY(0); }
-          15%  { transform: rotate(-22deg) translateY(-4px); }
-          35%  { transform: rotate(22deg)  translateY(-2px); }
-          55%  { transform: rotate(-14deg) translateY(-3px); }
-          75%  { transform: rotate(14deg)  translateY(-1px); }
-          90%  { transform: rotate(-6deg)  translateY(0); }
+          15%  { transform: rotate(-14deg) translateY(-2px); }
+          35%  { transform: rotate(14deg)  translateY(-1px); }
+          55%  { transform: rotate(-9deg) translateY(-2px); }
+          75%  { transform: rotate(9deg)  translateY(-1px); }
+          90%  { transform: rotate(-4deg)  translateY(0); }
           100% { transform: rotate(0deg)   translateY(0); }
         }
         /* ── Tremor de impacto ── */
@@ -123,8 +123,8 @@ export default function CaptureAnimation({ captureEvent, onDone }) {
         }
         @keyframes shinyCaptureHalo {
           0% { opacity: 0; transform: translate(-50%, -50%) scale(0.45); }
-          28% { opacity: 0.9; }
-          100% { opacity: 0; transform: translate(-50%, -50%) scale(2.4); }
+          28% { opacity: 0.55; }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(1.75); }
         }
         /* ── Fuga ── */
         @keyframes ballBreak {
@@ -232,7 +232,7 @@ export default function CaptureAnimation({ captureEvent, onDone }) {
               }}
             />
           )}
-          {SUCCESS_PARTICLES.slice(0, isShiny ? 14 : 10).map((particle, i) => {
+          {SUCCESS_PARTICLES.slice(0, isShiny ? 12 : 8).map((particle, i) => {
             const colors = isShiny
               ? ['#fef08a','#facc15','#f59e0b','#fff7ed','#fde68a']
               : ['#fbbf24','#f59e0b','#fde68a','#fff','#a3e635'];
