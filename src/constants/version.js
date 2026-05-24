@@ -1,7 +1,16 @@
-export const APP_VERSION = '2.11.31';
-export const VERSION = '2.11.31';
-export const APP_VERSION_DATE = '24/05/2026 11:23';
+export const APP_VERSION = '2.11.32';
+export const VERSION = '2.11.32';
+export const APP_VERSION_DATE = '24/05/2026 11:43';
 export const CHANGELOG = [
+  '## [V2.11.32] - 24/05/2026 11:43',
+  '### Backgrounds de Liga — Alola, Galar, Paldea, Hisui e Kalos',
+  '- **`alola_league` adicionado** ao `battleBackgrounds.js`: batalhas na Liga Alola agora usam `bg_alola_elite.webp` em vez do fallback genérico da rota.',
+  '- **`galar_league` adicionado**: batalhas na Liga Galar usam `bg_galar_elite.webp`.',
+  '- **`paldea_league` adicionado**: batalhas na Liga Paldea usam `bg_paldea_elite.webp`.',
+  '- **`hisui_league` adicionado**: batalhas da Liga Hisui usam `bg_hisui_sacred_plaza.webp` (a Praça Sagrada, local dos confrontos finais de Hisui).',
+  '- **`kalos_league` corrigido**: referência errada `.png` → `.webp` no `battleBackgrounds.js`; arquivo correto `bg_kalos_elite.webp` agora é carregado.',
+  '- **`leagueBg` de Hisui adicionado** ao `ChallengesScreen.jsx`: tela de desafios de Hisui agora exibe `bg_hisui_sacred_plaza.webp` em vez do fallback genérico `bg_elite_four.webp`.',
+  '',
   '## [V2.11.31] - 24/05/2026 11:23',
   '### Rotas Regionais — Formas Alola/Galar',
   '- **Mount Lanakila corrigida**: Vulpix, Ninetales e Sandslash agora aparecem com as formas de Alola, usando `formKey` e `formSpriteId` corretos.',

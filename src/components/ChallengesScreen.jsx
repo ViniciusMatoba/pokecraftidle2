@@ -174,6 +174,7 @@ const FUTURE_REGION_CHALLENGE_DATA = {
   },
   hisui: {
     label: 'Hisui', start: 'hisui_started', champion: 'hisui_champion', villain: 'Galaxy Team', villainSprite: psTrainer('galacticgrunt'), rivalSprite: psTrainer('dawn'), bg: "url('/bg_hisui_fieldlands.webp') center/cover no-repeat",
+    leagueBg: "url('/bg_hisui_sacred_plaza.webp') center/cover no-repeat",
     badges: ['fieldlands_stamp', 'mirelands_stamp', 'coastlands_stamp', 'highlands_stamp', 'icelands_stamp', 'lake_stamp', 'volo_stamp', 'arceus_stamp'],
     leaderSubtitleOverride: true,
     leaders: [

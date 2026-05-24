@@ -1,5 +1,5 @@
 {
-  "version": "2.11.31",
-  "date": "24/05/2026 11:23",
-  "notes": "Formas regionais nas rotas: Alola/Galar preservam formKey, nome, tipo e sprite corretos nos encontros selvagens"
+  "version": "2.11.32",
+  "date": "24/05/2026 11:43",
+  "notes": "Backgrounds de liga adicionados para Alola, Galar, Paldea e Hisui; corrigida extensão .png→.webp no Kalos; leagueBg de Hisui adicionado ao ChallengesScreen"
 }

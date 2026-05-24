@@ -519,7 +519,7 @@ export const BATTLE_BACKGROUNDS = {
   
   kalos_cave:   { sky: bg('bg_kalos_cave.webp'), label: 'Caverna de Kalos', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['crystal_shard', 'cave_entrance'] },
   kalos_forest: { sky: bg('bg_kalos_forest.webp'), label: 'Floresta de Kalos', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'day', elements: ['tall_tree', 'forest_mist'] },
-  kalos_league: { sky: bg('bg_kalos_elite.png'), label: 'Liga Kalos', ground: '#334155', groundAccent: '#1e293b', timeOfDay: 'league', elements: ['league_pillar', 'gold_star'] },
+  kalos_league: { sky: bg('bg_kalos_elite.webp'), label: 'Liga Kalos', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'league', elements: ['league_pillar', 'gold_star', 'championship_banner'] },
 
   alola_verdant_cavern: { sky: bg('bg_alola_verdant_cavern.webp'), label: 'Verdant Cavern', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['palm_tree', 'cave_entrance'] },
   alola_akala_island: { sky: bg('bg_alola_akala.webp'), label: 'Akala Island', ground: '#e0d0a0', groundAccent: '#c0b080', timeOfDay: 'day', elements: ['palm_tree', 'ocean_view'] },
@@ -529,6 +529,7 @@ export const BATTLE_BACKGROUNDS = {
   alola_cave:   { sky: bg('bg_alola_verdant_cavern.webp'), label: 'Caverna de Alola', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['palm_tree', 'cave_entrance'] },
   alola_volcano: { sky: bg('bg_alola_volcano.webp'), label: 'Vulcão de Alola', ground: '#450a0a', groundAccent: '#7f1d1d', timeOfDay: 'sunset', elements: ['fire_pillar', 'lava_pool'] },
   alola_aether: { sky: bg('bg_alola_aether.webp'), label: 'Aether Paradise', ground: '#f8fafc', groundAccent: '#f1f5f9', timeOfDay: 'indoor_tech', elements: ['glass_wall', 'server_rack'] },
+  alola_league: { sky: bg('bg_alola_elite.webp'), label: 'Liga Alola', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'league', elements: ['league_pillar', 'gold_star', 'championship_banner'] },
 
   galar_wild_area_south: { sky: bg('bg_galar_wild_area.webp'), label: 'Wild Area', ground: '#4d7c0f', groundAccent: '#365314', timeOfDay: 'overcast', elements: ['windmill', 'stone_wall'] },
   galar_mine_1: { sky: bg('bg_galar_mine.webp'), label: 'Galar Mine', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['mine_cart', 'cave_entrance'] },
@@ -537,6 +538,7 @@ export const BATTLE_BACKGROUNDS = {
   galar_victory_road: { sky: bg('bg_galar_rose_tower.webp'), label: 'Rose Tower', ground: '#0f172a', groundAccent: '#020617', timeOfDay: 'night', elements: ['neon_light', 'city_view'] },
   galar_cave:   { sky: bg('bg_galar_mine.webp'), label: 'Caverna de Galar', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['windmill', 'cave_entrance'] },
   galar_tundra: { sky: bg('bg_galar_tundra.webp'), label: 'Crown Tundra', ground: '#f1f5f9', groundAccent: '#cbd5e1', timeOfDay: 'ice', elements: ['ice_crystal', 'snow_storm'] },
+  galar_league: { sky: bg('bg_galar_elite.webp'), label: 'Liga Galar', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'league', elements: ['league_pillar', 'gold_star', 'championship_banner'] },
 
   poco_path: { sky: bg('bg_paldea_poco_path.webp'), label: 'Poco Path', ground: '#c0b870', groundAccent: '#908850', timeOfDay: 'day', elements: ['olive_tree', 'ocean_view'] },
   paldea_artazon: { sky: bg('bg_paldea_artazon.webp'), label: 'Artazon', ground: '#d9a441', groundAccent: '#a16207', timeOfDay: 'day', elements: ['flower', 'statue_fountain'] },
@@ -545,8 +547,10 @@ export const BATTLE_BACKGROUNDS = {
   paldea_area_zero: { sky: bg('bg_paldea_area_zero.webp'), label: 'Area Zero', ground: '#1e1b4b', groundAccent: '#312e81', timeOfDay: 'legendary', elements: ['crystal_glow', 'ancient_rune'] },
   paldea_cave:  { sky: bg('bg_paldea_area_zero.webp'), label: 'Caverna de Paldea', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'dark', elements: ['olive_tree', 'cave_entrance'] },
   paldea_desert: { sky: bg('bg_paldea_desert.webp'), label: 'Deserto de Paldea', ground: '#d4a373', groundAccent: '#a98467', timeOfDay: 'day', elements: ['cactus', 'sand_dune'] },
+  paldea_league: { sky: bg('bg_paldea_elite.webp'), label: 'Liga Paldea', ground: '#1e293b', groundAccent: '#0f172a', timeOfDay: 'league', elements: ['league_pillar', 'gold_star', 'championship_banner'] },
 
   hisui_sacred_plaza: { sky: bg('bg_hisui_sacred_plaza.webp'), label: 'Praça Sagrada', ground: '#140028', groundAccent: '#080010', timeOfDay: 'legendary', elements: ['ancient_pillar', 'celestial_light'] },
+  hisui_league: { sky: bg('bg_hisui_sacred_plaza.webp'), label: 'Liga Hisui', ground: '#140028', groundAccent: '#080010', timeOfDay: 'league', elements: ['ancient_pillar', 'gold_star', 'celestial_light'] },
 
   // ══════════════════════════════════════════════════════
   // HOENN — rotas e cidades com background dedicado
