@@ -14,7 +14,7 @@ import {
   collection, doc, getDoc, getDocs,
   setDoc, deleteDoc,
   query, where, limit,
-  onSnapshot, serverTimestamp,
+  onSnapshot, serverTimestamp, writeBatch,
 } from 'firebase/firestore';
 
 /* ─── Busca ─────────────────────────────────────────────────────────────── */
@@ -94,22 +94,24 @@ export const acceptFriendRequest = async (myUid, myProfile, fromUid, request) =>
       if (freshSnap.exists()) fromProfile = { uid: fromUid, ...freshSnap.data() };
     } catch { /* usa snapshot da request como fallback */ }
 
-    // Adiciona o remetente à minha lista
-    await setDoc(doc(db, 'friends', myUid, 'list', fromUid), {
+    const batch = writeBatch(db);
+
+    batch.set(doc(db, 'friends', myUid, 'list', fromUid), {
       uid:      fromUid,
       name:     fromProfile.name || request.fromName || 'Treinador',
       profile:  fromProfile,
       addedAt:  serverTimestamp(),
     });
-    // Adiciona eu à lista do remetente
-    await setDoc(doc(db, 'friends', fromUid, 'list', myUid), {
+
+    batch.set(doc(db, 'friends', fromUid, 'list', myUid), {
       uid:      myUid,
       name:     myProfile.name || 'Treinador',
       profile:  myProfile,
       addedAt:  serverTimestamp(),
     });
-    // Remove a solicitação
-    await deleteDoc(doc(db, 'friends', myUid, 'requests', fromUid));
+
+    batch.delete(doc(db, 'friends', myUid, 'requests', fromUid));
+    await batch.commit();
     return { ok: true };
   } catch (e) {
     console.error('friends/acceptFriendRequest:', e);

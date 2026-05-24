@@ -1,7 +1,16 @@
-export const APP_VERSION = '2.11.21';
-export const VERSION = '2.11.21';
-export const APP_VERSION_DATE = '24/05/2026 00:49';
+export const APP_VERSION = '2.11.22';
+export const VERSION = '2.11.22';
+export const APP_VERSION_DATE = '24/05/2026 01:07';
 export const CHANGELOG = [
+  '## [V2.11.22] - 24/05/2026 01:07',
+  '### Integridade de Conta, Amigos e Forja',
+  '- **Amigos**: aceite de solicitação agora usa batch atômico e regras Firestore permitem criar o espelho na lista do remetente apenas enquanto a solicitação pendente existir.',
+  '- **Multi-avatar nas regras**: `saves/{uid}_s2`, `saves/{uid}_s3`, `users/{uid}_s2`, `users/{uid}_s3`, `avatarMeta` e `nicknames` passam a ter regras explícitas para leitura/escrita/deleção pelo dono.',
+  '- **Exclusão de conta**: deleção agora limpa dados de todos os avatares conhecidos, saves, snapshots, perfis públicos, nicks reservados, amizades, solicitações, região publicada, avatarMeta e ranking de boss.',
+  "- **Forja**: corrigida chave legada `berry_oran` para `oran_berry` e adicionados guias de drop para materiais sem origem (`earth_essence`, Electirizer, King's Rock, Magmarizer, Prism Scale e Reaper Cloth).",
+  '- **Cloud save**: dirty hash agora detecta mudanças em PC, níveis/XP do time, Trainer Card, prestige e progresso interno da Battle Tower sem incluir Tower em powerScore/rankings.',
+  '- **Testes**: adicionada cobertura para hash de save, guias da forja e regras Firestore de multi-avatar/amizade.',
+  '',
   '## [V2.11.21] - 24/05/2026 00:49',
   '### Auditoria — Correções Críticas e Cobertura de Testes',
   '- **Fix 1.1 (prestige.purchasedTitles)**: saves antigos sem o campo não crasham mais na PrestigeShop — `purchasedTitles: []` agora é sempre garantido pelo migrador.',

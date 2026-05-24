@@ -16,8 +16,8 @@
 
 import { db } from '../firebase';
 import {
-  doc, getDoc, setDoc, deleteDoc, updateDoc,
-  runTransaction, serverTimestamp,
+  collection, doc, getDoc, getDocs, setDoc, deleteDoc,
+  runTransaction, serverTimestamp, writeBatch,
 } from 'firebase/firestore';
 
 export const MAX_AVATARS = 3;
@@ -36,6 +36,28 @@ const validateNick = (nick) => {
 
 /** Retorna o docId do Firestore para um dado uid + slot (slot 1 = uid puro, backward compat) */
 export const getSlotDocId = (uid, slot) => (slot > 1 ? `${uid}_s${slot}` : uid);
+
+const deleteSnapshotCollection = async (docId) => {
+  const snap = await getDocs(collection(db, 'saves', docId, 'snapshots'));
+  if (snap.empty) return;
+
+  const batch = writeBatch(db);
+  snap.docs.forEach(snapshotDoc => batch.delete(snapshotDoc.ref));
+  await batch.commit();
+};
+
+export const deleteAvatarSlotData = async (uid, slot, avatar) => {
+  const docId = getSlotDocId(uid, slot);
+  await deleteSnapshotCollection(docId).catch(e => {
+    console.error('[Avatar] delete snapshots failed:', e);
+  });
+
+  await Promise.allSettled([
+    deleteDoc(doc(db, 'saves', docId)),
+    deleteDoc(doc(db, 'users', docId)),
+    avatar?.nick ? releaseNick(uid, slot, avatar.nick) : Promise.resolve(),
+  ]);
+};
 
 /** Carrega os metadados de avatar de um usuário */
 export const loadAvatarMeta = async (uid) => {
@@ -151,19 +173,14 @@ export const createAvatarSlot = async (uid, slot, nick, existingMeta) => {
  * - Libera o nick
  * - Atualiza avatarMeta
  */
-export const deleteAvatarSlot = async (uid, slot, existingMeta) => {
-  if (slot === 1 && (existingMeta?.avatars || []).length === 1) {
+export const deleteAvatarSlot = async (uid, slot, existingMeta, { allowLastAvatar = false } = {}) => {
+  if (!allowLastAvatar && slot === 1 && (existingMeta?.avatars || []).length === 1) {
     throw new Error('Não é possível deletar o único avatar da conta.');
   }
 
-  const docId = getSlotDocId(uid, slot);
   const avatar = (existingMeta?.avatars || []).find(a => a.slot === slot);
 
-  await Promise.allSettled([
-    deleteDoc(doc(db, 'saves', docId)),
-    deleteDoc(doc(db, 'users', docId)),
-    avatar?.nick ? releaseNick(uid, slot, avatar.nick) : Promise.resolve(),
-  ]);
+  await deleteAvatarSlotData(uid, slot, avatar);
 
   const newAvatars = (existingMeta?.avatars || []).filter(a => a.slot !== slot);
   const newMeta = { avatars: newAvatars, updatedAt: serverTimestamp() };

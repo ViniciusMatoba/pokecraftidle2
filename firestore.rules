@@ -14,24 +14,27 @@ service cloud.firestore {
       return isAuth() && request.auth.uid == uid;
     }
 
-    // Valida que o payload de save tem os campos mínimos esperados
-    // e que o uid do documento bate com o uid do autor.
+    function isOwnerSlot(docId) {
+      return isAuth() && (
+        docId == request.auth.uid ||
+        docId == request.auth.uid + '_s2' ||
+        docId == request.auth.uid + '_s3'
+      );
+    }
+
+    // Valida que o payload de save/snapshot tem os campos mínimos esperados.
     function isValidSavePayload(uid) {
       let data = request.resource.data;
       return
-        // Campos obrigatórios presentes
-        data.keys().hasAll(['compressedState', 'updatedAt']) &&
+        // Campos obrigatórios presentes: save usa updatedAt, snapshot usa createdAt
+        data.keys().hasAll(['compressedState']) &&
+        (data.keys().hasAny(['updatedAt']) || data.keys().hasAny(['createdAt'])) &&
         // compressedState é string e não está vazio
         data.compressedState is string &&
         data.compressedState.size() > 0 &&
         // Tamanho máximo do estado comprimido: ~950 KB
         // (Firestore permite 1MB por documento; deixamos margem para metadados)
-        data.compressedState.size() <= 950000 &&
-        // uid salvo no documento deve bater com o auth
-        (
-          !data.keys().hasAny(['uid']) ||
-          data.uid == uid
-        );
+        data.compressedState.size() <= 950000;
     }
 
     // Valida payload de dano ao Boss para o ranking
@@ -58,34 +61,50 @@ service cloud.firestore {
     // Apenas o próprio jogador lê e escreve o seu save.
     // Escrita validada: campos obrigatórios + tamanho + uid consistente.
     match /saves/{uid} {
-      allow read: if isOwner(uid);
-      allow write: if isOwner(uid) && isValidSavePayload(uid);
+      allow read: if isOwnerSlot(uid);
+      allow create, update: if isOwnerSlot(uid) && isValidSavePayload(uid);
+      allow delete: if isOwnerSlot(uid);
     }
 
     // Snapshots diários: mesmo owner, tamanho máximo idêntico.
     match /saves/{uid}/snapshots/{day} {
-      allow read: if isOwner(uid);
-      allow write: if isOwner(uid) && isValidSavePayload(uid);
+      allow read: if isOwnerSlot(uid);
+      allow create, update: if isOwnerSlot(uid) && isValidSavePayload(uid);
+      allow delete: if isOwnerSlot(uid);
     }
 
     // ─── perfis públicos ──────────────────────────────────────────
     // Qualquer autenticado lê; apenas o dono escreve.
     match /users/{uid} {
       allow read: if isAuth();
-      allow write: if isOwner(uid);
+      allow write: if isOwnerSlot(uid);
+      allow delete: if isOwnerSlot(uid);
+    }
+
+    // ─── multi-avatar ─────────────────────────────────────────────
+    match /avatarMeta/{uid} {
+      allow read, write, delete: if isOwner(uid);
+    }
+
+    match /nicknames/{nick} {
+      allow read: if isAuth();
+      allow create: if isAuth() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if isAuth() && resource.data.uid == request.auth.uid;
     }
 
     // ─── regiões publicadas ───────────────────────────────────────
     match /userRegions/{uid} {
       allow read: if isAuth();
       allow write: if isOwner(uid);
+      allow delete: if isOwner(uid);
     }
 
     // ─── rankings do Boss ─────────────────────────────────────────
     // Leitura pública para o ranking; escrita validada (anti-cheat de dano).
     match /bossRankings/{uid} {
       allow read: if isAuth();
-      allow write: if isOwner(uid) && isValidBossDamage();
+      allow create, update: if isOwner(uid) && isValidBossDamage();
+      allow delete: if isOwner(uid);
     }
 
     // ─── sistema de amigos ────────────────────────────────────────
@@ -96,9 +115,16 @@ service cloud.firestore {
       allow update: if false;
     }
 
-    // Lista de amigos: só o dono lê e escreve.
+    // Lista de amigos: dono gerencia a propria lista; aceitar pedido permite
+    // criar o espelho na lista do remetente enquanto a request existir.
     match /friends/{uid}/list/{friendUid} {
       allow read, write: if isOwner(uid);
+      allow create: if isOwner(uid) || (
+        isAuth() &&
+        request.auth.uid == friendUid &&
+        exists(/databases/$(database)/documents/friends/$(friendUid)/requests/$(uid))
+      );
+      allow delete: if isOwner(uid) || request.auth.uid == friendUid;
     }
 
     // ─── fallback ─────────────────────────────────────────────────

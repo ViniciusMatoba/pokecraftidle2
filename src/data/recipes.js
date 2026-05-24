@@ -440,7 +440,7 @@ export const CRAFTING_RECIPES = {
     { id: 'great_ball', name: 'Great Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png', cost: { iron_ore: 5, normal_essence: 20, currency: 400 }, type: 'ball' },
     { id: 'ultra_ball', name: 'Ultra Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png', cost: { mystic_dust: 5, iron_ore: 10, currency: 1200 }, type: 'ball' },
     { id: 'safari_ball', name: 'Safari Ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/safari-ball.png', cost: { apricorn: 5, normal_essence: 8, currency: 300 }, type: 'ball', description: 'Usada exclusivamente na Safari Zone.' },
-    { id: 'pokemon_bait', name: 'Isca Pokémon', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/honey.png', cost: { berry_oran: 3, normal_essence: 5, currency: 150 }, type: 'safari', description: 'Reduz chance de fuga em 40% e facilita captura na Safari Zone.' },
+    { id: 'pokemon_bait', name: 'Isca Pokémon', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/honey.png', cost: { oran_berry: 3, normal_essence: 5, currency: 150 }, type: 'safari', description: 'Reduz chance de fuga em 40% e facilita captura na Safari Zone.' },
     { id: 'mud_ball', name: 'Bola de Lama', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/soft-sand.png', cost: { earth_essence: 5, currency: 100 }, type: 'safari', description: 'Aumenta chance de captura mas irrita o Pokémon, aumentando fuga.' },
     { id: 'revive', name: 'Revive', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', cost: { grass_essence: 15, ghost_essence: 5, currency: 500 }, type: 'healing' },
     { id: 'max_repel', name: 'Max Repel', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-repel.png', cost: { poison_essence: 20, psychic_essence: 5, currency: 300 }, type: 'utility' },
@@ -927,6 +927,8 @@ export const CRAFTING_RECIPES = {
 };
 
 export const FORGE_MATERIAL_DROP_GUIDE = {
+  oran_berry: { pokemonIds: [16, 19, 20, 25, 161, 263, 399], routeId: 'route_1', label: 'Bagas Oran aparecem nas rotas iniciais e no jardim da casa; derrote Pokemon comuns como Pidgey, Rattata e Zigzagoon.' },
+  berry_oran: { pokemonIds: [16, 19, 20, 25, 161, 263, 399], routeId: 'route_1', label: 'Alias legado da Oran Berry; use rotas iniciais e o jardim da casa para coletar.' },
   normal_essence: { pokemonIds: [16, 19, 20, 52, 53, 133, 143], routeId: 'route_1', label: 'Rotas iniciais - Pidgey, Rattata, Meowth, Eevee e Snorlax.' },
   fire_essence: { pokemonIds: [4, 5, 6, 37, 38, 58, 59, 126], routeId: 'pokemon_mansion', label: 'Rotas quentes e mansoes - Charmander, Vulpix, Growlithe e Magmar.' },
   water_essence: { pokemonIds: [7, 8, 9, 60, 61, 72, 73, 120, 129], routeId: 'route_19_20', label: 'Rotas aquaticas - Squirtle, Poliwag, Tentacool, Staryu e Magikarp.' },
@@ -936,6 +938,7 @@ export const FORGE_MATERIAL_DROP_GUIDE = {
   fighting_essence: { pokemonIds: [56, 57, 66, 67, 68, 106, 107], routeId: 'route_22', label: 'Rotas de combate - Mankey, Primeape, Machop, Hitmonlee e Hitmonchan.' },
   poison_essence: { pokemonIds: [23, 24, 29, 32, 41, 42, 88, 109], routeId: 'pokemon_tower', label: 'Florestas, cavernas e torres - Ekans, Nidoran, Zubat, Grimer e Koffing.' },
   ground_essence: { pokemonIds: [27, 28, 50, 51, 74, 75, 95, 111], routeId: 'rock_tunnel', label: 'Tuneis e desertos - Sandshrew, Diglett, Geodude, Onix e Rhyhorn.' },
+  earth_essence: { pokemonIds: [27, 28, 50, 51, 74, 75, 95, 111, 231, 328], routeId: 'rock_tunnel', label: 'Essencia de terra: Sandshrew, Diglett, Geodude, Onix, Phanpy e Trapinch em tuneis e desertos.' },
   flying_essence: { pokemonIds: [16, 17, 18, 21, 22, 41, 42, 123], routeId: 'route_16_17_18', label: 'Rotas abertas - Pidgey, Spearow, Zubat e Scyther.' },
   psychic_essence: { pokemonIds: [63, 64, 65, 96, 97, 122, 150, 196], routeId: 'saffron_city', label: 'Locais psiquicos - Abra, Drowzee, Mr. Mime, Mewtwo e Espeon.' },
   bug_essence: { pokemonIds: [10, 11, 12, 13, 14, 15, 46, 123], routeId: 'viridian_forest', label: 'Florestas - Caterpie, Weedle, Paras e Scyther.' },
@@ -981,12 +984,17 @@ export const FORGE_MATERIAL_DROP_GUIDE = {
   water_stone_shard: { pokemonIds: [60, 61, 90, 91, 120, 121, 134, 183, 270, 318, 363, 456, 489, 564, 692, 771, 846], routeId: 'route_19_20', label: 'Pokemon aquaticos e evolucoes por pedra dropam fragmentos de Water Stone.' },
   leaf_stone_shard: { pokemonIds: [43, 44, 69, 70, 102, 103, 470, 187, 273, 285, 315, 420, 546, 548, 672, 755], routeId: 'ilex_forest', label: 'Pokemon planta e florestas dropam fragmentos de Leaf Stone.' },
   thunder_stone_shard: { pokemonIds: [25, 26, 81, 82, 100, 101, 135, 170, 179, 311, 312, 403, 417, 595, 694, 737, 848], routeId: 'power_plant', label: 'Pokemon eletricos dropam fragmentos de Thunder Stone.' },
+  electirizer_shard: { pokemonIds: [125, 239, 466, 403, 404, 405, 522, 523, 587], routeId: 'power_plant', label: 'Electabuzz, Elekid, Electivire e eletricos fortes dropam fragmentos de Electirizer na Power Plant.' },
   moon_stone_shard: { pokemonIds: [35, 36, 39, 40, 173, 174, 300, 209, 517, 676, 742], routeId: 'mt_moon', label: 'Monte Lua e Pokemon lunares dropam fragmentos de Moon Stone.' },
   sun_stone_shard: { pokemonIds: [43, 44, 191, 192, 546, 548], routeId: 'national_park', label: 'Pokemon solares e flores dropam fragmentos de Sun Stone.' },
   shiny_stone_shard: { pokemonIds: [35, 176, 315, 407, 468, 670, 671], routeId: 'sinnoh_route_204', label: 'Pokemon belos, fadas e flores raras dropam fragmentos de Shiny Stone.' },
   dusk_stone_shard: { pokemonIds: [92, 93, 94, 198, 200, 353, 355, 607, 425, 710, 708, 854], routeId: 'pokemon_tower', label: 'Fantasmas e Pokemon noturnos dropam fragmentos de Dusk Stone.' },
   dawn_stone_shard: { pokemonIds: [280, 281, 361, 475, 478, 856, 308, 362, 858], routeId: 'snowpoint_routes', label: 'Pokemon psiquicos, gelo e evolucoes especiais dropam fragmentos de Dawn Stone.' },
   ice_stone_shard: { pokemonIds: [37, 38, 133, 471, 582, 613, 712], routeId: 'ice_path', label: 'Rotas geladas e Pokemon de gelo dropam fragmentos de Ice Stone.' },
+  magmarizer_shard: { pokemonIds: [126, 240, 467, 218, 219, 322, 323, 554, 555], routeId: 'pokemon_mansion', label: 'Magmar, Magby, Magmortar e Pokemon vulcanicos dropam fragmentos de Magmarizer em rotas de fogo.' },
+  kings_rock_shard: { pokemonIds: [61, 79, 80, 199, 186, 230, 306, 409], routeId: 'slowpoke_well', label: "Slowpoke, Slowbro, Politoed, Slowking e Pokemon reais dropam fragmentos de King's Rock." },
+  reaper_cloth_shard: { pokemonIds: [92, 93, 94, 200, 355, 356, 477, 708, 854], routeId: 'pokemon_tower', label: 'Dusclops, Dusknoir e fantasmas sombrios dropam fragmentos de Reaper Cloth na Pokemon Tower.' },
+  prism_scale_shard: { pokemonIds: [349, 350, 118, 119, 120, 121, 368, 370], routeId: 'route_19_20', label: 'Feebas, Milotic e Pokemon aquaticos raros dropam fragmentos de Prism Scale em rotas aquaticas.' },
   link_cable_part: { pokemonIds: [
     64, 67, 74, 75, 92, 93, 41, 42, 137, 79, 95, 123, 61,
     223, 280, 281, 315, 349, 356, 375,  // Gen 3

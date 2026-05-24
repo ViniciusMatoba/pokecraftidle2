@@ -17,7 +17,7 @@ const extractBlock = (start, length = 200, file = null) => {
 const blocks = [
   { name: 'handleBattleTick',         marker: 'const handleBattleTick = useCallback' },
   { name: 'spawnEnemy',               marker: 'const spawnEnemy = useCallback' },
-  { name: 'Shiny mastery divisor',    marker: 'const shinyRateDivisor = masteryCount >= 200 ? 410 : masteryCount >= 100 ? 1024 : 2048' },
+  { name: 'Shiny mastery divisor',    marker: 'const shinyRateDivisor = masteryCount >= 200 ? 1000 : masteryCount >= 100 ? 2000 : 4000' },
   { name: 'XP divisor',               marker: 'const baseXpGain = Math.floor' }, // Adjusted to Math.floor based on file content
   { name: 'FEED_THRESHOLD',           marker: 'const FEED_THRESHOLD' },
   { name: 'handleGoToCity',           marker: 'const handleGoToCity = useCallback' },

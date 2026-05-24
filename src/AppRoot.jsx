@@ -84,6 +84,7 @@ import { getCaptureRate, pickWeightedEncounter } from './utils/pokemonDifficulty
 import { preloadAssets } from './utils/preloader';
 import { calculatePowerScore, getBadgeCount } from './utils/progress';
 import { migrateGameState } from './utils/saveMigration';
+import { computeGameStateHash } from './utils/stateHash';
 import { ensureRetentionState, getRetentionViewModel, RETENTION_DAILY_MISSIONS, RETENTION_WEEKLY_MISSIONS } from './data/retention';
 import { 
   TROPHIES, SHOP_TITLES, POKEDEX_FRAMES, UI_THEMES, 
@@ -2200,19 +2201,7 @@ export default function App() {
     return () => clearInterval(interval);
   }, [addLog]);
 
-  // Helper: hash simples dos campos-chave do estado para dirty flag
-  const computeStateHash = (state) => {
-    try {
-      return JSON.stringify({
-        c: state.currency || 0,
-        t: (state.team || []).length,
-        cd: Object.keys(state.caughtData || {}).length,
-        wf: (state.worldFlags || []).length,
-        b: (state.badges || []).length,
-        inv: JSON.stringify(state.inventory?.materials || {}),
-      });
-    } catch { return null; }
-  };
+  const computeStateHash = computeGameStateHash;
 
   // 2. Gatilhos de Salvamento na Nuvem (Debounced 45s + dirty flag + retry)
   const saveToCloud = useCallback(async (dataToSave, { isRetry = false, retryCount = 0 } = {}) => {
