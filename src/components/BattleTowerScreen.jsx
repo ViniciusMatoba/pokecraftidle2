@@ -10,6 +10,12 @@ import { MOVES } from '../data/moves';
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const TYPE_PILL = 'text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-white/10 text-white border border-white/20';
+const ASSET_BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+const towerAsset = (file) => `url('${ASSET_BASE}/${file}')`;
+const TOWER_LOBBY_BG = towerAsset('bg_battle_frontier.webp');
+const TOWER_RUN_BG = towerAsset('bg_galar_rose_tower.webp');
+const TOWER_SHOP_BG = towerAsset('bg_battle_tower_shop.webp');
+const GLASS_PANEL = 'bg-slate-950/[0.62] border border-white/[0.12] shadow-2xl shadow-black/35 backdrop-blur-md';
 
 // Move colorido por tipo
 const TYPE_MOVE_CLS = {
@@ -205,36 +211,43 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
   // ── Fase: Lobby ────────────────────────────────────────────────────────────
   if (phase === 'lobby') {
     return (
-      <div className="h-full flex flex-col bg-slate-950 animate-fadeIn p-6 overflow-y-auto">
-        <div className="flex justify-between items-center mb-8">
+      <div
+        className="h-full flex flex-col animate-fadeIn p-5 overflow-y-auto relative"
+        style={{ backgroundImage: TOWER_LOBBY_BG, backgroundPosition: 'center', backgroundSize: 'cover' }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/55 via-slate-950/78 to-slate-950" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_12%,rgba(250,204,21,0.18),transparent_34%)]" />
+        <div className="relative z-10 flex justify-between items-center mb-5">
           <div>
-            <h2 className="text-white font-black text-2xl uppercase italic tracking-tighter">🗼 Battle Tower</h2>
+            <h2 className="text-white font-black text-2xl uppercase italic tracking-tighter drop-shadow">🗼 Battle Tower</h2>
             <p className="text-white/50 text-[10px] font-bold uppercase tracking-widest mt-1">Endgame Roguelike</p>
           </div>
           <button onClick={() => setCurrentView('city')} className="text-white/40 hover:text-white font-black text-lg w-8 h-8 flex items-center justify-center">✕</button>
         </div>
 
-        <div className="flex flex-col gap-6 flex-1">
+        <div className="relative z-10 flex flex-col gap-4 flex-1">
           {/* Recorde */}
-          <div className="bg-gradient-to-br from-red-600/20 to-red-900/20 border-2 border-red-500/30 rounded-3xl p-6 text-center">
-            <h3 className="text-red-400 font-black uppercase tracking-widest text-[10px] mb-2">Recorde de Escalada</h3>
-            <div className="text-5xl font-black text-white italic drop-shadow-md">Andar {tower.highestFloor || 0}</div>
+          <div className={`${GLASS_PANEL} rounded-3xl p-5 text-center overflow-hidden relative`}>
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 via-yellow-300 to-purple-500" />
+            <h3 className="text-red-300 font-black uppercase tracking-widest text-[10px] mb-2">Recorde de Escalada</h3>
+            <div className="text-5xl font-black text-white italic drop-shadow-md leading-none">Andar {tower.highestFloor || 0}</div>
+            <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-white/45">draft, shop e bosses a cada 10 andares</p>
           </div>
 
           {/* BP */}
-          <div className="bg-slate-900 border border-white/10 rounded-3xl p-6">
+          <div className={`${GLASS_PANEL} rounded-3xl p-5`}>
             <div className="flex justify-between items-center mb-4">
               <p className="text-white/70 font-bold text-sm uppercase tracking-widest">Battle Points (BP)</p>
               <p className="text-yellow-400 font-black text-xl">{(tower.bp || 0).toLocaleString()} BP</p>
             </div>
-            <button className="w-full bg-white/5 border border-white/10 text-white/50 py-3 rounded-xl font-bold uppercase text-xs hover:bg-white/10 transition-colors">
+            <button className="w-full bg-white/[0.08] border border-white/[0.12] text-white/55 py-3 rounded-xl font-bold uppercase text-xs hover:bg-white/[0.12] transition-colors">
               Abrir Loja BP (Em Breve)
             </button>
           </div>
 
           {/* Pokémon disponíveis no pool */}
           {playerPool.length > 0 && (
-            <div className="bg-slate-900/60 border border-white/5 rounded-2xl px-4 py-3">
+            <div className={`${GLASS_PANEL} rounded-2xl px-4 py-3`}>
               <p className="text-white/40 text-[9px] font-black uppercase tracking-widest mb-1">Pokémon disponíveis para o draft</p>
               <p className="text-white/70 text-sm font-bold">{playerPool.length} Pokémon capturados</p>
             </div>
@@ -280,9 +293,14 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
   // ── Fase: Draft ───────────────────────────────────────────────────────────
   if (phase === 'draft') {
     return (
-      <div className="h-full flex flex-col bg-slate-950 p-6 animate-fadeIn overflow-y-auto">
+      <div
+        className="h-full flex flex-col p-5 animate-fadeIn overflow-y-auto relative"
+        style={{ backgroundImage: TOWER_RUN_BG, backgroundPosition: 'center', backgroundSize: 'cover' }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/55 via-slate-950/82 to-slate-950" />
+        <div className="relative z-10">
         <button onClick={() => setPhase('lobby')} className="text-white/40 hover:text-white text-[10px] font-black uppercase tracking-widest mb-4 text-left">← Voltar</button>
-        <h2 className="text-center text-white font-black uppercase italic tracking-tighter text-2xl mb-1">Escolha seu Inicial</h2>
+        <h2 className="text-center text-white font-black uppercase italic tracking-tighter text-2xl mb-1 drop-shadow">Escolha seu Inicial</h2>
         <p className="text-center text-white/50 text-[10px] uppercase tracking-widest mb-6">
           {playerPool.length > 0 ? 'Seus Pokémon capturados' : 'Pokémon aleatórios (capture mais para ter mais opções!)'}
         </p>
@@ -296,7 +314,7 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
               <button
                 key={i}
                 onClick={() => handleSelectDraft(poke)}
-                className="bg-slate-900 border-2 border-white/10 rounded-3xl p-4 flex items-center gap-4 hover:scale-[1.02] transition-transform text-left group overflow-hidden relative"
+                className={`${GLASS_PANEL} rounded-3xl p-4 flex items-center gap-4 hover:scale-[1.02] transition-transform text-left group overflow-hidden relative`}
               >
                 <div className="absolute inset-0 opacity-10" style={{ background: `linear-gradient(90deg, ${col}, transparent)` }} />
                 <img
@@ -323,6 +341,7 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
             );
           })}
         </div>
+        </div>
       </div>
     );
   }
@@ -335,9 +354,14 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
     const isRecruit = poke?._isRecruit;
 
     return (
-      <div className="h-full flex flex-col bg-slate-950 p-5 animate-fadeIn overflow-y-auto">
+      <div
+        className="h-full flex flex-col p-5 animate-fadeIn overflow-y-auto relative"
+        style={{ backgroundImage: TOWER_SHOP_BG, backgroundPosition: 'center', backgroundSize: 'cover' }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/58 via-slate-950/86 to-slate-950" />
+        <div className="relative z-10 flex flex-col min-h-full">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-5">
+        <div className={`${GLASS_PANEL} rounded-3xl p-3 flex items-center gap-3 mb-5`}>
           {data && (
             <img
               src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png`}
@@ -356,7 +380,7 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
         </div>
 
         {/* Contador */}
-        <div className={`flex items-center justify-between mb-4 px-4 py-2.5 rounded-xl border ${selectedMoves.length === 4 ? 'bg-green-900/20 border-green-500/30' : 'bg-slate-900 border-white/10'}`}>
+        <div className={`flex items-center justify-between mb-4 px-4 py-2.5 rounded-xl border backdrop-blur-md ${selectedMoves.length === 4 ? 'bg-green-900/30 border-green-500/30' : 'bg-slate-950/60 border-white/10'}`}>
           <span className="text-white/60 text-xs font-bold uppercase tracking-widest">Selecionados</span>
           <span className={`font-black text-lg ${selectedMoves.length === 4 ? 'text-green-400' : 'text-white'}`}>
             {selectedMoves.length} / 4
@@ -414,6 +438,7 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
         >
           {selectedMoves.length === 4 ? '✅ Confirmar Golpes' : `Selecione ${4 - selectedMoves.length} golpe${4 - selectedMoves.length !== 1 ? 's' : ''} ainda`}
         </button>
+        </div>
       </div>
     );
   }
@@ -425,16 +450,26 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
   const inv = run.inventory || { coins: 0, potions: 0, revives: 0 };
 
   return (
-    <div className="h-full flex flex-col bg-slate-950 animate-fadeIn overflow-hidden relative">
+    <div
+      className="h-full flex flex-col bg-slate-950 animate-fadeIn overflow-hidden relative"
+      style={{ backgroundImage: TOWER_RUN_BG, backgroundPosition: 'center', backgroundSize: 'cover' }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/48 via-slate-950/78 to-slate-950" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(168,85,247,0.18),transparent_34%)]" />
 
       {/* Modal de Shop (pós-batalha) */}
       {showShopModal && (
-        <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col">
-          <div className="flex-1 overflow-y-auto p-5">
+        <div
+          className="absolute inset-0 z-50 flex flex-col"
+          style={{ backgroundImage: TOWER_SHOP_BG, backgroundPosition: 'center', backgroundSize: 'cover' }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-slate-950/[0.62] to-slate-950" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(250,204,21,0.18),transparent_36%)]" />
+          <div className="relative z-10 flex-1 overflow-y-auto p-5">
             {/* Título do modal */}
-            <div className="text-center mb-5 pt-2">
-              <p className="text-white/50 text-[10px] font-black uppercase tracking-widest">Vitória!</p>
-              <h2 className="text-white font-black text-2xl uppercase italic tracking-tighter">
+            <div className="text-center mb-4 pt-2">
+              <p className="text-amber-200/80 text-[10px] font-black uppercase tracking-widest">Vitória conquistada</p>
+              <h2 className="text-white font-black text-2xl uppercase italic tracking-tighter drop-shadow">
                 🛒 Shop — Andar {run.floor}
               </h2>
               {isBossFloor && <p className="text-purple-400 text-xs font-bold mt-1">⭐ Andar Boss derrubado!</p>}
@@ -447,7 +482,7 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
                 { label: '🧪 Poções', val: inv.potions ?? 0, cls: 'text-blue-400' },
                 { label: '💊 Revives', val: inv.revives ?? 0, cls: 'text-red-400' },
               ].map(({ label, val, cls }) => (
-                <div key={label} className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 rounded-xl border border-white/10">
+                <div key={label} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-950/55 rounded-xl border border-white/[0.12] backdrop-blur-md shadow-lg">
                   <span className="text-white/50 text-[9px] font-black uppercase">{label}:</span>
                   <span className={`font-black text-sm ${cls}`}>{val}</span>
                 </div>
@@ -515,10 +550,10 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
                     key={idx}
                     onClick={handleBuy}
                     disabled={!canAfford}
-                    className={`flex items-center justify-between p-4 rounded-2xl border text-left transition-all ${
+                    className={`flex items-center justify-between p-4 rounded-2xl border text-left transition-all backdrop-blur-md shadow-xl shadow-black/20 ${
                       canAfford
-                        ? 'bg-slate-800 border-white/20 hover:bg-slate-700 hover:scale-[1.01] active:scale-[0.98]'
-                        : 'bg-slate-900/60 border-white/5 opacity-40 cursor-not-allowed'
+                        ? 'bg-slate-950/[0.66] border-white/20 hover:bg-slate-900/[0.82] hover:scale-[1.01] active:scale-[0.98]'
+                        : 'bg-slate-950/[0.56] border-white/5 opacity-45 cursor-not-allowed'
                     }`}
                   >
                     <div className="flex-1 min-w-0">
@@ -554,28 +589,28 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
           </div>
 
           {/* Botão de fechar shop e lutar */}
-          <div className="p-5 border-t border-white/10 bg-slate-950/90">
+          <div className="relative z-10 p-5 border-t border-white/10 bg-slate-950/82 backdrop-blur-md">
             <button
               onClick={() => setShowShopModal(false)}
-              className={`w-full py-5 rounded-3xl font-black uppercase text-lg italic tracking-tighter shadow-xl border-b-6 hover:scale-[1.02] active:scale-95 transition-all ${
+              className={`w-full py-5 rounded-3xl font-black uppercase text-lg italic tracking-tighter shadow-xl border-b-4 hover:scale-[1.02] active:scale-95 transition-all ${
                 isBossFloor
                   ? 'bg-purple-600 border-purple-900 text-white shadow-purple-900/40'
                   : 'bg-white text-slate-900 border-slate-300 shadow-slate-900/20'
               }`}
             >
-              Fechar Loja → Andar {run.floor}
+              Voltar à Torre → Andar {run.floor}
             </button>
           </div>
         </div>
       )}
 
       {/* ── Tela de Run principal (por baixo do modal) ─────────────────────── */}
-      <div className="h-full flex flex-col p-6 overflow-y-auto">
+      <div className="relative z-10 h-full flex flex-col p-5 overflow-y-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className={`${GLASS_PANEL} rounded-3xl p-4 mb-4 flex justify-between items-center`}>
           <div>
             <p className="text-white/40 text-[10px] font-black uppercase tracking-widest">Progresso da Torre</p>
-            <h2 className="text-white text-3xl font-black uppercase italic tracking-tighter">
+            <h2 className="text-white text-3xl font-black uppercase italic tracking-tighter leading-none">
               {isBossFloor
                 ? <span className="text-purple-400">⭐ Boss — Andar {run.floor}</span>
                 : `Andar ${run.floor}`}
@@ -602,7 +637,7 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
             const hpPct = Math.max(0, ((poke.currentHp ?? poke.hp ?? poke.maxHp) / poke.maxHp) * 100);
             const isFainted = hpPct === 0;
             return (
-              <div key={i} className={`bg-slate-900 border border-white/10 rounded-2xl p-3 flex flex-col ${isFainted ? 'opacity-40 grayscale' : ''}`}>
+              <div key={i} className={`${GLASS_PANEL} rounded-2xl p-3 flex flex-col ${isFainted ? 'opacity-40 grayscale' : ''}`}>
                 <div className="flex justify-between items-start mb-2">
                   <img
                     src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png`}
@@ -641,7 +676,7 @@ const BattleTowerScreen = ({ gameState, setGameState, setCurrentView, onOpenTowe
         {(run.shop || []).length > 0 && !showShopModal && (
           <button
             onClick={() => setShowShopModal(true)}
-            className="w-full mb-4 py-3 rounded-2xl font-black uppercase text-sm tracking-widest bg-slate-800 border border-white/10 text-white/70 hover:bg-slate-700 hover:text-white transition-all"
+            className="w-full mb-4 py-3 rounded-2xl font-black uppercase text-sm tracking-widest bg-amber-400/[0.16] border border-amber-300/[0.24] text-amber-100 hover:bg-amber-400/[0.24] hover:text-white transition-all backdrop-blur-md"
           >
             🛒 Ver Shop ({run.shop.length} {run.shop.length === 1 ? 'item' : 'itens'})
           </button>

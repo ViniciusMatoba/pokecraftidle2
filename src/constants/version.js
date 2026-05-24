@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.18';
-export const VERSION = '2.11.18';
-export const APP_VERSION_DATE = '23/05/2026 22:16';
+export const APP_VERSION = '2.11.19';
+export const VERSION = '2.11.19';
+export const APP_VERSION_DATE = '23/05/2026 22:24';
 export const CHANGELOG = [
+  '## [V2.11.19] - 23/05/2026 22:24',
+  '### Battle Tower - Experiencia Visual e Shop',
+  '- **Novo background do shop**: adicionada arte dedicada para a loja/area de descanso da Battle Tower, com balcão, itens, luzes de arena e skyline noturno.',
+  '- **Lobby e run mais imersivos**: telas da torre passam a usar cenarios, vinhetas e paineis translucidos em vez de blocos escuros planos.',
+  '- **Fluxo visual consistente**: draft, selecao de golpes, shop e progresso da run receberam acabamento de glass panel, contraste e leitura mobile.',
+  '',
   '## [V2.11.18] - 23/05/2026 22:16',
   '### Battle Tower - Polimento Visual de Arena',
   '- **Cenarios por tipo**: combates da Battle Tower agora reutilizam os backgrounds de dominio por tipo do inimigo ativo, deixando cada luta com identidade visual propria.',

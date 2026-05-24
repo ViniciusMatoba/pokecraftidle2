@@ -1,3 +1,9 @@
+## [v2.11.19] - 23/05/2026 22:24
+### Battle Tower - Experiencia Visual e Shop
+- **Novo background do shop**: adicionada arte dedicada para a loja/area de descanso da Battle Tower.
+- **Lobby e run mais imersivos**: telas da torre passam a usar cenarios, vinhetas e paineis translucidos.
+- **Fluxo visual consistente**: draft, selecao de golpes, shop e progresso receberam acabamento visual e melhor leitura mobile.
+
 ## [v2.11.18] - 23/05/2026 22:16
 ### Battle Tower - Polimento Visual de Arena
 - **Cenarios por tipo**: combates da Battle Tower agora reutilizam os backgrounds de dominio por tipo do inimigo ativo.
