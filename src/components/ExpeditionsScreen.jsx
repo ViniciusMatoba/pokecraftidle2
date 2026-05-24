@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
   EXPEDITION_BIOMES,
@@ -321,6 +321,7 @@ const ExpeditionsScreen = ({
   const [autoRepeat, setAutoRepeat] = useState(false);
   const [durationMult, setDurationMult] = useState(1);
   const [now, setNow] = useState(Date.now());
+  const contentRef = useRef(null);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000);
@@ -353,6 +354,13 @@ const ExpeditionsScreen = ({
     )
   );
 
+  useEffect(() => {
+    if (!selectedBiome) return;
+    requestAnimationFrame(() => {
+      contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }, [selectedBiome?.id]);
+
   const recommendTeam = (biome) => {
     const scored = availablePC
       .map(p => ({ p, score: calcExpeditionEfficiency(p, biome) * (p.level || 1) }))
@@ -367,6 +375,25 @@ const ExpeditionsScreen = ({
       if (prev.length >= MAX_EXPEDITION_TEAM) return prev;
       return [...prev, poke];
     });
+  };
+
+  const selectedFoodNeeded = selectedTeam.length > 0
+    ? calcFoodRequired(selectedTeam.length, durationMult)
+    : 0;
+  const selectedHasFood = selectedTeam.length > 0 && foodStock >= selectedFoodNeeded;
+  const selectedDuration = selectedBiome && selectedTeam.length > 0
+    ? calcExpeditionDuration(selectedTeam, selectedBiome, durationMult)
+    : 0;
+
+  const startSelectedExpedition = () => {
+    if (!selectedBiome || selectedTeam.length === 0) return;
+    if (!selectedHasFood) {
+      setShowFoodModal(true);
+      return;
+    }
+    onStartExpedition(selectedBiome.id, selectedTeam, autoRepeat, durationMult);
+    setSelectedBiome(null);
+    setSelectedTeam([]);
   };
 
   return (
@@ -477,7 +504,7 @@ const ExpeditionsScreen = ({
       )}
 
       {/* Conteúdo principal */}
-      <div className="flex-1 overflow-y-auto">
+      <div ref={contentRef} className="flex-1 overflow-y-auto">
         {!selectedBiome ? (
 
           /* Grid de biomas */
@@ -495,6 +522,7 @@ const ExpeditionsScreen = ({
                     if (!unlocked) {
                       setAlertReq(biome.leaderName);
                     } else if (!active) {
+                      setSelectedTeam([]);
                       setSelectedBiome({ ...biome, masteryLevel });
                     }
                   }}
@@ -715,15 +743,7 @@ const ExpeditionsScreen = ({
                         </p>
                       </div>
                       <button
-                        onClick={() => {
-                          if (!hasFood) {
-                            setShowFoodModal(true);
-                            return;
-                          }
-                          onStartExpedition(selectedBiome.id, selectedTeam, autoRepeat, durationMult);
-                          setSelectedBiome(null);
-                          setSelectedTeam([]);
-                        }}
+                        onClick={startSelectedExpedition}
                         className={`font-black text-sm px-6 py-3 rounded-2xl uppercase shadow-xl transition-all active:scale-95 ${
                           hasFood
                             ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:scale-105'
@@ -804,6 +824,48 @@ const ExpeditionsScreen = ({
           </div>
         )}
       </div>
+
+      {selectedBiome && selectedTeam.length > 0 && (
+        <div className="shrink-0 border-t border-white/10 bg-slate-950/95 backdrop-blur-xl px-4 py-3 shadow-[0_-12px_30px_rgba(0,0,0,0.35)]">
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-2 shrink-0">
+              {selectedTeam.map(p => (
+                <span
+                  key={p.instanceId}
+                  className="w-9 h-9 rounded-full bg-slate-800 border-2 border-slate-950 flex items-center justify-center overflow-hidden"
+                >
+                  <img
+                    src={getPokemonSprite(p)}
+                    alt={p.name}
+                    className="w-8 h-8 object-contain"
+                    onError={e => { e.currentTarget.src = FALLBACK_POKEMON_SPRITE; }}
+                  />
+                </span>
+              ))}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <p className="text-white font-black text-[11px] uppercase leading-tight">
+                {selectedTeam.length}/{MAX_EXPEDITION_TEAM} selecionados · {formatTime(selectedDuration)}
+              </p>
+              <p className={`text-[10px] font-bold ${selectedHasFood ? 'text-green-400' : 'text-red-400'}`}>
+                🍖 {foodStock}/{selectedFoodNeeded} rações {autoRepeat ? '· Auto-repeat' : ''}
+              </p>
+            </div>
+
+            <button
+              onClick={startSelectedExpedition}
+              className={`shrink-0 px-4 py-3 rounded-2xl font-black text-xs uppercase active:scale-95 transition-all shadow-lg ${
+                selectedHasFood
+                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-orange-500/20'
+                  : 'bg-gradient-to-r from-red-700 to-orange-700 text-white shadow-red-500/20'
+              }`}
+            >
+              {selectedHasFood ? 'Iniciar' : 'Ração'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

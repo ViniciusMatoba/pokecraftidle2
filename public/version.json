@@ -1,5 +1,5 @@
 {
-  "version": "2.11.27",
-  "date": "24/05/2026 10:35",
-  "notes": "Conforto visual: flashes e tremores de batalha reduzidos, shiny menos agressivo e novo SFX curto de encontro shiny"
+  "version": "2.11.28",
+  "date": "24/05/2026 10:47",
+  "notes": "Expedições: fluxo de seleção melhorado com auto-scroll ao abrir bioma e barra fixa para iniciar sem voltar ao topo"
 }

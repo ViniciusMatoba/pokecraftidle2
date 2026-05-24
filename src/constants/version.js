@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.27';
-export const VERSION = '2.11.27';
-export const APP_VERSION_DATE = '24/05/2026 10:35';
+export const APP_VERSION = '2.11.28';
+export const VERSION = '2.11.28';
+export const APP_VERSION_DATE = '24/05/2026 10:47';
 export const CHANGELOG = [
+  '## [V2.11.28] - 24/05/2026 10:47',
+  '### Expedições — Fluxo de Seleção Mais Rápido',
+  '- **Auto-scroll no detalhe**: ao tocar em um bioma de expedição, a tela agora abre o detalhe sempre no topo, sem preservar o scroll da lista anterior.',
+  '- **Barra fixa de ação**: ao selecionar Pokémon do PC, o jogador passa a ver no rodapé o time escolhido, duração, consumo de ração e botão de iniciar.',
+  '- **Menos navegação manual**: não é mais necessário subir até o card de resumo para iniciar a expedição depois de escolher Pokémon no fim da lista.',
+  '',
   '## [V2.11.27] - 24/05/2026 10:35',
   '### Conforto Visual — Flashes, Tremores e Shiny',
   '- **Flashes reduzidos**: brilho de encontro shiny, captura e golpes agora usa opacidades menores para evitar estouro visual em telas mobile.',
