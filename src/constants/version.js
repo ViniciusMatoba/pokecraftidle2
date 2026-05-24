@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.11.24';
-export const VERSION = '2.11.24';
-export const APP_VERSION_DATE = '24/05/2026 10:09';
+export const APP_VERSION = '2.11.25';
+export const VERSION = '2.11.25';
+export const APP_VERSION_DATE = '24/05/2026 10:18';
 export const CHANGELOG = [
+  '## [V2.11.25] - 24/05/2026 10:18',
+  '### Polimento Visual — Shiny e Pokébolas',
+  '- **Shiny encounter**: encontros shiny em batalhas de rota agora têm flash dourado, halo, partículas em estrela, selo visual e aura persistente discreta.',
+  '- **Shiny do jogador**: Pokémon shiny do time ganha aura compacta ao entrar em campo, mantendo leitura da batalha sem excesso visual.',
+  '- **Entrada por Pokébola**: efeito de saída da Pokébola foi extraído para componente próprio e ganhou abertura de bola, flash central, anel e partículas por tipo de ball.',
+  '- **Captura shiny**: sucesso de captura shiny agora exibe halo dourado, partículas extras e destaque visual no check de captura.',
+  '- **Arquitetura visual**: efeitos novos vivem em componentes reutilizáveis dentro de `src/components/effects`, preparando reaproveitamento futuro em Raid e Battle Tower.',
+  '',
   '## [V2.11.24] - 24/05/2026 10:09',
   '### Hisui e Paldea — Correção de Ordem de Progressão',
   '- **Hisui rival_victory**: Akari (lv78) agora exige `lake_stamp` (Irida, lv73) em vez de `volo_stamp` (Volo Líder, lv82) — rival fica disponível no nível correto antes da liga, sem exigir vencer um boss mais forte primeiro.',

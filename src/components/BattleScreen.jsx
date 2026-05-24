@@ -7,187 +7,10 @@ import { MOVES } from '../data/moves';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { TIME_CONFIG } from '../utils/timeSystem';
 import { WEATHER_TYPES } from '../data/weather';
-import { getPokeballDef } from '../data/pokeballs';
 import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokemonSprites';
 import CaptureAnimation from './CaptureAnimation';
-
-const ShinySparkles = () => (
-  <div className="absolute inset-0 pointer-events-none z-30">
-    {[...Array(6)].map((_, i) => (
-      <div
-        key={i}
-        className="absolute animate-bounceIn"
-        style={{
-          left: `${50 + Math.cos(i * 60 * Math.PI / 180) * 40}%`,
-          top: `${50 + Math.sin(i * 60 * Math.PI / 180) * 40}%`,
-          animationDelay: `${i * 0.1}s`,
-        }}
-      >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 0 L9 7 L16 8 L9 9 L8 16 L7 9 L0 8 L7 7 Z" fill="#EAB308" opacity="0.9"/>
-        </svg>
-      </div>
-    ))}
-  </div>
-);
-
-/** Overlay de efeito visual quando o pokémon entra pela sua pokébola */
-const BallEntranceEffect = ({ effect, color, glowColor }) => {
-  const particles = [...Array(8)].map((_, i) => {
-    const angle = (i / 8) * 360;
-    const x = Math.cos((angle * Math.PI) / 180) * 36;
-    const y = Math.sin((angle * Math.PI) / 180) * 36;
-    return { x, y, angle, i };
-  });
-
-  const ringStyle = {
-    position: 'absolute', inset: '-8px', borderRadius: '50%',
-    border: `3px solid ${color}`,
-    boxShadow: `0 0 12px 4px ${glowColor}`,
-    animation: 'ballRingExpand 0.7s ease-out forwards',
-    pointerEvents: 'none',
-  };
-
-  const flashStyle = {
-    position: 'absolute', inset: '-4px', borderRadius: '50%',
-    background: color,
-    opacity: 0.55,
-    animation: 'ballFlash 0.5s ease-out forwards',
-    pointerEvents: 'none',
-  };
-
-  // Effects: flash, burst, lightning, nature, splash, moonbeam, hearts, gravity, speed, levelup
-  return (
-    <div className="absolute inset-0 pointer-events-none z-40 flex items-center justify-center">
-      <style>{`
-        @keyframes ballRingExpand {
-          0%   { transform: scale(0.3); opacity: 1; }
-          100% { transform: scale(2.2); opacity: 0; }
-        }
-        @keyframes ballFlash {
-          0%   { opacity: 0.7; transform: scale(0.5); }
-          60%  { opacity: 0.3; }
-          100% { opacity: 0; transform: scale(1.8); }
-        }
-        @keyframes ballParticle {
-          0%   { opacity: 1; transform: translate(0,0) scale(1); }
-          100% { opacity: 0; transform: translate(var(--px), var(--py)) scale(0.3); }
-        }
-        @keyframes moonbeamDrop {
-          0%   { opacity: 0; transform: scaleY(0); }
-          30%  { opacity: 0.9; }
-          100% { opacity: 0; transform: scaleY(1.6) translateY(10px); }
-        }
-        @keyframes heartFloat {
-          0%   { opacity: 1; transform: translateY(0) scale(1); }
-          100% { opacity: 0; transform: translateY(-30px) scale(0.5); }
-        }
-        @keyframes gravityShock {
-          0%   { opacity: 0.8; transform: scale(0.6); }
-          50%  { opacity: 0.5; transform: scale(1.4); }
-          100% { opacity: 0; transform: scale(2); }
-        }
-        @keyframes speedTrail {
-          0%   { opacity: 0.9; transform: translateX(-20px) scaleX(0.5); }
-          100% { opacity: 0; transform: translateX(30px) scaleX(1.5); }
-        }
-        @keyframes levelRay {
-          0%   { opacity: 1; transform: scaleY(1) translateY(0); }
-          100% { opacity: 0; transform: scaleY(0) translateY(-40px); }
-        }
-      `}</style>
-
-      {/* Ring always present */}
-      <div style={ringStyle} />
-      <div style={flashStyle} />
-
-      {/* Effect-specific overlays */}
-      {(effect === 'burst' || effect === 'flash') && particles.map(p => (
-        <div key={p.i} style={{
-          position: 'absolute', width: 6, height: 6, borderRadius: '50%',
-          background: color, boxShadow: `0 0 6px ${glowColor}`,
-          '--px': `${p.x}px`, '--py': `${p.y}px`,
-          animation: `ballParticle 0.65s ease-out ${p.i * 0.04}s forwards`,
-          pointerEvents: 'none',
-        }} />
-      ))}
-
-      {effect === 'lightning' && [...Array(5)].map((_, i) => (
-        <div key={i} style={{
-          position: 'absolute', width: 2, height: `${16 + i * 6}px`,
-          background: `linear-gradient(to bottom, ${color}, transparent)`,
-          transform: `rotate(${i * 36}deg)`, transformOrigin: 'top center',
-          top: '50%', left: '50%', marginLeft: -1,
-          boxShadow: `0 0 4px ${glowColor}`,
-          animation: `ballParticle 0.6s ease-out ${i * 0.05}s forwards`,
-          pointerEvents: 'none',
-        }} />
-      ))}
-
-      {effect === 'moonbeam' && (
-        <div style={{
-          position: 'absolute', width: 18, height: 60,
-          background: `linear-gradient(to bottom, ${color}, transparent)`,
-          top: '-20px', left: '50%', marginLeft: -9,
-          boxShadow: `0 0 10px ${glowColor}`,
-          animation: 'moonbeamDrop 0.7s ease-out forwards',
-          borderRadius: 8, pointerEvents: 'none',
-        }} />
-      )}
-
-      {effect === 'hearts' && ['❤️','💚','💛'].map((h, i) => (
-        <div key={i} style={{
-          position: 'absolute', fontSize: 14,
-          top: `${30 + i * 8}%`, left: `${30 + i * 15}%`,
-          animation: `heartFloat 0.8s ease-out ${i * 0.15}s forwards`,
-          pointerEvents: 'none',
-        }}>{h}</div>
-      ))}
-
-      {effect === 'gravity' && (
-        <div style={{
-          position: 'absolute', inset: -6, borderRadius: '50%',
-          border: `5px solid ${color}`,
-          boxShadow: `inset 0 0 10px ${glowColor}, 0 0 16px ${glowColor}`,
-          animation: 'gravityShock 0.7s ease-out forwards',
-          pointerEvents: 'none',
-        }} />
-      )}
-
-      {effect === 'speed' && [...Array(3)].map((_, i) => (
-        <div key={i} style={{
-          position: 'absolute', height: 4, width: `${24 + i * 8}px`,
-          background: `linear-gradient(to right, transparent, ${color})`,
-          top: `${44 + i * 8}%`, left: '10%',
-          boxShadow: `0 0 4px ${glowColor}`,
-          animation: `speedTrail 0.5s ease-out ${i * 0.08}s forwards`,
-          borderRadius: 2, pointerEvents: 'none',
-        }} />
-      ))}
-
-      {(effect === 'nature' || effect === 'splash') && ['🌿','💧','🍃'].slice(0, effect === 'splash' ? 2 : 3).map((icon, i) => (
-        <div key={i} style={{
-          position: 'absolute', fontSize: 13,
-          top: `${20 + i * 20}%`, left: `${20 + i * 20}%`,
-          '--px': `${(i - 1) * 20}px`, '--py': `${-15 - i * 8}px`,
-          animation: `ballParticle 0.75s ease-out ${i * 0.1}s forwards`,
-          pointerEvents: 'none',
-        }}>{icon}</div>
-      ))}
-
-      {effect === 'levelup' && [...Array(4)].map((_, i) => (
-        <div key={i} style={{
-          position: 'absolute', width: 3, height: `${20 + i * 5}px`,
-          background: `linear-gradient(to top, ${color}, #fde68a)`,
-          left: `${25 + i * 16}%`, bottom: '50%',
-          boxShadow: `0 0 6px #fde68a`,
-          animation: `levelRay 0.7s ease-out ${i * 0.06}s forwards`,
-          borderRadius: 2, pointerEvents: 'none',
-        }} />
-      ))}
-    </div>
-  );
-};
+import ShinyEncounterEffect from './effects/ShinyEncounterEffect';
+import PokemonEntranceEffect from './effects/PokemonEntranceEffect';
 
 const BattleScreen = ({
   currentEnemy, gameState, activeMemberIndex, moveIndex, weather,
@@ -210,7 +33,7 @@ const BattleScreen = ({
   const enemySpriteRef = useRef(null);
   const [screenShake, setScreenShake] = useState(false);
   const [statReactions, setStatReactions] = useState([]);
-  const [ballAnim, setBallAnim] = useState(null); // { effect, color, glowColor } or null
+  const [ballAnim, setBallAnim] = useState(null);
   const [showVignette, setShowVignette] = useState(false);
 
   // Escuta eventos de golpe disparados pelo AppRoot
@@ -311,9 +134,8 @@ const BattleScreen = ({
   // Ball entrance animation — triggered when active pokémon changes (e.g. switched in battle)
   useEffect(() => {
     if (!activePoke?.ball) return;
-    const def = getPokeballDef(activePoke.ball);
-    setBallAnim({ effect: def.effect, color: def.color, glowColor: def.glowColor });
-    const t = setTimeout(() => setBallAnim(null), 900);
+    setBallAnim(activePoke.ball);
+    const t = setTimeout(() => setBallAnim(null), 1000);
     return () => clearTimeout(t);
   }, [activePoke?.instanceId]);
 
@@ -414,7 +236,9 @@ const BattleScreen = ({
           />
         )}
 
-        {shinyFlash && !showTrainer && <ShinySparkles />}
+        {currentEnemy?.isShiny && !showTrainer && (
+          <ShinyEncounterEffect active={shinyFlash} persistent />
+        )}
 
         {/* ── Indicador de Clima ── */}
         {weather && weather !== 'none' && WEATHER_TYPES[weather] && (
@@ -558,7 +382,6 @@ const BattleScreen = ({
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none z-20 whitespace-nowrap">
               {(floatingTexts || []).filter(f => !f.target || f.target === 'enemy').map(f => <span key={f.id} className="block text-center font-black text-lg animate-floatUp" style={{ color: f.color, textShadow: '2px 2px 0 #000' }}>{f.text}</span>)}
             </div>
-            {shinyFlash && !showTrainer && <ShinySparkles />}
             <img
               src={
                 currentEnemy.isTrainer && showTrainer 
@@ -670,9 +493,11 @@ const BattleScreen = ({
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none z-20 whitespace-nowrap">
                 {(floatingTexts || []).filter(f => f.target === 'player').map(f => <span key={f.id} className="block text-center font-black text-lg animate-floatUp" style={{ color: f.color, textShadow: '2px 2px 0 #000' }}>{f.text}</span>)}
               </div>
-              {playerShinyFlash && <ShinySparkles />}
+              {activePoke?.isShiny && (
+                <ShinyEncounterEffect active={playerShinyFlash} persistent compact />
+              )}
               {ballAnim && (
-                <BallEntranceEffect effect={ballAnim.effect} color={ballAnim.color} glowColor={ballAnim.glowColor} />
+                <PokemonEntranceEffect ballId={ballAnim} />
               )}
               <img
                 src={

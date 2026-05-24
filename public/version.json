@@ -1,5 +1,5 @@
 {
-  "version": "2.11.24",
-  "date": "24/05/2026 10:09",
-  "notes": "Hisui: rival_victory corrigida para lake_stamp; Paldea: Giacomo lv21→lv17 alinhando com padrão das outras regiões"
+  "version": "2.11.25",
+  "date": "24/05/2026 10:18",
+  "notes": "Polimento visual de shiny, entrada por Pokébola e captura shiny nas batalhas de rota"
 }

@@ -17,6 +17,16 @@ import { getPokeballDef } from '../data/pokeballs';
 
 const PHASES = ['throw', 'absorb', 'shake', 'result', 'exit'];
 const PHASE_DURATIONS = { throw: 700, absorb: 500, shake: 2100, result: 1400, exit: 400 };
+const SUCCESS_PARTICLES = Array.from({ length: 14 }, (_, i) => {
+  const angle = (i / 14) * Math.PI * 2;
+  const dist = 54 + (i % 4) * 11;
+  return {
+    sx: `${Math.cos(angle) * dist}px`,
+    sy: `${Math.sin(angle) * dist}px`,
+    size: 7 + (i % 4) * 4,
+    delay: 0.04 * i,
+  };
+});
 
 export default function CaptureAnimation({ captureEvent, onDone }) {
   const [phase, setPhase] = useState('throw');
@@ -111,6 +121,11 @@ export default function CaptureAnimation({ captureEvent, onDone }) {
           0%   { opacity: 1; transform: translate(0,0) scale(1); }
           100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0.3); }
         }
+        @keyframes shinyCaptureHalo {
+          0% { opacity: 0; transform: translate(-50%, -50%) scale(0.45); }
+          28% { opacity: 0.9; }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(2.4); }
+        }
         /* ── Fuga ── */
         @keyframes ballBreak {
           0%   { transform: scale(1) rotate(0deg); }
@@ -186,10 +201,10 @@ export default function CaptureAnimation({ captureEvent, onDone }) {
             <div style={{
               position: 'absolute', top: -16, right: -16,
               width: 28, height: 28, borderRadius: '50%',
-              background: '#22c55e',
+              background: isShiny ? 'linear-gradient(135deg,#fef08a,#f59e0b)' : '#22c55e',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               animation: 'lockPop 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards',
-              boxShadow: '0 0 8px rgba(34,197,94,0.8)',
+              boxShadow: isShiny ? '0 0 18px rgba(250,204,21,0.95)' : '0 0 8px rgba(34,197,94,0.8)',
             }}>
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
                 <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
@@ -202,23 +217,36 @@ export default function CaptureAnimation({ captureEvent, onDone }) {
       {/* ─── Partículas de estrela (captura) ─── */}
       {phase === 'result' && success && (
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-          {[...Array(10)].map((_, i) => {
-            const angle = (i / 10) * 360;
-            const dist  = 55 + Math.random() * 35;
-            const sx    = Math.cos((angle * Math.PI) / 180) * dist + 'px';
-            const sy    = Math.sin((angle * Math.PI) / 180) * dist + 'px';
-            const size  = 8 + (i % 3) * 5;
-            const colors = ['#fbbf24','#f59e0b','#fde68a','#fff','#a3e635'];
+          {isShiny && (
+            <div
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                width: 112,
+                height: 112,
+                borderRadius: '50%',
+                border: '3px solid rgba(254,240,138,0.9)',
+                boxShadow: '0 0 28px rgba(250,204,21,0.8), inset 0 0 18px rgba(250,204,21,0.42)',
+                animation: 'shinyCaptureHalo 1s ease-out forwards',
+              }}
+            />
+          )}
+          {SUCCESS_PARTICLES.slice(0, isShiny ? 14 : 10).map((particle, i) => {
+            const colors = isShiny
+              ? ['#fef08a','#facc15','#f59e0b','#fff7ed','#fde68a']
+              : ['#fbbf24','#f59e0b','#fde68a','#fff','#a3e635'];
             return (
               <div key={i} style={{
                 position: 'absolute',
                 top: '50%', left: '50%',
-                width: size, height: size,
-                marginLeft: -size/2, marginTop: -size/2,
+                width: particle.size, height: particle.size,
+                marginLeft: -particle.size/2, marginTop: -particle.size/2,
                 background: colors[i % colors.length],
                 borderRadius: i % 2 === 0 ? '50%' : '2px',
-                animation: `starBurst 0.9s ease-out ${0.05 * i}s forwards`,
-                '--sx': sx, '--sy': sy,
+                filter: isShiny ? 'drop-shadow(0 0 8px rgba(250,204,21,0.9))' : 'none',
+                animation: `starBurst ${isShiny ? 1.05 : 0.9}s ease-out ${particle.delay}s forwards`,
+                '--sx': particle.sx, '--sy': particle.sy,
               }} />
             );
           })}
@@ -249,8 +277,9 @@ export default function CaptureAnimation({ captureEvent, onDone }) {
             <>
               <div style={{
                 fontFamily: "'Press Start 2P', monospace",
-                fontSize: 14, color: '#166534',
-                textShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                fontSize: isShiny ? 15 : 14,
+                color: isShiny ? '#92400e' : '#166534',
+                textShadow: isShiny ? '0 0 12px rgba(250,204,21,0.8)' : '0 2px 8px rgba(0,0,0,0.2)',
                 marginBottom: 6,
               }}>
                 {isShiny ? '✨ SHINY ' : ''}Capturado!
