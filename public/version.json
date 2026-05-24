@@ -1,5 +1,5 @@
 {
-  "version": "2.11.29",
-  "date": "24/05/2026 10:57",
-  "notes": "Armazenamento local: duplicata eliminada, compressão LZString no save local e recuperação automática de quota excedida"
+  "version": "2.11.30",
+  "date": "24/05/2026 11:07",
+  "notes": "Evoluções regionais: Hisui starters com escolhas corretas, validação por formRegion e preservação de formKey/formSpriteId"
 }

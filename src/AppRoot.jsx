@@ -17,6 +17,7 @@ import { VILLAIN_TEAMS } from './data/villains';
 import { WEATHER_TYPE_MULT, WEATHER_PASSIVE_DAMAGE, WEATHER_IMMUNE_TYPES, generateWeatherForRoute, getWeatherFromMove } from './data/weather';
 import { getCompatibleMegaStones } from './data/megaEvolutions';
 import { assignRandomAbility, normalizeAbilityId } from './data/abilities';
+import { getPokemonEvolutionOptions, isEvolutionOptionAllowedInRegion } from './data/regionalEvolutions';
 import { getJourneyGuide } from './data/journeyGuide';
 import AuthScreen from './components/AuthScreen';
 import MenuScreen from './components/MenuScreen';
@@ -441,8 +442,12 @@ const getUnlockedDexLimit = (gameState = {}) => {
   return getRegionalDexLimit(gameState);
 };
 
-const isEvolutionAllowedForRegion = (pokemon, evolutionId, activeRegion = 'kanto') => {
-  return isPokemonAllowedInRegion(evolutionId, activeRegion);
+const isEvolutionAllowedForRegion = (pokemon, evolutionId, activeRegion = 'kanto', evolutionOption = null) => {
+  return isEvolutionOptionAllowedInRegion(
+    evolutionOption || { id: evolutionId },
+    activeRegion,
+    isPokemonAllowedInRegion
+  );
 };
 
 const getEvolutionRegionLockMessage = (pokemonName, evolutionName, activeRegion = 'kanto') => {
@@ -6059,13 +6064,10 @@ export default function App() {
         p.spAtk = (p.spAtk || 10) + 2;
         addLog(` ${p.name} aumentou o Ataque Especial!`, 'system');
       } else if (use.effect === 'force_evolve') {
-        const pokeData = POKEDEX[p.id];
-        const allEvolutions = Array.isArray(pokeData?.evolution)
-          ? pokeData.evolution
-          : (pokeData?.evolution ? [pokeData.evolution] : []);
+        const allEvolutions = getPokemonEvolutionOptions(p);
 
         const validEvolutions = allEvolutions.filter(e =>
-          isEvolutionAllowedForRegion(p, e.id, prev.activeRegion || 'kanto')
+          isEvolutionAllowedForRegion(p, e.id, prev.activeRegion || 'kanto', e)
         );
 
         if (validEvolutions.length === 0) {
@@ -7500,12 +7502,12 @@ export default function App() {
             });
           }
 
-          const evos = Array.isArray(pokeData?.evolution) ? pokeData.evolution : (pokeData?.evolution ? [pokeData.evolution] : []);
+          const evos = getPokemonEvolutionOptions(p);
           const levelEvos = evos.filter(e =>
             e.level && !e.item &&
             newLevel >= e.level &&
             (!e.time || e.time.includes(getTimeOfDay())) &&
-            isEvolutionAllowedForRegion(p, e.id, prev.activeRegion || 'kanto')
+            isEvolutionAllowedForRegion(p, e.id, prev.activeRegion || 'kanto', e)
           );
           if (levelEvos.length === 1 && evos.length === 1) {
             setEvolutionPending({ ...p, level: newLevel, targetEvolution: levelEvos[0], teamIndex: i });

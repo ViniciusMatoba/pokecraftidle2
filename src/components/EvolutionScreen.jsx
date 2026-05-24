@@ -1,4 +1,6 @@
 import React from 'react';
+import { getEvolutionMetadata } from '../data/regionalEvolutions';
+import { getPokemonSpriteUrl } from '../utils/pokemonSprites';
 
 const STONE_NAMES = {
   thunder_stone: 'Thunder Stone', moon_stone: 'Moon Stone',
@@ -41,11 +43,13 @@ const EvoChoiceCard = ({ evo, pokemon, POKEDEX, inventory, onChoose, isEvolution
   const targetData = POKEDEX[evo.id];
   const hasItem      = evo.item  ? (inventory?.items?.[evo.item] || 0) > 0 : true;
   const levelMet     = evo.level ? (pokemon?.level || 1) >= evo.level      : true;
-  const regionAllowed = isEvolutionAllowedForRegion ? isEvolutionAllowedForRegion(pokemon, evo.id, activeRegion) : true;
+  const regionAllowed = isEvolutionAllowedForRegion ? isEvolutionAllowedForRegion(pokemon, evo.id, activeRegion, evo) : true;
   
   const canEvolve = hasItem && levelMet && regionAllowed;
   const primaryType  = targetData?.types?.[0] || targetData?.type || 'Normal';
   const accentColor  = TYPE_COLORS[primaryType] || '#3b82f6';
+  const metadata = getEvolutionMetadata(evo);
+  const spritePokemon = { ...(targetData || { id: evo.id }), ...metadata, id: evo.id };
 
   return (
     <button
@@ -68,7 +72,7 @@ const EvoChoiceCard = ({ evo, pokemon, POKEDEX, inventory, onChoose, isEvolution
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
         <img
-          src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evo.id}.png`}
+          src={getPokemonSpriteUrl(spritePokemon)}
           style={{ width: 52, height: 52, objectFit: 'contain',
             filter: canEvolve ? 'none' : 'brightness(0) invert(0.3)' }}
           alt={targetData?.name || `#${evo.id}`}
@@ -129,6 +133,17 @@ const EvoChoiceCard = ({ evo, pokemon, POKEDEX, inventory, onChoose, isEvolution
               background: '#e0e7ff', color: '#4338ca',
             }}>
               {Array.isArray(evo.time) ? evo.time.join('/') : evo.time}
+            </span>
+          )}
+          {metadata.formRegion && (
+            <span style={{
+              fontSize: 9, fontWeight: 700, textTransform: 'uppercase',
+              padding: '2px 8px', borderRadius: 99,
+              background: regionAllowed ? '#fef3c7' : '#1e293b',
+              color: regionAllowed ? '#b45309' : '#475569',
+              border: `1px solid ${regionAllowed ? '#fbbf2440' : '#334155'}`,
+            }}>
+              Forma {metadata.formRegion}{!regionAllowed && ' ✗'}
             </span>
           )}
           {!regionAllowed && (
@@ -193,10 +208,14 @@ const EvolutionScreen = ({
   if (isChoiceMode) {
     const choices   = evolutionPending.choices;
     const inventory = gameState?.inventory || {};
-    const anyReady  = choices.some(e => isRequirementMet(e, evolutionPending, inventory));
+    const anyReady  = choices.some(e =>
+      isRequirementMet(e, evolutionPending, inventory) &&
+      (!isEvolutionAllowedForRegion || isEvolutionAllowedForRegion(evolutionPending, e.id, activeRegion, e))
+    );
 
     const handleChoose = (evoData) => {
       if (!isRequirementMet(evoData, evolutionPending, inventory)) return;
+      if (isEvolutionAllowedForRegion && !isEvolutionAllowedForRegion(evolutionPending, evoData.id, activeRegion, evoData)) return;
       if (evoData.item) {
         setGameState(prev => ({
           ...prev,
@@ -327,13 +346,14 @@ const EvolutionScreen = ({
                          if (!evoData) return;
                          const nextPoke = POKEDEX[evoData.id];
                          if (!nextPoke) return;
-                         if (isEvolutionAllowedForRegion && !isEvolutionAllowedForRegion(pending, evoData.id, activeRegion)) {
+                         if (isEvolutionAllowedForRegion && !isEvolutionAllowedForRegion(pending, evoData.id, activeRegion, evoData)) {
                             addLog(getEvolutionRegionLockMessage?.(pending.name, nextPoke?.name, activeRegion) || `${pending.name} nao pode evoluir nesta regiao.`, 'system');
                             setEvolutionPending(null);
                             return;
                          }
                          setGameState(prev => {
                             const evolvedId = Number(evoData.id);
+                            const evolvedMetadata = getEvolutionMetadata(evoData);
                             const newTeam = prev.team.map((p, i) => {
                                if (i === pending.teamIndex) { // usa snapshot, não closure
                                   const shinyMult = p.isShiny ? 1.2 : 1.0;
@@ -358,6 +378,11 @@ const EvolutionScreen = ({
                                      name: nextPoke.name,
                                      type: nextPoke.type,
                                      types: nextPoke.types || [nextPoke.type],
+                                     formKey: evolvedMetadata.formKey,
+                                     formSpriteId: evolvedMetadata.formSpriteId,
+                                     formRegion: evolvedMetadata.formRegion,
+                                     isRegionalForm: evolvedMetadata.isRegionalForm,
+                                     capturedRegion: evolvedMetadata.formRegion || p.capturedRegion,
                                      maxHp:    calcHp(nextPoke.hp || nextPoke.maxHp || 40, p.level),
                                      hp:       calcHp(nextPoke.hp || nextPoke.maxHp || 40, p.level),
                                      attack:   calcStat(nextPoke.attack   || 40, p.level),
@@ -377,19 +402,19 @@ const EvolutionScreen = ({
 
                             // Remover duplicatas do PC
                             const newPc = (prev.pc || []).filter(p => {
-                               if (Number(p.id) === evolvedId) { duplicatesRemoved++; return false; }
+                               if (Number(p.id) === evolvedId && ((p.formKey || null) === (evolvedMetadata.formKey || null))) { duplicatesRemoved++; return false; }
                                return true;
                             });
 
                             // Remover duplicatas dos cuidadores da casa
                             const newCaretakers = (prev.house?.caretakers || []).filter(p => {
-                               if (Number(p.id) === evolvedId) { duplicatesRemoved++; return false; }
+                               if (Number(p.id) === evolvedId && ((p.formKey || null) === (evolvedMetadata.formKey || null))) { duplicatesRemoved++; return false; }
                                return true;
                             });
 
                             // Remover duplicatas em outros slots do time (exceto o que acabou de evoluir)
                             const finalTeam = newTeam.filter((p, i) => {
-                               if (i !== pending.teamIndex && Number(p.id) === evolvedId) { // usa snapshot
+                               if (i !== pending.teamIndex && Number(p.id) === evolvedId && ((p.formKey || null) === (evolvedMetadata.formKey || null))) { // usa snapshot
                                   duplicatesRemoved++;
                                   return false;
                                }

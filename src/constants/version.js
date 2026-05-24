@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.11.29';
-export const VERSION = '2.11.29';
-export const APP_VERSION_DATE = '24/05/2026 10:57';
+export const APP_VERSION = '2.11.30';
+export const VERSION = '2.11.30';
+export const APP_VERSION_DATE = '24/05/2026 11:07';
 export const CHANGELOG = [
+  '## [V2.11.30] - 24/05/2026 11:07',
+  '### Evoluções Regionais — Hisui Starters',
+  '- **Tabela central de evolução regional**: Quilava, Dewott e Dartrix agora têm opções Hisui controladas por `formRegion`, `formKey` e `formSpriteId`.',
+  '- **Escolha contextual**: em Hisui, as formas regionais aparecem como opções válidas; fora da região, elas aparecem bloqueadas pela regra regional.',
+  '- **Metadados preservados**: ao concluir uma evolução regional, o Pokémon final mantém `formKey`, `formSpriteId`, `formRegion`, `isRegionalForm` e `capturedRegion` corretos.',
+  '- **Novas formas no Pokédex**: adicionadas entradas de Samurott Hisui e Decidueye Hisui para completar a linha dos iniciais de Hisui.',
+  '- **Testes**: adicionada cobertura para opções regionais, bloqueio fora de Hisui e preservação dos metadados da forma evoluída.',
+  '',
   '## [V2.11.29] - 24/05/2026 10:57',
   '### Armazenamento Local — Fix de Quota Excedida',
   '- **Duplicata eliminada**: o save do slot 1 deixa de ser gravado em duplicata (chave legada + chave do usuário) para jogadores logados — reduz o uso do localStorage em ~50% imediatamente e apaga a cópia antiga na próxima gravação.',
