@@ -1,5 +1,5 @@
 {
-  "version": "2.11.30",
-  "date": "24/05/2026 11:07",
-  "notes": "Evoluções regionais: Hisui starters com escolhas corretas, validação por formRegion e preservação de formKey/formSpriteId"
+  "version": "2.11.31",
+  "date": "24/05/2026 11:23",
+  "notes": "Formas regionais nas rotas: Alola/Galar preservam formKey, nome, tipo e sprite corretos nos encontros selvagens"
 }

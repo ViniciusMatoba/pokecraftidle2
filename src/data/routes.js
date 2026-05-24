@@ -1,5 +1,4 @@
 ﻿import { hasProgressRequirement } from '../utils/progress';
-
 // ── UTILITIES ──────────────────────────────────────────────────
 export const isRouteUnlocked = (route, gameState) => {
   if (!route.requirements || route.requirements.length === 0) return true;
@@ -160,6 +159,28 @@ export const getSortedRoutes = (routesObj) => {
 
 // POKEDEX resolvido em runtime pelo App   sem import circular
 const pk = (ids, level) => ids.map(id => ({ id: Number(id), level }));
+const ROUTE_REGIONAL_FORM_SPRITES = {
+  'rattata-alola': 10091,
+  'raticate-alola': 10092,
+  'sandshrew-alola': 10101,
+  'sandslash-alola': 10102,
+  'vulpix-alola': 10103,
+  'ninetales-alola': 10104,
+  'muk-alola': 10113,
+  'exeggutor-alola': 10114,
+  'marowak-alola': 10115,
+  'zigzagoon-galar': 10177,
+  'farfetchd-galar': 10185,
+};
+const rf = (id, level, formKey, extra = {}) => ({
+  id,
+  level,
+  formKey,
+  formSpriteId: ROUTE_REGIONAL_FORM_SPRITES[formKey],
+  formRegion: formKey?.split('-').at(-1),
+  isRegionalForm: true,
+  ...extra,
+});
 
 // -- Evolucao por nivel --------------------------------------------------------
 // Gerado a partir da Pokedex para trocar pre-evolucoes por formas coerentes
@@ -590,6 +611,7 @@ const isPokemonAllowedForRouteRegion = (id, routeRegion = 'kanto', route = {}) =
 
 const applyEvolutionFilter = (enemies, routeRegion = 'kanto', route = {}) => {
   return enemies.map(enemy => {
+    if (enemy.formKey) return enemy;
     let { id, level } = enemy;
     // Cadeia de evolução (até 4 etapas de segurança)
     for (let i = 0; i < 4; i++) {
@@ -1218,7 +1240,7 @@ const FUTURE_REGION_ROUTES = {
     id: 'alola_verdant_cavern', name: 'Verdant Cavern', type: 'farm', group: 'Alola', background: '/bg_alola_verdant_cavern.webp',
     unlockLevel: 12, requirements: ['alola_route_1_cleared'], unlocks: 'alola_carat_cleared',
     biome: 'cave',
-    enemies: pk([734, 735, 19, 20, 744, 782], 12),
+    enemies: [...pk([734, 735, 744, 782], 12), rf(19, 12, 'rattata-alola'), rf(20, 12, 'raticate-alola')],
     trainerChance: 0.07,
     trainers: [{ name: 'Trial Captain Ilima', sprite: S.aceM, team: pk([735, 19], 15), reward: 1000 }],
     description: 'Onde o primeiro Trial de Alola ocorre.',
@@ -1238,7 +1260,7 @@ const FUTURE_REGION_ROUTES = {
     id: 'alola_wela_volcano', name: 'Wela Volcano Park', type: 'farm', group: 'Alola', background: '/bg_alola_volcano.webp',
     unlockLevel: 30, requirements: ['alola_akala_cleared'], unlocks: 'alola_volcano_cleared',
     biome: 'mountain',
-    enemies: pk([757, 758, 105, 776, 662, 741], 28),
+    enemies: [...pk([757, 758, 776, 662, 741], 28), rf(105, 28, 'marowak-alola')],
     trainerChance: 0.08,
     trainers: [{ name: 'Ace Trainer Lani', sprite: S.aceF, team: pk([105, 662], 32), reward: 2500 }],
     description: 'O lar dos rituais de fogo e Pokémon vulcânicos.',
@@ -1248,7 +1270,7 @@ const FUTURE_REGION_ROUTES = {
     id: 'alola_aether_paradise', name: 'Aether Paradise', type: 'farm', group: 'Alola', background: '/bg_alola_aether.webp',
     unlockLevel: 38, requirements: ['alola_volcano_cleared'], unlocks: 'alola_aether_cleared',
     biome: 'cave',
-    enemies: [...pk([137, 82, 89, 568, 772, 773], 36), { id: 747, level: 33 }, { id: 771, level: 33 }, { id: 779, level: 34 }, { id: 781, level: 35 }],
+    enemies: [...pk([137, 82, 568, 772, 773], 36), rf(89, 36, 'muk-alola'), { id: 747, level: 33 }, { id: 771, level: 33 }, { id: 779, level: 34 }, { id: 781, level: 35 }],
     trainerChance: 0.09,
     trainers: [{ name: 'Aether Faba', sprite: S.gentleman, team: pk([475, 80], 42), reward: 5000 }],
     description: 'Uma ilha artificial de alta tecnologia.',
@@ -1268,7 +1290,7 @@ const FUTURE_REGION_ROUTES = {
     id: 'alola_vast_poni_canyon', name: 'Vast Poni Canyon', type: 'farm', group: 'Alola', background: '/bg_alola_poni_canyon.webp',
     unlockLevel: 54, requirements: ['alola_ula_ula_cleared'], unlocks: 'alola_lanakila_cleared',
     biome: 'mountain',
-    enemies: [...pk([782, 783, 103, 621, 706, 780], 52), { id: 767, level: 49 }],
+    enemies: [...pk([782, 783, 621, 706, 780], 52), rf(103, 52, 'exeggutor-alola'), { id: 767, level: 49 }],
     trainerChance: 0.10,
     trainers: [{ name: 'Elite Kahuna Hapu', sprite: S.aceF, team: pk([784, 103, 750], 58), reward: 10000 }],
     description: 'Um canyon majestoso onde os dragões residem.',
@@ -1278,7 +1300,7 @@ const FUTURE_REGION_ROUTES = {
     id: 'alola_mount_lanakila', name: 'Mount Lanakila', type: 'farm', group: 'Alola', background: '/bg_alola_lanakila.webp',
     unlockLevel: 62, requirements: ['alola_lanakila_cleared'],
     biome: 'cave',
-    enemies: pk([739, 740, 37, 38, 27, 28], 60),
+    enemies: [...pk([739, 740], 60), rf(37, 60, 'vulpix-alola'), rf(38, 60, 'ninetales-alola'), rf(28, 60, 'sandslash-alola')],
     trainerChance: 0.12,
     trainers: [{ name: 'Professor Kukui', sprite: S.cooltrainer, team: pk([724, 733, 745, 756, 763, 727], 68), reward: 20000, unlockFlag: 'alola_champion' }],
     description: 'O ponto mais alto de Alola e sede da nova Liga.',
@@ -1313,7 +1335,7 @@ const FUTURE_REGION_ROUTES = {
     id: 'galar_wild_area_south', name: 'Wild Area (Sul)', type: 'farm', group: 'Galar', background: '/bg_galar_wild_area.webp',
     unlockLevel: 14, requirements: ['galar_route_1_cleared'], unlocks: 'galar_route_2_cleared',
     biome: 'grass',
-    enemies: [...pk([819, 820, 821, 824, 827, 829, 831, 833, 835, 263], 12), { id: 877, level: 22 }],
+    enemies: [...pk([819, 820, 821, 824, 827, 829, 831, 833, 835], 12), rf(263, 12, 'zigzagoon-galar'), { id: 877, level: 22 }],
     trainerChance: 0.07,
     trainers: [{ name: 'Camper Byron', sprite: S.aceM, team: pk([845, 834], 16), reward: 1200 }],
     description: 'Um vasto território aberto cheio de Pokémon selvagens.',
@@ -1333,7 +1355,7 @@ const FUTURE_REGION_ROUTES = {
     id: 'galar_route_5', name: 'Rota 5 / Hulbury Area', type: 'farm', group: 'Galar', background: '/bg_galar_hulbury.webp',
     unlockLevel: 30, requirements: ['galar_mine_cleared'], unlocks: 'galar_route_5_cleared',
     biome: 'grass',
-    enemies: [...pk([832, 843, 841, 856, 857, 870, 83], 28), { id: 848, level: 27 }, { id: 850, level: 26 }, { id: 845, level: 28 }],
+    enemies: [...pk([832, 843, 841, 856, 857, 870, 865], 28), { id: 848, level: 27 }, { id: 850, level: 26 }, { id: 845, level: 28 }],
     trainerChance: 0.08,
     trainers: [{ name: 'Yell Grunt', sprite: S.yell, team: pk([264, 827], 32), reward: 1800 }],
     description: 'Caminho entre as cidades industriais de Galar.',
@@ -1609,7 +1631,7 @@ const FUTURE_REGION_ROUTES = {
     unlockLevel: 52, requirements: ['hisui_coastlands_1_cleared'], unlocks: 'hisui_highlands_1_cleared',
     biome: 'mountain',
     enemies: [
-      { id: 100, level: 50, name: 'Voltorb-H', formKey: 'voltorb-hisui', rate: 0.25 },
+      { id: 101, level: 50, name: 'Electrode-H', formKey: 'electrode-hisui', rate: 0.25 },
       { id: 443, level: 52, name: 'Gible',     rate: 0.20 },
       { id: 436, level: 51, name: 'Bronzor',   rate: 0.20 },
       { id: 215, level: 53, name: 'Sneasel-H', formKey: 'sneasel-hisui', rate: 0.20 },

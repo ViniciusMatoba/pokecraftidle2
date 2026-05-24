@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.11.30';
-export const VERSION = '2.11.30';
-export const APP_VERSION_DATE = '24/05/2026 11:07';
+export const APP_VERSION = '2.11.31';
+export const VERSION = '2.11.31';
+export const APP_VERSION_DATE = '24/05/2026 11:23';
 export const CHANGELOG = [
+  '## [V2.11.31] - 24/05/2026 11:23',
+  '### Rotas Regionais — Formas Alola/Galar',
+  '- **Mount Lanakila corrigida**: Vulpix, Ninetales e Sandslash agora aparecem com as formas de Alola, usando `formKey` e `formSpriteId` corretos.',
+  '- **Outras rotas revisadas**: Rattata/Raticate, Marowak, Muk e Exeggutor de Alola receberam metadados regionais nas rotas correspondentes; Zigzagoon de Galar e Sirfetchd também foram ajustados.',
+  '- **Spawn preserva variante**: o encontro selvagem agora mantém nome, tipo, região, `formKey` e sprite da forma regional ao montar o inimigo a partir do Pokédex base.',
+  '- **Testes**: adicionada cobertura para impedir regressão de rotas regionais voltando para formas normais.',
+  '',
   '## [V2.11.30] - 24/05/2026 11:07',
   '### Evoluções Regionais — Hisui Starters',
   '- **Tabela central de evolução regional**: Quilava, Dewott e Dartrix agora têm opções Hisui controladas por `formRegion`, `formKey` e `formSpriteId`.',

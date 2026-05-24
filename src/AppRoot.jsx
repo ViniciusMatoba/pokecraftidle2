@@ -18,6 +18,7 @@ import { WEATHER_TYPE_MULT, WEATHER_PASSIVE_DAMAGE, WEATHER_IMMUNE_TYPES, genera
 import { getCompatibleMegaStones } from './data/megaEvolutions';
 import { assignRandomAbility, normalizeAbilityId } from './data/abilities';
 import { getPokemonEvolutionOptions, isEvolutionOptionAllowedInRegion } from './data/regionalEvolutions';
+import { applyRegionalFormMetadata } from './data/regionalForms';
 import { getJourneyGuide } from './data/journeyGuide';
 import AuthScreen from './components/AuthScreen';
 import MenuScreen from './components/MenuScreen';
@@ -3407,13 +3408,17 @@ export default function App() {
     if (hasTrainers && Math.random() < effectiveTrainerChance) {
       const trainer = route.trainers[Math.floor(Math.random() * route.trainers.length)];
       const trainerPokeRef = trainer.team[0] || { id: 19, level: 5 };
-      const trainerPoke = trainerPokeRef.learnset
-        ? trainerPokeRef
-        : { 
-            ...(POKEDEX[Number(trainerPokeRef.id)] || POKEDEX[String(trainerPokeRef.id)] || {}), 
-            id: Number(trainerPokeRef.id),
-            level: trainerPokeRef.level || 5 
-          };
+      const trainerPoke = applyRegionalFormMetadata(
+        trainerPokeRef.learnset
+          ? trainerPokeRef
+          : {
+              ...(POKEDEX[Number(trainerPokeRef.id)] || POKEDEX[String(trainerPokeRef.id)] || {}),
+              ...trainerPokeRef,
+              id: Number(trainerPokeRef.id),
+              level: trainerPokeRef.level || 5
+            },
+        trainerPokeRef.formKey
+      );
       
       const lvl = trainerPoke.level || 5;
       const baseMult = 1.05; // Treinadores comuns sao levemente mais fortes que selvagens
@@ -3590,9 +3595,14 @@ export default function App() {
       }
     }
 
+    const resolvedBase = applyRegionalFormMetadata(
+      { ...base, ...baseRef, name: baseRef.name || base.name },
+      baseRef.formKey
+    );
+
     // Sistema de Maestria: Chance de Shiny
-    const pokeId = Number(base.id);
-    const masteryCount = (gameState.speciesMastery || {})[pokeId] || (gameState.speciesMastery || {})[base.id] || 0;
+    const pokeId = Number(resolvedBase.id);
+    const masteryCount = (gameState.speciesMastery || {})[pokeId] || (gameState.speciesMastery || {})[resolvedBase.id] || 0;
     
     // ⛏️ PROTECTED: Spawn Rates — base 1/4000, reduz com maestria
     const shinyRateDivisor = masteryCount >= 200 ? 1000 : masteryCount >= 100 ? 2000 : 4000;
@@ -3600,13 +3610,13 @@ export default function App() {
     const isBossSpawn = !isShiny && Math.floor(Math.random() * 500) === 0; // Boss (não capturável)
     const isStarterSpawn = !isShiny && !isBossSpawn && Math.floor(Math.random() * 2048) === 0; // Starter raro
 
-    let finalBase = { ...base };
+    let finalBase = { ...resolvedBase };
     if (isStarterSpawn) {
       const starterIds = [1, 4, 7];
       const randomStarterId = starterIds[Math.floor(Math.random() * starterIds.length)];
       const starterBase = POKEDEX[randomStarterId];
       if (starterBase) {
-        finalBase = { ...starterBase, id: randomStarterId, level: base.level || 5 };
+        finalBase = { ...starterBase, id: randomStarterId, level: resolvedBase.level || 5 };
         addLog(`✨ Um raro ${starterBase.name} apareceu!`, 'system');
       }
     }
@@ -7661,7 +7671,7 @@ export default function App() {
                   [selectedBall]: (prev.inventory.items[selectedBall] || 0) - 1 
                 };
                 
-                const alreadyCaught = ownsSpecies(prev, currentEnemy.id);
+                const alreadyCaught = ownsSpecies(prev, currentEnemy);
                 const newCaughtData = { ...(prev.caughtData || {}), [currentEnemy.id]: true };
                 const newMastery = processCaptureMastery({ ...currentEnemy, id: Number(currentEnemy.id) }, prev);
                 
@@ -7688,7 +7698,7 @@ export default function App() {
 
                 if (alreadyCaught) {
                   const findAndReplace = (list) => list.map(p => {
-                    if (Number(p.id) === Number(currentEnemy.id)) {
+                    if (Number(p.id) === Number(currentEnemy.id) && ((p.formKey || null) === (currentEnemy.formKey || null))) {
                       let updatedP = { ...p };
                       const rolledNature = NATURE_LIST[Math.floor(Math.random() * NATURE_LIST.length)];
                       updatedP.unlockedNatures = updatedP.unlockedNatures || [updatedP.equippedNature || 'Hardy'];
