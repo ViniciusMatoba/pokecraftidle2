@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.28';
-export const VERSION = '2.11.28';
-export const APP_VERSION_DATE = '24/05/2026 10:47';
+export const APP_VERSION = '2.11.29';
+export const VERSION = '2.11.29';
+export const APP_VERSION_DATE = '24/05/2026 10:57';
 export const CHANGELOG = [
+  '## [V2.11.29] - 24/05/2026 10:57',
+  '### Armazenamento Local — Fix de Quota Excedida',
+  '- **Duplicata eliminada**: o save do slot 1 deixa de ser gravado em duplicata (chave legada + chave do usuário) para jogadores logados — reduz o uso do localStorage em ~50% imediatamente e apaga a cópia antiga na próxima gravação.',
+  '- **Compressão LZString no save local**: o save agora é comprimido (LZString, já usado no Firestore) antes de ser gravado em localStorage — reduz ~60% do tamanho; formato `pklz1:` reconhecido e descomprimido na leitura com fallback para saves antigos.',
+  '- **Recuperação automática de quota**: se o `QuotaExceededError` ainda ocorrer, o sistema remove a chave legada e retenta automaticamente antes de exibir o aviso ao jogador.',
+  '',
   '## [V2.11.28] - 24/05/2026 10:47',
   '### Expedições — Fluxo de Seleção Mais Rápido',
   '- **Auto-scroll no detalhe**: ao tocar em um bioma de expedição, a tela agora abre o detalhe sempre no topo, sem preservar o scroll da lista anterior.',

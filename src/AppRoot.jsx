@@ -128,7 +128,14 @@ const localSaveKeyForUser = (uid, slot = 1) => {
 
 const parseStoredSave = (raw) => {
   if (!raw) return null;
-  
+
+  // 0. Formato comprimido + seguro: pklz1: = LZString.compressToUTF16(pksv1:...)
+  if (raw.startsWith('pklz1:')) {
+    const decompressed = LZString.decompressFromUTF16(raw.substring(6));
+    if (!decompressed) return null;
+    raw = decompressed; // agora é pksv1:... — cai no bloco abaixo
+  }
+
   // 1. Novo formato seguro, assinado e ofuscado (começa com pksv1:)
   if (raw.startsWith('pksv1:')) {
     try {
@@ -211,9 +218,17 @@ const writeLocalSaveEnvelope = (gameState, user = null, slot = 1) => {
   }
 
   const secured = secureSave(envelope);
-  localStorage.setItem(localSaveKeyForUser(user?.uid, slot), secured);
-  // Slot 1 também mantém a chave legada para backward compat
-  if (slot === 1) localStorage.setItem(LEGACY_LOCAL_SAVE_KEY, secured);
+  // Comprime antes de gravar — reduz ~60% do tamanho no localStorage (LZString já usado na nuvem)
+  const stored = 'pklz1:' + LZString.compressToUTF16(secured);
+  localStorage.setItem(localSaveKeyForUser(user?.uid, slot), stored);
+
+  if (!user?.uid && slot === 1) {
+    // Usuário não logado: mantém chave legada para compatibilidade
+    localStorage.setItem(LEGACY_LOCAL_SAVE_KEY, stored);
+  } else if (user?.uid && slot === 1) {
+    // Usuário logado: remove chave legada — libera ~50% do espaço do slot 1 imediatamente
+    try { localStorage.removeItem(LEGACY_LOCAL_SAVE_KEY); } catch {}
+  }
 };
 
 const fixPath = (path) => {
@@ -2125,11 +2140,18 @@ export default function App() {
     if (saveLocalTimeoutRef.current) clearTimeout(saveLocalTimeoutRef.current);
     
     saveLocalTimeoutRef.current = setTimeout(() => {
+      const doWrite = () => writeLocalSaveEnvelope(gameState, auth.currentUser, currentSlotRef.current);
       try {
-        writeLocalSaveEnvelope(gameState, auth.currentUser, currentSlotRef.current);
+        doWrite();
       } catch (e) {
         if (e?.name === 'QuotaExceededError') {
-          notify('Armazenamento local cheio. Salve na nuvem para não perder progresso!', 'error');
+          // Tenta liberar espaço removendo a chave legada duplicada e retenta
+          try {
+            localStorage.removeItem(LEGACY_LOCAL_SAVE_KEY);
+            doWrite();
+          } catch {
+            notify('Armazenamento local cheio. Salve na nuvem para não perder progresso!', 'error');
+          }
         }
       }
     }, 10_000); // 10s de debounce
