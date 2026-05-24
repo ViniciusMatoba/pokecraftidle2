@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { POKEDEX } from '../data/pokedex';
 import { MOVES } from '../data/moves';
 import { getTypeEffectiveness } from '../data/typeChart';
+import { BATTLE_BACKGROUNDS } from '../data/battleBackgrounds';
 
 // ── Helpers fora do componente ────────────────────────────────────────────────
 
@@ -325,6 +326,27 @@ const STATUS_BADGE = {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
+const TOWER_SPECIAL_BACKGROUNDS = [
+  'hoenn_battle_frontier',
+  'galar_victory_road',
+  'league_sinnoh',
+  'indigo_plateau',
+];
+
+const getTowerBattleBackground = (encounter, activeEnemy, floor = 1) => {
+  const type = String(activeEnemy?.types?.[0] || 'normal').toLowerCase();
+  if (encounter?.isBoss) {
+    const index = Math.max(0, Math.floor((floor - 1) / 10)) % TOWER_SPECIAL_BACKGROUNDS.length;
+    return BATTLE_BACKGROUNDS[TOWER_SPECIAL_BACKGROUNDS[index]] || BATTLE_BACKGROUNDS.paldea_type_domain_prism;
+  }
+  if (floor > 1 && floor % 5 === 0) {
+    return BATTLE_BACKGROUNDS.hoenn_battle_frontier || BATTLE_BACKGROUNDS.paldea_type_domain_prism;
+  }
+  return BATTLE_BACKGROUNDS[`paldea_type_domain_${type}`]
+    || BATTLE_BACKGROUNDS.hoenn_battle_frontier
+    || BATTLE_BACKGROUNDS.paldea_type_domain_normal;
+};
+
 const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
   const run = gameState.tower?.activeRun;
   const encounter = gameState.tower?.battleEncounter;
@@ -637,18 +659,33 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
     Ghost:'#2e1065', Dragon:'#312e81', Dark:'#1c1917', Steel:'#334155',
     Fairy:'#831843', Normal:'#1e293b',
   }[activeEnemy?.types?.[0]] || '#0f172a';
+  const towerBackground = getTowerBattleBackground(encounter, activeEnemy, run.floor);
+  const towerGround = towerBackground?.ground || '#0f172a';
+  const towerGroundAccent = towerBackground?.groundAccent || enemyTypeColor;
+  const towerSceneLabel = towerBackground?.label || 'Battle Tower';
 
   return (
     <div className="h-full flex flex-col overflow-hidden relative">
 
       {/* ── Background de batalha ─────────────────────────────────────────── */}
-      <div className="absolute inset-0 z-0" style={{ background: `linear-gradient(180deg, ${enemyTypeColor}cc 0%, #0f172a 55%, #0f172a 100%)` }}>
+      <div
+        className="absolute inset-0 z-0 overflow-hidden"
+        style={{
+          backgroundColor: towerGround,
+          backgroundImage: towerBackground?.sky || `linear-gradient(180deg, ${enemyTypeColor}cc 0%, #0f172a 55%, #0f172a 100%)`,
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
+        }}
+      >
+        <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, ${enemyTypeColor}55 0%, rgba(2,6,23,0.12) 34%, rgba(2,6,23,0.78) 100%)` }} />
+        <div className="absolute inset-x-0 bottom-0 h-[44%]" style={{ background: `linear-gradient(180deg, transparent 0%, ${towerGround}dd 38%, ${towerGroundAccent} 100%)` }} />
+        <div className="absolute left-1/2 bottom-[24%] h-20 w-[86%] -translate-x-1/2 rounded-[50%] opacity-60 blur-md" style={{ background: `radial-gradient(circle, ${towerGroundAccent} 0%, transparent 68%)` }} />
         {/* Grade sutil estilo arena */}
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 48px,rgba(255,255,255,0.025) 48px,rgba(255,255,255,0.025) 49px),repeating-linear-gradient(90deg,transparent,transparent 48px,rgba(255,255,255,0.025) 48px,rgba(255,255,255,0.025) 49px)',
+        <div className="absolute inset-0 opacity-70" style={{
+          backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 54px,rgba(255,255,255,0.022) 54px,rgba(255,255,255,0.022) 55px),repeating-linear-gradient(90deg,transparent,transparent 54px,rgba(255,255,255,0.022) 54px,rgba(255,255,255,0.022) 55px)',
         }} />
         {/* Vinheta */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
       </div>
 
       {/* ── Conteúdo (z-10) ──────────────────────────────────────────────── */}
@@ -663,6 +700,9 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
           </h2>
         </div>
         <div className="flex items-center gap-2">
+          <span className="hidden max-w-28 truncate rounded-full border border-white/15 bg-black/35 px-2 py-1 text-[9px] font-black uppercase tracking-wide text-white/70 backdrop-blur-sm sm:inline-block">
+            {towerSceneLabel}
+          </span>
           <span className="text-yellow-400 font-black text-xs drop-shadow">🪙 {localInv.coins ?? 0}</span>
           <span className="text-blue-300 font-bold text-xs">🧪{localInv.potions ?? 0}</span>
           <span className="text-red-300 font-bold text-xs">💊{localInv.revives ?? 0}</span>

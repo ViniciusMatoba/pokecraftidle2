@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.17';
-export const VERSION = '2.11.17';
-export const APP_VERSION_DATE = '23/05/2026 22:01';
+export const APP_VERSION = '2.11.18';
+export const VERSION = '2.11.18';
+export const APP_VERSION_DATE = '23/05/2026 22:16';
 export const CHANGELOG = [
+  '## [V2.11.18] - 23/05/2026 22:16',
+  '### Battle Tower - Polimento Visual de Arena',
+  '- **Cenarios por tipo**: combates da Battle Tower agora reutilizam os backgrounds de dominio por tipo do inimigo ativo, deixando cada luta com identidade visual propria.',
+  '- **Andares especiais**: checkpoints e bosses usam arenas como Battle Frontier, Rose Tower, Liga Sinnoh e Plateau Indigo para dar mais peso visual a fases importantes.',
+  '- **Camada de arena mobile**: fundo, solo, brilho central, grade sutil e vinheta foram ajustados para destacar os sprites sem esconder cards, log e controles.',
+  '',
   '## [V2.11.17] - 23/05/2026 22:01',
   '### Backward Compat — Correção de Snapshot para Multi-Slot',
   '- **Bug corrigido (slot 2/3)**: snapshot diário em `saveToCloud` usava `user.uid` diretamente em vez de `saveDocId = getSlotDocId(uid, slot)`. Avatares dos slots 2 e 3 agora têm backups diários gravados no caminho correto (`saves/{uid}_s2/snapshots/` e `saves/{uid}_s3/snapshots/`). Slot 1 (todos os saves existentes) não é afetado — comportamento idêntico ao anterior.',

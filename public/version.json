@@ -1,5 +1,5 @@
 {
-  "version": "2.11.17",
-  "date": "23/05/2026 22:01",
-  "notes": "Backward Compat — Correcao de snapshot diario para avatares nos slots 2 e 3"
+  "version": "2.11.18",
+  "date": "23/05/2026 22:16",
+  "notes": "Battle Tower - Polimento visual com cenarios por tipo e arenas especiais"
 }

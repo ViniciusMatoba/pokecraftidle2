@@ -1,3 +1,9 @@
+## [v2.11.18] - 23/05/2026 22:16
+### Battle Tower - Polimento Visual de Arena
+- **Cenarios por tipo**: combates da Battle Tower agora reutilizam os backgrounds de dominio por tipo do inimigo ativo.
+- **Andares especiais**: checkpoints e bosses usam Battle Frontier, Rose Tower, Liga Sinnoh e Plateau Indigo para fases de maior impacto.
+- **Leitura em mobile**: fundo, solo, brilho central, grade sutil e vinheta foram ajustados para manter sprites, log e controles legiveis.
+
 ## [v2.11.10] - 23/05/2026 16:42
 ### Build - Lazy VS/Ginasios
 - **Chunks mais leves**: `VsScreen` e `GymScreen` agora carregam `ChallengesScreen` e `GymScreen` internos via `React.lazy`, removendo imports estaticos que anulavam code splitting.
