@@ -11,6 +11,7 @@
     "fix-encoding": "node scripts/fix-encoding.cjs",
     "prebuild": "node scripts/update-sw-version.cjs && node scripts/check-circulars.cjs && node scripts/audit-content.cjs",
     "deploy": "npm run build && gh-pages -d dist",
+    "release": "node scripts/release.cjs",
     "check": "node scripts/check-circulars.cjs",
     "audit-content": "node scripts/audit-content.cjs",
     "test": "vitest run",

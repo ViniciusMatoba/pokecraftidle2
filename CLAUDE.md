@@ -42,12 +42,40 @@ O resultado deve ser **zero linhas** nos campos de versão ativa (exceto entrada
 
 ---
 
+## ⚠️ REGRA PRIMORDIAL — RELEASE (nunca use `deploy` direto)
+
+**SEMPRE use `npm run release` para publicar.** Nunca chame `npm run deploy` diretamente.
+
+O `deploy` publica apenas o build no GitHub Pages (`gh-pages`) mas **não commita nem faz push do código-fonte para `main`**. Isso causa dessincronização entre o código em produção e o repositório — o Codex acusa arquivos modificados não commitados.
+
+### Fluxo obrigatório de publicação
+
+```bash
+npm run release
+# ou com descrição da feature:
+npm run release -- "Multi-Avatar e Regional Lock"
+```
+
+O script `scripts/release.cjs` executa automaticamente:
+1. **Stash** das alterações locais
+2. **Pull** do `origin/main` (incorpora hotfixes remotos)
+3. **Pop do stash** + resolução automática de conflitos de versão (mantém sempre a versão mais recente)
+4. **`git add -A`** + **commit** versionado (`release: vX.Y.Z`)
+5. **Push** para `origin/main`
+6. **Build** (`npm run build`, inclui prebuild com check-circulars)
+7. **Deploy** para GitHub Pages
+
+> **Nunca finalize uma sessão sem executar `npm run release`.** O repositório fonte (main) e o deploy devem sempre estar em sync.
+
+---
+
 ## Comandos Essenciais
 
 ```bash
+npm run release      # ✅ USAR ESTE — commit + push main + build + deploy (fluxo completo)
 npm run dev          # Servidor local (Vite HMR)
 npm run build        # Build de produção (roda check-circulars antes)
-npm run deploy       # Build + publicar no GitHub Pages (gh-pages -d dist)
+npm run deploy       # ⚠️ Apenas deploy — NÃO commita código-fonte (evitar usar diretamente)
 npm run check        # Detectar dependências circulares em /src
 npm run audit-content  # Auditoria de conteúdo dos dados
 npm run fix-encoding   # Corrigir encoding de arquivos
