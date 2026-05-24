@@ -1,5 +1,5 @@
 {
-  "version": "2.11.25",
-  "date": "24/05/2026 10:18",
-  "notes": "Polimento visual de shiny, entrada por Pokébola e captura shiny nas batalhas de rota"
+  "version": "2.11.26",
+  "date": "24/05/2026 10:31",
+  "notes": "Música em loop contínuo: sem corte em derrotas, shuffle sem silêncio, volume correto e retomada automática ao voltar de aba"
 }

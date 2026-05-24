@@ -76,6 +76,8 @@ export function useSound() {
     const vol = volume !== undefined ? volume : bgmVolumeRef.current;
     if (currentBgmKey.current === url && bgmRef.current && bgmRef.current.loop === loop) {
       bgmRef.current.volume = vol;
+      // Sempre atualiza onEnded — evita silêncio quando shuffle escolhe a mesma faixa duas vezes
+      bgmRef.current.onended = onEnded || null;
       return;
     }
 
@@ -146,6 +148,17 @@ export function useSound() {
   }, []);
 
   const isMuted = () => mutedRef.current;
+
+  // Retoma BGM quando o usuário volta para a aba (browser pausa áudio em abas escondidas)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && bgmRef.current && bgmRef.current.paused && !mutedRef.current) {
+        bgmRef.current.play().catch(() => {});
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
 
   // Cleanup ao desmontar
   useEffect(() => {

@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.11.25';
-export const VERSION = '2.11.25';
-export const APP_VERSION_DATE = '24/05/2026 10:18';
+export const APP_VERSION = '2.11.26';
+export const VERSION = '2.11.26';
+export const APP_VERSION_DATE = '24/05/2026 10:31';
 export const CHANGELOG = [
+  '## [V2.11.26] - 24/05/2026 10:31',
+  '### Música — Loop Contínuo Sem Interrupções',
+  '- **Derrota não para mais a música**: removidos os `stopBGM` dos caminhos de derrota (time exausto, batalhas VS e batalhas normais) — o SFX de derrota ainda toca, mas a BGM continua sem corte.',
+  '- **Shuffle mesma faixa**: em modo "Tocar Todas", se a fila aleatória sorteava a mesma URL duas vezes seguidas, o callback `onEnded` não era reatribuído e a música silenciava; corrigido atualizando sempre o callback mesmo quando a URL já está tocando.',
+  '- **Volume correto no shuffle**: `playNext` agora lê `bgmVolumeRef.current` em vez do valor capturado na closure — próximas faixas sempre iniciam no volume configurado pelo jogador, mesmo se o slider foi mexido depois.',
+  '- **Retomada ao voltar de aba**: adicionado listener de `visibilitychange` — quando o jogador retorna à aba do jogo, a música retoma automaticamente se estiver pausada pelo browser.',
+  '',
   '## [V2.11.25] - 24/05/2026 10:18',
   '### Polimento Visual — Shiny e Pokébolas',
   '- **Shiny encounter**: encontros shiny em batalhas de rota agora têm flash dourado, halo, partículas em estrela, selo visual e aura persistente discreta.',

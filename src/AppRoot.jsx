@@ -1923,7 +1923,8 @@ export default function App() {
     const playNext = () => {
       const available = MUSIC_LIST.filter(m => m.id !== 'all');
       const random = available[Math.floor(Math.random() * available.length)];
-      if (random) playBGM(fixPath(random.url), vol, false, playNext);
+      // undefined → playBGM usa bgmVolumeRef.current (sempre o volume atual, sem stale closure)
+      if (random) playBGM(fixPath(random.url), undefined, false, playNext);
     };
 
     if (selectedId === 'all') {
@@ -4289,7 +4290,6 @@ export default function App() {
         // Todos exaustos ou desmaiados - derrota por exaustao
         isProcessingVictory.current = true;
         setCurrentEnemy(null);
-        stopBGM(300);
         sfxDefeat();
         addLog(
           'Todo o time esta exausto! Volte ao Centro Pokemon para recuperar seus Pokemon!',
@@ -4353,13 +4353,11 @@ export default function App() {
           return { ...prev, team: newTeam };
         } else {
           if (isStoryVsEnemy(currentEnemy)) {
-            stopBGM(300);
             sfxDefeat();
             openStoryBattleResult(currentEnemy, 'defeat');
           } else if (currentEnemy.isInitialRival || currentEnemy.unlocks === 'rival_1_defeated' || currentEnemy.unlockFlag === 'rival_1_defeated' || currentEnemy.unlockFlag === 'rival_lab_defeated') {
             setCurrentView('rival_post_battle');
           } else {
-            stopBGM(300);
             sfxDefeat();
             registerDefeat();
           }
