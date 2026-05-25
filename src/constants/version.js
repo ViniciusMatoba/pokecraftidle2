@@ -1,7 +1,19 @@
-export const APP_VERSION = '2.11.33';
-export const VERSION = '2.11.33';
-export const APP_VERSION_DATE = '24/05/2026 11:54';
+export const APP_VERSION = '2.11.34';
+export const VERSION = '2.11.34';
+export const APP_VERSION_DATE = '25/05/2026 00:00';
 export const CHANGELOG = [
+  '## [V2.11.34] - 25/05/2026',
+  '### Pokémon Alfa — Visuais Completos e Correção de Stats',
+  '- **Aura vermelha em batalha**: Pokémon alfa do jogador exibem `AlphaAuraEffect` (anel pulsante + partículas de brasa) sobre o sprite em campo, z-index acima do efeito shiny.',
+  '- **Sprite maior em batalha**: drop-shadow vermelho aplicado ao sprite quando alfa; prioridade sobre shiny dourado.',
+  '- **Badge α no HUD de batalha**: nome do Pokémon na barra de HP exibe símbolo α vermelho ao lado do nome.',
+  '- **Card do PC (α)**: sprite levemente maior com drop-shadow vermelho e badge α no canto inferior direito.',
+  '- **Modal de detalhe (α)**: cabeçalho com gradiente vermelho/escarlate, badge "α Alfa", sprite aumentado (w-32), `AlphaAuraEffect` pulsante e drop-shadow vermelho.',
+  '- **Stats preservados na evolução**: `EvolutionScreen.jsx` corrigido — alfa usa 1.3×; alfa+shiny usa 1.5×; apenas shiny continua 1.2×.',
+  '- **Stats preservados no level-up**: `applyXp` em `AppRoot.jsx` corrigido com mesmo multiplicador alfa.',
+  '- **Stats preservados no sanitize**: `sanitizeCollection` corrigido — saves com Pokémon alfa recalculam stats corretamente.',
+  '- **Stats no loop de XP**: terceira instância corrigida no loop de level-up interno do processamento de time.',
+  '',
   '## [V2.11.33] - 24/05/2026 11:54',
   '### Formas Regionais — Tratamento como Pokémon Distintos',
   '- **Tipos preservados na migração**: `fixPokemonTypes` agora consulta `REGIONAL_FORM_METADATA` antes do Pokédex base — Ninetales-Alola (Ice/Fairy), Sandslash-Alola (Ice/Steel), Marowak-Alola (Fire/Ghost) e todas as outras formas regionais mantêm seus tipos corretos após carregar o save.',

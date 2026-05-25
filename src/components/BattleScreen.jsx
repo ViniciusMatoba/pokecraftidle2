@@ -11,6 +11,7 @@ import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokem
 import CaptureAnimation from './CaptureAnimation';
 import ShinyEncounterEffect from './effects/ShinyEncounterEffect';
 import PokemonEntranceEffect from './effects/PokemonEntranceEffect';
+import AlphaAuraEffect from './effects/AlphaAuraEffect';
 
 const BattleScreen = ({
   currentEnemy, gameState, activeMemberIndex, moveIndex, weather,
@@ -426,7 +427,7 @@ const BattleScreen = ({
                 overflow: 'hidden', textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap', marginBottom: '2px',
               }}>
-                {activePoke?.name} {activePoke?.isShiny && '✨'} <span style={{fontWeight:500, fontSize:'8px'}}>Nv.{activePoke?.level}</span>
+                {activePoke?.name} {activePoke?.isAlpha && <span style={{color:'#ef4444',fontWeight:900}}>α</span>}{activePoke?.isShiny && '✨'} <span style={{fontWeight:500, fontSize:'8px'}}>Nv.{activePoke?.level}</span>
               </p>
 
               {/* HP — label + barra na mesma linha */}
@@ -495,6 +496,9 @@ const BattleScreen = ({
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none z-20 whitespace-nowrap">
                 {(floatingTexts || []).filter(f => f.target === 'player').map(f => <span key={f.id} className="block text-center font-black text-lg animate-floatUp" style={{ color: f.color, textShadow: '2px 2px 0 #000' }}>{f.text}</span>)}
               </div>
+              {activePoke?.isAlpha && (
+                <AlphaAuraEffect persistent compact isAlsoShiny={activePoke.isShiny} />
+              )}
               {activePoke?.isShiny && (
                 <ShinyEncounterEffect active={playerShinyFlash} persistent compact />
               )}
@@ -533,7 +537,7 @@ const BattleScreen = ({
                     target.src = getPokemonSpriteUrl(activePoke);
                   }
                 }}
-                className={`w-full h-full object-contain drop-shadow-xl ${activePoke.isShiny ? 'drop-shadow-[0_0_10px_rgba(234,179,8,0.9)]' : ''} ${activePoke.isMega ? 'drop-shadow-[0_0_14px_rgba(124,58,237,0.7)]' : ''}`}
+                className={`w-full h-full object-contain drop-shadow-xl ${activePoke.isAlpha ? 'drop-shadow-[0_0_16px_rgba(239,68,68,0.9)]' : activePoke.isShiny ? 'drop-shadow-[0_0_10px_rgba(234,179,8,0.9)]' : ''} ${activePoke.isMega ? 'drop-shadow-[0_0_14px_rgba(124,58,237,0.7)]' : ''}`}
                 alt="Player"
               />
             </div>

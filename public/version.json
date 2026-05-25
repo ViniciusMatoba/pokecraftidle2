@@ -1,5 +1,5 @@
 {
-  "version": "2.11.33",
-  "date": "24/05/2026 11:54",
-  "notes": "Formas regionais tratadas como Pokémon distintos: tipos preservados na migração, aba correta no PC, modal com tipos corretos"
+  "version": "2.11.34",
+  "date": "25/05/2026 00:00",
+  "notes": "Pokémon Alfa: visuais completos (aura vermelha, badge α, sprite maior em batalha/PC/modal) e correção de stats em level-up, evolução e sanitize"
 }

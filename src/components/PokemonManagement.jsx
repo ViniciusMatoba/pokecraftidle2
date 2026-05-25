@@ -14,6 +14,7 @@ import { getPokemonTmCompatibility } from '../data/tmCompatibility';
 import { GYM_LEVEL_CAPS } from '../data/constants';
 import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER, isPokemonLegal } from '../data/regionStandards';
 import { REGIONAL_FORM_METADATA } from '../data/regionalForms';
+import AlphaAuraEffect from './effects/AlphaAuraEffect';
 
 const STAT_LABELS = {
   attack: 'Ataque',
@@ -864,7 +865,8 @@ const PokemonManagement = ({
                   dragTeamIndex === i ? 'border-pokeBlue shadow-lg scale-[0.98]' : 'border-slate-100'
                 }`}
               >
-                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center relative">
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center relative ${p.isAlpha ? 'bg-red-50' : 'bg-slate-50'}`}
+                  style={p.isAlpha ? { boxShadow: 'inset 0 0 10px rgba(239,68,68,0.18), 0 0 8px rgba(239,68,68,0.25)' } : {}}>
                   <img
                     src={getPokemonSpriteUrl(p)}
                     onError={e => {
@@ -873,16 +875,25 @@ const PokemonManagement = ({
                         e.target.src = getPokemonSpriteFallbackUrl(p);
                       }
                     }}
-                    className="w-14 h-14 object-contain"
+                    className={`object-contain ${p.isAlpha ? 'w-15 h-15' : 'w-14 h-14'}`}
+                    style={p.isAlpha ? { filter: 'drop-shadow(0 0 6px rgba(239,68,68,0.85))' } : {}}
                     alt={p.name}
                     loading="lazy"
                   />
+                  {/* Badge alfa no card do time */}
+                  {p.isAlpha && (
+                    <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full leading-none shadow-md"
+                      style={{ boxShadow: '0 0 6px rgba(239,68,68,0.7)' }}>α</span>
+                  )}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-start">
                     <div>
                       <h4 className="font-black uppercase text-slate-800 text-sm italic leading-none flex items-baseline gap-2">
                         <span>{p.name}</span>
+                        {p.isAlpha && (
+                          <span className="text-red-500 text-xs font-black animate-pulse">α</span>
+                        )}
                         {p.isShiny && (
                           <span className="text-yellow-500 text-xs animate-pulse">
                             ✨{p.shinyCount > 1 ? ` x${p.shinyCount}` : ''}
@@ -1005,10 +1016,15 @@ const PokemonManagement = ({
                                e.target.src = getPokemonSpriteFallbackUrl(p);
                              }
                            }}
-                           className="w-12 h-12 object-contain"
+                           className={`object-contain ${p.isAlpha ? 'w-14 h-14' : 'w-12 h-12'}`}
+                           style={p.isAlpha ? { filter: 'drop-shadow(0 0 5px rgba(239,68,68,0.85))' } : {}}
                            alt={p.name}
                            loading="lazy"
                          />
+                         {p.isAlpha && (
+                           <span className="absolute bottom-0.5 right-0.5 bg-red-600 text-white text-[7px] font-black px-1 py-0.5 rounded-full leading-none shadow-md"
+                             style={{ boxShadow: '0 0 5px rgba(239,68,68,0.7)' }}>α</span>
+                         )}
 
                          {/* Cadeado regional com tooltip */}
                          {!canSelect && lockReason && (
@@ -1131,11 +1147,15 @@ const PokemonManagement = ({
                  const c1 = TYPE_COLOR[t1] || '#9ea0aa';
                  const c2 = t2 ? (TYPE_COLOR[t2] || '#9ea0aa') : c1;
 
-                 const bgStyle = poke.isShiny
-                   ? { background: 'linear-gradient(160deg, #fde68a 0%, #f59e0b 50%, #d97706 100%)' }
-                   : t2
-                     ? { background: `linear-gradient(160deg, ${c1} 0%, ${c1}bb 40%, ${c2}bb 60%, ${c2} 100%)` }
-                     : { background: `linear-gradient(160deg, ${c1}88 0%, ${c1} 60%, ${c1}dd 100%)` };
+                 const bgStyle = (poke.isAlpha && poke.isShiny)
+                   ? { background: 'linear-gradient(160deg, #ef4444 0%, #dc2626 40%, #f97316 100%)' }
+                   : poke.isAlpha
+                     ? { background: 'linear-gradient(160deg, #dc2626 0%, #b91c1c 50%, #7f1d1d 100%)' }
+                     : poke.isShiny
+                       ? { background: 'linear-gradient(160deg, #fde68a 0%, #f59e0b 50%, #d97706 100%)' }
+                       : t2
+                         ? { background: `linear-gradient(160deg, ${c1} 0%, ${c1}bb 40%, ${c2}bb 60%, ${c2} 100%)` }
+                         : { background: `linear-gradient(160deg, ${c1}88 0%, ${c1} 60%, ${c1}dd 100%)` };
 
                  return (
                    <div className="h-48 w-full shrink-0 relative overflow-hidden shadow-inner" style={bgStyle}>
@@ -1143,6 +1163,12 @@ const PokemonManagement = ({
                      <img src={typeIconUrl(t1)} className="absolute -left-4 bottom-2 w-28 h-28 opacity-10 pointer-events-none select-none invert" alt="" />
                      {t2 && <img src={typeIconUrl(t2)} className="absolute -right-2 top-2 w-24 h-24 opacity-10 pointer-events-none select-none invert" alt="" />}
                      <div className="absolute top-4 left-4 flex flex-col gap-1.5 items-start z-10">
+                       {poke.isAlpha && (
+                         <div className="px-3 py-1 rounded-full flex items-center gap-1 shadow-md"
+                           style={{ background: 'rgba(220,38,38,0.9)', boxShadow: '0 0 8px rgba(239,68,68,0.7)' }}>
+                           <span className="text-[9px] font-black text-white uppercase tracking-widest">α Alfa</span>
+                         </div>
+                       )}
                        {poke.isShiny && (
                          <div className="bg-yellow-500 px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
                            <span className="text-[9px] font-black text-white uppercase tracking-widest">Shiny</span>
@@ -1155,9 +1181,12 @@ const PokemonManagement = ({
                          </div>
                        ))}
                      </div>
+                     {poke.isAlpha && (
+                       <AlphaAuraEffect isAlsoShiny={poke.isShiny} />
+                     )}
                      <img
                        src={getPokemonSpriteUrl(poke)}
-                       className={`absolute left-1/2 top-12 z-10 w-28 h-28 -translate-x-1/2 object-contain drop-shadow-2xl ${poke.isShiny ? 'drop-shadow-[0_0_20px_rgba(234,179,8,0.9)]' : ''}`}
+                       className={`absolute left-1/2 top-12 z-10 ${poke.isAlpha ? 'w-32 h-32' : 'w-28 h-28'} -translate-x-1/2 object-contain drop-shadow-2xl ${poke.isAlpha ? 'drop-shadow-[0_0_24px_rgba(239,68,68,0.9)]' : poke.isShiny ? 'drop-shadow-[0_0_20px_rgba(234,179,8,0.9)]' : ''}`}
                         onError={e => {
                           if (poke.isMega && poke.megaSprite && !e.target.dataset.triedBase) {
                             e.target.dataset.triedBase = '1';

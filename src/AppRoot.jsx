@@ -590,7 +590,7 @@ const processExpeditionPokemon = (pokemon, xpGained) => {
 
     const newLevel = n + 1;
     const pokeData = POKEDEX[Number(p.id)];
-    const shinyMult = p.isShiny ? 1.2 : 1.0;
+    const shinyMult = p.isAlpha ? (p.isShiny ? 1.5 : 1.3) : (p.isShiny ? 1.2 : 1.0);
     const calcStat = (b, lv) => Math.max(1, Math.ceil(((2 * b * lv) / 100 + 5) * shinyMult));
     const calcHp   = (b, lv) => Math.max(1, Math.ceil(((2 * b * lv) / 100 + lv + 10) * shinyMult));
     const base = pokeData || {};
@@ -1998,7 +1998,7 @@ export default function App() {
         }
 
         if (needsStats) {
-          const shinyMult = getShinyMult(p);
+          const shinyMult = p.isAlpha ? (p.isShiny ? 1.5 : 1.3) : getShinyMult(p);
           const calcStat = (b) => Math.max(1, Math.ceil(Math.ceil(((2 * b * p.level) / 100) + 5) * shinyMult));
           const calcHp   = (b) => Math.max(1, Math.ceil(Math.ceil(((2 * b * p.level) / 100) + p.level + 10) * shinyMult));
 
@@ -7526,7 +7526,7 @@ export default function App() {
             setEvolutionPending({ ...p, level: newLevel, choices: evos, teamIndex: i });
           }
 
-          const shinyMult = getShinyMult(p);
+          const shinyMult = p.isAlpha ? (p.isShiny ? 1.5 : 1.3) : getShinyMult(p);
           const calcStat = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + 5) * shinyMult));
           const calcHp   = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + lv + 10) * shinyMult));
 

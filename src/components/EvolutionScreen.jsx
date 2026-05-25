@@ -356,7 +356,7 @@ const EvolutionScreen = ({
                             const evolvedMetadata = getEvolutionMetadata(evoData);
                             const newTeam = prev.team.map((p, i) => {
                                if (i === pending.teamIndex) { // usa snapshot, não closure
-                                  const shinyMult = p.isShiny ? 1.2 : 1.0;
+                                  const shinyMult = p.isAlpha ? (p.isShiny ? 1.5 : 1.3) : (p.isShiny ? 1.2 : 1.0);
                                   const calcStat = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + 5) * shinyMult));
                                   const calcHp   = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + lv + 10) * shinyMult));
                                   let newMoves = dedupeMoves(p.moves || []);
