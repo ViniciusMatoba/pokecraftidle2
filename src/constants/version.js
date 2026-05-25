@@ -1,8 +1,8 @@
 export const APP_VERSION = '2.11.34';
 export const VERSION = '2.11.34';
-export const APP_VERSION_DATE = '25/05/2026 00:00';
+export const APP_VERSION_DATE = '25/05/2026 13:58';
 export const CHANGELOG = [
-  '## [V2.11.34] - 25/05/2026',
+  '## [V2.11.34] - 25/05/2026 13:58',
   '### Pokémon Alfa — Visuais Completos e Correção de Stats',
   '- **Aura vermelha em batalha**: Pokémon alfa do jogador exibem `AlphaAuraEffect` (anel pulsante + partículas de brasa) sobre o sprite em campo, z-index acima do efeito shiny.',
   '- **Sprite maior em batalha**: drop-shadow vermelho aplicado ao sprite quando alfa; prioridade sobre shiny dourado.',
