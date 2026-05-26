@@ -1,14 +1,12 @@
-# CLAUDE.md
+# CLAUDE.md — PokéCraft Idle 2
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Lido automaticamente pelo Claude Code no início de cada sessão. Mantido atualizado após cada feature.
 
 ---
 
 ## ⚠️ REGRA PRIMORDIAL — BUMP DE VERSÃO
 
-**TODA VEZ que o número de versão for alterado, os 5 arquivos abaixo DEVEM ser atualizados na mesma sessão, sem exceção. Nunca deixe um arquivo para trás.**
-
-### Checklist obrigatório de bump de versão
+**TODA VEZ que o número de versão for alterado, os 5 arquivos abaixo DEVEM ser atualizados na mesma sessão, sem exceção.**
 
 | # | Arquivo | O que alterar |
 |---|---------|---------------|
@@ -16,121 +14,187 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 2 | `package.json` | campo `"version"` |
 | 3 | `package-lock.json` | campo `"version"` nas **linhas 3 e 9** (raiz + entrada `""` dos packages) |
 | 4 | `public/version.json` | campos `"version"`, `"date"` e `"notes"` |
-| 5 | `public/sw.js` | `let CACHE_NAME = 'pokecraft-cache-vX.Y.Z'` |
+| 5 | `public/sw.js` | `let CACHE_NAME = 'pokecraft-cache-vX.Y.Z'` — atualizado automaticamente pelo prebuild |
 
-> O script `scripts/update-sw-version.cjs` atualiza o `sw.js` automaticamente durante `npm run build` (prebuild), mas **`package-lock.json` exige edição manual** — foi a fonte de dessincronização no passado.
+> **Versão atual: v2.11.34** — `package.json` ainda pode estar em 2.11.33 (atualizar manualmente).
 
 ### Data/hora: sempre Brasília (UTC-3)
 
-Antes de escrever qualquer timestamp, rodar este comando PowerShell para obter a hora real:
+Antes de escrever qualquer timestamp, rodar:
 
 ```powershell
 [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, 'E. South America Standard Time').ToString('dd/MM/yyyy HH:mm')
 ```
 
-Nunca usar hora estimada ou futura — apenas o valor retornado pelo comando acima.
-
-### Verificação pós-bump
-
-Após atualizar os 5 arquivos, rodar este grep de confirmação antes de commitar:
-
-```bash
-grep -rn "2\.\(VERSÃO_ANTERIOR\)\." src/constants/version.js package.json package-lock.json public/version.json public/sw.js
-```
-
-O resultado deve ser **zero linhas** nos campos de versão ativa (exceto entradas históricas do CHANGELOG).
+Nunca usar hora estimada ou futura — apenas o valor retornado pelo comando.
 
 ---
 
-## ⚠️ REGRA PRIMORDIAL — RELEASE (nunca use `deploy` direto)
+## ⚠️ REGRA PRIMORDIAL — RELEASE
 
-**SEMPRE use `npm run release` para publicar.** Nunca chame `npm run deploy` diretamente.
+**SEMPRE usar `npm run release` para publicar. Nunca `npm run deploy` diretamente.**
 
-O `deploy` publica apenas o build no GitHub Pages (`gh-pages`) mas **não commita nem faz push do código-fonte para `main`**. Isso causa dessincronização entre o código em produção e o repositório — o Codex acusa arquivos modificados não commitados.
-
-### Fluxo obrigatório de publicação
+O `deploy` sozinho não commita o código-fonte — causa dessincronização entre `main` e produção.
 
 ```bash
 npm run release
-# ou com descrição da feature:
-npm run release -- "Multi-Avatar e Regional Lock"
+# ou com descrição:
+npm run release -- "Nome da Feature"
 ```
 
-O script `scripts/release.cjs` executa automaticamente:
-1. **Stash** das alterações locais
-2. **Pull** do `origin/main` (incorpora hotfixes remotos)
-3. **Pop do stash** + resolução automática de conflitos de versão (mantém sempre a versão mais recente)
-4. **`git add -A`** + **commit** versionado (`release: vX.Y.Z`)
-5. **Push** para `origin/main`
-6. **Build** (`npm run build`, inclui prebuild com check-circulars)
-7. **Deploy** para GitHub Pages
-
-> **Nunca finalize uma sessão sem executar `npm run release`.** O repositório fonte (main) e o deploy devem sempre estar em sync.
+O script `scripts/release.cjs` executa: stash → pull → pop → commit → push → build → deploy.
 
 ---
 
 ## Comandos Essenciais
 
 ```bash
-npm run release      # ✅ USAR ESTE — commit + push main + build + deploy (fluxo completo)
-npm run dev          # Servidor local (Vite HMR)
-npm run build        # Build de produção (roda check-circulars antes)
-npm run deploy       # ⚠️ Apenas deploy — NÃO commita código-fonte (evitar usar diretamente)
-npm run check        # Detectar dependências circulares em /src
-npm run audit-content  # Auditoria de conteúdo dos dados
-npm run fix-encoding   # Corrigir encoding de arquivos
+npm run release        # ✅ USAR ESTE — fluxo completo
+npm run dev            # Servidor local (Vite HMR)
+npm run build          # Build de produção (inclui prebuild: sw-version + check-circulars + audit-content)
+npm run deploy         # ⚠️ Só deploy — NÃO commita código-fonte
+npm run check          # Detectar dependências circulares
+npm run audit-content  # Auditoria de dados (rotas, raids, pokédex)
 firebase deploy --only firestore:rules  # Publicar regras do Firestore
 ```
 
-**Não existe suite de testes automatizados.** Valide manualmente no browser após cada build.
+**Não há suite de testes automatizados.** Validar manualmente no browser após build.
 
-## Arquitetura Geral
+---
 
-### Stack
-- **React 18** (sem router — navegação por estado)
+## Stack
+
+- **React 18** (sem router — navegação por `currentView` em AppRoot)
 - **Vite 5** com code splitting manual em `vite.config.js`
 - **Firebase**: Auth (email/senha) + Firestore (save na nuvem)
-- **Tailwind CSS v4** (via PostCSS)
-- Deploy: **GitHub Pages** via `gh-pages`
+- **Tailwind CSS v4** via PostCSS
+- **Deploy**: GitHub Pages via `gh-pages`
 
-### Estrutura de Navegação
+---
 
-Todo o estado do jogo vive em `src/AppRoot.jsx` — um único componente gigante (3000+ linhas) que:
-- Mantém `gameState` (o save do jogador) via `useState`
-- Controla `currentView` para decidir qual tela renderizar
-- Persiste no Firestore via `setDoc('saves/{uid}', gameState)` com debounce
+## Arquitetura de Navegação
 
-Não há React Router. A navegação é feita por `setCurrentView('nome_da_tela')`.
+`src/AppRoot.jsx` (~12.000 linhas) é o componente raiz único que:
+- Mantém `gameState` (save do jogador) via `useState`
+- Controla `currentView` para renderizar a tela correta
+- Persiste no Firestore com debounce
+- **Não existe React Router** — navegação é `setCurrentView('nome_da_tela')`
 
-### Componentes — Carregamento
+### Carregamento de Componentes
 
-Alguns componentes são **importados estaticamente** (críticos para o primeiro render):
+**Estáticos** (críticos para o primeiro render):
 `AuthScreen`, `MenuScreen`, `BattleScreen`, `CityScreen`, `TravelScreen`, `PokemonManagement`, `VsScreen`, `RegionBuilderScreen`, `RaidScreen`
 
-Outros são **lazy** (carregados sob demanda via `React.lazy`):
-`CraftingStation`, `EvolutionScreen`, `SafariZoneScreen`, `MegaEvolutionScreen`, `PokedexScreen`, `TutorialModal`, `GymScreen`, `ChallengesScreen`, `HouseScreen`, `ExpeditionsScreen`, `PrestigeShop`, `FriendsScreen`, `RegionChallengeScreen`
+**Lazy** (sob demanda):
+`CraftingStation`, `EvolutionScreen`, `SafariZoneScreen`, `MegaEvolutionScreen`, `PokedexScreen`, `TutorialModal`, `GymScreen`, `ChallengesScreen`, `HouseScreen`, `ExpeditionsScreen`, `PrestigeShop`, `FriendsScreen`, `RegionChallengeScreen`, `BattleTowerScreen`, `TowerBattleScreen`
 
-### Chunks do Vite (vite.config.js)
-Chunking manual para otimizar cache:
-`vendor-react`, `vendor-firebase`, `vendor`, `pokedex`, `moves`, `routes`, `gyms`, `villains`, `screen-battle`, `screen-city`, `screen-pokemon`, `screen-menu`
+### Chunks do Vite
+`vendor-react`, `vendor-firebase`, `vendor`, `pokedex`, `moves`, `routes`, `gyms`, `villains`, `towerLogic`, `screen-battle`, `screen-city`, `screen-pokemon`, `screen-menu`
+
+---
 
 ## Estado do Jogo (gameState)
 
 Definido em `src/data/constants.js` como `DEFAULT_GAME_STATE`. Campos principais:
-- `team[]` — Pokémon ativos (máx. 6)
-- `pc[]` — Box do PC
-- `regional_teams{}` — Times separados por região (kanto/johto/.../paldea)
-- `activeRegion` — região atual do jogador
-- `badges[]` — IDs de insígnias conquistadas (strings como `'boulder_badge'`)
-- `worldFlags[]` — flags de progressão (ex: `'has_starter'`, `'champion'`, `'johto_started'`)
-- `inventory.materials{}` — essências e materiais da Forja
-- `myRegion{}` — configuração da região personalizada do jogador
-- `prestige{}` — troféus, títulos, frames, temas visuais
-- `retention{}` — streaks e missões diárias/semanais
-- `activeRaid` — raid ativa atual (null se nenhuma)
-- `battlesSinceLastRaid` — contador para trigger de raid (dispara a cada 200)
 
-**Migração de save**: `src/utils/saveMigration.js` normaliza saves antigos ao carregar. Sempre que adicionar novos campos ao `DEFAULT_GAME_STATE`, o `migrateGameState()` garante que saves antigos recebam os defaults.
+| Campo | Descrição |
+|-------|-----------|
+| `team[]` | Pokémon ativos (máx. 6) |
+| `pc[]` | Box do PC |
+| `regional_teams{}` | Times separados por região |
+| `activeRegion` | Região atual |
+| `badges[]` | IDs de insígnias (`'boulder_badge'`, etc.) |
+| `worldFlags[]` | Flags de progressão (`'has_starter'`, `'champion'`, etc.) |
+| `inventory.materials{}` | Essências e materiais da Forja |
+| `myRegion{}` | Liga personalizada do jogador |
+| `prestige{}` | Troféus, títulos, frames, temas |
+| `retention{}` | Streaks e missões diárias/semanais |
+| `activeRaid` | Raid ativa (null se nenhuma) |
+| `battlesSinceLastRaid` | Contador de batalhas (raid dispara a cada 200) |
+| `settings.manualBattle` | `false` = auto-farm; `true` = modo turno-a-turno |
+| `tower{}` | Estado da Battle Tower (activeRun, bp, highestFloor, upgrades) |
+
+**Migração de save**: `src/utils/saveMigration.js` — sempre que adicionar campos ao `DEFAULT_GAME_STATE`, garantir que `migrateGameState()` aplique os defaults para saves antigos.
+
+---
+
+## Sistema de Pokémon Alfa
+
+Pokémon especiais capturáveis apenas em Raids. Marcados com `isAlpha: true`.
+
+### Lógica de stat
+```js
+// Padrão usado em applyXp, sanitizeCollection, EvolutionScreen e loop de level-up:
+const statMult = p.isAlpha
+  ? (p.isShiny ? 1.5 : 1.3)
+  : (p.isShiny ? 1.2 : 1.0);
+```
+> ⚠️ Nunca usar apenas `p.isShiny ? 1.2 : 1.0` — ignora alfa e quebra os stats.
+
+### Visuais implementados
+| Local | Efeito |
+|-------|--------|
+| `BattleScreen` | `<AlphaAuraEffect>` + drop-shadow vermelho no sprite + badge `α` no HUD |
+| `PokemonManagement` — card do time | Fundo rose/red + glow + badge `α` canto superior direito |
+| `PokemonManagement` — card do PC | Drop-shadow vermelho + badge `α` canto inferior direito |
+| `PokemonManagement` — modal detalhe | Gradiente escarlate + badge "α Alfa" + sprite w-32 + `AlphaAuraEffect` |
+
+### Função de aplicação
+`applyAlphaUpgrade(pokemon, pokedexData, isAlsoShiny)` em `AppRoot.jsx` — aplica `isAlpha: true` e multiplica todos os stats pelo fator correto.
+
+---
+
+## Sistema de Efeitos Visuais
+
+Componentes em `src/components/effects/`:
+
+| Componente | Props | Uso |
+|-----------|-------|-----|
+| `ShinyEncounterEffect` | `active`, `compact`, `persistent` | Aura dourada — encontro/pokémon shiny |
+| `AlphaAuraEffect` | `compact`, `isAlsoShiny` | Aura vermelha — pokémon alfa |
+| `PokemonEntranceEffect` | `ballId` | Animação de saída da Pokébola |
+
+**Z-index padrão**: `ShinyEncounterEffect` usa `z-30` (compact) / `z-40`; `AlphaAuraEffect` usa `z-[31]` (compact) / `z-[41]` — fica acima do efeito shiny.
+
+---
+
+## Formas Regionais
+
+Sistema em `src/data/regionalForms.js` e `src/data/regionalEvolutions.js`.
+
+Campos relevantes em Pokémon com forma regional:
+- `formKey` — identificador único da forma (ex: `'ninetales-alola'`)
+- `formSpriteId` — ID para busca de sprite
+- `formRegion` — região de origem da forma
+- `isRegionalForm: true`
+- `capturedRegion` — região onde foi capturado
+
+`REGIONAL_FORM_METADATA` em `regionalForms.js` — metadados de tipos, regiões e sprites para cada forma. Consultado por `fixPokemonTypes()` **antes** do Pokédex base para preservar tipos corretos na migração de save.
+
+---
+
+## Battle Tower
+
+Modo de jogo separado do idle principal. Estado em `gameState.tower`.
+
+- `BattleTowerScreen.jsx` — lobby, draft, shop entre andares
+- `TowerBattleScreen.jsx` — combate manual turno-a-turno
+- `src/data/towerLogic.js` — funções: `startTowerRun`, `getTowerStarters`, `generateFloorShop`
+- Time da Torre vive exclusivamente em `tower.activeRun.team` — **não altera `gameState.team`**
+- Batalhas vão para a view `tower_battle`, não para o sistema de batalha normal
+
+---
+
+## Modo Manual de Batalha
+
+Ativado via `gameState.settings.manualBattle = true` (toggle no Painel Automático).
+
+- Auto-farm pausado: `useAutoFarm(pokemon, route, tick, battleReady && !isManualMode)`
+- 4 botões de golpe clicáveis em `BattleScreen`
+- `handleManualAttack(moveIdx)` em `AppRoot.jsx` — executa um turno completo
+- `isManualActing` — estado React que bloqueia cliques duplos durante resposta do inimigo
+
+---
 
 ## Sistema de Regiões
 
@@ -138,82 +202,145 @@ Definido em `src/data/constants.js` como `DEFAULT_GAME_STATE`. Campos principais
 
 Definidas em `src/data/regionStandards.js`:
 - `REGION_ORDER[]` — ordem de progressão
-- `REGION_CHAMPION_FLAGS{}` — flag de worldFlags para cada campeão (ex: `kanto → 'champion'`)
-- `REGION_START_FLAGS{}` — flag de worldFlags que indica início da região
-- `REGION_DEX_RANGES{}` — range de IDs da Pokédex por região
+- `REGION_CHAMPION_FLAGS{}` — ex: `kanto → 'champion'`
+- `REGION_DEX_RANGES{}` — range de IDs por região
 
-**Cap de nível por insígnia**: `GYM_LEVEL_CAPS` em `src/data/constants.js` — após 8 insígnias o cap é sempre 100. Pós-campeão: sem cap (flag de campeão verificada em `validateTeamAccess`).
+Cap de nível por insígnia: `GYM_LEVEL_CAPS` em `src/data/constants.js`. Pós-8 insígnias: cap 100. Pós-campeão: sem cap.
 
-**Insígnias de Alola** são chamadas de "stamps" (melemele_stamp, etc.) mas funcionam igual.
+**Insígnias de Alola** são chamadas "stamps" mas funcionam igual.
+
+---
+
+## Multi-Avatar
+
+Até 3 avatares por conta. Saves separados no Firestore:
+- Slot 1: `saves/{uid}` + `users/{uid}` (backward compat)
+- Slot 2: `saves/{uid}_s2` + `users/{uid}_s2`
+- Slot 3: `saves/{uid}_s3` + `users/{uid}_s3`
+
+`getSlotDocId(uid, slot)` em `src/auth.js` — retorna o ID correto do documento para cada slot.
+Nicks são únicos globais — reservados atomicamente via transação em `nicknames/{nick_lower}`.
+
+---
+
+## Raids
+
+Disparadas a cada `RAID_BATTLE_TRIGGER = 200` batalhas. Config em `src/data/raids.js`.
+
+**HP multipliers por estrela** (atualizados em v2.7.7):
+`1★: 2×` | `2★: 3×` | `3★: 6×` | `4★: 10×` | `5★: 15×`
+
+- Duração: 60 segundos
+- Pós-combate: janela de captura (5 tentativas)
+- Lendários/míticos: **bloqueados por padrão** — só entram no pool após derrota no Modo VS (verificado por `isLegendaryUnlockedForRaid(id, worldFlags)`)
+- Gate de estrelas: 0 insígnias→1★ | 1-2→2★ | 3-4→3★ | 5-6→4★ | 7+→5★
+
+---
 
 ## Firestore — Coleções
 
 | Coleção | Acesso | Conteúdo |
-|---|---|---|
-| `saves/{uid}` | Apenas o dono | Save completo do jogador |
-| `users/{uid}` | Leitura pública autenticada | Perfil público (nome, level, powerScore, etc.) |
+|---------|--------|----------|
+| `saves/{uid}` | Apenas o dono | Save completo |
+| `users/{uid}` | Leitura pública autenticada | Perfil público |
 | `userRegions/{uid}` | Leitura pública autenticada | Região personalizada publicada |
-| `bossRankings/{uid}` | Leitura pública autenticada | Ranking do Boss Global |
+| `bossRankings/{uid}` | Leitura pública autenticada | Ranking Boss Global |
 | `friends/{uid}/requests/{fromUid}` | Destinatário lê/deleta; remetente cria | Solicitações de amizade |
-| `friends/{uid}/list/{friendUid}` | Apenas o dono | Lista de amigos aceitos |
-| `config/{doc}` | Leitura pública, escrita bloqueada | Config do app (versão, etc.) |
+| `friends/{uid}/list/{friendUid}` | Apenas o dono | Lista de amigos |
+| `nicknames/{nick_lower}` | Qualquer auth lê; dono escreve | Reserva de nick único global |
+| `config/{doc}` | Leitura pública, escrita bloqueada | Config do app |
 
-As regras estão em `firestore.rules`. Após editar, publicar com `firebase deploy --only firestore:rules`.
+Regras em `firestore.rules`. Após editar: `firebase deploy --only firestore:rules`.
 
-## Serviços e Utils
+---
 
-- `src/auth.js` — login, registro, logout, exclusão de conta (com re-autenticação)
-- `src/services/friends.js` — busca de usuários, envio/aceite/remoção de amizades, onSnapshot de solicitações
-- `src/services/ranking.js` — leitura do ranking do Boss Global
-- `src/utils/progress.js` — `calculatePowerScore`, `getBadgeCount`, `getEarnedBadgeIds`, `hasProgressRequirement`
-- `src/utils/saveMigration.js` — migração de saves antigos para o DEFAULT_GAME_STATE atual
-- `src/utils/gameHelpers.js` — `getEffectiveStat`, `getShinyMult`, `getMasteryPath`
-- `src/utils/pokemonDifficulty.js` — `getCaptureRate`, `pickWeightedEncounter`
-- `src/utils/timeSystem.js` — `getTimeOfDay`, pool de inimigos ajustado por hora
-- `src/utils/economy.js` — recompensas de moedas por treinador
-- `src/utils/regionBattle.js` — lógica de batalha na RegionChallengeScreen
+## Assets e Imagens
 
-## Raids
+- **Backgrounds de batalha**: `/backgrounds/*.webp`
+- **Ícones de itens**: `/items/*.webp`
+- **Sprites Pokémon**: PokeAPI CDN — `https://raw.githubusercontent.com/PokeAPI/sprites/...`
+- **Sprites treinadores**: Showdown CDN — `https://play.pokemonshowdown.com/sprites/trainers/...`
 
-Disparadas a cada `RAID_BATTLE_TRIGGER = 200` batalhas. Configurações em `src/data/raids.js`:
-- 1★ a 5★ com HP multipliers: 2×, 4×, 9×, 18×, 40×
-- Duração: 60 segundos de combate
-- Depois do combate: janela de captura (5 tentativas)
-- Shiny chance aumentada durante raids
-- Recompensas: EXP Candies, moedas, Evolution Stones (raids 2★+)
+### Caminhos locais (Vite `base: './'`)
 
-## Sistema "Minha Região" (RegionBuilderScreen)
+`import.meta.env.BASE_URL = './'` em produção — caminhos absolutos (`/items/...`) quebram.
 
-O jogador pode criar sua própria liga com até 8 ginásios + Elite Four + Campeão. Slots comprados na Loja de Prestígio. Publicada em `userRegions/{uid}`. Amigos podem desafiar via `RegionChallengeScreen` (batalha simulada com fator ±20% aleatório).
+```js
+// Em AppRoot.jsx:
+fixPath('/items/mega_stone_shard.webp')
 
-## Imagens e Assets
+// Em componentes isolados (sem acesso a fixPath):
+const _base = (import.meta.env.BASE_URL || './').replace(/\/$/, '');
+const localAsset = (path) => `${_base}${path}`;
+```
 
-- Backgrounds de batalha: `/backgrounds/*.webp` (convertidos de PNG para WebP em v1.90.5 — -760MB)
-- Ícones de itens: `/items/*.webp`
-- Sprites de Pokémon: PokeAPI (CDN externo) `https://raw.githubusercontent.com/PokeAPI/sprites/...`
-- Sprites de treinadores: PokémonShowdown (CDN externo) `https://play.pokemonshowdown.com/sprites/trainers/...`
-- `fixPath()` em AppRoot.jsx adapta caminhos locais para o base URL do GitHub Pages
+### onError — regra obrigatória
 
-## Versionamento
+```js
+// SEMPRE setar onerror = null primeiro para evitar loop infinito:
+onError={e => {
+  e.currentTarget.onerror = null;
+  e.currentTarget.src = fallbackUrl;
+}}
+```
 
-> **Ver REGRA PRIMORDIAL no topo deste arquivo** — checklist completo dos 5 arquivos a atualizar e o comando PowerShell para hora de Brasília.
+PokeAPI só serve `.png` — nunca usar `.webp` em URLs do PokeAPI.
 
-## LGPD
+---
 
-- `src/components/PrivacyModal.jsx` — modal com Política de Privacidade e Termos de Uso
-- Checkbox de consentimento obrigatório no cadastro (`AuthScreen.jsx`)
-- Exclusão de conta: `deleteUserAccount(password)` em `src/auth.js` — apaga `saves`, `users`, `bossRankings` e deleta o Auth user (exige re-autenticação)
+## Serviços e Utils Principais
 
-## Tutorial de Boas-vindas
+| Arquivo | Conteúdo-chave |
+|---------|---------------|
+| `src/auth.js` | login, registro, logout, exclusão de conta, `getSlotDocId` |
+| `src/utils/saveMigration.js` | `migrateGameState()` — normaliza saves antigos |
+| `src/utils/gameHelpers.js` | `getEffectiveStat`, `getShinyMult`, `getMasteryPath` |
+| `src/utils/pokemonSprites.js` | `getPokemonSpriteUrl`, `getPokemonSpriteFallbackUrl` |
+| `src/utils/progress.js` | `calculatePowerScore`, `getBadgeCount`, `hasProgressRequirement` |
+| `src/utils/timeSystem.js` | `getTimeOfDay`, pool de inimigos por hora |
+| `src/data/raids.js` | `pickRaidPokemon`, `isLegendaryUnlockedForRaid`, `LEGENDARY_RAID_LOCKED_IDS` |
+| `src/data/regionalForms.js` | `REGIONAL_FORM_METADATA` |
+| `src/data/regionStandards.js` | `REGION_ORDER`, `REGION_CHAMPION_FLAGS`, `isPokemonLegal` |
 
-`src/components/TutorialModal.jsx` — 6 passos:
-1. Rotas, 2. Cidade, 3. Rivais & Equipe Vilã, 4. Ginásios & Liga, 5. Raids, 6. Boss Global
-
-Disparado em `AppRoot.jsx` via `useEffect` quando `has_starter` está em `worldFlags` e `gameTutorialShown` é `false`. Flag `gameTutorialShown` persiste no Firestore para não repetir.
+---
 
 ## Cuidados Importantes
 
-- **Importações em AppRoot.jsx**: usar hooks nomeados (`useEffect`, `useState`), não `React.useEffect`. O default `React` não é importado.
-- **`removeUndefinedFields()`** deve ser aplicado antes de qualquer `setDoc` no Firestore (Firestore rejeita `undefined`).
-- **Dependências circulares**: o prebuild (`check-circulars.cjs`) bloqueia o build se houver. Não criar imports circulares entre `/data`, `/utils` e `/components`.
-- **Dados grandes**: `pokedex.js`, `moves.js` e `routes.js` são os maiores arquivos de dados — fazem parte de chunks separados. Evitar importá-los em componentes pequenos sem necessidade.
+- **AppRoot imports**: usar hooks nomeados (`useEffect`, `useState`) — `React` default não é importado.
+- **`removeUndefinedFields()`** antes de qualquer `setDoc` — Firestore rejeita `undefined`.
+- **Dependências circulares**: o prebuild bloqueia o build se houver. Não criar imports circulares entre `/data`, `/utils` e `/components`.
+- **Tailwind**: não existe `w-15` — usar `w-[60px]` ou `w-14`/`w-16`.
+- **Arquivos grandes** (`pokedex.js`, `moves.js`, `routes.js`): são chunks separados — evitar importar em componentes pequenos.
+- **`getShinyMult(p)`** em `gameHelpers.js` só verifica `isShiny` — para pokémon alfa, sempre usar o padrão `p.isAlpha ? (p.isShiny ? 1.5 : 1.3) : (p.isShiny ? 1.2 : 1.0)` diretamente.
+
+---
+
+## Estado Atual do Projeto (atualizar após cada sessão)
+
+**Versão**: v2.11.34 — 25/05/2026 13:58
+
+**Últimas features implementadas**:
+- v2.11.34 — Pokémon Alfa: visuais completos (BattleScreen, PC, modal) + correção de stats em level-up/evolução/sanitize
+- v2.11.33 — Formas regionais tratadas como Pokémon distintos (tipos, aba PC, modal)
+- v2.11.29 — Compressão LZString no save local + fix de quota excedida
+- v2.11.16 — Multi-avatar (3 slots por conta, nick único global)
+- v2.11.6 — Battle Tower (combate manual por turno)
+- v2.8.5 — Modo Manual de Batalha (toggle auto/turno)
+
+**Pendências conhecidas**:
+- `package.json` e `package-lock.json` podem estar em 2.11.33 — verificar ao próxima sessão
+- 80 Pokémon base ainda não obtíveis por nenhuma rota (aviso do audit-content — não é blocker)
+
+---
+
+## Sistema "Minha Região"
+
+Jogador cria liga personalizada com até 8 ginásios + Elite Four + Campeão. Slots comprados na Loja de Prestígio. Publicada em `userRegions/{uid}`. Amigos desafiam via `RegionChallengeScreen` (fator ±20% aleatório).
+
+---
+
+## LGPD
+
+- `src/components/PrivacyModal.jsx` — Política de Privacidade e Termos de Uso
+- Checkbox obrigatório no cadastro (`AuthScreen.jsx`)
+- Exclusão de conta: `deleteUserAccount(password)` em `src/auth.js` — apaga saves de todos os slots, perfis, nicks e deleta o Auth user (exige re-autenticação)
