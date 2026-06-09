@@ -351,9 +351,14 @@ export function applyOfflineProgress(gameState, progress, MOVES, MOVE_TRANSLATIO
     newState.team = newState.team.map((pokemon, idx) => {
       const tp = progress.teamProgress[idx];
       if (!tp) return pokemon;
-      const updatedMoves = tp.levelsGained > 0
+      // Recalcula moves sempre: corrige Pokémon com menos de 4 moves e atualiza após level-up
+      const currentMoves = pokemon.moves || [];
+      const shouldRecalc = MOVES && MOVE_TRANSLATIONS && (
+        tp.levelsGained > 0 || currentMoves.length < 4
+      );
+      const updatedMoves = shouldRecalc
         ? recalcMoves(pokemon, tp.newLevel, MOVES, MOVE_TRANSLATIONS)
-        : pokemon.moves;
+        : currentMoves;
       return { ...pokemon, level: tp.newLevel, xp: tp.newXp, moves: updatedMoves };
     });
   }

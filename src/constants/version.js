@@ -1,7 +1,11 @@
-export const APP_VERSION = '2.11.41';
-export const VERSION = '2.11.41';
-export const APP_VERSION_DATE = '09/06/2026 07:07';
+export const APP_VERSION = '2.11.42';
+export const VERSION = '2.11.42';
+export const APP_VERSION_DATE = '09/06/2026 07:10';
 export const CHANGELOG = [
+  '## [V2.11.42] - 09/06/2026 07:10',
+  '### Moves Corrigidos — Pokémon com Menos de 4 Golpes',
+  '- **Correção ampliada**: ao voltar ao jogo, Pokémon com menos de 4 moves (seja por level-up offline ou corrupção anterior) têm o moveset recalculado automaticamente com base no learnset até o nível atual.',
+  '',
   '## [V2.11.41] - 09/06/2026 07:07',
   '### Card de Avatar — Nome e Stats Corrigidos',
   '- **Nome real do treinador**: card sempre exibe o nome do perfil público (`users/{id}.name`) em vez de "Minha Conta" — funciona para contas legadas e novas.',
