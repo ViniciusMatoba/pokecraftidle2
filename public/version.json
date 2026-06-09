@@ -1,5 +1,5 @@
 {
-  "version": "2.11.38",
-  "date": "09/06/2026 06:53",
-  "notes": "Tela de seleção de avatar com cards de perfil: sprite do treinador, nível, insígnias, Pokémon capturados e Power Score"
+  "version": "2.11.39",
+  "date": "09/06/2026 06:59",
+  "notes": "Farm offline com drops completos: essências, materiais físicos por tipo, fragmentos de evolução, pokébolas de chefes — mesma lógica do jogo online"
 }

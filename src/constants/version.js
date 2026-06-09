@@ -1,7 +1,17 @@
-export const APP_VERSION = '2.11.38';
-export const VERSION = '2.11.38';
-export const APP_VERSION_DATE = '09/06/2026 06:53';
+export const APP_VERSION = '2.11.39';
+export const VERSION = '2.11.39';
+export const APP_VERSION_DATE = '09/06/2026 06:59';
 export const CHANGELOG = [
+  '## [V2.11.39] - 09/06/2026 06:59',
+  '### Farm Offline — Drops Completos de Materiais e Itens',
+  '- **Essências por tipo** (60%/batalha): cada inimigo dropa a essência do seu tipo offline — mesma taxa do jogo online.',
+  '- **Material físico por tipo** (20%/batalha): Seda (Bug), Pena (Flying), Pó Rosa (Fairy), Apricorn (Normal/Grass), Chip Elétrico (Electric), Cristal de Gelo (Ice), Estilhaço de Brasa (Fire), Pedra Onda (Water), etc.',
+  '- **Fragmentos de evolução** (12%/batalha): Pokémon que dropam Pedra Fogo/Água/Trovão/Folha/Lua/Link Cable continuam dropando offline.',
+  '- **enemy.drop corrigido**: o drop específico do inimigo na rota agora é calculado probabilisticamente (era acumulação incorreta de dropChance).',
+  '- **Pokébolas de chefes selvagens**: Wild Bosses dropam pokébolas offline.',
+  '- **Modal atualizado**: aba Itens exibe pokébolas e outros itens separados dos materiais; chips do resumo unificados.',
+  '- **Labels novos no modal**: Seda, Pena, Pó Rosa, Apricorn, Chip Elétrico, Peça de Link Cable, Fragmento de Mega Pedra.',
+  '',
   '## [V2.11.38] - 09/06/2026 06:53',
   '### Tela de Seleção de Avatar — Cards com Perfil do Treinador',
   '- **Card rico por slot**: ao invés de "Slot 1 / Slot 2 / Slot 3", cada avatar exibe sprite do treinador, nome, nível, insígnias obtidas, Pokémon capturados e Power Score.',

@@ -10,6 +10,44 @@ const BATTLES_PER_MS = 1 / TICK_MS;
 // XP que um membro de bancada recebe (Exp Share simplificado)
 const BENCH_XP_RATE = 0.5;
 
+// Espelha TYPE_MATERIAL_MAP de AppRoot
+const TYPE_MATERIAL_MAP = {
+  Rock:     'iron_ore',
+  Steel:    'iron_ore',
+  Bug:      'silk',
+  Flying:   'feather',
+  Fairy:    'pink_dust',
+  Ghost:    'mystic_dust',
+  Psychic:  'mystic_dust',
+  Dragon:   'dragon_scale',
+  Normal:   'apricorn',
+  Grass:    'apricorn',
+  Ice:      'ice_crystal',
+  Ground:   'iron_ore',
+  Fighting: 'armor_fragment',
+  Dark:     'mystic_dust',
+  Poison:   'poison_barb',
+  Fire:     'ember_shard',
+  Electric: 'electric_chip',
+  Water:    'wave_stone',
+};
+
+// Espelha EVOLUTION_FRAGMENT_DROPS de AppRoot
+const EVOLUTION_FRAGMENT_DROPS = {
+  4: 'fire_stone_shard', 5: 'fire_stone_shard', 6: 'fire_stone_shard',
+  37: 'fire_stone_shard', 58: 'fire_stone_shard', 77: 'fire_stone_shard', 126: 'fire_stone_shard',
+  7: 'water_stone_shard', 8: 'water_stone_shard', 9: 'water_stone_shard',
+  60: 'water_stone_shard', 61: 'water_stone_shard', 90: 'water_stone_shard', 120: 'water_stone_shard',
+  1: 'leaf_stone_shard', 2: 'leaf_stone_shard', 3: 'leaf_stone_shard',
+  43: 'leaf_stone_shard', 44: 'leaf_stone_shard', 69: 'leaf_stone_shard', 70: 'leaf_stone_shard', 102: 'leaf_stone_shard',
+  25: 'thunder_stone_shard', 26: 'thunder_stone_shard', 81: 'thunder_stone_shard', 82: 'thunder_stone_shard',
+  100: 'thunder_stone_shard', 101: 'thunder_stone_shard', 125: 'thunder_stone_shard',
+  29: 'moon_stone_shard', 30: 'moon_stone_shard', 32: 'moon_stone_shard', 33: 'moon_stone_shard',
+  35: 'moon_stone_shard', 36: 'moon_stone_shard', 39: 'moon_stone_shard', 40: 'moon_stone_shard',
+  63: 'link_cable_part', 64: 'link_cable_part', 66: 'link_cable_part', 67: 'link_cable_part',
+  74: 'link_cable_part', 75: 'link_cable_part', 92: 'link_cable_part', 93: 'link_cable_part',
+};
+
 function calcBattleXP(enemy) {
   const baseXp = POKEDEX[Number(enemy.id)]?.baseXp || 50;
   return Math.floor((enemy.level * 1.5 * baseXp) / 7);
@@ -54,6 +92,43 @@ function simulateLevelGain(currentLevel, currentXp, xpGained, levelCap = 100) {
 }
 
 /**
+ * Calcula drops de materiais para um inimigo ao longo de N batalhas.
+ * Usa valores esperados (determinísticos) — mesma filosofia do cálculo de coins.
+ * Espelha processDrops() em AppRoot.jsx.
+ */
+function calcEnemyDrops(enemy, battles) {
+  const mats = {};
+  const items = {};
+
+  const add = (map, key, qty) => {
+    if (!key || qty <= 0) return;
+    map[key] = (map[key] || 0) + qty;
+  };
+
+  // 1. Essência por tipo (60% por batalha)
+  const essenceKey = `${(enemy.type || 'normal').toLowerCase()}_essence`;
+  add(mats, essenceKey, Math.floor(battles * 0.6));
+
+  // 2. Material físico por tipo (20% por batalha)
+  const physMat = TYPE_MATERIAL_MAP[enemy.type];
+  if (physMat) add(mats, physMat, Math.floor(battles * 0.20));
+
+  // 3. enemy.drop probabilístico — corrigido (era acumulação errada)
+  if (enemy.drop && enemy.dropChance > 0) {
+    add(mats, enemy.drop, Math.floor(battles * enemy.dropChance));
+  }
+
+  // 4. Fragmentos de evolução (12% por batalha se o Pokémon os dropa)
+  const evFrag = EVOLUTION_FRAGMENT_DROPS[Number(enemy.id)];
+  if (evFrag) add(mats, evFrag, Math.floor(battles * 0.12));
+
+  // 5. Pokébolas de chefes selvagens (100% drop, 1 por batalha)
+  if (enemy.isWildBoss) add(items, 'pokeballs', battles);
+
+  return { mats, items };
+}
+
+/**
  * Simula capturas offline para cada batalha, usando taxa de captura real.
  * Só tenta capturar se autoCapture + autoCaptureConfig.enabled estiver ativo.
  */
@@ -65,21 +140,17 @@ function simulateCaptures(gameState, route, battles) {
   const caughtData = gameState.caughtData || {};
   const captured = {};
 
-  // Multiplicador de bola (offline usa pokeball padrão = 1.0)
   const ballMult = 1.0;
 
   for (let i = 0; i < battles; i++) {
     const enemy = route.enemies[i % route.enemies.length];
     if (!enemy || enemy.isTrainer || enemy.isWildBoss) continue;
 
-    // Filtra por modo de captura
     const alreadyCaught = !!caughtData[String(enemy.id)];
-    // shinies não spawnam offline — trata shiny_only como not_caught para não perder capturas
     if (mode === 'shiny_only' && alreadyCaught) continue;
     if (mode === 'not_caught' && alreadyCaught) continue;
     if (mode === 'specific' && !cfg.targetIds?.includes(Number(enemy.id))) continue;
 
-    // Usa enemy com HP=0 para máxima taxa de captura (como no jogo real)
     const enemyAtZeroHp = { ...enemy, hp: 0, maxHp: enemy.maxHp || 50 };
     const rate = getCaptureRate(enemyAtZeroHp, ballMult, POKEDEX);
 
@@ -108,31 +179,25 @@ function simulateCaptures(gameState, route, battles) {
  * Prioridade: lastFarmingRoute > currentRoute (se farm) > melhor rota desbloqueada
  */
 function findBestFarmRoute(gameState, routes) {
-  // 1. Tenta lastFarmingRoute
   const last = gameState.lastFarmingRoute;
   if (last && routes[last]?.type === 'farm' && routes[last]?.enemies?.length > 0) {
     return last;
   }
 
-  // 2. Tenta currentRoute se for farm
   const cur = gameState.currentRoute;
   if (cur && routes[cur]?.type === 'farm' && routes[cur]?.enemies?.length > 0) {
     return cur;
   }
 
-  // 3. Fallback: encontra a rota de farm desbloqueada de maior nível
   const worldFlags = new Set(gameState.worldFlags || []);
   let bestRouteId = null;
   let bestLevel = -1;
 
   for (const [id, route] of Object.entries(routes)) {
     if (route.type !== 'farm' || !Array.isArray(route.enemies) || route.enemies.length === 0) continue;
-
-    // Verifica se a rota está desbloqueada (sem requirements, ou todos satisfeitos)
     const reqs = route.requirements || [];
     const isUnlocked = reqs.length === 0 || reqs.every(req => worldFlags.has(req));
     if (!isUnlocked) continue;
-
     const avgLevel = route.enemies.reduce((sum, e) => sum + (e.level || 1), 0) / route.enemies.length;
     if (avgLevel > bestLevel) {
       bestLevel = avgLevel;
@@ -142,7 +207,6 @@ function findBestFarmRoute(gameState, routes) {
 
   if (bestRouteId) return bestRouteId;
 
-  // 4. Último fallback: primeira rota de farm disponível
   for (const [id, route] of Object.entries(routes)) {
     if (route.type === 'farm' && Array.isArray(route.enemies) && route.enemies.length > 0) {
       return id;
@@ -156,13 +220,11 @@ function findBestFarmRoute(gameState, routes) {
  * Calcula o progresso acumulado offline.
  */
 export function calculateOfflineProgress(gameState, routes, elapsedMs) {
-  // Sem lastSeenAt não há como calcular
   if (!gameState?.playerStats?.lastSeenAt) {
     console.warn('[Offline] Sem lastSeenAt — modal não será exibido.');
     return null;
   }
 
-  // Tempo mínimo para exibir o modal (evita flicker em recargas rápidas)
   if (elapsedMs < MIN_OFFLINE_MS) {
     console.log(`[Offline] Tempo muito curto (${Math.round(elapsedMs / 1000)}s) — ignorando.`);
     return null;
@@ -172,7 +234,6 @@ export function calculateOfflineProgress(gameState, routes, elapsedMs) {
   const battles = Math.floor(cappedMs * BATTLES_PER_MS);
   if (battles <= 0) return null;
 
-  // Encontra a melhor rota de farm disponível
   const routeId = findBestFarmRoute(gameState, routes);
 
   if (!routeId) {
@@ -191,19 +252,34 @@ export function calculateOfflineProgress(gameState, routes, elapsedMs) {
   let totalXP = 0;
   let totalCoins = 0;
   const materials = {};
+  const items = {};
 
+  // Agrupa batalhas por inimigo (round-robin na lista de enemies)
+  const enemyCount = route.enemies.length;
+  const battlesPerEnemy = {};
   for (let i = 0; i < battles; i++) {
-    const enemy = route.enemies[i % route.enemies.length];
-    totalXP += calcBattleXP(enemy);
-    totalCoins += calcBattleCoins(enemy);
-    if (enemy.drop && enemy.dropChance) {
-      materials[enemy.drop] = (materials[enemy.drop] || 0) + enemy.dropChance;
-    }
+    const idx = i % enemyCount;
+    battlesPerEnemy[idx] = (battlesPerEnemy[idx] || 0) + 1;
   }
 
+  for (const [idxStr, count] of Object.entries(battlesPerEnemy)) {
+    const enemy = route.enemies[Number(idxStr)];
+    if (!enemy) continue;
+
+    totalXP += calcBattleXP(enemy) * count;
+    totalCoins += calcBattleCoins(enemy) * count;
+
+    const { mats, items: itms } = calcEnemyDrops(enemy, count);
+    for (const [k, v] of Object.entries(mats)) materials[k] = (materials[k] || 0) + v;
+    for (const [k, v] of Object.entries(itms)) items[k] = (items[k] || 0) + v;
+  }
+
+  // Remove entradas zero
   for (const key of Object.keys(materials)) {
-    materials[key] = Math.floor(materials[key]);
     if (materials[key] <= 0) delete materials[key];
+  }
+  for (const key of Object.keys(items)) {
+    if (items[key] <= 0) delete items[key];
   }
 
   // Calcula XP e level-ups por membro do time, respeitando o level cap da região
@@ -224,10 +300,9 @@ export function calculateOfflineProgress(gameState, routes, elapsedMs) {
     };
   });
 
-  // Simula capturas
   const captures = simulateCaptures(gameState, route, battles);
 
-  return { xp: totalXP, coins: totalCoins, materials, battles, cappedMs, routeId, teamProgress, captures };
+  return { xp: totalXP, coins: totalCoins, materials, items, battles, cappedMs, routeId, teamProgress, captures };
 }
 
 /**
@@ -255,6 +330,15 @@ export function applyOfflineProgress(gameState, progress) {
       mats[key] = (mats[key] || 0) + amount;
     }
     newState.inventory = { ...newState.inventory, materials: mats };
+  }
+
+  // Aplica itens (pokébolas, etc.)
+  if (progress.items && Object.keys(progress.items).length > 0) {
+    const itms = { ...(newState.inventory?.items || {}) };
+    for (const [key, amount] of Object.entries(progress.items)) {
+      itms[key] = (itms[key] || 0) + amount;
+    }
+    newState.inventory = { ...newState.inventory, items: itms };
   }
 
   // Registra capturas no caughtData

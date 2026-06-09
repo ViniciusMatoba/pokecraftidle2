@@ -45,6 +45,14 @@ const MATERIAL_INFO = {
   water_stone_shard:   { label: 'Estilhaço Pedra Água',     use: 'Fragmento de Pedra Água — combine para evoluções aquáticas.' },
   fury_essence:        { label: 'Essência Furiosa',         use: 'Ingrediente de itens de combate e boost de Ataque físico.' },
   dragon_scale:        { label: 'Escama de Dragão',         use: 'Ingrediente raro para forja de itens de Dragão épicos.' },
+  // Materiais do TYPE_MATERIAL_MAP
+  silk:                { label: 'Seda',                       use: 'Fibra coletada de Pokémon do tipo Inseto. Usada em receitas de tecido e equipamentos leves.' },
+  feather:             { label: 'Pena',                       use: 'Coletada de Pokémon Voadores. Ingrediente para itens de evasão e velocidade.' },
+  pink_dust:           { label: 'Pó Rosa',                    use: 'Essência de Pokémon Fada. Usada em receitas de encantamento e defesa especial.' },
+  apricorn:            { label: 'Apricorn',                   use: 'Fruto coletado de Pokémon Normal/Planta. Base para receitas de Pokébola e itens gerais.' },
+  electric_chip:       { label: 'Chip Elétrico',              use: 'Componente eletrônico de Pokémon Elétrico. Usado em forjas de boost de velocidade e paralisia.' },
+  link_cable_part:     { label: 'Peça de Link Cable',         use: 'Fragmento necessário para forjar o Link Cable completo, que permite certas evoluções por troca.' },
+  mega_stone_shard:    { label: 'Fragmento de Mega Pedra',    use: 'Estilhaço de Mega Pedra dropado em Kalos. Combinado para forjar Mega Pedras específicas.' },
 };
 
 const TYPE_COLORS = {
@@ -213,13 +221,14 @@ export default function OfflineProgressModal({ progress, onClose }) {
   }, [onClose]);
 
   const hasMaterials = Object.keys(progress.materials).length > 0;
+  const hasItems = progress.items && Object.keys(progress.items).length > 0;
   const hasCaptures = progress.captures?.length > 0;
   const hasTeam = progress.teamProgress?.length > 0;
   const timeStr = formatOfflineTime(progress.cappedMs);
 
   const tabs = [
     { id: 'team', label: 'Time', icon: '⚔️', show: hasTeam },
-    { id: 'items', label: 'Itens', icon: '📦', show: hasMaterials },
+    { id: 'items', label: 'Itens', icon: '📦', show: hasMaterials || hasItems },
     { id: 'captures', label: 'Capturas', icon: '🔴', show: true },
   ].filter(t => t.show);
 
@@ -260,10 +269,12 @@ export default function OfflineProgressModal({ progress, onClose }) {
               <p className="text-yellow-300 font-black text-sm">+{progress.xp.toLocaleString()}</p>
               <p className="text-indigo-400 text-[10px]">XP total</p>
             </div>
-            {hasMaterials && (
+            {(hasMaterials || hasItems) && (
               <div className="bg-white/10 rounded-xl px-3 py-1.5 text-center">
-                <p className="text-yellow-300 font-black text-sm">{Object.keys(progress.materials).length}</p>
-                <p className="text-indigo-400 text-[10px]">materiais</p>
+                <p className="text-yellow-300 font-black text-sm">
+                  {Object.keys(progress.materials).length + (hasItems ? Object.keys(progress.items).length : 0)}
+                </p>
+                <p className="text-indigo-400 text-[10px]">itens</p>
               </div>
             )}
             {hasCaptures && (
@@ -316,6 +327,27 @@ export default function OfflineProgressModal({ progress, onClose }) {
                 </div>
                 <span className="text-yellow-300 font-black">+{progress.coins.toLocaleString()}</span>
               </div>
+
+              {hasItems && (
+                <div className="bg-white/10 rounded-2xl px-3 py-3">
+                  <p className="text-indigo-300 text-xs font-bold uppercase tracking-widest mb-2 px-1">Itens</p>
+                  <div className="flex flex-col gap-1">
+                    {Object.entries(progress.items).map(([key, qty]) => {
+                      const label = key === 'pokeballs' ? 'Pokébola' : key.replace(/_/g, ' ');
+                      const icon = key === 'pokeballs' ? '🔴' : '📦';
+                      return (
+                        <div key={key} className="flex items-center justify-between bg-white/6 rounded-xl px-3 py-2">
+                          <div className="flex items-center gap-2">
+                            <span>{icon}</span>
+                            <span className="text-white text-xs font-medium">{label}</span>
+                          </div>
+                          <span className="text-indigo-200 font-bold text-xs">+{qty}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {hasMaterials && (
                 <div className="bg-white/10 rounded-2xl px-3 py-3">
