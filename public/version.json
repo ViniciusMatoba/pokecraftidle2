@@ -1,5 +1,5 @@
 {
-  "version": "2.11.42",
-  "date": "09/06/2026 07:10",
-  "notes": "Pokémon com menos de 4 moves têm moveset corrigido automaticamente ao voltar ao jogo"
+  "version": "2.11.43",
+  "date": "09/06/2026 07:22",
+  "notes": "Música pausa automaticamente ao minimizar o app e retoma ao voltar"
 }

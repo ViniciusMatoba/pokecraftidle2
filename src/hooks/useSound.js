@@ -187,10 +187,13 @@ export function useSound() {
 
   const isMuted = () => mutedRef.current;
 
-  // Retoma BGM quando o usuário volta para a aba (browser pausa áudio em abas escondidas)
+  // Pausa BGM ao minimizar/ocultar e retoma ao voltar
   useEffect(() => {
     const handleVisibility = () => {
-      if (document.visibilityState === 'visible' && bgmRef.current && bgmRef.current.paused && !mutedRef.current) {
+      if (!bgmRef.current) return;
+      if (document.visibilityState === 'hidden') {
+        bgmRef.current.pause();
+      } else if (!mutedRef.current && bgmRef.current.paused) {
         bgmRef.current.play().catch(() => {});
       }
     };

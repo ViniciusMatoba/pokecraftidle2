@@ -1,7 +1,11 @@
-export const APP_VERSION = '2.11.42';
-export const VERSION = '2.11.42';
-export const APP_VERSION_DATE = '09/06/2026 07:10';
+export const APP_VERSION = '2.11.43';
+export const VERSION = '2.11.43';
+export const APP_VERSION_DATE = '09/06/2026 07:22';
 export const CHANGELOG = [
+  '## [V2.11.43] - 09/06/2026 07:22',
+  '### Música Pausada ao Minimizar o App',
+  '- **Page Visibility API**: a música de fundo agora pausa automaticamente quando o jogo é minimizado ou a aba fica oculta, e retoma ao voltar — sem tocar em segundo plano.',
+  '',
   '## [V2.11.42] - 09/06/2026 07:10',
   '### Moves Corrigidos — Pokémon com Menos de 4 Golpes',
   '- **Correção ampliada**: ao voltar ao jogo, Pokémon com menos de 4 moves (seja por level-up offline ou corrupção anterior) têm o moveset recalculado automaticamente com base no learnset até o nível atual.',
