@@ -1021,7 +1021,7 @@ export default function App() {
               const runOfflineCalc = () => {
                 const progress = calculateOfflineProgress(migratedData, ROUTES, elapsedMs);
                 if (progress) {
-                  finalStateAfterLoad = applyOfflineProgress(migratedData, progress);
+                  finalStateAfterLoad = applyOfflineProgress(migratedData, progress, MOVES, MOVE_TRANSLATIONS);
                   setGameState(finalStateAfterLoad);
                   setOfflineProgress(progress);
                   trackEvent('offline_progress', {
@@ -2310,7 +2310,7 @@ export default function App() {
       batch.set(doc(db, "users", saveDocId), {
         name: dataToSave.trainer?.name || "Treinador",
         nameLower: (dataToSave.trainer?.name || "Treinador").toLowerCase().trim(),
-        avatar: dataToSave.trainer?.avatar || 1,
+        avatar: dataToSave.trainer?.avatarImg || dataToSave.trainer?.avatar || null,
         level: dataToSave.trainer?.level || 1,
         titleId: dataToSave.trainer?.titleId || null,
         badges: badgeCount,
@@ -2691,7 +2691,7 @@ export default function App() {
           const runOfflineCalc = () => {
             const progress = calculateOfflineProgress(migratedData, ROUTES, Date.now() - lastActiveAt);
             if (progress) {
-              const finalState = applyOfflineProgress(migratedData, progress);
+              const finalState = applyOfflineProgress(migratedData, progress, MOVES, MOVE_TRANSLATIONS);
               setGameState(finalState);
               setOfflineProgress(progress);
               saveToCloud(finalState).catch(() => {});

@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.39';
-export const VERSION = '2.11.39';
-export const APP_VERSION_DATE = '09/06/2026 06:59';
+export const APP_VERSION = '2.11.40';
+export const VERSION = '2.11.40';
+export const APP_VERSION_DATE = '09/06/2026 07:03';
 export const CHANGELOG = [
+  '## [V2.11.40] - 09/06/2026 07:03',
+  '### Card de Avatar + Moves Offline Corrigidos',
+  '- **Sprite do treinador no card**: o save agora persiste `avatarImg` (URL completa) no documento público `users/{id}`, corrigindo o card que exibia apenas "Slot 1" sem foto.',
+  '- **`getTrainerImg` corrigido**: a função agora busca `avatarImg` antes de `avatar`, garantindo exibição do sprite mesmo em contas existentes.',
+  '- **Moves após farm offline**: `applyOfflineProgress` agora recalcula o moveset completo do Pokémon com base no learnset até o novo nível — igual ao level-up online. Pokémon não ficam mais com apenas 3 golpes ao voltar.',
+  '',
   '## [V2.11.39] - 09/06/2026 06:59',
   '### Farm Offline — Drops Completos de Materiais e Itens',
   '- **Essências por tipo** (60%/batalha): cada inimigo dropa a essência do seu tipo offline — mesma taxa do jogo online.',

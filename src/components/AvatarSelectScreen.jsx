@@ -22,15 +22,17 @@ const SLOT_BORDER_ACTIVE = {
   3: 'border-green-500/70',
 };
 
-function getTrainerImg(avatar) {
-  if (!avatar) return null;
+function getTrainerImg(profile) {
+  // Preferência: avatarImg (URL completa salva pelo handleSelectAvatar)
+  const raw = profile?.avatarImg || profile?.avatar;
+  if (!raw) return null;
   // URL direta
-  if (typeof avatar === 'string' && avatar.startsWith('http')) return avatar;
+  if (typeof raw === 'string' && raw.startsWith('http')) return raw;
   // ID de trainerAvatars ('red', 'leaf', etc.)
-  const found = trainerAvatars.find(a => a.id === avatar);
+  const found = trainerAvatars.find(a => a.id === raw);
   if (found) return found.img;
   // Fallback: tenta como sprite do Showdown pelo nome
-  if (typeof avatar === 'string') return `https://play.pokemonshowdown.com/sprites/trainers/${avatar}.png`;
+  if (typeof raw === 'string') return `https://play.pokemonshowdown.com/sprites/trainers/${raw}.png`;
   return null;
 }
 
@@ -226,7 +228,7 @@ export default function AvatarSelectScreen({ uid, avatarMeta, onSelectSlot, onMe
           // ── Card do avatar existente ──
           const isLegacy = !!avatar.legacy;
           const profile = profiles[slot];
-          const trainerImg = profile ? getTrainerImg(profile.avatar) : null;
+          const trainerImg = profile ? getTrainerImg(profile) : null;
           const trainerName = profile?.name || avatar.nick || 'Treinador';
           const trainerLevel = profile?.level || null;
           const badgeCount = profile?.badges ?? null;

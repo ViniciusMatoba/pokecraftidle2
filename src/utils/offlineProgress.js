@@ -306,20 +306,55 @@ export function calculateOfflineProgress(gameState, routes, elapsedMs) {
 }
 
 /**
- * Aplica o progresso offline ao gameState.
+ * Recalcula o moveset de um Pokémon para um determinado nível,
+ * espelhando a lógica de level-up do AppRoot.
+ * MOVES e MOVE_TRANSLATIONS são passados pelo AppRoot para evitar
+ * importar os chunks pesados neste utilitário.
  */
-export function applyOfflineProgress(gameState, progress) {
+function recalcMoves(pokemon, newLevel, MOVES, MOVE_TRANSLATIONS) {
+  if (!MOVES || !MOVE_TRANSLATIONS) return pokemon.moves;
+  const base = POKEDEX[Number(pokemon.id)];
+  if (!base?.learnset) return pokemon.moves;
+
+  const learnset = base.learnset;
+  const available = learnset
+    .filter(m => m.level <= newLevel)
+    .map(m => {
+      const key = (m.move || '').toLowerCase();
+      const mData = MOVES[key];
+      if (!mData) return null;
+      return {
+        name: MOVE_TRANSLATIONS[key] || mData.name || m.move,
+        power: mData.power || 0,
+        type: mData.type || 'Normal',
+      };
+    })
+    .filter(Boolean);
+
+  if (available.length === 0) return [{ name: 'Investida', power: 40, type: 'Normal' }];
+  // Mantém até 4 golpes mais recentes (igual ao online)
+  return available.slice(-4);
+}
+
+/**
+ * Aplica o progresso offline ao gameState.
+ * MOVES e MOVE_TRANSLATIONS são opcionais — passados pelo AppRoot.
+ */
+export function applyOfflineProgress(gameState, progress, MOVES, MOVE_TRANSLATIONS) {
   if (!progress) return gameState;
 
   let newState = { ...gameState };
   newState.currency = (newState.currency || 0) + progress.coins;
 
-  // Aplica XP e level-ups a cada membro
+  // Aplica XP, level-ups e moves a cada membro
   if (progress.teamProgress?.length > 0) {
     newState.team = newState.team.map((pokemon, idx) => {
       const tp = progress.teamProgress[idx];
       if (!tp) return pokemon;
-      return { ...pokemon, level: tp.newLevel, xp: tp.newXp };
+      const updatedMoves = tp.levelsGained > 0
+        ? recalcMoves(pokemon, tp.newLevel, MOVES, MOVE_TRANSLATIONS)
+        : pokemon.moves;
+      return { ...pokemon, level: tp.newLevel, xp: tp.newXp, moves: updatedMoves };
     });
   }
 
