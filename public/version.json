@@ -1,5 +1,5 @@
 {
-  "version": "2.11.40",
-  "date": "09/06/2026 07:03",
-  "notes": "Card de avatar exibe sprite do treinador corretamente; moves recalculados após farm offline"
+  "version": "2.11.41",
+  "date": "09/06/2026 07:07",
+  "notes": "Card de avatar: nome real do treinador, stats visíveis para todos os slots, botão Jogar com nome correto"
 }

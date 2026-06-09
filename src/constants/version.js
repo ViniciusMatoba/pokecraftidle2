@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.40';
-export const VERSION = '2.11.40';
-export const APP_VERSION_DATE = '09/06/2026 07:03';
+export const APP_VERSION = '2.11.41';
+export const VERSION = '2.11.41';
+export const APP_VERSION_DATE = '09/06/2026 07:07';
 export const CHANGELOG = [
+  '## [V2.11.41] - 09/06/2026 07:07',
+  '### Card de Avatar — Nome e Stats Corrigidos',
+  '- **Nome real do treinador**: card sempre exibe o nome do perfil público (`users/{id}.name`) em vez de "Minha Conta" — funciona para contas legadas e novas.',
+  '- **Stats visíveis para todos os slots**: insígnias, Pokémon capturados e Power Score aparecem independente do tipo de conta.',
+  '- **Botão "Jogar como [nome]"**: usa o nome real do treinador em todos os casos.',
+  '',
   '## [V2.11.40] - 09/06/2026 07:03',
   '### Card de Avatar + Moves Offline Corrigidos',
   '- **Sprite do treinador no card**: o save agora persiste `avatarImg` (URL completa) no documento público `users/{id}`, corrigindo o card que exibia apenas "Slot 1" sem foto.',

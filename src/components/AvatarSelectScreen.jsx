@@ -229,6 +229,7 @@ export default function AvatarSelectScreen({ uid, avatarMeta, onSelectSlot, onMe
           const isLegacy = !!avatar.legacy;
           const profile = profiles[slot];
           const trainerImg = profile ? getTrainerImg(profile) : null;
+          // Nome: prefere o perfil público, depois o nick do avatarMeta, depois fallback
           const trainerName = profile?.name || avatar.nick || 'Treinador';
           const trainerLevel = profile?.level || null;
           const badgeCount = profile?.badges ?? null;
@@ -236,6 +237,7 @@ export default function AvatarSelectScreen({ uid, avatarMeta, onSelectSlot, onMe
           const caughtCount = profile?.caughtCount ?? null;
           const championLabel = profile?.worldFlags ? getRegionLabel(profile.worldFlags) : null;
           const loading = profilesLoading && !profile;
+          const hasStats = !loading && (badgeCount !== null || caughtCount !== null || (powerScore !== null && powerScore > 0));
 
           return (
             <div key={slot} className={`w-full rounded-2xl border-2 bg-gradient-to-b ${colorClass} ${SLOT_BORDER_ACTIVE[slot]} p-0 overflow-hidden flex flex-col`}>
@@ -260,10 +262,8 @@ export default function AvatarSelectScreen({ uid, avatarMeta, onSelectSlot, onMe
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <p className="font-black text-white text-base truncate">
-                      {isLegacy ? 'Minha Conta' : trainerName}
-                    </p>
-                    {!isLegacy && trainerLevel && (
+                    <p className="font-black text-white text-base truncate">{trainerName}</p>
+                    {trainerLevel && (
                       <span className="text-xs text-gray-400 font-semibold flex-shrink-0">Lv.{trainerLevel}</span>
                     )}
                   </div>
@@ -271,13 +271,11 @@ export default function AvatarSelectScreen({ uid, avatarMeta, onSelectSlot, onMe
                   {championLabel ? (
                     <p className="text-yellow-400 text-xs font-bold truncate">{championLabel}</p>
                   ) : (
-                    <p className="text-gray-400 text-xs">
-                      {isLegacy ? 'Slot 1 · conta existente' : `Slot ${slot}`}
-                    </p>
+                    <p className="text-gray-400 text-xs">Slot {slot}{isLegacy ? ' · conta existente' : ''}</p>
                   )}
 
-                  {/* Stats linha */}
-                  {!loading && !isLegacy && (
+                  {/* Stats linha — sempre visível quando disponível */}
+                  {hasStats && (
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                       {badgeCount !== null && (
                         <span className="text-xs text-gray-300">
@@ -315,7 +313,7 @@ export default function AvatarSelectScreen({ uid, avatarMeta, onSelectSlot, onMe
                 onClick={() => onSelectSlot(slot, avatarMeta)}
                 className={`w-full py-2.5 font-black text-sm text-white transition-all ${accentClass} hover:brightness-110 active:scale-[0.98]`}
               >
-                {isLegacy ? 'Jogar' : `Jogar como ${avatar.nick}`}
+                {`Jogar como ${trainerName}`}
               </button>
             </div>
           );
