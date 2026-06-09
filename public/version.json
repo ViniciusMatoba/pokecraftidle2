@@ -1,5 +1,5 @@
 {
-  "version": "2.11.34",
-  "date": "25/05/2026 13:58",
-  "notes": "Pokémon Alfa: visuais completos (aura vermelha, badge α, sprite maior em batalha/PC/modal) e correção de stats em level-up, evolução e sanitize"
+  "version": "2.11.35",
+  "date": "09/06/2026 06:41",
+  "notes": "Seleção de avatar sempre exibida ao logar, mesmo com 1 slot — evita sobrescrever save acidentalmente"
 }

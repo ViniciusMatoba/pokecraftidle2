@@ -945,13 +945,13 @@ export default function App() {
           const meta = await loadAvatarMeta(u.uid);
           setAvatarMeta(meta);
 
-          if (meta && meta.avatars && meta.avatars.length > 1) {
-            // Múltiplos avatares: suspende o load e exibe a tela de seleção
+          if (meta && meta.avatars && meta.avatars.length >= 1) {
+            // Sempre exibe seleção de avatar ao logar, mesmo com apenas 1 slot
             setShowAvatarSelect(true);
             setLoading(false);
             return;
           }
-          // 1 avatar (ou sem meta): segue com slot 1
+          // Sem meta (conta nova): segue direto para criar o primeiro avatar
         } catch (metaErr) {
           console.warn('[Avatar] Erro ao carregar meta, prosseguindo com slot 1:', metaErr);
         }
