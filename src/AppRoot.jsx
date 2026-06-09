@@ -3262,7 +3262,11 @@ export default function App() {
           return true;
         });
         if (undiscovered.length > 0) {
-          const recipeDrop = undiscovered[Math.floor(Math.random() * undiscovered.length)];
+          // Prioriza receitas essenciais (não-TM) antes de sortear TMs — evita que Pokébola
+          // fique enterrada em pool de 100+ TMs nas rotas iniciais.
+          const essentialPool = undiscovered.filter(r => !r.startsWith('recipe_tm_'));
+          const pool = essentialPool.length > 0 ? essentialPool : undiscovered;
+          const recipeDrop = pool[Math.floor(Math.random() * pool.length)];
           drops.materials[recipeDrop] = (drops.materials[recipeDrop] || 0) + 1;
           const cleanName = recipeDrop.replace('recipe_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
           messages.push(`📜 Receita: ${cleanName}`);

@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.11.43';
-export const VERSION = '2.11.43';
-export const APP_VERSION_DATE = '09/06/2026 07:22';
+export const APP_VERSION = '2.11.44';
+export const VERSION = '2.11.44';
+export const APP_VERSION_DATE = '09/06/2026 07:52';
 export const CHANGELOG = [
+  '## [V2.11.44] - 09/06/2026 07:52',
+  '### Drop de Receita da Pokébola Corrigido',
+  '- **Prioridade nas rotas iniciais**: receitas essenciais (Pokébola, varas, hold items) agora têm prioridade sobre TMs no sorteio de drop — antes eram sorteadas junto com 100+ TMs, tornando o drop da Pokébola praticamente impossível em Pidgey/Rattata.',
+  '- Assim que todas as receitas essenciais forem descobertas, TMs voltam a cair normalmente.',
+  '',
   '## [V2.11.43] - 09/06/2026 07:22',
   '### Música Pausada ao Minimizar o App',
   '- **Page Visibility API**: a música de fundo agora pausa automaticamente quando o jogo é minimizado ou a aba fica oculta, e retoma ao voltar — sem tocar em segundo plano.',
