@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.44';
-export const VERSION = '2.11.44';
-export const APP_VERSION_DATE = '09/06/2026 07:52';
+export const APP_VERSION = '2.11.45';
+export const VERSION = '2.11.45';
+export const APP_VERSION_DATE = '09/06/2026 08:23';
 export const CHANGELOG = [
+  '## [V2.11.45] - 09/06/2026 08:23',
+  '### Receitas de TM: Drop por Tipo Corrigido',
+  '- **Sistema por tipo**: TMs agora dropam exclusivamente de Pokémon do mesmo tipo do golpe — tm_surf de Pokémon Água, tm_earthquake de Pokémon Terra, tm_shadow_ball de Pokémon Fantasma, etc.',
+  '- **Normal/Status**: TMs de tipo Normal (Protect, Substitute, Body Slam…) mantêm gate por geração para distribuir entre as eras.',
+  '- **Correção de overrides**: 40+ overrides manuais com materiais errados foram removidos — o sistema agora usa TYPE_TO_ESSENCE automaticamente para todos os TMs.',
+  '',
   '## [V2.11.44] - 09/06/2026 07:52',
   '### Drop de Receita da Pokébola Corrigido',
   '- **Prioridade nas rotas iniciais**: receitas essenciais (Pokébola, varas, hold items) agora têm prioridade sobre TMs no sorteio de drop — antes eram sorteadas junto com 100+ TMs, tornando o drop da Pokébola praticamente impossível em Pidgey/Rattata.',

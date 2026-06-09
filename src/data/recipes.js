@@ -1215,19 +1215,29 @@ const LATE_TM_IDS = new Set([
   'petal-blizzard','phantom-force','play-rough','power-up-punch',
 ]);
 
-// Tudo não listado acima = Gen 7-9 → endgame_tm_pool
-const _buildTmEraOverrides = () => {
+// TMs dropam apenas de Pokémon do mesmo tipo do golpe (usando o mesmo TYPE_TO_ESSENCE do custo de forja).
+// Exemplo: tm_flamethrower (Fire) → fire_essence → dropa de Charmander, Growlithe, etc.
+// TMs de tipo Normal (status, moves neutros) mantêm pool por era para evitar que Pidgey/Rattata
+// concentrem centenas de TMs de status indiferenciados.
+const _buildTmTypeOverrides = () => {
   const overrides = {};
   OFFICIAL_TM_MOVE_IDS.forEach(moveId => {
     const tmId = 'tm_' + moveId.replace(/-/g, '_');
-    if (EARLY_TM_IDS.has(moveId))     overrides[tmId] = 'early_tm_pool';
-    else if (MID_TM_IDS.has(moveId))  overrides[tmId] = 'mid_tm_pool';
-    else if (LATE_TM_IDS.has(moveId)) overrides[tmId] = 'late_tm_pool';
-    else                               overrides[tmId] = 'endgame_tm_pool';
+    const move = MOVES[moveId];
+    const moveType = move?.type || 'Normal';
+    if (moveType === 'Normal') {
+      // Normal TMs: era-gate para distribuir entre as gerações
+      if (EARLY_TM_IDS.has(moveId))     overrides[tmId] = 'early_tm_pool';
+      else if (MID_TM_IDS.has(moveId))  overrides[tmId] = 'mid_tm_pool';
+      else if (LATE_TM_IDS.has(moveId)) overrides[tmId] = 'late_tm_pool';
+      else                               overrides[tmId] = 'endgame_tm_pool';
+    } else {
+      overrides[tmId] = TYPE_TO_ESSENCE[moveType] || 'normal_essence';
+    }
   });
   return overrides;
 };
-const TM_ERA_OVERRIDES = _buildTmEraOverrides();
+const TM_ERA_OVERRIDES = _buildTmTypeOverrides();
 
 // ── Mapa de onde cada receita é dropada (Pokémon fonte → material fonte) ──────
 // Receitas de itens iniciais devem dropar de Pokémon das rotas iniciais!
@@ -1330,51 +1340,6 @@ const RECIPE_SOURCE_OVERRIDES = {
   galladite: 'mega_stone_shard',
   audinite: 'mega_stone_shard',
   diancite: 'mega_stone_shard',
-
-  // TMs — mapeadas ao tipo de essência correspondente
-  tm_flamethrower: 'fire_essence',    // Charmander, Vulpix, Growlithe (rotas iniciais Kanto)
-  tm_thunderbolt:  'electric_essence',// Pikachu, Magnemite (Power Plant / rotas elétricas)
-  tm_ice_beam:     'ice_essence',     // Jynx, Lapras (Ice Path / rotas geladas)
-
-  // Novos TMs mapeados aos materiais específicos
-  tm_thunder_wave: 'thunder_fang',
-  tm_toxic:        'poison_barb',
-  tm_dig:          'hard_shell',
-  tm_aerial_ace:   'feather',
-  tm_shadow_ball:  'spirit_dust',
-  tm_brick_break:  'aura_fragment',
-  tm_rock_tomb:    'hard_shell',
-  tm_thief:        'sharp_claw',
-  tm_earthquake:   'hard_shell',
-  tm_surf:         'wave_stone',
-  tm_rock_slide:   'hard_shell',
-  tm_bulk_up:      'aura_fragment',
-  tm_calm_mind:    'spirit_dust',
-  tm_swords_dance: 'sharp_claw',
-  tm_fire_punch:   'ember_shard',
-  tm_thunder_punch:'thunder_fang',
-  tm_ice_punch:    'ice_crystal',
-  tm_drain_punch:  'aura_fragment',
-  tm_aura_sphere:  'aura_fragment',
-  tm_stone_edge:   'hard_shell',
-  tm_flash_cannon: 'hard_shell',
-  tm_dark_pulse:   'spirit_dust',
-  tm_energy_ball:  'leaf_debris',
-  tm_close_combat: 'aura_fragment',
-  tm_stealth_rock: 'hard_shell',
-  tm_dragon_claw:  'dragon_fang',
-  tm_wild_charge:  'thunder_fang',
-  tm_giga_drain:   'leaf_debris',
-  tm_moonblast:    'spirit_dust',
-  tm_dazzling_gleam:'scale_dust',
-  tm_dragon_dance: 'dragon_fang',
-  tm_nasty_plot:   'spirit_dust',
-  tm_hyper_voice:  'scale_dust',
-  tm_leaf_storm:   'leaf_debris',
-  tm_hurricane:    'feather',
-  tm_focus_blast:  'aura_fragment',
-  tm_flare_blitz:  'ember_shard',
-  tm_earthquake_ex:'stardust',
 
   // Mega Stones — dropam de Mega Shards em Kalos
   mega_stone_shard: 'mega_stone_shard',

@@ -1,5 +1,5 @@
 {
-  "version": "2.11.44",
-  "date": "09/06/2026 07:52",
-  "notes": "Receita da Pokébola priorizada no drop de Pidgey e Rattata — não compete mais com 100+ TMs"
+  "version": "2.11.45",
+  "date": "09/06/2026 08:23",
+  "notes": "TMs dropam apenas de Pokémon do mesmo tipo do golpe (Água, Fogo, Elétrico, etc.)"
 }
