@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.11.37';
-export const VERSION = '2.11.37';
-export const APP_VERSION_DATE = '09/06/2026 06:50';
+export const APP_VERSION = '2.11.38';
+export const VERSION = '2.11.38';
+export const APP_VERSION_DATE = '09/06/2026 06:53';
 export const CHANGELOG = [
+  '## [V2.11.38] - 09/06/2026 06:53',
+  '### Tela de Seleção de Avatar — Cards com Perfil do Treinador',
+  '- **Card rico por slot**: ao invés de "Slot 1 / Slot 2 / Slot 3", cada avatar exibe sprite do treinador, nome, nível, insígnias obtidas, Pokémon capturados e Power Score.',
+  '- **Título de campeão**: se o treinador completou alguma liga, exibe "Campeão de [Região]" no card.',
+  '- **Carregamento assíncrono**: perfis buscados do Firestore (coleção users) ao abrir a tela; enquanto carrega exibe placeholder animado.',
+  '- **Slot vazio redesenhado**: ícone neutro com botão de criação.',
+  '',
   '## [V2.11.37] - 09/06/2026 06:50',
   '### Farm Offline — Level Cap Respeitado',
   '- **Level cap no offline**: o cálculo de XP offline agora respeita o cap de nível da região ativa (baseado nas insígnias obtidas), igual ao comportamento online. Pokémon não ultrapassam mais o limite de nível ao voltar ao jogo.',

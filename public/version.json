@@ -1,5 +1,5 @@
 {
-  "version": "2.11.37",
-  "date": "09/06/2026 06:50",
-  "notes": "Farm offline agora respeita o level cap da região — Pokémon não ultrapassam mais o limite de nível ao voltar ao jogo"
+  "version": "2.11.38",
+  "date": "09/06/2026 06:53",
+  "notes": "Tela de seleção de avatar com cards de perfil: sprite do treinador, nível, insígnias, Pokémon capturados e Power Score"
 }
