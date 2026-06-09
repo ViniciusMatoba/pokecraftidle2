@@ -183,6 +183,7 @@ export default function AvatarSelectScreen({ uid, avatarMeta, onSelectSlot, onMe
           }
 
           // Slot existente
+          const isLegacy = !!avatar.legacy;
           const createdDate = avatar.createdAt
             ? new Date(avatar.createdAt).toLocaleDateString('pt-BR')
             : '';
@@ -192,22 +193,29 @@ export default function AvatarSelectScreen({ uid, avatarMeta, onSelectSlot, onMe
               <div className="flex items-center gap-3">
                 <span className="text-3xl">{STARTERS[slot]}</span>
                 <div className="flex-1">
-                  <p className="font-black text-white text-base">{avatar.nick}</p>
-                  <p className="text-gray-400 text-xs">Slot {slot}{createdDate ? ` · criado em ${createdDate}` : ''}</p>
+                  {isLegacy
+                    ? <p className="font-black text-white text-base">Minha Conta</p>
+                    : <p className="font-black text-white text-base">{avatar.nick}</p>
+                  }
+                  <p className="text-gray-400 text-xs">
+                    {isLegacy ? 'Slot 1 · conta existente' : `Slot ${slot}${createdDate ? ` · criado em ${createdDate}` : ''}`}
+                  </p>
                 </div>
-                <button
-                  onClick={() => { setDeleting(slot); setCreating(null); setActionError(''); }}
-                  className="text-gray-500 hover:text-red-400 transition-colors text-sm p-1"
-                  title="Deletar avatar"
-                >
-                  🗑
-                </button>
+                {!isLegacy && (
+                  <button
+                    onClick={() => { setDeleting(slot); setCreating(null); setActionError(''); }}
+                    className="text-gray-500 hover:text-red-400 transition-colors text-sm p-1"
+                    title="Deletar avatar"
+                  >
+                    🗑
+                  </button>
+                )}
               </div>
               <button
                 onClick={() => onSelectSlot(slot, avatarMeta)}
                 className={`w-full py-2.5 rounded-xl font-black text-sm text-white transition-all ${SLOT_ACCENT[slot]} hover:brightness-110 active:scale-95`}
               >
-                Jogar como {avatar.nick}
+                {isLegacy ? 'Jogar' : `Jogar como ${avatar.nick}`}
               </button>
             </div>
           );

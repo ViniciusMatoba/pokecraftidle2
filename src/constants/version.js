@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.11.35';
-export const VERSION = '2.11.35';
-export const APP_VERSION_DATE = '09/06/2026 06:41';
+export const APP_VERSION = '2.11.36';
+export const VERSION = '2.11.36';
+export const APP_VERSION_DATE = '09/06/2026 06:46';
 export const CHANGELOG = [
+  '## [V2.11.36] - 09/06/2026 06:46',
+  '### Seleção de Avatar — Fix para Contas Antigas',
+  '- **Contas sem avatarMeta**: contas criadas antes do sistema multi-avatar não tinham documento avatarMeta no Firestore, fazendo a tela de seleção ser ignorada. Agora essas contas recebem um slot 1 legado sintetizado e a tela é sempre exibida.',
+  '- **UI de conta legada**: slot 1 de conta antiga exibe "Minha Conta · conta existente" e botão "Jogar", sem opção de deletar.',
+  '',
   '## [V2.11.35] - 09/06/2026 06:41',
   '### Seleção de Avatar — Sempre Exibida ao Logar',
   '- **Tela de avatar obrigatória**: ao fazer login, a tela de seleção de avatar é sempre exibida, mesmo que exista apenas 1 slot criado — evita que outra pessoa jogue acidentalmente sobre o save existente.',

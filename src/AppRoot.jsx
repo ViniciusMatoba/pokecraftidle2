@@ -945,13 +945,15 @@ export default function App() {
           const meta = await loadAvatarMeta(u.uid);
           setAvatarMeta(meta);
 
-          if (meta && meta.avatars && meta.avatars.length >= 1) {
-            // Sempre exibe seleção de avatar ao logar, mesmo com apenas 1 slot
-            setShowAvatarSelect(true);
-            setLoading(false);
-            return;
+          // Sempre exibe a tela de seleção ao logar.
+          // Se meta é null (conta antiga sem avatarMeta), sintetiza um slot 1 legado
+          // para que o usuário veja "Jogar" em vez de 3 slots vazios.
+          if (!meta) {
+            setAvatarMeta({ avatars: [{ slot: 1, nick: 'Continuar', legacy: true }] });
           }
-          // Sem meta (conta nova): segue direto para criar o primeiro avatar
+          setShowAvatarSelect(true);
+          setLoading(false);
+          return;
         } catch (metaErr) {
           console.warn('[Avatar] Erro ao carregar meta, prosseguindo com slot 1:', metaErr);
         }
