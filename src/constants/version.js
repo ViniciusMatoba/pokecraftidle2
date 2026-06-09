@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.11.45';
-export const VERSION = '2.11.45';
-export const APP_VERSION_DATE = '09/06/2026 08:23';
+export const APP_VERSION = '2.11.46';
+export const VERSION = '2.11.46';
+export const APP_VERSION_DATE = '09/06/2026 08:31';
 export const CHANGELOG = [
+  '## [V2.11.46] - 09/06/2026 08:31',
+  '### Fila Unificada de Modais de Drop',
+  '- **Sem drops perdidos**: receitas e itens raros agora entram em fila — se uma batalha gerar receita + item raro, ambos aparecem sequencialmente.',
+  '- **Sem repetição**: o mesmo drop não abre modal duas vezes (deduplicação por ID via `useRef`).',
+  '- **Race condition corrigida**: auto-farm rápido não sobrescreve mais um modal pelo próximo.',
+  '- **Indicador de fila**: o modal de receita mostra "+N drops aguardando" e o botão "Próximo (N)" quando há mais itens na fila.',
+  '- **Botão "Continuar na rota"**: adicionado ao modal de receita (antes só tinha "Ir Forjar").',
+  '',
   '## [V2.11.45] - 09/06/2026 08:23',
   '### Receitas de TM: Drop por Tipo Corrigido',
   '- **Sistema por tipo**: TMs agora dropam exclusivamente de Pokémon do mesmo tipo do golpe — tm_surf de Pokémon Água, tm_earthquake de Pokémon Terra, tm_shadow_ball de Pokémon Fantasma, etc.',

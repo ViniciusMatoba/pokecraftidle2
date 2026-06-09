@@ -1,5 +1,5 @@
 {
-  "version": "2.11.45",
-  "date": "09/06/2026 08:23",
-  "notes": "TMs dropam apenas de Pokémon do mesmo tipo do golpe (Água, Fogo, Elétrico, etc.)"
+  "version": "2.11.46",
+  "date": "09/06/2026 08:31",
+  "notes": "Fila unificada de drops — sem perda de itens, sem repetição, indicador de fila no modal"
 }

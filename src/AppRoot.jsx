@@ -1365,8 +1365,37 @@ export default function App() {
   const [challengeRegion, setChallengeRegion] = useState(null); // { region, ownerProfile }
   const [checkingName, setCheckingName] = useState(false);
   const [raidRouteNotice, setRaidRouteNotice] = useState(null);
-  const [recipeFoundModal, setRecipeFoundModal] = useState(null); // { name, img, effect }
-  const [rareDropModal, setRareDropModal] = useState(null);
+  // Fila unificada de modais de drop — evita perder drops e impede repetição do mesmo item
+  const [dropQueue, setDropQueue] = useState([]);
+  const [activeDropModal, setActiveDropModal] = useState(null);
+  const enqueuedDropIds = useRef(new Set());
+
+  // Enfileira novos drops sem repetir itens já na fila
+  const enqueueDropModal = useCallback((items) => {
+    const fresh = items.filter(item => {
+      if (enqueuedDropIds.current.has(item.id)) return false;
+      enqueuedDropIds.current.add(item.id);
+      return true;
+    });
+    if (fresh.length > 0) setDropQueue(prev => [...prev, ...fresh]);
+  }, []);
+
+  // Remove o ID do set de deduplicação ao fechar, para que futuros drops do mesmo tipo possam aparecer
+  const closeDropModal = useCallback(() => {
+    setActiveDropModal(prev => {
+      if (prev) enqueuedDropIds.current.delete(prev.id);
+      return null;
+    });
+  }, []);
+
+  // Consome a fila quando não há modal ativo
+  useEffect(() => {
+    if (!activeDropModal && dropQueue.length > 0) {
+      const [next, ...rest] = dropQueue;
+      setActiveDropModal(next);
+      setDropQueue(rest);
+    }
+  }, [activeDropModal, dropQueue]);
 
   const [installPrompt, setInstallPrompt] = useState(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -7596,14 +7625,17 @@ export default function App() {
     });
 
     messages.forEach(m => addLog(m, 'drop'));
-    // Modal de receita encontrada — só aparece se for nova e não houver um modal aberto
-    const newRecipes = foundRecipes?.filter(r => r.isNew);
-    if (newRecipes?.length > 0 && !recipeFoundModal) {
-      setTimeout(() => setRecipeFoundModal(newRecipes[0]), 400);
-    } else if (rareDrops?.length > 0 && !rareDropModal && !recipeFoundModal) {
-      const nextDrop = rareDrops.find(d => !isRareDropDismissed(d.type));
-      if (nextDrop) setTimeout(() => setRareDropModal(nextDrop), 400);
-    }
+    // Enfileira todos os drops notificáveis desta batalha — receitas primeiro, depois raros
+    const queueItems = [];
+    (foundRecipes || []).forEach(r => {
+      if (r.isNew) queueItems.push({ id: 'recipe:' + r.id, kind: 'recipe', ...r });
+    });
+    (rareDrops || []).forEach(d => {
+      if (!isRareDropDismissed(d.type)) {
+        queueItems.push({ id: d.type + ':' + (d.name || ''), kind: d.type, ...d });
+      }
+    });
+    if (queueItems.length > 0) setTimeout(() => enqueueDropModal(queueItems), 400);
     if (currentEnemy.isTrainer && currentEnemy.trainerReward) {
       const actualReward = getTrainerCurrencyReward(currentEnemy.trainerReward || 0);
       addLog(` 🏆 ${currentEnemy.trainerName} derrotado! +${actualReward} coins`, 'system');
@@ -12364,19 +12396,19 @@ export default function App() {
         </div>
       )}
 
-      {/* ── MODAL: Receita Encontrada ──────────────────────────────────────── */}
-      {rareDropModal && (
+      {/* ── MODAL UNIFICADO DE DROP (receitas + raros + mega) ─────────────── */}
+      {activeDropModal && activeDropModal.kind !== 'recipe' && (
         <RareDropModal
-          drop={rareDropModal}
-          onClose={() => setRareDropModal(null)}
+          drop={activeDropModal}
+          onClose={closeDropModal}
         />
       )}
 
-      {recipeFoundModal && (
+      {activeDropModal?.kind === 'recipe' && (
         <div
           className="absolute inset-0 z-[100000] flex items-center justify-center p-4 cursor-default"
           style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)' }}
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setRecipeFoundModal(null); }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); closeDropModal(); }}
           onPointerDown={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
@@ -12397,10 +12429,15 @@ export default function App() {
               <div className="pt-6 pb-3 px-6 text-center">
               <div className="text-5xl mb-2" style={{ filter: 'drop-shadow(0 0 16px #f59e0b)' }}>📜</div>
               <p style={{ color: '#f59e0b', fontSize: 9, fontWeight: 900, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: 4 }}>
-                {recipeFoundModal.isNew ? '✨ Nova Receita Encontrada!' : '📜 Receita Obtida'}
+                {activeDropModal.isNew ? '✨ Nova Receita Encontrada!' : '📜 Receita Obtida'}
               </p>
+              {dropQueue.length > 0 && (
+                <p style={{ color: '#64748b', fontSize: 9, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>
+                  +{dropQueue.length} drop{dropQueue.length > 1 ? 's' : ''} aguardando
+                </p>
+              )}
               <h3 style={{ color: '#fff', fontWeight: 900, fontSize: 20, textTransform: 'uppercase', fontStyle: 'italic', margin: 0 }}>
-                {recipeFoundModal.name}
+                {activeDropModal.name}
               </h3>
             </div>
 
@@ -12409,23 +12446,23 @@ export default function App() {
               style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}>
               <div className="shrink-0 w-16 h-16 rounded-xl flex items-center justify-center"
                 style={{ background: 'rgba(245,158,11,0.15)' }}>
-                <img src={recipeFoundModal.img} alt={recipeFoundModal.name}
+                <img src={activeDropModal.img} alt={activeDropModal.name}
                   className="w-12 h-12 object-contain"
                   style={{ imageRendering: 'pixelated', filter: 'drop-shadow(0 0 6px #f59e0b66)' }}
                   onError={e => { e.target.onerror = null; e.target.src = fixPath('/items/mega_stone_shard.webp'); }} />
               </div>
               <div className="flex-1 min-w-0">
                 <p style={{ color: '#fbbf24', fontWeight: 900, fontSize: 13, textTransform: 'uppercase', marginBottom: 3 }}>
-                  {recipeFoundModal.name}
+                  {activeDropModal.name}
                 </p>
-                {recipeFoundModal.effect && typeof recipeFoundModal.effect === 'string' && (
+                {activeDropModal.effect && typeof activeDropModal.effect === 'string' && (
                   <p style={{ color: '#94a3b8', fontSize: 11, fontStyle: 'italic', margin: 0 }}>
-                    {recipeFoundModal.effect}
+                    {activeDropModal.effect}
                   </p>
                 )}
-                {recipeFoundModal.description && (
+                {activeDropModal.description && (
                   <p style={{ color: '#64748b', fontSize: 10, marginTop: 3 }}>
-                    {recipeFoundModal.description}
+                    {activeDropModal.description}
                   </p>
                 )}
               </div>
@@ -12439,13 +12476,13 @@ export default function App() {
             </div>
             </div>
 
-            {/* Botão */}
-            <div className="px-6 pb-6 pt-2 shrink-0">
+            {/* Botões */}
+            <div className="px-6 pb-6 pt-2 shrink-0 flex flex-col gap-2">
               <button
                 onClick={() => {
-                  setForgeTargetItem(recipeFoundModal.id);
+                  setForgeTargetItem(activeDropModal.id);
                   setCurrentView('forge_screen');
-                  setRecipeFoundModal(null);
+                  closeDropModal();
                 }}
                 className="w-full py-4 rounded-2xl font-black uppercase text-sm tracking-widest transition-all active:scale-95"
                 style={{
@@ -12456,6 +12493,13 @@ export default function App() {
                 }}
               >
                 🔨 Ótimo! Ir Forjar
+              </button>
+              <button
+                onClick={closeDropModal}
+                className="w-full py-3 rounded-2xl font-black uppercase text-xs tracking-widest transition-all active:scale-95"
+                style={{ background: 'rgba(255,255,255,0.08)', color: '#fff', border: 'none', cursor: 'pointer' }}
+              >
+                {dropQueue.length > 0 ? `Próximo (${dropQueue.length})` : 'Continuar na rota'}
               </button>
             </div>
           </div>
