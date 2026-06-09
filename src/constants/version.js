@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.36';
-export const VERSION = '2.11.36';
-export const APP_VERSION_DATE = '09/06/2026 06:46';
+export const APP_VERSION = '2.11.37';
+export const VERSION = '2.11.37';
+export const APP_VERSION_DATE = '09/06/2026 06:50';
 export const CHANGELOG = [
+  '## [V2.11.37] - 09/06/2026 06:50',
+  '### Farm Offline — Level Cap Respeitado',
+  '- **Level cap no offline**: o cálculo de XP offline agora respeita o cap de nível da região ativa (baseado nas insígnias obtidas), igual ao comportamento online. Pokémon não ultrapassam mais o limite de nível ao voltar ao jogo.',
+  '- **XP descartado no cap**: ao atingir o cap offline, o XP excedente é descartado (igual ao online).',
+  '- **Configuração respeitada**: se o jogador desativou o level cap nas configurações, o offline também aplica nível livre até 100.',
+  '',
   '## [V2.11.36] - 09/06/2026 06:46',
   '### Seleção de Avatar — Fix para Contas Antigas',
   '- **Contas sem avatarMeta**: contas criadas antes do sistema multi-avatar não tinham documento avatarMeta no Firestore, fazendo a tela de seleção ser ignorada. Agora essas contas recebem um slot 1 legado sintetizado e a tela é sempre exibida.',

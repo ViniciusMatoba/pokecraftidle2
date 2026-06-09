@@ -1,5 +1,5 @@
 {
-  "version": "2.11.36",
-  "date": "09/06/2026 06:46",
-  "notes": "Fix seleção de avatar para contas antigas (sem avatarMeta): tela de seleção agora é sempre exibida ao logar"
+  "version": "2.11.37",
+  "date": "09/06/2026 06:50",
+  "notes": "Farm offline agora respeita o level cap da região — Pokémon não ultrapassam mais o limite de nível ao voltar ao jogo"
 }

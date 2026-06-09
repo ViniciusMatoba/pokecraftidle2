@@ -1,4 +1,5 @@
 import { POKEDEX } from '../data/pokedex';
+import { GYM_LEVEL_CAPS } from '../data/constants';
 import { getCaptureRate, getPokemonRarity } from './pokemonDifficulty';
 
 const TICK_MS = 2500;
@@ -18,20 +19,36 @@ function calcBattleCoins(enemy) {
   return Math.max(1, Math.floor(enemy.level * 0.15));
 }
 
+/** Calcula o cap de nível com base nas insígnias da região ativa.
+ *  Espelha getRegionLevelCap + getRegionBadgeCount de AppRoot. */
+function getOfflineLevelCap(gameState) {
+  if (gameState.settings?.levelCap === false) return 100;
+  const region = gameState.activeRegion || 'kanto';
+  const caps = GYM_LEVEL_CAPS[region] || {};
+  const badgeIds = new Set(Object.keys(caps));
+  const playerBadges = new Set(gameState.badges || []);
+  const badgeCount = [...badgeIds].filter(id => playerBadges.has(id)).length;
+  return Object.values(caps)[badgeCount] || 100;
+}
+
 /**
- * Simula level-ups a partir do XP acumulado offline.
+ * Simula level-ups a partir do XP acumulado offline, respeitando o level cap.
  * Espelha o loop em AppRoot.jsx ~linha 4808.
  */
-function simulateLevelGain(currentLevel, currentXp, xpGained) {
+function simulateLevelGain(currentLevel, currentXp, xpGained, levelCap = 100) {
   let level = currentLevel || 1;
   let xp = (currentXp || 0) + xpGained;
   const startLevel = level;
+  const cap = Math.min(levelCap, 100);
 
-  while (level < 100) {
+  while (level < cap) {
     const xpNeeded = Math.pow(level + 1, 3) - Math.pow(level, 3);
     if (xp >= xpNeeded) { xp -= xpNeeded; level++; }
     else break;
   }
+
+  // Se atingiu o cap, descarta XP excedente (igual ao comportamento online)
+  if (level >= cap) xp = 0;
 
   return { newLevel: level, newXp: xp, levelsGained: level - startLevel };
 }
@@ -189,10 +206,11 @@ export function calculateOfflineProgress(gameState, routes, elapsedMs) {
     if (materials[key] <= 0) delete materials[key];
   }
 
-  // Calcula XP e level-ups por membro do time
+  // Calcula XP e level-ups por membro do time, respeitando o level cap da região
+  const levelCap = getOfflineLevelCap(gameState);
   const teamProgress = (gameState.team || []).map((pokemon, idx) => {
     const xpGained = idx === 0 ? totalXP : Math.floor(totalXP * BENCH_XP_RATE);
-    const { newLevel, newXp, levelsGained } = simulateLevelGain(pokemon.level, pokemon.xp, xpGained);
+    const { newLevel, newXp, levelsGained } = simulateLevelGain(pokemon.level, pokemon.xp, xpGained, levelCap);
     return {
       instanceId: pokemon.instanceId,
       name: pokemon.name,
