@@ -3279,15 +3279,21 @@ export default function App() {
       // Taxa maior nas rotas iniciais (level baixo) para facilitar a progressão
       const isEarlyGame = (enemy.level || 1) <= 20;
       const baseRate = isEarlyGame ? 0.09 : 0.05;
-      const dropRate = enemy.isShiny ? 0.25 : baseRate;
+      // Pity system: após 30 batalhas sem receita, +1%/batalha (cap 50%) — ninguém trava por azar
+      const pity = gameState.recipePity || 0;
+      const pityBonus = Math.max(0, pity - 30) * 0.01;
+      const dropRate = enemy.isShiny ? 0.25 : Math.min(0.5, baseRate + pityBonus);
       if (Math.random() < dropRate) {
         // Filtra receitas já descobertas para não duplicar
+        const playerBadges = getBadgeCount(gameState);
         const undiscovered = recipeDropList.filter(r => {
           if (gameState.inventory?.materials?.[r] > 0) return false;
           const recipeId = String(r).replace('recipe_', '');
           const guide = FORGE_RECIPE_DROP_GUIDE[recipeId];
           if (guide?.requiredRegion && gameState.activeRegion !== guide.requiredRegion) return false;
           if (guide?.requiredFlag && !(gameState.worldFlags || []).includes(guide.requiredFlag)) return false;
+          // Escalonamento: TMs fortes exigem insígnias acumuladas (tier 2→8, 3→16, 4→24)
+          if (guide?.minBadges && playerBadges < guide.minBadges) return false;
           return true;
         });
         if (undiscovered.length > 0) {
@@ -7620,6 +7626,8 @@ export default function App() {
           raidEncounters: raidSpawnUpdate.activeRaid ? 1 : 0,
         }),
         battlesSinceLastRaid: raidSpawnUpdate.activeRaid ? 0 : newBattlesSinceRaid,
+        // Pity de receitas: zera ao dropar, acumula a cada batalha sem drop
+        recipePity: (foundRecipes?.length > 0) ? 0 : (prev.recipePity || 0) + 1,
         ...raidSpawnUpdate,
       };
     });

@@ -929,25 +929,217 @@ export const CRAFTING_RECIPES = {
 export const FORGE_MATERIAL_DROP_GUIDE = {
   oran_berry: { pokemonIds: [16, 19, 20, 25, 161, 263, 399], routeId: 'route_1', label: 'Bagas Oran aparecem nas rotas iniciais e no jardim da casa; derrote Pokemon comuns como Pidgey, Rattata e Zigzagoon.' },
   berry_oran: { pokemonIds: [16, 19, 20, 25, 161, 263, 399], routeId: 'route_1', label: 'Alias legado da Oran Berry; use rotas iniciais e o jardim da casa para coletar.' },
-  normal_essence: { pokemonIds: [16, 19, 20, 52, 53, 133, 143], routeId: 'route_1', label: 'Rotas iniciais - Pidgey, Rattata, Meowth, Eevee e Snorlax.' },
-  fire_essence: { pokemonIds: [4, 5, 6, 37, 38, 58, 59, 126], routeId: 'pokemon_mansion', label: 'Rotas quentes e mansoes - Charmander, Vulpix, Growlithe e Magmar.' },
-  water_essence: { pokemonIds: [7, 8, 9, 60, 61, 72, 73, 120, 129], routeId: 'route_19_20', label: 'Rotas aquaticas - Squirtle, Poliwag, Tentacool, Staryu e Magikarp.' },
-  grass_essence: { pokemonIds: [1, 2, 3, 43, 44, 69, 70, 102], routeId: 'viridian_forest', label: 'Florestas e rotas verdes - Bulbasaur, Oddish, Bellsprout e Exeggcute.' },
-  electric_essence: { pokemonIds: [25, 26, 81, 82, 100, 101, 125], routeId: 'power_plant', label: 'Usina de Energia - Pikachu, Magnemite, Voltorb e Electabuzz.' },
-  ice_essence: { pokemonIds: [87, 124, 131, 144, 220, 221, 225, 238], routeId: 'ice_path', label: 'Cavernas geladas - Dewgong, Jynx, Lapras, Smoochum e Delibird.' },
-  fighting_essence: { pokemonIds: [56, 57, 66, 67, 68, 106, 107], routeId: 'route_22', label: 'Rotas de combate - Mankey, Primeape, Machop, Hitmonlee e Hitmonchan.' },
-  poison_essence: { pokemonIds: [23, 24, 29, 32, 41, 42, 88, 109], routeId: 'pokemon_tower', label: 'Florestas, cavernas e torres - Ekans, Nidoran, Zubat, Grimer e Koffing.' },
-  ground_essence: { pokemonIds: [27, 28, 50, 51, 74, 75, 95, 111], routeId: 'rock_tunnel', label: 'Tuneis e desertos - Sandshrew, Diglett, Geodude, Onix e Rhyhorn.' },
-  earth_essence: { pokemonIds: [27, 28, 50, 51, 74, 75, 95, 111, 231, 328], routeId: 'rock_tunnel', label: 'Essencia de terra: Sandshrew, Diglett, Geodude, Onix, Phanpy e Trapinch em tuneis e desertos.' },
-  flying_essence: { pokemonIds: [16, 17, 18, 21, 22, 41, 42, 123], routeId: 'route_16_17_18', label: 'Rotas abertas - Pidgey, Spearow, Zubat e Scyther.' },
-  psychic_essence: { pokemonIds: [63, 64, 65, 96, 97, 122, 150, 196], routeId: 'saffron_city', label: 'Locais psiquicos - Abra, Drowzee, Mr. Mime, Mewtwo e Espeon.' },
-  bug_essence: { pokemonIds: [10, 11, 12, 13, 14, 15, 46, 123], routeId: 'viridian_forest', label: 'Florestas - Caterpie, Weedle, Paras e Scyther.' },
-  rock_essence: { pokemonIds: [74, 75, 76, 95, 138, 140, 142, 246], routeId: 'mt_moon', label: 'Montanhas e fosseis - Geodude, Onix, Omanyte, Kabuto e Larvitar.' },
-  ghost_essence: { pokemonIds: [92, 93, 94, 200, 353, 354, 355, 356], routeId: 'pokemon_tower', label: 'Torre Pokemon e locais sombrios - Gastly, Haunter, Gengar e fantasmas.' },
-  dragon_essence: { pokemonIds: [147, 148, 149, 230, 330, 373, 445, 635], routeId: 'dragons_den', label: 'Locais sagrados e Victory Road - Dratini, Dragonair, Kingdra e dragoes.' },
-  steel_essence: { pokemonIds: [81, 82, 208, 227, 303, 306, 376, 448], routeId: 'power_plant', label: 'Usinas e montanhas - Magnemite, Steelix, Skarmory, Aggron e Lucario.' },
-  fairy_essence: { pokemonIds: [35, 36, 39, 40, 173, 174, 175, 176, 700], routeId: 'mt_moon', label: 'Monte Lua e rotas raras - Clefairy, Jigglypuff, Togepi e Sylveon.' },
-  dark_essence: { pokemonIds: [197, 198, 215, 228, 229, 302, 359, 461], routeId: 'burned_tower', label: 'Torres e rotas noturnas - Umbreon, Murkrow, Sneasel, Houndour e Absol.' },
+  // ── Pools de essência multi-região ─────────────────────────────────────────
+  // Gerados a partir das rotas reais (scripts/analyze-pools.mjs): cada região tem
+  // Pokémon do tipo presentes em suas rotas — TMs e receitas dropam em QUALQUER região.
+  normal_essence: { pokemonIds: [
+    16, 17, 18, 19, 52, 53, 133, 143,   // kanto: Pidgey, Rattata, Meowth, Eevee, Snorlax
+    20, 22, 39, 40,                      // johto: Raticate, Fearow, Jigglypuff
+    161, 164, 263, 264,                  // hoenn: Sentret, Noctowl, Zigzagoon, Linoone
+    113, 289, 300, 399,                  // sinnoh: Chansey, Slaking, Skitty, Bidoof
+    400, 428, 432, 504,                  // unova: Bibarel, Lopunny, Purugly, Patrat
+    659, 660, 661, 667,                  // kalos: Bunnelby, Diggersby, Fletchling, Litleo
+    137, 668, 731, 732,                  // alola: Porygon, Pyroar, Pikipek, Trumbeak
+    733, 735, 760, 819,                  // galar: Toucannon, Gumshoos, Bewear, Skwovet
+    915, 916, 924, 925,                  // paldea: Lechonk, Oinkologne, Tandemaus, Maushold
+  ], routeId: 'route_1', label: 'Pokemon de tipo Normal em todas as regioes - Pidgey, Rattata, Zigzagoon, Lechonk.' },
+  fire_essence: { pokemonIds: [
+    4, 5, 6, 37, 126,                    // kanto: Charmander, Vulpix, Magmar
+    38, 58, 59, 77,                      // johto: Ninetales, Growlithe, Arcanine, Ponyta
+    78, 218, 219, 255,                   // hoenn: Rapidash, Slugma, Magcargo, Torchic
+    390, 391, 392, 467,                  // sinnoh: Chimchar, Monferno, Infernape, Magmortar
+    498, 499, 500, 513,                  // unova: Tepig, Pignite, Emboar, Pansear
+    514, 555, 653, 654,                  // kalos: Simisear, Darmanitan, Fennekin, Braixen
+    662, 663, 725,                       // alola: Fletchinder, Talonflame, Litten
+    758, 813, 814, 815,                  // galar: Salazzle, Scorbunny, Raboot, Cinderace
+    839, 851, 909, 910,                  // paldea: Coalossal, Centiskorch, Fuecoco, Crocalor
+  ], routeId: 'pokemon_mansion', label: 'Pokemon de fogo em todas as regioes - Charmander, Torchic, Chimchar, Fuecoco.' },
+  water_essence: { pokemonIds: [
+    7, 8, 9, 55, 60, 120, 129,           // kanto: Squirtle, Golduck, Poliwag, Staryu, Magikarp
+    61, 72, 73, 79,                      // johto: Poliwhirl, Tentacool, Slowpoke
+    183, 184, 226, 258,                  // hoenn: Marill, Azumarill, Mantine, Mudkip
+    271, 272, 393, 394,                  // sinnoh: Lombre, Ludicolo, Piplup, Prinplup
+    400, 419, 501, 502,                  // unova: Bibarel, Floatzel, Oshawott, Dewott
+    80, 131, 515, 516,                   // kalos: Slowbro, Lapras, Panpour, Simipour
+    728, 729, 730, 746,                  // alola: Popplio, Brionne, Primarina, Wishiwashi
+    748, 816, 817, 818,                  // galar: Toxapex, Sobble, Drizzile, Inteleon
+    834, 847, 912, 913,                  // paldea: Drednaw, Barraskewda, Quaxly, Quaxwell
+  ], routeId: 'route_19_20', label: 'Pokemon aquaticos em todas as regioes - Squirtle, Mudkip, Piplup, Quaxly.' },
+  grass_essence: { pokemonIds: [
+    1, 2, 3, 43, 44, 69, 70, 102,        // kanto: Bulbasaur, Oddish, Bellsprout, Exeggcute
+    46, 152, 153,                        // johto: Paras, Chikorita, Bayleef
+    189, 191, 192, 252,                  // hoenn: Jumpluff, Sunkern, Sunflora, Treecko
+    274, 286, 387,                       // sinnoh: Nuzleaf, Breloom, Turtwig
+    413, 495, 496, 497,                  // unova: Wormadam, Snivy, Servine, Serperior
+    460, 556, 597, 650,                  // kalos: Abomasnow, Maractus, Ferroseed, Chespin
+    103, 673, 722, 723,                  // alola: Exeggutor, Gogoat, Rowlet, Dartrix
+    708, 756, 810, 811,                  // galar: Phantump, Shiinotic, Grookey, Thwackey
+    906, 907, 908, 928,                  // paldea: Sprigatito, Floragato, Meowscarada, Smoliv
+  ], routeId: 'viridian_forest', label: 'Pokemon planta em todas as regioes - Bulbasaur, Treecko, Rowlet, Sprigatito.' },
+  electric_essence: { pokemonIds: [
+    25, 26, 81, 82, 100, 101,            // kanto: Pikachu, Magnemite, Voltorb
+    125, 170, 171, 172,                  // johto: Electabuzz, Chinchou, Lanturn, Pichu
+    181, 309, 310, 311,                  // hoenn: Ampharos, Electrike, Manectric, Plusle
+    403, 404, 405, 417,                  // sinnoh: Shinx, Luxio, Luxray, Pachirisu
+    522, 523, 587, 595,                  // unova: Blitzle, Zebstrika, Emolga, Joltik
+    694, 695, 702,                       // kalos: Helioptile, Heliolisk, Dedenne
+    737, 738, 777,                       // alola: Charjabug, Vikavolt, Togedemaru
+    835, 836, 848, 849,                  // galar: Yamper, Boltund, Toxel, Toxtricity
+    921, 922, 923, 938,                  // paldea: Pawmi, Pawmo, Pawmot, Tadbulb
+  ], routeId: 'power_plant', label: 'Pokemon eletricos em todas as regioes - Pikachu, Electrike, Shinx, Pawmi.' },
+  ice_essence: { pokemonIds: [
+    87, 91, 124, 131, 220, 221, 225, 238, // kanto/johto: Dewgong, Cloyster, Jynx, Lapras, Swinub, Delibird, Smoochum
+    215,                                 // johto: Sneasel
+    361, 362, 364, 365,                  // hoenn: Snorunt, Glalie, Sealeo, Walrein
+    460, 461, 471, 473,                  // sinnoh: Abomasnow, Weavile, Glaceon, Mamoswine
+    583, 584, 614, 615,                  // unova: Vanillish, Vanilluxe, Beartic, Cryogonal
+    698, 699, 713,                       // kalos: Amaura, Aurorus, Avalugg
+    740,                                 // alola: Crabominable
+    866, 873, 875, 881,                  // galar: Mr. Rime, Frosmoth, Eiscue, Arctozolt
+    974, 975, 997,                       // paldea: Cetoddle, Cetitan, Arctibax
+  ], routeId: 'ice_path', label: 'Pokemon de gelo em todas as regioes - Jynx, Snorunt, Vanillish, Cetoddle.' },
+  fighting_essence: { pokemonIds: [
+    56, 57, 62, 66, 67, 68, 106, 107,    // kanto: Mankey, Poliwrath, Machop, Hitmonlee, Hitmonchan
+    214, 237,                            // johto: Heracross, Hitmontop
+    256, 257, 286, 296,                  // hoenn: Combusken, Blaziken, Breloom, Makuhita
+    391, 392, 448, 454,                  // sinnoh: Monferno, Infernape, Lucario, Toxicroak
+    499, 500, 532, 533, 534,             // unova: Pignite, Emboar, Timburr, Gurdurr, Conkeldurr
+    652, 674, 675,                       // kalos: Chesnaught, Pancham, Pangoro
+    739, 740, 759, 760,                  // alola: Crabrawler, Crabominable, Stufful, Bewear
+    853, 865, 870,                       // galar: Grapploct, Sirfetch'd, Falinks
+    914, 922, 923, 973,                  // paldea: Quaquaval, Pawmo, Pawmot, Flamigo
+  ], routeId: 'route_22', label: 'Pokemon lutadores em todas as regioes - Machop, Makuhita, Timburr, Flamigo.' },
+  poison_essence: { pokemonIds: [
+    13, 14, 15, 23, 24, 29, 32, 41, 42, 88, 109, // kanto: Weedle, Ekans, Nidoran, Zubat, Grimer, Koffing
+    168, 169,                            // johto: Ariados, Crobat
+    269, 315,                            // hoenn: Dustox, Roselia
+    406, 407, 434, 435,                  // sinnoh: Budew, Roserade, Stunky, Skuntank
+    544, 545, 568, 569,                  // unova: Whirlipede, Scolipede, Trubbish, Garbodor
+    690, 691,                            // kalos: Skrelp, Dragalge
+    89, 747, 748,                        // alola: Muk, Mareanie, Toxapex
+    758, 848, 849,                       // galar: Salazzle, Toxel, Toxtricity
+    944, 945, 965, 966,                  // paldea: Shroodle, Grafaiai, Varoom, Revavroom
+  ], routeId: 'pokemon_tower', label: 'Pokemon venenosos em todas as regioes - Ekans, Zubat, Trubbish, Shroodle.' },
+  ground_essence: { pokemonIds: [
+    27, 28, 31, 34, 50, 51, 111,         // kanto: Sandshrew, Nidoqueen, Nidoking, Diglett, Rhyhorn
+    74, 75, 95, 112, 231,                // johto: Geodude, Onix, Rhydon, Phanpy
+    259, 260, 290, 322, 328,             // hoenn: Marshtomp, Swampert, Nincada, Numel, Trapinch
+    389, 423, 444, 445,                  // sinnoh: Torterra, Gastrodon, Gabite, Garchomp
+    473, 529, 530, 537,                  // unova: Mamoswine, Drilbur, Excadrill, Seismitoad
+    553, 660,                            // kalos: Krookodile, Diggersby
+    105, 749, 750, 770,                  // alola: Marowak, Mudbray, Mudsdale, Palossand
+    843, 844, 867,                       // galar: Silicobra, Sandaconda, Runerigus
+    948, 949, 980,                       // paldea: Toedscool, Toedscruel, Clodsire
+  ], routeId: 'rock_tunnel', label: 'Pokemon terrestres em todas as regioes - Sandshrew, Numel, Drilbur, Toedscool.' },
+  earth_essence: { pokemonIds: [
+    27, 28, 50, 51, 74, 75, 95, 111, 231, 328, // kanto/johto: Sandshrew, Diglett, Geodude, Onix, Phanpy, Trapinch
+    259, 260, 290, 322,                  // hoenn: Marshtomp, Swampert, Nincada, Numel
+    389, 423, 444, 445,                  // sinnoh: Torterra, Gastrodon, Gabite, Garchomp
+    473, 529, 530, 537,                  // unova: Mamoswine, Drilbur, Excadrill, Seismitoad
+    553, 660,                            // kalos: Krookodile, Diggersby
+    105, 749, 750, 770,                  // alola: Marowak, Mudbray, Mudsdale, Palossand
+    843, 844, 867,                       // galar: Silicobra, Sandaconda, Runerigus
+    948, 949, 980,                       // paldea: Toedscool, Toedscruel, Clodsire
+  ], routeId: 'rock_tunnel', label: 'Essencia de terra em todas as regioes - Sandshrew, Trapinch, Drilbur, Toedscool.' },
+  flying_essence: { pokemonIds: [
+    6, 12, 16, 17, 18, 21, 22, 123,      // kanto: Charizard, Butterfree, Pidgey, Spearow, Scyther
+    41, 42, 164, 169, 176,               // johto: Zubat, Golbat, Noctowl, Crobat, Togetic
+    166, 226, 284,                       // hoenn: Ledian, Mantine, Masquerain
+    396, 397, 414, 416,                  // sinnoh: Starly, Staravia, Mothim, Vespiquen
+    426, 430, 469,                       // unova: Drifblim, Honchkrow, Yanmega
+    661, 662, 663, 666,                  // kalos: Fletchling, Fletchinder, Talonflame, Vivillon
+    722, 723, 731, 733,                  // alola: Rowlet, Dartrix, Pikipek, Toucannon
+    821, 822, 823,                       // galar: Rookidee, Corvisquire, Corviknight
+    714, 931, 940, 941,                  // paldea: Noibat, Squawkabilly, Wattrel, Kilowattrel
+  ], routeId: 'route_16_17_18', label: 'Pokemon voadores em todas as regioes - Pidgey, Starly, Fletchling, Wattrel.' },
+  psychic_essence: { pokemonIds: [
+    63, 64, 65, 80, 96, 97, 122, 196,    // kanto: Abra, Slowbro, Drowzee, Mr. Mime, Espeon
+    79, 124, 177, 178,                   // johto: Slowpoke, Jynx, Natu, Xatu
+    202, 280, 281, 282,                  // hoenn: Wobbuffet, Ralts, Kirlia, Gardevoir
+    358, 437, 475,                       // sinnoh: Chimecho, Bronzong, Gallade
+    376, 517, 518, 527,                  // unova: Metagross, Munna, Musharna, Woobat
+    577, 655, 677, 678,                  // kalos: Solosis, Delphox, Espurr, Meowstic
+    103, 765, 779,                       // alola: Exeggutor, Oranguru, Bruxish
+    825, 826, 856, 857,                  // galar: Dottler, Orbeetle, Hatenna, Hattrem
+    936, 954, 956, 976,                  // paldea: Armarouge, Rabsca, Espathra, Veluza
+  ], routeId: 'saffron_city', label: 'Pokemon psiquicos em todas as regioes - Abra, Ralts, Munna, Espathra.' },
+  bug_essence: { pokemonIds: [
+    10, 11, 12, 13, 14, 15, 46, 123, 127, // kanto: Caterpie, Weedle, Paras, Scyther, Pinsir
+    48, 166, 168, 193,                   // johto: Venonat, Ledian, Ariados, Yanma
+    265, 266, 269, 284,                  // hoenn: Wurmple, Silcoon, Dustox, Masquerain
+    401, 402, 413, 414, 416,             // sinnoh: Kricketot, Kricketune, Wormadam, Mothim, Vespiquen
+    469, 542,                            // unova: Yanmega, Leavanny
+    664, 666,                            // kalos: Scatterbug, Vivillon
+    736, 737, 738, 742,                  // alola: Grubbin, Charjabug, Vikavolt, Cutiefly
+    825, 826, 850, 851,                  // galar: Dottler, Orbeetle, Sizzlipede, Centiskorch
+    917, 918, 919, 920,                  // paldea: Tarountula, Spidops, Nymble, Lokix
+  ], routeId: 'viridian_forest', label: 'Pokemon insetos em todas as regioes - Caterpie, Wurmple, Grubbin, Nymble.' },
+  rock_essence: { pokemonIds: [
+    74, 75, 76, 95, 111, 138, 140, 142, 246, // kanto: Geodude, Onix, Rhyhorn, Omanyte, Kabuto, Aerodactyl, Larvitar
+    112, 185, 213, 219,                  // johto: Rhydon, Sudowoodo, Shuckle, Magcargo
+    299, 304, 305, 306,                  // hoenn: Nosepass, Aron, Lairon, Aggron
+    408, 409, 410, 411,                  // sinnoh: Cranidos, Rampardos, Shieldon, Bastiodon
+    524, 525, 526, 557,                  // unova: Roggenrola, Boldore, Gigalith, Dwebble
+    688, 689, 696,                       // kalos: Binacle, Barbaracle, Tyrunt
+    744, 745,                            // alola: Rockruff, Lycanroc
+    834, 838, 839, 874,                  // galar: Drednaw, Carkol, Coalossal, Stonjourner
+    932, 933, 934, 950,                  // paldea: Nacli, Naclstack, Garganacl, Klawf
+  ], routeId: 'mt_moon', label: 'Pokemon de pedra em todas as regioes - Geodude, Aron, Roggenrola, Nacli.' },
+  ghost_essence: { pokemonIds: [
+    92, 93, 94,                          // kanto: Gastly, Haunter, Gengar
+    200,                                 // johto: Misdreavus
+    292, 302, 353, 354, 355, 356,        // hoenn: Shedinja, Sableye, Shuppet, Banette, Duskull, Dusclops
+    426, 429, 442, 477,                  // sinnoh: Drifblim, Mismagius, Spiritomb, Dusknoir
+    562, 563, 592, 593,                  // unova: Yamask, Cofagrigus, Frillish, Jellicent
+    679, 680, 681, 708,                  // kalos: Honedge, Doublade, Aegislash, Phantump
+    724, 770, 778, 781,                  // alola: Decidueye, Palossand, Mimikyu, Dhelmise
+    855, 867, 885, 887,                  // galar: Polteageist, Runerigus, Dreepy, Dragapult
+    911, 937, 947, 972,                  // paldea: Skeledirge, Ceruledge, Brambleghast, Houndstone
+  ], routeId: 'pokemon_tower', label: 'Pokemon fantasmas em todas as regioes - Gastly, Shuppet, Yamask, Greavard.' },
+  dragon_essence: { pokemonIds: [
+    147, 148, 149,                       // kanto: Dratini, Dragonair, Dragonite
+    230,                                 // johto: Kingdra
+    329, 330, 334, 372, 373,             // hoenn: Vibrava, Flygon, Altaria, Shelgon, Salamence
+    444, 445,                            // sinnoh: Gabite, Garchomp
+    611, 612, 621, 633, 635,             // unova: Fraxure, Haxorus, Druddigon, Deino, Hydreigon
+    691, 696, 697,                       // kalos: Dragalge, Tyrunt, Tyrantrum
+    706, 776, 780, 782,                  // alola: Goodra, Turtonator, Drampa, Jangmo-o
+    841, 842, 880, 882,                  // galar: Flapple, Appletun, Dracozolt, Dracovish
+    714, 967, 978, 997,                  // paldea: Noibat, Cyclizar, Tatsugiri, Arctibax
+  ], routeId: 'dragons_den', label: 'Pokemon dragoes em todas as regioes - Dratini, Bagon, Axew, Cyclizar.' },
+  steel_essence: { pokemonIds: [
+    81, 82,                              // kanto: Magnemite, Magneton
+    205, 208, 212, 227,                  // johto: Forretress, Steelix, Scizor, Skarmory
+    303, 304, 305, 306,                  // hoenn: Mawile, Aron, Lairon, Aggron
+    395, 410, 411, 437, 448,             // sinnoh: Empoleon, Shieldon, Bastiodon, Bronzong, Lucario
+    376, 530, 589, 597,                  // unova: Metagross, Excadrill, Escavalier, Ferroseed
+    679, 680, 681, 707,                  // kalos: Honedge, Doublade, Aegislash, Klefki
+    777,                                 // alola: Togedemaru
+    823, 863, 878, 879,                  // galar: Corviknight, Perrserker, Cufant, Copperajah
+    958, 959, 965, 966,                  // paldea: Tinkatuff, Tinkaton, Varoom, Revavroom
+  ], routeId: 'power_plant', label: 'Pokemon de aco em todas as regioes - Magnemite, Aron, Ferroseed, Tinkatuff.' },
+  fairy_essence: { pokemonIds: [
+    35, 36, 39, 40, 700,                 // kanto: Clefairy, Jigglypuff, Sylveon
+    173, 174, 175, 176,                  // johto: Cleffa, Igglybuff, Togepi, Togetic
+    183, 184, 280, 281,                  // hoenn: Marill, Azumarill, Ralts, Kirlia
+    122, 303, 468,                       // sinnoh: Mr. Mime, Mawile, Togekiss
+    546, 547,                            // unova: Cottonee, Whimsicott
+    669, 670, 671, 682,                  // kalos: Flabebe, Floette, Florges, Spritzee
+    730, 742, 743, 755,                  // alola: Primarina, Cutiefly, Ribombee, Morelull
+    756, 858, 860, 861,                  // galar: Shiinotic, Hatterene, Morgrem, Grimmsnarl
+    926, 927, 958, 959,                  // paldea: Fidough, Dachsbun, Tinkatuff, Tinkaton
+  ], routeId: 'mt_moon', label: 'Pokemon fadas em todas as regioes - Clefairy, Ralts, Flabebe, Fidough.' },
+  dark_essence: { pokemonIds: [
+    197,                                 // kanto: Umbreon
+    198, 215, 228, 229,                  // johto: Murkrow, Sneasel, Houndour, Houndoom
+    261, 262, 274, 275, 302, 359,        // hoenn: Poochyena, Mightyena, Nuzleaf, Shiftry, Sableye, Absol
+    430, 434, 435, 461,                  // sinnoh: Honchkrow, Stunky, Skuntank, Weavile
+    509, 510, 552, 553,                  // unova: Purrloin, Liepard, Krokorok, Krookodile
+    633, 635, 658, 675,                  // kalos: Deino, Hydreigon, Greninja, Pangoro
+    727,                                 // alola: Incineroar
+    827, 828, 860, 861,                  // galar: Nickit, Thievul, Morgrem, Grimmsnarl
+    908, 920, 942, 943,                  // paldea: Meowscarada, Lokix, Maschiff, Mabosstiff
+  ], routeId: 'burned_tower', label: 'Pokemon sombrios em todas as regioes - Murkrow, Poochyena, Purrloin, Maschiff.' },
   iron_ore: { pokemonIds: [
     74, 75, 76, 81, 82, 95, 208,        // Gen 1-2: Geodude, Magnemite, Onix, Steelix
     304, 305, 306, 374, 375, 376,        // Gen 3: Aron, Beldum, Metagross
@@ -1532,11 +1724,28 @@ const RECIPE_LABEL_OVERRIDES = {
   focus_sash:      'Derrote Alakazam, Gardevoir ou Espeon em Saffron City.',
 };
 
+// ── Escalonamento por insígnias ───────────────────────────────────────────────
+// TMs fortes só dropam após progresso: tier 2 → 8 insígnias (campeão Kanto),
+// tier 3 → 16 (campeão Johto), tier 4 → 24. Tier 1 e itens essenciais: sem trava.
+const TM_TIER_MIN_BADGES = { 1: 0, 2: 8, 3: 16, 4: 24 };
+// Hold items de poder e relíquias elite também escalonam
+const RECIPE_MIN_BADGES_OVERRIDES = {
+  leftovers: 8, life_orb: 16, expert_belt: 8, focus_sash: 8,
+  titan_shield: 24, adrenaline_potion: 24, penetration_pendant: 24,
+};
+
+const getRecipeMinBadges = (recipe) => {
+  if (RECIPE_MIN_BADGES_OVERRIDES[recipe.id] !== undefined) return RECIPE_MIN_BADGES_OVERRIDES[recipe.id];
+  if (recipe.type === 'tm') return TM_TIER_MIN_BADGES[recipe.tier] || 0;
+  return 0;
+};
+
 export const FORGE_RECIPE_DROP_GUIDE = Object.fromEntries(ALL_FORGE_RECIPES.map(recipe => {
   const sourceMaterial = getRecipeSourceMaterial(recipe);
   const guide = FORGE_MATERIAL_DROP_GUIDE[sourceMaterial] || FORGE_MATERIAL_DROP_GUIDE.normal_essence;
   const label = RECIPE_LABEL_OVERRIDES[recipe.id] || `Receita ${recipe.name}: ${guide.label}`;
   const isMegaStoneRecipe = recipe.category === 'mega_stones';
+  const minBadges = getRecipeMinBadges(recipe);
   return [recipe.id, {
     recipeItemId: `recipe_${recipe.id}`,
     sourceMaterial,
@@ -1546,6 +1755,7 @@ export const FORGE_RECIPE_DROP_GUIDE = Object.fromEntries(ALL_FORGE_RECIPES.map(
     category: recipe.category,
     requiredRegion: isMegaStoneRecipe ? 'kalos' : undefined,
     requiredFlag: isMegaStoneRecipe ? 'mega_evolution_unlocked' : undefined,
+    minBadges: minBadges > 0 ? minBadges : undefined,
   }];
 }));
 

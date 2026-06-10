@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.11.46';
-export const VERSION = '2.11.46';
-export const APP_VERSION_DATE = '09/06/2026 08:31';
+export const APP_VERSION = '2.11.47';
+export const VERSION = '2.11.47';
+export const APP_VERSION_DATE = '10/06/2026 07:41';
 export const CHANGELOG = [
+  '## [V2.11.47] - 10/06/2026 07:41',
+  '### Receitas: Drops em Todas as Regiões + Escalonamento',
+  '- **Pools multi-região**: as 18 essências de tipo agora listam Pokémon presentes nas rotas de TODAS as 9 regiões (gerados a partir das rotas reais) — TMs e receitas dropam onde quer que você esteja, sem precisar voltar para Kanto.',
+  '- **Escalonamento por insígnias**: TMs tier 2 (poder 60–89) exigem 8 insígnias; tier 3 (90–119) exigem 16; tier 4 (120+, ex. Hyper Beam) exigem 24. Tier 1 e itens essenciais: sem trava.',
+  '- **Hold items de poder gated**: Leftovers/Expert Belt/Focus Sash → 8 insígnias; Life Orb → 16; relíquias elite → 24.',
+  '- **Pity system**: após 30 batalhas sem receita, a chance de drop sobe +1% por batalha (máx. 50%) e zera ao dropar — ninguém fica travado por azar.',
+  '',
   '## [V2.11.46] - 09/06/2026 08:31',
   '### Fila Unificada de Modais de Drop',
   '- **Sem drops perdidos**: receitas e itens raros agora entram em fila — se uma batalha gerar receita + item raro, ambos aparecem sequencialmente.',
