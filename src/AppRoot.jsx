@@ -7684,7 +7684,9 @@ export default function App() {
     // Enfileira todos os drops notificáveis desta batalha — receitas primeiro, depois raros
     const queueItems = [];
     (foundRecipes || []).forEach(r => {
-      if (r.isNew) queueItems.push({ id: 'recipe:' + r.id, kind: 'recipe', ...r });
+      if (r.isNew && !gameState.settings?.disableRecipeAlerts) {
+        queueItems.push({ id: 'recipe:' + r.id, kind: 'recipe', ...r });
+      }
     });
     (rareDrops || []).forEach(d => {
       if (!isRareDropDismissed(d.type)) {
@@ -12561,6 +12563,29 @@ export default function App() {
               <p style={{ color: '#475569', fontSize: 11, fontWeight: 700 }}>
                 🔨 Agora você pode forjar este item na <span style={{ color: '#f59e0b' }}>Forja</span>!
               </p>
+            </div>
+
+            {/* Checkbox de desativação rápida */}
+            <div className="mx-6 mb-4 flex items-center justify-center gap-2 cursor-pointer select-none"
+              onClick={() => {
+                setGameState(prev => ({
+                  ...prev,
+                  settings: {
+                    ...(prev.settings || {}),
+                    disableRecipeAlerts: !prev.settings?.disableRecipeAlerts
+                  }
+                }));
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={!!gameState.settings?.disableRecipeAlerts}
+                onChange={() => {}}
+                className="w-4 h-4 accent-amber-500 cursor-pointer"
+              />
+              <span className="text-[11px] text-slate-400 font-bold hover:text-slate-300 transition-colors">
+                Não mostrar mais alertas de novas receitas
+              </span>
             </div>
             </div>
 

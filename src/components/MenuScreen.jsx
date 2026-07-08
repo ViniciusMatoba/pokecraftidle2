@@ -1298,6 +1298,20 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
               <span className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300 ${(gameState.settings?.compactNumbers ?? false) ? 'left-7' : 'left-0.5'}`} />
             </button>
           </div>
+
+          {/* Alertas de Receitas */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Alertas de Receitas</p>
+              <p className="text-[9px] text-slate-400 font-bold mt-0.5">Exibe popups ao encontrar receitas novas</p>
+            </div>
+            <button
+              onClick={() => setGameState(prev => ({ ...prev, settings: { ...prev.settings, disableRecipeAlerts: !(prev.settings?.disableRecipeAlerts ?? false) } }))}
+              className={`relative w-14 h-7 rounded-full transition-all duration-300 ${(gameState.settings?.disableRecipeAlerts ?? false) ? 'bg-slate-300' : 'bg-indigo-600'}`}
+            >
+              <span className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300 ${(gameState.settings?.disableRecipeAlerts ?? false) ? 'left-0.5' : 'left-7'}`} />
+            </button>
+          </div>
         </div>
       </div>
 
