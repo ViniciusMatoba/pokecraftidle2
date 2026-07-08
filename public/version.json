@@ -1,5 +1,5 @@
 {
-  "version": "2.11.47",
-  "date": "10/06/2026 07:41",
-  "notes": "Receitas dropam em todas as regiões + TMs fortes liberados por insígnias + pity system anti-travamento"
+  "version": "2.11.48",
+  "date": "08/07/2026 16:32",
+  "notes": "Save por e-mail: slot 1 persistido em avatarMeta, reset respeita treinador selecionado e validação de nome usa o docId do slot atual"
 }

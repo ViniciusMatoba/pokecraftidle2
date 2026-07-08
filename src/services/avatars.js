@@ -19,6 +19,7 @@ import {
   collection, doc, getDoc, getDocs, setDoc, deleteDoc,
   runTransaction, serverTimestamp, writeBatch,
 } from 'firebase/firestore';
+import { getSlotDocId } from '../utils/avatarSlots';
 
 export const MAX_AVATARS = 3;
 
@@ -34,8 +35,7 @@ const validateNick = (nick) => {
   return trimmed;
 };
 
-/** Retorna o docId do Firestore para um dado uid + slot (slot 1 = uid puro, backward compat) */
-export const getSlotDocId = (uid, slot) => (slot > 1 ? `${uid}_s${slot}` : uid);
+export { getSlotDocId };
 
 const deleteSnapshotCollection = async (docId) => {
   const snap = await getDocs(collection(db, 'saves', docId, 'snapshots'));

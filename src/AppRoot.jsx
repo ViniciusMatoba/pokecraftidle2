@@ -942,15 +942,22 @@ export default function App() {
 
         // ── Multi-Avatar: verifica metadados de avatar ───────────────────────
         try {
-          const meta = await loadAvatarMeta(u.uid);
-          setAvatarMeta(meta);
+          let meta = await loadAvatarMeta(u.uid);
 
           // Sempre exibe a tela de seleção ao logar.
           // Se meta é null (conta antiga sem avatarMeta), sintetiza um slot 1 legado
           // para que o usuário veja "Jogar" em vez de 3 slots vazios.
           if (!meta) {
-            setAvatarMeta({ avatars: [{ slot: 1, nick: 'Continuar', legacy: true }] });
+            let legacyNick = 'Continuar';
+            try {
+              const profileSnap = await getDoc(doc(db, 'users', u.uid));
+              const profileName = profileSnap.exists() ? profileSnap.data()?.name : null;
+              const localName = readLocalSaveEnvelope(u.uid, 1)?.gameState?.trainer?.name;
+              legacyNick = profileName || localName || legacyNick;
+            } catch { /* ignora fallback de nick */ }
+            meta = await initAvatarMetaSlot1(u.uid, legacyNick);
           }
+          setAvatarMeta(meta);
           setShowAvatarSelect(true);
           setLoading(false);
           return;
@@ -7908,9 +7915,15 @@ export default function App() {
           if (u) {
             try {
               lastSyncRef.current = Date.now();
+              const resetSlot = currentSlotRef.current || 1;
+              const resetDocId = getSlotDocId(u.uid, resetSlot);
               const compressedFresh = LZString.compress(JSON.stringify(freshState));
-              await setDoc(doc(db, "saves", u.uid), {
+              await setDoc(doc(db, "saves", resetDocId), {
+                ownerUid: u.uid,
+                ownerEmail: u.email || null,
                 compressedState: compressedFresh,
+                gameState: deleteField(),
+                updatedAtClient: Date.now(),
                 updatedAt: serverTimestamp(),
                 resetAt: serverTimestamp()
               }, { merge: false }); // merge: false ensures we overwrite EVERYTHING
@@ -8211,9 +8224,12 @@ export default function App() {
                   setCheckingName(true);
                   try {
                     const nameLower = gameState.trainer.name.toLowerCase().trim();
+                    const currentDocId = auth.currentUser
+                      ? getSlotDocId(auth.currentUser.uid, currentSlotRef.current || 1)
+                      : null;
                     const q = query(collection(db, 'users'), where('nameLower', '==', nameLower));
                     const snap = await getDocs(q);
-                    const takenByOther = snap.docs.some(d => d.id !== auth.currentUser?.uid);
+                    const takenByOther = snap.docs.some(d => d.id !== currentDocId);
                     if (takenByOther) {
                       showConfirm({ title: 'Nome Indisponível', message: 'Este nome já está em uso por outro treinador. Escolha outro!', onConfirm: closeConfirm });
                       setCheckingName(false);

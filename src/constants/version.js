@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.11.47';
-export const VERSION = '2.11.47';
-export const APP_VERSION_DATE = '10/06/2026 07:41';
+export const APP_VERSION = '2.11.48';
+export const VERSION = '2.11.48';
+export const APP_VERSION_DATE = '08/07/2026 16:32';
 export const CHANGELOG = [
+  '## [V2.11.48] - 08/07/2026 16:32',
+  '### Save por E-mail — Multi-Treinador',
+  '- **Slot 1 persistido**: contas novas ou antigas sem `avatarMeta` agora criam o slot 1 real no Firestore ao logar, garantindo a mesma seleção de treinador no computador e no celular.',
+  '- **Reset no slot correto**: reiniciar jornada passa a gravar em `saves/{uid}`, `saves/{uid}_s2` ou `saves/{uid}_s3` conforme o treinador selecionado, sem sobrescrever outro avatar da conta.',
+  '- **Nome por treinador**: validação de nome agora compara contra o docId do slot atual (`uid`, `uid_s2`, `uid_s3`), evitando falso conflito com o próprio treinador.',
+  '- **Cache alinhado**: service worker atualizado para `pokecraft-cache-v2.11.48` para reduzir risco de bundle antigo após deploy.',
+  '',
   '## [V2.11.47] - 10/06/2026 07:41',
   '### Receitas: Drops em Todas as Regiões + Escalonamento',
   '- **Pools multi-região**: as 18 essências de tipo agora listam Pokémon presentes nas rotas de TODAS as 9 regiões (gerados a partir das rotas reais) — TMs e receitas dropam onde quer que você esteja, sem precisar voltar para Kanto.',
