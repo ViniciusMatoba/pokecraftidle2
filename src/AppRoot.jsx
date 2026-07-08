@@ -1376,6 +1376,7 @@ export default function App() {
   const [dropQueue, setDropQueue] = useState([]);
   const [activeDropModal, setActiveDropModal] = useState(null);
   const enqueuedDropIds = useRef(new Set());
+  const hasLeveledUpRef = useRef(false);
 
   // Enfileira novos drops sem repetir itens já na fila
   const enqueueDropModal = useCallback((items) => {
@@ -2177,10 +2178,15 @@ export default function App() {
 
 
 
-  // Mantém gameStateRef atualizado para uso em event listeners
+  // Mantém gameStateRef atualizado para uso em event listeners e salva na nuvem imediatamente em caso de level-up
   useEffect(() => {
     gameStateRef.current = gameState;
-  }, [gameState]);
+    if (isFullyLoadedRef.current && hasLeveledUpRef.current) {
+      hasLeveledUpRef.current = false;
+      if (import.meta.env.DEV) console.log('[Autosave] Pokémon subiu de nível! Sincronizando com a nuvem...');
+      saveToCloud(gameState).catch(e => console.error('[Autosave] Erro no salvamento por level-up:', e));
+    }
+  }, [gameState, saveToCloud]);
 
   // 1. Sincronização LocalStorage Deboundada (Performance Otimizada)
   useEffect(() => {
@@ -7572,6 +7578,7 @@ export default function App() {
           }
 
           const newLevel = (p.level || 5) + 1;
+          hasLeveledUpRef.current = true;
           addLog(`🎉 ${p.name} subiu para Nv. ${newLevel}!`, 'system');
           notify({ type: 'level_up', title: `${p.name} subiu para Nv.${newLevel}!`, message: 'Continue treinando!', pokemonId: p.id, formKey: p.formKey, formSpriteId: p.formSpriteId, isShiny: p.isShiny });
           sfxLevelUp();
