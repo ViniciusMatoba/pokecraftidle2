@@ -7907,7 +7907,11 @@ export default function App() {
               const resetSlot = currentSlotRef.current || 1;
               const resetDocId = getSlotDocId(u.uid, resetSlot);
               const compressedFresh = LZString.compress(JSON.stringify(freshState));
-              await setDoc(doc(db, "saves", resetDocId), {
+              
+              const batch = writeBatch(db);
+              
+              // 1. Reset saves document
+              batch.set(doc(db, "saves", resetDocId), {
                 ownerUid: u.uid,
                 ownerEmail: u.email || null,
                 compressedState: compressedFresh,
@@ -7916,6 +7920,32 @@ export default function App() {
                 updatedAt: serverTimestamp(),
                 resetAt: serverTimestamp()
               }, { merge: false }); // merge: false ensures we overwrite EVERYTHING
+              
+              // 2. Reset users profile document matching slot's nick
+              const slotNick = avatarMeta?.avatars?.find(a => a.slot === resetSlot)?.nick || "Treinador";
+              batch.set(doc(db, "users", resetDocId), {
+                name: slotNick,
+                nameLower: slotNick.toLowerCase().trim(),
+                avatar: null,
+                level: 1,
+                titleId: null,
+                badges: 0,
+                powerScore: 0,
+                caughtCount: 0,
+                caughtData: {},
+                worldFlags: [],
+                badgesList: [],
+                forgedItemsCount: 0,
+                bossTotalDamage: 0,
+                bossLastDamage: 0,
+                shinyCapturedCount: 0,
+                trainerBattleWins: 0,
+                playerStats: {},
+                appearance: {},
+                updatedAt: serverTimestamp()
+              }, { merge: false });
+              
+              await batch.commit();
             } catch (e) {
               console.error("Cloud reset fail:", e);
             }
