@@ -1,5 +1,5 @@
 {
-  "version": "2.11.51",
-  "date": "08/07/2026 17:25",
-  "notes": "Correção crítica de login: save carregado com progresso completo, botões do menu desbloqueados"
+  "version": "2.11.52",
+  "date": "08/07/2026 20:08",
+  "notes": "Forja refatorada para navegação de dois níveis (eliminando scroll horizontal)"
 }

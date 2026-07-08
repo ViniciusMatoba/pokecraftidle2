@@ -1,3 +1,9 @@
+## [v2.11.52] - 08/07/2026 20:08
+### Refatoração da Forja
+- **Navegação em dois níveis**: o scroll horizontal foi eliminado. Agora a Forja possui uma grade de categorias (cards de duas colunas) que ao serem clicados abrem a lista de receitas correspondentes com botão de voltar.
+- **Filtros contextuais**: filtro de tipo de TMs e o toggle para ocultar receitas bloqueadas só aparecem dentro da lista de receitas da categoria correspondente.
+- **Deep-linking preservado**: botões de viagem rápida para a Forja (ex: do drop de novas receitas) abrem diretamente na receita/categoria selecionada.
+
 ## [v2.11.20] - 24/05/2026 00:20
 ### Battle Tower - XP e Level Up
 - **Progressao por batalha**: vitorias agora concedem XP para a equipe da run, com ganho reduzido para Pokemon caidos.

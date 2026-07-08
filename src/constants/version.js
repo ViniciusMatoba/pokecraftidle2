@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.51';
-export const VERSION = '2.11.51';
-export const APP_VERSION_DATE = '08/07/2026 17:25';
+export const APP_VERSION = '2.11.52';
+export const VERSION = '2.11.52';
+export const APP_VERSION_DATE = '08/07/2026 20:08';
 export const CHANGELOG = [
+  '## [V2.11.52] - 08/07/2026 20:08',
+  '### Refatoração da Forja',
+  '- **Navegação em dois níveis**: o scroll horizontal foi eliminado. Agora a Forja possui uma grade de categorias (cards de duas colunas) que ao serem clicados abrem a lista de receitas correspondentes com botão de voltar.',
+  '- **Filtros contextuais**: filtro de tipo de TMs e o toggle para ocultar receitas bloqueadas só aparecem dentro da lista de receitas da categoria correspondente.',
+  '- **Deep-linking preservado**: botões de viagem rápida para a Forja (ex: do drop de novas receitas) abrem diretamente na receita/categoria selecionada.',
+  '',
   '## [V2.11.51] - 08/07/2026 17:25',
   '### Correção crítica de login',
   '- **Save carregado corretamente**: revertida lógica quebrada do Codex que substituiu `hasPlayableProgress` por verificações incompletas, fazendo o jogo ignorar saves com equipe/PC/caughtData.',
