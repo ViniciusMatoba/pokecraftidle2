@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.11.49';
-export const VERSION = '2.11.49';
-export const APP_VERSION_DATE = '08/07/2026 16:49';
+export const APP_VERSION = '2.11.50';
+export const VERSION = '2.11.50';
+export const APP_VERSION_DATE = '08/07/2026 17:00';
 export const CHANGELOG = [
+  '## [V2.11.50] - 08/07/2026 17:00',
+  '### Mega Evolutions Oficiais',
+  '- **Conteúdo fan-made removido**: Mega Stones e formas Mega inventadas foram removidas da Pokédex, Forja e mapa de Mega Evolution.',
+  '- **Somente jogos oficiais**: o sistema agora mantém apenas Mega Evolutions reais de XY/ORAS e Pokémon Legends: Z-A/Mega Dimension.',
+  '- **Skarmorite mantida**: Mega Skarmory permanece por ser oficial em Pokémon Legends: Z-A.',
+  '- **Teste de bloqueio**: adicionada validação automática para impedir retorno de Mega Evolutions fan-made como Butterfreeite, Kingdraite, Miltankite, Blisseyite, Shedinjite e outras.',
+  '',
   '## [V2.11.49] - 08/07/2026 16:49',
   '### Consolidação das Correções do Claude',
   '- **Projeto único seguro**: alterações úteis da pasta antiga foram consolidadas sobre a base limpa publicada, preservando backup completo da cópia antiga.',

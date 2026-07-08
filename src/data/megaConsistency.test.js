@@ -7,6 +7,36 @@ import { POKEDEX } from './pokedex.js';
 const recipesSrc = fs.readFileSync(fileURLToPath(new URL('./recipes.js', import.meta.url)), 'utf8');
 const recipeIds = new Set([...recipesSrc.matchAll(/\{ id: '([a-z_]+)'/g)].map((match) => match[1]));
 const mapKeys = Object.keys(MEGA_EVOLUTION_MAP);
+const fanMadeMegaStones = [
+  'butterfreeite',
+  'machampite',
+  'typhlosionite',
+  'kingdraite',
+  'miltankite',
+  'blisseyite',
+  'shedinjite',
+  'flygonite',
+  'torterrite',
+  'infernapite',
+  'empoleonite',
+  'luxrayite',
+  'serperiorite',
+  'samurottite',
+  'haxorusite',
+  'hydreigonite',
+  'goodraite',
+  'decidueyite',
+  'incineroarite',
+  'primarinite',
+  'kommo_oite',
+  'rillaboomite',
+  'cinderacite',
+  'inteleonite',
+  'dragapultite',
+  'meowscaradite',
+  'skeledirgite',
+  'quaquavalite',
+];
 
 const getMegaEvolutionItemsFromPokedex = () => {
   const items = [];
@@ -27,6 +57,16 @@ const getMegaEvolutionItemsFromPokedex = () => {
 };
 
 describe('mega evolution data consistency', () => {
+  it('nao inclui Mega Evolutions fan-made como se fossem oficiais', () => {
+    const found = fanMadeMegaStones.filter((item) => (
+      mapKeys.includes(item) ||
+      recipeIds.has(item) ||
+      getMegaEvolutionItemsFromPokedex().some((entry) => entry.item === item)
+    ));
+
+    expect(found).toEqual([]);
+  });
+
   it('todos os itens mega da Pokedex existem no mapa de Mega Evolution', () => {
     const missing = getMegaEvolutionItemsFromPokedex()
       .filter(({ item }) => !mapKeys.includes(item))

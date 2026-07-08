@@ -1,5 +1,5 @@
 {
-  "version": "2.11.49",
-  "date": "08/07/2026 16:49",
-  "notes": "Consolidacao das correcoes do Claude: starters com stats canonicos, Mega Evolution sincronizada com Pokedex/Forja e testes de regressao adicionados"
+  "version": "2.11.50",
+  "date": "08/07/2026 17:00",
+  "notes": "Mega Evolutions oficiais: removidas Mega Stones e formas fan-made da Pokedex, Forja e mapa de Mega Evolution"
 }
