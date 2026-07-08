@@ -1,0 +1,321 @@
+﻿diff --git a/src/AppRoot.jsx b/src/AppRoot.jsx
+index e1a70fa..280a8ae 100644
+--- a/src/AppRoot.jsx
++++ b/src/AppRoot.jsx
+@@ -84,7 +84,7 @@ import { QUESTS, updateQuestProgress, getAvailableQuest } from './data/quests';
+ import NotificationSystem, { notify } from './components/NotificationSystem';
+ import { getCaptureRate, pickWeightedEncounter } from './utils/pokemonDifficulty';
+ import { preloadAssets } from './utils/preloader';
+-import { calculatePowerScore, getBadgeCount, hasPlayableProgress } from './utils/progress';
++import { calculatePowerScore, getBadgeCount } from './utils/progress';
+ import { migrateGameState } from './utils/saveMigration';
+ import { computeGameStateHash } from './utils/stateHash';
+ import { ensureRetentionState, getRetentionViewModel, RETENTION_DAILY_MISSIONS, RETENTION_WEEKLY_MISSIONS } from './data/retention';
+@@ -812,201 +812,6 @@ const handleSelectTitleInApp = (newTitleId, setGameState) => {
+   });
+ };
+ 
+-export default function App() {
+-  const [user, setUser] = useState(null);
+-  const [loading, setLoading] = useState(true);
+-  const [saveConflict, setSaveConflict] = useState(null); // { cloudSave, cloudSavedAt, localSave, localSavedAt }
+-  // ΓöÇΓöÇ Multi-Avatar ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+-  const [currentSlot, setCurrentSlot] = useState(1);
+-  const currentSlotRef = useRef(1);
+-  const [avatarMeta, setAvatarMeta] = useState(null); // { avatars: [{slot, nick, createdAt}] }
+-  const [showAvatarSelect, setShowAvatarSelect] = useState(false);
+-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+-  const [isPreloaded, setIsPreloaded] = useState(false);
+-  const [preloadProgress, setPreloadProgress] = useState(0);
+-  const [selectedAvatar, setSelectedAvatar] = useState(null);
+-  const [avatarTab, setAvatarTab] = useState('male');
+-  const { 
+-    playBGM, stopBGM, setBgmVolume, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxGym, sfxShiny, stopSFX,
+-    toggleMute, isMuted, muted
+-  } = useSound();
+-  
+-  const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
+-  const [isTitleModalOpen, setIsTitleModalOpen] = useState(false);
+-  const [isForgeConfirmOpen, setIsForgeConfirmOpen] = useState(false);
+-  const [isPowerRankModalOpen, setIsPowerRankModalOpen] = useState(false);
+-  const [confirmModal, setConfirmModal] = useState(null);
+-  const [showRanking, setShowRanking] = useState(false);
+-  const [showBugReport, setShowBugReport] = useState(false);
+-  const [showChangelog, setShowChangelog] = useState(false);
+-  const showConfirm = (config) => setConfirmModal(config);
+-  const closeConfirm = () => setConfirmModal(null);
+-
+-  // Sync isAnyModalOpen with individual states
+-  useEffect(() => {
+-    setIsAnyModalOpen(isTitleModalOpen || isForgeConfirmOpen || isPowerRankModalOpen || !!confirmModal);
+-  }, [isTitleModalOpen, isForgeConfirmOpen, isPowerRankModalOpen, confirmModal]);
+-
+-  useEffect(() => {
+-    setIsPowerRankModalOpen(showRanking);
+-  }, [showRanking]);
+-
+-  const [gameState, setGameState] = useState(() => {
+-    try {
+-      const parsed = readLocalSaveEnvelope();
+-      if (parsed?.gameState) {
+-        const merged = migrateGameState(parsed.gameState, { version: APP_VERSION });
+-        if (!merged.migrationAudit?.ok && import.meta.env.DEV) {
+-          <img
+-            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`}
+-            onError={e => { e.currentTarget.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`; }}
+-            style={{ width:120, height:120, objectFit:'contain', filter:`drop-shadow(0 4px 12px ${primaryColor}55)` }} alt={pokemon.name} />
+-          <h3 style={{ fontSize:22, fontWeight:900, textTransform:'uppercase', color:'#1e293b', margin:'8px 0 6px', letterSpacing:'-0.02em' }}>{pokemon.name}</h3>
+-          <div style={{ display:'flex', gap:6, justifyContent:'center', paddingBottom:16 }}>
+-            {types.map(t => (
+-              <span key={t} style={{ background: TYPE_HEX[t]||'#9ea3b0', color:'#fff', fontSize:10, fontWeight:900, padding:'3px 12px', borderRadius:99, textTransform:'uppercase', letterSpacing:'0.08em' }}>{t}</span>
+-            ))}
+-          </div>
+-        </div>
+-        {/* Stats */}
+-        <div style={{ padding:'12px 20px 8px' }}>
+-          <p style={{ fontSize:9, fontWeight:900, textTransform:'uppercase', letterSpacing:'0.2em', color:'#94a3b8', marginBottom:8 }}>Stats Base</p>
+-          {stats.map(({ key, val }) => (
+-            <div key={key} style={{ display:'flex', alignItems:'center', gap:8, marginBottom:5 }}>
+-              <span style={{ fontSize:9, fontWeight:900, textTransform:'uppercase', color:'#94a3b8', width:28 }}>{STAT_LABELS[key]}</span>
+-              <span style={{ fontSize:11, fontWeight:900, color:'#1e293b', width:26, textAlign:'right' }}>{val}</span>
+-              <div style={{ flex:1, height:6, background:'#e2e8f0', borderRadius:3, overflow:'hidden' }}>
+-                <div style={{ width:`${Math.min(100,(val/180)*100)}%`, height:'100%', background:primaryColor, borderRadius:3 }} />
+-              </div>
+-            </div>
+-          ))}
+-        </div>
+-        {/* Moves */}
+-        {initMoves.length > 0 && (
+-          <div style={{ padding:'4px 20px 12px' }}>
+-            <p style={{ fontSize:9, fontWeight:900, textTransform:'uppercase', letterSpacing:'0.2em', color:'#94a3b8', marginBottom:8 }}>Golpes Iniciais</p>
+-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
+-              {initMoves.map(m => (
+-                <div key={m.id} style={{ background:`${TYPE_HEX[m.type]||'#94a3b8'}18`, borderRadius:12, padding:'6px 10px', border:`1px solid ${TYPE_HEX[m.type]||'#94a3b8'}35` }}>
+-                  <span style={{ fontSize:8, fontWeight:900, textTransform:'uppercase', color: TYPE_HEX[m.type]||'#94a3b8', display:'block', marginBottom:1 }}>{m.type} ┬╖ {m.category}</span>
+-                  <span style={{ fontSize:11, fontWeight:900, color:'#1e293b' }}>{m.name}</span>
+-                  {m.power ? <span style={{ fontSize:9, color:'#94a3b8', marginLeft:4 }}>┬╖ {m.power} POD</span> : <span style={{ fontSize:9, color:'#94a3b8', marginLeft:4 }}>┬╖ Status</span>}
+-                </div>
+-              ))}
+-            </div>
+-          </div>
+-        )}
+-        {/* Buttons */}
+-        <div style={{ padding:'4px 20px 20px', display:'grid', gap:10 }}>
+-          <button onClick={onConfirm} style={{ background:primaryColor, color:'#fff', border:'none', borderRadius:16, padding:'16px 20px', fontWeight:900, fontSize:12, textTransform:'uppercase', letterSpacing:'0.1em', cursor:'pointer', boxShadow:`0 4px 16px ${primaryColor}55` }}>
+-            Escolher {pokemon.name}!
+-          </button>
+-          <button onClick={onCancel} style={{ background:'#f1f5f9', color:'#64748b', border:'none', borderRadius:16, padding:'14px 20px', fontWeight:900, fontSize:12, textTransform:'uppercase', letterSpacing:'0.08em', cursor:'pointer' }}>
+-            Escolher outro
+-          </button>
+-        </div>
+-      </div>
+-    </div>
+-  );
+-};
+-
+-const RegionIntroScreen = ({
+-  professorSprite, professorName, regionName, accentColor, bgColor,
+-  starters, onSelectStarter, onBack, ruleText, inviteText
+-}) => {
+-  const [preview, setPreview] = useState(null);
+-  return (
+-  <div className="h-full flex flex-col items-center animate-fadeIn relative overflow-hidden"
+-    style={{ backgroundImage: `url('${LAB_BG_URL}')`, backgroundSize: 'cover', backgroundPosition: 'center top' }}>
+-    <div className="absolute inset-0" style={{
+-      background: `linear-gradient(to bottom, ${accentColor}bb 0%, ${accentColor}66 35%, rgba(2,6,23,0.80) 70%, rgba(2,6,23,0.97) 100%)`
+-    }} />
+-    <div className="flex-1 flex items-center justify-center relative z-10 px-6 pt-8">
+-      <img src={professorSprite}
+-        onError={e => {
+-          const base = 'https://play.pokemonshowdown.com/sprites/trainers/';
+-          const oak = base + 'oak.png';
+-          if (e.currentTarget.src === oak) return;
+-          const filename = e.currentTarget.src.split('/').pop();
+-          e.currentTarget.src = filename.startsWith('professor') ? oak : base + 'professor' + filename;
+-        }}
+-        className="h-64 object-contain drop-shadow-2xl animate-float" alt={professorName} />
+-    </div>
+-    <div className="relative z-10 w-full p-4 pb-6">
+-      <div className="bg-white rounded-[2rem] shadow-2xl p-5 max-w-2xl mx-auto" style={{ borderBottom: `10px solid ${accentColor}` }}>
+-        <div className="flex items-center gap-3 mb-4">
+-          <div className="w-11 h-11 rounded-2xl flex items-center justify-center overflow-hidden border-2"
+-            style={{ backgroundColor: accentColor + '22', borderColor: accentColor + '55' }}>
+-            <img src={professorSprite}
+-              onError={e => {
+-                const base = 'https://play.pokemonshowdown.com/sprites/trainers/';
+-                const oak = base + 'oak.png';
+-                if (e.currentTarget.src === oak) return;
+-                const filename = e.currentTarget.src.split('/').pop();
+-                e.currentTarget.src = filename.startsWith('professor') ? oak : base + 'professor' + filename;
+-              }}
+-              className="w-9 h-9 object-contain" alt="" />
+-          </div>
+-          <div>
+-            <p className="text-[10px] font-black uppercase tracking-[0.25em]" style={{ color: accentColor }}>{professorName}</p>
+-            <h2 className="text-xl font-black uppercase italic tracking-tighter text-slate-800 leading-none">
+-              Bem-vindo a {regionName}
+-            </h2>
+-          </div>
+-        </div>
+-        <p className="text-sm font-bold text-slate-600 leading-relaxed mb-3 italic">"{inviteText}"</p>
+-        <div className="rounded-2xl p-3 mb-4 border-2" style={{ backgroundColor: accentColor + '11', borderColor: accentColor + '33' }}>
+-          <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: accentColor }}>Regra Regional</p>
+-          <p className="text-xs font-bold text-slate-800">{ruleText}</p>
+-        </div>
+-        <div className="grid grid-cols-3 gap-3 mb-4">
+-          {starters.map(s => (
+-            <button key={s.id} onClick={() => setPreview(s)}
+-              className="bg-slate-50 border-2 border-slate-100 rounded-2xl p-3 flex flex-col items-center gap-2 active:scale-95 transition-all"
+-              onMouseEnter={e => e.currentTarget.style.borderColor = accentColor}
+-              onMouseLeave={e => e.currentTarget.style.borderColor = '#f1f5f9'}>
+-              <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${s.id}.png`}
+-                className="w-16 h-16 object-contain" alt={s.name} />
+-              <span className="text-[10px] font-black uppercase text-slate-800">{s.name}</span>
+-              <span className="text-[8px] font-black uppercase text-slate-400">{(s.types || [s.type]).join(' / ')}</span>
+-            </button>
+-          ))}
+-        </div>
+-        <button onClick={onBack}
+-          className="w-full min-h-[48px] rounded-2xl bg-slate-100 text-slate-500 font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-all">
+-          Continuar na regi├úo atual
+-        </button>
+-      </div>
+-    </div>
+-    {preview && (
+-      <StarterPreviewModal
+-        pokemon={preview}
+-        accentColor={accentColor}
+-        onConfirm={() => { onSelectStarter(preview.id); setPreview(null); }}
+-        onCancel={() => setPreview(null)}
+-      />
+-    )}
+-  </div>
+-  );
+-};
+-
+-const handleSelectTitleInApp = (newTitleId, setGameState) => {
+-  setGameState(prev => {
+-    return {
+-      ...prev, 
+-      selectedTitle: newTitleId,
+-      trainer: {
+-        ...(prev.trainer || {}),
+-        titleId: newTitleId
+-      },
+-      prestige: {
+-        ...(prev.prestige || {}),
+-        activeTitle: newTitleId
+-      }
+-    };
+-  });
+-};
+-
+ export default function App() {
+   const [user, setUser] = useState(null);
+   const [loading, setLoading] = useState(true);
+@@ -1125,9 +930,6 @@ export default function App() {
+       console.warn('[Load] Fallback de snapshots falhou:', snapErr);
+     }
+ 
+-      if (recovered) return { gameState: recovered, cloudSavedAt: 0 };
+-    }
+-
+     return null;
+   };
+ 
+@@ -1259,7 +1061,7 @@ export default function App() {
+               saveToCloud(migratedData).catch(() => { /* silencia ΓÇö retry autom├ítico */ });
+             }
+ 
+-            const hasRealProgress = hasPlayableProgress(migratedData);
++            const hasRealProgress = (migratedData.worldFlags || []).length > 0 || (migratedData.badges || []).length > 0;
+             if (hasRealProgress) {
+               setCurrentView('city');
+             }
+@@ -2479,18 +2281,17 @@ export default function App() {
+     }
+ 
+     // Nunca salvar se o load ainda n├úo completou ΓÇö evita sobrescrever save real com estado vazio
+-    if (dataToSave._recoveredFromProfile) {
+-      console.warn('[Save] Bloqueado: estado reconstruido parcialmente pelo perfil nao sera salvo sobre a nuvem.');
+-      return;
+-    }
+-
+     if (!isFullyLoadedRef.current) {
+       if (import.meta.env.DEV) console.warn('[Save] Bloqueado: load ainda n├úo completou.');
+       return;
+     }
+ 
+     // Valida├º├úo de estado: recusa salvar um estado completamente vazio (sem progresso)
+-    const _hasProgress = hasPlayableProgress(dataToSave);
++    const _hasProgress = (dataToSave.team?.length > 0) ||
++      (dataToSave.pc?.length > 0) ||
++      Object.keys(dataToSave.caughtData || {}).length > 0 ||
++      (dataToSave.badges?.length > 0) ||
++      (dataToSave.worldFlags?.length > 0);
+     if (!_hasProgress && !dataToSave._allowEmptySave) {
+       if (import.meta.env.DEV) console.warn('[Save] Bloqueado: estado sem progresso detectado, save ignorado.');
+       return;
+@@ -2936,7 +2737,8 @@ export default function App() {
+           else setTimeout(runOfflineCalc, 100);
+         }
+ 
+-        setCurrentView('city');
++        const hasRealProgress = (migratedData.worldFlags || []).length > 0 || (migratedData.badges || []).length > 0;
++        setCurrentView(hasRealProgress ? 'city' : 'landing');
+       } else {
+         // Slot novo ou sem save na nuvem
+         const localData = readLocalSaveEnvelope(u.uid, slot)?.gameState || null;
+@@ -2945,7 +2747,8 @@ export default function App() {
+           setGameState(migratedLocal);
+           isFullyLoadedRef.current = true;
+           saveToCloud(migratedLocal).catch(() => {});
+-          setCurrentView('city');
++          const hasProgress = (migratedLocal.worldFlags || []).length > 0 || (migratedLocal.badges || []).length > 0;
++          setCurrentView(hasProgress ? 'city' : 'landing');
+         } else {
+           // Slot completamente novo: come├ºa do zero
+           setGameState(DEFAULT_GAME_STATE);
+@@ -2993,7 +2796,7 @@ export default function App() {
+     } else {
+       notify('Save da nuvem carregado. Γ£à', 'success');
+     }
+-    const hasRealProgress = hasPlayableProgress(migrated);
++    const hasRealProgress = (migrated.worldFlags || []).length > 0 || (migrated.badges || []).length > 0;
+     setCurrentView(hasRealProgress ? 'city' : 'landing');
+   }, [saveConflict, saveToCloud]);
+   // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+@@ -8092,7 +7895,14 @@ export default function App() {
+ 
+     switch(currentView) {
+       case 'landing': {
+-        const hasSave = hasPlayableProgress(gameState);
++        const hasSave = Boolean(
++          (gameState.team && gameState.team.length > 0) ||
++          (gameState.pc && gameState.pc.length > 0) ||
++          Object.values(gameState.regional_teams || gameState.regionalTeams || {}).some(team => (team || []).length > 0) ||
++          Object.keys(gameState.caughtData || {}).length > 0 ||
++          (gameState.worldFlags || []).length > 0 ||
++          (gameState.badges || []).length > 0
++        );
+         const startNewJourney = async () => {
+           const freshState = removeUndefinedFields({ ...DEFAULT_GAME_STATE, version: APP_VERSION, lastUpdate: APP_VERSION_DATE });
+           setGameState(freshState);
+@@ -8205,7 +8015,7 @@ export default function App() {
+                        className="animate-bounce"
+                      >
+                        <img src={POKEAPI_ITEM_URL + 'up-grade.png'} className="h-6 w-6 object-contain" alt="" />
+-                       {isIOS ? 'Como Instalar (iOS)' : (installPrompt ? 'Instalar Aplicativo (PWA)' : 'Preparando instala├º├úo...')}
++                       {isIOS ? 'Como Instalar (iOS)' : (installPrompt ? 'Instalar Aplicativo (PWA)' : 'Preparando instala??o...')}
+                      </button>
+                    )}
+ 
+@@ -11209,7 +11019,7 @@ export default function App() {
+ 
+       {currentView !== 'landing' && (!loading && user) && (() => {
+         const isRivalBattle = currentEnemy?.isInitialRival === true;
+-        const menuUnlocked = (hasPlayableProgress(gameState) || gameState.oakTutorialShown || (gameState.worldFlags && gameState.worldFlags.includes('has_starter'))) && !isRivalBattle;
++        const menuUnlocked = (gameState.oakTutorialShown || (gameState.worldFlags && gameState.worldFlags.includes('has_starter'))) && !isRivalBattle;
+         return (
+           <nav className="absolute bottom-0 left-0 right-0 w-full bg-white border-t border-slate-200 flex items-center justify-around px-2 py-2 z-[500] shadow-xl">
+ 
