@@ -1,4 +1,4 @@
-﻿import { hasProgressRequirement } from '../utils/progress';
+import { hasProgressRequirement } from '../utils/progress';
 // ── UTILITIES ──────────────────────────────────────────────────
 export const isRouteUnlocked = (route, gameState) => {
   if (!route.requirements || route.requirements.length === 0) return true;
@@ -610,6 +610,9 @@ const isPokemonAllowedForRouteRegion = (id, routeRegion = 'kanto', route = {}) =
 };
 
 const applyEvolutionFilter = (enemies, routeRegion = 'kanto', route = {}) => {
+  if (String(route.id || '').includes('_dex_')) {
+    return enemies;
+  }
   return enemies.map(enemy => {
     if (enemy.formKey) return enemy;
     let { id, level } = enemy;

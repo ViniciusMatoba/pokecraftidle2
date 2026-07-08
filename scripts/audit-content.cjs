@@ -240,7 +240,7 @@ for (const [routeKey, route] of Object.entries(ROUTES)) {
     });
   }
 
-  if (route.type === 'farm') {
+  if (route.type === 'farm' && !String(route.id || routeKey || '').includes('_dex_')) {
     (route.enemies || []).forEach((enemy) => {
       const expectedId = expectedRouteEvolution(enemy, routeRegion, route);
       if (expectedId !== Number(enemy.id)) {
