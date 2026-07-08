@@ -15,6 +15,7 @@ const path = require('path');
 
 const versionFile = path.resolve(__dirname, '../public/version.json');
 const swFile      = path.resolve(__dirname, '../public/sw.js');
+const indexFile   = path.resolve(__dirname, '../index.html');
 
 const { version } = JSON.parse(fs.readFileSync(versionFile, 'utf8'));
 const newCacheName = `pokecraft-cache-v${version}`;
@@ -31,4 +32,17 @@ if (updated === swContent) {
 } else {
   fs.writeFileSync(swFile, updated, 'utf8');
   console.log(`[sw] CACHE_NAME atualizado para ${newCacheName}`);
+}
+
+if (fs.existsSync(indexFile)) {
+  let indexContent = fs.readFileSync(indexFile, 'utf8');
+  const newReg = `navigator.serviceWorker.register('./sw.js?v=${version}')`;
+  const updatedIndex = indexContent.replace(
+    /navigator\.serviceWorker\.register\('\.\/sw\.js(?:\?v=[^']*)?'\)/,
+    newReg
+  );
+  if (updatedIndex !== indexContent) {
+    fs.writeFileSync(indexFile, updatedIndex, 'utf8');
+    console.log(`[index] sw.js registration URL atualizado para ?v=${version}`);
+  }
 }
