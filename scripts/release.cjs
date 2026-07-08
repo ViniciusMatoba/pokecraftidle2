@@ -154,7 +154,7 @@ run(`node node_modules/gh-pages/bin/gh-pages.js -d dist`);
 
 // ─── Deploy para Firebase (Firestore Rules + Hosting) ────────────────────────
 console.log('\n🔒 Deploy para Firebase (Firestore Rules + Hosting)...');
-run('firebase deploy --only firestore:rules,hosting --project pokemon-munchikin', { allowFail: true });
+run('firebase deploy --only firestore:rules,hosting --project pokecraftidle', { allowFail: true });
 
 // Limpa stash residual se tudo deu certo
 runCapture('git stash drop 2>/dev/null || true');
