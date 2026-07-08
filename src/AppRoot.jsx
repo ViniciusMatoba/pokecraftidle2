@@ -2699,6 +2699,19 @@ export default function App() {
 
   // ── Multi-Avatar: seleção/troca de slot ─────────────────────────────────────
   const handleSlotSelected = useCallback(async (slot, meta) => {
+    // Cancela qualquer save debounced pendente do slot anterior — se disparasse
+    // depois da troca de currentSlotRef, gravaria o save de um treinador no doc
+    // do outro (corrupção cruzada de slots).
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = null;
+    }
+    gameStateHashRef.current = null;
+    // Limpa estado de batalha/sessão do treinador anterior
+    setCurrentEnemy(null);
+    setBattleLog([]);
+    sessionRef.current = { kills: 0, coins: 0, trainers: 0, shinyKills: 0, drops: {}, captures: [], recipes: [] };
+
     setShowAvatarSelect(false);
     if (meta) setAvatarMeta(meta);
     setCurrentSlot(slot);
@@ -2787,9 +2800,24 @@ export default function App() {
     setCurrentView('landing');
   }, []);
 
-  const handleOpenAvatarSelect = useCallback(() => {
+  // Troca de treinador em jogo: garante que o progresso do slot atual foi
+  // persistido (local + nuvem) ANTES de abrir a tela de seleção.
+  const handleSwitchTrainer = useCallback(async () => {
+    try {
+      if (isFullyLoadedRef.current && gameStateRef.current) {
+        const stateWithTimestamp = {
+          ...gameStateRef.current,
+          playerStats: { ...gameStateRef.current.playerStats, lastSeenAt: Date.now() },
+        };
+        writeLocalSaveEnvelope(stateWithTimestamp, auth.currentUser, currentSlotRef.current);
+        gameStateHashRef.current = null; // força o save mesmo sem mudança de hash
+        await saveToCloud(stateWithTimestamp);
+      }
+    } catch (e) {
+      console.error('[Avatar] Falha ao salvar antes da troca de treinador:', e);
+    }
     setShowAvatarSelect(true);
-  }, []);
+  }, [saveToCloud]);
   // ────────────────────────────────────────────────────────────────────────────
 
   // ── Resolução de conflito de save (local vs nuvem) ──────────────────────────
@@ -6020,6 +6048,8 @@ export default function App() {
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS, gameState]);
 
+  // Executa a forja diretamente — a confirmação visual acontece no modal da
+  // CraftingStation (pendingCraft); não abrir um segundo confirm genérico aqui.
   const handleCraft = (recipe, quantity = 1) => {
     const qty = Math.max(1, Math.floor(Number(quantity) || 1));
     const currencyCost = (recipe.cost?.currency || 0) * qty;
@@ -6029,72 +6059,54 @@ export default function App() {
         .map(([material, amount]) => [material, amount * qty])
     );
 
-    showConfirm({
-      type: 'confirm',
-      title: 'Confirmar Forja',
-      message: `Deseja forjar ${qty}x ${recipe.name}?`,
-      confirmLabel: 'Forjar',
-      cancelLabel: 'Cancelar',
-      onConfirm: () => {
-        closeConfirm();
+    const currentGameState = gameStateRef.current || gameState;
+    const materials = currentGameState.inventory?.materials || {};
+    const items = currentGameState.inventory?.items || {};
+    const currentCurrency = currentGameState.currency || 0;
 
-        const currentGameState = gameStateRef.current || gameState;
-        const materials = currentGameState.inventory?.materials || {};
-        const items = currentGameState.inventory?.items || {};
-        const currentCurrency = currentGameState.currency || 0;
+    const hasMaterials = Object.entries(materialCost).every(
+      ([material, amount]) => (materials[material] || 0) + (items[material] || 0) >= amount
+    );
+    if (currentCurrency < currencyCost || !hasMaterials) {
+      addLog('Recursos insuficientes para a forja!', 'system');
+      notify({ type: 'error', title: 'Forja falhou', message: 'Recursos insuficientes!' });
+      return;
+    }
 
-        if (currentCurrency < currencyCost) {
-          addLog('Recursos insuficientes para a forja!', 'system');
-          return;
+    // Validação passou: Log determinístico e síncrono antes do update de estado
+    addLog(`✨ Você fabricou: ${qty}x ${recipe.name}!`, 'drop');
+    notify({ type: 'success', title: '⚒️ Item forjado!', message: `${qty}x ${recipe.name} adicionado à mochila.` });
+
+    setGameState(prev => {
+      const prevMaterials = prev.inventory?.materials || {};
+      const prevItems = prev.inventory?.items || {};
+
+      if ((prev.currency || 0) < currencyCost) return prev;
+
+      const newMaterials = { ...prevMaterials };
+      const newItems = { ...prevItems };
+      Object.entries(materialCost).forEach(([material, amount]) => {
+        let remaining = amount;
+        const fromMat = Math.min(remaining, newMaterials[material] || 0);
+        newMaterials[material] = (newMaterials[material] || 0) - fromMat;
+        remaining -= fromMat;
+        if (remaining > 0) {
+          newItems[material] = (newItems[material] || 0) - remaining;
         }
+      });
 
-        const hasMaterials = Object.entries(materialCost).every(
-          ([material, amount]) => (materials[material] || 0) + (items[material] || 0) >= amount
-        );
-        if (!hasMaterials) {
-          addLog('Recursos insuficientes para a forja!', 'system');
-          return;
-        }
+      newItems[recipe.id] = (newItems[recipe.id] || 0) + qty;
 
-        // Validação passou: Log determinístico e síncrono antes do update de estado
-        addLog(`✨ Você fabricou: ${qty}x ${recipe.name}!`, 'drop');
-
-        setGameState(prev => {
-          const prevMaterials = prev.inventory?.materials || {};
-          const prevItems = prev.inventory?.items || {};
-          
-          if ((prev.currency || 0) < currencyCost) return prev;
-
-          const newMaterials = { ...prevMaterials };
-          const newItems = { ...prevItems };
-          Object.entries(materialCost).forEach(([material, amount]) => {
-            let remaining = amount;
-            const fromMat = Math.min(remaining, newMaterials[material] || 0);
-            newMaterials[material] = (newMaterials[material] || 0) - fromMat;
-            remaining -= fromMat;
-            if (remaining > 0) {
-              newItems[material] = (newItems[material] || 0) - remaining;
-            }
-          });
-
-          newItems[recipe.id] = (newItems[recipe.id] || 0) + qty;
-
-          return {
-            ...prev,
-            currency: prev.currency - currencyCost,
-            forgedItemsCount: (prev.forgedItemsCount || 0) + qty,
-            inventory: {
-              ...prev.inventory,
-              materials: newMaterials,
-              items: newItems,
-            },
-          };
-        });
-      },
-      onCancel: () => {
-        setIsForgeConfirmOpen(false);
-        closeConfirm();
-      },
+      return {
+        ...prev,
+        currency: prev.currency - currencyCost,
+        forgedItemsCount: (prev.forgedItemsCount || 0) + qty,
+        inventory: {
+          ...prev.inventory,
+          materials: newMaterials,
+          items: newItems,
+        },
+      };
     });
   };
 
@@ -8092,7 +8104,7 @@ export default function App() {
                        className="animate-bounce"
                      >
                        <img src={POKEAPI_ITEM_URL + 'up-grade.png'} className="h-6 w-6 object-contain" alt="" />
-                       {isIOS ? 'Como Instalar (iOS)' : (installPrompt ? 'Instalar Aplicativo (PWA)' : 'Preparando instala??o...')}
+                       {isIOS ? 'Como Instalar (iOS)' : (installPrompt ? 'Instalar Aplicativo (PWA)' : 'Preparando instalação...')}
                      </button>
                    )}
 
@@ -8155,6 +8167,17 @@ export default function App() {
                    </button>
 
 
+
+                   {/* Trocar de treinador (multi-avatar) sem precisar deslogar */}
+                   {user && (
+                     <button
+                       onClick={handleSwitchTrainer}
+                       style={{width:'100%', padding:'16px', borderRadius:'24px', fontWeight:'900', fontSize:'14px', textTransform:'uppercase', letterSpacing:'1.5px', background:'rgba(168,85,247,0.18)', color:'#e9d5ff', border:'2px solid rgba(168,85,247,0.4)', boxShadow:'0 4px 12px rgba(0,0,0,0.3)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:'10px'}}
+                     >
+                       <span style={{ fontSize: '1.1rem' }}>🔄</span>
+                       Trocar de Treinador
+                     </button>
+                   )}
 
                    {/* ⛔ PROTECTED: Botão REINICIAR JORNADA */}
                    <button
@@ -9795,6 +9818,8 @@ export default function App() {
           muted={muted}
           onToggleMute={toggleMute}
           onReportBug={() => setShowBugReport(true)}
+          onSwitchTrainer={handleSwitchTrainer}
+          trainerNick={avatarMeta?.avatars?.find(a => a.slot === currentSlot)?.nick || null}
         />
         );
       }
@@ -11458,26 +11483,23 @@ export default function App() {
 
               {activeBuildingModal === 'forge' && (
                 <div className="p-4 flex-1 flex flex-col overflow-hidden min-h-0">
-                  <div className="flex items-center justify-between mb-3 gap-2 shrink-0">
-                    <div className="flex flex-col">
-                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Poder Global</span>
-                      <span className="text-xs font-black text-slate-800">{powerScore.toLocaleString()}</span>
-                    </div>
-                    <div className="flex flex-col items-center px-3 py-1 bg-slate-900 rounded-xl border border-white/10">
-                      <span className="text-[7px] font-black text-amber-500 uppercase tracking-widest leading-none mb-0.5">Rank</span>
-                      <span className="text-[9px] font-black text-white italic leading-none">{currentRank}</span>
-                    </div>
-                    <div className="bg-amber-50 border border-amber-200 px-2.5 py-1.5 rounded-xl font-black text-amber-700 text-xs flex items-center gap-1 shrink-0">
-                      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-4 h-4 object-contain" alt="" /> {gameState.currency.toLocaleString()}
-                    </div>
+                  {/* Barra de status compacta: poder · rank · coins numa linha só */}
+                  <div className="flex items-center gap-1.5 mb-2 shrink-0 rounded-2xl bg-slate-900 border border-white/10 px-3 py-2">
+                    <span className="flex items-center gap-1 min-w-0">
+                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider shrink-0">⚡</span>
+                      <span className="text-[11px] font-black text-white truncate">{powerScore.toLocaleString()}</span>
+                    </span>
+                    <span className="text-white/15 mx-0.5">|</span>
+                    <span className="text-[9px] font-black text-amber-400 italic uppercase truncate">{currentRank}</span>
+                    <span className="flex items-center gap-1 ml-auto shrink-0 bg-amber-400/10 border border-amber-400/25 rounded-lg px-2 py-0.5">
+                      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-3.5 h-3.5 object-contain" alt="" />
+                      <span className="text-[11px] font-black text-amber-300">{gameState.currency.toLocaleString()}</span>
+                    </span>
                   </div>
                   {!(gameState.worldFlags || []).includes('mega_evolution_unlocked') && (
-                    <div className="mb-3 rounded-2xl bg-blue-50 border border-blue-200 px-3 py-2.5 flex items-center gap-2.5 shrink-0">
-                      <span className="text-base">💎</span>
-                      <p className="text-[9px] font-black text-blue-700 uppercase tracking-widest leading-tight">
-                        Mega Pedras desbloqueadas após o 1º Ginásio de Kalos (Viola).
-                      </p>
-                    </div>
+                    <p className="mb-2 shrink-0 text-[8px] font-bold text-blue-500 uppercase tracking-wider px-1 leading-tight">
+                      💎 Mega Pedras: desbloqueie no 1º Ginásio de Kalos (Viola)
+                    </p>
                   )}
                   <Suspense fallback={<div className="p-6 text-center font-black text-slate-400 text-xs animate-pulse">Carregando Forja...</div>}>
                     <CraftingStation

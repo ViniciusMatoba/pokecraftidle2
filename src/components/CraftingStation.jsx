@@ -1,8 +1,25 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { ITEM_LABELS } from '../data/constants';
 
 const POKEAPI = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
 const assetPath = (path) => `${(import.meta.env.BASE_URL || '/').replace(/\/$/, '')}${path}`;
+
+// Ícone de material: usa ITEM_LABELS (emoji ou URL); fallback = 📦
+const MaterialIcon = ({ mat, size = 'w-5 h-5' }) => {
+  const meta = ITEM_LABELS[mat];
+  const icon = meta?.icon;
+  if (icon && (String(icon).startsWith('http') || String(icon).startsWith('/'))) {
+    return (
+      <img src={String(icon).startsWith('/') ? assetPath(icon) : icon} alt=""
+        className={`${size} object-contain`} style={{ imageRendering: 'pixelated' }}
+        onError={e => { e.target.style.display = 'none'; }} />
+    );
+  }
+  return <span className="text-sm leading-none">{icon || '📦'}</span>;
+};
+
+const materialLabel = (mat) => ITEM_LABELS[mat]?.name || mat.replace(/_/g, ' ');
 
 // Labels amigáveis para as categorias
 const CATEGORY_LABELS = {
@@ -34,7 +51,8 @@ const CraftingStation = ({
   setGameState,
 }) => {
   const categories = useMemo(() => Object.keys(recipes || {}), [recipes]);
-  const [activeCategory, setActiveCategory] = useState(initialCategory || categories[0] || '');
+  // null = mostra a grade de categorias; string = mostra as receitas da categoria
+  const [activeCategory, setActiveCategory] = useState(initialCategory || null);
   const [showLocked, setShowLocked] = useState(true);
   const [highlightedItem, setHighlightedItem] = useState(initialItem);
   const [tmTypeFilter, setTmTypeFilter] = useState('All');
@@ -116,47 +134,84 @@ const CraftingStation = ({
   return (
     <div className="flex min-h-0 flex-1 flex-col text-left" style={{ pointerEvents: isAnyModalOpen ? 'none' : 'auto' }}>
 
-      {/* Bolsos por categoria — estilo mochila */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3 shrink-0">
-        {categories.map(cat => {
-          const meta = CATEGORY_LABELS[cat] || { label: cat.replace(/_/g, ' '), img: null, caption: 'Itens' };
-          const catItems = (recipes[cat] || []);
-          const unlockedCount = catItems.filter(it => hasRecipe(it.id)).length;
-          const isActive = activeCategory === cat;
-          return (
-            <button
-              key={cat}
-              onClick={() => {
-                setActiveCategory(cat);
-                setTmTypeFilter('All');
-              }}
-              className={`min-h-[68px] rounded-2xl border-2 p-2.5 text-left transition-all active:scale-95 ${
-                isActive
-                  ? 'bg-slate-800 border-slate-900 text-white shadow-lg'
-                  : 'bg-white border-slate-200 text-slate-700 shadow-sm hover:border-slate-400'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${isActive ? 'bg-white/20' : 'bg-slate-100'}`}>
-                  {meta.img ? (
-                    <img src={meta.img} alt={meta.label} className="w-7 h-7 object-contain"
-                      onError={e => { e.target.style.display = 'none'; }} />
-                  ) : (
-                    <span className="text-[10px] font-black text-slate-500 uppercase">?</span>
-                  )}
+      {/* ── Nível 1: grade de categorias (sem scroll horizontal) ───────────── */}
+      {!activeCategory && (
+        <div className="grid grid-cols-2 gap-2.5 overflow-y-auto pr-1 flex-1 content-start scrollbar-hide">
+          {categories.map(cat => {
+            const meta = CATEGORY_LABELS[cat] || { label: cat.replace(/_/g, ' '), img: null, caption: 'Itens' };
+            const catItems = (recipes[cat] || []);
+            const unlockedCount = catItems.filter(it => hasRecipe(it.id)).length;
+            const hasUnlocked = unlockedCount > 0;
+            return (
+              <button
+                key={cat}
+                onClick={() => {
+                  setActiveCategory(cat);
+                  setTmTypeFilter('All');
+                }}
+                className={`rounded-2xl border-2 p-3 text-left transition-all active:scale-95 flex flex-col gap-2 ${
+                  hasUnlocked
+                    ? 'bg-white border-emerald-200 shadow-md hover:border-emerald-400'
+                    : 'bg-white border-slate-200 shadow-sm hover:border-slate-400'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-1">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${hasUnlocked ? 'bg-emerald-50' : 'bg-slate-100'}`}>
+                    {meta.img ? (
+                      <img src={meta.img} alt="" className="w-7 h-7 object-contain"
+                        onError={e => { e.target.style.display = 'none'; }} />
+                    ) : (
+                      <span className="text-base">📦</span>
+                    )}
+                  </div>
+                  <span className={`text-[9px] px-2 py-1 rounded-full font-black shrink-0 ${
+                    hasUnlocked ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400'
+                  }`}>
+                    {unlockedCount}/{catItems.length}
+                  </span>
                 </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black uppercase leading-tight text-slate-800">{meta.label}</p>
+                  <p className="text-[8px] font-bold uppercase tracking-wide text-slate-400 leading-tight">{meta.caption}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Nível 2: receitas da categoria escolhida ───────────────────────── */}
+      {activeCategory && (
+        <div className="flex items-center gap-2 mb-2 shrink-0">
+          <button
+            onClick={() => { setActiveCategory(null); setTmTypeFilter('All'); }}
+            className="shrink-0 w-9 h-9 rounded-xl bg-slate-800 text-white font-black text-sm flex items-center justify-center transition-all active:scale-90 shadow-md"
+            aria-label="Voltar para categorias"
+          >
+            ←
+          </button>
+          {(() => {
+            const meta = CATEGORY_LABELS[activeCategory] || { label: activeCategory.replace(/_/g, ' '), img: null, caption: 'Itens' };
+            const catItems = (recipes[activeCategory] || []);
+            const unlockedCount = catItems.filter(it => hasRecipe(it.id)).length;
+            return (
+              <>
+                {meta.img && (
+                  <img src={meta.img} alt="" className="w-6 h-6 object-contain shrink-0"
+                    onError={e => { e.target.style.display = 'none'; }} />
+                )}
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase leading-tight truncate">{meta.label}</p>
-                  <p className={`text-[8px] font-bold uppercase tracking-wide ${isActive ? 'text-white/60' : 'text-slate-400'}`}>{meta.caption}</p>
+                  <p className="text-[12px] font-black uppercase leading-none text-slate-800 truncate">{meta.label}</p>
+                  <p className="text-[8px] font-bold uppercase tracking-wide text-slate-400">{meta.caption}</p>
                 </div>
-                <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-black shrink-0 ${isActive ? 'bg-white text-slate-800' : 'bg-slate-100 text-slate-500'}`}>
+                <span className="shrink-0 text-[9px] px-2 py-1 rounded-full font-black bg-slate-100 text-slate-500">
                   {unlockedCount}/{catItems.length}
                 </span>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+              </>
+            );
+          })()}
+        </div>
+      )}
 
       {/* Filtro de TMs */}
       {activeCategory === 'tms' && (
@@ -178,23 +233,26 @@ const CraftingStation = ({
       )}
 
       {/* Toggle mostrar/ocultar bloqueados */}
-      <div className="flex items-center gap-2 mb-3 px-1">
+      {activeCategory && (
+      <div className="flex items-center justify-between gap-2 mb-2 px-1 shrink-0">
+        <p className="text-[8px] text-slate-400 font-bold italic truncate min-w-0">
+          Receitas dropam de Pokémon nas rotas
+        </p>
         <button
           onClick={() => setShowLocked(v => !v)}
-          className={`text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl transition-all ${
+          className={`shrink-0 text-[9px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl transition-all ${
             showLocked
               ? 'bg-amber-100 text-amber-700 border border-amber-300'
-              : 'bg-slate-100 text-slate-400'
+              : 'bg-slate-100 text-slate-400 border border-transparent'
           }`}
         >
-          {showLocked ? '🔒 Mostrando bloqueados' : '🔒 Ocultar bloqueados'}
+          🔒 {showLocked ? 'Ocultar' : 'Mostrar'}
         </button>
-        <p className="text-[8px] text-slate-400 font-bold italic">
-          Encontre receitas derrotando Pokémon nas rotas
-        </p>
       </div>
+      )}
 
       {/* Lista de itens */}
+      {activeCategory && (
       <div className="space-y-3 overflow-y-auto pr-1 scrollbar-hide flex-1">
         {filteredItems.map(item => {
           const unlocked = hasRecipe(item.id);
@@ -364,82 +422,247 @@ const CraftingStation = ({
           </div>
         )}
       </div>
+      )}
 
       {/* ── MODAL: CONFIRMAR FORJA ─────────────────────────────────────────── */}
-      {pendingCraft && (() => {
-        const { item, qty } = pendingCraft;
-        const materialCost = Object.fromEntries(Object.entries(item.cost || {}).filter(([m]) => m !== 'currency'));
-        const currencyCost = (item.cost?.currency || 0) * qty;
-        const canExecute = Object.entries(materialCost).every(([mat, amount]) => getAvail(mat) >= amount * qty)
-          && (currencyCost === 0 || currency >= currencyCost);
-        return createPortal(
-          <div className="fixed inset-0 z-[9999999] flex items-center justify-center p-4"
-            style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}>
-            <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border-b-8 border-slate-200"
-              style={{ animation: 'slideInUp 0.2s ease-out both' }}>
-              {/* Header */}
-              <div className="bg-slate-800 px-5 py-4 flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center shrink-0">
-                  <img src={item.img?.startsWith('/') ? item.img : item.img} alt={item.name}
-                    className="w-9 h-9 object-contain"
-                    onError={e => { e.target.style.display = 'none'; }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-white/60 text-[10px] font-black uppercase tracking-widest">CONFIRMAR FORJA</p>
-                  <h3 className="text-white text-base font-black uppercase leading-tight truncate">
-                    {item.name} <span className="text-emerald-400">×{qty}</span>
-                  </h3>
-                </div>
-              </div>
-              {/* Custo resumido */}
-              <div className="px-5 py-4 flex flex-col gap-2">
-                {Object.entries(materialCost).map(([mat, amount]) => {
-                  const total = amount * qty;
-                  const avail = getAvail(mat);
-                  const ok = avail >= total;
-                  return (
-                    <div key={mat} className={`flex justify-between items-center rounded-xl px-3 py-2 ${ok ? 'bg-slate-50' : 'bg-red-50'}`}>
-                      <span className={`text-[11px] font-black uppercase ${ok ? 'text-slate-600' : 'text-red-600'}`}>
-                        {mat.replace(/_/g, ' ')}
-                      </span>
-                      <span className={`text-[11px] font-black ${ok ? 'text-slate-800' : 'text-red-600'}`}>
-                        {avail}/{total} {!ok && '⚠'}
-                      </span>
-                    </div>
-                  );
-                })}
-                {currencyCost > 0 && (
-                  <div className={`flex justify-between items-center rounded-xl px-3 py-2 ${currency >= currencyCost ? 'bg-yellow-50' : 'bg-red-50'}`}>
-                    <span className={`text-[11px] font-black uppercase ${currency >= currencyCost ? 'text-yellow-700' : 'text-red-600'}`}>
-                      💰 Coins
-                    </span>
-                    <span className={`text-[11px] font-black ${currency >= currencyCost ? 'text-yellow-800' : 'text-red-600'}`}>
-                      {currency.toLocaleString()} → {(currency - currencyCost).toLocaleString()} {currency < currencyCost && '⚠'}
-                    </span>
-                  </div>
-                )}
-                {!canExecute && (
-                  <p className="text-red-500 text-[10px] font-black uppercase text-center mt-1">Materiais insuficientes!</p>
-                )}
-              </div>
-              {/* Botões */}
-              <div className="px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-100 pt-3 flex gap-3">
-                <button onClick={() => setPendingCraft(null)}
-                  className="flex-1 min-h-[52px] rounded-2xl bg-slate-100 text-slate-600 font-black text-sm uppercase">
-                  Cancelar
-                </button>
-                <button disabled={!canExecute}
-                  onClick={() => { onCraft(item, qty); setPendingCraft(null); }}
-                  className={`flex-1 min-h-[52px] rounded-2xl text-white font-black text-sm uppercase shadow-lg transition-all active:scale-95 ${canExecute ? 'bg-emerald-600 shadow-emerald-200 hover:bg-emerald-500' : 'bg-slate-300 cursor-not-allowed'}`}>
-                  ⚒ FORJAR
-                </button>
-              </div>
-            </div>
-          </div>
-        , document.body);
-      })()}
+      {pendingCraft && (
+        <ForgeConfirmModal
+          pending={pendingCraft}
+          maxCraft={calculateMaxCraft(pendingCraft.item)}
+          getAvail={getAvail}
+          getOwnedQty={getOwnedQty}
+          currency={currency}
+          onCancel={() => setPendingCraft(null)}
+          onConfirm={(item, qty) => { onCraft(item, qty); setPendingCraft(null); }}
+        />
+      )}
     </div>
   );
+};
+
+// ── Modal de confirmação de forja — tema fornalha ────────────────────────────
+const ForgeConfirmModal = ({ pending, maxCraft, getAvail, getOwnedQty, currency, onCancel, onConfirm }) => {
+  const { item } = pending;
+  const [qty, setQty] = useState(Math.max(1, Math.min(pending.qty || 1, Math.max(maxCraft, 1))));
+  const [forging, setForging] = useState(false);
+
+  // Sincroniza quando o jogador abre o modal para outro item/quantidade
+  useEffect(() => {
+    setQty(Math.max(1, Math.min(pending.qty || 1, Math.max(maxCraft, 1))));
+    setForging(false);
+  }, [pending, maxCraft]);
+
+  const materialCost = Object.fromEntries(Object.entries(item.cost || {}).filter(([m]) => m !== 'currency'));
+  const currencyCostUnit = item.cost?.currency || 0;
+  const currencyCost = currencyCostUnit * qty;
+  const canExecute = qty >= 1 &&
+    Object.entries(materialCost).every(([mat, amount]) => getAvail(mat) >= amount * qty) &&
+    (currencyCost === 0 || currency >= currencyCost);
+  const ownedQty = getOwnedQty(item.id);
+
+  const clampQty = (v) => Math.max(1, Math.min(v, Math.max(maxCraft, 1)));
+
+  const handleForge = () => {
+    if (!canExecute || forging) return;
+    setForging(true);
+    // Micro-animação de martelada antes de executar (feedback tátil da forja)
+    setTimeout(() => onConfirm(item, qty), 650);
+  };
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999999] flex items-center justify-center p-4"
+      style={{ background: 'rgba(2,6,23,0.85)', backdropFilter: 'blur(10px)' }}
+      onClick={forging ? undefined : onCancel}>
+      <style>{`
+        @keyframes forgeHammer {
+          0%, 100% { transform: rotate(0deg); }
+          20% { transform: rotate(-38deg) translateY(-4px); }
+          38% { transform: rotate(14deg) translateY(2px); }
+          50% { transform: rotate(0deg); }
+        }
+        @keyframes forgeSpark {
+          0%   { opacity: 1; transform: translate(0, 0) scale(1); }
+          100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0.2); }
+        }
+        @keyframes forgeGlowPulse {
+          0%, 100% { opacity: 0.55; }
+          50% { opacity: 1; }
+        }
+        @keyframes forgeItemShake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-3px) rotate(-2deg); }
+          75% { transform: translateX(3px) rotate(2deg); }
+        }
+      `}</style>
+      <div
+        className="w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden border-2"
+        style={{
+          background: 'linear-gradient(165deg,#1c1410 0%,#2d1f0a 55%,#1c1410 100%)',
+          borderColor: 'rgba(245,158,11,0.4)',
+          animation: 'slideInUp 0.22s ease-out both',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Brasa no topo */}
+        <div style={{
+          height: 3,
+          background: 'linear-gradient(90deg,transparent,#f59e0b,#fbbf24,#f59e0b,transparent)',
+          animation: 'forgeGlowPulse 2.2s ease-in-out infinite',
+        }} />
+
+        {/* Header: bigorna + item */}
+        <div className="px-6 pt-6 pb-4 text-center relative">
+          <p className="text-[9px] font-black uppercase tracking-[0.3em]" style={{ color: '#f59e0b' }}>
+            🔥 Forja Pokémon
+          </p>
+          <div className="relative mx-auto mt-3 mb-3 flex h-24 w-24 items-center justify-center rounded-[1.75rem] border"
+            style={{ background: 'rgba(245,158,11,0.10)', borderColor: 'rgba(245,158,11,0.35)', boxShadow: 'inset 0 0 24px rgba(245,158,11,0.15)' }}>
+            <img
+              src={item.img?.startsWith('/') ? assetPath(item.img) : item.img}
+              alt={item.name}
+              className="h-16 w-16 object-contain"
+              style={{
+                imageRendering: 'pixelated',
+                filter: 'drop-shadow(0 0 14px rgba(245,158,11,0.6))',
+                animation: forging ? 'forgeItemShake 0.16s linear infinite' : undefined,
+              }}
+              onError={e => { e.target.style.display = 'none'; }}
+            />
+            {/* Martelo forjando */}
+            <span
+              className="absolute -right-3 -top-3 text-3xl select-none"
+              style={{
+                transformOrigin: '80% 80%',
+                animation: forging ? 'forgeHammer 0.32s ease-in-out infinite' : 'forgeHammer 2.4s ease-in-out infinite',
+                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
+              }}
+            >⚒️</span>
+            {/* Faíscas durante a forja */}
+            {forging && [...Array(6)].map((_, i) => (
+              <span key={i} className="absolute text-xs select-none" style={{
+                left: '55%', top: '30%',
+                '--sx': `${(i % 2 ? 1 : -1) * (14 + i * 7)}px`,
+                '--sy': `${-12 - (i * 6)}px`,
+                animation: `forgeSpark ${0.4 + (i % 3) * 0.15}s ease-out ${i * 0.08}s infinite`,
+              }}>✨</span>
+            ))}
+          </div>
+          <h3 className="text-xl font-black uppercase italic leading-tight text-white">{item.name}</h3>
+          <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-amber-200/70">
+            Mochila: {ownedQty.toLocaleString()} <span className="text-amber-400">→ {(ownedQty + qty).toLocaleString()}</span>
+          </p>
+        </div>
+
+        {/* Seletor de quantidade */}
+        <div className="mx-5 mb-3 rounded-2xl border px-4 py-3"
+          style={{ background: 'rgba(0,0,0,0.25)', borderColor: 'rgba(255,255,255,0.08)' }}>
+          <p className="mb-2 text-center text-[8px] font-black uppercase tracking-[0.25em] text-white/40">Quantidade</p>
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={() => setQty(q => clampQty(q - 1))}
+              disabled={forging || qty <= 1}
+              className="h-10 w-10 rounded-xl bg-white/10 text-lg font-black text-white transition-all active:scale-90 disabled:opacity-25"
+            >−</button>
+            <span className="min-w-[72px] text-center text-3xl font-black italic text-amber-400 tabular-nums">×{qty}</span>
+            <button
+              onClick={() => setQty(q => clampQty(q + 1))}
+              disabled={forging || qty >= maxCraft}
+              className="h-10 w-10 rounded-xl bg-white/10 text-lg font-black text-white transition-all active:scale-90 disabled:opacity-25"
+            >+</button>
+          </div>
+          <div className="mt-2.5 flex justify-center gap-2">
+            {[1, 10].map(n => (
+              <button key={n}
+                onClick={() => setQty(clampQty(n))}
+                disabled={forging || maxCraft < n}
+                className={`rounded-lg px-3 py-1 text-[9px] font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-25 ${
+                  qty === n ? 'bg-amber-500 text-slate-950' : 'bg-white/10 text-white/70'
+                }`}
+              >x{n}</button>
+            ))}
+            <button
+              onClick={() => setQty(clampQty(maxCraft))}
+              disabled={forging || maxCraft <= 0}
+              className={`rounded-lg px-3 py-1 text-[9px] font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-25 ${
+                qty === maxCraft && maxCraft > 0 ? 'bg-amber-500 text-slate-950' : 'bg-white/10 text-white/70'
+              }`}
+            >Max ({maxCraft})</button>
+          </div>
+        </div>
+
+        {/* Custos */}
+        <div className="mx-5 mb-4 flex flex-col gap-1.5">
+          {Object.entries(materialCost).map(([mat, amount]) => {
+            const total = amount * qty;
+            const avail = getAvail(mat);
+            const ok = avail >= total;
+            const pct = Math.min(100, Math.round((avail / total) * 100));
+            return (
+              <div key={mat} className="rounded-xl border px-3 py-2"
+                style={{
+                  background: ok ? 'rgba(255,255,255,0.04)' : 'rgba(239,68,68,0.10)',
+                  borderColor: ok ? 'rgba(255,255,255,0.08)' : 'rgba(239,68,68,0.35)',
+                }}>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-2 min-w-0">
+                    <MaterialIcon mat={mat} />
+                    <span className={`truncate text-[10px] font-black uppercase ${ok ? 'text-white/80' : 'text-red-300'}`}>
+                      {materialLabel(mat)}
+                    </span>
+                  </span>
+                  <span className={`shrink-0 text-[11px] font-black tabular-nums ${ok ? 'text-amber-300' : 'text-red-400'}`}>
+                    {avail.toLocaleString()}<span className="text-white/40">/{total.toLocaleString()}</span> {!ok && '⚠'}
+                  </span>
+                </div>
+                <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-black/40">
+                  <div className="h-full rounded-full transition-all"
+                    style={{ width: `${pct}%`, background: ok ? 'linear-gradient(90deg,#f59e0b,#fbbf24)' : '#ef4444' }} />
+                </div>
+              </div>
+            );
+          })}
+          {currencyCostUnit > 0 && (
+            <div className="flex items-center justify-between rounded-xl border px-3 py-2"
+              style={{
+                background: currency >= currencyCost ? 'rgba(250,204,21,0.08)' : 'rgba(239,68,68,0.10)',
+                borderColor: currency >= currencyCost ? 'rgba(250,204,21,0.25)' : 'rgba(239,68,68,0.35)',
+              }}>
+              <span className="flex items-center gap-2 text-[10px] font-black uppercase text-yellow-200/90">
+                <img src={`${POKEAPI}nugget.png`} alt="" className="w-5 h-5 object-contain" /> Coins
+              </span>
+              <span className={`text-[11px] font-black tabular-nums ${currency >= currencyCost ? 'text-yellow-300' : 'text-red-400'}`}>
+                {currency >= currencyCost
+                  ? <>{currency.toLocaleString()} <span className="text-white/40">→</span> {(currency - currencyCost).toLocaleString()}</>
+                  : <>{currency.toLocaleString()}<span className="text-white/40">/{currencyCost.toLocaleString()}</span> ⚠</>}
+              </span>
+            </div>
+          )}
+          {!canExecute && (
+            <p className="mt-1 text-center text-[10px] font-black uppercase tracking-widest text-red-400">
+              Materiais insuficientes para ×{qty}
+            </p>
+          )}
+        </div>
+
+        {/* Botões */}
+        <div className="flex gap-3 px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+          <button onClick={onCancel} disabled={forging}
+            className="flex-1 min-h-[52px] rounded-2xl bg-white/10 text-sm font-black uppercase tracking-widest text-white/80 transition-all active:scale-95 disabled:opacity-40">
+            Cancelar
+          </button>
+          <button disabled={!canExecute || forging} onClick={handleForge}
+            className="flex-[1.4] min-h-[52px] rounded-2xl text-sm font-black uppercase tracking-widest transition-all active:scale-95 disabled:cursor-not-allowed"
+            style={canExecute ? {
+              background: 'linear-gradient(135deg,#f59e0b,#d97706)',
+              color: '#1c1410',
+              boxShadow: '0 6px 24px rgba(245,158,11,0.45)',
+            } : { background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.25)' }}>
+            {forging ? '🔥 Forjando...' : `⚒️ Forjar ×${qty}`}
+          </button>
+        </div>
+      </div>
+    </div>
+  , document.body);
 };
 
 export default CraftingStation;

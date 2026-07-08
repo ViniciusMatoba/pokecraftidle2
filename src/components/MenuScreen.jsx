@@ -329,7 +329,7 @@ const ExpCandyModal = ({ candy, gameState, onUse, onClose }) => {
   );
 };
 
-const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onExportSave, onImportSave, onShowTutorial, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0, missionsNotificationCount = 0, setVsInitialTab, setVsInitialCategory, setVsInitialRegion, muted, onToggleMute, onReportBug }) => {
+const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onExportSave, onImportSave, onShowTutorial, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0, missionsNotificationCount = 0, setVsInitialTab, setVsInitialCategory, setVsInitialRegion, muted, onToggleMute, onReportBug, onSwitchTrainer, trainerNick = null }) => {
   const [updating, setUpdating] = useState(false);
   const [subView, setSubView] = useState('main'); // 'main' ou 'settings'
   const [activeTab, setActiveTab] = useState('balls');
@@ -357,6 +357,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
     { id: 'settings', name: 'Configuracoes',  icon: `${POKEAPI_ITEM}vs-seeker.png`,         desc: 'Ajustes do sistema',      color: 'bg-indigo-50 border-indigo-200 text-indigo-600' },
     { id: 'bug_report', name: 'Reportar Bug', icon: '🐛',                                   desc: 'Reportar erro ou problema', color: 'bg-red-50 border-red-200 text-red-700' },
     { id: 'save',     name: 'Salvar Jogo',    icon: '💾',                                   desc: 'Progresso em Nuvem',      color: 'bg-green-50 border-green-200 text-green-600' },
+    ...(onSwitchTrainer ? [{ id: 'switch_trainer', name: 'Trocar de Treinador', icon: '🔄', desc: trainerNick ? `Jogando como ${trainerNick}` : 'Escolher outro avatar', color: 'bg-purple-50 border-purple-200 text-purple-700' }] : []),
     { id: 'exit',     name: 'Sair do Jogo',   icon: `${POKEAPI_ITEM}escape-rope.png`,       desc: 'Voltar ao inicio',        color: 'bg-slate-50 border-slate-200 text-slate-600' },
   ];
 
@@ -387,6 +388,16 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
                   onConfirm: closeConfirm
                 });
               }
+            }
+            else if (item.id === 'switch_trainer') {
+              showConfirm({
+                title: 'Trocar de Treinador',
+                message: 'Seu progresso atual sera salvo na nuvem antes da troca. Deseja continuar?',
+                onConfirm: () => {
+                  closeConfirm();
+                  if (onSwitchTrainer) onSwitchTrainer();
+                }
+              });
             }
             else if (item.id === 'bug_report') {
               if (onReportBug) onReportBug();

@@ -4,6 +4,10 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: './',
+  // Respeita a porta atribuída pelo ambiente (preview/CI); fallback 5173
+  server: {
+    port: Number(process.env.PORT) || 5173,
+  },
   build: {
     sourcemap: false,
     minify: true,
