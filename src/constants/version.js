@@ -1,8 +1,14 @@
-export const APP_VERSION = '2.11.50';
-export const VERSION = '2.11.50';
-export const APP_VERSION_DATE = '08/07/2026 17:00';
+export const APP_VERSION = '2.11.51';
+export const VERSION = '2.11.51';
+export const APP_VERSION_DATE = '08/07/2026 17:25';
 export const CHANGELOG = [
-  '## [V2.11.50] - 08/07/2026 17:00',
+  '## [V2.11.51] - 08/07/2026 17:25',
+  '### Correção crítica de login',
+  '- **Save carregado corretamente**: revertida lógica quebrada do Codex que substituiu `hasPlayableProgress` por verificações incompletas, fazendo o jogo ignorar saves com equipe/PC/caughtData.',
+  '- **Botões do menu desbloqueados**: a condição `menuUnlocked` voltou a incluir `hasPlayableProgress`, liberando os botões de Rotas, Equipe, VS e Cidade para saves existentes.',
+  '- **`hasPlayableProgress` restaurada**: função exportada de volta em `progress.js` com todos os critérios originais (equipe, PC, insígnias, flags, moeda, Torre, tempo de jogo).',
+  '- **Carregamento de progresso robusto**: `loadGameState` reverte ao comportamento original simples — carrega o save e retorna sem verificações desnecessárias que causavam falsos negatives.',
+  '',
   '### Mega Evolutions Oficiais',
   '- **Conteúdo fan-made removido**: Mega Stones e formas Mega inventadas foram removidas da Pokédex, Forja e mapa de Mega Evolution.',
   '- **Somente jogos oficiais**: o sistema agora mantém apenas Mega Evolutions reais de XY/ORAS e Pokémon Legends: Z-A/Mega Dimension.',

@@ -1,5 +1,5 @@
 {
-  "version": "2.11.50",
-  "date": "08/07/2026 17:00",
-  "notes": "Mega Evolutions oficiais: removidas Mega Stones e formas fan-made da Pokedex, Forja e mapa de Mega Evolution"
+  "version": "2.11.51",
+  "date": "08/07/2026 17:25",
+  "notes": "Correção crítica de login: save carregado com progresso completo, botões do menu desbloqueados"
 }

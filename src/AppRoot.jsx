@@ -84,7 +84,7 @@ import { QUESTS, updateQuestProgress, getAvailableQuest } from './data/quests';
 import NotificationSystem, { notify } from './components/NotificationSystem';
 import { getCaptureRate, pickWeightedEncounter } from './utils/pokemonDifficulty';
 import { preloadAssets } from './utils/preloader';
-import { calculatePowerScore, getBadgeCount } from './utils/progress';
+import { calculatePowerScore, getBadgeCount, hasPlayableProgress } from './utils/progress';
 import { migrateGameState } from './utils/saveMigration';
 import { computeGameStateHash } from './utils/stateHash';
 import { ensureRetentionState, getRetentionViewModel, RETENTION_DAILY_MISSIONS, RETENTION_WEEKLY_MISSIONS } from './data/retention';
@@ -1061,7 +1061,7 @@ export default function App() {
               saveToCloud(migratedData).catch(() => { /* silencia — retry automático */ });
             }
 
-            const hasRealProgress = (migratedData.worldFlags || []).length > 0 || (migratedData.badges || []).length > 0;
+            const hasRealProgress = hasPlayableProgress(migratedData);
             if (hasRealProgress) {
               setCurrentView('city');
             }
@@ -2287,11 +2287,7 @@ export default function App() {
     }
 
     // Validação de estado: recusa salvar um estado completamente vazio (sem progresso)
-    const _hasProgress = (dataToSave.team?.length > 0) ||
-      (dataToSave.pc?.length > 0) ||
-      Object.keys(dataToSave.caughtData || {}).length > 0 ||
-      (dataToSave.badges?.length > 0) ||
-      (dataToSave.worldFlags?.length > 0);
+    const _hasProgress = hasPlayableProgress(dataToSave);
     if (!_hasProgress && !dataToSave._allowEmptySave) {
       if (import.meta.env.DEV) console.warn('[Save] Bloqueado: estado sem progresso detectado, save ignorado.');
       return;
@@ -2737,7 +2733,7 @@ export default function App() {
           else setTimeout(runOfflineCalc, 100);
         }
 
-        const hasRealProgress = (migratedData.worldFlags || []).length > 0 || (migratedData.badges || []).length > 0;
+        const hasRealProgress = hasPlayableProgress(migratedData);
         setCurrentView(hasRealProgress ? 'city' : 'landing');
       } else {
         // Slot novo ou sem save na nuvem
@@ -2747,7 +2743,7 @@ export default function App() {
           setGameState(migratedLocal);
           isFullyLoadedRef.current = true;
           saveToCloud(migratedLocal).catch(() => {});
-          const hasProgress = (migratedLocal.worldFlags || []).length > 0 || (migratedLocal.badges || []).length > 0;
+          const hasProgress = hasPlayableProgress(migratedLocal);
           setCurrentView(hasProgress ? 'city' : 'landing');
         } else {
           // Slot completamente novo: começa do zero
@@ -2796,7 +2792,7 @@ export default function App() {
     } else {
       notify('Save da nuvem carregado. ✅', 'success');
     }
-    const hasRealProgress = (migrated.worldFlags || []).length > 0 || (migrated.badges || []).length > 0;
+    const hasRealProgress = hasPlayableProgress(migrated);
     setCurrentView(hasRealProgress ? 'city' : 'landing');
   }, [saveConflict, saveToCloud]);
   // ────────────────────────────────────────────────────────────────────────────
@@ -7895,14 +7891,7 @@ export default function App() {
 
     switch(currentView) {
       case 'landing': {
-        const hasSave = Boolean(
-          (gameState.team && gameState.team.length > 0) ||
-          (gameState.pc && gameState.pc.length > 0) ||
-          Object.values(gameState.regional_teams || gameState.regionalTeams || {}).some(team => (team || []).length > 0) ||
-          Object.keys(gameState.caughtData || {}).length > 0 ||
-          (gameState.worldFlags || []).length > 0 ||
-          (gameState.badges || []).length > 0
-        );
+        const hasSave = hasPlayableProgress(gameState);
         const startNewJourney = async () => {
           const freshState = removeUndefinedFields({ ...DEFAULT_GAME_STATE, version: APP_VERSION, lastUpdate: APP_VERSION_DATE });
           setGameState(freshState);
@@ -11019,7 +11008,7 @@ export default function App() {
 
       {currentView !== 'landing' && (!loading && user) && (() => {
         const isRivalBattle = currentEnemy?.isInitialRival === true;
-        const menuUnlocked = (gameState.oakTutorialShown || (gameState.worldFlags && gameState.worldFlags.includes('has_starter'))) && !isRivalBattle;
+        const menuUnlocked = (hasPlayableProgress(gameState) || gameState.oakTutorialShown || (gameState.worldFlags && gameState.worldFlags.includes('has_starter'))) && !isRivalBattle;
         return (
           <nav className="absolute bottom-0 left-0 right-0 w-full bg-white border-t border-slate-200 flex items-center justify-around px-2 py-2 z-[500] shadow-xl">
 

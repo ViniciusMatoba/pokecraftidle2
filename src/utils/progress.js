@@ -112,6 +112,29 @@ export const calculatePowerScore = (gameState = {}, pokedex = {}) => {
   return pokemonPower + (getBadgeCount(gameState) * 1000);
 };
 
+export const hasPlayableProgress = (gameState = {}) => {
+  const regionalTeams = Object.values(gameState.regional_teams || gameState.regionalTeams || {});
+  const regionalPc = Object.values(gameState.regional_pc || gameState.regionalPc || {});
+
+  return Boolean(
+    (gameState.team || []).length > 0 ||
+    (gameState.pc || []).length > 0 ||
+    regionalTeams.some(team => (team || []).length > 0) ||
+    regionalPc.some(pc => (pc || []).length > 0) ||
+    Object.keys(gameState.caughtData || {}).length > 0 ||
+    (gameState.worldFlags || []).length > 0 ||
+    (gameState.badges || []).length > 0 ||
+    gameState.activeRegion && gameState.activeRegion !== 'kanto' ||
+    gameState.currentRoute && gameState.currentRoute !== 'pallet_town' ||
+    gameState.oakTutorialShown === true ||
+    Number(gameState.currency || 0) > 0 ||
+    Number(gameState.tower?.highestFloor || 0) > 0 ||
+    Number(gameState.tower?.bp || 0) > 0 ||
+    Number(gameState.prestige?.trophies?.length || 0) > 0 ||
+    Number(gameState.playerStats?.playTimeMs || 0) > 0
+  );
+};
+
 export const hasBadge = (gameState = {}, badgeId, order) => {
   const earned = getEarnedBadgeIds(gameState);
   if (earned.has(badgeId)) return true;
