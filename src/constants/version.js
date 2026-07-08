@@ -1,7 +1,16 @@
-export const APP_VERSION = '2.11.48';
-export const VERSION = '2.11.48';
-export const APP_VERSION_DATE = '08/07/2026 16:32';
+export const APP_VERSION = '2.11.49';
+export const VERSION = '2.11.49';
+export const APP_VERSION_DATE = '08/07/2026 16:49';
 export const CHANGELOG = [
+  '## [V2.11.49] - 08/07/2026 16:49',
+  '### Consolidação das Correções do Claude',
+  '- **Projeto único seguro**: alterações úteis da pasta antiga foram consolidadas sobre a base limpa publicada, preservando backup completo da cópia antiga.',
+  '- **Starters consistentes**: Pokémon iniciais agora derivam HP e atributos diretamente da Pokédex usando a mesma fórmula do level-up, evitando redução de status ao subir nível.',
+  '- **Mega Evolution alinhada**: mapa de Mega Evolution, Pokédex e receitas foram sincronizados para corrigir IDs divergentes de Mega Stones e liberar evoluções que estavam sem caminho de forja.',
+  '- **Receitas adicionadas**: Skarmorite, Kingdraite, Miltankite, Blisseyite e Shedinjite foram adicionadas à Forja.',
+  '- **Testes novos**: adicionadas regressões para stats dos starters e consistência de Mega Evolution entre Pokédex, receitas, ícones e sprites.',
+  '- **Tooling atualizado**: ESLint atualizado para a configuração moderna; problemas legados de hooks/chaves duplicadas seguem como avisos para tratamento em sprint próprio.',
+  '',
   '## [V2.11.48] - 08/07/2026 16:32',
   '### Save por E-mail — Multi-Treinador',
   '- **Slot 1 persistido**: contas novas ou antigas sem `avatarMeta` agora criam o slot 1 real no Firestore ao logar, garantindo a mesma seleção de treinador no computador e no celular.',

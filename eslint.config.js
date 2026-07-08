@@ -23,7 +23,12 @@ export default defineConfig([
       },
     },
     rules: {
+      'no-dupe-keys': 'warn',
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^(_|[A-Z_])' }],
+      'no-empty': ['error', { allowEmptyCatch: true }],
+      'no-useless-assignment': 'warn',
+      'react-hooks/rules-of-hooks': 'warn',
+      'react-hooks/refs': 'off',
       'react-hooks/purity': 'off',
       'react-hooks/set-state-in-effect': 'off',
       'react-hooks/immutability': 'off',

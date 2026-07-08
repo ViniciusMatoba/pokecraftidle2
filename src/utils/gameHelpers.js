@@ -16,6 +16,25 @@ export const getMasteryPath = (pokemonId) => {
   };
 };
 
+export const calcHpStat = (base, level, mult = 1) =>
+  Math.max(1, Math.ceil(Math.ceil(((2 * (base || 45) * level) / 100) + level + 10) * mult));
+
+export const calcBattleStat = (base, level, mult = 1) =>
+  Math.max(1, Math.ceil(Math.ceil(((2 * (base || 45) * level) / 100) + 5) * mult));
+
+export const buildStatsFromBase = (base = {}, level = 5, mult = 1) => {
+  const maxHp = calcHpStat(base.hp ?? base.maxHp, level, mult);
+  return {
+    maxHp,
+    hp: maxHp,
+    attack: calcBattleStat(base.attack, level, mult),
+    defense: calcBattleStat(base.defense, level, mult),
+    spAtk: calcBattleStat(base.spAtk, level, mult),
+    spDef: calcBattleStat(base.spDef, level, mult),
+    speed: calcBattleStat(base.speed, level, mult),
+  };
+};
+
 export const getEffectiveStat = (pokemon, stat) => {
   // Se o pokémon já tem o status calculado (ex: no time do jogador), usa ele.
   // Caso contrário, tenta calcular (fallback para NPCs/Enemies simples).

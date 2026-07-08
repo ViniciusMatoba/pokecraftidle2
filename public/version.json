@@ -1,5 +1,5 @@
 {
-  "version": "2.11.48",
-  "date": "08/07/2026 16:32",
-  "notes": "Save por e-mail: slot 1 persistido em avatarMeta, reset respeita treinador selecionado e validação de nome usa o docId do slot atual"
+  "version": "2.11.49",
+  "date": "08/07/2026 16:49",
+  "notes": "Consolidacao das correcoes do Claude: starters com stats canonicos, Mega Evolution sincronizada com Pokedex/Forja e testes de regressao adicionados"
 }

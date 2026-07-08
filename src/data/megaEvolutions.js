@@ -1,7 +1,10 @@
 // ── Sistema de Mega Evolução Permanente — PokéCraft Idle 2 ────────────────────
 // Sprites via Pokémon Showdown: play.pokemonshowdown.com/sprites/dex/{showdownId}.png
-// 96 Mega Evoluções: 48 canônicas (XY/ORAS/SM) + 24 já listadas + 24 novas de Legends: Z-A
-// Fonte oficial: Serebii.net/legendsz-a/megaevolutions (confirmado via screenshots do jogo)
+// Cobertura: 48 Megas canônicas (XY/ORAS) + TODAS as novas de Legends: Z-A
+// (jogo base + DLC Mega Dimension, fonte: Serebii) + Megas fan-made do jogo.
+// IDs das pedras são canônicos: iguais aos usados em recipes.js (forja) e nos
+// itens de evolução do pokedex.js — nunca divergir entre os três arquivos.
+import { POKEDEX } from './pokedex.js';
 
 export const MEGA_STONE_ICONS = {
   // ── KANTO ─────────────────────────────────────────────────────────────────
@@ -17,16 +20,16 @@ export const MEGA_STONE_ICONS = {
   slowbronite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/slowbronite.png',
   gengarite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/gengarite.png',
   kangaskhanite:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/kangaskhanite.png',
-  starminite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/starminite.png',
+  starmiite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/starmiite.png',
   pinsirite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pinsirite.png',
   gyaradosite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/gyaradosite.png',
   aerodactylite:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/aerodactylite.png',
-  dragoninite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dragoninite.png',
+  dragonitite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dragonitite.png',
   mewtwonite_x:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/mewtwonite-x.png',
   mewtwonite_y:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/mewtwonite-y.png',
   // ── JOHTO ─────────────────────────────────────────────────────────────────
   meganiumite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/meganiumite.png',
-  feraligite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/feraligite.png',
+  feraligatrite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/feraligatrite.png',
   ampharosite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ampharosite.png',
   steelixite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/steelixite.png',
   scizorite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/scizorite.png',
@@ -39,7 +42,7 @@ export const MEGA_STONE_ICONS = {
   blazikenite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/blazikenite.png',
   swampertite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/swampertite.png',
   gardevoirite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/gardevoirite.png',
-  sablenite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sablenite.png',
+  sableyite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sableyite.png',
   mawilite:        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/mawilite.png',
   aggronite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/aggronite.png',
   medichamite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/medichamite.png',
@@ -54,7 +57,7 @@ export const MEGA_STONE_ICONS = {
   metagrossite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/metagrossite.png',
   latiasite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/latiasite.png',
   latiosite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/latiosite.png',
-  dragonascent:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dragon-ascent.png',
+  rayquazaite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dragon-ascent.png',
   // ── SINNOH ────────────────────────────────────────────────────────────────
   lopunnite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lopunnite.png',
   garchompite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/garchompite.png',
@@ -85,16 +88,16 @@ export const MEGA_STONE_ICONS = {
   scovillainite:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/scovillainite.png',
   glimmoranite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/glimmoranite.png',
   // ── DLC ───────────────────────────────────────────────────────────────────
-  chimechite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/chimechite.png',
+  chimechoite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/chimechoite.png',
   // ── LEGENDS: Z-A — Mega Pedras Oficiais (confirmadas via Serebii) ──────────
-  raichurite_x:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
-  raichurite_y:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
+  raichuite_x:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
+  raichuite_y:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
   absolite_z:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/absolite.png',
   staraptorite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sharp-beak.png',
   garchompite_z:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/garchompite.png',
   lucarionite_z:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucarionite.png',
-  darkraite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dread-plate.png',
-  scolipedite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poison-barb.png',
+  darkraiite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dread-plate.png',
+  scolipidite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poison-barb.png',
   scraftite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dark-gem.png',
   eelektrossite:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/zap-plate.png',
   pyroarite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/flame-plate.png',
@@ -103,14 +106,44 @@ export const MEGA_STONE_ICONS = {
   dragalgite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/draco-plate.png',
   zygardite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/earth-plate.png',
   golisopodite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/insect-plate.png',
-  magarnaite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron-plate.png',
-  magarnaite_oc:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron-plate.png',
-  zeraorite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/zap-plate.png',
+  magearnaite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron-plate.png',
+  magearnaite_oc:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron-plate.png',
+  zeraoraite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/zap-plate.png',
   falinksite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fist-plate.png',
   tatsugirite_c:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/draco-plate.png',
   tatsugirite_d:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/draco-plate.png',
   tatsugirite_s:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/draco-plate.png',
   baxcaliburite:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/icicle-plate.png',
+  // ── Megas adicionais (fan + Z-A) — gerados na reconciliação v2.12 ─────────
+  butterfreeite:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/insect-plate.png',
+  machampite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fist-plate.png',
+  typhlosionite:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/flame-plate.png',
+  kingdraite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/splash-plate.png',
+  miltankite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png',
+  blisseyite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png',
+  shedinjite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/insect-plate.png',
+  flygonite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/draco-plate.png',
+  torterrite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/meadow-plate.png',
+  infernapite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/flame-plate.png',
+  empoleonite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/splash-plate.png',
+  luxrayite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/zap-plate.png',
+  heatranite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/flame-plate.png',
+  serperiorite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/meadow-plate.png',
+  samurottite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/splash-plate.png',
+  haxorusite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/draco-plate.png',
+  hydreigonite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/draco-plate.png',
+  goodraite:       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/draco-plate.png',
+  decidueyite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/meadow-plate.png',
+  incineroarite:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/flame-plate.png',
+  primarinite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/splash-plate.png',
+  kommo_oite:      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/draco-plate.png',
+  rillaboomite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/meadow-plate.png',
+  cinderacite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/flame-plate.png',
+  inteleonite:     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/splash-plate.png',
+  dragapultite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/draco-plate.png',
+  meowscaradite:   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/meadow-plate.png',
+  skeledirgite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/flame-plate.png',
+  quaquavalite:    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/splash-plate.png',
 };
 
 // Mapa completo de Mega Evoluções — Pokémon Legends: Z-A
@@ -193,7 +226,7 @@ export const MEGA_EVOLUTION_MAP = {
     statBonus: { attack: 0.30, speed: 0.20, defense: 0.15 },
     craftCost: { normal_essence: 15, currency: 1800 },
   },
-  starminite: {
+  starmiite: {
     baseId: 121, showdownId: 'starmie-mega',
     name: 'Mega Starmie', types: ['Water', 'Psychic'],
     statBonus: { spAtk: 0.40, speed: 0.30, spDef: 0.10 },
@@ -217,7 +250,7 @@ export const MEGA_EVOLUTION_MAP = {
     statBonus: { attack: 0.30, speed: 0.30, defense: 0.15 },
     craftCost: { rock_essence: 10, old_amber: 3, currency: 1800 },
   },
-  dragoninite: {
+  dragonitite: {
     baseId: 149, showdownId: 'dragonite-mega',
     name: 'Mega Dragonite', types: ['Dragon', 'Flying'],
     statBonus: { attack: 0.35, spAtk: 0.20, speed: 0.20 },
@@ -246,7 +279,7 @@ export const MEGA_EVOLUTION_MAP = {
     statBonus: { spAtk: 0.25, spDef: 0.35, defense: 0.20 },
     craftCost: { grass_essence: 12, fairy_essence: 5, currency: 1800 },
   },
-  feraligite: {
+  feraligatrite: {
     baseId: 160, showdownId: 'feraligatr-mega',
     name: 'Mega Feraligatr', types: ['Water', 'Dark'],
     statBonus: { attack: 0.40, speed: 0.20, defense: 0.15 },
@@ -323,7 +356,7 @@ export const MEGA_EVOLUTION_MAP = {
     statBonus: { spAtk: 0.40, spDef: 0.20, defense: 0.10 },
     craftCost: { psychic_essence: 12, fairy_essence: 5, currency: 2000 },
   },
-  sablenite: {
+  sableyite: {
     baseId: 302, showdownId: 'sableye-mega',
     name: 'Mega Sableye', types: ['Dark', 'Ghost'],
     statBonus: { defense: 0.40, spDef: 0.30, attack: 0.10 },
@@ -413,7 +446,7 @@ export const MEGA_EVOLUTION_MAP = {
     statBonus: { spAtk: 0.40, speed: 0.20, defense: 0.15 },
     craftCost: { dragon_scale: 8, psychic_essence: 8, currency: 3000 },
   },
-  dragonascent: {
+  rayquazaite: {
     baseId: 384, showdownId: 'rayquaza-mega',
     name: 'Mega Rayquaza', types: ['Dragon', 'Flying'],
     statBonus: { attack: 0.40, spAtk: 0.30, speed: 0.15 },
@@ -592,7 +625,7 @@ export const MEGA_EVOLUTION_MAP = {
   // DLC — Mega Dimension
   // ══════════════════════════════════════════════════════════════════════════
 
-  chimechite: {
+  chimechoite: {
     baseId: 358, showdownId: 'chimecho-mega',
     name: 'Mega Chimecho', types: ['Psychic'],
     statBonus: { spAtk: 0.35, spDef: 0.30, speed: 0.15 },
@@ -604,13 +637,13 @@ export const MEGA_EVOLUTION_MAP = {
   // ══════════════════════════════════════════════════════════════════════════
 
   // Raichu X (físico) e Y (especial) — variantes exclusivas de Z-A
-  raichurite_x: {
+  raichuite_x: {
     baseId: 26, showdownId: 'raichu-megax',
     name: 'Mega Raichu X', types: ['Electric', 'Psychic'],
     statBonus: { attack: 0.45, speed: 0.20, defense: 0.10 },
     craftCost: { electric_essence: 12, psychic_essence: 5, currency: 2500 },
   },
-  raichurite_y: {
+  raichuite_y: {
     baseId: 26, showdownId: 'raichu-megay',
     name: 'Mega Raichu Y', types: ['Electric'],
     statBonus: { spAtk: 0.50, speed: 0.20, defense: 0.10 },
@@ -650,7 +683,7 @@ export const MEGA_EVOLUTION_MAP = {
   },
 
   // Darkrai — Dark
-  darkraite: {
+  darkraiite: {
     baseId: 491, showdownId: 'darkrai-mega',
     name: 'Mega Darkrai', types: ['Dark'],
     statBonus: { spAtk: 0.45, speed: 0.25, defense: 0.10 },
@@ -658,7 +691,7 @@ export const MEGA_EVOLUTION_MAP = {
   },
 
   // Scolipede — Bug/Poison
-  scolipedite: {
+  scolipidite: {
     baseId: 545, showdownId: 'scolipede-mega',
     name: 'Mega Scolipede', types: ['Bug', 'Poison'],
     statBonus: { attack: 0.40, speed: 0.30, defense: 0.10 },
@@ -730,7 +763,7 @@ export const MEGA_EVOLUTION_MAP = {
   },
 
   // Magearna — Steel/Fairy
-  magarnaite: {
+  magearnaite: {
     baseId: 801, showdownId: 'magearna-mega',
     name: 'Mega Magearna', types: ['Steel', 'Fairy'],
     statBonus: { spAtk: 0.35, spDef: 0.30, defense: 0.15 },
@@ -738,7 +771,7 @@ export const MEGA_EVOLUTION_MAP = {
   },
 
   // Magearna Original Color — Steel/Fairy (forma alternativa)
-  magarnaite_oc: {
+  magearnaite_oc: {
     baseId: 801, showdownId: 'magearna-original-mega',
     name: 'Mega Magearna (Cor Original)', types: ['Steel', 'Fairy'],
     statBonus: { spAtk: 0.35, spDef: 0.30, defense: 0.15 },
@@ -746,7 +779,7 @@ export const MEGA_EVOLUTION_MAP = {
   },
 
   // Zeraora — Electric
-  zeraorite: {
+  zeraoraite: {
     baseId: 807, showdownId: 'zeraora-mega',
     name: 'Mega Zeraora', types: ['Electric'],
     statBonus: { speed: 0.40, attack: 0.30, defense: 0.10 },
@@ -789,6 +822,186 @@ export const MEGA_EVOLUTION_MAP = {
     craftCost: { dragon_scale: 12, ice_crystal: 8, currency: 3000 },
   },
 
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // RECONCILIAÇÃO v2.12 — pedras com receita/Pokédex que faltavam no mapa
+  // (stats derivados das entradas 20xxx da Pokédex)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  butterfreeite: {
+    baseId: 12, megaId: 20012, showdownId: 'butterfree-mega',
+    name: 'Mega Butterfree', types: ['Bug', 'Psychic'],
+    statBonus: { attack: 0.44, defense: 0.4, spAtk: 0.33, spDef: 0.38 },
+    craftCost: { mega_stone_shard: 15, bug_essence: 150, psychic_essence: 50, currency: 75000 },
+  },
+  machampite: {
+    baseId: 68, megaId: 20068, showdownId: 'machamp-mega',
+    name: 'Mega Machamp', types: ['Fighting'],
+    statBonus: { attack: 0.23, defense: 0.25, spAtk: 0.31, spDef: 0.24, speed: 0.18 },
+    craftCost: { mega_stone_shard: 15, fighting_essence: 150, currency: 75000 },
+  },
+  typhlosionite: {
+    baseId: 157, megaId: 20157, showdownId: 'typhlosion-mega',
+    name: 'Mega Typhlosion', types: ['Fire', 'Ghost'],
+    statBonus: { attack: 0.24, defense: 0.26, spAtk: 0.37, spDef: 0.24 },
+    craftCost: { mega_stone_shard: 15, fire_essence: 150, ghost_essence: 50, currency: 75000 },
+  },
+  kingdraite: {
+    baseId: 230, megaId: 20230, showdownId: 'kingdra-mega',
+    name: 'Mega Kingdra', types: ['Water', 'Dragon'],
+    statBonus: { attack: 0.26, defense: 0.26, spAtk: 0.32, spDef: 0.26, speed: 0.18 },
+    craftCost: { mega_stone_shard: 25, water_essence: 250, dragon_essence: 100, currency: 150000 },
+  },
+  miltankite: {
+    baseId: 241, megaId: 20241, showdownId: 'miltank-mega',
+    name: 'Mega Miltank', types: ['Normal', 'Fairy'],
+    statBonus: { attack: 0.44, defense: 0.29, spAtk: 0.5, spDef: 0.43, speed: 0.15 },
+    craftCost: { mega_stone_shard: 10, normal_essence: 100, fairy_essence: 50, currency: 50000 },
+  },
+  blisseyite: {
+    baseId: 242, megaId: 20242, showdownId: 'blissey-mega',
+    name: 'Mega Blissey', types: ['Normal', 'Fairy'],
+    statBonus: { attack: 0.5, defense: 0.5, spAtk: 0.4, spDef: 0.22, speed: 0.18 },
+    craftCost: { mega_stone_shard: 10, normal_essence: 100, fairy_essence: 50, currency: 50000 },
+  },
+  shedinjite: {
+    baseId: 292, megaId: 20292, showdownId: 'shedinja-mega',
+    name: 'Mega Shedinja', types: ['Bug', 'Ghost'],
+    statBonus: { attack: 0.44, defense: 0.22, spAtk: 0.5, spDef: 0.5, speed: 0.5 },
+    craftCost: { mega_stone_shard: 10, bug_essence: 100, ghost_essence: 50, currency: 50000 },
+  },
+  flygonite: {
+    baseId: 330, megaId: 20330, showdownId: 'flygon-mega',
+    name: 'Mega Flygon', types: ['Dragon', 'Bug'],
+    statBonus: { attack: 0.3, defense: 0.25, spAtk: 0.38, spDef: 0.25 },
+    craftCost: { mega_stone_shard: 15, dragon_essence: 150, bug_essence: 50, currency: 75000 },
+  },
+  torterrite: {
+    baseId: 389, megaId: 20389, showdownId: 'torterra-mega',
+    name: 'Mega Torterra', types: ['Grass', 'Ground'],
+    statBonus: { attack: 0.28, defense: 0.29, spAtk: 0.13, spDef: 0.35 },
+    craftCost: { mega_stone_shard: 15, grass_essence: 150, ground_essence: 50, currency: 75000 },
+  },
+  infernapite: {
+    baseId: 392, megaId: 20392, showdownId: 'infernape-mega',
+    name: 'Mega Infernape', types: ['Fire', 'Fighting'],
+    statBonus: { attack: 0.29, defense: 0.28, spAtk: 0.29, spDef: 0.28 },
+    craftCost: { mega_stone_shard: 15, fire_essence: 150, fighting_essence: 50, currency: 75000 },
+  },
+  empoleonite: {
+    baseId: 395, megaId: 20395, showdownId: 'empoleon-mega',
+    name: 'Mega Empoleon', types: ['Water', 'Steel'],
+    statBonus: { attack: 0.29, defense: 0.15, spAtk: 0.18, spDef: 0.2, speed: 0.37 },
+    craftCost: { mega_stone_shard: 15, water_essence: 150, steel_essence: 50, currency: 75000 },
+  },
+  luxrayite: {
+    baseId: 405, megaId: 20405, showdownId: 'luxray-mega',
+    name: 'Mega Luxray', types: ['Electric', 'Dark'],
+    statBonus: { attack: 0.25, defense: 0.25, spAtk: 0.21, spDef: 0.25, speed: 0.14 },
+    craftCost: { mega_stone_shard: 15, electric_essence: 150, dark_essence: 50, currency: 75000 },
+  },
+  heatranite: {
+    baseId: 485, megaId: 20485, showdownId: 'heatran-mega',
+    name: 'Mega Heatran', types: ['Fire', 'Steel'],
+    statBonus: { attack: 0.22, defense: 0.19, spAtk: 0.15, spDef: 0.19, speed: 0.26 },
+    craftCost: { mega_stone_shard: 25, fire_essence: 250, steel_essence: 100, currency: 150000 },
+  },
+  serperiorite: {
+    baseId: 497, megaId: 20497, showdownId: 'serperior-mega',
+    name: 'Mega Serperior', types: ['Grass', 'Dragon'],
+    statBonus: { attack: 0.27, defense: 0.21, spAtk: 0.27, spDef: 0.21, speed: 0.18 },
+    craftCost: { mega_stone_shard: 15, grass_essence: 150, dragon_essence: 50, currency: 75000 },
+  },
+  samurottite: {
+    baseId: 503, megaId: 20503, showdownId: 'samurott-mega',
+    name: 'Mega Samurott', types: ['Water', 'Steel'],
+    statBonus: { attack: 0.3, defense: 0.24, spAtk: 0.19, spDef: 0.29, speed: 0.14 },
+    craftCost: { mega_stone_shard: 15, water_essence: 150, steel_essence: 50, currency: 75000 },
+  },
+  haxorusite: {
+    baseId: 612, megaId: 20612, showdownId: 'haxorus-mega',
+    name: 'Mega Haxorus', types: ['Dragon', 'Steel'],
+    statBonus: { attack: 0.27, defense: 0.22, spAtk: 0.33, spDef: 0.29 },
+    craftCost: { mega_stone_shard: 15, dragon_essence: 150, steel_essence: 50, currency: 75000 },
+  },
+  hydreigonite: {
+    baseId: 635, megaId: 20635, showdownId: 'hydreigon-mega',
+    name: 'Mega Hydreigon', types: ['Dragon', 'Dark'],
+    statBonus: { attack: 0.19, defense: 0.22, spAtk: 0.24, spDef: 0.22, speed: 0.1 },
+    craftCost: { mega_stone_shard: 15, dragon_essence: 150, dark_essence: 50, currency: 75000 },
+  },
+  goodraite: {
+    baseId: 706, megaId: 20706, showdownId: 'goodra-mega',
+    name: 'Mega Goodra', types: ['Dragon', 'Water'],
+    statBonus: { attack: 0.2, defense: 0.29, spAtk: 0.18, spDef: 0.13, speed: 0.25 },
+    craftCost: { mega_stone_shard: 15, dragon_essence: 150, water_essence: 50, currency: 75000 },
+  },
+  decidueyite: {
+    baseId: 724, megaId: 20724, showdownId: 'decidueye-mega',
+    name: 'Mega Decidueye', types: ['Grass', 'Ghost'],
+    statBonus: { attack: 0.28, defense: 0.27, spAtk: 0.2, spDef: 0.2, speed: 0.14 },
+    craftCost: { mega_stone_shard: 15, grass_essence: 150, ghost_essence: 50, currency: 75000 },
+  },
+  incineroarite: {
+    baseId: 727, megaId: 20727, showdownId: 'incineroar-mega',
+    name: 'Mega Incineroar', types: ['Fire', 'Dark'],
+    statBonus: { attack: 0.26, defense: 0.22, spAtk: 0.25, spDef: 0.22, speed: 0.17 },
+    craftCost: { mega_stone_shard: 15, fire_essence: 150, dark_essence: 50, currency: 75000 },
+  },
+  primarinite: {
+    baseId: 730, megaId: 20730, showdownId: 'primarina-mega',
+    name: 'Mega Primarina', types: ['Water', 'Fairy'],
+    statBonus: { attack: 0.27, defense: 0.27, spAtk: 0.24, spDef: 0.17, speed: 0.17 },
+    craftCost: { mega_stone_shard: 15, water_essence: 150, fairy_essence: 50, currency: 75000 },
+  },
+  kommo_oite: {
+    baseId: 784, megaId: 20784, showdownId: 'kommoo-mega',
+    name: 'Mega Kommo-o', types: ['Dragon', 'Fighting'],
+    statBonus: { attack: 0.18, defense: 0.16, spAtk: 0.2, spDef: 0.19, speed: 0.24 },
+    craftCost: { mega_stone_shard: 15, dragon_essence: 150, fighting_essence: 50, currency: 75000 },
+  },
+  rillaboomite: {
+    baseId: 812, megaId: 20812, showdownId: 'rillaboom-mega',
+    name: 'Mega Rillaboom', types: ['Grass'],
+    statBonus: { attack: 0.24, defense: 0.22, spAtk: 0.33, spDef: 0.29, speed: 0.12 },
+    craftCost: { mega_stone_shard: 15, grass_essence: 150, currency: 75000 },
+  },
+  cinderacite: {
+    baseId: 815, megaId: 20815, showdownId: 'cinderace-mega',
+    name: 'Mega Cinderace', types: ['Fire'],
+    statBonus: { attack: 0.26, defense: 0.27, spAtk: 0.31, spDef: 0.27, speed: 0.08 },
+    craftCost: { mega_stone_shard: 15, fire_essence: 150, currency: 75000 },
+  },
+  inteleonite: {
+    baseId: 818, megaId: 20818, showdownId: 'inteleon-mega',
+    name: 'Mega Inteleon', types: ['Water'],
+    statBonus: { attack: 0.24, defense: 0.31, spAtk: 0.24, spDef: 0.31, speed: 0.08 },
+    craftCost: { mega_stone_shard: 15, water_essence: 150, currency: 75000 },
+  },
+  dragapultite: {
+    baseId: 887, megaId: 20887, showdownId: 'dragapult-mega',
+    name: 'Mega Dragapult', types: ['Dragon', 'Ghost'],
+    statBonus: { attack: 0.17, defense: 0.27, spAtk: 0.2, spDef: 0.27, speed: 0.14 },
+    craftCost: { mega_stone_shard: 15, dragon_essence: 150, ghost_essence: 50, currency: 75000 },
+  },
+  meowscaradite: {
+    baseId: 908, megaId: 20908, showdownId: 'meowscarada-mega',
+    name: 'Mega Meowscarada', types: ['Grass', 'Dark'],
+    statBonus: { attack: 0.27, defense: 0.29, spAtk: 0.25, spDef: 0.29, speed: 0.08 },
+    craftCost: { mega_stone_shard: 15, grass_essence: 150, dark_essence: 50, currency: 75000 },
+  },
+  skeledirgite: {
+    baseId: 911, megaId: 20911, showdownId: 'skeledirge-mega',
+    name: 'Mega Skeledirge', types: ['Fire', 'Ghost'],
+    statBonus: { attack: 0.27, defense: 0.2, spAtk: 0.27, spDef: 0.33, speed: 0.08 },
+    craftCost: { mega_stone_shard: 15, fire_essence: 150, ghost_essence: 50, currency: 75000 },
+  },
+  quaquavalite: {
+    baseId: 914, megaId: 20914, showdownId: 'quaquaval-mega',
+    name: 'Mega Quaquaval', types: ['Water', 'Fighting'],
+    statBonus: { attack: 0.25, defense: 0.25, spAtk: 0.24, spDef: 0.27, speed: 0.12 },
+    craftCost: { mega_stone_shard: 15, water_essence: 150, fighting_essence: 50, currency: 75000 },
+  },
 };
 
 /**
@@ -809,11 +1022,32 @@ export const getCompatibleMegaStones = (baseId) => {
     .map(([stoneId, data]) => ({ stoneId, ...data }));
 };
 
+// Slug Showdown derivado do nome da Pokédex ("Mega Charizard X" → charizard-megax,
+// "Typhlosion Hisui" → typhlosion-hisui). Usado para ids numéricos 10xxx/20xxx.
+const slugFromDexName = (rawName) => {
+  const name = String(rawName || '');
+  const megaMatch = name.match(/^Mega (.+?)( X| Y| Z)?( \(.+\))?$/);
+  if (megaMatch) {
+    const base = megaMatch[1].toLowerCase().replace(/[^a-z0-9]/g, '');
+    const suffix = (megaMatch[2] || '').trim().toLowerCase();
+    return `${base}-mega${suffix}`;
+  }
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+};
+
 /**
  * URL do sprite da forma Mega via Pokémon Showdown.
+ * Aceita o slug ('charizard-megax') OU o id numérico da entrada Mega da
+ * Pokédex (10xxx/20xxx) — antes, ids numéricos geravam URLs quebradas e o
+ * fallback do <img> podia carregar o sprite de uma forma regional errada.
  */
-export const getMegaSprite = (showdownId) => {
-  return `https://play.pokemonshowdown.com/sprites/dex/${showdownId}.png`;
+export const getMegaSprite = (showdownIdOrDexId) => {
+  let slug = showdownIdOrDexId;
+  if (typeof showdownIdOrDexId === 'number' || /^\d+$/.test(String(showdownIdOrDexId))) {
+    const entry = POKEDEX[Number(showdownIdOrDexId)];
+    slug = entry ? slugFromDexName(entry.name) : String(showdownIdOrDexId);
+  }
+  return `https://play.pokemonshowdown.com/sprites/dex/${slug}.png`;
 };
 
 /**
