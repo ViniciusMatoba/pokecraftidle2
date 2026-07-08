@@ -443,7 +443,7 @@ export default function AvatarSelectScreen({ uid, avatarMeta, onSelectSlot, onMe
                 const data = snap.data();
                 if (data.backupGameState) {
                   const LZString = (await import('lz-string')).default;
-                  const compressed = LZString.compress(JSON.stringify(data.backupGameState));
+                  const compressed = LZString.compressToBase64(JSON.stringify(data.backupGameState));
                   await setDoc(saveRef, {
                     compressedState: compressed,
                     updatedAtClient: Date.now(),

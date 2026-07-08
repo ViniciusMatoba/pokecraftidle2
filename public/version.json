@@ -1,5 +1,5 @@
 {
-  "version": "2.11.52",
-  "date": "08/07/2026 20:08",
-  "notes": "Forja refatorada para navegação de dois níveis (eliminando scroll horizontal)"
+  "version": "2.11.53",
+  "date": "08/07/2026 20:58",
+  "notes": "Correção de compressão Base64 para salvar e carregar dados na nuvem com segurança"
 }

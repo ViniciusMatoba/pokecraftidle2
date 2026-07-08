@@ -1,3 +1,9 @@
+## [v2.11.53] - 08/07/2026 20:58
+### Correção do Carregamento e Compressão do Save na Nuvem
+- **Prevenção de Corrupção por Encoding**: Alterado o formato de compressão na nuvem para Base64 (usando `LZString.compressToBase64` / `LZString.decompressFromBase64`), imune a falhas de codificação de caracteres do Firestore.
+- **Recuperação Automática (Heal)**: Implementado fallback inteligente que reconstrói o progresso a partir do `backupGameState` não-comprimido caso a string comprimida esteja corrompida.
+- **Restauração de Emergência Segura**: Atualizado o botão de recuperação no seletor de avatares para utilizar o novo formato Base64 livre de erros.
+
 ## [v2.11.52] - 08/07/2026 20:08
 ### Refatoração da Forja
 - **Navegação em dois níveis**: o scroll horizontal foi eliminado. Agora a Forja possui uma grade de categorias (cards de duas colunas) que ao serem clicados abrem a lista de receitas correspondentes com botão de voltar.

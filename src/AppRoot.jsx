@@ -878,6 +878,26 @@ export default function App() {
   const loadGameState = async (uid, slot = 1) => {
     // Retorna { gameState, cloudSavedAt } para permitir comparação com save local
     const docId = getSlotDocId(uid, slot);
+    
+    const decompressAndParseCloudState = (compressedStr) => {
+      if (!compressedStr) return null;
+      try {
+        const dec = LZString.decompressFromBase64(compressedStr);
+        if (dec) {
+          const parsed = JSON.parse(dec);
+          if (parsed) return parsed;
+        }
+      } catch (e) {}
+      try {
+        const dec = LZString.decompress(compressedStr);
+        if (dec) {
+          const parsed = JSON.parse(dec);
+          if (parsed) return parsed;
+        }
+      } catch (e) {}
+      return null;
+    };
+
     // 1. Tenta o save principal
     try {
       const docRef = doc(db, "saves", docId);
@@ -892,11 +912,13 @@ export default function App() {
         const data = docSnap.data();
         const cloudSavedAt = data.updatedAtClient || 0;
         if (data.compressedState) {
-          const decompressed = LZString.decompress(data.compressedState);
-          if (decompressed) {
-            const parsed = JSON.parse(decompressed);
-            if (parsed) return { gameState: parsed, cloudSavedAt };
-          }
+          const parsed = decompressAndParseCloudState(data.compressedState);
+          if (parsed) return { gameState: parsed, cloudSavedAt };
+        }
+        // Fallback robusto se a descompressão falhou ou não existe: tenta o backupGameState não-comprimido
+        if (data.backupGameState) {
+          console.warn('[Load] compressedState corrompido/inválido. Recuperando do backupGameState original...');
+          return { gameState: data.backupGameState, cloudSavedAt };
         }
         if (data.gameState) return { gameState: data.gameState, cloudSavedAt }; // legado não comprimido
       }
@@ -913,16 +935,13 @@ export default function App() {
       for (const snap of snaps.docs) {
         const data = snap.data();
         if (data.compressedState) {
-          const decompressed = LZString.decompress(data.compressedState);
-          if (decompressed) {
-            const parsed = JSON.parse(decompressed);
-            if (parsed) {
-              // snapshots têm createdAt como serverTimestamp; usa toMillis() se disponível
-              const snapTs = data.createdAt?.toMillis?.() || 0;
-              console.warn(`[Load] Save principal falhou — restaurado do snapshot ${snap.id}`);
-              notify(`Save restaurado do backup de ${snap.id}. Verifique seu progresso.`, 'warning');
-              return { gameState: parsed, cloudSavedAt: snapTs };
-            }
+          const parsed = decompressAndParseCloudState(data.compressedState);
+          if (parsed) {
+            // snapshots têm createdAt como serverTimestamp; usa toMillis() se disponível
+            const snapTs = data.createdAt?.toMillis?.() || 0;
+            console.warn(`[Load] Save principal falhou — restaurado do snapshot ${snap.id}`);
+            notify(`Save restaurado do backup de ${snap.id}. Verifique seu progresso.`, 'warning');
+            return { gameState: parsed, cloudSavedAt: snapTs };
           }
         }
       }
@@ -2319,7 +2338,7 @@ export default function App() {
         return;
       }
 
-      const compressedState = LZString.compress(rawJson);
+      const compressedState = LZString.compressToBase64(rawJson);
       if (compressedState.length > 900_000) {
         notify('⚠️ Save próximo do limite de tamanho. Contate o suporte.', 'warning');
       }
@@ -7976,7 +7995,7 @@ export default function App() {
               lastSyncRef.current = Date.now();
               const resetSlot = currentSlotRef.current || 1;
               const resetDocId = getSlotDocId(u.uid, resetSlot);
-              const compressedFresh = LZString.compress(JSON.stringify(freshState));
+              const compressedFresh = LZString.compressToBase64(JSON.stringify(freshState));
               
               const batch = writeBatch(db);
               
