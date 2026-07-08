@@ -64,7 +64,109 @@ export default function AvatarSelectScreen({ uid, avatarMeta, onSelectSlot, onMe
   const [actionLoading, setActionLoading] = useState(false);
   const [profiles, setProfiles] = useState({}); // slot → profile data
   const [profilesLoading, setProfilesLoading] = useState(true);
+  const [showBackups, setShowBackups] = useState(null); // { slot, trainerName }
+  const [backupsList, setBackupsList] = useState([]);
+  const [backupsLoading, setBackupsLoading] = useState(false);
+  const [restoring, setRestoring] = useState(false);
   const nickCheckTimer = useRef(null);
+
+  const handleOpenBackups = async (slot, name) => {
+    setShowBackups({ slot, trainerName: name });
+    setBackupsLoading(true);
+    setBackupsList([]);
+    try {
+      const { collection, getDocs, query, orderBy } = await import('firebase/firestore');
+      const LZString = (await import('lz-string')).default;
+      
+      const docId = getSlotDocId(uid, slot);
+      const snapsRef = collection(db, 'saves', docId, 'snapshots');
+      const q = query(snapsRef, orderBy('createdAt', 'desc'));
+      const snaps = await getDocs(q);
+      
+      const list = [];
+      snaps.forEach(docSnap => {
+        const data = docSnap.data();
+        let label = 'Backup sem detalhes';
+        try {
+          if (data.compressedState) {
+            const decompressed = LZString.decompress(data.compressedState);
+            if (decompressed) {
+              const state = JSON.parse(decompressed);
+              const lvl = state.trainer?.level || 1;
+              const bCount = state.badges?.length || 0;
+              const cCount = Object.keys(state.caughtData || {}).length;
+              label = `Nível ${lvl} · ${bCount} Insígnias · ${cCount} Pokémon`;
+            }
+          }
+        } catch (e) {
+          console.warn('Erro ao decodificar backup para label:', e);
+        }
+        
+        list.push({
+          id: docSnap.id,
+          label,
+          data: data,
+        });
+      });
+      setBackupsList(list);
+    } catch (err) {
+      console.error('Erro ao buscar backups:', err);
+    } finally {
+      setBackupsLoading(false);
+    }
+  };
+
+  const handleRestoreBackup = async (backup) => {
+    if (!showBackups) return;
+    const { slot } = showBackups;
+    const docId = getSlotDocId(uid, slot);
+    
+    if (!window.confirm(`Tem certeza que deseja restaurar o backup de ${backup.id}?\nO save atual deste slot será substituído.`)) {
+      return;
+    }
+    
+    setRestoring(true);
+    try {
+      const { doc, setDoc } = await import('firebase/firestore');
+      const LZString = (await import('lz-string')).default;
+      
+      // 1. Restaura o compressedState no save principal
+      await setDoc(doc(db, 'saves', docId), {
+        compressedState: backup.data.compressedState,
+        updatedAtClient: Date.now(),
+      }, { merge: true });
+      
+      // 2. Atualiza o perfil público (users/{docId}) a partir dos dados do backup
+      try {
+        const decompressed = LZString.decompress(backup.data.compressedState);
+        if (decompressed) {
+          const state = JSON.parse(decompressed);
+          
+          await setDoc(doc(db, 'users', docId), {
+            name: state.trainer?.name || 'Treinador',
+            level: state.trainer?.level || 1,
+            avatar: state.trainer?.avatar || null,
+            avatarImg: state.trainer?.avatarImg || state.trainer?.avatar || null,
+            badges: state.badges?.length || 0,
+            caughtCount: Object.keys(state.caughtData || {}).length,
+            powerScore: 0,
+            worldFlags: state.worldFlags || [],
+            playerStats: state.playerStats || {},
+            updatedAt: Date.now()
+          }, { merge: true });
+        }
+      } catch (errProfile) {
+        console.error('Erro ao atualizar perfil durante restore:', errProfile);
+      }
+      
+      alert('Backup restaurado com sucesso! O jogo será recarregado.');
+      window.location.reload();
+    } catch (err) {
+      alert('Erro ao restaurar backup: ' + err.message);
+    } finally {
+      setRestoring(false);
+    }
+  };
 
   const avatars = avatarMeta?.avatars || [];
   const usedSlots = new Set(avatars.map(a => a.slot));
@@ -296,11 +398,20 @@ export default function AvatarSelectScreen({ uid, avatarMeta, onSelectSlot, onMe
                   )}
                 </div>
 
+                {/* Botão backups */}
+                <button
+                  onClick={() => handleOpenBackups(slot, trainerName)}
+                  className="text-gray-500 hover:text-blue-400 transition-colors text-sm p-1 flex-shrink-0 self-start mr-1"
+                  title="Histórico de Backups"
+                >
+                  ☁️
+                </button>
+
                 {/* Botão deletar */}
                 {!isLegacy && (
                   <button
                     onClick={() => { setDeleting(slot); setCreating(null); setActionError(''); }}
-                    className="text-gray-500 hover:text-red-400 transition-colors text-sm p-1 flex-shrink-0 self-start"
+                    className="text-slate-600 hover:text-red-400 transition-colors text-sm p-1 flex-shrink-0 self-start"
                     title="Deletar avatar"
                   >
                     🗑
@@ -320,11 +431,100 @@ export default function AvatarSelectScreen({ uid, avatarMeta, onSelectSlot, onMe
         })}
       </div>
 
-      <div className="mt-6 text-center">
-        <button onClick={onLogout} className="text-gray-600 hover:text-gray-400 text-sm transition-colors">
+      <div className="mt-6 text-center flex flex-col gap-3 items-center">
+        <button
+          onClick={async () => {
+            try {
+              const docId = getSlotDocId(uid, 1);
+              const { doc, getDoc, setDoc } = await import('firebase/firestore');
+              const saveRef = doc(db, 'saves', docId);
+              const snap = await getDoc(saveRef);
+              if (snap.exists()) {
+                const data = snap.data();
+                if (data.backupGameState) {
+                  const LZString = (await import('lz-string')).default;
+                  const compressed = LZString.compress(JSON.stringify(data.backupGameState));
+                  await setDoc(saveRef, {
+                    compressedState: compressed,
+                    updatedAtClient: Date.now(),
+                  }, { merge: true });
+                  alert('Save do Treinador MATOBA restaurado com sucesso! Recarregando a página...');
+                  window.location.reload();
+                } else {
+                  alert('Nenhum backupGameState encontrado para este save.');
+                }
+              } else {
+                alert('Save do slot 1 não encontrado no banco de dados.');
+              }
+            } catch (err) {
+              alert('Erro ao restaurar: ' + err.message);
+            }
+          }}
+          className="text-amber-500 hover:text-amber-400 text-xs font-bold transition-colors bg-amber-950/40 border border-amber-500/30 px-4 py-2 rounded-xl cursor-pointer"
+        >
+          🛠️ Restaurar Save de Emergência (MATOBA)
+        </button>
+
+        <button onClick={onLogout} className="text-gray-600 hover:text-gray-400 text-sm transition-colors cursor-pointer">
           Sair da conta
         </button>
       </div>
+
+      {/* Modal de Backups */}
+      {showBackups && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[1000] flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 max-h-[85vh] flex flex-col gap-4 animate-scaleUp">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div>
+                <h3 className="text-white font-black text-base uppercase tracking-wider">Histórico de Backups</h3>
+                <p className="text-xs text-blue-400 font-bold uppercase">{showBackups.trainerName}</p>
+              </div>
+              <button 
+                onClick={() => { setShowBackups(null); setBackupsList([]); }} 
+                className="text-slate-400 hover:text-white text-xl"
+                disabled={restoring}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto min-h-[200px] flex flex-col gap-2.5 py-2">
+              {backupsLoading ? (
+                <div className="flex flex-col items-center justify-center gap-3 py-10">
+                  <div className="w-8 h-8 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
+                  <p className="text-slate-400 text-sm">Buscando backups na nuvem...</p>
+                </div>
+              ) : backupsList.length === 0 ? (
+                <div className="text-center py-10 text-slate-500 text-sm">
+                  Nenhum backup automático encontrado para este slot.
+                </div>
+              ) : (
+                backupsList.map(backup => (
+                  <div key={backup.id} className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col gap-3">
+                    <div className="flex justify-between items-start">
+                      <span className="text-xs font-black text-slate-400 bg-slate-800/60 px-2 py-0.5 rounded-md">
+                        📅 {backup.id}
+                      </span>
+                    </div>
+                    <p className="text-sm font-bold text-slate-200">{backup.label}</p>
+                    <button
+                      onClick={() => handleRestoreBackup(backup)}
+                      disabled={restoring}
+                      className="w-full py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white font-black uppercase text-xs rounded-xl tracking-wider transition-all"
+                    >
+                      {restoring ? 'Restaurando...' : 'Restaurar este backup'}
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+            
+            <p className="text-[10px] text-slate-500 text-center leading-relaxed">
+              * Os backups são gerados automaticamente a cada 24 horas de jogo ativo.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
