@@ -1796,9 +1796,14 @@ export default function App() {
           ...trainer,
           team: (trainer.team || []).map(member => {
             const level = Math.max(Number(member.level || minTrainerLevel), minTrainerLevel);
+            let finalId = getLeveledSpeciesId(member.id, level, maxDexId);
+            if (finalId > maxDexId) {
+              const fallbacks = { kanto: 19, johto: 161, hoenn: 263, sinnoh: 399, unova: 504, kalos: 650, alola: 734, galar: 819, paldea: 915 };
+              finalId = fallbacks[routeRegion?.id] || 19;
+            }
             return {
               ...member,
-              id: getLeveledSpeciesId(member.id, level, maxDexId), // ← passa maxDexId
+              id: finalId,
               level,
             };
           }),
@@ -3405,13 +3410,53 @@ export default function App() {
 
     // EMBOSCADA VILA
     if (Math.random() < 0.01 && route.type === 'farm') {
+      const routeRegion = inferRouteRegion(route.id, route.group)?.id || 'kanto';
+
+      const getPokemonRegion = (id) => {
+        const numeric = Number(id);
+        if (numeric >= 1 && numeric <= 151) return 'kanto';
+        if (numeric >= 152 && numeric <= 251) return 'johto';
+        if (numeric >= 252 && numeric <= 386) return 'hoenn';
+        if (numeric >= 387 && numeric <= 493) return 'sinnoh';
+        if (numeric >= 494 && numeric <= 649) return 'unova';
+        if (numeric >= 650 && numeric <= 721) return 'kalos';
+        if (numeric >= 722 && numeric <= 809) return 'alola';
+        if (numeric >= 810 && numeric <= 905) return 'galar';
+        if (numeric >= 906 && numeric <= 1025) return 'paldea';
+        return 'unknown';
+      };
+
+      const isPokemonAllowedForRegion = (id, regionName) => {
+        const pokemonRegion = getPokemonRegion(id);
+        const ROUTE_PROGRESS_REGIONS = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea', 'hisui'];
+        const pIdx = ROUTE_PROGRESS_REGIONS.indexOf(pokemonRegion);
+        const rIdx = ROUTE_PROGRESS_REGIONS.indexOf(regionName);
+        if (pIdx === -1 || rIdx === -1) return true;
+        return pIdx <= rIdx;
+      };
+
       const teamKeys = Object.keys(VILLAIN_TEAMS);
-      // Filtra por bioma se aplicável
-      const possibleTeams = teamKeys.filter(k => !VILLAIN_TEAMS[k].biome || VILLAIN_TEAMS[k].biome === route.biome);
+      // Filtra por bioma e presença de pokémons permitidos na região
+      const possibleTeams = teamKeys.filter(k => {
+        const team = VILLAIN_TEAMS[k];
+        if (team.biome && team.biome !== route.biome) return false;
+        const allowedPool = (team.pokemonPool || []).filter(pokeId => 
+          isPokemonAllowedForRegion(pokeId, routeRegion)
+        );
+        return allowedPool.length > 0;
+      });
+
       const chosenKey = possibleTeams[Math.floor(Math.random() * possibleTeams.length)] || 'rocket';
       const teamData = VILLAIN_TEAMS[chosenKey];
       
-      const pokeId = teamData.pokemonPool[Math.floor(Math.random() * teamData.pokemonPool.length)];
+      const allowedPool = (teamData.pokemonPool || []).filter(pokeId => 
+        isPokemonAllowedForRegion(pokeId, routeRegion)
+      );
+
+      const pokeId = allowedPool.length > 0
+        ? allowedPool[Math.floor(Math.random() * allowedPool.length)]
+        : 19;
+
       const base = POKEDEX[pokeId] || POKEDEX[19];
       const level = Math.max(1, (route.enemies?.[0]?.level || 5) + 2);
       const reason = teamData.reasons[Math.floor(Math.random() * teamData.reasons.length)];
