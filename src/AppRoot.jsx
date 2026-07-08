@@ -2178,15 +2178,10 @@ export default function App() {
 
 
 
-  // Mantém gameStateRef atualizado para uso em event listeners e salva na nuvem imediatamente em caso de level-up
+  // Mantém gameStateRef atualizado para uso em event listeners
   useEffect(() => {
     gameStateRef.current = gameState;
-    if (isFullyLoadedRef.current && hasLeveledUpRef.current) {
-      hasLeveledUpRef.current = false;
-      if (import.meta.env.DEV) console.log('[Autosave] Pokémon subiu de nível! Sincronizando com a nuvem...');
-      saveToCloud(gameState).catch(e => console.error('[Autosave] Erro no salvamento por level-up:', e));
-    }
-  }, [gameState, saveToCloud]);
+  }, [gameState]);
 
   // 1. Sincronização LocalStorage Deboundada (Performance Otimizada)
   useEffect(() => {
@@ -2432,6 +2427,15 @@ export default function App() {
       }
     }
   }, []);
+
+  // Salva na nuvem imediatamente em caso de level-up
+  useEffect(() => {
+    if (isFullyLoadedRef.current && hasLeveledUpRef.current) {
+      hasLeveledUpRef.current = false;
+      if (import.meta.env.DEV) console.log('[Autosave] Pokémon subiu de nível! Sincronizando com a nuvem...');
+      saveToCloud(gameState).catch(e => console.error('[Autosave] Erro no salvamento por level-up:', e));
+    }
+  }, [gameState, saveToCloud]);
 
   // ── Listener em tempo real: solicitações de amizade pendentes ─────────────
   // 1.4 — deps inclui user?.uid para cancelar listener ao trocar de conta (evita
