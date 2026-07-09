@@ -130,7 +130,7 @@ const REWARD_INFO = {
 };
 
 const RaidScreen = ({
-  raid, gameState, onStart, onDismiss, onContinueFight, onForfeitCapture, onCatchAttempt, onCatchRoll, onClaimRewards, POKEDEX,
+  raid, gameState, onStart, onDismiss, onContinueFight, onForfeitCapture, onCatchAttempt, onCatchRoll, onClaimRewards,
   captureConfig, onConfigChange,
 }) => {
   const [now, setNow] = useState(Date.now());
@@ -151,7 +151,6 @@ const RaidScreen = ({
   // Estados de posição e animação — declarados ANTES dos useEffects que os referenciam
   const [ballX,        setBallX]        = useState(184);
   const [ballY,        setBallY]        = useState(500);
-  const [targetX,      setTargetX]      = useState(184);
   const [targetY,      setTargetY]      = useState(200);
   const [useTransition, setUseTransition] = useState(false);
   const [catchAnim, setCatchAnim] = useState({
@@ -210,7 +209,6 @@ const RaidScreen = ({
     const by = ty - 26;        // top da bola quando no sprite
 
     // Armazena target para posicionar texto de resultado
-    setTargetX(tx);
     setTargetY(ty);
 
     // 1) Posiciona a bola no ponto de partida (sem transição)

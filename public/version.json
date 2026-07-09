@@ -1,5 +1,5 @@
 {
-  "version": "2.11.61",
-  "date": "08/07/2026 22:25",
-  "notes": "Correção de ordem dos Hooks em raid e progresso offline"
+  "version": "2.11.62",
+  "date": "08/07/2026 22:29",
+  "notes": "Limpeza de estados e props não usados na tela de raid"
 }

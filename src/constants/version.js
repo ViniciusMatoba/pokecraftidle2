@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.61';
-export const VERSION = '2.11.61';
-export const APP_VERSION_DATE = '08/07/2026 22:25';
+export const APP_VERSION = '2.11.62';
+export const VERSION = '2.11.62';
+export const APP_VERSION_DATE = '08/07/2026 22:29';
 export const CHANGELOG = [
+  '## [V2.11.62] - 08/07/2026 22:29',
+  '### Limpeza da Tela de Raid',
+  '- **Prop inutil removida**: `RaidScreen` deixou de receber `POKEDEX` quando o componente nao usa esse dado.',
+  '- **Estado redundante removido**: eliminado `targetX`, que era atualizado na animacao de captura mas nunca era lido.',
+  '- **Lint mais limpo**: reduzidos avisos simples sem alterar o comportamento da raid.',
+  '',
   '## [V2.11.61] - 08/07/2026 22:25',
   '### Estabilidade de Hooks',
   '- **Raid sem Hooks condicionais**: o callback de captura passa a ser registrado antes do retorno sem raid ativa, evitando ordem instavel de Hooks.',
