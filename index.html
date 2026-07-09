@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR" translate="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="google" content="notranslate" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#FF0000" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>PokéCraft Idle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+      .font-pixel { font-family: 'Press Start 2P', monospace; }
+    </style>
+    <script type="module" crossorigin src="./assets/index-Bj_2_dD8.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/vendor-lQZXoEUy.js">
+    <link rel="modulepreload" crossorigin href="./assets/routes-wLr8YzcT.js">
+    <link rel="modulepreload" crossorigin href="./assets/pokedex-lr-_-HgK.js">
+    <link rel="modulepreload" crossorigin href="./assets/vendor-firebase-CYdBHAm5.js">
+    <link rel="modulepreload" crossorigin href="./assets/moves-C1G1uHk-.js">
+    <link rel="modulepreload" crossorigin href="./assets/screen-menu-DIATpEhn.js">
+    <link rel="modulepreload" crossorigin href="./assets/screen-pokemon-BHbwIqAT.js">
+    <link rel="modulepreload" crossorigin href="./assets/villains-BlBLH98m.js">
+    <link rel="modulepreload" crossorigin href="./assets/screen-battle-oQjJgKF3.js">
+    <link rel="modulepreload" crossorigin href="./assets/gyms-CL5tjfdz.js">
+    <link rel="modulepreload" crossorigin href="./assets/screen-city-DvamkJI3.js">
+    <link rel="stylesheet" crossorigin href="./assets/index-CBDXZ8PB.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      if ('serviceWorker' in navigator && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js?v=2.11.78').then(reg => {
+            // Força verificação imediata de update a cada carregamento
+            reg.update();
+
+            // Quando novo SW instala e ativa, recarrega automaticamente
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (!newWorker) return;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // Novo SW instalado e aguardando — recarrega para aplicar
+                  window.location.reload();
+                }
+              });
+            });
+          }).catch(err => {
+            console.warn('SW registration failed:', err);
+          });
+
+          // Quando o SW muda de controller (após skipWaiting), recarrega
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            window.location.reload();
+          });
+        });
+      }
+
+      // Captura do prompt de instalação o mais cedo possível
+      window.deferredPrompt = null;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('PWA: Evento de instalação capturado');
+        e.preventDefault();
+        window.deferredPrompt = e;
+        // Notifica o React se ele já estiver pronto
+        window.dispatchEvent(new CustomEvent('pwa-prompt-ready', { detail: e }));
+      });
+    </script>
+  </body>
+</html>

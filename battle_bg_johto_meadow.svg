@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7dd3fc"/>
+      <stop offset="0.58" stop-color="#d9f99d"/>
+      <stop offset="1" stop-color="#166534"/>
+    </linearGradient>
+    <linearGradient id="field" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#84cc16"/>
+      <stop offset="1" stop-color="#14532d"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" fill="url(#sky)"/>
+  <path d="M0 258 C170 190 274 242 410 210 C560 174 674 222 960 178 L960 540 L0 540 Z" fill="#15803d" opacity=".9"/>
+  <path d="M0 330 C180 268 306 326 456 282 C604 240 768 300 960 248 L960 540 L0 540 Z" fill="url(#field)"/>
+  <path d="M0 420 C214 360 420 410 574 370 C720 332 830 372 960 336 L960 540 L0 540 Z" fill="#052e16" opacity=".32"/>
+  <g opacity=".18" fill="#fff">
+    <circle cx="86" cy="286" r="2"/><circle cx="176" cy="322" r="2"/><circle cx="302" cy="292" r="2"/>
+    <circle cx="450" cy="344" r="2"/><circle cx="606" cy="304" r="2"/><circle cx="782" cy="280" r="2"/>
+  </g>
+</svg>
