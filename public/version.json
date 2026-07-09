@@ -1,5 +1,5 @@
 {
-  "version": "2.11.56",
-  "date": "08/07/2026 21:58",
-  "notes": "Correcao do aprendizado de golpes por level-up, EXP Candy, offline, expedicao e evolucao"
+  "version": "2.11.57",
+  "date": "08/07/2026 22:02",
+  "notes": "Learnsets de evolucoes Hisui corrigidos para nao perder golpes em formas especiais"
 }

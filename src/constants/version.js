@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.56';
-export const VERSION = '2.11.56';
-export const APP_VERSION_DATE = '08/07/2026 21:58';
+export const APP_VERSION = '2.11.57';
+export const VERSION = '2.11.57';
+export const APP_VERSION_DATE = '08/07/2026 22:02';
 export const CHANGELOG = [
+  '## [V2.11.57] - 08/07/2026 22:02',
+  '### Learnsets de Formas Hisui',
+  '- **Evolucoes regionais protegidas**: Typhlosion Hisui, Samurott Hisui e Decidueye Hisui agora usam os learnsets canonicos das especies equivalentes quando seus IDs especiais nao possuem learnset proprio.',
+  '- **Memoria de golpes preservada**: formas especiais deixam de cair no fallback de Tackle quando reconstruidas por level-up, offline, candy, expedicao ou evolucao.',
+  '- **Teste de regressao**: adicionada cobertura garantindo que as tres formas Hisui tenham moves e `learnedMoves` validos.',
+  '',
   '## [V2.11.56] - 08/07/2026 21:58',
   '### Correcao de Aprendizado de Golpes',
   '- **Helper central de golpes**: criada resolucao unica para normalizar, deduplicar e aplicar golpes aprendidos por nivel.',

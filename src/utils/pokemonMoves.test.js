@@ -49,4 +49,18 @@ describe('pokemonMoves', () => {
     expect(rebuilt.moves.length).toBeGreaterThan(0);
     expect(rebuilt.learnedMoves.map(getMoveKey)).toEqual(availableKeys);
   });
+
+  it('uses canonical learnsets for Hisui evolution IDs with empty local learnsets', () => {
+    const hisuiForms = [
+      { id: 20157, formKey: 'typhlosion-hisui' },
+      { id: 10236, formKey: 'samurott-hisui' },
+      { id: 10244, formKey: 'decidueye-hisui' },
+    ];
+
+    hisuiForms.forEach((pokemon) => {
+      const rebuilt = rebuildMovesForLevel(pokemon, 50);
+      expect(rebuilt.moves.length).toBeGreaterThan(0);
+      expect(rebuilt.learnedMoves.length).toBeGreaterThanOrEqual(rebuilt.moves.length);
+    });
+  });
 });

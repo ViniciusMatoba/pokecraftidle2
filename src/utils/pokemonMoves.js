@@ -2,6 +2,18 @@ import { MOVES } from '../data/moves';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { POKEDEX } from '../data/pokedex';
 
+const FORM_LEARNSET_SOURCE_IDS = {
+  'typhlosion-hisui': 157,
+  'samurott-hisui': 503,
+  'decidueye-hisui': 724,
+};
+
+const SPECIAL_ID_LEARNSET_SOURCE_IDS = {
+  20157: 157,
+  10236: 503,
+  10244: 724,
+};
+
 export const normalizeMoveKey = (move) => {
   const rawName = typeof move === 'string' ? move : move?.moveKey || move?.key || move?.move || move?.name;
   const normalized = String(rawName || '')
@@ -61,6 +73,14 @@ export const getPokemonLearnset = (pokemonOrId, pokedex = POKEDEX) => {
   const pokemon = typeof pokemonOrId === 'object' && pokemonOrId !== null ? pokemonOrId : { id: pokemonOrId };
   const exact = pokedex[Number(pokemon.id)];
   if (Array.isArray(exact?.learnset) && exact.learnset.length > 0) return exact.learnset;
+
+  const formSourceId = FORM_LEARNSET_SOURCE_IDS[pokemon.formKey || exact?.formKey];
+  const formSource = pokedex[formSourceId];
+  if (Array.isArray(formSource?.learnset) && formSource.learnset.length > 0) return formSource.learnset;
+
+  const specialSourceId = SPECIAL_ID_LEARNSET_SOURCE_IDS[Number(pokemon.id)];
+  const specialSource = pokedex[specialSourceId];
+  if (Array.isArray(specialSource?.learnset) && specialSource.learnset.length > 0) return specialSource.learnset;
 
   const fallbackId = Number(pokemon.pokemonId || pokemon.baseId || pokemon.speciesId);
   const fallback = pokedex[fallbackId];
