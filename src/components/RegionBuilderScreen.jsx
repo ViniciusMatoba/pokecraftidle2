@@ -8,7 +8,7 @@ import {
 } from '../data/myRegion';
 import { AVATAR_SPRITES } from '../data/cosmetics';
 import { getPokemonSpriteUrl } from '../utils/pokemonSprites';
-import { getItemSpriteUrl, getTrainerSpriteUrl } from '../utils/assetUrls';
+import { getItemSpriteFallbackUrl, getTrainerSpriteUrl } from '../utils/assetUrls';
 
 const fixPath = (path) => {
   if (!path || typeof path !== 'string' || path.startsWith('http')) return path;
@@ -28,7 +28,7 @@ const FALLBACK_SPRITE = getTrainerSpriteUrl('red');
 const POKE_IMG = getPokemonSpriteUrl;
 const TRAINER_IMG = getTrainerSpriteUrl;
 const FALLBACK_POKEMON = getPokemonSpriteUrl(0);
-const FALLBACK_BADGE = getItemSpriteUrl('poke-ball');
+const FALLBACK_BADGE = getItemSpriteFallbackUrl('poke-ball');
 const TYPE_ORDER = ['normal','fire','water','grass','electric','ice','fighting','poison','ground','flying','psychic','bug','rock','ghost','dragon','dark','steel','fairy','mixed'];
 
 /* ─── LevelSlider ──────────────────────────────────────────────────────────── */

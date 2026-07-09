@@ -13,12 +13,17 @@ import {
   GYM_SLOT_LEVELS, ELITE_SLOT_LEVELS, CHAMPION_LEVEL,
   REGION_GYM_TYPES,
 } from '../data/myRegion';
-import { getItemSpriteUrl, getTrainerSpriteUrl } from '../utils/assetUrls';
+import {
+  getItemSpriteFallbackUrl,
+  getItemSpriteUrl,
+  getTrainerSpriteFallbackUrl,
+  getTrainerSpriteUrl,
+} from '../utils/assetUrls';
 
 const itemSprite = getItemSpriteUrl;
 const trainerSprite = getTrainerSpriteUrl;
-const FALLBACK_ITEM = itemSprite('poke-ball');
-const FALLBACK_TRAINER = trainerSprite('red');
+const FALLBACK_ITEM = getItemSpriteFallbackUrl();
+const FALLBACK_TRAINER = getTrainerSpriteFallbackUrl();
 const BADGE_ICON = itemSprite('rainbow-badge');
 const COIN_ICON = itemSprite('nugget');
 const ACTIVE_ICON = itemSprite('premier-ball');

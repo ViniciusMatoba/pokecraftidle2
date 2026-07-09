@@ -1,5 +1,5 @@
 {
-  "version": "2.11.65",
-  "date": "08/07/2026 22:47",
-  "notes": "Migracao de telas medias para centralizador de assets"
+  "version": "2.11.66",
+  "date": "08/07/2026 22:50",
+  "notes": "Fallbacks locais leves para assets externos"
 }

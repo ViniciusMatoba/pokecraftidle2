@@ -1,3 +1,9 @@
+## [v2.11.66] - 08/07/2026 22:50
+### Assets e Sprites - Fase 4
+- **Fallbacks locais leves**: adicionados placeholders locais para item, Pokebola, Pokemon e treinador.
+- **Menos imagem quebrada**: fallbacks de telas migradas passam a usar assets do proprio app quando uma CDN falha.
+- **Pre-cache no service worker**: placeholders entram no cache inicial para ficarem disponiveis mesmo com conexao ruim.
+
 ## [v2.11.65] - 08/07/2026 22:47
 ### Assets e Sprites - Fase 3
 - **Telas medias migradas**: `TravelScreen`, `RegionBuilderScreen` e `PrestigeShop` passam a usar helpers centrais para itens, treinadores, tipos e sprites Pokemon genericos.

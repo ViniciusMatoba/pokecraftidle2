@@ -1,3 +1,5 @@
+import { LOCAL_ASSET_FALLBACKS } from './assetUrls';
+
 const POKEAPI_SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon';
 const PS_ANI_BASE  = 'https://play.pokemonshowdown.com/sprites/ani/';
 const PS_SHINY_BASE = 'https://play.pokemonshowdown.com/sprites/ani-shiny/';
@@ -119,7 +121,7 @@ export const getPokemonSpriteUrl = (pokemonOrId, options = {}) => {
   }
 
   const spriteId = getPokemonSpriteId(pokemon);
-  if (!spriteId) return `${POKEAPI_SPRITE_BASE}/0.png`;
+  if (!spriteId) return LOCAL_ASSET_FALLBACKS.pokemon;
 
   const isShiny = Boolean(options.shiny ?? pokemon.isShiny);
   if (options.officialArtwork) {
@@ -136,5 +138,5 @@ export const getPokemonSpriteUrl = (pokemonOrId, options = {}) => {
 export const getPokemonSpriteFallbackUrl = (pokemonOrId) => {
   const pokemon = typeof pokemonOrId === 'object' && pokemonOrId !== null ? pokemonOrId : { id: pokemonOrId };
   const id = getPokemonSpriteId(pokemon);
-  return id ? `${POKEAPI_SPRITE_BASE}/${pokemon.isShiny ? 'shiny/' : ''}${id}.png` : `${POKEAPI_SPRITE_BASE}/0.png`;
+  return id ? `${POKEAPI_SPRITE_BASE}/${pokemon.isShiny ? 'shiny/' : ''}${id}.png` : LOCAL_ASSET_FALLBACKS.pokemon;
 };

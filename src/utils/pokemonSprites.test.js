@@ -38,4 +38,9 @@ describe('pokemonSprites', () => {
     expect(getPokemonSpriteUrl(rattataAlola)).toContain('/10091.png');
     expect(getPokemonSpriteFallbackUrl(rattataAlola)).toContain('/10091.png');
   });
+
+  it('uses a local placeholder when a Pokemon id cannot be resolved', () => {
+    expect(getPokemonSpriteUrl({})).toContain('/assets/fallbacks/pokemon.svg');
+    expect(getPokemonSpriteFallbackUrl({})).toContain('/assets/fallbacks/pokemon.svg');
+  });
 });

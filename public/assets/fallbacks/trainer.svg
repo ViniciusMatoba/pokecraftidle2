@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Trainer">
+  <rect width="64" height="64" rx="16" fill="#f1f5f9"/>
+  <circle cx="32" cy="22" r="11" fill="#fbbf24" stroke="#334155" stroke-width="3"/>
+  <path d="M14 55c2-13 10-20 18-20s16 7 18 20z" fill="#2563eb" stroke="#334155" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M20 17c5-10 19-10 24 0-6 3-18 3-24 0z" fill="#ef4444" stroke="#334155" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M27 25h10" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+</svg>

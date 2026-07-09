@@ -1,6 +1,6 @@
 # Plano de Carregamento de Imagens e Sprites
 
-Atualizado em 08/07/2026 22:47 (Brasilia).
+Atualizado em 08/07/2026 22:50 (Brasilia).
 
 ## Diagnostico
 
@@ -48,21 +48,22 @@ As telas medias da fase 3 tambem foram migradas:
 - `src/components/RegionBuilderScreen.jsx`
 - `src/components/PrestigeShop.jsx`
 
+Foram adicionados fallbacks locais leves da fase 4:
+
+- `public/assets/fallbacks/item.svg`
+- `public/assets/fallbacks/poke-ball.svg`
+- `public/assets/fallbacks/pokemon.svg`
+- `public/assets/fallbacks/trainer.svg`
+
 ## Proximas fases recomendadas
 
-1. Criar fallbacks locais leves:
-   - item generico
-   - treinador generico
-   - Pokemon placeholder
-   - Pokebola comum
-
-2. Criar pacote local seletivo:
+1. Criar pacote local seletivo:
    - Pokebolas e itens de interface mais usados
    - treinadores fixos
    - starters
    - sprites comuns de batalha inicial
 
-3. Auditar sprites regionais antes de migrar qualquer Pokemon hardcoded:
+2. Auditar sprites regionais antes de migrar qualquer Pokemon hardcoded:
    - Kanto vs Alola
    - Galar
    - Hisui

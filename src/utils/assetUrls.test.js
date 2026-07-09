@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { getItemSpriteUrl, getTrainerSpriteUrl, getTypeIconUrl } from './assetUrls';
+import {
+  getItemSpriteFallbackUrl,
+  getItemSpriteUrl,
+  getLocalAssetUrl,
+  getTrainerSpriteFallbackUrl,
+  getTrainerSpriteUrl,
+  getTypeIconUrl,
+  LOCAL_ASSET_FALLBACKS,
+} from './assetUrls';
 
 describe('assetUrls', () => {
   it('builds PokeAPI item sprite URLs without duplicating extensions', () => {
@@ -16,5 +24,12 @@ describe('assetUrls', () => {
     expect(getTypeIconUrl('Fire')).toContain('/icons/fire.svg');
     expect(getTypeIconUrl('')).toBe('');
   });
-});
 
+  it('exposes local fallback assets for failed external images', () => {
+    expect(getLocalAssetUrl('/assets/fallbacks/item.svg')).toContain('/assets/fallbacks/item.svg');
+    expect(LOCAL_ASSET_FALLBACKS.pokemon).toContain('/assets/fallbacks/pokemon.svg');
+    expect(getItemSpriteFallbackUrl('poke-ball')).toContain('/assets/fallbacks/poke-ball.svg');
+    expect(getItemSpriteFallbackUrl('rare-candy')).toContain('/assets/fallbacks/item.svg');
+    expect(getTrainerSpriteFallbackUrl()).toContain('/assets/fallbacks/trainer.svg');
+  });
+});
