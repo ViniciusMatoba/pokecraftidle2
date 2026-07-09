@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.11.68';
-export const VERSION = '2.11.68';
-export const APP_VERSION_DATE = '08/07/2026 22:58';
+export const APP_VERSION = '2.11.69';
+export const VERSION = '2.11.69';
+export const APP_VERSION_DATE = '08/07/2026 23:10';
 export const CHANGELOG = [
+  '## [V2.11.69] - 08/07/2026 23:10',
+  '### Higienização de Sprites e Preload em Background',
+  '- **Higienização de Saves (Rattata Alola em Kanto)**: Adicionado passo na migração do save (`cleanStaleRegionalMetadata`) que detecta e remove metadados regionais de Alola/Galar/Hisui de Pokémon de Kanto que foram capturados em Kanto. Isso resolve o problema de Rattata de Kanto exibindo sprite de Alola por conta de chaves sujas no save.',
+  '- **Preload Dinâmico em Background**: Criado preloader inteligente assíncrono que observa o time do jogador e a rota ativa para baixar sprites (front/back) e cenários correspondentes em segundo plano. Previne latência e atraso visual nas batalhas.',
+  '',
   '## [V2.11.68] - 08/07/2026 22:58',
   '### Sprites Regionais e Battle Tower',
   '- **Battle Tower protegida**: sprites de inimigos, equipe, troca e itens de batalha passam a usar o resolvedor global de Pokemon.',

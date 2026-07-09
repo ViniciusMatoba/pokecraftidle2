@@ -60,11 +60,65 @@ const clampPokemonStats = (poke) => {
   return { ...poke, level, maxHp, hp, attack, defense, spAtk, spDef, speed, xp };
 };
 
+const getRegionFromFormKey = (formKey) => {
+  if (typeof formKey !== 'string') return '';
+  const suffix = formKey.trim().toLowerCase().split('-').at(-1);
+  return ['alola', 'galar', 'hisui', 'paldea'].includes(suffix) ? suffix : '';
+};
+
+// Limpa metadados regionais obsoletos ou corrompidos.
+// Ex: se o jogador capturou um Rattata em Kanto, mas ele de alguma forma ganhou formKey 'rattata-alola' no save.
+const cleanStaleRegionalMetadata = (poke) => {
+  if (!poke || !poke.formKey) return poke;
+
+  const id = Number(poke.id);
+  const capturedRegion = poke.capturedRegion ? String(poke.capturedRegion).trim().toLowerCase() : '';
+
+  // IDs das espécies básicas e suas evoluções regionais diretas (não evoluções cruzadas)
+  const STRICT_REGIONAL_IDS = new Set([
+    19, 20,     // Rattata, Raticate
+    27, 28,     // Sandshrew, Sandslash
+    37, 38,     // Vulpix, Ninetales
+    52, 53,     // Meowth, Persian
+    58, 59,     // Growlithe, Arcanine
+    74, 75, 76, // Geodude, Graveler, Golem
+    77, 78,     // Ponyta, Rapidash
+    88, 89,     // Grimer, Muk
+    100, 101,   // Voltorb, Electrode
+    211,        // Qwilfish
+    215,        // Sneasel
+    263, 264    // Zigzagoon, Linoone
+  ]);
+
+  if (STRICT_REGIONAL_IDS.has(id)) {
+    const formRegion = getRegionFromFormKey(poke.formKey);
+    // Se a região de captura (efetiva) for diferente da região da forma e ele tiver formKey regional
+    if (capturedRegion && formRegion && capturedRegion !== formRegion) {
+      const cleaned = { ...poke };
+      delete cleaned.formKey;
+      delete cleaned.formRegion;
+      delete cleaned.formSpriteId;
+      delete cleaned.isRegionalForm;
+      
+      const entry = POKEDEX[id];
+      if (entry) {
+        cleaned.name = entry.name;
+        cleaned.type = entry.type || (entry.types ? entry.types[0] : 'Normal');
+        cleaned.types = entry.types || [cleaned.type];
+      }
+      return cleaned;
+    }
+  }
+
+  return poke;
+};
+
 // Pipeline de sanitização por Pokémon: tipos + stats + capturedRegion
 // 1.3 — capturedRegion ausente em saves pré-v2.11.15; preenchido aqui para evitar
 // exibição "undefined" na PokemonManagement e chamadas extras em isPokemonLegal.
 const sanitizePokemon = (poke) => {
-  const typed = clampPokemonStats(fixPokemonTypes(poke));
+  const cleaned = cleanStaleRegionalMetadata(poke);
+  const typed = clampPokemonStats(fixPokemonTypes(cleaned));
   if (!typed) return typed;
   if (typed.capturedRegion) return typed;
   return { ...typed, capturedRegion: getPokemonRegion(Number(typed.id)) || 'kanto' };

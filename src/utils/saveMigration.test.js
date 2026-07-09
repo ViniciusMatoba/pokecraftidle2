@@ -212,4 +212,47 @@ describe('saveMigration - Sistema de Migração de Save', () => {
     expect(base.types).toEqual(['Fire']);
     expect(regional.types).toEqual(['Ice', 'Fairy']);
   });
+
+  it('limpa metadados de formas regionais obsoletas ou corrompidas de capturas em Kanto', () => {
+    const save = {
+      team: [
+        { id: 19, name: 'Rattata Alola', level: 5, formKey: 'rattata-alola', isRegionalForm: true, formSpriteId: 10091, capturedRegion: 'kanto' }
+      ],
+      pc: [
+        // Rattata legítimo de Alola (capturado em Alola)
+        { id: 19, name: 'Rattata Alola', level: 12, formKey: 'rattata-alola', isRegionalForm: true, formSpriteId: 10091, capturedRegion: 'alola' },
+        // Rattata corrompido em Kanto no PC (deve ser limpo)
+        { id: 19, name: 'Rattata Alola', level: 10, formKey: 'rattata-alola', isRegionalForm: true, formSpriteId: 10091, capturedRegion: 'kanto' },
+        // Rattata sem capturedRegion (legado, deve ser mantido como Alola para compatibilidade)
+        { id: 19, name: 'Rattata Alola', level: 8, formKey: 'rattata-alola', isRegionalForm: true, formSpriteId: 10091 }
+      ]
+    };
+
+    const migrated = migrateGameState(save);
+    
+    // O primeiro Rattata (capturado em Kanto) deve ser limpo e virar Rattata comum de Kanto
+    const kantoRattata = migrated.team[0];
+    expect(kantoRattata.formKey).toBeUndefined();
+    expect(kantoRattata.isRegionalForm).toBeUndefined();
+    expect(kantoRattata.formSpriteId).toBeUndefined();
+    expect(kantoRattata.name).toBe('Rattata');
+    expect(kantoRattata.types).toEqual(['Normal']);
+
+    // O segundo Rattata (capturado em Alola) deve continuar sendo de Alola
+    const alolaRattata = migrated.pc[0];
+    expect(alolaRattata.formKey).toBe('rattata-alola');
+    expect(alolaRattata.isRegionalForm).toBe(true);
+    expect(alolaRattata.formSpriteId).toBe(10091);
+    expect(alolaRattata.name).toBe('Rattata Alola');
+
+    // O terceiro Rattata (capturado em Kanto) deve ser limpo
+    const kantoRattataPc = migrated.pc[1];
+    expect(kantoRattataPc.formKey).toBeUndefined();
+    expect(kantoRattataPc.name).toBe('Rattata');
+
+    // O quarto Rattata (sem capturedRegion, resolve para Kanto no final, mas mantém Alola por retrocompatibilidade)
+    const legacyRattata = migrated.pc[2];
+    expect(legacyRattata.formKey).toBe('rattata-alola');
+    expect(legacyRattata.isRegionalForm).toBe(true);
+  });
 });
