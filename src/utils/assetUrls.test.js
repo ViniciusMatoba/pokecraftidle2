@@ -11,8 +11,14 @@ import {
 
 describe('assetUrls', () => {
   it('builds PokeAPI item sprite URLs without duplicating extensions', () => {
-    expect(getItemSpriteUrl('ultra-ball')).toContain('/items/ultra-ball.png');
-    expect(getItemSpriteUrl('poke-ball.png')).toContain('/items/poke-ball.png');
+    expect(getItemSpriteUrl('thunder-stone')).toContain('/items/thunder-stone.png');
+    expect(getItemSpriteUrl('leaf-stone.png')).toContain('/items/leaf-stone.png');
+  });
+
+  it('prefers local item sprites for the selective UI pack', () => {
+    expect(getItemSpriteUrl('ultra-ball')).toContain('/assets/items/ultra-ball.svg');
+    expect(getItemSpriteUrl('poke-ball.png')).toContain('/assets/items/poke-ball.svg');
+    expect(getItemSpriteUrl('nugget')).toContain('/assets/items/nugget.svg');
   });
 
   it('builds Pokemon Showdown trainer URLs with a safe fallback', () => {

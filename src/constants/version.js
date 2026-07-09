@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.66';
-export const VERSION = '2.11.66';
-export const APP_VERSION_DATE = '08/07/2026 22:50';
+export const APP_VERSION = '2.11.67';
+export const VERSION = '2.11.67';
+export const APP_VERSION_DATE = '08/07/2026 22:55';
 export const CHANGELOG = [
+  '## [V2.11.67] - 08/07/2026 22:55',
+  '### Assets e Sprites - Fase 5',
+  '- **Pacote local seletivo**: adicionados SVGs locais para Pokebolas e itens de interface mais usados.',
+  '- **Menos dependencia externa no primeiro carregamento**: `getItemSpriteUrl` passa a preferir assets locais para itens frequentes e manter PokeAPI para os demais.',
+  '- **Pre-cache ampliado**: o service worker guarda esses itens locais desde a instalacao.',
+  '',
   '## [V2.11.66] - 08/07/2026 22:50',
   '### Assets e Sprites - Fase 4',
   '- **Fallbacks locais leves**: adicionados placeholders locais para item, Pokebola, Pokemon e treinador.',

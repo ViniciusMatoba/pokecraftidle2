@@ -1,5 +1,5 @@
 {
-  "version": "2.11.66",
-  "date": "08/07/2026 22:50",
-  "notes": "Fallbacks locais leves para assets externos"
+  "version": "2.11.67",
+  "date": "08/07/2026 22:55",
+  "notes": "Pacote local seletivo de itens de interface"
 }

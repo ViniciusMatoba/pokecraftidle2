@@ -1,7 +1,7 @@
 // Service Worker — versão sincronizada com version.json
 // IMPORTANTE: esta linha DEVE ser atualizada a cada bump de versão
 // para que o browser detecte o novo SW e invalide o cache antigo.
-let CACHE_NAME = 'pokecraft-cache-v2.11.66';
+let CACHE_NAME = 'pokecraft-cache-v2.11.67';
 
 // Busca versão atual para manter cache sincronizado
 async function getCacheName() {
@@ -25,6 +25,18 @@ const STATIC_ASSETS = [
   './assets/fallbacks/poke-ball.svg',
   './assets/fallbacks/pokemon.svg',
   './assets/fallbacks/trainer.svg',
+  './assets/items/poke-ball.svg',
+  './assets/items/great-ball.svg',
+  './assets/items/ultra-ball.svg',
+  './assets/items/master-ball.svg',
+  './assets/items/nugget.svg',
+  './assets/items/town-map.svg',
+  './assets/items/vs-seeker.svg',
+  './assets/items/full-restore.svg',
+  './assets/items/star-piece.svg',
+  './assets/items/hard-stone.svg',
+  './assets/items/rare-candy.svg',
+  './assets/items/potion.svg',
 ];
 
 const isCacheableExternalSprite = (url) => {

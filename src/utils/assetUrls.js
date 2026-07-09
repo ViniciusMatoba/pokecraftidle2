@@ -15,6 +15,21 @@ export const LOCAL_ASSET_FALLBACKS = {
   trainer: getLocalAssetUrl('/assets/fallbacks/trainer.svg'),
 };
 
+export const LOCAL_ITEM_SPRITES = {
+  'poke-ball': getLocalAssetUrl('/assets/items/poke-ball.svg'),
+  'great-ball': getLocalAssetUrl('/assets/items/great-ball.svg'),
+  'ultra-ball': getLocalAssetUrl('/assets/items/ultra-ball.svg'),
+  'master-ball': getLocalAssetUrl('/assets/items/master-ball.svg'),
+  nugget: getLocalAssetUrl('/assets/items/nugget.svg'),
+  'town-map': getLocalAssetUrl('/assets/items/town-map.svg'),
+  'vs-seeker': getLocalAssetUrl('/assets/items/vs-seeker.svg'),
+  'full-restore': getLocalAssetUrl('/assets/items/full-restore.svg'),
+  'star-piece': getLocalAssetUrl('/assets/items/star-piece.svg'),
+  'hard-stone': getLocalAssetUrl('/assets/items/hard-stone.svg'),
+  'rare-candy': getLocalAssetUrl('/assets/items/rare-candy.svg'),
+  potion: getLocalAssetUrl('/assets/items/potion.svg'),
+};
+
 const normalizeFileName = (value, fallback = '') => {
   const text = String(value || fallback).trim();
   if (!text) return fallback;
@@ -23,8 +38,13 @@ const normalizeFileName = (value, fallback = '') => {
     : `${text}.png`;
 };
 
-export const getItemSpriteUrl = (itemName, fallback = 'poke-ball') =>
-  `${POKEAPI_ITEM_BASE}/${normalizeFileName(itemName, fallback)}`;
+const normalizeItemKey = (itemName, fallback = 'poke-ball') =>
+  normalizeFileName(itemName, fallback).replace(/\.(png|svg|gif)$/i, '');
+
+export const getItemSpriteUrl = (itemName, fallback = 'poke-ball') => {
+  const itemKey = normalizeItemKey(itemName, fallback);
+  return LOCAL_ITEM_SPRITES[itemKey] || `${POKEAPI_ITEM_BASE}/${itemKey}.png`;
+};
 
 export const getItemSpriteFallbackUrl = (itemName) =>
   String(itemName || '').includes('ball') ? LOCAL_ASSET_FALLBACKS.pokeBall : LOCAL_ASSET_FALLBACKS.item;

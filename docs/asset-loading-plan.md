@@ -1,6 +1,6 @@
 # Plano de Carregamento de Imagens e Sprites
 
-Atualizado em 08/07/2026 22:50 (Brasilia).
+Atualizado em 08/07/2026 22:55 (Brasilia).
 
 ## Diagnostico
 
@@ -55,10 +55,15 @@ Foram adicionados fallbacks locais leves da fase 4:
 - `public/assets/fallbacks/pokemon.svg`
 - `public/assets/fallbacks/trainer.svg`
 
+Foi criado o pacote local seletivo da fase 5 para itens de interface recorrentes:
+
+- Pokebolas: `poke-ball`, `great-ball`, `ultra-ball`, `master-ball`
+- Economia e navegacao: `nugget`, `town-map`, `vs-seeker`
+- Consumiveis e destaques: `potion`, `full-restore`, `rare-candy`, `star-piece`, `hard-stone`
+
 ## Proximas fases recomendadas
 
-1. Criar pacote local seletivo:
-   - Pokebolas e itens de interface mais usados
+1. Expandir o pacote local seletivo, se necessario:
    - treinadores fixos
    - starters
    - sprites comuns de batalha inicial
