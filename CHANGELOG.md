@@ -1,3 +1,9 @@
+## [v2.11.58] - 08/07/2026 22:04
+### Otimizacao de Sprites Externos
+- **Cache de sprites externos**: o service worker agora guarda sprites estaveis do PokeAPI, Pokemon Showdown e icones de tipo apos o primeiro carregamento.
+- **Menos dependencia de CDN**: imagens de Pokemon, itens, treinadores e tipos tendem a abrir mais rapido em acessos seguintes, inclusive em conexoes instaveis.
+- **Sem aumentar o repositorio**: a melhoria evita baixar milhares de arquivos para o projeto enquanto mantemos a possibilidade de criar um pacote local no futuro.
+
 ## [v2.11.53] - 08/07/2026 20:58
 ### Correção do Carregamento e Compressão do Save na Nuvem
 - **Prevenção de Corrupção por Encoding**: Alterado o formato de compressão na nuvem para Base64 (usando `LZString.compressToBase64` / `LZString.decompressFromBase64`), imune a falhas de codificação de caracteres do Firestore.

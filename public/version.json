@@ -1,5 +1,5 @@
 {
-  "version": "2.11.57",
-  "date": "08/07/2026 22:02",
-  "notes": "Learnsets de evolucoes Hisui corrigidos para nao perder golpes em formas especiais"
+  "version": "2.11.58",
+  "date": "08/07/2026 22:04",
+  "notes": "Cache de sprites externos para melhorar carregamento de imagens"
 }

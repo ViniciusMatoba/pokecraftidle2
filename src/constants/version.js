@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.57';
-export const VERSION = '2.11.57';
-export const APP_VERSION_DATE = '08/07/2026 22:02';
+export const APP_VERSION = '2.11.58';
+export const VERSION = '2.11.58';
+export const APP_VERSION_DATE = '08/07/2026 22:04';
 export const CHANGELOG = [
+  '## [V2.11.58] - 08/07/2026 22:04',
+  '### Otimizacao de Sprites Externos',
+  '- **Cache de sprites externos**: o service worker agora guarda sprites estaveis do PokeAPI, Pokemon Showdown e icones de tipo apos o primeiro carregamento.',
+  '- **Menos dependencia de CDN**: imagens de Pokemon, itens, treinadores e tipos tendem a abrir mais rapido em acessos seguintes, inclusive em conexoes instaveis.',
+  '- **Sem aumentar o repositorio**: a melhoria evita baixar milhares de arquivos para o projeto enquanto mantemos a possibilidade de criar um pacote local no futuro.',
+  '',
   '## [V2.11.57] - 08/07/2026 22:02',
   '### Learnsets de Formas Hisui',
   '- **Evolucoes regionais protegidas**: Typhlosion Hisui, Samurott Hisui e Decidueye Hisui agora usam os learnsets canonicos das especies equivalentes quando seus IDs especiais nao possuem learnset proprio.',
