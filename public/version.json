@@ -1,5 +1,5 @@
 {
-  "version": "2.11.72",
-  "date": "08/07/2026 23:40",
-  "notes": "Remoção de receita duplicada de Max Repel"
+  "version": "2.11.73",
+  "date": "08/07/2026 23:43",
+  "notes": "Correção de erro de inicialização TDZ (Cannot access before initialization)"
 }

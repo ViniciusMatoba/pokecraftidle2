@@ -1260,7 +1260,10 @@ export default function App() {
   // Inicializa o prefetcher gradual silencioso (sons, bgs, itens, 1025 sprites)
   useEffect(() => {
     if (isPreloaded && processedRoutes) {
-      startLazyPrefetcher(processedRoutes, fixPath);
+      // Importa dinamicamente POKEMON_FORM_SPRITE_IDS para evitar Temporal Dead Zone (TDZ) no build final
+      import('./utils/pokemonSprites').then(({ POKEMON_FORM_SPRITE_IDS }) => {
+        startLazyPrefetcher(processedRoutes, fixPath, POKEMON_FORM_SPRITE_IDS);
+      });
     }
   }, [isPreloaded, processedRoutes]);
 

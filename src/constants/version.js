@@ -1,7 +1,11 @@
-export const APP_VERSION = '2.11.72';
-export const VERSION = '2.11.72';
-export const APP_VERSION_DATE = '08/07/2026 23:40';
+export const APP_VERSION = '2.11.73';
+export const VERSION = '2.11.73';
+export const APP_VERSION_DATE = '08/07/2026 23:43';
 export const CHANGELOG = [
+  '## [V2.11.73] - 08/07/2026 23:43',
+  '### Correção de TDZ (Cannot access before initialization)',
+  '- **Resolução de Erro de Inicialização**: Refatorada a importação de POKEMON_FORM_SPRITE_IDS para ser assíncrona e dinâmica em runtime no AppRoot.jsx. Isso elimina erros de Temporal Dead Zone (TDZ) do bundle no tablet/mobile e libera o acesso à tela de jogo.',
+  '',
   '## [V2.11.72] - 08/07/2026 23:40',
   '### Correções de Receitas Duplicadas',
   '- **Correção no Max Repel**: Removida a receita duplicada e genérica de Max Repel em CRAFTING_RECIPES.consumables, mantendo apenas a receita oficial com efeitos e balanceamento adequados na aba repels.',

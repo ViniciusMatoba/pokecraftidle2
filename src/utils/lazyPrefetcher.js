@@ -1,5 +1,3 @@
-import { POKEMON_FORM_SPRITE_IDS } from './pokemonSprites';
-
 const STORAGE_KEY = 'pokecraft_lazy_prefetch_progress';
 const CACHE_NAME_PREFIX = 'pokecraft-cache-v';
 
@@ -81,7 +79,7 @@ const fetchAndCache = async (url) => {
  * Inicializa o baixador silencioso em segundo plano.
  * Executa de forma totalmente assíncrona usando intervalos lentos para não impactar performance do jogo.
  */
-export const startLazyPrefetcher = (processedRoutes, fixPath = (p) => p) => {
+export const startLazyPrefetcher = (processedRoutes, fixPath = (p) => p, pokemonFormSpriteIds = {}) => {
   // Executa após 15 segundos para dar tempo do render do jogo inicializar e estabilizar
   setTimeout(async () => {
     const progress = loadProgress();
@@ -154,7 +152,7 @@ export const startLazyPrefetcher = (processedRoutes, fixPath = (p) => p) => {
 
     // ── 5. PREFETCH DE FORMAS REGIONAIS ──
     const downloadRegionalForms = async () => {
-      const formKeys = Object.keys(POKEMON_FORM_SPRITE_IDS);
+      const formKeys = Object.keys(pokemonFormSpriteIds);
       let formIdx = progress.lastFormKeyIndex;
 
       const downloadFormBatch = async () => {
@@ -165,7 +163,7 @@ export const startLazyPrefetcher = (processedRoutes, fixPath = (p) => p) => {
 
         const batchLimit = Math.min(formKeys.length, formIdx + 3);
         for (let i = formIdx; i < batchLimit; i++) {
-          const spriteId = POKEMON_FORM_SPRITE_IDS[formKeys[i]];
+          const spriteId = pokemonFormSpriteIds[formKeys[i]];
           if (spriteId) {
             await fetchAndCache(`${pokemonBaseUrl}/${spriteId}.png`);
             await fetchAndCache(`${pokemonBaseUrl}/back/${spriteId}.png`);
