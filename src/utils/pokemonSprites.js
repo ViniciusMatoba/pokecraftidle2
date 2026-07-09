@@ -107,6 +107,7 @@ export const getPokemonSpriteUrl = (pokemonOrId, options = {}) => {
 
 export const getPokemonSpriteFallbackUrl = (pokemonOrId) => {
   const pokemon = typeof pokemonOrId === 'object' && pokemonOrId !== null ? pokemonOrId : { id: pokemonOrId };
-  const id = Number(pokemon.pokemonId || pokemon.id);
+  // Respeita formSpriteId e formKey para formas regionais (ex: Rattata-Alola usa 10091, não 19)
+  const id = Number(pokemon.formSpriteId || POKEMON_FORM_SPRITE_IDS[pokemon.formKey] || pokemon.pokemonId || pokemon.id);
   return id ? `${POKEAPI_SPRITE_BASE}/${pokemon.isShiny ? 'shiny/' : ''}${id}.png` : `${POKEAPI_SPRITE_BASE}/0.png`;
 };

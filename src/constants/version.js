@@ -1,8 +1,12 @@
-export const APP_VERSION = '2.11.53';
-export const VERSION = '2.11.53';
-export const APP_VERSION_DATE = '08/07/2026 20:58';
+export const APP_VERSION = '2.11.54';
+export const VERSION = '2.11.54';
+export const APP_VERSION_DATE = '09/07/2026 00:10';
 export const CHANGELOG = [
-  '## [V2.11.53] - 08/07/2026 20:58',
+  '## [V2.11.54] - 09/07/2026 00:10',
+  '### Correção de Sprites de Formas Regionais',
+  '- **Fallback de sprite corrigido**: `getPokemonSpriteFallbackUrl` agora respeita `formSpriteId` e `formKey` para formas regionais. Antes, quando o sprite principal do Rattata-Alola (ID 10091) falhava por timeout ou 404, o sistema exibia o sprite do Rattata de Kanto (ID 19) em vez do sprite correto da forma regional. Agora o fallback também usa o sprite da forma.',
+  '- **Correção afeta todos os locais**: BattleScreen, PokemonManagement, PokedexScreen, MenuScreen e RaidScreen — todos usam a mesma função e recebem a correção automaticamente.',
+  '',
   '### Correção do Carregamento e Compressão do Save na Nuvem',
   '- **Prevenção de Corrupção por Encoding**: Alterado o formato de compressão na nuvem para Base64 (usando `LZString.compressToBase64` / `LZString.decompressFromBase64`), imune a falhas de codificação de caracteres do Firestore.',
   '- **Recuperação Automática (Heal)**: Implementado fallback inteligente que reconstrói o progresso a partir do `backupGameState` não-comprimido caso a string comprimida esteja corrompida.',
