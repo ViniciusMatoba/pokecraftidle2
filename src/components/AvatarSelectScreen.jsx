@@ -432,38 +432,9 @@ export default function AvatarSelectScreen({ uid, avatarMeta, onSelectSlot, onMe
       </div>
 
       <div className="mt-6 text-center flex flex-col gap-3 items-center">
-        <button
-          onClick={async () => {
-            try {
-              const docId = getSlotDocId(uid, 1);
-              const { doc, getDoc, setDoc } = await import('firebase/firestore');
-              const saveRef = doc(db, 'saves', docId);
-              const snap = await getDoc(saveRef);
-              if (snap.exists()) {
-                const data = snap.data();
-                if (data.backupGameState) {
-                  const LZString = (await import('lz-string')).default;
-                  const compressed = LZString.compressToBase64(JSON.stringify(data.backupGameState));
-                  await setDoc(saveRef, {
-                    compressedState: compressed,
-                    updatedAtClient: Date.now(),
-                  }, { merge: true });
-                  alert('Save do Treinador MATOBA restaurado com sucesso! Recarregando a página...');
-                  window.location.reload();
-                } else {
-                  alert('Nenhum backupGameState encontrado para este save.');
-                }
-              } else {
-                alert('Save do slot 1 não encontrado no banco de dados.');
-              }
-            } catch (err) {
-              alert('Erro ao restaurar: ' + err.message);
-            }
-          }}
-          className="text-amber-500 hover:text-amber-400 text-xs font-bold transition-colors bg-amber-950/40 border border-amber-500/30 px-4 py-2 rounded-xl cursor-pointer"
-        >
-          🛠️ Restaurar Save de Emergência (MATOBA)
-        </button>
+        {/* Restauração de saves fica no ☁️ Histórico de Backups de cada slot.
+            (O antigo botão "Restaurar Save de Emergência (MATOBA)" era um resgate
+            pontual de uma conta específica e não deve aparecer para todos.) */}
 
         <button onClick={onLogout} className="text-gray-600 hover:text-gray-400 text-sm transition-colors cursor-pointer">
           Sair da conta

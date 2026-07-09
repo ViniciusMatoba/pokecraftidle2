@@ -1,7 +1,11 @@
-export const APP_VERSION = '2.11.76';
-export const VERSION = '2.11.76';
-export const APP_VERSION_DATE = '09/07/2026 01:15';
+export const APP_VERSION = '2.11.77';
+export const VERSION = '2.11.77';
+export const APP_VERSION_DATE = '09/07/2026 01:50';
 export const CHANGELOG = [
+  '## [V2.11.77] - 09/07/2026 01:50',
+  '### Correção na Tela de Seleção de Avatar',
+  '- **Removido botão "Restaurar Save de Emergência (MATOBA)"**: era um resgate pontual de uma conta específica e aparecia indevidamente para todas as contas. A restauração de saves continua disponível no ☁️ Histórico de Backups de cada slot.',
+  '',
   '## [V2.11.76] - 09/07/2026 01:15',
   '### Manutenção Interna e Limpeza de Código',
   '- **Limpeza geral**: removidos imports não utilizados e ~90 variáveis mortas em todo o código; blocos catch vazios padronizados. Nenhuma mudança de comportamento no jogo.',

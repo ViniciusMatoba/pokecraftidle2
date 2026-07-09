@@ -1,5 +1,5 @@
 {
-  "version": "2.11.76",
-  "date": "09/07/2026 01:15",
-  "notes": "Manutencao interna e limpeza de codigo (sem mudancas de gameplay)"
+  "version": "2.11.77",
+  "date": "09/07/2026 01:50",
+  "notes": "Removido botao de restauracao de emergencia (MATOBA) da tela de selecao de avatar"
 }
