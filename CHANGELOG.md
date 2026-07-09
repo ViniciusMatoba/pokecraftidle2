@@ -1,3 +1,9 @@
+## [v2.11.59] - 08/07/2026 22:12
+### Limpeza de Dados Duplicados
+- **Mega Stones sem sobrescrita**: removidas entradas duplicadas no mapa de drops de receitas, mantendo um unico mapeamento por item.
+- **Tyrogue sem chave repetida**: a evolucao automatica de rotas agora aceita alvos ramificados sem declarar o mesmo ID tres vezes.
+- **Materiais sem chave repetida**: removida duplicata de `dragon_fang` nos metadados de itens para reduzir avisos e risco de sobrescrita silenciosa.
+
 ## [v2.11.58] - 08/07/2026 22:04
 ### Otimizacao de Sprites Externos
 - **Cache de sprites externos**: o service worker agora guarda sprites estaveis do PokeAPI, Pokemon Showdown e icones de tipo apos o primeiro carregamento.

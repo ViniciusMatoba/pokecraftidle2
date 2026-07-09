@@ -1,5 +1,5 @@
 {
-  "version": "2.11.58",
-  "date": "08/07/2026 22:04",
-  "notes": "Cache de sprites externos para melhorar carregamento de imagens"
+  "version": "2.11.59",
+  "date": "08/07/2026 22:12",
+  "notes": "Limpeza de chaves duplicadas em rotas, receitas e metadados de itens"
 }

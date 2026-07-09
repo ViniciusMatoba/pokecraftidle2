@@ -285,9 +285,7 @@ const LEVEL_EVOLUTIONS = {
    228: { evolvesAt: 24, evolvesInto:  229 },
    231: { evolvesAt: 25, evolvesInto:  232 },
    234: { evolvesAt: 32, evolvesInto:  899 },
-   236: { evolvesAt: 20, evolvesInto:  106 },
-   236: { evolvesAt: 20, evolvesInto:  107 },
-   236: { evolvesAt: 20, evolvesInto:  237 },
+   236: { evolvesAt: 20, evolvesInto: [106, 107, 237] },
    238: { evolvesAt: 30, evolvesInto:  124 },
    239: { evolvesAt: 30, evolvesInto:  125 },
    240: { evolvesAt: 30, evolvesInto:  126 },
@@ -619,8 +617,11 @@ const applyEvolutionFilter = (enemies, routeRegion = 'kanto', route = {}) => {
     // Cadeia de evolução (até 4 etapas de segurança)
     for (let i = 0; i < 4; i++) {
       const evo = LEVEL_EVOLUTIONS[id];
-      if (evo && level >= evo.evolvesAt && isPokemonAllowedForRouteRegion(evo.evolvesInto, routeRegion, route)) {
-        id = evo.evolvesInto;
+      if (!evo || level < evo.evolvesAt) break;
+      const evolutionTargets = Array.isArray(evo?.evolvesInto) ? evo.evolvesInto : [evo?.evolvesInto];
+      const nextId = evolutionTargets.find(targetId => isPokemonAllowedForRouteRegion(targetId, routeRegion, route));
+      if (nextId) {
+        id = nextId;
       } else {
         break;
       }

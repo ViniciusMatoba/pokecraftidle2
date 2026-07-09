@@ -487,7 +487,6 @@ export const ITEM_LABELS = {
   link_cable_shard:  { icon: '🔌', name: 'Fragmento de Link Cable' },
   charcoal:          { icon: '🪵', name: 'Carvão' },
   lava_cookie:       { icon: '🍪', name: 'Lava Cookie' },
-  dragon_fang:       { icon: '🐉', name: 'Presa de Dragão' },
   draco_shard:       { icon: '🐉', name: 'Fragmento Draco' },
   tm_shard_dragon:   { icon: '💿', name: 'TM Shard Dragão' },
   spell_tag:         { icon: '📜', name: 'Spell Tag' },
