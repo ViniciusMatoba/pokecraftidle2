@@ -140,7 +140,7 @@ const PriceTag = ({ value }) => (
 );
 /* ─── AVATAR SUB-COMPONENTES ─────────────────────────────────────────────── */
 /** Card de preview do treinador no topo da aba Avatar */
-const AvatarPreviewCard = ({ sprite, tintId, frame, bg, name }) => {
+const AvatarPreviewCard = ({ sprite, tintId, frame, bg, _name }) => {
   const tintFilter = getTintFilter(tintId);
   return (
     <div className={`relative rounded-none border-4 overflow-hidden bg-gradient-to-b ${bg.gradient}`}
@@ -513,7 +513,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
   const pFrames    = appearance.purchasedFrames  || [];
   const pBgs       = appearance.purchasedBgs     || [];
   const currentSprite = AVATAR_SPRITES[appearance.spriteId] || AVATAR_SPRITES.red;
-  const currentTint   = AVATAR_TINTS[appearance.tintId]     || AVATAR_TINTS.none;
+  const _currentTint   = AVATAR_TINTS[appearance.tintId]     || AVATAR_TINTS.none;
   const currentFrame  = CARD_FRAMES[appearance.frameId]     || CARD_FRAMES.default;
   const currentBg     = CARD_BACKGROUNDS[appearance.bgId]   || CARD_BACKGROUNDS.slate;
   // ── Handlers ────────────────────────────────────────────────────────────────
@@ -857,7 +857,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
               <div className="grid grid-cols-2 gap-3">
                 {Object.values(POKEDEX_FRAMES).map(item => {
                   const isActive  = prestige.pokedexFrame === item.id;
-                  const canAfford = currency >= item.cost;
+                  const _canAfford = currency >= item.cost;
                   return (
                     <div key={item.id}
                       onClick={() => { if (!isActive) requestPurchase(item.name, item.cost, () => handleBuy('frame', item)); }}
@@ -1106,7 +1106,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
             <div className="grid grid-cols-2 gap-3">
               {Object.values(GYM_BANNERS).map(item => {
                 const isActive  = gameState.gymCustom?.bannerId === item.id;
-                const canAfford = currency >= item.cost;
+                const _canAfford = currency >= item.cost;
                 return (
                   <div key={item.id}
                     onClick={() => { if (!isActive) requestPurchase(item.name, item.cost, () => handleBuy('banner', item)); }}

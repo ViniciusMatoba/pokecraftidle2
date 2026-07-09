@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { calculateOfflineProgress, applyOfflineProgress, formatOfflineTime } from './offlineProgress';
 import { DEFAULT_GAME_STATE } from '../data/constants';
 import { MOVES } from '../data/moves';

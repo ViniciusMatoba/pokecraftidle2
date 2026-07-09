@@ -68,7 +68,7 @@ const badgeRowsByRegion = {
   hisui:  (REGION_BADGE_IDS.hisui  || []).map((badge, i) => ({ id: badge, badge, badgeOrder: i + 1 })),
 };
 
-const typeIconUrl = (t) =>
+const _typeIconUrl = (t) =>
   t ? `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg` : null;
 
 const BadgeIcon = ({ badgeId, earned, compact = false, order }) => (
@@ -418,7 +418,7 @@ const GymScreen = ({ gameState, onChallengeGym, onChallenge, onClose, initialSec
       }
     }
   }, [initialSection]);
-  const badges = gameState.badges || [];
+  const _badges = gameState.badges || [];
   const badgeCount = getBadgeCount(gameState);
   const worldFlags = gameState.worldFlags || [];
   const kantoChampion = worldFlags.includes('champion');
@@ -524,7 +524,7 @@ const GymScreen = ({ gameState, onChallengeGym, onChallenge, onClose, initialSec
             <>
 
           <p className="text-white/30 text-[10px] font-black uppercase tracking-[0.3em] px-2">Ginásios de Kanto</p>
-          {GYMS.map((gym, i) => (
+          {GYMS.map((gym, _i) => (
             <GymCard
               key={gym.id}
               gym={gym}

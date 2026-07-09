@@ -10,7 +10,7 @@
 import { getBadgeCount } from '../utils/progress';
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
-const expBg = (file, fallback = '#1a1a2e') =>
+const _expBg = (file, fallback = '#1a1a2e') =>
   `${fallback} url('${BASE}/${file}') center/cover no-repeat`;
 
 const REGION_BADGES = {

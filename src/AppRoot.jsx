@@ -15,7 +15,7 @@ import { MOVE_TRANSLATIONS } from './data/translations';
 import { POKEDEX } from './data/pokedex';
 import { VILLAIN_TEAMS } from './data/villains';
 import { WEATHER_TYPE_MULT, WEATHER_PASSIVE_DAMAGE, WEATHER_IMMUNE_TYPES, generateWeatherForRoute, getWeatherFromMove } from './data/weather';
-import { getCompatibleMegaStones } from './data/megaEvolutions';
+import {  } from './data/megaEvolutions';
 import { assignRandomAbility, normalizeAbilityId } from './data/abilities';
 import { getPokemonEvolutionOptions, isEvolutionOptionAllowedInRegion } from './data/regionalEvolutions';
 import { applyRegionalFormMetadata } from './data/regionalForms';
@@ -532,7 +532,7 @@ const FORGE_UNLOCKS = {
 
 const isMartItemUnlocked = (gameState, itemId) => isProgressUnlocked(gameState, MART_UNLOCKS[itemId]);
 
-const isForgeItemUnlocked = (gameState, itemId, powerScore = 0) => {
+const _isForgeItemUnlocked = (gameState, itemId, powerScore = 0) => {
   const allRecipes = Object.values(CRAFTING_RECIPES).flat();
   const recipe = allRecipes.find(r => r.id === itemId);
   
@@ -559,7 +559,7 @@ const FORGE_CATEGORY_LABELS = {
   trainer_card: 'Card',
 };
 
-const getForgeCategoryLabel = (category) => FORGE_CATEGORY_LABELS[category] || category.replace(/_/g, ' ');
+const _getForgeCategoryLabel = (category) => FORGE_CATEGORY_LABELS[category] || category.replace(/_/g, ' ');
 
 const MUSIC_LIST = [
   { id: 'all', name: 'Tocar Todas (Shuffle)' },
@@ -703,7 +703,7 @@ const StarterPreviewModal = ({ pokemon, accentColor, onConfirm, onCancel }) => {
 };
 
 const RegionIntroScreen = ({
-  professorSprite, professorName, regionName, accentColor, bgColor,
+  professorSprite, professorName, regionName, accentColor, _bgColor,
   starters, onSelectStarter, onBack, ruleText, inviteText
 }) => {
   const [preview, setPreview] = useState(null);
@@ -814,13 +814,13 @@ export default function App() {
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [avatarTab, setAvatarTab] = useState('male');
   const { 
-    playBGM, stopBGM, setBgmVolume, sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxGym, sfxShiny, stopSFX,
-    toggleMute, isMuted, muted
+    playBGM, _stopBGM, setBgmVolume, _sfxVictory, sfxDefeat, sfxLevelUp, sfxCapture, sfxHeal, sfxGym, sfxShiny, stopSFX,
+    toggleMute, _isMuted, muted
   } = useSound();
   
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
   const [isTitleModalOpen, setIsTitleModalOpen] = useState(false);
-  const [isForgeConfirmOpen, setIsForgeConfirmOpen] = useState(false);
+  const [isForgeConfirmOpen, _setIsForgeConfirmOpen] = useState(false);
   const [isPowerRankModalOpen, setIsPowerRankModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState(null);
   const [showRanking, setShowRanking] = useState(false);
@@ -874,14 +874,14 @@ export default function App() {
           const parsed = JSON.parse(dec);
           if (parsed) return parsed;
         }
-      } catch (e) {}
+      } catch {}
       try {
         const dec = LZString.decompress(compressedStr);
         if (dec) {
           const parsed = JSON.parse(dec);
           if (parsed) return parsed;
         }
-      } catch (e) {}
+      } catch {}
       return null;
     };
 
@@ -1112,7 +1112,7 @@ export default function App() {
         if (localEnvelope?.gameState) {
            try {
              setGameState(migrateGameState(localEnvelope.gameState, { version: APP_VERSION }));
-           } catch(e) { setGameState(DEFAULT_GAME_STATE); }
+           } catch { setGameState(DEFAULT_GAME_STATE); }
         } else {
            setGameState(DEFAULT_GAME_STATE);
         }
@@ -1164,7 +1164,7 @@ export default function App() {
             navigator.serviceWorker.getRegistration().then(reg => reg?.update());
           }
         }
-      } catch (_) {}
+      } catch {}
     };
 
     // Verifica imediatamente ao montar e depois a cada 5 minutos
@@ -1298,7 +1298,7 @@ export default function App() {
   const [showGymVictoryModal, setShowGymVictoryModal] = useState(null); // { leaderName, badge, badgeImg, reward }
   const [previewStarter, setPreviewStarter] = useState(null);
   const [activeQuestModal, setActiveQuestModal] = useState(null);
-  const [pendingQuest, setPendingQuest] = useState(null);
+  const [_pendingQuest, setPendingQuest] = useState(null);
   const [pendingAlphaCapture, setPendingAlphaCapture] = useState(null); // { newPoke, existingShinyId, raid, newItems }
   const [battleReady, setBattleReady] = useState(false);
   const [timeOfDay, setTimeOfDay] = useState(getTimeOfDay());
@@ -1350,7 +1350,7 @@ export default function App() {
   }, [masteryNotification]);
 
   const isProcessingVictory = useRef(false);
-  const isProcessingTurn = useRef(false);
+  const _isProcessingTurn = useRef(false);
   const currentViewRef = useRef('landing');
   const lastNonMenuView = useRef('city');
   const lastSyncRef = useRef(0);
@@ -2103,7 +2103,7 @@ export default function App() {
     setBgmVolume(vol);
   }, [gameState.settings?.musicVolume, setBgmVolume]);
 
-  const goToCity = (fromBattle = false) => {
+  const goToCity = (_fromBattle = false) => {
     handleGoToCity();
   };
 
@@ -2543,7 +2543,7 @@ export default function App() {
       setPendingFriendRequests(requests);
     });
     return () => unsub();
-  }, [user?.uid]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user?.uid]);  
 
   // ── Detector de missões concluídas e login diário ──────────────────────────
   useEffect(() => {
@@ -2672,7 +2672,7 @@ export default function App() {
           playerStats: { ...gameStateRef.current.playerStats, lastSeenAt: Date.now() }
         };
         writeLocalSaveEnvelope(stateWithTimestamp, auth.currentUser, currentSlotRef.current);
-      } catch (e) { /* sem-op */ }
+      } catch { /* sem-op */ }
     };
 
     const handleVisibility = () => {
@@ -2886,7 +2886,7 @@ export default function App() {
       setCurrentView('landing');
     }
     setLoading(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [saveToCloud]);
 
   const handleAvatarLogout = useCallback(async () => {
@@ -3514,7 +3514,7 @@ export default function App() {
   }, [gameState, activeMemberIndex]);
 
   // SPAWN
-  const handleAcceptQuest = useCallback((quest) => {
+  const _handleAcceptQuest = useCallback((quest) => {
     setGameState(prev => ({
       ...prev,
       activeQuest: quest,
@@ -3524,7 +3524,7 @@ export default function App() {
     addLog(`Missao Aceita: ${quest.title}`, 'system');
   }, [addLog]);
 
-  const handleDeclineQuest = useCallback(() => {
+  const _handleDeclineQuest = useCallback(() => {
     setPendingQuest(null);
   }, []);
 
@@ -3595,7 +3595,7 @@ export default function App() {
         : 19;
 
       const base = POKEDEX[pokeId] || POKEDEX[19];
-      const level = Math.max(1, (route.enemies?.[0]?.level || 5) + 2);
+      const _level = Math.max(1, (route.enemies?.[0]?.level || 5) + 2);
       const reason = teamData.reasons[Math.floor(Math.random() * teamData.reasons.length)];
 
       const lvl = Math.max(1, (route.enemies?.[0]?.level || 5) + 2);
@@ -3756,7 +3756,7 @@ export default function App() {
     
     // Bônus de Horário
     const currentTime = getTimeOfDay();
-    const timeConfig = TIME_CONFIG[currentTime];
+    const _timeConfig = TIME_CONFIG[currentTime];
     
     enemyPool = getTimeAdjustedEnemyPool({ ...route, enemies: enemyPool }, currentTime, POKEDEX);
     
@@ -6005,7 +6005,7 @@ export default function App() {
     isProcessingVictory.current = false;
   }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
 
-  const handleChallenge = useCallback((battleData, type) => {
+  const _handleChallenge = useCallback((battleData, type) => {
     if (type === 'boss') {
       setBossDamage(0);
       const teamMember = battleData.mainPokemon || (battleData.team && battleData.team.length > 0 ? battleData.team[0] : null);
@@ -6209,7 +6209,7 @@ export default function App() {
     });
   };
 
-  const handleGoToRecipeSource = useCallback((recipeId) => {
+  const _handleGoToRecipeSource = useCallback((recipeId) => {
     const guide = FORGE_RECIPE_DROP_GUIDE[recipeId];
     if (!guide?.routeId) return;
     setActiveBuildingModal(null);
@@ -7236,7 +7236,7 @@ export default function App() {
     });
   }, [addLog]);
 
-  const handlePokecenterDonation = useCallback((donationId, cost) => {
+  const _handlePokecenterDonation = useCallback((donationId, cost) => {
     setGameState(prev => {
       if (prev.currency < cost) return prev;
       const donation = POKECENTER_DONATIONS[donationId];
@@ -10136,7 +10136,7 @@ export default function App() {
     night: { label: 'Noite', hours: '20:00 - 04:59', icon: '🌙' },
   };
   const currentPeriodMeta = periodMeta[timeOfDay] || periodMeta.day;
-  const periodIcon = {
+  const _periodIcon = {
     morning: 'AM',
     day: 'DAY',
     evening: 'PM',
@@ -11359,7 +11359,7 @@ export default function App() {
                             }
                           });
                           
-                          const hasFreeHeals = (prev.pokecenter?.freeHeals || 0) > 0;
+                          const _hasFreeHeals = (prev.pokecenter?.freeHeals || 0) > 0;
                           
                           return {
                             ...prev,

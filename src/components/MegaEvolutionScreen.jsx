@@ -171,7 +171,7 @@ const MegaEvolutionScreen = ({
   gameState,
   setGameState,
   addLog,
-  POKEDEX,
+  _POKEDEX,
 }) => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [confirmData, setConfirmData]             = useState(null); // { stoneId, megaData, candidate }

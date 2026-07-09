@@ -19,7 +19,7 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [updateStatus, setUpdateStatus] = useState('idle'); // 'idle', 'checking', 'updated'
-  const [showRanking, setShowRanking] = useState(false);
+  const [_showRanking, _setShowRanking] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
   const [privacyModalTab, setPrivacyModalTab] = useState(null); // 'privacy' | 'terms' | null
 

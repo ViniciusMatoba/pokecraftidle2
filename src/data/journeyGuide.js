@@ -135,7 +135,7 @@ export const getJourneyGuide = (gameState = {}) => {
     : null;
 
   const recipeTargets = Object.entries(FORGE_RECIPE_DROP_GUIDE)
-    .filter(([recipeId, guide]) => {
+    .filter(([_recipeId, guide]) => {
       if ((gameState.inventory?.materials || {})[guide.recipeItemId] > 0) return false;
       if (!isGuideAllowed(guide, gameState)) return false;
       return guide.routeId && isRouteAvailable(guide.routeId, gameState);

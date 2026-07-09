@@ -781,7 +781,7 @@ export function getRouteBg(routeId) {
   const isCave = routeId.includes('cave') || routeId.includes('tunnel') || routeId.includes('mountain') || routeId.includes('mine') || routeId.includes('chasm');
   const isElite = routeId.includes('league') || routeId.includes('victory_road') || routeId.includes('elite');
   const isForest = routeId.includes('forest') || routeId.includes('woods') || routeId.includes('grove');
-  const isWater = routeId.includes('route_21') || routeId.includes('sea') || routeId.includes('ocean') || routeId.includes('bay') || routeId.includes('lake');
+  const _isWater = routeId.includes('route_21') || routeId.includes('sea') || routeId.includes('ocean') || routeId.includes('bay') || routeId.includes('lake');
 
   // Busca regional temática
   if (isElite && BATTLE_BACKGROUNDS[`${region}_league`]) return BATTLE_BACKGROUNDS[`${region}_league`];

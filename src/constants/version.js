@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.11.75';
-export const VERSION = '2.11.75';
-export const APP_VERSION_DATE = '09/07/2026 00:45';
+export const APP_VERSION = '2.11.76';
+export const VERSION = '2.11.76';
+export const APP_VERSION_DATE = '09/07/2026 01:15';
 export const CHANGELOG = [
+  '## [V2.11.76] - 09/07/2026 01:15',
+  '### Manutenção Interna e Limpeza de Código',
+  '- **Limpeza geral**: removidos imports não utilizados e ~90 variáveis mortas em todo o código; blocos catch vazios padronizados. Nenhuma mudança de comportamento no jogo.',
+  '- **Qualidade**: lint agora roda com 0 erros na base inteira; variável morta removida na troca automática de inimigos da Battle Tower.',
+  '',
   '## [V2.11.75] - 09/07/2026 00:45',
   '### Auditoria de Regiões, Coleta Rápida de Raid e Missões com Modal',
   '- **Regra de região nas rotas**: Kanto agora contém exclusivamente Pokémon de Kanto em todas as situações (pool base, bônus de horário e emboscadas). Regiões futuras aceitam gerações anteriores com peso reduzido (~20% dos encontros).',

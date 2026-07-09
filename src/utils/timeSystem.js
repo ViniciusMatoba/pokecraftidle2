@@ -61,13 +61,13 @@ const EARLY_WILD_ROUTE_IDS = new Set(['route_1', 'route_22', 'viridian_forest', 
 const JOHTO_ROUTE_HINTS = ['johto', 'bark', 'cherrygrove', 'violet', 'azalea', 'goldenrod', 'ecruteak', 'olivine', 'cianwood', 'mahogany', 'blackthorn', 'mt_silver', 'silver', 'sprout', 'ilex', 'slowpoke', 'union_cave', 'national_park', 'burned_tower', 'lake_of_rage', 'ice_path', 'dragons_den', 'johto_victory'];
 const HOENN_ROUTE_HINTS = ['hoenn', 'littleroot', 'route_101', 'route_102', 'oldale', 'petalburg', 'rustboro', 'dewford', 'granite_cave', 'slateport', 'mauville', 'route_110', 'route_111', 'route_113', 'fiery_path', 'fallarbor', 'meteor_falls', 'mt_chimney', 'lavaridge', 'fortree', 'lilycove', 'mt_pyre', 'ocean_routes', 'mossdeep', 'seafloor', 'sootopolis', 'cave_of_origin', 'sky_pillar', 'pacifidlog', 'ever_grande', 'victory_road_hoenn', 'route_116', 'rusturf', 'route_104', 'route_118', 'route_120'];
 
-const isKantoRoute = (route = {}) => {
+const _isKantoRoute = (route = {}) => {
   const routeText = `${route.id || ''} ${route.group || ''}`.toLowerCase();
   return !JOHTO_ROUTE_HINTS.some(hint => routeText.includes(hint)) &&
     !HOENN_ROUTE_HINTS.some(hint => routeText.includes(hint));
 };
 
-const isJohtoPokemon = (id) => Number(id) >= 152 && Number(id) <= 251;
+const _isJohtoPokemon = (id) => Number(id) >= 152 && Number(id) <= 251;
 
 // ── Gate genérico de região para os bônus de horário ─────────────────────────
 // Regra: Pokémon de gerações FUTURAS à região da rota nunca aparecem.

@@ -169,7 +169,7 @@ export default function AvatarSelectScreen({ uid, avatarMeta, onSelectSlot, onMe
   };
 
   const avatars = avatarMeta?.avatars || [];
-  const usedSlots = new Set(avatars.map(a => a.slot));
+  const _usedSlots = new Set(avatars.map(a => a.slot));
   const allSlots = [1, 2, 3];
 
   // Carrega perfis públicos de cada slot existente

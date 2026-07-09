@@ -90,13 +90,13 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
       },
     ], { duration, delay, easing, fill: 'forwards' });
 
-    animation.onfinish = () => { try { img.remove(); } catch (_) {} };
+    animation.onfinish = () => { try { img.remove(); } catch {} };
     img.onerror = () => {
       if (fallbackSprite && safeSpriteName !== fallbackSprite && img.dataset.fxFallback !== '1') {
         img.dataset.fxFallback = '1';
         img.src = `${FX_BASE}${fallbackSprite}.png`;
       } else {
-        try { img.remove(); } catch (_) {}
+        try { img.remove(); } catch {}
       }
     };
   }, [addNode]);
@@ -116,7 +116,7 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
     div.animate(
       [{ opacity: 0 }, { opacity }, { opacity: 0 }],
       { duration, delay, easing: 'ease-out', fill: 'forwards' }
-    ).onfinish = () => { try { div.remove(); } catch (_) {} };
+    ).onfinish = () => { try { div.remove(); } catch {} };
   }, [addNode]);
 
   const spawnRing = useCallback((center, color, opts = {}) => {
@@ -149,7 +149,7 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
       { width: `${startSize}px`, height: `${startSize}px`, opacity },
       { width: `${endSize}px`, height: `${endSize}px`, opacity: 0 },
     ], { duration, delay, easing: 'ease-out', fill: 'forwards' }).onfinish = () => {
-      try { ring.remove(); } catch (_) {}
+      try { ring.remove(); } catch {}
     };
   }, [addNode]);
 
@@ -186,7 +186,7 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
       { transform: 'translate(-50%, -50%) scale(1.06)', opacity: opacity * 0.55 },
       { transform: 'translate(-50%, -50%) scale(1.16)', opacity: 0 },
     ], { duration, delay, easing: 'ease-out', fill: 'forwards' }).onfinish = () => {
-      try { shield.remove(); } catch (_) {}
+      try { shield.remove(); } catch {}
     };
   }, [addNode]);
 
@@ -219,7 +219,7 @@ const MoveAnimationLayer = forwardRef((props, ref) => {
       { transform: `translateY(-50%) rotate(${angle}deg) scaleX(1)`, opacity },
       { transform: `translateY(-50%) rotate(${angle}deg) scaleX(1)`, opacity: 0 },
     ], { duration, delay, easing: 'ease-out', fill: 'forwards' }).onfinish = () => {
-      try { beam.remove(); } catch (_) {}
+      try { beam.remove(); } catch {}
     };
   }, [addNode]);
 

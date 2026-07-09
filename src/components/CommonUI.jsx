@@ -299,9 +299,9 @@ export const TrainerCard = ({
   prestige = {},
   gymDefeatCounts = {},
   setIsAnyModalOpen,
-  isTitleModalOpen,
+  _isTitleModalOpen,
   setIsTitleModalOpen,
-  isPowerRankModalOpen,
+  _isPowerRankModalOpen,
   setIsPowerRankModalOpen,
   selectedTitle, // v1.83.2
 }) => {
@@ -367,7 +367,7 @@ export const TrainerCard = ({
   const isHoennChampion = hasProgressToken(['hoenn_champion', 'region_champion_hoenn']) || (gymDefeatCounts['hoenn_champion'] > 0);
   const isSinnohChampion = hasProgressToken(['sinnoh_champion', 'region_champion_sinnoh']) || (gymDefeatCounts['sinnoh_champion'] > 0);
 
-  const achievements = [
+  const _achievements = [
     { id: 'pokedex', icon: POKEAPI_ITEM_URL + 'pokedex.webp', label: 'Pokedex', active: caughtCount >= 50, title: '50+ Capturas' },
     { id: 'crafting', icon: POKEAPI_ITEM_URL + 'metal-coat.webp', label: 'Crafting', active: forgedItems >= 1, title: 'Primeira Forja' },
     { id: 'slayer', icon: POKEAPI_ITEM_URL + 'mega-stone.webp', label: 'Boss Slayer', active: bossDamage >= 100000, title: '100k+ Dano Boss' }

@@ -15,15 +15,15 @@ import AlphaAuraEffect from './effects/AlphaAuraEffect';
 
 const BattleScreen = ({
   currentEnemy, gameState, activeMemberIndex, moveIndex, weather,
-  setActiveMemberIndex, addLog, battleLog, floatingTexts,
-  onUseItem, setGameState, setShowAutoCaptureModal, ROUTES, fixPath, TYPE_COLORS, onGoToCity, onChallengeBoss,
+  setActiveMemberIndex, _addLog, _battleLog, floatingTexts,
+  onUseItem, setGameState, _setShowAutoCaptureModal, ROUTES, fixPath, TYPE_COLORS, onGoToCity, onChallengeBoss,
   timeOfDay, showAutoConfigExternal = false, setShowAutoConfigExternal, bossTimer, currentLevelCap = 100,
   captureEvent, onCaptureDone,
   manualBattle = false, isManualActing = false, onManualAttack,
   onShinyEncounter,
 }) => {
   const activePoke = gameState.team?.[activeMemberIndex];
-  const autoConfig = gameState.autoCaptureConfig || { autoCapture: false, autoPotion: false, hpThreshold: 30, staminaThreshold: 30, autoStamina: false };
+  const _autoConfig = gameState.autoCaptureConfig || { autoCapture: false, autoPotion: false, hpThreshold: 30, staminaThreshold: 30, autoStamina: false };
 
   const [showTrainer, setShowTrainer] = useState(true);
   const [selectedMove, setSelectedMove] = useState(null);
@@ -98,12 +98,12 @@ const BattleScreen = ({
     return () => window.removeEventListener('pokemove', onMove);
   }, []);
 
-  const isAutoPanelOpen = showAutoConfig || showAutoConfigExternal;
-  const closeAutoPanel = () => {
+  const _isAutoPanelOpen = showAutoConfig || showAutoConfigExternal;
+  const _closeAutoPanel = () => {
     setShowAutoConfig(false);
     setShowAutoConfigExternal && setShowAutoConfigExternal(false);
   };
-  const updateAutoConfig = (patch) => {
+  const _updateAutoConfig = (patch) => {
     setGameState(prev => ({
       ...prev,
       autoCaptureConfig: { ...(prev.autoCaptureConfig || {}), ...patch },

@@ -834,7 +834,7 @@ const normalizeRouteProgression = (routesObj) => {
     const maxStep = ROUTE_LEVEL_STEP_LIMIT[region] || ROUTE_LEVEL_STEP_LIMIT.default;
     let previousMin = null;
 
-    farmRoutes.forEach((route, index) => {
+    farmRoutes.forEach((route, _index) => {
       const currentLevels = getRouteMinMaxLevel(normalized[route.id]);
       if (!currentLevels) return;
       let desiredMin = currentLevels.min;
@@ -933,7 +933,7 @@ const S = {
   courier:     'https://play.pokemonshowdown.com/sprites/trainers/courier.png',
 };
 
-const buildRegionRoutes = ({ region, label, startFlag, previousChampion, groups, starters, starterBases, early, mid, late, final, backgrounds, extraRoutes = [] }) => ({
+const _buildRegionRoutes = ({ region, label, startFlag, previousChampion, groups, starters, starterBases, early, mid, late, final, backgrounds, extraRoutes = [] }) => ({
   [`${region}_home_town`]: {
     id: `${region}_home_town`, name: groups.home, type: 'city', group: `${label} Inicio`,
     unlockLevel: 1, requirements: [startFlag],
@@ -1889,7 +1889,7 @@ const buildRegionalDexCoverageRoutes = ({
   startRequirement,
   championRequirement,
   range,
-  backgrounds,
+  _backgrounds,
 }) => {
   const [early, middle, advanced, elite] = splitRegionalDex(range[0], range[1]);
   const field1 = `${region}_dex_field_1_cleared`;

@@ -533,11 +533,9 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
     if (allPlayerFainted) { setResult('defeat'); setPhase('ended'); releaseActionLock(); return; }
 
     // Troca automática de inimigo
-    let newEIdx = eIdx;
     if (eTeam[eIdx].currentHp <= 0) {
       const next = eTeam.findIndex((p, i) => i !== eIdx && p.currentHp > 0);
       if (next >= 0) {
-        newEIdx = next;
         setEnemyActive(next);
         setLog(prev => [...prev, `💫 Oponente enviou ${eTeam[next].name}!`]);
       }
@@ -871,7 +869,7 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
               <div className="flex flex-col gap-2">
                 {playerTeam.map((p, i) => {
                   if (p.currentHp <= 0) return null;
-                  const base = POKEDEX[p.id];
+                  const _base = POKEDEX[p.id];
                   const hpPct = (p.currentHp / p.maxHp) * 100;
                   return (
                     <button

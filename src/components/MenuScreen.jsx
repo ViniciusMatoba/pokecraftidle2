@@ -52,7 +52,7 @@ const formatPlayTime = (ms = 0) => {
 };
 
 // ── Helpers de XP ────────────────────────────────────────────────────────────
-const xpForLevel = (lvl) => Math.pow(lvl, 3);
+const _xpForLevel = (lvl) => Math.pow(lvl, 3);
 const xpToNext   = (lvl) => Math.pow(lvl + 1, 3) - Math.pow(lvl, 3);
 
 /** Calcula o nível e XP resultantes após ganhar `gain` XP a partir de `currentXp` no `currentLevel` */
@@ -329,7 +329,7 @@ const ExpCandyModal = ({ candy, gameState, onUse, onClose }) => {
   );
 };
 
-const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onExportSave, onImportSave, onShowTutorial, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0, missionsNotificationCount = 0, setVsInitialTab, setVsInitialCategory, setVsInitialRegion, muted, onToggleMute, onReportBug, onSwitchTrainer, trainerNick = null }) => {
+const MenuScreen = ({ gameState, setCurrentView, setGameState, _user, onSave, onExportSave, onImportSave, onShowTutorial, MUSIC_LIST, onBack, showConfirm, closeConfirm, onUseExpCandy, onOpenFriends, pendingFriendRequestsCount = 0, missionsNotificationCount = 0, setVsInitialTab, setVsInitialCategory, setVsInitialRegion, muted, onToggleMute, onReportBug, onSwitchTrainer, trainerNick = null }) => {
   const [updating, setUpdating] = useState(false);
   const [subView, setSubView] = useState('main'); // 'main' ou 'settings'
   const [activeTab, setActiveTab] = useState('balls');
@@ -591,7 +591,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
         img: `${POKEAPI_ITEM}rare-candy.png`,
         caption: 'Familias',
         entries: Object.entries({ ...(candies || {}), ...Object.fromEntries(Object.entries(materials || {}).filter(([k]) => k.includes('_candy'))) })
-          .filter(([k, v]) => v > 0)
+          .filter(([_k, v]) => v > 0)
           .map(([k, v]) => {
             const baseCandyId = k.replace(/_xl$/, '');
             const candyData = CANDY_FAMILIES[baseCandyId];

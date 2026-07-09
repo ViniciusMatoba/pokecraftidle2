@@ -5,7 +5,7 @@ import { getAuth } from "firebase/auth";
 
 // Credenciais via variáveis de ambiente (.env — nunca commitado)
 // Fallback embutido para compatibilidade com ambientes sem .env configurado
-const getFallback = (val, fallback) => {
+const _getFallback = (val, fallback) => {
   if (!val || val === "undefined" || val === "null" || String(val).trim() === "") {
     return fallback;
   }

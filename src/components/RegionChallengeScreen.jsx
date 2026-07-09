@@ -7,7 +7,7 @@
  * Simulação de batalha: comparação de power score da equipe do jogador
  * vs. stats totais dos inimigos — com fator de aleatoriedade (±20%).
  */
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { buildRegionBattleOrder } from '../utils/regionBattle';
 import { REGION_GYM_TYPES } from '../data/myRegion';
 
@@ -210,7 +210,7 @@ const BattleResultPopup = ({ result, battle, rewards, onContinue }) => (
 );
 
 /* ─── Tela de Conclusão ───────────────────────────────────────────────────── */
-const CompletionScreen = ({ ownerProfile, battles, totalRewards, onClose }) => (
+const CompletionScreen = ({ ownerProfile, _battles, totalRewards, onClose }) => (
   <div className="flex-1 flex flex-col items-center justify-center p-6 text-center gap-6">
     <div className="text-6xl animate-bounce">🏆</div>
     <div>
@@ -283,7 +283,7 @@ const RegionChallengeScreen = ({
   };
 
   const handleContinue = () => {
-    const { result, battle, rewards } = popupResult;
+    const { result, _battle, rewards } = popupResult;
     const newResults = [...results];
     newResults[currentIndex] = result.won ? 'won' : 'lost';
     setResults(newResults);

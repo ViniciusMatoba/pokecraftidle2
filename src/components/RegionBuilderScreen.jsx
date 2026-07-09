@@ -4,7 +4,7 @@ import {
   GYM_SLOT_COSTS, ELITE_SLOT_COSTS, CHAMPION_SLOT_COST,
   REGION_CARD_STYLES, REGION_BATTLE_BACKGROUNDS,
   getGymSlots, getEliteSlots, isRegionReadyToPublish,
-  defaultGymSlot, defaultEliteSlot, defaultChampion, getSlotLevel,
+  defaultChampion, getSlotLevel,
 } from '../data/myRegion';
 import { AVATAR_SPRITES } from '../data/cosmetics';
 import { getPokemonSpriteUrl } from '../utils/pokemonSprites';
@@ -412,7 +412,7 @@ const SlotEditor = ({ slot, slotType, slotIndex, caughtData, POKEDEX, onSave, on
 };
 
 /* ─── SlotCard ───────────────────────────────────────────────────────────────── */
-const SlotCard = ({ slot, slotType, slotIndex, onEdit, POKEDEX }) => {
+const SlotCard = ({ slot, slotType, slotIndex, onEdit, _POKEDEX }) => {
   const level = getSlotLevel(slotType, slotIndex, slot);
   const typeInfo  = REGION_GYM_TYPES[slot.bannerId] || REGION_GYM_TYPES.normal;
   const labelText = slotType === 'gym' ? `Líder ${slot.slot}` : slotType === 'elite' ? `Elite ${slot.slot}` : 'Campeão';

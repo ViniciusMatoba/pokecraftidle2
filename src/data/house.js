@@ -286,7 +286,7 @@ export const PLANTABLE_ITEMS = {
 // Fórmula para calcular drops ao colher
 // Leva em conta os bônus dos cuidadores
 export const calcHarvestDrops = (plant, caretakerBonuses) => {
-  const growthMult = caretakerBonuses.growthMult || 1.0;
+  const _growthMult = caretakerBonuses.growthMult || 1.0;
   const yieldMult  = caretakerBonuses.yieldMult  || 1.0;
   const rarityBonus   = caretakerBonuses.rarityBonus   || 0;
   const specialBonus  = caretakerBonuses.specialBonus  || 0;

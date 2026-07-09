@@ -336,7 +336,7 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
 
   // -- League / Elite Four ------------------------------------------------------
   // For Alola the last gym leader unlocks rival_victory, which then unlocks league
-  const lastGymUnlock = region === 'alola' ? `${region}_trial_${cfg.leaders.length}_cleared` : cfg.badges[cfg.badges.length - 1];
+  const _lastGymUnlock = region === 'alola' ? `${region}_trial_${cfg.leaders.length}_cleared` : cfg.badges[cfg.badges.length - 1];
   const rivalVictoryUnlock = rivalEntries.at(-1)?.unlock || `${region}_${rivalEntries.at(-1)?.suffix}_defeated`;
   const leagueBattles = cfg.league.map(([name, type, level, ids, leagueBadge], index) => ({
     region, id: index === cfg.league.length - 1 ? `${region}_champion` : `${region}_elite_${index + 1}`,

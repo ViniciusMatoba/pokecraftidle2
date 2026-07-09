@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   getTowerStarters, startTowerRun, generateTowerEncounter,
-  generateFloorShop, resumeTowerRun, getRandomBoons,
+  generateFloorShop, resumeTowerRun, 
 } from '../utils/towerLogic';
 import { TYPE_COLOR_HEX } from '../data/gyms';
 import { POKEDEX } from '../data/pokedex';
@@ -39,19 +39,19 @@ const TYPE_MOVE_CLS = {
   Normal:'bg-slate-600/20 border-slate-500/40 text-slate-300',
 };
 
-const moveTypeClass = (moveKey) => {
+const _moveTypeClass = (moveKey) => {
   const move = MOVES[moveKey];
   return TYPE_MOVE_CLS[move?.type] || TYPE_MOVE_CLS.Normal;
 };
 
-const moveName = (moveKey) => MOVES[moveKey]?.name || moveKey;
-const moveCategory = (moveKey) => {
+const _moveName = (moveKey) => MOVES[moveKey]?.name || moveKey;
+const _moveCategory = (moveKey) => {
   const cat = MOVES[moveKey]?.category;
   if (cat === 'Physical') return 'Físico';
   if (cat === 'Special') return 'Especial';
   return 'Status';
 };
-const movePower = (moveKey) => MOVES[moveKey]?.power || null;
+const _movePower = (moveKey) => MOVES[moveKey]?.power || null;
 const towerXpNeeded = (level) => Math.pow((level || 1) + 1, 3) - Math.pow(level || 1, 3);
 
 // ── Componente ────────────────────────────────────────────────────────────────

@@ -12,7 +12,7 @@ import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokem
 import { getPokemonTmCompatibility } from '../data/tmCompatibility';
 
 import { GYM_LEVEL_CAPS } from '../data/constants';
-import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER, isPokemonLegal } from '../data/regionStandards';
+import { getPokemonRegion, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER, isPokemonLegal } from '../data/regionStandards';
 import { REGIONAL_FORM_METADATA } from '../data/regionalForms';
 import AlphaAuraEffect from './effects/AlphaAuraEffect';
 
@@ -2058,7 +2058,7 @@ const PokemonManagement = ({
                           Mega Evolução Disponível!
                         </h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          {compatibles.map(({ stoneId, name, showdownId, types }) => {
+                          {compatibles.map(({ stoneId, name, showdownId, _types }) => {
                             const stoneCount = inventory[stoneId] || 0;
                             return (
                               <div key={stoneId} style={{
@@ -2420,7 +2420,7 @@ const PokemonManagement = ({
                 )}
               </button>
 
-              {NATURE_LIST.map((name, i) => {
+              {NATURE_LIST.map((name, _i) => {
                 const mods = NATURES[name];
                 const unlocked = activePokemonDetails.pokemon.unlockedNatures?.includes(name);
                 const isActive = activePokemonDetails.pokemon.equippedNature === name;

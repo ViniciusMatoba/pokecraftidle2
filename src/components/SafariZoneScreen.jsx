@@ -1,5 +1,5 @@
 // ── Safari Zone Screen — PokéCraft Idle 2 ────────────────────────────────────
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 
 const SAFARI_POKEMON = [
   { id: 102, name: 'Exeggcute',  baseRate: 0.35 },
@@ -67,7 +67,7 @@ const SafariZoneScreen = ({
   const [catchMult, setCatchMult]       = useState(1.0);
   const [ballsLeft, setBallsLeft]       = useState(safariSession?.ballsLeft ?? MAX_BALLS);
   const [isAnimating, setIsAnimating]   = useState(false);
-  const [shakeCount, setShakeCount]     = useState(0);
+  const [_shakeCount, setShakeCount]     = useState(0);
 
   const inventory = gameState?.inventory?.items || {};
   const hasSafariBall = (inventory.safari_ball || 0) > 0;

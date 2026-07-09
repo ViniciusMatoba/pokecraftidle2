@@ -4,7 +4,7 @@ import {
   HOUSE_SLOT_EXPANSIONS,
   CARETAKER_TYPES,
   CARETAKER_BONUSES,
-  calcGrowthTime,
+  
   calcCombinedCaretakerBonus,
 } from '../data/house';
 import { TROPHIES } from '../data/prestige';
@@ -57,7 +57,7 @@ const HouseScreen = ({
   const availablePlants = useMemo(() => {
     const inventoryItems = gameState.inventory?.items || {};
     const inventoryMaterials = gameState.inventory?.materials || {};
-    return Object.entries(PLANTABLE_ITEMS).filter(([id, plant]) => {
+    return Object.entries(PLANTABLE_ITEMS).filter(([id, _plant]) => {
       // Verifica em ambas as abas do inventário (alguns itens são classificados como materiais)
       return (inventoryItems[id] || 0) > 0 || (inventoryMaterials[id] || 0) > 0;
     });

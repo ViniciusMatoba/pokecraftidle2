@@ -1084,7 +1084,7 @@ const hasWorldFlag = (worldFlags, flag) => {
  * Itens gratuitos (cost === 0): desbloqueados quando a flag de progresso é atingida (ou sem flag).
  * Itens pagos (cost > 0): só desbloqueiam se foram explicitamente comprados (purchasedArray).
  */
-export const isCosmeticUnlocked = (item, worldFlags = [], purchased = [], totalBadges = 0) => {
+export const isCosmeticUnlocked = (item, worldFlags = [], purchased = [], _totalBadges = 0) => {
   // Itens gratuitos — auto-desbloqueiam ao atingir o progresso
   if (item.cost === 0 || item.cost === null || item.cost === undefined) {
     return !item.unlockFlag || hasWorldFlag(worldFlags, item.unlockFlag);

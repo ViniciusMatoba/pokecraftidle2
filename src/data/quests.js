@@ -7,7 +7,7 @@ export const QUESTS = {
     desc: 'Capture seu primeiro parceiro na Rota 1 para mostrar ao Prof. Carvalho que você está pronto!',
     icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
     reward: '10x Pokébolas',
-    check: (gameState) => {
+    check: (_gameState) => {
       // Esta checagem é feita manualmente no handleUseItem no momento
       return false; 
     }
@@ -19,7 +19,7 @@ export const getActiveQuest = (worldFlags) => {
   return null;
 };
 
-export const updateQuestProgress = (prev, type, payload) => {
+export const updateQuestProgress = (prev, type, _payload) => {
   let questUpdate = {};
   const newFlags = [...(prev.worldFlags || [])];
   const newInventory = { ...prev.inventory, items: { ...prev.inventory.items } };

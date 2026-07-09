@@ -45,8 +45,8 @@ import { getItemSpriteUrl, getTypeIconUrl } from '../utils/assetUrls';
 const TravelScreen = ({ 
   gameState, 
   setGameState, 
-  travelTab, 
-  setTravelTab, 
+  _travelTab, 
+  _setTravelTab, 
   ROUTES, 
   setCurrentEnemy, 
   setCurrentView,

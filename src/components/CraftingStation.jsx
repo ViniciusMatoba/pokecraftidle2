@@ -46,7 +46,7 @@ const CraftingStation = ({
   initialCategory = null,
   initialItem = null,
   isAnyModalOpen = false,
-  isForgeConfirmOpen = false,
+  _isForgeConfirmOpen = false,
   setCurrentView,
   setGameState,
 }) => {
