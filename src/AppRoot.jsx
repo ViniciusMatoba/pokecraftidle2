@@ -122,6 +122,66 @@ const bumpPlayerStats = (stats = {}, increments = {}) => {
   return next;
 };
 
+// ── Chips visuais de recompensa (missões) ────────────────────────────────────
+// Ícones dos itens que não estão no ITEM_LABELS (bolas e candies usam PokeAPI)
+const REWARD_LABEL_OVERRIDES = {
+  pokeballs:   { icon: `${POKEAPI_ITEM_URL}poke-ball.png`,   name: 'Pokébola' },
+  great_ball:  { icon: `${POKEAPI_ITEM_URL}great-ball.png`,  name: 'Great Ball' },
+  ultra_ball:  { icon: `${POKEAPI_ITEM_URL}ultra-ball.png`,  name: 'Ultra Ball' },
+  exp_candy_s: { icon: `${POKEAPI_ITEM_URL}exp-candy-s.png`, name: 'EXP Candy S' },
+  exp_candy_m: { icon: `${POKEAPI_ITEM_URL}exp-candy-m.png`, name: 'EXP Candy M' },
+  exp_candy_l: { icon: `${POKEAPI_ITEM_URL}exp-candy-l.png`, name: 'EXP Candy L' },
+};
+
+const resolveRewardMeta = (id) => {
+  if (REWARD_LABEL_OVERRIDES[id]) return REWARD_LABEL_OVERRIDES[id];
+  const meta = ITEM_LABELS[id];
+  if (meta) return { icon: meta.icon, name: meta.name };
+  // Fallback: tenta o sprite da PokeAPI pelo próprio id (snake → kebab)
+  return { icon: `${POKEAPI_ITEM_URL}${String(id).replace(/_/g, '-')}.png`, name: String(id).replace(/_/g, ' ') };
+};
+
+const rewardIconSrc = (icon) => {
+  const s = String(icon || '');
+  if (s.startsWith('http')) return s;
+  if (s.startsWith('/')) return `${(import.meta.env.BASE_URL || './').replace(/\/$/, '')}${s}`;
+  return null; // emoji
+};
+
+const RewardChips = ({ reward = {} }) => {
+  const entries = [];
+  if (reward.currency) {
+    entries.push({ icon: `${POKEAPI_ITEM_URL}nugget.png`, name: 'Moedas', qty: reward.currency, isCurrency: true });
+  }
+  ['items', 'materials', 'candies'].forEach(group => {
+    Object.entries(reward[group] || {}).forEach(([id, qty]) => {
+      entries.push({ ...resolveRewardMeta(id), qty });
+    });
+  });
+  if (!entries.length) return <p className="text-sm font-black text-green-300">Recompensa coletada</p>;
+  return (
+    <div className="flex flex-wrap justify-center gap-2">
+      {entries.map((e, i) => {
+        const src = rewardIconSrc(e.icon);
+        return (
+          <span key={i} className="flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5"
+            style={{ background: 'rgba(0,0,0,0.28)', borderColor: 'rgba(134,239,172,0.28)' }}>
+            {src ? (
+              <img src={src} alt="" className="w-6 h-6 object-contain" style={{ imageRendering: 'pixelated' }}
+                onError={ev => { ev.currentTarget.style.display = 'none'; }} />
+            ) : (
+              <span className="text-base leading-none">{e.icon || '📦'}</span>
+            )}
+            <span className="text-[11px] font-black text-green-200 whitespace-nowrap capitalize">
+              {e.isCurrency ? `${Number(e.qty).toLocaleString('pt-BR')} ${e.name}` : `${e.qty}x ${e.name}`}
+            </span>
+          </span>
+        );
+      })}
+    </div>
+  );
+};
+
 const monitorAuthState = (callback) => onAuthStateChanged(auth, callback);
 
 const LEGACY_LOCAL_SAVE_KEY = 'poke_idle_save';
@@ -1415,6 +1475,8 @@ export default function App() {
   // Detecta a TRANSIÇÃO para "completa e não coletada" e abre um modal na hora,
   // sem o jogador precisar ir até Menu → Missões.
   const [missionCompleteQueue, setMissionCompleteQueue] = useState([]);
+  // Modal de recompensas coletadas da raid (nome, estrelas, sprite e chips)
+  const [raidRewardModal, setRaidRewardModal] = useState(null);
   const seenCompletedMissionsRef = useRef(null); // null = inicializa no 1º render pós-load
 
   useEffect(() => {
@@ -4477,19 +4539,34 @@ export default function App() {
         materials: { ...prev.inventory.materials },
         candies:   { ...(prev.inventory.candies || {}) },
       };
+      // Agrega no formato de recompensa dos chips ({currency, items, materials, candies})
+      const rewardSummary = { currency: 0, items: {}, materials: {}, candies: {} };
       rewards.forEach(r => {
         const isTmReward = String(r.id || '').startsWith('tm_');
         if (r.type === 'currency') {
           newCurrency += r.quantity || 0;
+          rewardSummary.currency += r.quantity || 0;
         } else if (r.type === 'item' || isTmReward) {
           newInventory.items[r.id] = (newInventory.items[r.id] || 0) + (r.quantity || 1);
+          rewardSummary.items[r.id] = (rewardSummary.items[r.id] || 0) + (r.quantity || 1);
         } else if (r.type === 'material') {
           newInventory.materials[r.id] = (newInventory.materials[r.id] || 0) + (r.quantity || 1);
+          rewardSummary.materials[r.id] = (rewardSummary.materials[r.id] || 0) + (r.quantity || 1);
         } else if (r.type === 'candy') {
           newInventory.candies[r.id] = (newInventory.candies[r.id] || 0) + (r.quantity || 1);
+          rewardSummary.candies[r.id] = (rewardSummary.candies[r.id] || 0) + (r.quantity || 1);
         }
       });
-      showRaidRouteNotice(raid, 'claimed');
+      // Modal de recompensas coletadas (substitui o toast genérico 'claimed')
+      setRaidRewardModal({
+        name: raid.name,
+        stars: raid.stars,
+        pokemonId: raid.pokemonId,
+        formKey: raid.formKey || null,
+        formSpriteId: raid.formSpriteId || null,
+        captured: !!raid.captured,
+        reward: rewardSummary,
+      });
       // Agenda próxima raid
       localStorage.setItem(RAID_SPAWN_STORAGE_KEY, String(Date.now() + RAID_SPAWN_INTERVAL_MS));
       return {
@@ -4506,7 +4583,7 @@ export default function App() {
       };
     });
     setShowRaidScreen(false);
-  }, [showRaidRouteNotice]);
+  }, []);
 
   // TICK DE BATALHA
   // ⛏️” PROTECTED: handleBattleTick — NíO EDITAR SEM AUTORIZAÇíO EXPLíCITA
@@ -12807,6 +12884,60 @@ export default function App() {
         </div>
       )}
 
+      {/* ── MODAL: Recompensas da Raid coletadas ───────────────────────────── */}
+      {raidRewardModal && (
+        <div
+          className="absolute inset-0 z-[100000] flex items-center justify-center p-4 cursor-default"
+          style={{ background: 'rgba(2,6,23,0.85)', backdropFilter: 'blur(10px)' }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setRaidRewardModal(null); }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+        >
+          <div
+            className="w-full max-w-sm rounded-[2rem] shadow-2xl overflow-hidden border-2 animate-bounceIn"
+            style={{ background: 'linear-gradient(165deg,#120c1a 0%,#1d0f2b 55%,#120c1a 100%)', borderColor: `${RAID_STAR_COLOR[raidRewardModal.stars] || '#f59e0b'}77` }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ height: 3, background: `linear-gradient(90deg,transparent,${RAID_STAR_COLOR[raidRewardModal.stars] || '#f59e0b'},transparent)` }} />
+            <div className="px-6 pt-6 pb-4 text-center">
+              <div className="relative mx-auto mb-2 flex h-24 w-24 items-center justify-center rounded-[1.75rem] border"
+                style={{ background: 'rgba(255,255,255,0.06)', borderColor: `${RAID_STAR_COLOR[raidRewardModal.stars] || '#f59e0b'}55` }}>
+                <img
+                  src={getPokemonSpriteUrl({ id: raidRewardModal.pokemonId, formKey: raidRewardModal.formKey, formSpriteId: raidRewardModal.formSpriteId })}
+                  alt={raidRewardModal.name}
+                  className="h-20 w-20 object-contain"
+                  style={{ imageRendering: 'pixelated', filter: `drop-shadow(0 0 14px ${RAID_STAR_COLOR[raidRewardModal.stars] || '#f59e0b'}aa)` }}
+                  onError={e => { e.currentTarget.style.display = 'none'; }}
+                />
+                <span className="absolute -top-2 -right-2 text-2xl">🎁</span>
+              </div>
+              <p className="text-[9px] font-black uppercase tracking-[0.3em]" style={{ color: RAID_STAR_COLOR[raidRewardModal.stars] || '#f59e0b' }}>
+                Raid {raidRewardModal.stars}⭐ Vencida!
+              </p>
+              <h3 className="mt-1 text-xl font-black uppercase italic leading-tight text-white">{raidRewardModal.name}</h3>
+              {raidRewardModal.captured && (
+                <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">✅ Capturado com sucesso!</p>
+              )}
+            </div>
+            <div className="mx-6 mb-4 rounded-2xl border px-4 py-3 text-center"
+              style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.12)' }}>
+              <p className="text-[9px] font-black uppercase tracking-widest text-white/60 mb-2">Recompensas Obtidas</p>
+              <RewardChips reward={raidRewardModal.reward} />
+            </div>
+            <div className="px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+              <button
+                onClick={() => setRaidRewardModal(null)}
+                className="w-full min-h-[52px] rounded-2xl text-sm font-black uppercase tracking-widest text-slate-950 transition-all active:scale-95"
+                style={{ background: `linear-gradient(135deg,${RAID_STAR_COLOR[raidRewardModal.stars] || '#f59e0b'},#f8fafc)`, boxShadow: `0 6px 24px ${RAID_STAR_COLOR[raidRewardModal.stars] || '#f59e0b'}66` }}
+              >
+                ⚔️ Ótimo!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── MODAL: Missão Concluída (coleta direta) ────────────────────────── */}
       {missionCompleteQueue.length > 0 && (() => {
         const { period, mission } = missionCompleteQueue[0];
@@ -12835,13 +12966,20 @@ export default function App() {
                     +{missionCompleteQueue.length - 1} aguardando
                   </p>
                 )}
-                <h3 className="mt-1 text-xl font-black uppercase italic leading-tight text-white">{mission.title}</h3>
+                <h3 className="mt-1 flex items-center justify-center gap-2 text-xl font-black uppercase italic leading-tight text-white">
+                  {mission.icon && (
+                    <img src={`${POKEAPI_ITEM_URL}${mission.icon}`} alt="" className="h-7 w-7 object-contain"
+                      style={{ imageRendering: 'pixelated' }}
+                      onError={e => { e.currentTarget.style.display = 'none'; }} />
+                  )}
+                  {mission.title}
+                </h3>
                 <p className="mt-2 text-xs font-bold text-slate-400">{mission.description}</p>
               </div>
               <div className="mx-6 mb-4 rounded-2xl border px-4 py-3 text-center"
                 style={{ background: 'rgba(34,197,94,0.10)', borderColor: 'rgba(34,197,94,0.3)' }}>
-                <p className="text-[9px] font-black uppercase tracking-widest text-green-300/80 mb-1">Recompensa</p>
-                <p className="text-sm font-black text-green-300">{formatRewardSummary(mission.reward)}</p>
+                <p className="text-[9px] font-black uppercase tracking-widest text-green-300/80 mb-2">Recompensa</p>
+                <RewardChips reward={mission.reward} />
               </div>
               <div className="flex flex-col gap-2 px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
                 <button

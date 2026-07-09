@@ -360,8 +360,9 @@ export const RAID_EVENT_POOL = [
   { id: 25, formKey: 'pikachu-alola',   stars: 3, level: 35,
     name: 'Pikachu — Chapéu Alola',    spriteUrl: `${PS}pikachu-alola.gif`,
     eventLabel: 'Chapéu Especial',     isShinyLocked: true  },
+  // pikachu-world.gif não existe em ani/ (404) — usa o set gen5ani do Showdown
   { id: 25, formKey: 'pikachu-world',   stars: 4, level: 40,
-    name: 'Pikachu — Chapéu Mundial',  spriteUrl: `${PS}pikachu-world.gif`,
+    name: 'Pikachu — Chapéu Mundial',  spriteUrl: 'https://play.pokemonshowdown.com/sprites/gen5ani/pikachu-world.gif',
     eventLabel: 'Campeão Mundial',     isShinyLocked: true  },
   // ── Greninja-Ash ─────────────────────────────────────────────────────────
   { id: 658, formKey: 'greninja-ash',   stars: 5, level: 65,
@@ -372,10 +373,10 @@ export const RAID_EVENT_POOL = [
     name: 'Charizard-GMax',            spriteUrl: `${PS}charizard-gmax.gif`,
     eventLabel: 'Gigantamax',          isShinyLocked: false },
   { id: 3,   formKey: 'venusaur-gmax',  stars: 5, level: 70,
-    name: 'Venusaur-GMax',             spriteUrl: `${PS}venusaur-gmax.gif`,
+    name: 'Venusaur-GMax',             spriteUrl: 'https://play.pokemonshowdown.com/sprites/gen5/venusaur-gmax.png',
     eventLabel: 'Gigantamax',          isShinyLocked: false },
   { id: 9,   formKey: 'blastoise-gmax', stars: 5, level: 70,
-    name: 'Blastoise-GMax',            spriteUrl: `${PS}blastoise-gmax.gif`,
+    name: 'Blastoise-GMax',            spriteUrl: 'https://play.pokemonshowdown.com/sprites/gen5/blastoise-gmax.png',
     eventLabel: 'Gigantamax',          isShinyLocked: false },
   { id: 94,  formKey: 'gengar-gmax',    stars: 5, level: 70,
     name: 'Gengar-GMax',               spriteUrl: `${PS}gengar-gmax.gif`,

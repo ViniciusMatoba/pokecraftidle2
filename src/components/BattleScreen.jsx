@@ -211,7 +211,10 @@ const BattleScreen = ({
 
       <ActiveEffectsBar activeEffects={gameState.activeEffects} />
       
-      <div className="relative overflow-hidden rounded-2xl shadow-xl flex-shrink-0" style={{ height: 220 }}>
+      {/* Cena de batalha: altura proporcional à tela (era 220px fixos).
+          42dvh ≈ 340px num celular comum; clamp evita extremos em telas
+          muito baixas (min 240px) ou muito altas/desktop (máx 430px). */}
+      <div className="relative overflow-hidden rounded-2xl shadow-xl flex-shrink-0" style={{ height: 'clamp(240px, 42dvh, 430px)' }}>
 
         <div
           className="absolute inset-0"
@@ -373,22 +376,26 @@ const BattleScreen = ({
           </div>
         )}
 
-        {/* SPRITE INIMIGO - Quadrante Superior Direito */}
-        <div ref={enemySpriteRef} className="absolute top-12 right-10 z-10 w-24 h-24 flex items-center justify-center">
+        {/* SPRITE INIMIGO - Quadrante Superior Direito.
+            Tamanho proporcional à cena (32% da largura), com limites para
+            não pixelar demais sprites pequenos nem estourar em telas grandes. */}
+        <div ref={enemySpriteRef} className="absolute top-[13%] right-[7%] z-10 aspect-square flex items-center justify-center" style={{ width: 'clamp(104px, 32%, 190px)' }}>
           {statReactions.filter(r => r.target === 'enemy').map(r => (
             <div key={r.id} className={`absolute z-30 stat-arrow-${r.change}`}>
               {r.change === 'up' ? '▲' : '▼'}
               <span className="text-[8px] ml-0.5">{r.stat.toUpperCase()}</span>
             </div>
           ))}
-          <div className="relative">
+          {/* w-full h-full: propaga o tamanho do wrapper até o <img>; sem isso
+              o sprite renderiza no tamanho natural (96px) e ignora o clamp. */}
+          <div className="relative w-full h-full flex items-center justify-center">
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none z-20 whitespace-nowrap">
               {(floatingTexts || []).filter(f => !f.target || f.target === 'enemy').map(f => <span key={f.id} className="block text-center font-black text-lg animate-floatUp" style={{ color: f.color, textShadow: '2px 2px 0 #000' }}>{f.text}</span>)}
             </div>
             <img
               src={
-                currentEnemy.isTrainer && showTrainer 
-                  ? (currentEnemy.trainerSprite || 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png') 
+                currentEnemy.isTrainer && showTrainer
+                  ? (currentEnemy.trainerSprite || 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png')
                   : (currentEnemy.sprite || (currentEnemy.id ? getPokemonSpriteUrl(currentEnemy) : 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'))
               }
               alt={currentEnemy.name || "Pokémon"}
@@ -399,6 +406,7 @@ const BattleScreen = ({
                   target.src = getPokemonSpriteFallbackUrl(currentEnemy);
                 }
               }}
+              style={{ imageRendering: 'pixelated' }}
               className={`w-full h-full object-contain drop-shadow-xl transition-all duration-500 ${showTrainer && currentEnemy.isTrainer ? 'scale-110' : currentEnemy.isWildBoss ? 'scale-125 animate-float' : 'animate-float'} ${currentEnemy.isShiny && !showTrainer ? 'drop-shadow-[0_0_16px_rgba(234,179,8,1)]' : ''} ${currentEnemy.hp <= 0 ? 'opacity-0 scale-0' : 'opacity-100'}`}
             />
           </div>
@@ -483,8 +491,10 @@ const BattleScreen = ({
           ) : <div style={{color:'white', background:'rgba(0,0,0,0.5)', padding:'8px 12px', borderRadius:'12px', fontStyle:'italic', fontSize:'10px'}}>Aguardando...</div>}
         </div>
 
-        {/* SPRITE JOGADOR - Quadrante Inferior Esquerdo */}
-        <div ref={playerSpriteRef} className="absolute bottom-2 left-6 z-10 w-24 h-24 flex items-center justify-center">
+        {/* SPRITE JOGADOR - Quadrante Inferior Esquerdo.
+            Sprite de costas maior que o inimigo (perspectiva: está mais perto
+            da "câmera", como nos jogos oficiais). */}
+        <div ref={playerSpriteRef} className="absolute bottom-[3%] left-[5%] z-10 aspect-square flex items-center justify-center" style={{ width: 'clamp(120px, 38%, 220px)' }}>
           {statReactions.filter(r => r.target === 'player').map(r => (
             <div key={r.id} className={`absolute z-30 stat-arrow-${r.change}`}>
               {r.change === 'up' ? '▲' : '▼'}
@@ -492,7 +502,7 @@ const BattleScreen = ({
             </div>
           ))}
           {activePoke && (
-            <div className="relative">
+            <div className="relative w-full h-full flex items-center justify-center">
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none z-20 whitespace-nowrap">
                 {(floatingTexts || []).filter(f => f.target === 'player').map(f => <span key={f.id} className="block text-center font-black text-lg animate-floatUp" style={{ color: f.color, textShadow: '2px 2px 0 #000' }}>{f.text}</span>)}
               </div>
@@ -535,6 +545,7 @@ const BattleScreen = ({
                     target.src = getPokemonSpriteUrl(activePoke);
                   }
                 }}
+                style={{ imageRendering: 'pixelated' }}
                 className={`w-full h-full object-contain drop-shadow-xl ${activePoke.isAlpha ? 'drop-shadow-[0_0_16px_rgba(239,68,68,0.9)]' : activePoke.isShiny ? 'drop-shadow-[0_0_10px_rgba(234,179,8,0.9)]' : ''} ${activePoke.isMega ? 'drop-shadow-[0_0_14px_rgba(124,58,237,0.7)]' : ''}`}
                 alt="Player"
               />

@@ -69,9 +69,31 @@ export const SHOWDOWN_FORM_KEYS = new Set([
   'meowth-gmax','eevee-gmax',
 ]);
 
+// Formas que NÃO existem na pasta ani/ do Showdown (404) e precisam de URL
+// alternativa. Auditado em 09/07/2026 contra o CDN do Showdown:
+//   pikachu-world → só existe no set gen5ani (animado)
+//   venusaur-gmax / blastoise-gmax → só existem como PNG estático no set gen5
+const SHOWDOWN_SPRITE_URL_OVERRIDES = {
+  'pikachu-world': {
+    normal: 'https://play.pokemonshowdown.com/sprites/gen5ani/pikachu-world.gif',
+    shiny:  'https://play.pokemonshowdown.com/sprites/gen5ani-shiny/pikachu-world.gif',
+  },
+  'venusaur-gmax': {
+    normal: 'https://play.pokemonshowdown.com/sprites/gen5/venusaur-gmax.png',
+    shiny:  'https://play.pokemonshowdown.com/sprites/gen5-shiny/venusaur-gmax.png',
+  },
+  'blastoise-gmax': {
+    normal: 'https://play.pokemonshowdown.com/sprites/gen5/blastoise-gmax.png',
+    shiny:  'https://play.pokemonshowdown.com/sprites/gen5-shiny/blastoise-gmax.png',
+  },
+};
+
 /** Retorna URL do sprite animado do Showdown para formas de evento. */
-export const getShowdownSpriteUrl = (formKey, shiny = false) =>
-  `${shiny ? PS_SHINY_BASE : PS_ANI_BASE}${formKey}.gif`;
+export const getShowdownSpriteUrl = (formKey, shiny = false) => {
+  const override = SHOWDOWN_SPRITE_URL_OVERRIDES[formKey];
+  if (override) return shiny ? override.shiny : override.normal;
+  return `${shiny ? PS_SHINY_BASE : PS_ANI_BASE}${formKey}.gif`;
+};
 
 const normalizeFormKey = (formKey) =>
   typeof formKey === 'string' ? formKey.trim().toLowerCase() : '';

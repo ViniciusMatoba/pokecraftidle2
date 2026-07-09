@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.11.77';
-export const VERSION = '2.11.77';
-export const APP_VERSION_DATE = '09/07/2026 01:50';
+export const APP_VERSION = '2.11.78';
+export const VERSION = '2.11.78';
+export const APP_VERSION_DATE = '09/07/2026 02:40';
 export const CHANGELOG = [
+  '## [V2.11.78] - 09/07/2026 02:40',
+  '### Cena de Batalha Maior, Modais com Ícones e Correções de Sprites',
+  '- **Cena de batalha ~55% maior**: a área da batalha (rotas, ginásios, VS e raids) agora escala com a tela (até 430px) em vez de 220px fixos, aproveitando muito mais os cenários. Sprites dos Pokémon proporcionais à cena (inimigo ~32%, seu Pokémon ~38% — perspectiva dos jogos oficiais) com upscale nítido em pixel-art.',
+  '- **Recompensas com ícones**: os modais de missão concluída agora mostram cada recompensa como chip com imagem (moedas com nugget, bolas e EXP Candies com sprites oficiais, materiais com os ícones da mochila) e nomes amigáveis em vez de ids internos. Ícone da própria missão ao lado do título.',
+  '- **Modal de recompensas da raid**: coletar a raid (pelo botão da rota ou pela tela da raid) agora abre um modal mostrando o Pokémon vencido, as estrelas e todos os itens obtidos com ícones — antes só aparecia um aviso de texto.',
+  '- **Sprites de evento corrigidos**: Pikachu Chapéu Mundial, Venusaur-GMax e Blastoise-GMax apontavam para URLs inexistentes (404) e apareciam sem a forma especial. Auditadas as 17 URLs de raids de evento; as 3 quebradas corrigidas — vale também para Pokémon dessas formas já capturados.',
+  '',
   '## [V2.11.77] - 09/07/2026 01:50',
   '### Correção na Tela de Seleção de Avatar',
   '- **Removido botão "Restaurar Save de Emergência (MATOBA)"**: era um resgate pontual de uma conta específica e aparecia indevidamente para todas as contas. A restauração de saves continua disponível no ☁️ Histórico de Backups de cada slot.',
