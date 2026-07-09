@@ -1,7 +1,7 @@
 {
   "name": "poke-craft-idle",
   "private": true,
-  "version": "2.11.59",
+  "version": "2.11.60",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "fix-encoding": "node scripts/fix-encoding.cjs",
     "prebuild": "node scripts/update-sw-version.cjs && node scripts/check-circulars.cjs && node scripts/audit-content.cjs",
-    "deploy": "npm run build && gh-pages -d dist",
+    "deploy": "npm run build && gh-pages -d dist && npx firebase-tools deploy --only hosting --project pokecraftidle",
+    "deploy:github": "npm run build && gh-pages -d dist",
+    "deploy:firebase": "npm run build && npx firebase-tools deploy --only hosting --project pokecraftidle",
     "release": "node scripts/release.cjs",
     "check": "node scripts/check-circulars.cjs",
     "audit-content": "node scripts/audit-content.cjs",

@@ -1,5 +1,5 @@
 {
-  "version": "2.11.59",
-  "date": "08/07/2026 22:12",
-  "notes": "Limpeza de chaves duplicadas em rotas, receitas e metadados de itens"
+  "version": "2.11.60",
+  "date": "08/07/2026 22:20",
+  "notes": "Deploy unificado para GitHub Pages e Firebase Hosting"
 }

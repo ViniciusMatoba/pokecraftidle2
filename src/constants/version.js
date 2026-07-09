@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.59';
-export const VERSION = '2.11.59';
-export const APP_VERSION_DATE = '08/07/2026 22:12';
+export const APP_VERSION = '2.11.60';
+export const VERSION = '2.11.60';
+export const APP_VERSION_DATE = '08/07/2026 22:20';
 export const CHANGELOG = [
+  '## [V2.11.60] - 08/07/2026 22:20',
+  '### Deploy Unificado',
+  '- **GitHub Pages e Firebase juntos**: `npm run deploy` agora publica a mesma build nos dois destinos oficiais do jogo.',
+  '- **Scripts separados mantidos**: adicionados `deploy:github` e `deploy:firebase` para publicacoes individuais quando necessario.',
+  '- **Menos risco de versao defasada**: o Firebase Hosting deixa de depender de um comando manual separado apos cada release.',
+  '',
   '## [V2.11.59] - 08/07/2026 22:12',
   '### Limpeza de Dados Duplicados',
   '- **Mega Stones sem sobrescrita**: removidas entradas duplicadas no mapa de drops de receitas, mantendo um unico mapeamento por item.',
