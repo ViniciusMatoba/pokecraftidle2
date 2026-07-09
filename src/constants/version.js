@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.69';
-export const VERSION = '2.11.69';
-export const APP_VERSION_DATE = '08/07/2026 23:10';
+export const APP_VERSION = '2.11.70';
+export const VERSION = '2.11.70';
+export const APP_VERSION_DATE = '08/07/2026 23:14';
 export const CHANGELOG = [
+  '## [V2.11.70] - 08/07/2026 23:14',
+  '### Ultra Otimização de Imagens e CDNs',
+  '- **Migração para CDN jsDelivr**: Redirecionados todos os sprites de Pokémon, itens e ícones de tipo para a CDN ultra-rápida jsDelivr. Isso contorna a latência e throttling de taxa de download da CDN do GitHub em celulares e tablets.',
+  '- **Preload Alinhado de Costas**: Removida tentativa instável de carregar GIFs de costas da Geração V (que davam timeout). O player agora usa getPokemonSpriteUrl estático alinhado com o preloader em background, garantindo renderização instantânea.',
+  '- **Service Worker Cache de CDN**: Atualizado o sw.js para cachear localmente os assets vindos da nova CDN jsDelivr, habilitando carregamento instantâneo offline após o primeiro download.',
+  '',
   '## [V2.11.69] - 08/07/2026 23:10',
   '### Higienização de Sprites e Preload em Background',
   '- **Higienização de Saves (Rattata Alola em Kanto)**: Adicionado passo na migração do save (`cleanStaleRegionalMetadata`) que detecta e remove metadados regionais de Alola/Galar/Hisui de Pokémon de Kanto que foram capturados em Kanto. Isso resolve o problema de Rattata de Kanto exibindo sprite de Alola por conta de chaves sujas no save.',

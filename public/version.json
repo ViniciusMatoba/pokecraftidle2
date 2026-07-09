@@ -1,5 +1,5 @@
 {
-  "version": "2.11.69",
-  "date": "08/07/2026 23:10",
-  "notes": "Higienização de sprites regional e preload dinâmico"
+  "version": "2.11.70",
+  "date": "08/07/2026 23:14",
+  "notes": "Otimização de CDNs jsDelivr, sw.js e correção do delay de costas"
 }

@@ -1,6 +1,6 @@
-export const POKEAPI_ITEM_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items';
+export const POKEAPI_ITEM_BASE = 'https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/items';
 export const SHOWDOWN_TRAINER_BASE = 'https://play.pokemonshowdown.com/sprites/trainers';
-export const TYPE_ICON_BASE = 'https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons';
+export const TYPE_ICON_BASE = 'https://cdn.jsdelivr.net/gh/duiker101/pokemon-type-svg-icons@master/icons';
 
 export const getLocalAssetUrl = (path) => {
   const base = (import.meta.env.BASE_URL || './').replace(/\/$/, '');

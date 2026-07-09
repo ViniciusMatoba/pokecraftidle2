@@ -1,6 +1,6 @@
 import { LOCAL_ASSET_FALLBACKS } from './assetUrls';
 
-const POKEAPI_SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon';
+const POKEAPI_SPRITE_BASE = 'https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon';
 const PS_ANI_BASE  = 'https://play.pokemonshowdown.com/sprites/ani/';
 const PS_SHINY_BASE = 'https://play.pokemonshowdown.com/sprites/ani-shiny/';
 

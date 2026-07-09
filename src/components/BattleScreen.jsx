@@ -509,9 +509,7 @@ const BattleScreen = ({
                 src={
                   activePoke.isMega && activePoke.megaShowdownId
                     ? `https://play.pokemonshowdown.com/sprites/dex-back/${activePoke.megaShowdownId}.png`
-                    : activePoke.formKey || activePoke.id >= 650
-                      ? getPokemonSpriteUrl(activePoke, { back: true })
-                      : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/${activePoke.isShiny ? 'shiny/' : ''}${activePoke.id}.gif`
+                    : getPokemonSpriteUrl(activePoke, { back: true })
                 }
                 onError={e => {
                   const target = e.target;
