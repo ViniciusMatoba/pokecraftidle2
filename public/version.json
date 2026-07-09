@@ -1,5 +1,5 @@
 {
-  "version": "2.11.74",
-  "date": "08/07/2026 23:50",
-  "notes": "Resolução de ordem de declaração (processedRoutes TDZ)"
+  "version": "2.11.75",
+  "date": "09/07/2026 00:45",
+  "notes": "Auditoria de regioes nas rotas, coleta rapida de raid e modal de missao concluida"
 }

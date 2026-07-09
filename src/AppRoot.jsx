@@ -89,7 +89,7 @@ import { calculatePowerScore, getBadgeCount, hasPlayableProgress } from './utils
 import { migrateGameState } from './utils/saveMigration';
 import { computeGameStateHash } from './utils/stateHash';
 import { applyLearnedMovesForLevelRange } from './utils/pokemonMoves';
-import { ensureRetentionState, getRetentionViewModel, RETENTION_DAILY_MISSIONS, RETENTION_WEEKLY_MISSIONS } from './data/retention';
+import { ensureRetentionState, getRetentionViewModel, claimMissionReward, formatRewardSummary, RETENTION_DAILY_MISSIONS, RETENTION_WEEKLY_MISSIONS } from './data/retention';
 import { 
   TROPHIES, SHOP_TITLES, POKEDEX_FRAMES, UI_THEMES, 
   ALLIES, MINE_LEVELS, FISHING_RODS, POKECENTER_DONATIONS, GYM_BANNERS 
@@ -1410,6 +1410,56 @@ export default function App() {
       setDropQueue(rest);
     }
   }, [activeDropModal, dropQueue]);
+
+  // ── Missão concluída: modal com coleta direta ──────────────────────────────
+  // Detecta a TRANSIÇÃO para "completa e não coletada" e abre um modal na hora,
+  // sem o jogador precisar ir até Menu → Missões.
+  const [missionCompleteQueue, setMissionCompleteQueue] = useState([]);
+  const seenCompletedMissionsRef = useRef(null); // null = inicializa no 1º render pós-load
+
+  useEffect(() => {
+    if (!isFullyLoadedRef.current) return;
+    // Persiste as baselines de retenção se o save ainda não as tem para o
+    // dia/semana atual (ex.: logo após "Iniciar Nova Jornada", que zera o
+    // retention). Sem isso o progresso das missões fica travado em 0.
+    const ensured = ensureRetentionState(gameState);
+    const cur = gameState.retention;
+    if (cur?.daily?.dateKey !== ensured.daily.dateKey || cur?.weekly?.weekKey !== ensured.weekly.weekKey) {
+      setGameState(prev => ({ ...prev, retention: ensureRetentionState(prev) }));
+      return; // reavalia no próximo ciclo, já com baselines persistidas
+    }
+    const model = getRetentionViewModel(gameState);
+    const completedNow = [
+      ...model.dailyMissions.filter(m => m.complete && !m.claimed).map(m => ({ key: `daily:${m.id}`, period: 'daily', mission: m })),
+      ...model.weeklyMissions.filter(m => m.complete && !m.claimed).map(m => ({ key: `weekly:${m.id}`, period: 'weekly', mission: m })),
+    ];
+    // Primeira avaliação após o load: registra o que JÁ estava completo sem abrir modal
+    if (seenCompletedMissionsRef.current === null) {
+      seenCompletedMissionsRef.current = new Set(completedNow.map(c => c.key));
+      return;
+    }
+    const fresh = completedNow.filter(c => !seenCompletedMissionsRef.current.has(c.key));
+    if (fresh.length > 0) {
+      fresh.forEach(c => seenCompletedMissionsRef.current.add(c.key));
+      setMissionCompleteQueue(prev => [...prev, ...fresh]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameState.playerStats, gameState.retention]);
+
+  const handleClaimMissionFromModal = useCallback((period, missionId) => {
+    setGameState(prev => {
+      const result = claimMissionReward(prev, period, missionId);
+      if (result.claimed) {
+        notify({ type: 'success', title: '🏆 Recompensa coletada!', message: formatRewardSummary(result.reward) });
+      }
+      return result.state;
+    });
+    setMissionCompleteQueue(prev => prev.slice(1));
+  }, []);
+
+  const dismissMissionModal = useCallback(() => {
+    setMissionCompleteQueue(prev => prev.slice(1));
+  }, []);
 
   const [installPrompt, setInstallPrompt] = useState(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -2757,6 +2807,9 @@ export default function App() {
     setCurrentEnemy(null);
     setBattleLog([]);
     sessionRef.current = { kills: 0, coins: 0, trainers: 0, shinyKills: 0, drops: {}, captures: [], recipes: [] };
+    // Reinicializa o detector de missões concluídas para o novo treinador
+    seenCompletedMissionsRef.current = null;
+    setMissionCompleteQueue([]);
 
     setShowAvatarSelect(false);
     if (meta) setAvatarMeta(meta);
@@ -12387,6 +12440,37 @@ export default function App() {
       )}
 
       {gameState.activeRaid && gameState.activeRaid.phase !== 'ended' && !showRaidScreen && (
+        gameState.activeRaid.phase === 'rewards' ? (
+          /* Raid vencida: coleta direto da rota, sem precisar abrir a RaidScreen */
+          <button
+            type="button"
+            onClick={handleClaimRaidRewards}
+            style={{
+              position: 'absolute',
+              bottom: '88px',
+              right: '16px',
+              zIndex: 8000,
+              background: 'linear-gradient(135deg,#16a34a,#22c55e)',
+              border: '2px solid #86efac',
+              borderRadius: '50px',
+              padding: '10px 16px',
+              color: 'white',
+              fontWeight: 900,
+              fontSize: '13px',
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              boxShadow: '0 4px 20px rgba(34,197,94,0.5), 0 0 30px rgba(34,197,94,0.35)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              animation: 'pulse 1.4s infinite',
+            }}
+          >
+            <span style={{ fontSize: '18px' }}>🎁</span>
+            COLETAR RAID
+          </button>
+        ) : (
         <button
           type="button"
           onClick={() => setShowRaidScreen(true)}
@@ -12419,6 +12503,7 @@ export default function App() {
           <span style={{ fontSize: '18px' }}>⚔️</span>
           {gameState.activeRaid.isEvent ? `EVENTO ${gameState.activeRaid.stars}⭐` : `RAID ${gameState.activeRaid.stars}⭐`}
         </button>
+        )
       )}
 
       {/* ── RAID: Tela de Raid ────────────────────────────────────────────── */}
@@ -12721,6 +12806,62 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* ── MODAL: Missão Concluída (coleta direta) ────────────────────────── */}
+      {missionCompleteQueue.length > 0 && (() => {
+        const { period, mission } = missionCompleteQueue[0];
+        return (
+          <div
+            className="absolute inset-0 z-[100000] flex items-center justify-center p-4 cursor-default"
+            style={{ background: 'rgba(2,6,23,0.85)', backdropFilter: 'blur(10px)' }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); dismissMissionModal(); }}
+            onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
+            <div
+              className="w-full max-w-sm rounded-[2rem] shadow-2xl overflow-hidden border-2 animate-bounceIn"
+              style={{ background: 'linear-gradient(165deg,#0c1a12 0%,#0f2b1a 55%,#0c1a12 100%)', borderColor: 'rgba(34,197,94,0.45)' }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ height: 3, background: 'linear-gradient(90deg,transparent,#22c55e,#86efac,#22c55e,transparent)' }} />
+              <div className="px-6 pt-6 pb-4 text-center">
+                <div className="text-5xl mb-2" style={{ filter: 'drop-shadow(0 0 16px #22c55e)' }}>🏆</div>
+                <p className="text-[9px] font-black uppercase tracking-[0.3em]" style={{ color: '#4ade80' }}>
+                  Missão {period === 'weekly' ? 'Semanal' : 'Diária'} Concluída!
+                </p>
+                {missionCompleteQueue.length > 1 && (
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mt-1">
+                    +{missionCompleteQueue.length - 1} aguardando
+                  </p>
+                )}
+                <h3 className="mt-1 text-xl font-black uppercase italic leading-tight text-white">{mission.title}</h3>
+                <p className="mt-2 text-xs font-bold text-slate-400">{mission.description}</p>
+              </div>
+              <div className="mx-6 mb-4 rounded-2xl border px-4 py-3 text-center"
+                style={{ background: 'rgba(34,197,94,0.10)', borderColor: 'rgba(34,197,94,0.3)' }}>
+                <p className="text-[9px] font-black uppercase tracking-widest text-green-300/80 mb-1">Recompensa</p>
+                <p className="text-sm font-black text-green-300">{formatRewardSummary(mission.reward)}</p>
+              </div>
+              <div className="flex flex-col gap-2 px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+                <button
+                  onClick={() => handleClaimMissionFromModal(period, mission.id)}
+                  className="min-h-[52px] rounded-2xl text-sm font-black uppercase tracking-widest text-slate-950 transition-all active:scale-95"
+                  style={{ background: 'linear-gradient(135deg,#22c55e,#86efac)', boxShadow: '0 6px 24px rgba(34,197,94,0.45)' }}
+                >
+                  🎁 Coletar Recompensa
+                </button>
+                <button
+                  onClick={dismissMissionModal}
+                  className="min-h-[44px] rounded-2xl bg-white/10 text-xs font-black uppercase tracking-widest text-white/70 transition-all active:scale-95"
+                >
+                  Coletar depois
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {showBugReport && (
         <BugReportModal

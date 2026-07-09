@@ -1,7 +1,16 @@
-export const APP_VERSION = '2.11.74';
-export const VERSION = '2.11.74';
-export const APP_VERSION_DATE = '08/07/2026 23:50';
+export const APP_VERSION = '2.11.75';
+export const VERSION = '2.11.75';
+export const APP_VERSION_DATE = '09/07/2026 00:45';
 export const CHANGELOG = [
+  '## [V2.11.75] - 09/07/2026 00:45',
+  '### Auditoria de Regiões, Coleta Rápida de Raid e Missões com Modal',
+  '- **Regra de região nas rotas**: Kanto agora contém exclusivamente Pokémon de Kanto em todas as situações (pool base, bônus de horário e emboscadas). Regiões futuras aceitam gerações anteriores com peso reduzido (~20% dos encontros).',
+  '- **Treinadores e selvagens coerentes com o nível**: Pokémon evoluídos que apareciam abaixo do nível de evolução foram devolvidos à pré-evolução no mesmo nível (ex.: Raticate nv.10 → Rattata; Gumshoos nv.15 do Ilima → Yungoos). A devolução respeita a região: em Kanto, Pikachu não vira Pichu.',
+  '- **Testes de invariante**: nova suíte automatizada garante que nenhuma atualização futura reintroduza Pokémon de geração errada ou evolução fora de nível nas rotas.',
+  '- **Coleta rápida de Raid**: ao derrotar a raid (inclusive pelo dano em segundo plano das batalhas de rota), aparece o botão verde "🎁 Coletar Raid" direto na tela de treino — sem precisar abrir a tela da raid.',
+  '- **Missão concluída = modal na hora**: completar missão diária/semanal abre um modal celebratório com botão "Coletar Recompensa" imediato, sem precisar navegar até Menu → Missões. Fila automática quando várias completam juntas.',
+  '- **Correção**: após "Iniciar Nova Jornada", o progresso das missões ficava travado em 0 até recarregar o app (baselines de retenção não eram persistidas). Agora o progresso conta imediatamente.',
+  '',
   '## [V2.11.74] - 08/07/2026 23:50',
   '### Resolução Definitiva de Ordem de Declaração (processedRoutes TDZ)',
   '- **Correção Definitiva de TDZ**: Movidos os hooks do preloader de background e prefetcher gradual para baixo da declaração de `processedRoutes`. Isso resolve o Cannot access before initialization que impedia o jogo de carregar em navegadores normais.',

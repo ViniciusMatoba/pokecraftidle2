@@ -630,6 +630,76 @@ const applyEvolutionFilter = (enemies, routeRegion = 'kanto', route = {}) => {
   });
 };
 
+// ── Devolução por nível ───────────────────────────────────────────────────────
+// Mapa reverso de LEVEL_EVOLUTIONS: forma evoluída → { fromId, evolvesAt }.
+// Usado para "devolver" Pokémon que aparecem em nível abaixo do que evoluiriam
+// (ex.: Raticate nv.10 vira Rattata nv.10 — igual aos jogos oficiais).
+const PRE_EVOLUTIONS = (() => {
+  const map = {};
+  Object.entries(LEVEL_EVOLUTIONS).forEach(([fromId, evo]) => {
+    const targets = Array.isArray(evo.evolvesInto) ? evo.evolvesInto : [evo.evolvesInto];
+    targets.forEach(toId => {
+      const existing = map[Number(toId)];
+      // Se houver múltiplas pré-evoluções, mantém a de menor nível de evolução
+      if (!existing || evo.evolvesAt < existing.evolvesAt) {
+        map[Number(toId)] = { fromId: Number(fromId), evolvesAt: Number(evo.evolvesAt) };
+      }
+    });
+  });
+  return map;
+})();
+
+// Devolve um Pokémon para a pré-evolução enquanto o nível for menor que o
+// nível de evolução (encadeado: Garganacl nv.16 → Naclstack → Nacli).
+// IMPORTANTE: respeita a região da rota — bebês de gerações futuras (Pichu,
+// Cleffa, Igglybuff, Bonsly...) NÃO substituem suas evoluções em regiões
+// anteriores (em Kanto, Pikachu nv.6 continua Pikachu, como nos jogos).
+export const devolveForLevel = (pokemonId, level, routeRegion = null, route = {}) => {
+  let id = Number(pokemonId);
+  for (let i = 0; i < 4; i++) {
+    const pre = PRE_EVOLUTIONS[id];
+    if (!pre || Number(level) >= pre.evolvesAt) break;
+    if (routeRegion && !isPokemonAllowedForRouteRegion(pre.fromId, routeRegion, route)) break;
+    id = pre.fromId;
+  }
+  return id;
+};
+
+// Aplica a devolução a uma lista de inimigos selvagens ({ id, level })
+const applyDevolutionFilter = (enemies, routeRegion, route) =>
+  (enemies || []).map(enemy => {
+    if (!enemy?.id || enemy.formKey || !enemy.level) return enemy;
+    const devolvedId = devolveForLevel(enemy.id, enemy.level, routeRegion, route);
+    return devolvedId !== Number(enemy.id) ? { ...enemy, id: devolvedId } : enemy;
+  });
+
+// Aplica a devolução aos times dos treinadores da rota
+const applyTrainerDevolution = (trainers, routeRegion, route) =>
+  (trainers || []).map(trainer => ({
+    ...trainer,
+    team: (trainer.team || []).map(member => {
+      if (!member?.id || member.formKey || !member.level) return member;
+      const devolvedId = devolveForLevel(member.id, member.level, routeRegion, route);
+      return devolvedId !== Number(member.id) ? { ...member, id: devolvedId } : member;
+    }),
+  }));
+
+// ── Peso de gerações anteriores ───────────────────────────────────────────────
+// Reduz o peso de spawn de Pokémon de gerações ANTERIORES à região da rota
+// para ~20% dos encontros — Kanto não é afetado (só tem gen 1 por regra).
+const OLDER_GEN_WEIGHT_MULT = 0.25;
+const applyOlderGenWeight = (enemies, routeRegion) => {
+  const rIdx = ROUTE_PROGRESS_REGIONS.indexOf(routeRegion);
+  if (rIdx <= 0) return enemies;
+  return (enemies || []).map(enemy => {
+    if (!enemy?.id || enemy.formKey) return enemy;
+    const pIdx = ROUTE_PROGRESS_REGIONS.indexOf(getPokemonBaseRegion(enemy.id));
+    if (pIdx < 0 || pIdx >= rIdx) return enemy;
+    const baseWeight = enemy.spawnWeight || 100;
+    return { ...enemy, spawnWeight: Math.max(1, Math.round(baseWeight * OLDER_GEN_WEIGHT_MULT)) };
+  });
+};
+
 const ROUTE_PROGRESS_REGIONS = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea', 'hisui'];
 
 const ROUTE_LEVEL_STEP_LIMIT = {
@@ -787,13 +857,23 @@ const normalizeRouteProgression = (routesObj) => {
   Object.keys(normalized).forEach(id => {
     const route = normalized[id];
     const routeRegion = inferRouteRegion(route.id || id, route.group).id;
-    const evolvedRoute = route.type === 'farm'
-      ? {
-          ...route,
-          enemies: applyEvolutionFilter(route.enemies || [], routeRegion, route),
-        }
-      : route;
-    normalized[id] = applyVsRouteGates(evolvedRoute);
+    const isDexRoute = isRegionalDexTrainingRoute(route);
+    let finalRoute = route;
+    if (route.type === 'farm') {
+      // Ordem: evolui quem passou do nível → devolve quem está abaixo →
+      // reduz peso de gerações anteriores (~20% dos encontros)
+      let enemies = applyEvolutionFilter(route.enemies || [], routeRegion, route);
+      if (!isDexRoute) {
+        enemies = applyDevolutionFilter(enemies, routeRegion, route);
+        enemies = applyOlderGenWeight(enemies, routeRegion);
+      }
+      finalRoute = { ...route, enemies };
+    }
+    // Treinadores: nenhum Pokémon evoluído abaixo do próprio nível de evolução
+    if (!isDexRoute && (finalRoute.trainers || []).length > 0) {
+      finalRoute = { ...finalRoute, trainers: applyTrainerDevolution(finalRoute.trainers, routeRegion, finalRoute) };
+    }
+    normalized[id] = applyVsRouteGates(finalRoute);
   });
 
   return normalized;

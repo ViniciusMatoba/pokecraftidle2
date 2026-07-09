@@ -69,6 +69,47 @@ const isKantoRoute = (route = {}) => {
 
 const isJohtoPokemon = (id) => Number(id) >= 152 && Number(id) <= 251;
 
+// ── Gate genérico de região para os bônus de horário ─────────────────────────
+// Regra: Pokémon de gerações FUTURAS à região da rota nunca aparecem.
+// (Kanto: só gen 1; Johto: gens 1-2; etc.)
+const REGION_PROGRESS_ORDER = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea', 'hisui'];
+const getPokemonGenRegion = (id) => {
+  const n = Number(id);
+  if (n >= 1 && n <= 151) return 'kanto';
+  if (n <= 251) return 'johto';
+  if (n <= 386) return 'hoenn';
+  if (n <= 493) return 'sinnoh';
+  if (n <= 649) return 'unova';
+  if (n <= 721) return 'kalos';
+  if (n <= 809) return 'alola';
+  if (n <= 905) return 'galar';
+  if (n <= 1025) return 'paldea';
+  return 'unknown';
+};
+
+const inferRegionFromRouteText = (route = {}) => {
+  const routeText = `${route.id || ''} ${route.group || ''}`.toLowerCase();
+  if (routeText.includes('hisui')) return 'hisui';
+  if (routeText.includes('paldea')) return 'paldea';
+  if (routeText.includes('galar')) return 'galar';
+  if (routeText.includes('alola')) return 'alola';
+  if (routeText.includes('kalos')) return 'kalos';
+  if (routeText.includes('unova')) return 'unova';
+  if (routeText.includes('sinnoh')) return 'sinnoh';
+  if (HOENN_ROUTE_HINTS.some(hint => routeText.includes(hint))) return 'hoenn';
+  if (JOHTO_ROUTE_HINTS.some(hint => routeText.includes(hint))) return 'johto';
+  return 'kanto';
+};
+
+const isAllowedForRouteRegion = (id, route = {}) => {
+  const routeRegion = inferRegionFromRouteText(route);
+  if (routeRegion === 'hisui') return true;
+  const rIdx = REGION_PROGRESS_ORDER.indexOf(routeRegion);
+  const pIdx = REGION_PROGRESS_ORDER.indexOf(getPokemonGenRegion(id));
+  if (rIdx < 0 || pIdx < 0) return false;
+  return pIdx <= rIdx;
+};
+
 const getTypes = (entry, pokedex = {}) => {
   const data = pokedex?.[Number(entry?.id)] || entry || {};
   return data.types || (data.type ? [data.type] : []);
@@ -171,7 +212,7 @@ export const getTimeAdjustedEnemyPool = (route, period = getTimeOfDay(), pokedex
   const extras = (TIME_EXTRA_POKEMON[period] || [])
     .filter(id => pokedex?.[id])
     .filter(id => canAppearAsWildTimeBonus(id, route, pokedex))
-    .filter(id => !(isKantoRoute(route) && isJohtoPokemon(id)))
+    .filter(id => isAllowedForRouteRegion(id, route))
     .filter(id => {
       const types = getTypes({ id }, pokedex);
       const biome = route?.biome || '';
