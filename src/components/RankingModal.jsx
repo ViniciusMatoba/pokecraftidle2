@@ -6,8 +6,7 @@ import { TrainerCardModal } from './CommonUI';
 import { AVATAR_SPRITES, CARD_FRAMES, CARD_BACKGROUNDS, getTintFilter } from '../data/cosmetics';
 import { TRAINER_TITLES } from '../data/trainerTitles';
 import { SHOP_TITLES } from '../data/prestige';
-
-const POKEAPI_ITEM_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
+import { getItemSpriteUrl } from '../utils/assetUrls';
 
 /**
  * Resolve o objeto de título ativo de um player do ranking.
@@ -73,7 +72,7 @@ const RankingModal = ({ onClose }) => {
         <div className="p-6 bg-gradient-to-b from-[#2a2a2a] to-[#1a1a1a] border-b-4 border-slate-800 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-amber-500/20 rounded-2xl flex items-center justify-center shadow-inner border border-amber-500/30">
-              <img src={POKEAPI_ITEM_URL + 'kings-rock.png'} className="h-9 w-9 object-contain" alt="" />
+              <img src={getItemSpriteUrl('kings-rock')} className="h-9 w-9 object-contain" alt="" />
             </div>
             <div>
               <h2 id="ranking-modal-title" className="text-2xl font-black text-white uppercase italic tracking-tighter">Ranking Global</h2>

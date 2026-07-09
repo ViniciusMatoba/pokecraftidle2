@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.63';
-export const VERSION = '2.11.63';
-export const APP_VERSION_DATE = '08/07/2026 22:37';
+export const APP_VERSION = '2.11.64';
+export const VERSION = '2.11.64';
+export const APP_VERSION_DATE = '08/07/2026 22:41';
 export const CHANGELOG = [
+  '## [V2.11.64] - 08/07/2026 22:41',
+  '### Assets e Sprites - Fase 2',
+  '- **Componentes pequenos migrados**: `TutorialModal`, `RareDropModal`, `RankingModal` e `VsScreen` passam a usar o centralizador de URLs de assets.',
+  '- **Menos URLs espalhadas**: icones de itens e sprites de treinadores dessas telas deixam de declarar caminhos externos manualmente.',
+  '- **Sprites Pokemon preservados**: o tutorial reaproveita o resolvedor global de Pokemon, sem alterar a regra de formas regionais.',
+  '',
   '## [V2.11.63] - 08/07/2026 22:37',
   '### Assets e Sprites - Fase 1',
   '- **Auditoria documentada**: criado plano em `docs/asset-loading-plan.md` com diagnostico dos links externos e proximas fases.',

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import ModalOverlay from './ModalOverlay';
+import { getPokemonSpriteUrl } from '../utils/pokemonSprites';
+import { getItemSpriteUrl, getTrainerSpriteUrl } from '../utils/assetUrls';
 
-const itemIcon = (name) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${name}.png`;
-const pokemonSprite = (id) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
-const trainerSprite = (name) => `https://play.pokemonshowdown.com/sprites/trainers/${name}.png`;
+const itemIcon = getItemSpriteUrl;
+const pokemonSprite = getPokemonSpriteUrl;
+const trainerSprite = getTrainerSpriteUrl;
 
 const STEPS = [
   {

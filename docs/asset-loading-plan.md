@@ -1,6 +1,6 @@
 # Plano de Carregamento de Imagens e Sprites
 
-Atualizado em 08/07/2026 22:36 (Brasilia).
+Atualizado em 08/07/2026 22:41 (Brasilia).
 
 ## Diagnostico
 
@@ -25,7 +25,7 @@ A camada de cache do service worker ja ajuda em carregamentos seguintes, mas nao
 - `src/data/trainerTitles.js`
 - `src/data/villains.js`
 
-## Fase atual
+## Fases concluidas
 
 Foi criado `src/utils/assetUrls.js` para centralizar URLs de:
 
@@ -35,32 +35,33 @@ Foi criado `src/utils/assetUrls.js` para centralizar URLs de:
 
 Primeira migracao aplicada em `src/components/RaidScreen.jsx`, apenas nas Pokebolas da captura e auto-captura. Sprites de Pokemon regionais nao foram alterados nesta fase.
 
+Tambem foram migrados os componentes pequenos da fase 2:
+
+- `src/components/TutorialModal.jsx`
+- `src/components/RareDropModal.jsx`
+- `src/components/RankingModal.jsx`
+- `src/components/VsScreen.jsx`
+
 ## Proximas fases recomendadas
 
-1. Migrar componentes pequenos para `assetUrls.js`:
-   - `TutorialModal.jsx`
-   - `RareDropModal.jsx`
-   - `RankingModal.jsx`
-   - `VsScreen.jsx`
-
-2. Migrar telas medias com cuidado:
+1. Migrar telas medias com cuidado:
    - `TravelScreen.jsx`
    - `RegionBuilderScreen.jsx`
    - `PrestigeShop.jsx`
 
-3. Criar fallbacks locais leves:
+2. Criar fallbacks locais leves:
    - item generico
    - treinador generico
    - Pokemon placeholder
    - Pokebola comum
 
-4. Criar pacote local seletivo:
+3. Criar pacote local seletivo:
    - Pokebolas e itens de interface mais usados
    - treinadores fixos
    - starters
    - sprites comuns de batalha inicial
 
-5. Auditar sprites regionais antes de migrar qualquer Pokemon hardcoded:
+4. Auditar sprites regionais antes de migrar qualquer Pokemon hardcoded:
    - Kanto vs Alola
    - Galar
    - Hisui
@@ -81,4 +82,3 @@ Cada fase deve terminar com:
 - commit
 - `git push origin main`
 - `npm run deploy`
-

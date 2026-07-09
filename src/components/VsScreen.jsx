@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useState } from 'react';
 import BossScreen from './BossScreen';
 import { getUnlockedRegions, REGION_LABELS } from '../data/regionStandards';
+import { getItemSpriteUrl } from '../utils/assetUrls';
 
 const GymScreen = lazy(() => import('./GymScreen'));
 const ChallengesScreen = lazy(() => import('./ChallengesScreen'));
@@ -41,11 +42,11 @@ const VsScreen = ({ gameState, powerScore = 0, onChallengeGym, onChallenge, onCl
   }, [initialCategory, initialRegion]);
 
   const tabs = [
-    { id: 'challenges', name: 'Desafios', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png', desc: 'Rivais & Rocket' },
-    { id: 'gyms', name: 'Ginasios & Liga', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png', desc: 'Caminho do Mestre' },
-    { id: 'rematch', name: 'Revanches', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-revive.png', desc: 'Elite Rematch' },
-    { id: 'legendary', name: 'Lendarios', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png', desc: 'Encontros Raros' },
-    { id: 'boss', name: 'BOSS', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png', desc: 'Desafio Global' },
+    { id: 'challenges', name: 'Desafios', icon: getItemSpriteUrl('vs-seeker'), desc: 'Rivais & Rocket' },
+    { id: 'gyms', name: 'Ginasios & Liga', icon: getItemSpriteUrl('hard-stone'), desc: 'Caminho do Mestre' },
+    { id: 'rematch', name: 'Revanches', icon: getItemSpriteUrl('max-revive'), desc: 'Elite Rematch' },
+    { id: 'legendary', name: 'Lendarios', icon: getItemSpriteUrl('star-piece'), desc: 'Encontros Raros' },
+    { id: 'boss', name: 'BOSS', icon: getItemSpriteUrl('rare-candy'), desc: 'Desafio Global' },
   ];
 
   return (

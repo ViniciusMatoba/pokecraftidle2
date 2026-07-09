@@ -1,6 +1,5 @@
 import React from 'react';
-
-const POKEAPI_ITEM = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
+import { getItemSpriteUrl } from '../utils/assetUrls';
 
 // Resolve paths de assets locais usando BASE_URL do Vite (suporta base: './')
 const _base = (import.meta.env.BASE_URL || './').replace(/\/$/, '');
@@ -15,14 +14,14 @@ const TYPE_STYLES = {
   recipe: {
     eyebrow: 'Receita encontrada',
     title: 'Nova forja desbloqueada',
-    fallbackIcon: `${POKEAPI_ITEM}tm-case.png`,
+    fallbackIcon: getItemSpriteUrl('tm-case'),
     accent: '#f59e0b',
     bg: 'linear-gradient(160deg,#1c1410 0%,#2d1f0a 100%)',
   },
   shiny: {
     eyebrow: 'Encontro raro',
     title: 'Pokemon shiny',
-    fallbackIcon: `${POKEAPI_ITEM}shiny-charm.png`,
+    fallbackIcon: getItemSpriteUrl('shiny-charm'),
     accent: '#facc15',
     bg: 'linear-gradient(160deg,#15120a 0%,#31240b 100%)',
   },
@@ -31,14 +30,14 @@ const TYPE_STYLES = {
     title: 'Mega Evolucao',
     // Primário: asset local (via localAsset). Fallback 2º nível: PokeAPI (caso CDN Firebase lento)
     localIcon: localAsset('/items/mega_stone_shard.webp'),
-    fallbackIcon: `${POKEAPI_ITEM}dusk-stone.png`,
+    fallbackIcon: getItemSpriteUrl('dusk-stone'),
     accent: '#a855f7',
     bg: 'linear-gradient(160deg,#171126 0%,#2d174d 100%)',
   },
   rare: {
     eyebrow: 'Drop raro',
     title: 'Item especial',
-    fallbackIcon: `${POKEAPI_ITEM}star-piece.png`,
+    fallbackIcon: getItemSpriteUrl('star-piece'),
     accent: '#38bdf8',
     bg: 'linear-gradient(160deg,#081827 0%,#12304a 100%)',
   },

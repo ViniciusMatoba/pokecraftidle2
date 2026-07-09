@@ -1,5 +1,5 @@
 {
-  "version": "2.11.63",
-  "date": "08/07/2026 22:37",
-  "notes": "Auditoria e centralizador inicial de URLs de assets"
+  "version": "2.11.64",
+  "date": "08/07/2026 22:41",
+  "notes": "Migracao de componentes pequenos para centralizador de assets"
 }
