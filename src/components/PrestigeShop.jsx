@@ -13,9 +13,12 @@ import {
   GYM_SLOT_LEVELS, ELITE_SLOT_LEVELS, CHAMPION_LEVEL,
   REGION_GYM_TYPES,
 } from '../data/myRegion';
-const itemSprite = (name) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${name}.png`;
-const trainerSprite = (name) => `https://play.pokemonshowdown.com/sprites/trainers/${name}.png`;
+import { getItemSpriteUrl, getTrainerSpriteUrl } from '../utils/assetUrls';
+
+const itemSprite = getItemSpriteUrl;
+const trainerSprite = getTrainerSpriteUrl;
 const FALLBACK_ITEM = itemSprite('poke-ball');
+const FALLBACK_TRAINER = trainerSprite('red');
 const BADGE_ICON = itemSprite('rainbow-badge');
 const COIN_ICON = itemSprite('nugget');
 const ACTIVE_ICON = itemSprite('premier-ball');
@@ -151,7 +154,7 @@ const AvatarPreviewCard = ({ sprite, tintId, frame, bg, name }) => {
           <img src={sprite.sprite} alt={sprite.name}
             className="relative w-16 h-16 object-contain z-10"
             style={{ imageRendering: 'pixelated', filter: tintFilter !== 'none' ? tintFilter : undefined }}
-            onError={e => { if (e.target.src !== 'https://play.pokemonshowdown.com/sprites/trainers/red.png') e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }} />
+            onError={e => { if (e.target.src !== FALLBACK_TRAINER) e.target.src = FALLBACK_TRAINER; }} />
         </div>
         {/* Info */}
         <div className="flex-1">
@@ -255,13 +258,13 @@ const SpritesGrid = ({ appearance, worldFlags, pSprites, totalBadges, currency, 
                           <img src={item.sprite} alt=""
                             className="w-14 h-14 object-contain opacity-15"
                             style={{ imageRendering: 'pixelated', filter: 'grayscale(1)' }}
-                            onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }} />
+                            onError={e => { e.target.src = FALLBACK_TRAINER; }} />
                         </>
                       ) : (
                         <img src={item.sprite} alt={item.name}
                           className={`w-14 h-14 object-contain transition-all ${canBuyNow ? 'hover:scale-110' : ''} ${!isOwned && !isEquipped ? 'opacity-70' : ''}`}
                           style={{ imageRendering: 'pixelated' }}
-                          onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }} />
+                          onError={e => { e.target.src = FALLBACK_TRAINER; }} />
                       )}
                     </div>
 
@@ -338,7 +341,7 @@ const TintsGrid = ({ appearance, worldFlags, pTints, totalBadges, currency, curr
             <img src={currentSprite?.sprite}
               className="w-12 h-12 object-contain"
               style={{ imageRendering: 'pixelated', filter: tintFilter !== 'none' ? tintFilter : undefined }}
-              onError={e => { if (e.target.src !== 'https://play.pokemonshowdown.com/sprites/trainers/red.png') e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }}
+              onError={e => { if (e.target.src !== FALLBACK_TRAINER) e.target.src = FALLBACK_TRAINER; }}
               alt="" />
             {isLocked && (
               <div className="absolute inset-0 flex items-center justify-center text-base bg-black/60">🔒</div>
@@ -927,7 +930,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                       ${isHired ? 'border-[#2471a3] bg-[#0d2137]' : 'border-[#333] bg-[#0d0d0d]'}`}>
                       <img src={item.sprite} className="w-16 h-16 object-contain"
                         style={{ imageRendering: 'pixelated' }} alt={item.name}
-                        onError={e => { if (e.target.src !== 'https://play.pokemonshowdown.com/sprites/trainers/red.png') e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }} />
+                        onError={e => { if (e.target.src !== FALLBACK_TRAINER) e.target.src = FALLBACK_TRAINER; }} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-black uppercase ${isHired ? 'text-[#5dade2]' : 'text-white'}`}>
@@ -980,7 +983,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
               <div className="border-2 border-[#555] bg-[#111] p-5">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-16 h-16 border-2 border-[#555] flex items-center justify-center bg-[#0d0d0d]">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png"
+                    <img src={itemSprite('hard-stone')}
                       className="w-12 h-12 object-contain" style={{ imageRendering: 'pixelated' }} alt="" />
                   </div>
                   <div>
@@ -1462,7 +1465,7 @@ const PrestigeShop = ({ gameState, setGameState, addLog, getBadgeCount, onHireAl
                 <img src={equipPrompt.sprite} alt={equipPrompt.name}
                   className="w-12 h-12 object-contain"
                   style={{ imageRendering: 'pixelated' }}
-                  onError={e => { e.target.src = 'https://play.pokemonshowdown.com/sprites/trainers/red.png'; }} />
+                  onError={e => { e.target.src = FALLBACK_TRAINER; }} />
               </div>
               {/* Body */}
               <div className="px-4 py-4">

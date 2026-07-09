@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.64';
-export const VERSION = '2.11.64';
-export const APP_VERSION_DATE = '08/07/2026 22:41';
+export const APP_VERSION = '2.11.65';
+export const VERSION = '2.11.65';
+export const APP_VERSION_DATE = '08/07/2026 22:47';
 export const CHANGELOG = [
+  '## [V2.11.65] - 08/07/2026 22:47',
+  '### Assets e Sprites - Fase 3',
+  '- **Telas medias migradas**: `TravelScreen`, `RegionBuilderScreen` e `PrestigeShop` passam a usar helpers centrais para itens, treinadores, tipos e sprites Pokemon genericos.',
+  '- **URLs externas reduzidas**: removidos links hardcoded dessas telas para PokeAPI raw, Pokemon Showdown e icones SVG de tipos.',
+  '- **Regras regionais preservadas**: sprites Pokemon passam pelo resolvedor global existente, sem criar nova logica de formas.',
+  '',
   '## [V2.11.64] - 08/07/2026 22:41',
   '### Assets e Sprites - Fase 2',
   '- **Componentes pequenos migrados**: `TutorialModal`, `RareDropModal`, `RankingModal` e `VsScreen` passam a usar o centralizador de URLs de assets.',

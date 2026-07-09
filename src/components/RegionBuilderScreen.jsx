@@ -7,6 +7,8 @@ import {
   defaultGymSlot, defaultEliteSlot, defaultChampion, getSlotLevel,
 } from '../data/myRegion';
 import { AVATAR_SPRITES } from '../data/cosmetics';
+import { getPokemonSpriteUrl } from '../utils/pokemonSprites';
+import { getItemSpriteUrl, getTrainerSpriteUrl } from '../utils/assetUrls';
 
 const fixPath = (path) => {
   if (!path || typeof path !== 'string' || path.startsWith('http')) return path;
@@ -22,9 +24,11 @@ const BADGE_MAP = [
 ];
 
 /* ─── Helpers ──────────────────────────────────────────────────────────────── */
-const FALLBACK_SPRITE = 'https://play.pokemonshowdown.com/sprites/trainers/red.png';
-const POKE_IMG = (id) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
-const TRAINER_IMG = (id) => `https://play.pokemonshowdown.com/sprites/trainers/${id || 'red'}.png`;
+const FALLBACK_SPRITE = getTrainerSpriteUrl('red');
+const POKE_IMG = getPokemonSpriteUrl;
+const TRAINER_IMG = getTrainerSpriteUrl;
+const FALLBACK_POKEMON = getPokemonSpriteUrl(0);
+const FALLBACK_BADGE = getItemSpriteUrl('poke-ball');
 const TYPE_ORDER = ['normal','fire','water','grass','electric','ice','fighting','poison','ground','flying','psychic','bug','rock','ghost','dragon','dark','steel','fairy','mixed'];
 
 /* ─── LevelSlider ──────────────────────────────────────────────────────────── */
@@ -87,7 +91,7 @@ const TypeSelector = ({ value, onChange }) => (
               className="w-7 h-7 object-contain"
               alt={t.name}
               style={{ imageRendering: 'pixelated', filter: active ? 'brightness(0) invert(1)' : 'none' }}
-              onError={e => { e.target.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'; }}
+              onError={e => { e.target.src = FALLBACK_BADGE; }}
             />
             <span className="text-[9px] font-black uppercase leading-none">{t.name}</span>
           </button>
@@ -184,7 +188,7 @@ const PokemonPicker = ({ caughtData, selected, level, POKEDEX, onChange, gymType
           <button key={id} onClick={() => toggle(id)}
             className="relative group flex flex-col items-center">
             <img src={POKE_IMG(id)} className="w-10 h-10 object-contain"
-              onError={e => { e.target.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png'; }} />
+              onError={e => { e.target.src = FALLBACK_POKEMON; }} />
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[8px] flex items-center justify-center font-black opacity-0 group-hover:opacity-100 transition-opacity">✕</div>
           </button>
         ))}
@@ -221,7 +225,7 @@ const PokemonPicker = ({ caughtData, selected, level, POKEDEX, onChange, gymType
                     className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all
                       ${sel ? 'border-blue-500 bg-blue-50' : disabled ? 'border-slate-100 opacity-40 cursor-not-allowed' : 'border-slate-100 hover:border-slate-300 bg-white'}`}>
                     <img src={POKE_IMG(id)} className="w-10 h-10 object-contain"
-                      onError={e => { e.target.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png'; }} />
+                      onError={e => { e.target.src = FALLBACK_POKEMON; }} />
                     <span className="text-[8px] font-bold text-slate-500 uppercase truncate w-full text-center">{name}</span>
                     {sel && <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-white text-[8px] font-black">✓</div>}
                   </button>
@@ -471,7 +475,7 @@ const SlotCard = ({ slot, slotType, slotIndex, onEdit, POKEDEX }) => {
                 {pokeId ? (
                   <>
                     <img src={POKE_IMG(pokeId)} className="w-10 h-10 object-contain"
-                      onError={e => { e.target.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png'; }} />
+                      onError={e => { e.target.src = FALLBACK_POKEMON; }} />
                     <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-slate-800 text-white rounded-full text-[8px] flex items-center justify-center font-black border border-white shadow-sm">
                       {level}
                     </div>

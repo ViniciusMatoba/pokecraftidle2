@@ -39,6 +39,8 @@ import { TYPE_COLOR_HEX } from '../data/gyms';
 import { TIME_CONFIG, getTimeOfDay, getTimeAdjustedEnemyPool } from '../utils/timeSystem';
 import { hasProgressRequirement } from '../utils/progress';
 import { getJourneyGuide } from '../data/journeyGuide';
+import { getPokemonSpriteUrl } from '../utils/pokemonSprites';
+import { getItemSpriteUrl, getTypeIconUrl } from '../utils/assetUrls';
 
 const TravelScreen = ({ 
   gameState, 
@@ -231,7 +233,7 @@ const TravelScreen = ({
       'dark_essence': 'black-glasses'
     };
     const itemName = map[id] || 'mystery-egg';
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${itemName}.png`;
+    return getItemSpriteUrl(itemName);
   };
 
   const getRouteDrops = (route) => {
@@ -678,7 +680,7 @@ const TravelScreen = ({
                                 >
                                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${caught ? 'bg-slate-50 shadow-inner border border-slate-100 group-hover/poke:border-pokeBlue' : 'bg-slate-100/50'}`}>
                                     <img
-                                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`}
+                                      src={getPokemonSpriteUrl(p)}
                                       className={`w-12 h-12 object-contain transition-all ${caught ? 'group-hover/poke:scale-125' : 'brightness-0 opacity-10'}`}
                                       alt={caught ? name : '???'}
                                       loading="lazy"
@@ -705,7 +707,7 @@ const TravelScreen = ({
                           className="relative group/poke flex flex-col items-center gap-1">
                           <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${caught ? 'bg-white shadow-sm border border-slate-100 group-hover/poke:border-pokeBlue' : 'bg-slate-100/50'}`}>
                             <img 
-                              src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} 
+                              src={getPokemonSpriteUrl(p)} 
                               className={`w-12 h-12 object-contain transition-all ${caught ? 'group-hover/poke:scale-125' : 'brightness-0 opacity-10'}`} 
                               alt={caught ? p.name : '???'}
                               loading="lazy"
@@ -797,7 +799,7 @@ const TravelScreen = ({
                   {POKEDEX[selectedPoke.id]?.types?.map((t, idx) => (
                     <img 
                       key={idx}
-                      src={`https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg`}
+                      src={getTypeIconUrl(t)}
                       className={`absolute w-44 h-44 opacity-10 pointer-events-none ${idx === 0 ? '-left-10 -top-10 rotate-12' : '-right-10 -bottom-10 -rotate-12'}`} 
                       alt="" 
                     />
@@ -808,7 +810,7 @@ const TravelScreen = ({
                      {POKEDEX[selectedPoke.id]?.types?.map(t => (
                         <div key={t} className="flex items-center gap-2 bg-black/20 backdrop-blur-md px-3 py-1 rounded-xl border border-white/20 shadow-sm animate-fadeIn">
                            <img 
-                             src={`https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${t.toLowerCase()}.svg`} 
+                             src={getTypeIconUrl(t)} 
                              className="w-3.5 h-3.5 invert" 
                              alt="" 
                            />
@@ -823,7 +825,7 @@ const TravelScreen = ({
                   >x</button>
 
                   <img 
-                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${selectedPoke.id}.png`} 
+                    src={getPokemonSpriteUrl(selectedPoke)} 
                     className={`h-40 object-contain relative z-10 transition-all ${gameState.caughtData?.[selectedPoke.id] ? 'scale-110 drop-shadow-[0_20px_30px_rgba(0,0,0,0.3)]' : 'brightness-0 opacity-30 grayscale blur-[2px]'}`} 
                     alt={selectedPoke.name} 
                   />

@@ -1,6 +1,6 @@
 # Plano de Carregamento de Imagens e Sprites
 
-Atualizado em 08/07/2026 22:41 (Brasilia).
+Atualizado em 08/07/2026 22:47 (Brasilia).
 
 ## Diagnostico
 
@@ -42,26 +42,27 @@ Tambem foram migrados os componentes pequenos da fase 2:
 - `src/components/RankingModal.jsx`
 - `src/components/VsScreen.jsx`
 
+As telas medias da fase 3 tambem foram migradas:
+
+- `src/components/TravelScreen.jsx`
+- `src/components/RegionBuilderScreen.jsx`
+- `src/components/PrestigeShop.jsx`
+
 ## Proximas fases recomendadas
 
-1. Migrar telas medias com cuidado:
-   - `TravelScreen.jsx`
-   - `RegionBuilderScreen.jsx`
-   - `PrestigeShop.jsx`
-
-2. Criar fallbacks locais leves:
+1. Criar fallbacks locais leves:
    - item generico
    - treinador generico
    - Pokemon placeholder
    - Pokebola comum
 
-3. Criar pacote local seletivo:
+2. Criar pacote local seletivo:
    - Pokebolas e itens de interface mais usados
    - treinadores fixos
    - starters
    - sprites comuns de batalha inicial
 
-4. Auditar sprites regionais antes de migrar qualquer Pokemon hardcoded:
+3. Auditar sprites regionais antes de migrar qualquer Pokemon hardcoded:
    - Kanto vs Alola
    - Galar
    - Hisui
