@@ -1,3 +1,9 @@
+## [v2.11.63] - 08/07/2026 22:37
+### Assets e Sprites - Fase 1
+- **Auditoria documentada**: criado plano em `docs/asset-loading-plan.md` com diagnostico dos links externos e proximas fases.
+- **Centralizador inicial**: adicionado `assetUrls.js` para padronizar URLs de itens, treinadores e icones de tipo.
+- **Primeira migracao segura**: Pokebolas da tela de raid passam a usar `getItemSpriteUrl`, sem alterar sprites Pokemon regionais.
+
 ## [v2.11.62] - 08/07/2026 22:29
 ### Limpeza da Tela de Raid
 - **Prop inutil removida**: `RaidScreen` deixou de receber `POKEDEX` quando o componente nao usa esse dado.

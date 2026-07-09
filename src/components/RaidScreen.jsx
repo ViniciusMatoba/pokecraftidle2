@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { getItemSpriteUrl } from '../utils/assetUrls';
 import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokemonSprites';
 
 const _BASE = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
@@ -173,11 +174,11 @@ const RaidScreen = ({
     autoThrowRef.current = setTimeout(() => {
       const allBalls = [
         { id: 'ultra_ball', label: 'Ultra Ball', count: gameState.inventory?.items?.ultra_ball || 0,
-          img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png' },
+          img: getItemSpriteUrl('ultra-ball') },
         { id: 'great_ball', label: 'Great Ball', count: gameState.inventory?.items?.great_ball || 0,
-          img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png' },
+          img: getItemSpriteUrl('great-ball') },
         { id: 'pokeballs',  label: 'Pokébola',   count: gameState.inventory?.items?.pokeballs  || 0,
-          img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png' },
+          img: getItemSpriteUrl('poke-ball') },
       ];
       const autoBall = allBalls.find(b => b.id === cfg.ballType && b.count > 0)
         || allBalls.find(b => b.count > 0);
@@ -270,11 +271,11 @@ const RaidScreen = ({
 
   const balls = [
     { id: 'ultra_ball', label: 'Ultra Ball', count: gameState.inventory?.items?.ultra_ball || 0,
-      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png' },
+      img: getItemSpriteUrl('ultra-ball') },
     { id: 'great_ball', label: 'Great Ball', count: gameState.inventory?.items?.great_ball || 0,
-      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png' },
+      img: getItemSpriteUrl('great-ball') },
     { id: 'pokeballs',  label: 'Pokébola',   count: gameState.inventory?.items?.pokeballs  || 0,
-      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png' },
+      img: getItemSpriteUrl('poke-ball') },
   ];
 
 
