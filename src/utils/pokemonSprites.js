@@ -71,9 +71,37 @@ export const SHOWDOWN_FORM_KEYS = new Set([
 export const getShowdownSpriteUrl = (formKey, shiny = false) =>
   `${shiny ? PS_SHINY_BASE : PS_ANI_BASE}${formKey}.gif`;
 
+const normalizeFormKey = (formKey) =>
+  typeof formKey === 'string' ? formKey.trim().toLowerCase() : '';
+
+const getRegionFromFormKey = (formKey) => {
+  const suffix = normalizeFormKey(formKey).split('-').at(-1);
+  return ['alola', 'galar', 'hisui', 'paldea'].includes(suffix) ? suffix : '';
+};
+
+const hasValidRegionalFormMarker = (pokemon, formKey) => {
+  if (!formKey || !POKEMON_FORM_SPRITE_IDS[formKey]) return false;
+
+  const formRegion = getRegionFromFormKey(formKey);
+  const capturedRegion = String(pokemon.capturedRegion || '').trim().toLowerCase();
+  const pokemonFormRegion = String(pokemon.formRegion || '').trim().toLowerCase();
+
+  if (formRegion && pokemonFormRegion && pokemonFormRegion !== formRegion) return false;
+  if (formRegion && capturedRegion && capturedRegion !== formRegion && pokemon.isRegionalForm !== true) return false;
+
+  return true;
+};
+
+export const getPokemonFormSpriteId = (pokemonOrId) => {
+  const pokemon = typeof pokemonOrId === 'object' && pokemonOrId !== null ? pokemonOrId : { id: pokemonOrId };
+  const formKey = normalizeFormKey(pokemon.formKey);
+  if (!hasValidRegionalFormMarker(pokemon, formKey)) return null;
+  return Number(POKEMON_FORM_SPRITE_IDS[formKey]);
+};
+
 export const getPokemonSpriteId = (pokemonOrId) => {
   const pokemon = typeof pokemonOrId === 'object' && pokemonOrId !== null ? pokemonOrId : { id: pokemonOrId };
-  const formId = pokemon.formSpriteId || POKEMON_FORM_SPRITE_IDS[pokemon.formKey];
+  const formId = getPokemonFormSpriteId(pokemon);
   return Number(formId || pokemon.spriteId || pokemon.pokemonId || pokemon.id);
 };
 
@@ -107,7 +135,6 @@ export const getPokemonSpriteUrl = (pokemonOrId, options = {}) => {
 
 export const getPokemonSpriteFallbackUrl = (pokemonOrId) => {
   const pokemon = typeof pokemonOrId === 'object' && pokemonOrId !== null ? pokemonOrId : { id: pokemonOrId };
-  // Respeita formSpriteId e formKey para formas regionais (ex: Rattata-Alola usa 10091, não 19)
-  const id = Number(pokemon.formSpriteId || POKEMON_FORM_SPRITE_IDS[pokemon.formKey] || pokemon.pokemonId || pokemon.id);
+  const id = getPokemonSpriteId(pokemon);
   return id ? `${POKEAPI_SPRITE_BASE}/${pokemon.isShiny ? 'shiny/' : ''}${id}.png` : `${POKEAPI_SPRITE_BASE}/0.png`;
 };

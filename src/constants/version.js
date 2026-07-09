@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.54';
-export const VERSION = '2.11.54';
-export const APP_VERSION_DATE = '09/07/2026 00:10';
+export const APP_VERSION = '2.11.55';
+export const VERSION = '2.11.55';
+export const APP_VERSION_DATE = '08/07/2026 21:40';
 export const CHANGELOG = [
+  '## [V2.11.55] - 08/07/2026 21:40',
+  '### Correcao de Sprite em Batalha',
+  '- **Rattata de Kanto corrigido**: o resolvedor global de sprites agora valida `formKey` e regiao antes de usar sprite regional, evitando que um Rattata capturado em Kanto apareca como Rattata-Alola na batalha.',
+  '- **Formas regionais preservadas**: Rattata-Alola e demais formas validas continuam usando seus IDs especiais quando `formKey`, `formRegion` e/ou `isRegionalForm` indicam uma forma regional legitima.',
+  '- **Teste de regressao**: adicionada cobertura para garantir que Kanto Rattata use sprite 19 e Rattata-Alola use sprite 10091.',
+  '',
   '## [V2.11.54] - 09/07/2026 00:10',
   '### Correção de Sprites de Formas Regionais',
   '- **Fallback de sprite corrigido**: `getPokemonSpriteFallbackUrl` agora respeita `formSpriteId` e `formKey` para formas regionais. Antes, quando o sprite principal do Rattata-Alola (ID 10091) falhava por timeout ou 404, o sistema exibia o sprite do Rattata de Kanto (ID 19) em vez do sprite correto da forma regional. Agora o fallback também usa o sprite da forma.',

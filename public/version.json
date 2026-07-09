@@ -1,6 +1,5 @@
 {
-  "version": "2.11.54",
-  "date": "08/07/2026 20:58",
-  "notes": "Correção de compressão Base64 para salvar e carregar dados na nuvem com segurança"
+  "version": "2.11.55",
+  "date": "08/07/2026 21:40",
+  "notes": "Correcao do sprite do Rattata de Kanto em batalha sem quebrar formas regionais validas"
 }
-
