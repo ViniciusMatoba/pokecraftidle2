@@ -1,3 +1,9 @@
+## [v2.11.68] - 08/07/2026 22:58
+### Sprites Regionais e Battle Tower
+- **Battle Tower protegida**: sprites de inimigos, equipe, troca e itens de batalha passam a usar o resolvedor global de Pokemon.
+- **Formas regionais preservadas**: adicionados testes para Alola, Galar, Hisui, shiny e sprite de costas.
+- **Auditoria documentada**: criado `docs/sprite-regional-audit.md` com riscos restantes antes de migrar sprites Pokemon hardcoded.
+
 ## [v2.11.67] - 08/07/2026 22:55
 ### Assets e Sprites - Fase 5
 - **Pacote local seletivo**: adicionados SVGs locais para Pokebolas e itens de interface mais usados.

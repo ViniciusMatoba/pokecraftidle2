@@ -4,6 +4,7 @@ import { MOVES } from '../data/moves';
 import { getTypeEffectiveness } from '../data/typeChart';
 import { BATTLE_BACKGROUNDS } from '../data/battleBackgrounds';
 import { applyTowerExperience, calculateTowerXpReward } from '../utils/towerLogic';
+import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokemonSprites';
 
 // ── Helpers fora do componente ────────────────────────────────────────────────
 
@@ -757,10 +758,10 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
           </div>
           <div className="flex justify-center">
             <img
-              src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${activeEnemy?.id}.png`}
+              src={getPokemonSpriteUrl(activeEnemy)}
               className="w-20 h-20 object-contain drop-shadow-lg"
               alt={activeEnemy?.name}
-              onError={e => { e.target.style.display = 'none'; }}
+              onError={e => { e.target.src = getPokemonSpriteFallbackUrl(activeEnemy); }}
             />
           </div>
           {/* Time do inimigo (indicadores) */}
@@ -793,11 +794,11 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
         <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-3 shadow-xl">
           <div className="flex items-center gap-3">
             <img
-              src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${activePoke?.id}.png`}
+              src={getPokemonSpriteUrl(activePoke, { back: true })}
               className="w-14 h-14 object-contain drop-shadow-md"
               alt={activePoke?.name}
               onError={e => {
-                e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${activePoke?.id}.png`;
+                e.target.src = getPokemonSpriteFallbackUrl(activePoke);
               }}
             />
             <div className="flex-1">
@@ -878,7 +879,7 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
                       onClick={() => handleSwitch(i)}
                       className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-white/10 rounded-xl p-2 transition-colors text-left"
                     >
-                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} className="w-8 h-8 object-contain" alt={p.name} />
+                      <img src={getPokemonSpriteUrl(p)} className="w-8 h-8 object-contain" alt={p.name} onError={e => { e.target.src = getPokemonSpriteFallbackUrl(p); }} />
                       <div className="flex-1">
                         <p className="text-white font-black text-xs uppercase">{p.name} <span className="text-white/40 font-normal">Nv {p.level}</span></p>
                         <div className="w-full h-1 bg-slate-700 rounded-full mt-0.5">
@@ -958,7 +959,7 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
                       if (p.currentHp <= 0 || p.currentHp >= p.maxHp) return null;
                       return (
                         <button key={i} onClick={() => handleUsePotion(i)} className="flex items-center gap-2 bg-slate-800 hover:bg-green-900/40 border border-white/10 rounded-lg p-2 text-left transition-colors">
-                          <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} className="w-6 h-6" alt={p.name} />
+                          <img src={getPokemonSpriteUrl(p)} className="w-6 h-6" alt={p.name} onError={e => { e.target.src = getPokemonSpriteFallbackUrl(p); }} />
                           <span className="text-white font-bold text-[10px]">{p.name}</span>
                           <span className="text-green-400 text-[9px] ml-auto">+50 HP</span>
                         </button>
@@ -977,7 +978,7 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
                       if (p.currentHp > 0) return null;
                       return (
                         <button key={i} onClick={() => handleUseRevive(i)} className="flex items-center gap-2 bg-slate-800 hover:bg-yellow-900/40 border border-white/10 rounded-lg p-2 text-left transition-colors">
-                          <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} className="w-6 h-6 grayscale" alt={p.name} />
+                          <img src={getPokemonSpriteUrl(p)} className="w-6 h-6 grayscale" alt={p.name} onError={e => { e.target.src = getPokemonSpriteFallbackUrl(p); }} />
                           <span className="text-white font-bold text-[10px]">{p.name}</span>
                           <span className="text-yellow-400 text-[9px] ml-auto">Reviver</span>
                         </button>
@@ -1006,7 +1007,7 @@ const TowerBattleScreen = ({ gameState, setGameState, setCurrentView }) => {
                   const hpPct = (p.currentHp / p.maxHp) * 100;
                   return (
                     <button key={i} onClick={() => handleSwitch(i)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-white/10 rounded-lg p-2 text-left transition-colors">
-                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`} className="w-8 h-8" alt={p.name} />
+                      <img src={getPokemonSpriteUrl(p)} className="w-8 h-8" alt={p.name} onError={e => { e.target.src = getPokemonSpriteFallbackUrl(p); }} />
                       <div className="flex-1">
                         <p className="text-white font-bold text-[10px]">{p.name} <span className="text-white/40">Nv {p.level}</span></p>
                         <div className="w-full h-1 bg-slate-700 rounded-full mt-0.5">

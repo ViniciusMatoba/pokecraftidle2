@@ -1,6 +1,6 @@
 # Plano de Carregamento de Imagens e Sprites
 
-Atualizado em 08/07/2026 22:55 (Brasilia).
+Atualizado em 08/07/2026 22:58 (Brasilia).
 
 ## Diagnostico
 
@@ -61,6 +61,12 @@ Foi criado o pacote local seletivo da fase 5 para itens de interface recorrentes
 - Economia e navegacao: `nugget`, `town-map`, `vs-seeker`
 - Consumiveis e destaques: `potion`, `full-restore`, `rare-candy`, `star-piece`, `hard-stone`
 
+Foi iniciada a auditoria regional antes de migrar sprites Pokemon hardcoded:
+
+- `docs/sprite-regional-audit.md`
+- `src/components/TowerBattleScreen.jsx` agora usa o resolvedor global de sprites Pokemon.
+- `src/utils/pokemonSprites.test.js` cobre Alola, Galar, Hisui, shiny e sprite de costas.
+
 ## Proximas fases recomendadas
 
 1. Expandir o pacote local seletivo, se necessario:
@@ -68,7 +74,14 @@ Foi criado o pacote local seletivo da fase 5 para itens de interface recorrentes
    - starters
    - sprites comuns de batalha inicial
 
-2. Auditar sprites regionais antes de migrar qualquer Pokemon hardcoded:
+2. Continuar migracao cautelosa de sprites Pokemon hardcoded:
+   - `PokemonManagement.jsx`
+   - `MenuScreen.jsx`
+   - `trainerTitles.js`
+   - `recipes.js`
+   - `AppRoot.jsx`
+
+3. Auditar sprites regionais antes de cada nova migracao Pokemon:
    - Kanto vs Alola
    - Galar
    - Hisui
