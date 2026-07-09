@@ -1,7 +1,11 @@
-export const APP_VERSION = '2.11.71';
-export const VERSION = '2.11.71';
-export const APP_VERSION_DATE = '08/07/2026 23:35';
+export const APP_VERSION = '2.11.72';
+export const VERSION = '2.11.72';
+export const APP_VERSION_DATE = '08/07/2026 23:40';
 export const CHANGELOG = [
+  '## [V2.11.72] - 08/07/2026 23:40',
+  '### Correções de Receitas Duplicadas',
+  '- **Correção no Max Repel**: Removida a receita duplicada e genérica de Max Repel em CRAFTING_RECIPES.consumables, mantendo apenas a receita oficial com efeitos e balanceamento adequados na aba repels.',
+  '',
   '## [V2.11.71] - 08/07/2026 23:35',
   '### Baixador Silencioso Completo (Lazy Assets Prefetcher)',
   '- **Prefetcher Silencioso e Inteligente**: Criado modulo lazyPrefetcher.js que baixa de forma progressiva e pausada todos os assets em segundo plano (efeitos sonoros, musicas, backgrounds, itens e os 1025 sprites de Pokemon front/back + variantes).',
