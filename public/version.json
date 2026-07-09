@@ -1,5 +1,5 @@
 {
-  "version": "2.11.60",
-  "date": "08/07/2026 22:20",
-  "notes": "Deploy unificado para GitHub Pages e Firebase Hosting"
+  "version": "2.11.61",
+  "date": "08/07/2026 22:25",
+  "notes": "Correção de ordem dos Hooks em raid e progresso offline"
 }

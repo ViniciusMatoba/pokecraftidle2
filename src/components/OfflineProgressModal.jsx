@@ -209,16 +209,17 @@ function CaptureCard({ capture }) {
 }
 
 export default function OfflineProgressModal({ progress, onClose }) {
-  if (!progress) return null;
-
   const [section, setSection] = useState('team'); // 'team' | 'items' | 'captures'
   const panelRef = useRef(null);
 
   useEffect(() => {
+    if (!progress) return undefined;
     const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); onClose?.(); } };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [onClose, progress]);
+
+  if (!progress) return null;
 
   const hasMaterials = Object.keys(progress.materials).length > 0;
   const hasItems = progress.items && Object.keys(progress.items).length > 0;

@@ -189,25 +189,9 @@ const RaidScreen = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [raid?.phase, raid?.catchAttemptsLeft, catchAnim.active, cfg?.mode, cfg?.ballType]);
 
-  if (!raid) return null;
-
-  const hpPct = Math.max(0, (raid.currentHp / raid.maxHp) * 100);
-  const timeLeftExpire = raid.expiresAt - now;
-  const timeLeftFight  = raid.fightEndsAt ? raid.fightEndsAt - now : 0;
-  const starColor = STAR_COLOR[raid.stars] || '#94a3b8';
-  const pokemonSprite = getPokemonSpriteUrl(raid);
-  const isAlphaShiny = raid.isAlpha && raid.isShiny;
-
-  const balls = [
-    { id: 'ultra_ball', label: 'Ultra Ball', count: gameState.inventory?.items?.ultra_ball || 0,
-      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png' },
-    { id: 'great_ball', label: 'Great Ball', count: gameState.inventory?.items?.great_ball || 0,
-      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png' },
-    { id: 'pokeballs',  label: 'Pokébola',   count: gameState.inventory?.items?.pokeballs  || 0,
-      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png' },
-  ];
 
   const handleBallClick = useCallback((ball) => {
+    if (!raid) return;
     if (catchAnim.active) return;
     if (ball.count <= 0) return;
     if (raid.catchAttemptsLeft <= 0) return;
@@ -276,6 +260,25 @@ const RaidScreen = ({
       setUseTransition(false);
     }, commitDelay);
   }, [catchAnim.active, raid, onCatchRoll, onCatchAttempt]);
+
+  if (!raid) return null;
+
+  const hpPct = Math.max(0, (raid.currentHp / raid.maxHp) * 100);
+  const timeLeftExpire = raid.expiresAt - now;
+  const timeLeftFight  = raid.fightEndsAt ? raid.fightEndsAt - now : 0;
+  const starColor = STAR_COLOR[raid.stars] || '#94a3b8';
+  const pokemonSprite = getPokemonSpriteUrl(raid);
+  const isAlphaShiny = raid.isAlpha && raid.isShiny;
+
+  const balls = [
+    { id: 'ultra_ball', label: 'Ultra Ball', count: gameState.inventory?.items?.ultra_ball || 0,
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png' },
+    { id: 'great_ball', label: 'Great Ball', count: gameState.inventory?.items?.great_ball || 0,
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png' },
+    { id: 'pokeballs',  label: 'Pokébola',   count: gameState.inventory?.items?.pokeballs  || 0,
+      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png' },
+  ];
+
 
   // ── Estilos da pokébola ────────────────────────────────────────────────────
   const getBallAnimation = () => {
