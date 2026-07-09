@@ -1214,59 +1214,6 @@ export default function App() {
     initPreload();
   }, []);
 
-  // Preload dinâmico imediato em background de sprites do time e da rota ativa
-  useEffect(() => {
-    if (!isPreloaded || !gameState) return;
-
-    const urlsToPreload = new Set();
-
-    // 1. Sprites do time (frente e costas)
-    if (Array.isArray(gameState.team)) {
-      gameState.team.forEach(poke => {
-        if (!poke) return;
-        urlsToPreload.add(getPokemonSpriteUrl(poke));
-        urlsToPreload.add(getPokemonSpriteUrl(poke, { back: true }));
-      });
-    }
-
-    // 2. Inimigos da rota atual
-    const route = processedRoutes[gameState.currentRoute];
-    if (route) {
-      if (Array.isArray(route.enemies)) {
-        route.enemies.forEach(enemy => {
-          if (!enemy) return;
-          urlsToPreload.add(getPokemonSpriteUrl(enemy));
-        });
-      }
-      if (route.background) {
-        urlsToPreload.add(fixPath(route.background));
-      }
-    }
-
-    // Baixa de forma assíncrona
-    const loadAll = () => {
-      const urls = Array.from(urlsToPreload);
-      urls.forEach(url => {
-        if (!url) return;
-        const img = new Image();
-        img.src = url;
-      });
-    };
-
-    const timer = setTimeout(loadAll, 1000);
-    return () => clearTimeout(timer);
-  }, [gameState?.team, gameState?.currentRoute, isPreloaded, processedRoutes]);
-
-  // Inicializa o prefetcher gradual silencioso (sons, bgs, itens, 1025 sprites)
-  useEffect(() => {
-    if (isPreloaded && processedRoutes) {
-      // Importa dinamicamente POKEMON_FORM_SPRITE_IDS para evitar Temporal Dead Zone (TDZ) no build final
-      import('./utils/pokemonSprites').then(({ POKEMON_FORM_SPRITE_IDS }) => {
-        startLazyPrefetcher(processedRoutes, fixPath, POKEMON_FORM_SPRITE_IDS);
-      });
-    }
-  }, [isPreloaded, processedRoutes]);
-
   // ===== LISTENER DE FORCE-UPDATE (Firestore config/app) =====
   // Todos os dispositivos logados serão recarregados quando forceReloadAt mudar
   useEffect(() => {
@@ -1874,22 +1821,62 @@ export default function App() {
     return newRoutes;
   }, [gameState.worldFlags]);
 
-  // IMAGE PRELOADER PARA OTIMIZACAO
+  // IMAGE PRELOADER PARA OTIMIZACAO (Imediato de rota e time ativo)
   useEffect(() => {
-    if (!gameState || !processedRoutes) return;
-    const criticalImages = [
-      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
-      'https://play.pokemonshowdown.com/sprites/trainers/oak.png',
-      'https://play.pokemonshowdown.com/sprites/trainers/nurse.png',
-      ...(gameState.team || []).map(p => getPokemonSpriteUrl(p)),
-      fixPath(processedRoutes[gameState.currentRoute]?.background || '')
-    ].flat().filter(src => src && src.length > 5);
+    if (!isPreloaded || !gameState || !processedRoutes) return;
 
-    criticalImages.forEach(src => {
-      const img = new Image();
-      img.src = src;
-    });
-  }, [gameState.currentRoute, gameState.team, processedRoutes]);
+    const urlsToPreload = new Set([
+      'https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/items/poke-ball.png',
+      'https://play.pokemonshowdown.com/sprites/trainers/oak.png',
+      'https://play.pokemonshowdown.com/sprites/trainers/nurse.png'
+    ]);
+
+    // 1. Sprites do time (frente e costas)
+    if (Array.isArray(gameState.team)) {
+      gameState.team.forEach(poke => {
+        if (!poke) return;
+        urlsToPreload.add(getPokemonSpriteUrl(poke));
+        urlsToPreload.add(getPokemonSpriteUrl(poke, { back: true }));
+      });
+    }
+
+    // 2. Inimigos da rota atual
+    const route = processedRoutes[gameState.currentRoute];
+    if (route) {
+      if (Array.isArray(route.enemies)) {
+        route.enemies.forEach(enemy => {
+          if (!enemy) return;
+          urlsToPreload.add(getPokemonSpriteUrl(enemy));
+        });
+      }
+      if (route.background) {
+        urlsToPreload.add(fixPath(route.background));
+      }
+    }
+
+    // Baixa de forma assíncrona
+    const loadAll = () => {
+      const urls = Array.from(urlsToPreload);
+      urls.forEach(url => {
+        if (!url) return;
+        const img = new Image();
+        img.src = url;
+      });
+    };
+
+    const timer = setTimeout(loadAll, 1000);
+    return () => clearTimeout(timer);
+  }, [gameState?.team, gameState?.currentRoute, isPreloaded, processedRoutes]);
+
+  // Inicializa o prefetcher gradual silencioso (sons, bgs, itens, 1025 sprites)
+  useEffect(() => {
+    if (isPreloaded && processedRoutes) {
+      // Importa dinamicamente POKEMON_FORM_SPRITE_IDS para evitar Temporal Dead Zone (TDZ) no build final
+      import('./utils/pokemonSprites').then(({ POKEMON_FORM_SPRITE_IDS }) => {
+        startLazyPrefetcher(processedRoutes, fixPath, POKEMON_FORM_SPRITE_IDS);
+      });
+    }
+  }, [isPreloaded, processedRoutes]);
 
 
   // ── Gera clima ao mudar de rota ───────────────────────────────────────────

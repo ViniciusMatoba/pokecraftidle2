@@ -1,5 +1,5 @@
 {
-  "version": "2.11.73",
-  "date": "08/07/2026 23:43",
-  "notes": "Correção de erro de inicialização TDZ (Cannot access before initialization)"
+  "version": "2.11.74",
+  "date": "08/07/2026 23:50",
+  "notes": "Resolução de ordem de declaração (processedRoutes TDZ)"
 }

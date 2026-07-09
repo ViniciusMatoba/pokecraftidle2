@@ -1,7 +1,11 @@
-export const APP_VERSION = '2.11.73';
-export const VERSION = '2.11.73';
-export const APP_VERSION_DATE = '08/07/2026 23:43';
+export const APP_VERSION = '2.11.74';
+export const VERSION = '2.11.74';
+export const APP_VERSION_DATE = '08/07/2026 23:50';
 export const CHANGELOG = [
+  '## [V2.11.74] - 08/07/2026 23:50',
+  '### Resolução Definitiva de Ordem de Declaração (processedRoutes TDZ)',
+  '- **Correção Definitiva de TDZ**: Movidos os hooks do preloader de background e prefetcher gradual para baixo da declaração de `processedRoutes`. Isso resolve o Cannot access before initialization que impedia o jogo de carregar em navegadores normais.',
+  '',
   '## [V2.11.73] - 08/07/2026 23:43',
   '### Correção de TDZ (Cannot access before initialization)',
   '- **Resolução de Erro de Inicialização**: Refatorada a importação de POKEMON_FORM_SPRITE_IDS para ser assíncrona e dinâmica em runtime no AppRoot.jsx. Isso elimina erros de Temporal Dead Zone (TDZ) do bundle no tablet/mobile e libera o acesso à tela de jogo.',
