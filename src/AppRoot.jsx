@@ -84,6 +84,7 @@ import { QUESTS, updateQuestProgress, getAvailableQuest } from './data/quests';
 import NotificationSystem, { notify } from './components/NotificationSystem';
 import { getCaptureRate, pickWeightedEncounter } from './utils/pokemonDifficulty';
 import { preloadAssets } from './utils/preloader';
+import { startLazyPrefetcher } from './utils/lazyPrefetcher';
 import { calculatePowerScore, getBadgeCount, hasPlayableProgress } from './utils/progress';
 import { migrateGameState } from './utils/saveMigration';
 import { computeGameStateHash } from './utils/stateHash';
@@ -1212,6 +1213,56 @@ export default function App() {
 
     initPreload();
   }, []);
+
+  // Preload dinâmico imediato em background de sprites do time e da rota ativa
+  useEffect(() => {
+    if (!isPreloaded || !gameState) return;
+
+    const urlsToPreload = new Set();
+
+    // 1. Sprites do time (frente e costas)
+    if (Array.isArray(gameState.team)) {
+      gameState.team.forEach(poke => {
+        if (!poke) return;
+        urlsToPreload.add(getPokemonSpriteUrl(poke));
+        urlsToPreload.add(getPokemonSpriteUrl(poke, { back: true }));
+      });
+    }
+
+    // 2. Inimigos da rota atual
+    const route = processedRoutes[gameState.currentRoute];
+    if (route) {
+      if (Array.isArray(route.enemies)) {
+        route.enemies.forEach(enemy => {
+          if (!enemy) return;
+          urlsToPreload.add(getPokemonSpriteUrl(enemy));
+        });
+      }
+      if (route.background) {
+        urlsToPreload.add(fixPath(route.background));
+      }
+    }
+
+    // Baixa de forma assíncrona
+    const loadAll = () => {
+      const urls = Array.from(urlsToPreload);
+      urls.forEach(url => {
+        if (!url) return;
+        const img = new Image();
+        img.src = url;
+      });
+    };
+
+    const timer = setTimeout(loadAll, 1000);
+    return () => clearTimeout(timer);
+  }, [gameState?.team, gameState?.currentRoute, isPreloaded, processedRoutes]);
+
+  // Inicializa o prefetcher gradual silencioso (sons, bgs, itens, 1025 sprites)
+  useEffect(() => {
+    if (isPreloaded && processedRoutes) {
+      startLazyPrefetcher(processedRoutes, fixPath);
+    }
+  }, [isPreloaded, processedRoutes]);
 
   // ===== LISTENER DE FORCE-UPDATE (Firestore config/app) =====
   // Todos os dispositivos logados serão recarregados quando forceReloadAt mudar

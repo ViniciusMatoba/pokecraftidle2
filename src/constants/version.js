@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.11.70';
-export const VERSION = '2.11.70';
-export const APP_VERSION_DATE = '08/07/2026 23:14';
+export const APP_VERSION = '2.11.71';
+export const VERSION = '2.11.71';
+export const APP_VERSION_DATE = '08/07/2026 23:35';
 export const CHANGELOG = [
+  '## [V2.11.71] - 08/07/2026 23:35',
+  '### Baixador Silencioso Completo (Lazy Assets Prefetcher)',
+  '- **Prefetcher Silencioso e Inteligente**: Criado modulo lazyPrefetcher.js que baixa de forma progressiva e pausada todos os assets em segundo plano (efeitos sonoros, musicas, backgrounds, itens e os 1025 sprites de Pokemon front/back + variantes).',
+  '- **Armazenamento Local Progressivo**: Os assets sao salvos no Cache Storage local. O jogo continua levissimo no primeiro acesso, mas se torna gradualmente 100% offline e independente de conexoes de rede durante o gameplay.',
+  '- **Segurança de Performance**: O prefetcher opera de forma pausada (blocos de downloads) com delays longos e monitora progresso no localStorage, retomando de onde parou em sessões futuras.',
+  '',
   '## [V2.11.70] - 08/07/2026 23:14',
   '### Ultra Otimização de Imagens e CDNs',
   '- **Migração para CDN jsDelivr**: Redirecionados todos os sprites de Pokémon, itens e ícones de tipo para a CDN ultra-rápida jsDelivr. Isso contorna a latência e throttling de taxa de download da CDN do GitHub em celulares e tablets.',
