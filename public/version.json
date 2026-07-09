@@ -1,5 +1,5 @@
 {
-  "version": "2.11.55",
-  "date": "08/07/2026 21:40",
-  "notes": "Correcao do sprite do Rattata de Kanto em batalha sem quebrar formas regionais validas"
+  "version": "2.11.56",
+  "date": "08/07/2026 21:58",
+  "notes": "Correcao do aprendizado de golpes por level-up, EXP Candy, offline, expedicao e evolucao"
 }

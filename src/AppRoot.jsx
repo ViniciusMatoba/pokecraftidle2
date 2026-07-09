@@ -87,6 +87,7 @@ import { preloadAssets } from './utils/preloader';
 import { calculatePowerScore, getBadgeCount, hasPlayableProgress } from './utils/progress';
 import { migrateGameState } from './utils/saveMigration';
 import { computeGameStateHash } from './utils/stateHash';
+import { applyLearnedMovesForLevelRange } from './utils/pokemonMoves';
 import { ensureRetentionState, getRetentionViewModel, RETENTION_DAILY_MISSIONS, RETENTION_WEEKLY_MISSIONS } from './data/retention';
 import { 
   TROPHIES, SHOP_TITLES, POKEDEX_FRAMES, UI_THEMES, 
@@ -595,23 +596,8 @@ const processExpeditionPokemon = (pokemon, xpGained) => {
     const calcHp   = (b, lv) => Math.max(1, Math.ceil(((2 * b * lv) / 100 + lv + 10) * shinyMult));
     const base = pokeData || {};
 
-    let newMoves = [...(p.moves || [])];
-    let newLearned = p.learnedMoves ? [...p.learnedMoves] : [...newMoves];
-    const learnedNow = [];
-
-    if (pokeData?.learnset) {
-      pokeData.learnset.filter(l => l.level === newLevel).forEach(learn => {
-        const key = (learn.move || '').toLowerCase();
-        const mData = MOVES[key];
-        if (!mData) return;
-        const mName = MOVE_TRANSLATIONS[key] || mData.name || learn.move;
-        if (newLearned.some(m => m.name === mName)) return;
-        const mObj = { ...mData, name: mName };
-        newLearned.push(mObj);
-        learnedNow.push(mName);
-        if (newMoves.length < 4) newMoves.push(mObj);
-      });
-    }
+    const moveUpdate = applyLearnedMovesForLevelRange(p, n, newLevel);
+    const learnedNow = moveUpdate.learnedNow.map(move => move.name);
 
     if (learnedNow.length) moveEvents.push({ level: newLevel, moves: learnedNow });
 
@@ -619,8 +605,8 @@ const processExpeditionPokemon = (pokemon, xpGained) => {
       ...p,
       level: newLevel,
       xp: p.xp - xpNeeded,
-      moves: deduplicateMoves(newMoves).slice(0, 4),
-      learnedMoves: deduplicateMoves(newLearned),
+      moves: moveUpdate.moves,
+      learnedMoves: moveUpdate.learnedMoves,
       maxHp: calcHp(base.hp || 45, newLevel),
       hp:    calcHp(base.hp || 45, newLevel),
       attack:  calcStat(base.attack  || 45, newLevel),
@@ -6259,7 +6245,8 @@ export default function App() {
       const p = { ...list[idx] };
       // Aplica XP: acumula e faz level-up se necessário
       let xp = (p.xp || 0) + candyDef.xp;
-      let level = p.level || 1;
+      const startLevel = p.level || 1;
+      let level = startLevel;
       let leveled = false;
       while (level < 100) {
         const xpNeeded = Math.pow(level + 1, 3) - Math.pow(level, 3);
@@ -6267,7 +6254,12 @@ export default function App() {
         else break;
       }
       if (xp < 0) xp = 0;
+      const moveUpdate = leveled
+        ? applyLearnedMovesForLevelRange(p, startLevel, level)
+        : { moves: p.moves || [], learnedMoves: p.learnedMoves || p.moves || [], learnedNow: [] };
       list[idx] = { ...p, xp, level,
+        moves: moveUpdate.moves,
+        learnedMoves: moveUpdate.learnedMoves,
         maxHp: leveled ? Math.ceil(((2 * (POKEDEX[p.id]?.hp || 60) * level) / 100) + level + 10) : p.maxHp,
         hp:    leveled ? Math.ceil(((2 * (POKEDEX[p.id]?.hp || 60) * level) / 100) + level + 10) : Math.min(p.hp || p.maxHp, p.maxHp),
       };
@@ -6275,6 +6267,9 @@ export default function App() {
         ? `🍬 ${p.name} usou ${candyDef.name} e subiu para Nível ${level}!`
         : `🍬 ${p.name} ganhou ${candyDef.xp.toLocaleString()} XP com ${candyDef.name}!`;
       addLog(msg, 'system');
+      moveUpdate.learnedNow.forEach(move => {
+        addLog(`Novo golpe aprendido: ${p.name} aprendeu ${move.name}!`, 'system');
+      });
       return {
         ...prev,
         [location]: list,
@@ -7602,24 +7597,39 @@ export default function App() {
            return p;
         }
 
-        const newXp = (p.xp || 0) + xpToAdd;
-        const n = p.level || 1; const xpNeeded = Math.pow(n + 1, 3) - Math.pow(n, 3);
+        let nextXp = (p.xp || 0) + xpToAdd;
+        const startLevel = p.level || 1;
         const maxLevel = getRegionLevelCap(finalBadges, activeRegion);
-        const isLevelCapped = gameState.settings?.levelCap !== false && (p.level || 5) >= maxLevel;
+        const effectiveMaxLevel = gameState.settings?.levelCap === false ? 100 : maxLevel;
+        let newLevel = startLevel;
 
-        if (newXp >= xpNeeded) {
-          if (isLevelCapped) {
-            return { ...p, level: maxLevel, xp: xpNeeded - 1, stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 } };
-          }
+        while (newLevel < 100 && newLevel < effectiveMaxLevel) {
+          const needed = Math.pow(newLevel + 1, 3) - Math.pow(newLevel, 3);
+          if (nextXp < needed) break;
+          nextXp -= needed;
+          newLevel += 1;
+        }
 
-          const newLevel = (p.level || 5) + 1;
+        if (newLevel >= effectiveMaxLevel && gameState.settings?.levelCap !== false) {
+          const capNeeded = Math.pow(newLevel + 1, 3) - Math.pow(newLevel, 3);
+          nextXp = Math.min(nextXp, Math.max(0, capNeeded - 1));
+        }
+
+        if (newLevel > startLevel) {
           hasLeveledUpRef.current = true;
           addLog(`🎉 ${p.name} subiu para Nv. ${newLevel}!`, 'system');
           notify({ type: 'level_up', title: `${p.name} subiu para Nv.${newLevel}!`, message: 'Continue treinando!', pokemonId: p.id, formKey: p.formKey, formSpriteId: p.formSpriteId, isShiny: p.isShiny });
           sfxLevelUp();
 
-          let newMoves = [...(p.moves || [])];
-          let newLearnedMoves = p.learnedMoves ? [...p.learnedMoves] : [...newMoves];
+          const moveUpdate = applyLearnedMovesForLevelRange(p, startLevel, newLevel);
+          let newMoves = [...moveUpdate.moves];
+          let newLearnedMoves = [...moveUpdate.learnedMoves];
+          const activeMoveKeys = new Set(moveUpdate.moves.map(move => move.moveKey || move.name));
+          moveUpdate.learnedNow.forEach(move => {
+            addLog(activeMoveKeys.has(move.moveKey || move.name)
+              ? `( ${p.name} aprendeu ${move.name}!`
+              : `âœ¨ ${p.name} aprendeu ${move.name}! (Salvo na MemÃ³ria)`, 'system');
+          });
           const pokeData = POKEDEX[Number(p.id)];
 
           if (pokeData?.learnset) {
@@ -7664,7 +7674,7 @@ export default function App() {
           const baseStats = pokeData || {};
           const newMaxHp = calcHp(baseStats.hp || 45, newLevel);
 
-          return { ...p, level: newLevel, xp: newXp - xpNeeded, moves: deduplicateMoves(newMoves).slice(0, 4), learnedMoves: deduplicateMoves(newLearnedMoves),
+          return { ...p, level: newLevel, xp: nextXp, moves: deduplicateMoves(newMoves).slice(0, 4), learnedMoves: deduplicateMoves(newLearnedMoves),
             maxHp: newMaxHp,
             hp: newMaxHp,
             attack:  calcStat(baseStats.attack  || 45, newLevel),
@@ -7676,7 +7686,7 @@ export default function App() {
           };
         }
         const isTower = prev.currentRoute === 'tower';
-        return { ...p, xp: newXp, hp: isTower ? p.hp : Math.min(p.maxHp, p.hp + Math.ceil(p.maxHp * 0.50)), 
+        return { ...p, xp: nextXp, hp: isTower ? p.hp : Math.min(p.maxHp, p.hp + Math.ceil(p.maxHp * 0.50)), 
           status: (p.status || []).filter(s => s !== 'confuse'),
           stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 } 
         };

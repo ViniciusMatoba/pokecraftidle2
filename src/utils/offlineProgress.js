@@ -1,6 +1,7 @@
 import { POKEDEX } from '../data/pokedex';
 import { GYM_LEVEL_CAPS } from '../data/constants';
 import { getCaptureRate, getPokemonRarity } from './pokemonDifficulty';
+import { rebuildMovesForLevel } from './pokemonMoves';
 
 const TICK_MS = 2500;
 const MAX_OFFLINE_MS = 12 * 60 * 60 * 1000; // cap 12h
@@ -311,7 +312,7 @@ export function calculateOfflineProgress(gameState, routes, elapsedMs) {
  * MOVES e MOVE_TRANSLATIONS são passados pelo AppRoot para evitar
  * importar os chunks pesados neste utilitário.
  */
-function recalcMoves(pokemon, newLevel, MOVES, MOVE_TRANSLATIONS) {
+function _recalcMoves(pokemon, newLevel, MOVES, MOVE_TRANSLATIONS) {
   if (!MOVES || !MOVE_TRANSLATIONS) return pokemon.moves;
   const base = POKEDEX[Number(pokemon.id)];
   if (!base?.learnset) return pokemon.moves;
@@ -356,10 +357,10 @@ export function applyOfflineProgress(gameState, progress, MOVES, MOVE_TRANSLATIO
       const shouldRecalc = MOVES && MOVE_TRANSLATIONS && (
         tp.levelsGained > 0 || currentMoves.length < 4
       );
-      const updatedMoves = shouldRecalc
-        ? recalcMoves(pokemon, tp.newLevel, MOVES, MOVE_TRANSLATIONS)
-        : currentMoves;
-      return { ...pokemon, level: tp.newLevel, xp: tp.newXp, moves: updatedMoves };
+      const moveUpdate = shouldRecalc
+        ? rebuildMovesForLevel(pokemon, tp.newLevel)
+        : { moves: currentMoves, learnedMoves: pokemon.learnedMoves || currentMoves };
+      return { ...pokemon, level: tp.newLevel, xp: tp.newXp, moves: moveUpdate.moves, learnedMoves: moveUpdate.learnedMoves };
     });
   }
 

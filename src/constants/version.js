@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.11.55';
-export const VERSION = '2.11.55';
-export const APP_VERSION_DATE = '08/07/2026 21:40';
+export const APP_VERSION = '2.11.56';
+export const VERSION = '2.11.56';
+export const APP_VERSION_DATE = '08/07/2026 21:58';
 export const CHANGELOG = [
+  '## [V2.11.56] - 08/07/2026 21:58',
+  '### Correcao de Aprendizado de Golpes',
+  '- **Helper central de golpes**: criada resolucao unica para normalizar, deduplicar e aplicar golpes aprendidos por nivel.',
+  '- **Level-up em batalha**: ganhos grandes de XP agora processam multiplos niveis de uma vez e aprendem todos os golpes intermediarios.',
+  '- **EXP Candy corrigido**: usar candy agora atualiza `moves` e `learnedMoves`, sem perder golpes por subir varios niveis.',
+  '- **Offline, expedicoes e evolucao alinhados**: os fluxos passam a reaproveitar a mesma logica de aprendizado para manter memoria de golpes consistente.',
+  '- **Testes de regressao**: adicionada cobertura para aprendizado multi-level e para `learnedMoves` no progresso offline.',
+  '',
   '## [V2.11.55] - 08/07/2026 21:40',
   '### Correcao de Sprite em Batalha',
   '- **Rattata de Kanto corrigido**: o resolvedor global de sprites agora valida `formKey` e regiao antes de usar sprite regional, evitando que um Rattata capturado em Kanto apareca como Rattata-Alola na batalha.',

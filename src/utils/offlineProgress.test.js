@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { calculateOfflineProgress, applyOfflineProgress, formatOfflineTime } from './offlineProgress';
 import { DEFAULT_GAME_STATE } from '../data/constants';
+import { MOVES } from '../data/moves';
+import { MOVE_TRANSLATIONS } from '../data/translations';
 
 describe('offlineProgress - Sistema de Progresso Offline', () => {
   // Rota de farm mockada para os testes
@@ -117,6 +119,35 @@ describe('offlineProgress - Sistema de Progresso Offline', () => {
     // Materiais somados
     expect(updatedState.inventory.materials.normal_essence).toBe(15);
     expect(updatedState.inventory.materials.fire_essence).toBe(2);
+  });
+
+  it('deve atualizar moves e learnedMoves apos level-up offline', () => {
+    const gameState = {
+      ...DEFAULT_GAME_STATE,
+      team: [
+        { instanceId: 'p1', id: 1, name: 'Bulbasaur', level: 8, xp: 0, moves: [{ name: 'Tackle' }] }
+      ],
+      inventory: {
+        materials: {},
+        items: {},
+        candies: {}
+      }
+    };
+
+    const mockProgress = {
+      coins: 0,
+      materials: {},
+      teamProgress: [
+        { instanceId: 'p1', startLevel: 8, newLevel: 9, newXp: 0, levelsGained: 1 }
+      ],
+      captures: []
+    };
+
+    const updatedState = applyOfflineProgress(gameState, mockProgress, MOVES, MOVE_TRANSLATIONS);
+    const learnedKeys = updatedState.team[0].learnedMoves.map(move => move.moveKey || move.name);
+
+    expect(updatedState.team[0].moves.length).toBeGreaterThan(0);
+    expect(learnedKeys).toContain('leech-seed');
   });
 
   it('deve formatar o tempo offline legivelmente', () => {
