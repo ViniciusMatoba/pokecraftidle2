@@ -1,5 +1,11 @@
-const STARTER_IDS = new Set([1, 4, 7, 152, 155, 158, 252, 255, 258]);
-const LEGENDARY_IDS = new Set([144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 251, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386]);
+import {
+  STARTER_IDS,
+  PSEUDO_LEGENDARY_IDS,
+  ULTRA_BEAST_IDS,
+  PARADOX_IDS,
+  LEGENDARY_IDS,
+  baseSpeciesId,
+} from '../data/rarityClassification';
 
 export const RARITY_WEIGHTS = {
   common: 100,
@@ -19,18 +25,92 @@ export const RARITY_CAPTURE_MULTIPLIER = {
   legendary: 0.16,
 };
 
-export const getPokemonRarity = (entry = {}, pokedex = {}) => {
-  if (entry.rarity) return entry.rarity;
-  const id = Number(entry.id);
-  if (STARTER_IDS.has(id)) return 'super_rare';
-  if (LEGENDARY_IDS.has(id)) return 'legendary';
+// Ordem crescente de raridade (para comparações / UI).
+export const RARITY_ORDER = ['common', 'uncommon', 'rare', 'very_rare', 'super_rare', 'legendary'];
 
-  const data = pokedex[id] || {};
-  const baseXp = data.baseXp || 50;
-  if (baseXp >= 190) return 'very_rare';
-  if (baseXp >= 140) return 'rare';
-  if (baseXp >= 90) return 'uncommon';
-  return 'common';
+// ── Cache do mapa de estágios de evolução ──────────────────────────────
+// Reconstruído apenas quando a referência do pokedex muda (singleton POKEDEX).
+let _stageCache = { pokedex: null, stages: null };
+
+const buildStageMap = (pokedex) => {
+  const evolvesInto = new Set();
+  for (const key in pokedex) {
+    const evo = pokedex[key]?.evolution;
+    if (evo && evo.id !== undefined && evo.id !== null) evolvesInto.add(Number(evo.id));
+  }
+  const stages = {};
+  for (const key in pokedex) {
+    const data = pokedex[key];
+    if (!data || data.id === undefined) continue;
+    const id = Number(data.id);
+    const hasEvo = !!(data.evolution && data.evolution.id !== undefined && data.evolution.id !== null);
+    const isTarget = evolvesInto.has(id);
+    if (!isTarget && hasEvo) stages[id] = 'base';        // início de linha evolutiva
+    else if (isTarget && hasEvo) stages[id] = 'mid';     // estágio intermediário
+    else if (isTarget && !hasEvo) stages[id] = 'final';  // forma final
+    else stages[id] = 'solo';                            // sem evolução (nem entra nem sai)
+  }
+  return stages;
+};
+
+const getStageMap = (pokedex = {}) => {
+  if (_stageCache.pokedex !== pokedex || !_stageCache.stages) {
+    _stageCache = { pokedex, stages: buildStageMap(pokedex) };
+  }
+  return _stageCache.stages;
+};
+
+// Estágio evolutivo de uma espécie: 'base' | 'mid' | 'final' | 'solo'.
+// Formas (mega/regionais) usam a espécie base.
+export const getEvolutionStage = (id, pokedex = {}) =>
+  getStageMap(pokedex)[baseSpeciesId(id)] || 'solo';
+
+const getBaseStatTotal = (data = {}) =>
+  (data.hp || 0) + (data.attack || 0) + (data.defense || 0) +
+  (data.spAtk || 0) + (data.spDef || 0) + (data.speed || 0);
+
+// Heurística por estágio de evolução + BST para espécies "comuns".
+const classifyByStageAndStats = (stage, bst) => {
+  switch (stage) {
+    case 'base':
+      return 'common';
+    case 'mid':
+      return 'uncommon';
+    case 'final':
+      if (bst >= 600) return 'super_rare';
+      if (bst >= 525) return 'very_rare';
+      if (bst >= 470) return 'rare';
+      return 'uncommon';
+    case 'solo':
+    default:
+      if (bst >= 570) return 'super_rare';
+      if (bst >= 500) return 'very_rare';
+      if (bst >= 435) return 'rare';
+      if (bst >= 320) return 'uncommon';
+      return 'common';
+  }
+};
+
+export const getPokemonRarity = (entry = {}, pokedex = {}) => {
+  // 1) Override explícito no dado de rota/encontro.
+  if (entry.rarity) return entry.rarity;
+
+  // 2) Normaliza formas (mega/regionais) para a espécie base.
+  const baseId = baseSpeciesId(entry.id);
+
+  // 3) Listas especiais (todas as gerações).
+  if (LEGENDARY_IDS.has(baseId)) return 'legendary';
+  if (PSEUDO_LEGENDARY_IDS.has(baseId)) return 'super_rare';
+  if (ULTRA_BEAST_IDS.has(baseId)) return 'super_rare';
+  if (PARADOX_IDS.has(baseId)) return 'super_rare';
+  if (STARTER_IDS.has(baseId)) return 'super_rare';
+
+  // 4) Heurística por estágio de evolução + BST da espécie base.
+  const data = pokedex[baseId] || pokedex[Number(entry.id)] || {};
+  const stages = getStageMap(pokedex);
+  const stage = stages[baseId] || 'solo';
+  const bst = getBaseStatTotal(data);
+  return classifyByStageAndStats(stage, bst);
 };
 
 export const pickWeightedEncounter = (pool = [], pokedex = {}) => {

@@ -1,6 +1,8 @@
 // Sistema de Dia/Noite baseado no horario real do jogador.
 // Afeta Pokemon que aparecem, cor do background e musica.
 
+import { getPokemonRarity, RARITY_WEIGHTS } from './pokemonDifficulty';
+
 export const getTimeOfDay = () => {
   const hour = new Date().getHours();
   if (hour >= 5 && hour < 10) return 'morning';   // 05h-09h - Manha
@@ -162,7 +164,11 @@ export const getTimeAdjustedEnemyPool = (route, period = getTimeOfDay(), pokedex
     if (blockEarlyEvolutions && isEvolvedSpecies(entry.id, pokedex)) return;
     const multiplier = getTimeMultiplier(entry, period, route, pokedex);
     if (options.preview && multiplier < 0.45) return;
-    const spawnWeight = Math.max(1, Math.round((entry.spawnWeight || 100) * multiplier));
+    // Peso base: usa spawnWeight explícito da rota; senão deriva da raridade da
+    // espécie (comum aparece muito, raro pouco) — diferenciação para todos.
+    const rarityWeight = RARITY_WEIGHTS[getPokemonRarity(entry, pokedex)] || RARITY_WEIGHTS.common;
+    const baseWeight = entry.spawnWeight || rarityWeight;
+    const spawnWeight = Math.max(1, Math.round(baseWeight * multiplier));
     unique.set(Number(entry.id), { ...entry, spawnWeight, timeMultiplier: multiplier });
   });
 

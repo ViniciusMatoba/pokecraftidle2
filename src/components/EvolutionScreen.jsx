@@ -1,4 +1,6 @@
 import React from 'react';
+import { getEvolutionCandyInfo } from '../utils/evolutionRequirements';
+import { getCandyIconUrl } from '../data/candies';
 
 const STONE_NAMES = {
   thunder_stone: 'Thunder Stone', moon_stone: 'Moon Stone',
@@ -31,10 +33,32 @@ const TYPE_COLORS = {
   Steel: '#5a8ea2', Fairy: '#fb89eb',
 };
 
-const isRequirementMet = (evo, pokemon, inventory) => {
-  if (evo.item)  return (inventory?.items?.[evo.item] || 0) > 0;
-  if (evo.level) return (pokemon?.level || 1) >= evo.level;
+const isRequirementMet = (evo, pokemon, inventory, POKEDEX) => {
+  if (evo.item && (inventory?.items?.[evo.item] || 0) <= 0) return false;
+  if (evo.level && (pokemon?.level || 1) < evo.level) return false;
+  if (!getEvolutionCandyInfo(pokemon, evo, inventory, POKEDEX).met) return false;
   return true;
+};
+
+// Chip visual do custo de candy (X/Y) usado nos cards de evolução.
+const CandyReqChip = ({ candy }) => {
+  if (!candy || !candy.candyId || candy.cost <= 0) return null;
+  const ok = candy.met;
+  return (
+    <span style={{
+      fontSize: 9, fontWeight: 700, textTransform: 'uppercase',
+      padding: '2px 8px', borderRadius: 99,
+      display: 'flex', alignItems: 'center', gap: 4,
+      background: ok ? '#fce7f3' : '#1e293b',
+      color: ok ? '#db2777' : '#475569',
+      border: `1px solid ${ok ? '#f9a8d420' : '#334155'}`,
+    }}>
+      {candy.spriteId != null && (
+        <img src={getCandyIconUrl({ spriteId: candy.spriteId })} style={{ width: 12, height: 12 }} alt="" />
+      )}
+      {candy.have}/{candy.cost}{!ok && ' ✗'}
+    </span>
+  );
 };
 
 const EvoChoiceCard = ({ evo, pokemon, POKEDEX, inventory, onChoose, isEvolutionAllowedForRegion, activeRegion }) => {
@@ -42,8 +66,9 @@ const EvoChoiceCard = ({ evo, pokemon, POKEDEX, inventory, onChoose, isEvolution
   const hasItem      = evo.item  ? (inventory?.items?.[evo.item] || 0) > 0 : true;
   const levelMet     = evo.level ? (pokemon?.level || 1) >= evo.level      : true;
   const regionAllowed = isEvolutionAllowedForRegion ? isEvolutionAllowedForRegion(pokemon, evo.id, activeRegion) : true;
-  
-  const canEvolve = hasItem && levelMet && regionAllowed;
+  const candy        = getEvolutionCandyInfo(pokemon, evo, inventory, POKEDEX);
+
+  const canEvolve = hasItem && levelMet && regionAllowed && candy.met;
   const primaryType  = targetData?.types?.[0] || targetData?.type || 'Normal';
   const accentColor  = TYPE_COLORS[primaryType] || '#3b82f6';
 
@@ -122,6 +147,7 @@ const EvoChoiceCard = ({ evo, pokemon, POKEDEX, inventory, onChoose, isEvolution
               Nível {evo.level}{!levelMet && ' ✗'}
             </span>
           )}
+          <CandyReqChip candy={candy} />
           {evo.time && (
             <span style={{
               fontSize: 9, fontWeight: 700, textTransform: 'uppercase',
@@ -193,10 +219,10 @@ const EvolutionScreen = ({
   if (isChoiceMode) {
     const choices   = evolutionPending.choices;
     const inventory = gameState?.inventory || {};
-    const anyReady  = choices.some(e => isRequirementMet(e, evolutionPending, inventory));
+    const anyReady  = choices.some(e => isRequirementMet(e, evolutionPending, inventory, POKEDEX));
 
     const handleChoose = (evoData) => {
-      if (!isRequirementMet(evoData, evolutionPending, inventory)) return;
+      if (!isRequirementMet(evoData, evolutionPending, inventory, POKEDEX)) return;
       if (evoData.item) {
         setGameState(prev => ({
           ...prev,
@@ -326,51 +352,74 @@ const EvolutionScreen = ({
                             setEvolutionPending(null);
                             return;
                          }
+                         // Requisito de candy (aditivo). force_evolve já pagou → candyPaid pula a cobrança.
+                         const candyReq = getEvolutionCandyInfo(evolutionPending, evoData, gameState?.inventory || {}, POKEDEX);
+                         if (!evolutionPending.candyPaid && candyReq.candyId && candyReq.cost > 0 && !candyReq.met) {
+                            addLog(`🍬 Faltam candies! ${evolutionPending.name} precisa de ${candyReq.cost} ${candyReq.name} (você tem ${candyReq.have}).`, 'system');
+                            setEvolutionPending(null);
+                            return;
+                         }
                          setGameState(prev => {
                             const evolvedId = Number(evoData.id);
-                            const newTeam = prev.team.map((p, i) => {
-                               if (i === evolutionPending.teamIndex) {
-                                  const shinyMult = p.isShiny ? 1.2 : 1.0;
-                                  const calcStat = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + 5) * shinyMult));
-                                  const calcHp   = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + lv + 10) * shinyMult));
-                                  let newMoves = dedupeMoves(p.moves || []);
-                                  let newLearnedMoves = dedupeMoves(p.learnedMoves || newMoves);
-                                  if (nextPoke.learnset) {
-                                     const movesAtLevel = nextPoke.learnset.filter(l => l.level <= p.level);
-                                     movesAtLevel.forEach(learn => {
-                                        const moveName = learn.move;
-                                        if (!newLearnedMoves.some(m => moveKey(m) === moveKey(moveName))) {
-                                           const moveObj = { name: moveName };
-                                           newLearnedMoves.push(moveObj);
-                                           if (newMoves.length < 4 && !newMoves.some(m => moveKey(m) === moveKey(moveObj))) newMoves.push(moveObj);
-                                        }
-                                     });
-                                  }
-                                  return {
-                                     ...p,
-                                     id: evoData.id,
-                                     name: nextPoke.name,
-                                     type: nextPoke.type,
-                                     types: nextPoke.types || [nextPoke.type],
-                                     maxHp:    calcHp(nextPoke.hp || nextPoke.maxHp || 40, p.level),
-                                     hp:       calcHp(nextPoke.hp || nextPoke.maxHp || 40, p.level),
-                                     attack:   calcStat(nextPoke.attack   || 40, p.level),
-                                     defense:  calcStat(nextPoke.defense  || 40, p.level),
-                                     spAtk:    calcStat(nextPoke.spAtk    || 40, p.level),
-                                     spDef:    calcStat(nextPoke.spDef    || 40, p.level),
-                                     speed:    calcStat(nextPoke.speed    || 40, p.level),
-                                     moves: dedupeMoves(newMoves).slice(0, 4),
-                                     learnedMoves: dedupeMoves(newLearnedMoves),
-                                  };
+                            const isTeamEvo = evolutionPending.teamIndex !== null && evolutionPending.teamIndex !== undefined;
+                            const isPcEvo   = evolutionPending.pcIndex   !== null && evolutionPending.pcIndex   !== undefined;
+                            // Consome as candies da família (uma vez), se ainda não pagas.
+                            let candyInventory = prev.inventory;
+                            // Só desconta candy quando a evolução de fato se aplica (time OU PC).
+                            const willApply = isTeamEvo || isPcEvo;
+                            if (willApply && !evolutionPending.candyPaid && candyReq.candyId && candyReq.cost > 0) {
+                               const owned = prev.inventory?.candies?.[candyReq.candyId] || 0;
+                               candyInventory = {
+                                  ...prev.inventory,
+                                  candies: { ...(prev.inventory?.candies || {}), [candyReq.candyId]: Math.max(0, owned - candyReq.cost) },
+                               };
+                            }
+
+                            // Transformação compartilhada: aplica a evolução a uma instância (time ou PC).
+                            const evolveInstance = (p) => {
+                               const shinyMult = p.isShiny ? 1.2 : 1.0;
+                               const calcStat = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + 5) * shinyMult));
+                               const calcHp   = (b, lv) => Math.max(1, Math.ceil(Math.ceil(((2 * b * lv) / 100) + lv + 10) * shinyMult));
+                               let newMoves = dedupeMoves(p.moves || []);
+                               let newLearnedMoves = dedupeMoves(p.learnedMoves || newMoves);
+                               if (nextPoke.learnset) {
+                                  const movesAtLevel = nextPoke.learnset.filter(l => l.level <= p.level);
+                                  movesAtLevel.forEach(learn => {
+                                     const moveName = learn.move;
+                                     if (!newLearnedMoves.some(m => moveKey(m) === moveKey(moveName))) {
+                                        const moveObj = { name: moveName };
+                                        newLearnedMoves.push(moveObj);
+                                        if (newMoves.length < 4 && !newMoves.some(m => moveKey(m) === moveKey(moveObj))) newMoves.push(moveObj);
+                                     }
+                                  });
                                }
-                               return p;
-                            });
+                               return {
+                                  ...p,
+                                  id: evoData.id,
+                                  name: nextPoke.name,
+                                  type: nextPoke.type,
+                                  types: nextPoke.types || [nextPoke.type],
+                                  maxHp:    calcHp(nextPoke.hp || nextPoke.maxHp || 40, p.level),
+                                  hp:       calcHp(nextPoke.hp || nextPoke.maxHp || 40, p.level),
+                                  attack:   calcStat(nextPoke.attack   || 40, p.level),
+                                  defense:  calcStat(nextPoke.defense  || 40, p.level),
+                                  spAtk:    calcStat(nextPoke.spAtk    || 40, p.level),
+                                  spDef:    calcStat(nextPoke.spDef    || 40, p.level),
+                                  speed:    calcStat(nextPoke.speed    || 40, p.level),
+                                  moves: dedupeMoves(newMoves).slice(0, 4),
+                                  learnedMoves: dedupeMoves(newLearnedMoves),
+                               };
+                            };
+
+                            const newTeam = prev.team.map((p, i) => (isTeamEvo && i === evolutionPending.teamIndex) ? evolveInstance(p) : p);
+                            const newPcEvolved = (prev.pc || []).map((p, i) => (isPcEvo && i === evolutionPending.pcIndex) ? evolveInstance(p) : p);
 
                             // Deduplicação: remover cópias da forma evoluída em PC, cuidadores e time (outros slots)
                             let duplicatesRemoved = 0;
 
-                            // Remover duplicatas do PC
-                            const newPc = (prev.pc || []).filter(p => {
+                            // Remover duplicatas do PC (exceto o slot recém-evoluído, quando a evolução veio do PC)
+                            const newPc = newPcEvolved.filter((p, i) => {
+                               if (isPcEvo && i === evolutionPending.pcIndex) return true;
                                if (Number(p.id) === evolvedId) { duplicatesRemoved++; return false; }
                                return true;
                             });
@@ -395,7 +444,7 @@ const EvolutionScreen = ({
                                addLog(`🍬 ${duplicatesRemoved} ${nextPoke.name} duplicado(s) convertido(s) em EXP Candy S!`, 'system');
                             }
 
-                            const prevCandyCount = prev.inventory?.items?.exp_candy_s || 0;
+                            const prevCandyCount = candyInventory?.items?.exp_candy_s || 0;
 
                             return {
                                ...prev,
@@ -403,8 +452,8 @@ const EvolutionScreen = ({
                                pc: newPc,
                                house: prev.house ? { ...prev.house, caretakers: newCaretakers } : prev.house,
                                inventory: duplicatesRemoved > 0
-                                  ? { ...prev.inventory, items: { ...prev.inventory?.items, exp_candy_s: prevCandyCount + duplicatesRemoved } }
-                                  : prev.inventory,
+                                  ? { ...candyInventory, items: { ...candyInventory?.items, exp_candy_s: prevCandyCount + duplicatesRemoved } }
+                                  : candyInventory,
                                caughtData: { ...prev.caughtData, [evoData.id]: true },
                             };
                          });

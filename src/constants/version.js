@@ -1,7 +1,33 @@
-export const APP_VERSION = '2.11.1';
-export const VERSION = '2.11.1';
-export const APP_VERSION_DATE = '23/05/2026 14:04';
+export const APP_VERSION = '2.13.2';
+export const VERSION = '2.13.2';
+export const APP_VERSION_DATE = '01/09/2026 12:43';
 export const CHANGELOG = [
+  '## [V2.13.2] - 01/09/2026 12:43',
+  '### Correção: evolução de Pokémon no PC',
+  '- **Bug corrigido**: Evoluir um Pokémon que está no PC (não no time) não aplicava a evolução — a forma continuava a base, embora a Pokédex marcasse a espécie. Agora a conclusão da evolução trata corretamente o slot do PC (`pcIndex`), com os mesmos cálculos de stats/moves do time.',
+  '- **Anti-perda**: A dedução de candy passou a considerar também evoluções vindas do PC (guarda `willApply` estendida), e o Pokémon recém-evoluído no PC é preservado na deduplicação.',
+  '',
+  '## [V2.13.1] - 01/09/2026 12:41',
+  '### Pokémon aleatório na tela de login',
+  '- **Novo**: A tela de login agora exibe um Pokémon aleatório (National Dex 1–1025) que muda a cada vez que a tela é aberta, no lugar do Snorlax fixo. Snorlax permanece como fallback caso um sprite falhe.',
+  '',
+  '## [V2.13.0] - 01/09/2026 12:37',
+  '### Evolução com Candy (estilo Pokémon GO)',
+  '- **Novo**: Evoluir agora exige candies da família do Pokémon, ALÉM dos requisitos padrões (nível/pedra/tempo/região). Requisito aditivo — nada foi removido.',
+  '- **Custo por estágio × raridade**: base→intermediária ~25, intermediária→final ~100, linhas de 2 estágios ~50, tudo multiplicado pela raridade da forma (comum x1 … lendário x5).',
+  '- **UI**: Chip de candy (X/Y com ícone da família) na tela de evolução e no Guia de Evolução; botão mostra "Faltam N" quando não há candy suficiente.',
+  '- **Anti-spam**: A evolução automática no level-up só abre a tela quando já há candy suficiente — sem popup insistente a cada nível.',
+  '- **Nova fonte de candy**: Capturar um Pokémon duplicado agora converte em candies da família (quantidade escala pela raridade; dobra em shiny), acelerando o acúmulo.',
+  '- **Base técnica**: Novo módulo `utils/evolutionRequirements.js` centraliza custo/checagem; consumo atômico no único ponto de conclusão da evolução.',
+  '',
+  '## [V2.12.0] - 01/09/2026 12:23',
+  '### Sistema de Raridade Universal nos Encontros',
+  '- **Novo**: Todos os 1126 Pokémon do Pokédex agora têm raridade definida automaticamente (comum → lendário), não só alguns casos avulsos.',
+  '- **Classificação robusta**: Lendários e míticos de TODAS as gerações (1-9), pseudo-lendários, Ultra Beasts, Pokémon Paradoxo e iniciais são reconhecidos por lista curada; o restante é classificado por estágio de evolução + soma de stats (BST).',
+  '- **Formas alternativas**: Megas e formas regionais herdam a raridade da espécie base (via `id % 10000`).',
+  '- **Impacto no spawn**: Encontros sem peso fixo de rota agora usam o peso da raridade — Pokémon comuns aparecem com frequência e os raros ficam bem mais escassos.',
+  '- **Impacto na captura**: A dificuldade de captura continua escalando pela raridade (comum mais fácil, lendário mais difícil), agora consistente para o Pokédex inteiro.',
+  '',
   '## [V2.11.1] - 23/05/2026 14:04',
   '### Segurança, Sincronização Otimizada, CI/CD e Beta Testing',
   '- **Novo (Segurança)**: Ofuscação de Saves (Cifra XOR Dinâmica) e Assinatura Anti-Cheat (HMAC-SHA256) em LocalStorage para blindar rankings públicos.',

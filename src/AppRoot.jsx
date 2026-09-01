@@ -65,6 +65,7 @@ import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from './utils/pokemo
 import { getTrainerCurrencyReward } from './utils/economy';
 import { getTypeEffectiveness } from './data/typeChart';
 import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
+import { getEvolutionCandyInfo } from './utils/evolutionRequirements';
 import { calcExpeditionDuration, calcExpeditionDrops, calcExpeditionXP, EXPEDITION_BIOMES } from './data/expeditions';
 import { calcHarvestDrops, calcGrowthTime, calcCombinedCaretakerBonus, PLANTABLE_ITEMS, HOUSE_PURCHASE_COST } from './data/house';
 import { getTimeOfDay, TIME_CONFIG, getTimeAdjustedEnemyPool } from './utils/timeSystem';
@@ -76,7 +77,7 @@ import RareDropModal, { isRareDropDismissed } from './components/RareDropModal';
 
 import { QUESTS, updateQuestProgress, getAvailableQuest } from './data/quests';
 import NotificationSystem, { notify } from './components/NotificationSystem';
-import { getCaptureRate, pickWeightedEncounter } from './utils/pokemonDifficulty';
+import { getCaptureRate, pickWeightedEncounter, getPokemonRarity } from './utils/pokemonDifficulty';
 import { preloadAssets } from './utils/preloader';
 import { calculatePowerScore, getBadgeCount } from './utils/progress';
 import { migrateGameState } from './utils/saveMigration';
@@ -5411,6 +5412,18 @@ export default function App() {
         });
         const { newList: teamUpdate } = findAndReplace(prev.team);
         const { newList: pcUpdate } = findAndReplace(prev.pc || []);
+
+        // Duplicata → converte em candies da família (estilo "transferir" do GO).
+        // Quantidade escala pela raridade pra compensar spawns raros.
+        const dupCandyId = POKEMON_TO_CANDY[Number(capturedEnemy.id)];
+        if (dupCandyId) {
+          const dupRarity = getPokemonRarity({ id: capturedEnemy.id }, POKEDEX);
+          const DUP_CANDY_BY_RARITY = { common: 3, uncommon: 3, rare: 5, very_rare: 8, super_rare: 12, legendary: 20 };
+          const dupQty = (DUP_CANDY_BY_RARITY[dupRarity] || 3) * (capturedEnemy.isShiny ? 2 : 1);
+          newInventory.candies = { ...(newInventory.candies || {}), [dupCandyId]: (newInventory.candies?.[dupCandyId] || 0) + dupQty };
+          addLog(`🍬 Duplicata convertida! +${dupQty} ${CANDY_FAMILIES[dupCandyId].name}.`, 'system');
+        }
+
         return {
           ...prev,
           inventory: newInventory,
@@ -5847,6 +5860,7 @@ export default function App() {
           ...p,
           teamIndex: location === 'team' ? pokemonIndex : null,
           pcIndex:   location === 'pc'   ? pokemonIndex : null,
+          candyPaid: true, // force_evolve já gastou candies → não cobrar de novo na conclusão
         };
 
         if (allEvolutions.length > 1) {
@@ -7271,11 +7285,15 @@ export default function App() {
           }
 
           const evos = Array.isArray(pokeData?.evolution) ? pokeData.evolution : (pokeData?.evolution ? [pokeData.evolution] : []);
+          const pAtLevel = { ...p, level: newLevel };
           const levelEvos = evos.filter(e =>
             e.level && !e.item &&
             newLevel >= e.level &&
             (!e.time || e.time.includes(getTimeOfDay())) &&
-            isEvolutionAllowedForRegion(p, e.id, prev.activeRegion || 'kanto')
+            isEvolutionAllowedForRegion(p, e.id, prev.activeRegion || 'kanto') &&
+            // Requisito de candy (aditivo): só abre a tela se já dá pra pagar,
+            // pra não incomodar o jogador a cada nível sem candy suficiente.
+            getEvolutionCandyInfo(pAtLevel, e, prev.inventory || {}, POKEDEX).met
           );
           if (levelEvos.length === 1 && evos.length === 1) {
             setEvolutionPending({ ...p, level: newLevel, targetEvolution: levelEvos[0], teamIndex: i });

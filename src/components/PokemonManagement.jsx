@@ -5,6 +5,7 @@ import { POKEDEX } from '../data/pokedex';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '../data/candies';
 import { getTimeOfDay } from '../utils/timeSystem';
+import { getEvolutionCandyInfo } from '../utils/evolutionRequirements';
 import { getCompatibleMegaStones, MEGA_STONE_ICONS, getMegaSprite } from '../data/megaEvolutions';
 import { ABILITY_ITEM_ID, getAbilityDescription, getAbilityLabel, getPokemonAbilityPool, setPokemonAbility } from '../data/abilities';
 import { getPokeballDef, POKEBALL_DEFS, ALL_BALL_IDS, BALL_EFFECT_LABELS } from '../data/pokeballs';
@@ -1810,12 +1811,16 @@ const PokemonManagement = ({
                             const timeMet = !evo.time || evo.time.includes(currentTime);
                             
                             const evolutionAllowed = !isEvolutionAllowedForRegion || isEvolutionAllowedForRegion(poke, evo.id, activeRegion || gameState.activeRegion || 'kanto');
-                            
+
                             const evolutionLockText = !evolutionAllowed
                               ? (getEvolutionRegionLockMessage?.(poke.name, targetData?.name, activeRegion || gameState.activeRegion || 'kanto') || 'Evolucao bloqueada nesta regiao.')
                               : null;
 
-                            const canEvolve = (isItemEvo ? hasItem : levelMet) && timeMet && evolutionAllowed;
+                            // Requisito de candy (aditivo, estilo Pokémon GO).
+                            const candyInfo = getEvolutionCandyInfo(poke, evo, gameState.inventory || {}, POKEDEX);
+                            const candyMet = candyInfo.met;
+
+                            const canEvolve = (isItemEvo ? hasItem : levelMet) && timeMet && evolutionAllowed && candyMet;
 
                             return (
                               <div key={`${evo.id}-${idx}`} className={`p-4 rounded-2xl border-2 transition-all ${canEvolve ? 'bg-blue-50 border-blue-200' : 'bg-slate-50 border-slate-100 opacity-80'}`}>
@@ -1854,6 +1859,14 @@ const PokemonManagement = ({
                                       {evo.time && (
                                         <span className={`text-[8px] font-bold uppercase px-2 py-0.5 rounded-full ${timeMet ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-200 text-slate-500'}`}>
                                           {evo.time.join('/')}
+                                        </span>
+                                      )}
+                                      {candyInfo.candyId && candyInfo.cost > 0 && (
+                                        <span className={`text-[8px] font-bold uppercase px-2 py-0.5 rounded-full flex items-center gap-1 ${candyMet ? 'bg-pink-100 text-pink-600' : 'bg-slate-200 text-slate-500'}`}>
+                                          {candyInfo.spriteId != null && (
+                                            <img src={getCandyIconUrl({ spriteId: candyInfo.spriteId })} className="w-3 h-3 object-contain" alt="" />
+                                          )}
+                                          {candyInfo.have}/{candyInfo.cost}
                                         </span>
                                       )}
                                     </div>
@@ -1897,6 +1910,13 @@ const PokemonManagement = ({
                                         >
                                           ⚔️ Treinar
                                         </button>
+                                    ) : !candyMet ? (
+                                        <div className="flex items-center gap-1 bg-slate-200 text-slate-500 font-black text-[9px] px-3 py-2 rounded-lg shadow-sm uppercase cursor-not-allowed">
+                                          {candyInfo.spriteId != null && (
+                                            <img src={getCandyIconUrl({ spriteId: candyInfo.spriteId })} className="w-3 h-3 object-contain" alt="" />
+                                          )}
+                                          Faltam {candyInfo.cost - candyInfo.have}
+                                        </div>
                                     ) : isItemEvo ? (
                                       timeMet && (
                                         <button onClick={() => !activePokemonDetails.pokemon.onExpedition && handleStoneEvolution(evo.item, evo)} disabled={activePokemonDetails.pokemon.onExpedition} className="bg-amber-500 text-white font-black text-[9px] px-3 py-2 rounded-lg shadow-lg uppercase active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">Usar Item</button>

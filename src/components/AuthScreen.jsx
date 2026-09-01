@@ -22,6 +22,8 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
   const [showRanking, setShowRanking] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
   const [privacyModalTab, setPrivacyModalTab] = useState(null); // 'privacy' | 'terms' | null
+  // Sorteia um Pokémon aleatório (National Dex 1–1025) a cada vez que a tela de login abre.
+  const [heroPokemonId] = useState(() => Math.floor(Math.random() * 1025) + 1);
 
   const handleCheckUpdate = async () => {
     setUpdateStatus('checking');
@@ -172,12 +174,18 @@ const AuthScreen = ({ onAuthSuccess, installPrompt, handleInstallPWA, isIOS, isS
             POKÉCRAFT IDLE
           </h1>
 
-          {/* Snorlax flutuando */}
+          {/* Pokémon aleatório flutuando (muda a cada login) */}
           <img
-            src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/143.png"
+            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${heroPokemonId}.png`}
+            onError={(e) => {
+              if (!e.target.dataset.fallback) {
+                e.target.dataset.fallback = '1';
+                e.target.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/143.png';
+              }
+            }}
             className="w-28 h-28 mt-3 animate-float-slow drop-shadow-xl"
             style={{ imageRendering: 'pixelated', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' }}
-            alt="Snorlax"
+            alt={`Pokémon #${heroPokemonId}`}
           />
           <div className="flex flex-col items-center text-center mb-8">
             <div className="w-20 h-20 bg-pokeBlue/10 rounded-[2rem] flex items-center justify-center mb-4 shadow-inner border border-pokeBlue/5">
