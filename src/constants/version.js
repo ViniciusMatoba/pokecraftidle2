@@ -1,7 +1,11 @@
-export const APP_VERSION = '2.16.1';
-export const VERSION = '2.16.1';
-export const APP_VERSION_DATE = '01/09/2026 14:29';
+export const APP_VERSION = '2.16.2';
+export const VERSION = '2.16.2';
+export const APP_VERSION_DATE = '01/09/2026 14:40';
 export const CHANGELOG = [
+  '## [V2.16.2] - 01/09/2026 14:29',
+  '### Contador de Pokébolas reposicionado',
+  '- Movido o contador de Pokébolas (Poké/Great/Ultra) para logo abaixo da área de batalha, em vez de ficar abaixo da seção do time.',
+  '',
   '## [V2.16.1] - 01/09/2026 14:29',
   '### Contador de Pokébolas na batalha',
   '- **Novo**: Abaixo dos ataques, a batalha agora mostra a quantidade de Pokébolas (Poké/Great/Ultra) que você tem.',
