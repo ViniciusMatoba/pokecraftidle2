@@ -978,6 +978,14 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
               <p className="text-[10px] font-bold text-slate-500 mt-1">
                 Falta: {(guide.nextLockedRoute.missingRequirements || []).join(', ') || 'progresso anterior'}.
               </p>
+              {guide.nextVsBattle && (
+                <button
+                  onClick={() => goToVs(guide.nextVsBattle)}
+                  className="mt-3 w-full rounded-xl bg-pokeRed text-white py-3 text-[10px] font-black uppercase tracking-widest active:scale-95 flex items-center justify-center gap-2"
+                >
+                  ⚔️ Ir fazer a luta que libera →
+                </button>
+              )}
             </div>
           )}
         </div>

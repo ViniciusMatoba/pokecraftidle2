@@ -23,7 +23,8 @@ const VALID_FORM_KEYS = (() => {
 // Remove formKey/formSpriteId inválidos de um Pokémon salvo. Corrige dados
 // antigos onde uma forma base recebeu indevidamente uma variante regional
 // (ex.: Rattata de Kanto com sprite de Alola). Não apaga o Pokémon nem stats.
-const sanitizePokemonForm = (poke) => {
+// Exportado para uso também no momento da captura (rede de segurança).
+export const sanitizePokemonForm = (poke) => {
   if (!poke || typeof poke !== 'object') return poke;
   if (!poke.formKey && !poke.formSpriteId) return poke; // sem forma → nada a fazer
   if (poke.formKey && VALID_FORM_KEYS.has(poke.formKey)) return poke; // forma legítima

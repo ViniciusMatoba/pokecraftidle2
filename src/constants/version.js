@@ -1,7 +1,19 @@
-export const APP_VERSION = '2.14.0';
-export const VERSION = '2.14.0';
-export const APP_VERSION_DATE = '01/09/2026 13:52';
+export const APP_VERSION = '2.16.0';
+export const VERSION = '2.16.0';
+export const APP_VERSION_DATE = '01/09/2026 14:21';
 export const CHANGELOG = [
+  '## [V2.16.0] - 01/09/2026 14:21',
+  '### Correção definitiva das formas regionais inválidas (Rattata-Alola)',
+  '- **Rede de segurança na captura**: formas regionais inválidas (ex.: Rattata de Kanto marcado como Alola) agora são removidas também no momento da captura, não só ao carregar o save — garante sprites corretos mesmo em capturas novas.',
+  '- **Verificação ampla**: confirmado que formas regionais legítimas (Raichu-A, Ninetales-A, Marowak-A, Ponyta-G, Zigzagoon-G, Qwilfish-H, Growlithe-H) continuam com o sprite regional correto, enquanto as não obteníveis (Rattata-A, Meowth-A, Diglett-A, etc.) são limpas.',
+  '',
+  '## [V2.15.0] - 01/09/2026 14:12',
+  '### Guia de lutas (QoL) + ajuste de sprites da batalha',
+  '- **Novo (Aviso de luta liberada)**: Banner fixo e dispensável no topo da tela de batalha quando há uma luta do MODO VS pendente que libera progresso/rota, com botão grande "Ir para a luta" que leva direto à batalha certa.',
+  '- **Novo (Toast)**: Aviso rápido "⚔️ Nova luta liberada!" no momento em que uma nova luta do VS fica disponível, para o jogador não travar sem saber o próximo passo.',
+  '- **Guia da Jornada**: O card "Próxima rota bloqueada" agora tem botão de ação "Ir fazer a luta que libera", direcionando ao Modo VS.',
+  '- **Batalha**: Sprites de Pokémon aumentados novamente e reposicionados (inimigo no canto superior-direito, aliado no inferior-esquerdo) para aproveitar melhor a arena.',
+  '',
   '## [V2.14.0] - 01/09/2026 13:52',
   '### Correções em lote + ajustes de economia e batalha idle',
   '- **Fix crítico (PC)**: Corrigida a tela do PC que quebrava o jogo — a lista usava a API antiga do react-window (v1); migrada para a API v2 (`rowComponent`/`rowProps`). Pokémon enviados ao PC voltam a ser exibidos normalmente.',

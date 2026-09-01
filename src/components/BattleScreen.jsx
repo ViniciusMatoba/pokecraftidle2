@@ -546,7 +546,7 @@ const BattleScreen = ({
         )}
 
         {/* SPRITE INIMIGO - Quadrante Superior Direito */}
-        <div ref={enemySpriteRef} className="absolute top-12 right-10 z-10 w-36 h-36 flex items-center justify-center">
+        <div ref={enemySpriteRef} className="absolute top-6 right-4 z-10 w-44 h-44 flex items-center justify-center">
           {statReactions.filter(r => r.target === 'enemy').map(r => (
             <div key={r.id} className={`absolute z-30 stat-arrow-${r.change}`}>
               {r.change === 'up' ? '▲' : '▼'}
@@ -657,7 +657,7 @@ const BattleScreen = ({
         </div>
 
         {/* SPRITE JOGADOR - Quadrante Inferior Esquerdo */}
-        <div ref={playerSpriteRef} className="absolute bottom-2 left-6 z-10 w-36 h-36 flex items-center justify-center">
+        <div ref={playerSpriteRef} className="absolute bottom-1 left-3 z-10 w-44 h-44 flex items-center justify-center">
           {statReactions.filter(r => r.target === 'player').map(r => (
             <div key={r.id} className={`absolute z-30 stat-arrow-${r.change}`}>
               {r.change === 'up' ? '▲' : '▼'}

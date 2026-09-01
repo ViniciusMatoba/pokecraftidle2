@@ -77,10 +77,11 @@ import RareDropModal, { isRareDropDismissed } from './components/RareDropModal';
 
 import { QUESTS, updateQuestProgress, getAvailableQuest } from './data/quests';
 import NotificationSystem, { notify } from './components/NotificationSystem';
+import JourneyFightBanner from './components/JourneyFightBanner';
 import { getCaptureRate, pickWeightedEncounter, getPokemonRarity } from './utils/pokemonDifficulty';
 import { preloadAssets } from './utils/preloader';
 import { calculatePowerScore, getBadgeCount } from './utils/progress';
-import { migrateGameState } from './utils/saveMigration';
+import { migrateGameState, sanitizePokemonForm } from './utils/saveMigration';
 import { ensureRetentionState, getRetentionViewModel, RETENTION_DAILY_MISSIONS, RETENTION_WEEKLY_MISSIONS } from './data/retention';
 import { 
   TROPHIES, SHOP_TITLES, POKEDEX_FRAMES, UI_THEMES, 
@@ -1236,6 +1237,19 @@ export default function App() {
       setLandingPokemonId(Math.floor(Math.random() * 1025) + 1);
     }
   }, [currentView]);
+
+  // Toast one-time quando uma nova luta do MODO VS é liberada (avança a história/rotas).
+  const lastStoryFlagRef = useRef(undefined);
+  useEffect(() => {
+    const guide = getJourneyGuide(gameState);
+    const flag = guide.storyStep?.flag || null;
+    if (lastStoryFlagRef.current === undefined) { lastStoryFlagRef.current = flag; return; } // ignora o load inicial
+    if (flag && flag !== lastStoryFlagRef.current) {
+      notify({ type: 'success', title: '⚔️ Nova luta liberada!', message: guide.storyStep?.label || 'Abra o Modo VS para avançar.', duration: 9000 });
+    }
+    lastStoryFlagRef.current = flag;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameState.worldFlags, gameState.badges, gameState.activeRegion]);
 
   const isProcessingVictory = useRef(false);
   const isProcessingTurn = useRef(false);
@@ -5381,7 +5395,9 @@ export default function App() {
       captureFailRetryRef.current = { itemId, source };
     }
 
-    const capturedEnemy = currentEnemy;
+    // Rede de segurança: remove forma regional inválida (ex.: Rattata de Kanto
+    // marcado como Alola) antes de a captura virar um Pokémon do time/PC.
+    const capturedEnemy = sanitizePokemonForm(currentEnemy);
     setGameState(prev => {
       const prevBag = source === 'items' ? (prev.inventory?.items || {}) : (prev.inventory?.materials || {});
       if (!prevBag[itemId] || prevBag[itemId] <= 0) return prev;
@@ -7544,7 +7560,7 @@ export default function App() {
                 } else {
                   // Primeira Captura
                   const rolledNature = NATURE_LIST[Math.floor(Math.random() * NATURE_LIST.length)];
-                  const newPoke = assignRandomAbility({ ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9), capturedRegion: prev.activeRegion || 'kanto', ball: selectedBall || 'pokeballs', equippedNature: rolledNature, unlockedNatures: [rolledNature] }, POKEDEX[Number(currentEnemy.id)]);
+                  const newPoke = sanitizePokemonForm(assignRandomAbility({ ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9), capturedRegion: prev.activeRegion || 'kanto', ball: selectedBall || 'pokeballs', equippedNature: rolledNature, unlockedNatures: [rolledNature] }, POKEDEX[Number(currentEnemy.id)]));
                   const newTeam = [...prev.team];
                   const newPC = [...(prev.pc || [])];
                   if (newTeam.length < 6) newTeam.push(newPoke); else newPC.push(newPoke);
@@ -9283,7 +9299,8 @@ export default function App() {
 
       case 'battles': return (
         <div className="pt-14 pb-20 h-full overflow-y-auto">
-          <BattleScreen 
+          <JourneyFightBanner gameState={gameState} onGoToFight={openVsScreen} />
+          <BattleScreen
             timeOfDay={timeOfDay}
             currentEnemy={currentEnemy} 
             gameState={gameState} 
