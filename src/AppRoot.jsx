@@ -398,6 +398,11 @@ const getRegionLevelCap = (badges = [], region = 'kanto') => {
   return Object.values(caps)[getRegionBadgeCount(badges, region)] || 100;
 };
 
+// Flag "não mostrar mais" do modal de nova receita (persistida por dispositivo).
+const RECIPE_MODAL_HIDE_KEY = 'pokecraft_hide_recipe_modal';
+const isRecipeModalHidden = () => { try { return localStorage.getItem(RECIPE_MODAL_HIDE_KEY) === 'true'; } catch { return false; } };
+const hideRecipeModalForever = () => { try { localStorage.setItem(RECIPE_MODAL_HIDE_KEY, 'true'); } catch {} };
+
 const getLevelGapXpMultiplier = (pokemonLevel = 1, enemyLevel = 1) => {
   const levelGap = Math.max(0, (pokemonLevel || 1) - (enemyLevel || 1));
   const penaltySteps = Math.floor(levelGap / 5);
@@ -2896,7 +2901,7 @@ export default function App() {
     const rareDrops = [];
 
     // Moedas base — reduzido drasticamente para tornar a economia mais desafiadora
-    let coinAmount = Math.max(1, Math.floor((enemy.level || 5) * 0.15 * (enemy.isShiny ? 2 : 1)));
+    let coinAmount = Math.max(1, Math.floor((enemy.level || 5) * 0.45 * (enemy.isShiny ? 2 : 1)));
     
     // Efeitos especiais de dano
     const now = Date.now();
@@ -3824,6 +3829,22 @@ export default function App() {
         Number(p.id) === Number(raid.pokemonId) && ((p.formKey || null) === raidFormKey);
       const ownedSameSpecies = allOwned.filter(isSameRaidPokemon);
 
+      // Golpes a partir do learnset — antes usava pokedexEntry.moves (inexistente),
+      // fazendo o Pokémon de raid/Alpha vir SEM golpes.
+      const raidLearnset = pokedexEntry.learnset || [];
+      const raidAvailableMoves = deduplicateMoves(
+        raidLearnset
+          .filter(m => m.level <= (raid.level || 1))
+          .map(m => {
+            const mk = (m.move || '').toLowerCase();
+            const md = MOVES[mk] || { name: m.move || 'Investida', power: 40, type: 'Normal', category: 'Physical' };
+            return { ...md, name: MOVE_TRANSLATIONS[mk] || md.name || m.move, power: md.power || 0, type: md.type || 'Normal', category: md.category || 'Physical' };
+          })
+      );
+      const raidMoves = raidAvailableMoves.length > 0
+        ? raidAvailableMoves.slice(-4)
+        : [{ name: 'Investida', power: 40, type: 'Normal', category: 'Physical' }];
+
       // Cria o Pokémon base
       let newPoke = assignRandomAbility({
         instanceId: `raid_caught_${Date.now()}`,
@@ -3837,7 +3858,8 @@ export default function App() {
         hp: pokedexEntry.hp || 60,
         maxHp: pokedexEntry.hp || 60,
         xp: 0,
-        moves: (pokedexEntry.moves || []).slice(0, 4),
+        moves: raidMoves,
+        learnedMoves: raidMoves,
         type: pokedexEntry.type || 'Normal',
         types: pokedexEntry.types || [pokedexEntry.type || 'Normal'],
         attack: pokedexEntry.attack || 60,
@@ -7377,7 +7399,7 @@ export default function App() {
     messages.forEach(m => addLog(m, 'drop'));
     // Modal de receita encontrada — só aparece se for nova e não houver um modal aberto
     const newRecipes = foundRecipes?.filter(r => r.isNew);
-    if (newRecipes?.length > 0 && !recipeFoundModal) {
+    if (newRecipes?.length > 0 && !recipeFoundModal && !isRecipeModalHidden()) {
       setTimeout(() => setRecipeFoundModal(newRecipes[0]), 400);
     } else if (rareDrops?.length > 0 && !rareDropModal && !recipeFoundModal) {
       const nextDrop = rareDrops.find(d => !isRareDropDismissed(d.type));
@@ -11028,11 +11050,11 @@ export default function App() {
 
                    <div className="flex flex-col gap-3 overflow-y-auto pr-1 custom-scrollbar flex-1 pb-4">
                       {[
-                        { id: 'pokeballs', name: 'Poke Bola', price: 1200, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', desc: 'Captura Pokemon selvagens. Mais rara no Mart: prefira fabricar na Forja.', availableFrom: null },
+                        { id: 'pokeballs', name: 'Poke Bola', price: 400, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png', desc: 'Captura Pokemon selvagens. Essencial para farmar candies e evoluir.', availableFrom: null },
                         { id: 'potions', name: 'Pocao', price: 300, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png', desc: 'Restaura 20 HP', availableFrom: null },
-                        { id: 'great_ball', name: 'Great Ball', price: 4200, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png', desc: 'Melhor chance de captura. Produzir na Forja e mais eficiente.', availableFrom: 'boulder_badge' },
+                        { id: 'great_ball', name: 'Great Ball', price: 1500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png', desc: 'Melhor chance de captura. Produzir na Forja e mais eficiente.', availableFrom: 'boulder_badge' },
                         { id: 'revive', name: 'Revive', price: 1500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png', desc: 'Revive Pokemon desmaiado', availableFrom: 'cascade_badge' },
-                        { id: 'ultra_ball', name: 'Ultra Ball', price: 9500, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png', desc: 'Alta chance de captura. Item caro para incentivar a Forja.', availableFrom: 'thunder_badge' },
+                        { id: 'ultra_ball', name: 'Ultra Ball', price: 4000, img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png', desc: 'Alta chance de captura.', availableFrom: 'thunder_badge' },
                         ...POKE_MART_DRINKS.map(d => ({ ...d, desc: d.description }))
                       ].filter(item => isMartItemUnlocked(gameState, item.id)).map(item => {
                         const maxQty = Math.floor(gameState.currency / item.price);
@@ -12154,7 +12176,7 @@ export default function App() {
         >
           <div
             className="modal-panel-mobile relative shadow-2xl flex flex-col"
-            style={{ background: 'linear-gradient(160deg,#1c1410 0%,#2d1f0a 100%)', border: '2px solid #f59e0b55' }}
+            style={{ background: 'linear-gradient(160deg,#1c1410 0%,#2d1f0a 100%)', border: '2px solid #f59e0b55', width: '100%', maxWidth: '340px' }}
             onClick={e => e.stopPropagation()}
           >
             {/* Brilho dourado topo */}
@@ -12210,15 +12232,15 @@ export default function App() {
             </div>
             </div>
 
-            {/* Botão */}
-            <div className="px-6 pb-6 pt-2 shrink-0">
+            {/* Botões */}
+            <div className="px-5 pb-5 pt-1 shrink-0 flex flex-col gap-2">
               <button
                 onClick={() => {
                   setForgeTargetItem(recipeFoundModal.id);
                   setCurrentView('forge_screen');
                   setRecipeFoundModal(null);
                 }}
-                className="w-full py-4 rounded-2xl font-black uppercase text-sm tracking-widest transition-all active:scale-95"
+                className="w-full py-3.5 rounded-2xl font-black uppercase text-sm tracking-widest transition-all active:scale-95"
                 style={{
                   background: 'linear-gradient(135deg,#f59e0b,#d97706)',
                   color: '#1c1410',
@@ -12227,6 +12249,20 @@ export default function App() {
                 }}
               >
                 🔨 Ótimo! Ir Forjar
+              </button>
+              <button
+                onClick={() => setRecipeFoundModal(null)}
+                className="w-full py-2.5 rounded-2xl font-black uppercase text-xs tracking-widest text-white/80 active:scale-95"
+                style={{ background: 'rgba(255,255,255,0.10)', border: 'none', cursor: 'pointer' }}
+              >
+                Fechar
+              </button>
+              <button
+                onClick={() => { hideRecipeModalForever(); setRecipeFoundModal(null); }}
+                className="w-full py-1.5 rounded-xl font-bold uppercase text-[9px] tracking-widest text-white/40 hover:text-white/60 active:scale-95 transition-all"
+                style={{ background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'pointer' }}
+              >
+                🔕 Não mostrar mais
               </button>
             </div>
           </div>

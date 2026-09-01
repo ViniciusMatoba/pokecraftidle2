@@ -1,7 +1,18 @@
-export const APP_VERSION = '2.13.3';
-export const VERSION = '2.13.3';
-export const APP_VERSION_DATE = '01/09/2026 12:55';
+export const APP_VERSION = '2.14.0';
+export const VERSION = '2.14.0';
+export const APP_VERSION_DATE = '01/09/2026 13:52';
 export const CHANGELOG = [
+  '## [V2.14.0] - 01/09/2026 13:52',
+  '### Correções em lote + ajustes de economia e batalha idle',
+  '- **Fix crítico (PC)**: Corrigida a tela do PC que quebrava o jogo — a lista usava a API antiga do react-window (v1); migrada para a API v2 (`rowComponent`/`rowProps`). Pokémon enviados ao PC voltam a ser exibidos normalmente.',
+  '- **Fix (Raid/Alpha)**: Pokémon capturados em raid (incluindo Alpha) vinham SEM golpes — usava `pokedexEntry.moves` (inexistente). Agora os golpes são derivados do learnset pelo nível.',
+  '- **Fix (Save)**: Sanitizador de save remove formas regionais inválidas de Pokémon antigos (ex.: Rattata de Kanto com sprite de Alola), sem apagar o Pokémon.',
+  '- **Fix (Offline)**: O progresso offline agora respeita o level cap da região/ginásios (espelha o online), em vez de subir até o nível 100.',
+  '- **Alpha visual**: A aura vermelha do Alpha agora aparece no card (time/PC/detalhe) e na batalha, com símbolo α ao lado do nome, e é mantida em toda a linha de evolução.',
+  '- **Economia**: Pokébolas mais baratas na Mart (Poké 1200→400, Great 4200→1500, Ultra 9500→4000) e +200% de moedas ao derrotar selvagens (×0.15→×0.45), facilitando o farm de candies/evolução.',
+  '- **Batalha idle**: Área de batalha +50% na vertical e sprites de Pokémon proporcionalmente maiores; removida a barra de itens (captura/cura/aliment./buffs) — captura é automática.',
+  '- **Modal de Nova Receita**: adicionados botão "Fechar" e opção "Não mostrar mais" (não exibe mais nenhum modal de receita nova); caixa menor.',
+  '',
   '## [V2.13.3] - 01/09/2026 12:55',
   '### Tela inicial: Pokémon aleatório e reorganização dos botões',
   '- **Novo**: A tela inicial (menu pós-login) agora exibe um Pokémon aleatório (dex 1–1025) que muda a cada vez que a tela abre, no lugar do Snorlax fixo (com Snorlax como fallback).',

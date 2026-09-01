@@ -204,7 +204,6 @@ const BattleScreen = ({
   const [selectedMove, setSelectedMove] = useState(null);
   const [showAutoConfig, setShowAutoConfig] = useState(false);
   const [shinyFlash, setShinyFlash] = useState(false);
-  const [itemCategory, setItemCategory] = useState('capture');
   const animLayerRef = useRef(null);
   const playerSpriteRef = useRef(null);
   const enemySpriteRef = useRef(null);
@@ -386,7 +385,7 @@ const BattleScreen = ({
 
       <ActiveEffectsBar activeEffects={gameState.activeEffects} />
       
-      <div className="relative overflow-hidden rounded-2xl shadow-xl flex-shrink-0" style={{ height: 220 }}>
+      <div className="relative overflow-hidden rounded-2xl shadow-xl flex-shrink-0" style={{ height: 330 }}>
 
         <div
           className="absolute inset-0"
@@ -547,7 +546,7 @@ const BattleScreen = ({
         )}
 
         {/* SPRITE INIMIGO - Quadrante Superior Direito */}
-        <div ref={enemySpriteRef} className="absolute top-12 right-10 z-10 w-24 h-24 flex items-center justify-center">
+        <div ref={enemySpriteRef} className="absolute top-12 right-10 z-10 w-36 h-36 flex items-center justify-center">
           {statReactions.filter(r => r.target === 'enemy').map(r => (
             <div key={r.id} className={`absolute z-30 stat-arrow-${r.change}`}>
               {r.change === 'up' ? '▲' : '▼'}
@@ -658,7 +657,7 @@ const BattleScreen = ({
         </div>
 
         {/* SPRITE JOGADOR - Quadrante Inferior Esquerdo */}
-        <div ref={playerSpriteRef} className="absolute bottom-2 left-6 z-10 w-24 h-24 flex items-center justify-center">
+        <div ref={playerSpriteRef} className="absolute bottom-2 left-6 z-10 w-36 h-36 flex items-center justify-center">
           {statReactions.filter(r => r.target === 'player').map(r => (
             <div key={r.id} className={`absolute z-30 stat-arrow-${r.change}`}>
               {r.change === 'up' ? '▲' : '▼'}
@@ -706,7 +705,7 @@ const BattleScreen = ({
                     target.src = getPokemonSpriteUrl(activePoke);
                   }
                 }}
-                className={`w-full h-full object-contain drop-shadow-xl ${activePoke.isShiny ? 'drop-shadow-[0_0_10px_rgba(234,179,8,0.9)]' : ''} ${activePoke.isMega ? 'drop-shadow-[0_0_14px_rgba(124,58,237,0.7)]' : ''}`}
+                className={`w-full h-full object-contain drop-shadow-xl ${activePoke.isShiny ? 'drop-shadow-[0_0_10px_rgba(234,179,8,0.9)]' : ''} ${activePoke.isMega ? 'drop-shadow-[0_0_14px_rgba(124,58,237,0.7)]' : ''} ${activePoke.isAlpha ? 'drop-shadow-[0_0_16px_rgba(239,68,68,0.9)]' : ''}`}
                 alt="Player"
               />
             </div>
@@ -717,61 +716,8 @@ const BattleScreen = ({
         <MoveAnimationLayer ref={animLayerRef} />
       </div>
 
-      {/* ── ITENS CATEGORIAS ── */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-3 py-2.5 flex-shrink-0">
-        <div className="flex gap-1.5 mb-2.5">
-          {[
-            { key: 'capture', label: 'Captura', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png' },
-            { key: 'heal', label: 'Cura', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png' },
-            { key: 'food', label: 'Aliment.', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moomoo-milk.png' },
-            { key: 'buff', label: 'Buffs', icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png' },
-          ].map(cat => (
-            <button key={cat.key} onClick={() => setItemCategory(cat.key)}
-              className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-xl border-2 transition-all ${itemCategory === cat.key ? 'border-pokeBlue bg-blue-50' : 'border-slate-100 bg-slate-50'}`}>
-              <img src={cat.icon} className="w-7 h-7 object-contain" alt={cat.label} />
-              <span className="text-[9px] font-black uppercase text-slate-600">{cat.label}</span>
-            </button>
-          ))}
-        </div>
-        <div className="flex gap-2 overflow-x-auto pb-1 custom-scrollbar">
-          {[
-            { key: 'capture', items: [
-              { id: 'pokeballs',  img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',  label: 'Pokébola', src: 'items' },
-              { id: 'great_ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png', label: 'Great',    src: 'items' },
-              { id: 'ultra_ball', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png', label: 'Ultra',    src: 'items' },
-            ]},
-            { key: 'heal', items: [
-              { id: 'potions',      img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png',       label: 'Poção',  src: 'items' },
-              { id: 'super_potion', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-potion.png', label: 'Super',  src: 'items' },
-              { id: 'revive',       img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png',       label: 'Reviver',src: 'items' },
-            ]},
-            { key: 'food', items: [
-              { id: 'moomoo_milk',  img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moomoo-milk.png',  label: 'MooMoo', src: 'items' },
-              { id: 'lemonade',     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lemonade.png',     label: 'Limo.',  src: 'items' },
-              { id: 'soda_pop',     img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/soda-pop.png',     label: 'Soda',   src: 'items' },
-              { id: 'fresh_water',  img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fresh-water.png',  label: 'Água',   src: 'items' },
-              { id: 'oran_berry',   img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png',   label: 'Oran',   src: 'materials' },
-              { id: 'sitrus_berry', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sitrus-berry.png', label: 'Sitrus', src: 'materials' },
-            ]},
-            { key: 'buff', items: [
-              { id: 'x_attack',  img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png', label: 'X-Atk', src: 'items' },
-              { id: 'x_defense', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-defense.png', label: 'X-Def', src: 'items' },
-              { id: 'x_speed',   img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-speed.png',  label: 'X-Spd', src: 'items' },
-              { id: 'dire_hit',  img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dire-hit.png', label: 'Crítico',src: 'items' },
-            ]},
-          ].find(c => c.key === itemCategory)?.items.map(item => {
-            const qty = (gameState.inventory?.[item.src] || {})[item.id] || 0;
-            return (
-              <button key={item.id} disabled={qty <= 0} onClick={() => onUseItem && onUseItem(item.id, item.src)}
-                className={`flex flex-col items-center gap-1 flex-1 min-w-[64px] py-2 rounded-xl border-2 transition-all active:scale-95 ${qty <= 0 ? 'opacity-30 grayscale border-slate-100 bg-slate-50' : 'border-slate-200 bg-white hover:border-pokeBlue hover:bg-blue-50'}`}>
-                <img src={item.img} alt={item.label} className="w-9 h-9 object-contain drop-shadow-sm" />
-                <span className="text-[11px] font-black text-slate-700">{qty}</span>
-                <span className="text-[8px] font-bold text-slate-400 uppercase">{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {/* Barra de itens (captura/cura/aliment./buffs) removida — jogo idle:
+          captura é automática (auto-capture) e não há uso manual de itens em batalha. */}
 
       {/*    GOLPES    */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-3 py-2.5 flex-shrink-0">

@@ -2,6 +2,34 @@ import { DEFAULT_GAME_STATE } from '../data/constants';
 import { REGION_BADGE_IDS, REGION_CHAMPION_FLAGS, REGION_ORDER, REGION_START_FLAGS } from '../data/regionStandards';
 import { getEarnedBadgeIds } from './progress';
 import { POKEDEX } from '../data/pokedex';
+import { RAID_POKEMON_POOL, RAID_EVENT_POOL } from '../data/raids';
+import { SHOWDOWN_FORM_KEYS, POKEMON_FORM_SPRITE_IDS } from './pokemonSprites';
+
+// Conjunto de formKeys que o jogo LEGITIMAMENTE gera hoje: pools de raid (todas
+// as regiões), eventos, sprites Showdown (GMax/eventos) e todas as formas Hisui
+// (capturas regionais de rota). Qualquer formKey fora disso é considerado lixo
+// de saves antigos (ex.: 'rattata-alola', que não existe em nenhum spawn atual).
+const VALID_FORM_KEYS = (() => {
+  const set = new Set();
+  Object.values(RAID_POKEMON_POOL || {}).forEach(list => {
+    (list || []).forEach(e => { if (e && e.formKey) set.add(e.formKey); });
+  });
+  (RAID_EVENT_POOL || []).forEach(e => { if (e && e.formKey) set.add(e.formKey); });
+  (SHOWDOWN_FORM_KEYS || []).forEach(k => set.add(k));
+  Object.keys(POKEMON_FORM_SPRITE_IDS || {}).forEach(k => { if (k.endsWith('-hisui')) set.add(k); });
+  return set;
+})();
+
+// Remove formKey/formSpriteId inválidos de um Pokémon salvo. Corrige dados
+// antigos onde uma forma base recebeu indevidamente uma variante regional
+// (ex.: Rattata de Kanto com sprite de Alola). Não apaga o Pokémon nem stats.
+const sanitizePokemonForm = (poke) => {
+  if (!poke || typeof poke !== 'object') return poke;
+  if (!poke.formKey && !poke.formSpriteId) return poke; // sem forma → nada a fazer
+  if (poke.formKey && VALID_FORM_KEYS.has(poke.formKey)) return poke; // forma legítima
+  const { formKey, formSpriteId, ...rest } = poke;
+  return rest;
+};
 
 // Garante que todo Pokémon salvo tenha o array `types` populado via Pokédex.
 // Sempre sobrescreve a partir do Pokédex — corrige casos onde evolution copiou apenas o tipo primário.
@@ -16,6 +44,9 @@ const fixPokemonTypes = (poke) => {
   if (Array.isArray(poke.types) && poke.types.length === types.length && poke.types.every((t, i) => t === types[i])) return poke;
   return { ...poke, types };
 };
+
+// Normaliza um Pokémon salvo: corrige tipos + remove forma regional inválida.
+const cleanPoke = (poke) => sanitizePokemonForm(fixPokemonTypes(poke));
 
 const asArray = (value) => Array.isArray(value) ? value : [];
 
@@ -129,13 +160,13 @@ export const migrateGameState = (savedState = {}, options = {}) => {
     ...DEFAULT_GAME_STATE,
     ...loaded,
     version: options.version || loaded.version || DEFAULT_GAME_STATE.version,
-    team: (asArray(loaded.team).length ? loaded.team : DEFAULT_GAME_STATE.team).map(fixPokemonTypes),
-    pc: asArray(loaded.pc).map(fixPokemonTypes),
+    team: (asArray(loaded.team).length ? loaded.team : DEFAULT_GAME_STATE.team).map(cleanPoke),
+    pc: asArray(loaded.pc).map(cleanPoke),
     badges,
     worldFlags,
     inventory: mergeInventory(loaded.inventory || {}),
-    regional_teams: Object.fromEntries(Object.entries(mergeRegionalLists(loaded.regional_teams, loaded.regionalTeams)).map(([k, v]) => [k, asArray(v).map(fixPokemonTypes)])),
-    regional_pc: Object.fromEntries(Object.entries(mergeRegionalLists(loaded.regional_pc, loaded.regionalPc)).map(([k, v]) => [k, asArray(v).map(fixPokemonTypes)])),
+    regional_teams: Object.fromEntries(Object.entries(mergeRegionalLists(loaded.regional_teams, loaded.regionalTeams)).map(([k, v]) => [k, asArray(v).map(cleanPoke)])),
+    regional_pc: Object.fromEntries(Object.entries(mergeRegionalLists(loaded.regional_pc, loaded.regionalPc)).map(([k, v]) => [k, asArray(v).map(cleanPoke)])),
     stages: loaded.stages || DEFAULT_GAME_STATE.stages,
     caughtData: loaded.caughtData || DEFAULT_GAME_STATE.caughtData,
     speciesMastery: loaded.speciesMastery || DEFAULT_GAME_STATE.speciesMastery,
@@ -145,7 +176,7 @@ export const migrateGameState = (savedState = {}, options = {}) => {
       ...DEFAULT_GAME_STATE.house,
       ...(loaded.house || {}),
       slots: asArray(loaded.house?.slots),
-      caretakers: asArray(loaded.house?.caretakers),
+      caretakers: asArray(loaded.house?.caretakers).map(cleanPoke),
     },
     prestige: {
       trophies: [],

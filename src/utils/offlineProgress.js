@@ -1,5 +1,16 @@
 import { POKEDEX } from '../data/pokedex';
 import { getCaptureRate, getPokemonRarity } from './pokemonDifficulty';
+import { GYM_LEVEL_CAPS } from '../data/constants';
+import { REGION_BADGE_IDS } from '../data/regionStandards';
+
+// Espelha getRegionLevelCap do AppRoot: teto de nível pela região + ginásios batidos.
+function getOfflineLevelCap(gameState) {
+  const region = gameState.activeRegion || 'kanto';
+  const badgeSet = new Set(gameState.badges || []);
+  const badgeCount = (REGION_BADGE_IDS[region] || []).filter(id => badgeSet.has(id)).length;
+  const caps = GYM_LEVEL_CAPS[region] || {};
+  return Object.values(caps)[badgeCount] || 100;
+}
 
 const TICK_MS = 2500;
 const MAX_OFFLINE_MS = 12 * 60 * 60 * 1000; // cap 12h
@@ -15,22 +26,29 @@ function calcBattleXP(enemy) {
 }
 
 function calcBattleCoins(enemy) {
-  return Math.max(1, Math.floor(enemy.level * 0.15));
+  return Math.max(1, Math.floor(enemy.level * 0.45));
 }
 
 /**
  * Simula level-ups a partir do XP acumulado offline.
  * Espelha o loop em AppRoot.jsx ~linha 4808.
  */
-function simulateLevelGain(currentLevel, currentXp, xpGained) {
+function simulateLevelGain(currentLevel, currentXp, xpGained, maxLevel = 100) {
   let level = currentLevel || 1;
   let xp = (currentXp || 0) + xpGained;
   const startLevel = level;
+  const cap = Math.min(100, maxLevel || 100);
 
-  while (level < 100) {
+  while (level < cap) {
     const xpNeeded = Math.pow(level + 1, 3) - Math.pow(level, 3);
     if (xp >= xpNeeded) { xp -= xpNeeded; level++; }
     else break;
+  }
+
+  // Atingiu o teto: não acumula XP além do próximo nível (espelha o online).
+  if (level >= cap) {
+    const xpToNext = Math.pow(cap + 1, 3) - Math.pow(cap, 3);
+    xp = Math.min(xp, Math.max(0, xpToNext - 1));
   }
 
   return { newLevel: level, newXp: xp, levelsGained: level - startLevel };
@@ -188,10 +206,14 @@ export function calculateOfflineProgress(gameState, routes, elapsedMs) {
     if (materials[key] <= 0) delete materials[key];
   }
 
+  // Teto de nível (região + ginásios), respeitando a configuração do jogador.
+  const levelCapEnabled = gameState.settings?.levelCap !== false;
+  const maxLevel = levelCapEnabled ? getOfflineLevelCap(gameState) : 100;
+
   // Calcula XP e level-ups por membro do time
   const teamProgress = (gameState.team || []).map((pokemon, idx) => {
     const xpGained = idx === 0 ? totalXP : Math.floor(totalXP * BENCH_XP_RATE);
-    const { newLevel, newXp, levelsGained } = simulateLevelGain(pokemon.level, pokemon.xp, xpGained);
+    const { newLevel, newXp, levelsGained } = simulateLevelGain(pokemon.level, pokemon.xp, xpGained, maxLevel);
     return {
       instanceId: pokemon.instanceId,
       name: pokemon.name,

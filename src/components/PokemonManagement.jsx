@@ -845,6 +845,7 @@ const PokemonManagement = ({
                 className={`bg-white p-4 rounded-3xl border-2 flex items-center gap-4 group cursor-grab active:cursor-grabbing hover:border-pokeBlue transition-all touch-none ${
                   dragTeamIndex === i ? 'border-pokeBlue shadow-lg scale-[0.98]' : 'border-slate-100'
                 }`}
+                style={p.isAlpha ? { boxShadow: '0 0 0 2px #ef4444, 0 0 16px rgba(239,68,68,0.45)' } : undefined}
               >
                 <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center relative">
                   <img
@@ -865,6 +866,9 @@ const PokemonManagement = ({
                     <div>
                       <h4 className="font-black uppercase text-slate-800 text-sm italic leading-none flex items-baseline gap-2">
                         <span>{p.name}</span>
+                        {p.isAlpha && (
+                          <span className="text-red-500 text-xs font-black not-italic" title="Alpha">α</span>
+                        )}
                         {p.isShiny && (
                           <span className="text-yellow-500 text-xs animate-pulse">
                             ✨{p.shinyCount > 1 ? ` x${p.shinyCount}` : ''}
@@ -944,8 +948,7 @@ const PokemonManagement = ({
                 const rowCount = Math.ceil(filtered.length / 2);
                 const worldFlags = gameState.worldFlags || [];
 
-                const PcRow = ({ index, style, data }) => {
-                  const { filtered, worldFlags, activeRegion, validateTeamAccess } = data;
+                const PcRow = ({ index, style, filtered, worldFlags, activeRegion, validateTeamAccess }) => {
                   const p1 = filtered[index * 2];
                   const p2 = filtered[index * 2 + 1];
 
@@ -962,6 +965,7 @@ const PokemonManagement = ({
                         className={`flex-1 bg-white p-3 rounded-2xl border-2 flex flex-col items-center gap-2 group relative cursor-pointer hover:border-pokeGold transition-all ${
                           !isLegal ? 'opacity-50 grayscale border-red-100' : 'border-slate-100'
                         }`}
+                        style={p.isAlpha ? { boxShadow: '0 0 0 2px #ef4444, 0 0 14px rgba(239,68,68,0.5)' } : undefined}
                       >
                          <img
                            src={getPokemonSpriteUrl(p)}
@@ -986,6 +990,9 @@ const PokemonManagement = ({
                          <div className="text-center">
                            <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none flex items-center justify-center gap-1">
                              {p.name}
+                             {p.isAlpha && (
+                               <span className="text-red-500 text-[9px] font-black not-italic" title="Alpha">α</span>
+                             )}
                              {p.isShiny && (
                                <span className="text-yellow-500 text-[8px]">
                                  ✨{p.shinyCount > 1 ? ` x${p.shinyCount}` : ''}
@@ -1027,14 +1034,12 @@ const PokemonManagement = ({
 
                 return (
                   <List
-                    height={600}
-                    itemCount={rowCount}
-                    itemSize={130}
-                    width="100%"
-                    itemData={{ filtered, worldFlags, activeRegion, validateTeamAccess }}
-                  >
-                    {PcRow}
-                  </List>
+                    style={{ height: '100%', width: '100%' }}
+                    rowCount={rowCount}
+                    rowHeight={130}
+                    rowComponent={PcRow}
+                    rowProps={{ filtered, worldFlags, activeRegion, validateTeamAccess }}
+                  />
                 );
               })()}
             </div>
@@ -1100,6 +1105,11 @@ const PokemonManagement = ({
                            <span className="text-[9px] font-black text-white uppercase tracking-widest">Shiny</span>
                          </div>
                        )}
+                       {poke.isAlpha && (
+                         <div className="bg-red-600 px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
+                           <span className="text-[9px] font-black text-white uppercase tracking-widest">α Alpha</span>
+                         </div>
+                       )}
                        {types.map(t => (
                          <div key={t} className={`${TYPE_BADGE[t] || 'bg-slate-500'} px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-md`}>
                            <img src={typeIconUrl(t)} className="w-3.5 h-3.5 invert" alt={t} onError={e => { e.target.style.display = 'none'; }} />
@@ -1109,7 +1119,7 @@ const PokemonManagement = ({
                      </div>
                      <img
                        src={getPokemonSpriteUrl(poke)}
-                       className={`absolute left-1/2 top-12 z-10 w-28 h-28 -translate-x-1/2 object-contain drop-shadow-2xl ${poke.isShiny ? 'drop-shadow-[0_0_20px_rgba(234,179,8,0.9)]' : ''}`}
+                       className={`absolute left-1/2 top-12 z-10 w-28 h-28 -translate-x-1/2 object-contain drop-shadow-2xl ${poke.isShiny ? 'drop-shadow-[0_0_20px_rgba(234,179,8,0.9)]' : ''} ${poke.isAlpha ? 'drop-shadow-[0_0_20px_rgba(239,68,68,0.9)]' : ''}`}
                         onError={e => {
                           if (poke.isMega && poke.megaSprite && !e.target.dataset.triedBase) {
                             e.target.dataset.triedBase = '1';
@@ -1205,6 +1215,7 @@ const PokemonManagement = ({
                   <div className="text-center mb-5">
                      <h3 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter leading-none flex items-center justify-center gap-2">
                        {activePokemonDetails.pokemon.name}
+                       {activePokemonDetails.pokemon.isAlpha && <span className="text-red-500 text-xl font-black" title="Alpha">α</span>}
                        {activePokemonDetails.pokemon.isShiny && <span className="text-yellow-500 text-xl animate-pulse">⭐</span>}
                      </h3>
                      <div className="flex items-center justify-center gap-2 mt-2">
