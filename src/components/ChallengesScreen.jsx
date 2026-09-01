@@ -2812,8 +2812,8 @@ const CHALLENGES = [
 ];
 
 const CATEGORY_CONFIG = {
-  rival:     { label: 'Rival',         color: '#2563eb', emoji: 'VS'  },
   rocket:    { label: 'Viloes',        color: '#dc2626', emoji: 'R'   },
+  rival:     { label: 'Rival',         color: '#2563eb', emoji: 'VS'  },
   johto:     { label: 'Lideres',       color: '#059669', emoji: 'GYM' },
   hoenn:     { label: 'Hoenn GYM',     color: '#10b981', emoji: 'H'   },
   sinnoh:    { label: 'Sinnoh GYM',    color: '#38bdf8', emoji: 'S'   },
@@ -2949,7 +2949,7 @@ const ChallengesScreen = ({
   const unlockedRegionIds = getUnlockedRegions(gameState);
   const availableRegions = unlockedRegionIds.map(id => ({ id, label: REGION_LABELS[id] || id }));
   const [challengeRegion, setChallengeRegion] = React.useState(forcedRegion || 'kanto');
-  const [selectedCategory, setSelectedCategory] = React.useState(initialCategory || (filterCategories ? filterCategories[0] : 'rival'));
+  const [selectedCategory, setSelectedCategory] = React.useState(initialCategory || (filterCategories ? filterCategories[0] : 'rocket'));
   const [alertMessage, setAlertMessage] = React.useState(null);
 
   React.useEffect(() => {

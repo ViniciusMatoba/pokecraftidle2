@@ -1,4 +1,4 @@
-﻿import { hasProgressRequirement } from '../utils/progress';
+import { hasProgressRequirement } from '../utils/progress';
 
 // ── UTILITIES ──────────────────────────────────────────────────
 export const isRouteUnlocked = (route, gameState) => {
@@ -662,8 +662,63 @@ const keepRouteTrainersAboveWild = (route) => {
 };
 
 const ROUTE_VS_REQUIREMENT_GATES = {
-  unova_route_2: ['unova_rival_1_defeated'],
-  unova_route_3: ['unova_villain_1_cleared', 'trio_badge'],
+  // Kanto
+  route_2: ['viridian_forest_cleared'],
+  route_3: ['boulder_badge'],
+  route_24: ['rocket_hideout_cleared', 'rival_1_defeated'],
+  route_5: ['cascade_badge'],
+  route_6: ['thunder_badge'],
+  route_9: ['rocket_hideout_cleared'],
+  route_13: ['rainbow_badge'],
+  route_16: ['soul_badge'],
+  route_19_20: ['marsh_badge'],
+  route_21: ['volcano_badge'],
+  route_22: ['earth_badge'],
+  victory_road_kanto: ['earth_badge'],
+
+  // Johto
+  johto_route_30_31: ['johto_started'],
+  johto_route_32: ['johto_rocket_radio_cleared'],
+  johto_route_33: ['johto_rival_1_defeated'],
+  johto_route_34: ['zephyr_badge'],
+  johto_route_35: ['hive_badge'],
+  johto_route_36_37: ['plain_badge'],
+  johto_route_38_39: ['fog_badge'],
+  johto_route_40_41: ['storm_badge'],
+  johto_route_42: ['mineral_badge'],
+  johto_route_43: ['glacier_badge'],
+  johto_route_44: ['rising_badge'],
+  victory_road_johto: ['rising_badge'],
+
+  // Hoenn
+  hoenn_route_102: ['hoenn_started'],
+  hoenn_route_104: ['hoenn_villain_1_cleared'],
+  hoenn_route_116: ['hoenn_rival_route_103_defeated'],
+  hoenn_route_105_106: ['stone_badge'],
+  hoenn_route_110: ['knuckle_badge'],
+  hoenn_route_111: ['dynamo_badge'],
+  hoenn_route_113: ['heat_badge'],
+  hoenn_route_118_119: ['balance_badge'],
+  hoenn_route_120: ['feather_badge'],
+  hoenn_route_121: ['mind_badge'],
+  victory_road_hoenn: ['rain_badge'],
+
+  // Sinnoh
+  sinnoh_route_202: ['sinnoh_started'],
+  sinnoh_route_203: ['sinnoh_galactic_eterna_cleared'],
+  sinnoh_route_204: ['sinnoh_rival_jubilife_defeated'],
+  sinnoh_route_205: ['coal_badge'],
+  sinnoh_route_206: ['forest_badge'],
+  sinnoh_route_208: ['cobble_badge'],
+  sinnoh_route_209: ['fen_badge'],
+  sinnoh_route_210_south: ['relic_badge'],
+  sinnoh_route_215: ['mine_badge'],
+  sinnoh_route_216_217: ['icicle_badge'],
+  victory_road_sinnoh: ['beacon_badge'],
+
+  // Unova
+  unova_route_2: ['unova_villain_1_cleared', 'unova_rival_1_defeated'],
+  unova_route_3: ['trio_badge'],
   unova_pinwheel_forest: ['basic_badge'],
   unova_route_4: ['unova_villain_2_cleared', 'insect_badge'],
   unova_chargestone_cave: ['unova_villain_3_cleared', 'bolt_badge'],
@@ -671,7 +726,8 @@ const ROUTE_VS_REQUIREMENT_GATES = {
   unova_route_9: ['unova_rival_6_defeated', 'freeze_badge'],
   unova_victory_road: ['unova_villain_boss_cleared', 'legend_badge'],
 
-  kalos_route_4: ['kalos_rival_1_defeated', 'bug_badge'],
+  // Kalos
+  kalos_route_4: ['kalos_villain_1_cleared', 'kalos_rival_1_defeated', 'bug_badge'],
   kalos_glittering_cave: ['kalos_villain_2_cleared', 'cliff_badge'],
   kalos_reflection_cave: ['kalos_rival_3_defeated', 'rumble_badge'],
   kalos_azure_bay: ['kalos_villain_3_cleared', 'plant_badge'],
@@ -679,7 +735,8 @@ const ROUTE_VS_REQUIREMENT_GATES = {
   kalos_route_17: ['kalos_rival_6_defeated', 'psychic_badge'],
   kalos_victory_road: ['kalos_villain_boss_cleared', 'iceberg_badge'],
 
-  alola_verdant_cavern: ['alola_villain_1_cleared', 'melemele_stamp'],
+  // Alola
+  alola_verdant_cavern: ['alola_villain_1_cleared', 'alola_rival_1_defeated', 'melemele_stamp'],
   alola_akala_island: ['alola_villain_2_cleared'],
   alola_wela_volcano: ['alola_rival_3_defeated', 'akala_stamp'],
   alola_aether_paradise: ['alola_villain_4_cleared', 'ulaula_stamp'],
@@ -687,13 +744,15 @@ const ROUTE_VS_REQUIREMENT_GATES = {
   alola_vast_poni_canyon: ['alola_rival_6_defeated', 'alola_champion_stamp'],
   alola_mount_lanakila: ['alola_villain_6_cleared', 'ultra_stamp'],
 
-  galar_wild_area_south: ['galar_rival_1_defeated'],
-  galar_mine_1: ['galar_villain_1_cleared', 'grass_badge_galar'],
+  // Galar
+  galar_wild_area_south: ['galar_villain_1_cleared', 'galar_rival_1_defeated'],
+  galar_mine_1: ['grass_badge_galar'],
   galar_route_5: ['galar_villain_2_cleared', 'fire_badge_galar'],
   galar_glimwood_tangle: ['galar_rival_4_defeated', 'fairy_badge_galar'],
   galar_route_9: ['galar_villain_4_cleared', 'rock_badge_galar'],
   galar_victory_road: ['galar_villain_boss_cleared', 'dragon_badge_galar'],
 
+  // Hisui
   hisui_fieldlands_2: ['hisui_villain_1_cleared', 'fieldlands_stamp'],
   hisui_mirelands_1: ['hisui_villain_2_cleared', 'mirelands_stamp'],
   hisui_coastlands_1: ['hisui_villain_3_cleared', 'coastlands_stamp'],
@@ -701,8 +760,9 @@ const ROUTE_VS_REQUIREMENT_GATES = {
   hisui_icelands_1: ['hisui_villain_5_cleared', 'icelands_stamp'],
   hisui_sacred_plaza: ['hisui_villain_boss_cleared', 'volo_stamp'],
 
-  paldea_south_province: ['paldea_rival_1_defeated', 'bug_badge_paldea'],
-  paldea_artazon: ['paldea_villain_1_cleared', 'grass_badge_paldea'],
+  // Paldea
+  paldea_south_province: ['paldea_villain_1_cleared', 'paldea_rival_1_defeated', 'bug_badge_paldea'],
+  paldea_artazon: ['grass_badge_paldea'],
   paldea_asado_desert: ['paldea_villain_2_cleared', 'electric_badge_paldea'],
   paldea_medali: ['paldea_titan_greattusk_cleared', 'water_badge_paldea'],
   paldea_glaseado_mountain: ['paldea_villain_boss_cleared', 'ghost_badge_paldea'],

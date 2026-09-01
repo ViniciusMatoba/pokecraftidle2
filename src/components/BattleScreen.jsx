@@ -501,11 +501,12 @@ const BattleScreen = ({
         }}>
           <p style={{
             fontSize: '11px', fontWeight: 900,
-            textTransform: 'uppercase', color: '#1e293b',
+            textTransform: 'uppercase', color: currentEnemy?.isSuperBoss ? '#f59e0b' : '#1e293b',
             overflow: 'hidden', textOverflow: 'ellipsis',
             whiteSpace: 'nowrap', marginBottom: '2px',
           }}>
-            {currentEnemy?.pokemonName || currentEnemy?.name} {currentEnemy?.isShiny && '✨'} <span style={{fontWeight:500, fontSize:'10px'}}>Nv.{currentEnemy?.level}{currentEnemy?.isWildBoss && ' 💀'}</span>
+            {currentEnemy?.isSuperBoss && '👑 '}
+            {currentEnemy?.pokemonName || currentEnemy?.name} {currentEnemy?.isShiny && '✨'} <span style={{fontWeight:500, fontSize:'10px'}}>Nv.{currentEnemy?.level}{currentEnemy?.isWildBoss && ' 💀'}{currentEnemy?.isSuperBoss && ' ⭐'}</span>
           </p>
           {/* Barra HP */}
           <div style={{marginBottom:'2px'}}>

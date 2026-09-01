@@ -3238,6 +3238,9 @@ export default function App() {
         isShiny: false, status: [],
         stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
         isTrainer: true,
+        isSuperBoss: trainer.isSuperBoss || false,
+        superBossTitle: trainer.superBossTitle || null,
+        rewardMult: trainer.rewardMult || (trainer.isSuperBoss ? 3.5 : 1),
         trainerName: trainer.name,
         trainerSprite: trainer.sprite,
         trainerReward: trainer.reward || 100,
@@ -3249,7 +3252,11 @@ export default function App() {
       });
       setBattleLog([]);
       isProcessingVictory.current = false;
-      addLog(`⚔️ ${trainer.name} quer batalhar!`, 'system');
+      if (trainer.isSuperBoss) {
+        addLog(`👑 SUPER CHEFE DE ROTA: ${trainer.name} quer batalhar!`, 'system');
+      } else {
+        addLog(`⚔️ ${trainer.name} quer batalhar!`, 'system');
+      }
       return;
     }
 

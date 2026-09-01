@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.16.3';
-export const VERSION = '2.16.3';
-export const APP_VERSION_DATE = '01/09/2026 15:13';
+export const APP_VERSION = '2.17.0';
+export const VERSION = '2.17.0';
+export const APP_VERSION_DATE = '01/09/2026 15:26';
 export const CHANGELOG = [
+  '## [V2.17.0] - 01/09/2026 15:26',
+  '### MODO VS Sequencial Estrito + Treinadores Regionais & Super Chefes',
+  '- **Sequência Estrita MODO VS**: A progressão e o atalho da jornada agora exigem obrigatoriamente a ordem de dificuldade: Equipe Vilã → Rival → Ginásio.',
+  '- **Cards Reordenados**: Na aba de Desafios, os cards da Equipe Vilã aparecem no topo seguidos pelo Rival, e cada etapa requer a vitória da etapa anterior.',
+  '- **Treinadores Temáticos por Região**: Treinadores aleatórios de rota mapeados com nomes e sprites característicos das 9 regiões (Kanto a Paldea).',
+  '- **Super Chefes de Rota Pré-Ginásio**: Nas rotas anteriores aos ginásios, adicionados spawns raros de Super Chefes de Rota (👑) com equipes reforçadas e recompensas massivas (+250% moedas e drops).',
+  '',
   '## [V2.16.3] - 01/09/2026 15:13',
   '### Correção definitiva do sprite de Rattata (Kanto vs Alola)',
   '- **Higienização completa**: limpa todas as propriedades residuais discrepantes (`spriteId: 10091`, `pokemonId`, `spriteUrl`, `formRegion`) que forçavam o sprite de Alola em Rattatas comuns de Kanto.',
