@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.16.0';
-export const VERSION = '2.16.0';
-export const APP_VERSION_DATE = '01/09/2026 14:21';
+export const APP_VERSION = '2.16.1';
+export const VERSION = '2.16.1';
+export const APP_VERSION_DATE = '01/09/2026 14:29';
 export const CHANGELOG = [
+  '## [V2.16.1] - 01/09/2026 14:29',
+  '### Contador de Pokébolas na batalha',
+  '- **Novo**: Abaixo dos ataques, a batalha agora mostra a quantidade de Pokébolas (Poké/Great/Ultra) que você tem.',
+  '- **Aviso de estoque zerado**: quando acabam todas as Pokébolas, aparece um aviso com botões que levam direto ao Poké Mart ou à Forja para conseguir mais.',
+  '',
   '## [V2.16.0] - 01/09/2026 14:21',
   '### Correção definitiva das formas regionais inválidas (Rattata-Alola)',
   '- **Rede de segurança na captura**: formas regionais inválidas (ex.: Rattata de Kanto marcado como Alola) agora são removidas também no momento da captura, não só ao carregar o save — garante sprites corretos mesmo em capturas novas.',

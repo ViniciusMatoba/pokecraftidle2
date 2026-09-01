@@ -196,6 +196,7 @@ const BattleScreen = ({
   timeOfDay, showAutoConfigExternal = false, setShowAutoConfigExternal, bossTimer, currentLevelCap = 100,
   captureEvent, onCaptureDone,
   manualBattle = false, isManualActing = false, onManualAttack,
+  onGoToMart, onGoToForge,
 }) => {
   const activePoke = gameState.team?.[activeMemberIndex];
   const autoConfig = gameState.autoCaptureConfig || { autoCapture: false, autoPotion: false, hpThreshold: 30, staminaThreshold: 30, autoStamina: false };
@@ -857,6 +858,38 @@ const BattleScreen = ({
           })}
         </div>
       </div>
+
+      {/* Contador de Pokébolas — abaixo dos ataques */}
+      {(() => {
+        const items = gameState.inventory?.items || {};
+        const balls = [
+          { id: 'pokeballs',  label: 'Poké',  img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png' },
+          { id: 'great_ball', label: 'Great', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png' },
+          { id: 'ultra_ball', label: 'Ultra', img: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png' },
+        ];
+        const total = balls.reduce((s, b) => s + (items[b.id] || 0), 0);
+        return (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-3 py-2.5 flex-shrink-0">
+            <div className="flex items-center justify-around gap-2">
+              {balls.map(b => (
+                <div key={b.id} className="flex items-center gap-1.5" title={b.label}>
+                  <img src={b.img} className="w-6 h-6 object-contain" alt={b.label} />
+                  <span className={`text-sm font-black ${(items[b.id] || 0) <= 0 ? 'text-slate-300' : 'text-slate-700'}`}>{items[b.id] || 0}</span>
+                </div>
+              ))}
+            </div>
+            {total <= 0 && (
+              <div className="mt-2.5 rounded-xl bg-red-50 border border-red-200 p-2.5 animate-fadeIn">
+                <p className="text-[10px] font-black uppercase text-red-600 text-center mb-2">⚠️ Sem pokébolas! Consiga mais para capturar.</p>
+                <div className="flex gap-2">
+                  <button onClick={() => onGoToMart && onGoToMart()} className="flex-1 rounded-lg bg-blue-600 text-white py-2 text-[10px] font-black uppercase tracking-widest active:scale-95">🏪 Poké Mart</button>
+                  <button onClick={() => onGoToForge && onGoToForge()} className="flex-1 rounded-lg bg-amber-600 text-white py-2 text-[10px] font-black uppercase tracking-widest active:scale-95">🔨 Forja</button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {route?.keyBattles?.length > 0 && (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-3 py-2.5 flex-shrink-0 animate-fadeIn">

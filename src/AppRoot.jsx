@@ -9320,6 +9320,8 @@ export default function App() {
             fixPath={fixPath}
             TYPE_COLORS={TYPE_COLORS}
             onGoToCity={handleGoToCity}
+            onGoToMart={() => { setActiveBuildingModal('mart'); handleGoToCity(); }}
+            onGoToForge={() => setCurrentView('forge_screen')}
                 bossTimer={bossTimer}
                 currentLevelCap={getRegionLevelCap(gameState.badges, gameState.activeRegion || 'kanto')}
                 onChallengeBoss={(battle) => {
