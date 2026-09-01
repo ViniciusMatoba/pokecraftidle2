@@ -1934,13 +1934,23 @@ export default function App() {
           processed.capturedRegion = p.capturedRegion || 'kanto';
         }
       }
-      return processed;
+      return sanitizePokemonForm(processed);
     };
+
+    const sanitizedRegional = {};
+    if (prev.regional_teams && typeof prev.regional_teams === 'object') {
+      Object.keys(prev.regional_teams).forEach(reg => {
+        if (Array.isArray(prev.regional_teams[reg])) {
+          sanitizedRegional[reg] = prev.regional_teams[reg].map(sanitize);
+        }
+      });
+    }
 
     return { 
       ...prev, 
       team: (prev.team || []).map(sanitize), 
-      pc: (prev.pc || []).map(sanitize) 
+      pc: (prev.pc || []).map(sanitize),
+      regional_teams: Object.keys(sanitizedRegional).length > 0 ? { ...prev.regional_teams, ...sanitizedRegional } : prev.regional_teams,
     };
   }, []);
 
@@ -5437,7 +5447,7 @@ export default function App() {
         const findAndReplace = (list) => ({
           newList: list.map(p => {
             if (Number(p.id) === Number(capturedEnemy.id) && ((p.formKey || null) === (capturedEnemy.formKey || null))) {
-              let updatedP = { ...p };
+              let updatedP = sanitizePokemonForm({ ...p });
               const rolledNature = NATURE_LIST[Math.floor(Math.random() * NATURE_LIST.length)];
               updatedP.unlockedNatures = updatedP.unlockedNatures || [updatedP.equippedNature || 'Hardy'];
               if (!updatedP.unlockedNatures.includes(rolledNature)) {

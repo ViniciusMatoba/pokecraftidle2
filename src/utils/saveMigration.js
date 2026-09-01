@@ -26,10 +26,37 @@ const VALID_FORM_KEYS = (() => {
 // Exportado para uso também no momento da captura (rede de segurança).
 export const sanitizePokemonForm = (poke) => {
   if (!poke || typeof poke !== 'object') return poke;
-  if (!poke.formKey && !poke.formSpriteId) return poke; // sem forma → nada a fazer
-  if (poke.formKey && VALID_FORM_KEYS.has(poke.formKey)) return poke; // forma legítima
-  const { formKey, formSpriteId, ...rest } = poke;
-  return rest;
+  const id = Number(poke.id);
+
+  // Forma regional / de evento legítima (ex.: raichu-alola de Raid, growlithe-hisui de rota, etc.)
+  if (poke.formKey && VALID_FORM_KEYS.has(poke.formKey)) return poke;
+
+  const hasInvalidFormKey = Boolean(poke.formKey);
+  const hasFormSpriteId = Boolean(poke.formSpriteId);
+  const hasFormRegion = Boolean(poke.formRegion && poke.formRegion !== 'kanto' && !poke.formKey);
+  const hasDiscrepantSpriteId = Boolean(poke.spriteId && Number(poke.spriteId) !== id);
+  const hasDiscrepantPokemonId = Boolean(poke.pokemonId && Number(poke.pokemonId) !== id);
+  const hasSpriteOverride = Boolean(poke.spriteUrl || poke.sprite);
+
+  if (!hasInvalidFormKey && !hasFormSpriteId && !hasFormRegion && !hasDiscrepantSpriteId && !hasDiscrepantPokemonId && !hasSpriteOverride) {
+    return poke;
+  }
+
+  const cleaned = { ...poke };
+  delete cleaned.formKey;
+  delete cleaned.formSpriteId;
+  delete cleaned.spriteUrl;
+  delete cleaned.sprite;
+  delete cleaned.formRegion;
+
+  if (cleaned.spriteId && Number(cleaned.spriteId) !== id) {
+    delete cleaned.spriteId;
+  }
+  if (cleaned.pokemonId && Number(cleaned.pokemonId) !== id) {
+    cleaned.pokemonId = id;
+  }
+
+  return cleaned;
 };
 
 // Garante que todo Pokémon salvo tenha o array `types` populado via Pokédex.

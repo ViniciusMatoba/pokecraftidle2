@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.16.2';
-export const VERSION = '2.16.2';
-export const APP_VERSION_DATE = '01/09/2026 14:40';
+export const APP_VERSION = '2.16.3';
+export const VERSION = '2.16.3';
+export const APP_VERSION_DATE = '01/09/2026 15:13';
 export const CHANGELOG = [
+  '## [V2.16.3] - 01/09/2026 15:13',
+  '### Correção definitiva do sprite de Rattata (Kanto vs Alola)',
+  '- **Higienização completa**: limpa todas as propriedades residuais discrepantes (`spriteId: 10091`, `pokemonId`, `spriteUrl`, `formRegion`) que forçavam o sprite de Alola em Rattatas comuns de Kanto.',
+  '- **Saneamento contínuo**: adicionado suporte à sanitização de formas em tempo real para o time ativo, caixas do PC e times regionais (`regional_teams`).',
+  '',
   '## [V2.16.2] - 01/09/2026 14:29',
   '### Contador de Pokébolas reposicionado',
   '- Movido o contador de Pokébolas (Poké/Great/Ultra) para logo abaixo da área de batalha, em vez de ficar abaixo da seção do time.',

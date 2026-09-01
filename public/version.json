@@ -1,5 +1,5 @@
 {
-  "version": "2.11.1",
-  "date": "23/05/2026 14:04",
-  "notes": "Segurança, Sincronização Otimizada, CI/CD e Beta Testing"
+  "version": "2.16.3",
+  "date": "01/09/2026 15:13",
+  "notes": "Correção definitiva do sprite de Rattata de Kanto (reverte sprites residuais de Alola)"
 }
