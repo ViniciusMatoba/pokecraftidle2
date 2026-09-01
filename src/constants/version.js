@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.13.2';
-export const VERSION = '2.13.2';
-export const APP_VERSION_DATE = '01/09/2026 12:43';
+export const APP_VERSION = '2.13.3';
+export const VERSION = '2.13.3';
+export const APP_VERSION_DATE = '01/09/2026 12:55';
 export const CHANGELOG = [
+  '## [V2.13.3] - 01/09/2026 12:55',
+  '### Tela inicial: Pokémon aleatório e reorganização dos botões',
+  '- **Novo**: A tela inicial (menu pós-login) agora exibe um Pokémon aleatório (dex 1–1025) que muda a cada vez que a tela abre, no lugar do Snorlax fixo (com Snorlax como fallback).',
+  '- **Reorganização**: Nova ordem dos botões — Jornada (grande) › Instalar App › Ranking Global › Reiniciar Jornada › Sair da Conta › Histórico de Atualizações.',
+  '- **Tamanhos**: Reiniciar Jornada passou a médio; Histórico de Atualizações virou o menor botão, posicionado no rodapé abaixo de Sair da Conta.',
+  '',
   '## [V2.13.2] - 01/09/2026 12:43',
   '### Correção: evolução de Pokémon no PC',
   '- **Bug corrigido**: Evoluir um Pokémon que está no PC (não no time) não aplicava a evolução — a forma continuava a base, embora a Pokédex marcasse a espécie. Agora a conclusão da evolução trata corretamente o slot do PC (`pcIndex`), com os mesmos cálculos de stats/moves do time.',

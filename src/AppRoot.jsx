@@ -1114,6 +1114,8 @@ export default function App() {
   const completedMissionIdsRef = useRef(new Set());
 
   const [activeMaterialModal, setActiveMaterialModal] = useState(null);
+  // Pokémon aleatório exibido na tela de landing — re-sorteado a cada vez que a tela abre.
+  const [landingPokemonId, setLandingPokemonId] = useState(() => Math.floor(Math.random() * 1025) + 1);
   const [evolutionPending, setEvolutionPending] = useState(null);
   const [megaEvolutionPending, setMegaEvolutionPending] = useState(false); // abre tela de Mega Evolução
   const [safariSession, setSafariSession] = useState(null); // { ballsLeft } quando dentro da Safari Zone
@@ -1222,6 +1224,13 @@ export default function App() {
       return () => clearTimeout(timer);
     }
   }, [masteryNotification]);
+
+  // Sorteia um novo Pokémon aleatório toda vez que a tela de landing é aberta.
+  useEffect(() => {
+    if (currentView === 'landing') {
+      setLandingPokemonId(Math.floor(Math.random() * 1025) + 1);
+    }
+  }, [currentView]);
 
   const isProcessingVictory = useRef(false);
   const isProcessingTurn = useRef(false);
@@ -7707,7 +7716,17 @@ export default function App() {
                       IDLE
                     </h2>
                   </div>
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/143.png" className="w-24 h-24 mt-2 animate-float-slow drop-shadow-xl" alt="Snorlax" />
+                  <img
+                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${landingPokemonId}.png`}
+                    onError={(e) => {
+                      if (!e.target.dataset.fallback) {
+                        e.target.dataset.fallback = '1';
+                        e.target.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/143.png';
+                      }
+                    }}
+                    className="w-24 h-24 mt-2 animate-float-slow drop-shadow-xl"
+                    alt={`Pokémon #${landingPokemonId}`}
+                  />
                 </div>
                 
                 {/* ⛔ PROTECTED: Botões Landing — NÃO ALTERAR TAMANHO, PADDING OU ESTILO SEM AUTORIZAÇÃO */}
@@ -7781,39 +7800,10 @@ export default function App() {
                      Ranking Global
                    </button>
 
-                   {/* Botão de Histórico de Versões */}
-                   <button
-                     onClick={() => setShowChangelog(true)}
-                     style={{
-                       width: '100%',
-                       marginTop: '8px',
-                       padding: '16px',
-                       borderRadius: '24px',
-                       fontWeight: '900',
-                       fontSize: '14px',
-                       textTransform: 'uppercase',
-                       letterSpacing: '1px',
-                       background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05))',
-                       color: '#FFD700',
-                       border: '2px solid rgba(255, 215, 0, 0.3)',
-                       boxShadow: '0 4px 15px rgba(255, 215, 0, 0.1)',
-                       cursor: 'pointer',
-                       display: 'flex',
-                       alignItems: 'center',
-                       justifyContent: 'center',
-                       gap: '10px',
-                     }}
-                   >
-                     <span style={{ fontSize: '1.2rem' }}>📜</span>
-                     Histórico de Atualizações
-                   </button>
-
-
-
-                   {/* ⛔ PROTECTED: Botão REINICIAR JORNADA */}
+                   {/* Botão REINICIAR JORNADA (tamanho médio) */}
                    <button
                      onClick={() => { showConfirm({ type:'danger', title:'Reiniciar Jornada', message:'Isso apagará todo seu progresso. Tem certeza?', confirmLabel:'Sim, reiniciar', cancelLabel:'Cancelar', onConfirm:() => { closeConfirm(); startNewJourney(); }, onCancel:closeConfirm }); }}
-                     style={{width:'100%', padding:'20px', borderRadius:'24px', fontWeight:'900', fontSize:'18px', textTransform:'uppercase', letterSpacing:'2px', background:'rgba(59,130,246,0.2)', color:'white', border:'2px solid rgba(255,255,255,0.3)', boxShadow:'0 4px 12px rgba(0,0,0,0.3)', cursor:'pointer'}}
+                     style={{width:'100%', padding:'16px', borderRadius:'24px', fontWeight:'900', fontSize:'14px', textTransform:'uppercase', letterSpacing:'1px', background:'rgba(59,130,246,0.2)', color:'white', border:'2px solid rgba(255,255,255,0.3)', boxShadow:'0 4px 12px rgba(0,0,0,0.3)', cursor:'pointer'}}
                    >
                      REINICIAR JORNADA
                    </button>
@@ -7852,6 +7842,34 @@ export default function App() {
                        Sair da Conta
                      </button>
                    )}
+
+                   {/* Botão de Histórico de Versões (menor de todos, no rodapé) */}
+                   <button
+                     onClick={() => setShowChangelog(true)}
+                     style={{
+                       width: '100%',
+                       marginTop: '4px',
+                       padding: '9px',
+                       borderRadius: '20px',
+                       fontWeight: '900',
+                       fontSize: '11px',
+                       textTransform: 'uppercase',
+                       letterSpacing: '0.5px',
+                       background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(255, 215, 0, 0.04))',
+                       color: '#FFD700',
+                       border: '1.5px solid rgba(255, 215, 0, 0.25)',
+                       boxShadow: '0 2px 10px rgba(255, 215, 0, 0.08)',
+                       cursor: 'pointer',
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       gap: '6px',
+                     }}
+                   >
+                     <span style={{ fontSize: '0.95rem' }}>📜</span>
+                     Histórico de Atualizações
+                   </button>
+
                    <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest text-center mt-4">
                      POKÉCRAFT IDLE {APP_VERSION} • {APP_VERSION_DATE}
                    </p>
