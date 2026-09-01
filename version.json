@@ -1,5 +1,5 @@
 {
-  "version": "2.16.3",
-  "date": "01/09/2026 15:13",
-  "notes": "Correção definitiva do sprite de Rattata de Kanto (reverte sprites residuais de Alola)"
+  "version": "2.17.0",
+  "date": "01/09/2026 15:26",
+  "notes": "MODO VS Sequencial Estrito (Vilã -> Rival -> Ginásio), Treinadores Regionais e Super Chefes"
 }
