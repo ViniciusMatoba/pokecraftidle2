@@ -1,7 +1,7 @@
 // Service Worker — versão sincronizada com version.json
 // IMPORTANTE: esta linha DEVE ser atualizada a cada bump de versão
 // para que o browser detecte o novo SW e invalide o cache antigo.
-let CACHE_NAME = 'pokecraft-cache-v2.11.78';
+let CACHE_NAME = 'pokecraft-cache-v2.11.1';
 
 // Busca versão atual para manter cache sincronizado
 async function getCacheName() {
@@ -11,7 +11,7 @@ async function getCacheName() {
       const data = await res.json();
       return `pokecraft-cache-v${data.version}`;
     }
-  } catch {}
+  } catch (_) {}
   return CACHE_NAME;
 }
 
@@ -21,56 +21,7 @@ const STATIC_ASSETS = [
   './manifest.json',
   './favicon.svg',
   './version.json',
-  './assets/fallbacks/item.svg',
-  './assets/fallbacks/poke-ball.svg',
-  './assets/fallbacks/pokemon.svg',
-  './assets/fallbacks/trainer.svg',
-  './assets/items/poke-ball.svg',
-  './assets/items/great-ball.svg',
-  './assets/items/ultra-ball.svg',
-  './assets/items/master-ball.svg',
-  './assets/items/nugget.svg',
-  './assets/items/town-map.svg',
-  './assets/items/vs-seeker.svg',
-  './assets/items/full-restore.svg',
-  './assets/items/star-piece.svg',
-  './assets/items/hard-stone.svg',
-  './assets/items/rare-candy.svg',
-  './assets/items/potion.svg',
 ];
-
-const isCacheableExternalSprite = (url) => {
-  if (url.hostname === 'raw.githubusercontent.com' || url.hostname === 'cdn.jsdelivr.net') {
-    return (
-      url.pathname.includes('/PokeAPI/sprites/') ||
-      url.pathname.includes('/duiker101/pokemon-type-svg-icons/')
-    );
-  }
-
-  return (
-    url.hostname.includes('pokemonshowdown.com') &&
-    (
-      url.pathname.startsWith('/sprites/') ||
-      url.pathname.endsWith('.png') ||
-      url.pathname.endsWith('.gif')
-    )
-  );
-};
-
-const cacheFirst = async (request) => {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-
-  const networkResponse = await fetch(request);
-  if (
-    networkResponse &&
-    (networkResponse.status === 200 || networkResponse.type === 'opaque')
-  ) {
-    const clone = networkResponse.clone();
-    caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-  }
-  return networkResponse;
-};
 
 // Instalação: usa getCacheName() para garantir cache com versão correta desde o início
 self.addEventListener('install', (event) => {
@@ -108,22 +59,13 @@ self.addEventListener('fetch', (event) => {
   // 1. Ignorar localhost completamente
   if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') return;
 
-  // 2. Cache-First para sprites externos estaveis (Pokemon, itens, treinadores e tipos)
-  if (event.request.method === 'GET' && isCacheableExternalSprite(url)) {
-    event.respondWith(
-      cacheFirst(event.request).catch(async () => {
-        const cached = await caches.match(event.request);
-        return cached || new Response('Not found', { status: 404 });
-      })
-    );
-    return;
-  }
-
   // 2. Ignorar Firebase / Google APIs
   if (
     url.hostname.includes('firestore.googleapis.com') ||
     url.hostname.includes('firebase') ||
     url.hostname.includes('googleapis.com') ||
+    url.hostname.includes('pokemonshowdown.com') ||
+    url.hostname.includes('play.pokemonshowdown') ||
     url.hostname.includes('fonts.googleapis.com') ||
     url.hostname.includes('fonts.gstatic.com')
   ) {
