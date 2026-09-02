@@ -8,6 +8,7 @@ import {
   isExpeditionUnlocked,
 } from '../data/expeditions';
 import { ITEM_LABELS } from '../data/constants';
+import { CANDY_FAMILIES, getCandyIconUrl } from '../data/candies';
 
 const _BASE = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
 const fixBgPath = (bg) => {
@@ -200,6 +201,31 @@ const ExpeditionReportModal = ({ report, onClose }) => {
                       <div className="flex-1 min-w-0">
                         <p className="text-white text-[11px] font-black leading-tight capitalize">{name}</p>
                         <p className="text-yellow-400 text-[10px] font-black">×{qty}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ── CANDIES OBTIDOS ── */}
+          {report.candies && Object.keys(report.candies).length > 0 && (
+            <div className="bg-black/40 rounded-2xl p-4 border border-white/10">
+              <p className="text-white/50 text-[10px] font-black uppercase tracking-widest mb-3 text-center">
+                🍬 Candies Obtidos
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.entries(report.candies).map(([cid, qty]) => {
+                  const fam = CANDY_FAMILIES[cid];
+                  return (
+                    <div key={cid} className="bg-white/8 rounded-xl px-3 py-2.5 flex items-center gap-2.5 border border-white/10">
+                      <span className="w-10 h-10 rounded-xl bg-pink-500/15 border border-pink-400/20 flex items-center justify-center shrink-0">
+                        <img src={fam ? getCandyIconUrl(fam) : ''} alt={fam?.name || cid} className="w-7 h-7 object-contain drop-shadow-md" loading="lazy" />
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-[11px] font-black leading-tight truncate">{fam?.name || cid}</p>
+                        <p className="text-pink-400 text-[10px] font-black">×{qty}</p>
                       </div>
                     </div>
                   );

@@ -1,7 +1,17 @@
-export const APP_VERSION = '2.20.0';
-export const VERSION = '2.20.0';
-export const APP_VERSION_DATE = '02/09/2026 06:37';
+export const APP_VERSION = '2.21.1';
+export const VERSION = '2.21.1';
+export const APP_VERSION_DATE = '02/09/2026 06:48';
 export const CHANGELOG = [
+  '## [V2.21.1] - 02/09/2026 06:48',
+  '### Ajustes de candies',
+  '- **Drop ao derrotar**: chance de candy da família ao derrotar Pokémon selvagem aumentada de 15% para 30% (45% com maestria alta).',
+  '- **Expedições por dificuldade**: candies de expedição agora escalam com a dificuldade — expedições de regiões mais avançadas e que exigem mais insígnias dão bem mais candies (até ~6.8× nas mais avançadas).',
+  '',
+  '## [V2.21.0] - 02/09/2026 06:43',
+  '### Candies nas Expedições',
+  '- **Novo**: Expedições agora também recompensam candies das famílias dos Pokémon enviados (~1 candy por família a cada 20 min de expedição), exibidas no relatório de conclusão.',
+  '- Lembrete: derrotar Pokémon selvagens já dá candy da família (15%, ou 30% com maestria alta) — inalterado.',
+  '',
   '## [V2.20.0] - 02/09/2026 06:37',
   '### Modais de Treinador (aparição e vitória) com frases temáticas',
   '- **Modal de aparição**: ao aparecer um treinador de rota ou Super Chefe (👑), abre um modal com o sprite e uma frase temática (por classe de treinador ou do líder), como se o personagem falasse.',

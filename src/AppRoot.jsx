@@ -2984,7 +2984,7 @@ export default function App() {
     const candyId = POKEMON_TO_CANDY[Number(enemy.id)];
     if (candyId) {
        const mastery = (gameState.speciesMastery || {})[Number(enemy.id)] || 0;
-       const bonusChance = mastery > 50 ? 0.3 : 0.15;
+       const bonusChance = mastery > 50 ? 0.45 : 0.30;
        if (Math.random() < bonusChance) {
          const qty = 1;
          drops.candies = { [candyId]: qty }; 
@@ -6145,6 +6145,19 @@ export default function App() {
     const drops = Object.fromEntries(
       Object.entries(rawDrops).filter(([key]) => !key.includes('_candy'))
     );
+    // Candies da FAMÍLIA de cada Pokémon enviado, escalando pela DIFICULDADE:
+    // região mais avançada + mais insígnias exigidas → mais candies.
+    const durationMinutes = duration / 60000;
+    const EXP_REGION_ORDER = ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea'];
+    const regionIdx = Math.max(0, EXP_REGION_ORDER.indexOf(biome.region || 'kanto'));
+    const difficulty = regionIdx * 8 + (biome.requires || 0); // 0 (Kanto inicial) → ~72 (Paldea final)
+    const diffMult = 1 + difficulty * 0.08;                   // até ~6.8× nas expedições mais avançadas
+    const candies = {};
+    for (const p of (exp.team || [])) {
+      const cid = POKEMON_TO_CANDY[Number(p.id)];
+      if (!cid) continue;
+      candies[cid] = (candies[cid] || 0) + Math.max(1, Math.round((durationMinutes / 20) * diffMult));
+    }
     const teamWithXP = calcExpeditionXP(exp.team, biome, duration);
     const processedResults = teamWithXP.map(p => processExpeditionPokemon(p, p.xpGained || 0));
     const returnedTeam = processedResults.map(r => r.pokemon);
@@ -6153,6 +6166,7 @@ export default function App() {
       biomeName: biome.name,
       biomeIcon: biome.icon || '🗺️',
       drops,
+      candies,
       pokemonResults: processedResults.map(r => ({
         name: r.pokemon.name,
         id: r.pokemon.id,
@@ -6186,6 +6200,12 @@ export default function App() {
         } else {
           newItems[item] = (newItems[item] || 0) + qty;
         }
+      }
+
+      // Candies das famílias dos Pokémon da expedição.
+      const newCandies = { ...(prev.inventory.candies || {}) };
+      for (const [cid, qty] of Object.entries(candies)) {
+        newCandies[cid] = (newCandies[cid] || 0) + qty;
       }
 
       const progress = { ...(prev.expeditionProgress || {}) };
@@ -6231,7 +6251,7 @@ export default function App() {
           }
           return p;
         }),
-        inventory: { ...prev.inventory, materials: newMaterials, items: newItems },
+        inventory: { ...prev.inventory, materials: newMaterials, items: newItems, candies: newCandies },
         expeditions: newExpeditions,
         expeditionProgress: progress,
       };
