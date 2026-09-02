@@ -7,7 +7,7 @@ import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '.
 import { getTimeOfDay } from '../utils/timeSystem';
 import { getEvolutionCandyInfo } from '../utils/evolutionRequirements';
 import { getSpeciesMasteryTier, MASTERY_TIERS } from '../data/masteryBorders';
-import { getFriendshipView, FRIENDSHIP_MAX_HEARTS } from '../data/friendship';
+import { getFriendshipView, FRIENDSHIP_MAX_HEARTS, FRIENDSHIP_TIER_INFO, FRIENDSHIP_GAIN } from '../data/friendship';
 import { getCompatibleMegaStones, MEGA_STONE_ICONS, getMegaSprite } from '../data/megaEvolutions';
 import { ABILITY_ITEM_ID, getAbilityDescription, getAbilityLabel, getPokemonAbilityPool, setPokemonAbility } from '../data/abilities';
 import { getPokeballDef, POKEBALL_DEFS, ALL_BALL_IDS, BALL_EFFECT_LABELS } from '../data/pokeballs';
@@ -251,6 +251,7 @@ const PokemonManagement = ({
   const [showTeamReorder, setShowTeamReorder] = useState(false);
   const [moveSwapMode, setMoveSwapMode] = useState(null); // { activeIdx, currentMove }
   const [showNatureModal, setShowNatureModal] = useState(false);
+  const [showFriendshipInfo, setShowFriendshipInfo] = useState(false);
   const [showAbilityModal, setShowAbilityModal] = useState(false);
   const [showItemPicker, setShowItemPicker] = useState(false);
   const [showBallSwapModal, setShowBallSwapModal] = useState(false);
@@ -896,7 +897,6 @@ const PokemonManagement = ({
                     <div>
                       <h4 className="font-black uppercase text-slate-800 text-sm italic leading-none flex items-baseline gap-2">
                         <span>{p.name}</span>
-                        {(() => { const mt = getSpeciesMasteryTier(gameState.speciesMastery?.[p.id] || 0); return mt ? <span className="text-xs not-italic" title={`Maestria ${MASTERY_TIERS[mt].label}`}>{MASTERY_TIERS[mt].badge}</span> : null; })()}
                         <FriendshipHearts points={gameState.friendship?.[p.instanceId] || 0} compact />
                         {p.isAlpha && (
                           <span className="text-red-500 text-xs font-black not-italic" title="Alpha">α</span>
@@ -1028,7 +1028,6 @@ const PokemonManagement = ({
                          <div className="text-center">
                            <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none flex items-center justify-center gap-1">
                              {p.name}
-                             {(() => { const mt = getSpeciesMasteryTier(gameState.speciesMastery?.[p.id] || 0); return mt ? <span className="text-[10px] not-italic" title={`Maestria ${MASTERY_TIERS[mt].label}`}>{MASTERY_TIERS[mt].badge}</span> : null; })()}
                              <FriendshipHearts points={gameState.friendship?.[p.instanceId] || 0} compact />
                              {p.isAlpha && (
                                <span className="text-red-500 text-[9px] font-black not-italic" title="Alpha">α</span>
@@ -1286,18 +1285,24 @@ const PokemonManagement = ({
                   {(() => {
                      const fv = getFriendshipView(gameState.friendship?.[_modalPoke.instanceId] || 0);
                      return (
-                       <div className="bg-pink-50 p-4 rounded-3xl border border-pink-100 mb-4">
+                       <button
+                          onClick={() => setShowFriendshipInfo(true)}
+                          className="w-full text-left bg-pink-50 p-4 rounded-3xl border border-pink-100 mb-4 hover:border-pink-300 hover:bg-pink-100/60 transition-colors cursor-pointer"
+                          title="Toque para saber como funciona a Amizade"
+                       >
                           <div className="flex items-center justify-between mb-2">
-                             <h4 className="font-black uppercase text-[8px] text-pink-400 tracking-widest">Amizade</h4>
+                             <h4 className="font-black uppercase text-[8px] text-pink-400 tracking-widest">Amizade <span className="text-pink-300 normal-case tracking-normal">ⓘ</span></h4>
                              <FriendshipHearts points={fv.points} />
                           </div>
                           <div className="w-full bg-pink-100 h-2 rounded-full overflow-hidden">
                              <div className="h-full bg-gradient-to-r from-pink-400 to-rose-500 transition-all" style={{ width: `${fv.pct}%` }}></div>
                           </div>
                           <p className="text-[8px] font-bold text-pink-400 mt-1.5 text-center">
-                             {fv.atMax ? 'Amizade máxima! ❤️' : `${fv.hearts}/${FRIENDSHIP_MAX_HEARTS} corações — batalhe e mantenha no time para aumentar`}
+                             {fv.atMax
+                                ? 'Amizade máxima! ❤️ — toque para detalhes'
+                                : `${fv.hearts}/${FRIENDSHIP_MAX_HEARTS} corações • faltam ${fv.pointsForNext} pts para o próximo — toque para detalhes`}
                           </p>
-                       </div>
+                       </button>
                      );
                   })()}
 
@@ -2378,6 +2383,89 @@ const PokemonManagement = ({
       )}
 
       {/* ── Modal de Natureza ─────────────────────────────────── */}
+      {showFriendshipInfo && activePokemonDetails && createPortal(
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          onClick={() => setShowFriendshipInfo(false)}>
+          <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[88dvh] flex flex-col"
+            onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center gap-3 px-5 py-4 shrink-0"
+              style={{ background: 'linear-gradient(135deg,#db2777,#f43f5e)' }}>
+              <div className="flex-1">
+                <p className="text-white/70 text-[9px] font-black uppercase tracking-widest">Vínculo com o Pokémon</p>
+                <h2 className="text-white text-lg font-black uppercase">Amizade ❤️</h2>
+              </div>
+              <button onClick={() => setShowFriendshipInfo(false)}
+                className="w-8 h-8 rounded-full bg-white/20 text-white font-black flex items-center justify-center">✕</button>
+            </div>
+
+            <div className="overflow-y-auto">
+              {/* Como subir */}
+              <div className="px-5 pt-4 pb-3 bg-pink-50 border-b border-pink-100">
+                <p className="text-[11px] font-bold text-slate-600 leading-relaxed">
+                  A <strong className="text-pink-600">Amizade</strong> cresce ao conviver com o Pokémon. Não decai — só aumenta.
+                </p>
+                <div className="mt-2 flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2 bg-white rounded-xl p-2 border border-pink-200">
+                    <span className="text-base">⚔️</span>
+                    <p className="text-[10px] font-bold text-slate-600 leading-tight"><strong>Batalhando como ativo</strong> (o Pokémon que luta): <strong className="text-pink-600">+{FRIENDSHIP_GAIN.activeBattle}</strong> por vitória.</p>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white rounded-xl p-2 border border-pink-200">
+                    <span className="text-base">🔗</span>
+                    <p className="text-[10px] font-bold text-slate-600 leading-tight"><strong>No time recebendo EXP compartilhado</strong>: <strong className="text-pink-600">+{FRIENDSHIP_GAIN.sharedBattle}</strong> por vitória.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Níveis progressivos */}
+              <div className="px-5 py-4">
+                <p className="text-[9px] font-black uppercase tracking-widest text-pink-400 mb-2">Corações (progressivo)</p>
+                <p className="text-[10px] font-bold text-slate-500 leading-relaxed mb-3">
+                  Assim como subir de nível, <strong>cada coração exige mais</strong> que o anterior. Os corações não vêm todos na mesma velocidade.
+                </p>
+                {(() => {
+                  const fv = getFriendshipView(gameState.friendship?.[activePokemonDetails.pokemon.instanceId] || 0);
+                  return (
+                    <div className="flex flex-col gap-1.5">
+                      {FRIENDSHIP_TIER_INFO.map(t => {
+                        const reached = fv.hearts >= t.heart;
+                        const current = !reached && fv.hearts + 1 === t.heart;
+                        return (
+                          <div key={t.heart}
+                            className={`flex items-center gap-3 rounded-xl p-2.5 border ${
+                              reached ? 'bg-pink-100 border-pink-300' : current ? 'bg-white border-pink-300 ring-1 ring-pink-200' : 'bg-slate-50 border-slate-100'
+                            }`}>
+                            <span className="text-sm w-10 shrink-0" style={{ filter: reached ? 'none' : 'grayscale(1)', opacity: reached ? 1 : 0.5 }}>
+                              {'❤️'.repeat(t.heart)}
+                            </span>
+                            <div className="flex-1 leading-tight">
+                              <p className="text-[11px] font-black text-slate-700">{t.heart}º Coração {reached ? '• conquistado' : current ? '• em progresso' : ''}</p>
+                              <p className="text-[9px] font-bold text-slate-400">{t.points.toLocaleString()} pts totais • ~{t.battlesActive} vitórias como ativo</p>
+                            </div>
+                            {reached && <span className="text-pink-500 text-xs font-black shrink-0">✓</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Próximas recompensas (Etapa 2) */}
+              <div className="px-5 pb-5">
+                <div className="rounded-2xl p-3 bg-gradient-to-br from-rose-50 to-pink-50 border border-pink-100">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-rose-400 mb-1">Em breve</p>
+                  <p className="text-[10px] font-bold text-slate-500 leading-relaxed">
+                    Pokémon com muita amizade vão liberar <strong>candies automáticos</strong> e desbloquear <strong>evoluções por felicidade</strong> (como Golbat→Crobat e Eevee→Espeon/Umbreon).
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {showNatureModal && activePokemonDetails && createPortal(
         <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           onClick={() => setShowNatureModal(false)}>

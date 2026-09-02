@@ -1,7 +1,20 @@
-export const APP_VERSION = '2.28.1';
-export const VERSION = '2.28.1';
-export const APP_VERSION_DATE = '02/09/2026 11:45';
+export const APP_VERSION = '2.29.1';
+export const VERSION = '2.29.1';
+export const APP_VERSION_DATE = '02/09/2026 11:54';
 export const CHANGELOG = [
+  '## [V2.29.1] - 02/09/2026 11:54',
+  '### Economia: piso de recompensa por treinador',
+  '- **Cada treinador derrotado paga no mínimo 400 coins** (preço de 1 Poké Bola).',
+  '- Multiplicador de recompensa de treinador subiu para 0,20 — treinadores fortes/ginásios escalam acima do piso.',
+  '- Batalhas selvagens não recebem o piso (mantêm o ganho por nível), evitando inflação.',
+  '',
+  '## [V2.29.0] - 02/09/2026 11:52',
+  '### Amizade progressiva + explicação, e bordas de maestria mais bonitas',
+  '- **Amizade progressiva**: cada coração agora exige mais que o anterior (100 → 300 → 650 → 1.200 → 2.000 pts), como subir de nível.',
+  '- **Explicação da Amizade**: toque na área dos corações (no detalhe do Pokémon) para ver como subir e o que cada coração exige.',
+  '- **Bordas de Maestria** repaginadas: moldura de medalhão (núcleo + halo + brilho) muito mais visível no Meu Time e no PC.',
+  '- **Removida a medalha** (🥉🥈🥇) ao lado do nome — a própria borda indica o nível, deixando o card mais limpo.',
+  '',
   '## [V2.28.1] - 02/09/2026 11:45',
   '### Fix: trava regional bloqueava Pokémon nativos',
   '- **Corrigido**: Pokémon nativos da região atual (ex.: Pinsir em Kanto) ficavam com cadeado "não é da região" quando o `capturedRegion` estava ausente/divergente.',
