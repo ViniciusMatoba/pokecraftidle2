@@ -7,7 +7,8 @@ import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '.
 import { getTimeOfDay } from '../utils/timeSystem';
 import { getEvolutionCandyInfo } from '../utils/evolutionRequirements';
 import { getSpeciesMasteryTier, MASTERY_TIERS } from '../data/masteryBorders';
-import { getFriendshipView, FRIENDSHIP_MAX_HEARTS, FRIENDSHIP_TIER_INFO, FRIENDSHIP_GAIN } from '../data/friendship';
+import { getFriendshipView, FRIENDSHIP_MAX_HEARTS, FRIENDSHIP_TIER_INFO, FRIENDSHIP_GAIN, FRIENDSHIP_MAX_POINTS, FRIENDSHIP_MAX_RING } from '../data/friendship';
+import { GLOBAL_BORDERS, getUnlockedGlobalBorders, getGlobalBorderById, getAssignedBorderRing } from '../data/globalBorders';
 import { getCompatibleMegaStones, MEGA_STONE_ICONS, getMegaSprite } from '../data/megaEvolutions';
 import { ABILITY_ITEM_ID, getAbilityDescription, getAbilityLabel, getPokemonAbilityPool, setPokemonAbility } from '../data/abilities';
 import { getPokeballDef, POKEBALL_DEFS, ALL_BALL_IDS, BALL_EFFECT_LABELS } from '../data/pokeballs';
@@ -252,6 +253,7 @@ const PokemonManagement = ({
   const [moveSwapMode, setMoveSwapMode] = useState(null); // { activeIdx, currentMove }
   const [showNatureModal, setShowNatureModal] = useState(false);
   const [showFriendshipInfo, setShowFriendshipInfo] = useState(false);
+  const [showBorderPicker, setShowBorderPicker] = useState(false);
   const [showAbilityModal, setShowAbilityModal] = useState(false);
   const [showItemPicker, setShowItemPicker] = useState(false);
   const [showBallSwapModal, setShowBallSwapModal] = useState(false);
@@ -871,10 +873,16 @@ const PokemonManagement = ({
                   dragTeamIndex === i ? 'border-pokeBlue shadow-lg scale-[0.98]' : 'border-slate-100'
                 }`}
                 style={(() => {
-                  const mt = getSpeciesMasteryTier(gameState.speciesMastery?.[p.id] || 0);
                   const sh = [];
                   if (p.isAlpha) sh.push('0 0 0 2px #ef4444, 0 0 16px rgba(239,68,68,0.45)');
-                  if (mt) sh.push(MASTERY_TIERS[mt].ring);
+                  const globalRing = getAssignedBorderRing(gameState, p.instanceId);
+                  if (globalRing) {
+                    sh.push(globalRing); // borda global substitui a de maestria
+                  } else {
+                    const mt = getSpeciesMasteryTier(gameState.speciesMastery?.[p.id] || 0);
+                    if (mt) sh.push(MASTERY_TIERS[mt].ring);
+                    if ((gameState.friendship?.[p.instanceId] || 0) >= FRIENDSHIP_MAX_POINTS) sh.push(FRIENDSHIP_MAX_RING);
+                  }
                   return sh.length ? { boxShadow: sh.join(', ') } : undefined;
                 })()}
               >
@@ -998,10 +1006,16 @@ const PokemonManagement = ({
                           !isLegal ? 'opacity-50 grayscale border-red-100' : 'border-slate-100'
                         }`}
                         style={(() => {
-                          const mt = getSpeciesMasteryTier(gameState.speciesMastery?.[p.id] || 0);
                           const sh = [];
                           if (p.isAlpha) sh.push('0 0 0 2px #ef4444, 0 0 14px rgba(239,68,68,0.5)');
-                          if (mt) sh.push(MASTERY_TIERS[mt].ring);
+                          const globalRing = getAssignedBorderRing(gameState, p.instanceId);
+                          if (globalRing) {
+                            sh.push(globalRing);
+                          } else {
+                            const mt = getSpeciesMasteryTier(gameState.speciesMastery?.[p.id] || 0);
+                            if (mt) sh.push(MASTERY_TIERS[mt].ring);
+                            if ((gameState.friendship?.[p.instanceId] || 0) >= FRIENDSHIP_MAX_POINTS) sh.push(FRIENDSHIP_MAX_RING);
+                          }
                           return sh.length ? { boxShadow: sh.join(', ') } : undefined;
                         })()}
                       >
@@ -1382,7 +1396,33 @@ const PokemonManagement = ({
                         </p>
                       </div>
                     </button>
-                    
+
+                    {/* BORDA GLOBAL */}
+                    {(() => {
+                      const unlocked = getUnlockedGlobalBorders(gameState);
+                      const currentId = gameState.pokemonBorders?.[activePokemonDetails.pokemon.instanceId];
+                      const current = getGlobalBorderById(currentId);
+                      const currentValid = current && unlocked.some(b => b.id === current.id);
+                      return (
+                        <button
+                          onClick={() => setShowBorderPicker(true)}
+                          className="w-full p-4 rounded-2xl border-2 border-amber-100 bg-amber-50/40 shadow-sm text-left hover:bg-amber-100/50 active:scale-[0.98] transition-all"
+                        >
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <h3 className="text-[11px] font-black uppercase text-slate-800">Borda</h3>
+                              <p className="text-[8px] font-black uppercase tracking-widest text-amber-600">
+                                {unlocked.length > 0 ? 'Toque para escolher' : 'Complete conquistas para desbloquear'}
+                              </p>
+                            </div>
+                            <span className="text-[10px] font-black text-amber-700 bg-white px-2.5 py-1.5 rounded-lg border border-amber-100">
+                              {currentValid ? `${current.emoji} ${current.name}` : 'Nenhuma'}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })()}
+
                     {/* HELD ITEMS */}
                     {(() => {
                       const poke = activePokemonDetails.pokemon;
@@ -2383,6 +2423,72 @@ const PokemonManagement = ({
       )}
 
       {/* ── Modal de Natureza ─────────────────────────────────── */}
+      {showBorderPicker && activePokemonDetails && createPortal(
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          onClick={() => setShowBorderPicker(false)}>
+          <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[88dvh] flex flex-col"
+            onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 px-5 py-4 shrink-0"
+              style={{ background: 'linear-gradient(135deg,#b45309,#f59e0b)' }}>
+              <div className="flex-1">
+                <p className="text-white/70 text-[9px] font-black uppercase tracking-widest">Cosmético</p>
+                <h2 className="text-white text-lg font-black uppercase">Bordas</h2>
+              </div>
+              <button onClick={() => setShowBorderPicker(false)}
+                className="w-8 h-8 rounded-full bg-white/20 text-white font-black flex items-center justify-center">✕</button>
+            </div>
+
+            <div className="px-5 pt-3 pb-2 shrink-0 bg-amber-50 border-b border-amber-100">
+              <p className="text-[11px] font-bold text-slate-600 leading-relaxed">
+                Bordas são desbloqueadas ao <strong>coletar conquistas</strong>. A borda escolhida aparece no card do Pokémon (Meu Time e PC) e <strong>substitui a borda de maestria</strong>.
+              </p>
+            </div>
+
+            <div className="p-4 overflow-y-auto">
+              {(() => {
+                const instId = activePokemonDetails.pokemon.instanceId;
+                const currentId = gameState.pokemonBorders?.[instId];
+                const setBorder = (id) => setGameState(prev => {
+                  const map = { ...(prev.pokemonBorders || {}) };
+                  if (!id) delete map[instId]; else map[instId] = id;
+                  return { ...prev, pokemonBorders: map };
+                });
+                return (
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {/* Nenhuma */}
+                    <button onClick={() => setBorder(null)}
+                      className={`rounded-2xl p-3 border-2 flex flex-col items-center gap-1.5 transition-all ${!currentId ? 'border-slate-400 bg-slate-50' : 'border-slate-100 hover:border-slate-300'}`}>
+                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-lg">∅</div>
+                      <span className="text-[10px] font-black text-slate-600 uppercase">Nenhuma</span>
+                    </button>
+                    {GLOBAL_BORDERS.map(b => {
+                      const unlocked = (gameState.claimedAchievements || []).includes(b.achievement);
+                      const selected = currentId === b.id;
+                      return (
+                        <button key={b.id}
+                          disabled={!unlocked}
+                          onClick={() => unlocked && setBorder(b.id)}
+                          className={`rounded-2xl p-3 border-2 flex flex-col items-center gap-1.5 transition-all ${
+                            selected ? 'border-amber-500 bg-amber-50' : unlocked ? 'border-slate-100 hover:border-amber-300' : 'border-slate-100 opacity-50'
+                          }`}>
+                          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-lg"
+                            style={{ boxShadow: unlocked ? b.ring : 'none', border: unlocked ? 'none' : '2px dashed #cbd5e1' }}>
+                            {unlocked ? b.emoji : '🔒'}
+                          </div>
+                          <span className="text-[9px] font-black text-slate-600 uppercase text-center leading-tight">{b.name}</span>
+                          {!unlocked && <span className="text-[7px] font-bold text-slate-400 text-center leading-tight">🏆 conquista</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {showFriendshipInfo && activePokemonDetails && createPortal(
         <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           onClick={() => setShowFriendshipInfo(false)}>

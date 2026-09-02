@@ -65,7 +65,7 @@ import { REGION_ORDER, REGION_CHAMPION_FLAGS, REGION_BADGE_IDS, getPokemonRegion
 import { getMasteryPath, getEffectiveStat, getShinyMult } from './utils/gameHelpers';
 import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from './utils/pokemonSprites';
 import { getTrainerCurrencyReward } from './utils/economy';
-import { applyFriendshipGains, FRIENDSHIP_GAIN } from './data/friendship';
+import { applyFriendshipGains, FRIENDSHIP_GAIN, FRIENDSHIP_EVO_THRESHOLD, FRIENDSHIP_EVOLUTIONS, FRIENDSHIP_CANDY_STEP, FRIENDSHIP_CANDY_MIN, FRIENDSHIP_CANDY_MAX } from './data/friendship';
 import { getTypeEffectiveness } from './data/typeChart';
 import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
 import { getEvolutionCandyInfo } from './utils/evolutionRequirements';
@@ -1327,6 +1327,7 @@ export default function App() {
   const [raidRouteNotice, setRaidRouteNotice] = useState(null);
   const [recipeFoundModal, setRecipeFoundModal] = useState(null); // { name, img, effect }
   const [rareDropModal, setRareDropModal] = useState(null);
+  const [friendshipCandyModal, setFriendshipCandyModal] = useState(null); // { drops: [{name, candyId, qty}] }
 
   const [installPrompt, setInstallPrompt] = useState(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -7265,6 +7266,8 @@ export default function App() {
     // ⛏️” PROTECTED: Fórmula XP — NíO ALTERAR DIVISOR SEM AUTORIZAÇíO
     const baseXpGain = Math.floor(((currentEnemy.level || 1) * 1.5 * (POKEDEX[Number(currentEnemy.id)]?.baseXp || 50)) / 7);
 
+    let capturedFriendshipCandy = null; // coletado dentro do updater para abrir o modal depois
+
     setGameState(prev => {
       const newInventory = { ...prev.inventory };
       const newFlags = [...(prev.worldFlags || [])];
@@ -7420,6 +7423,9 @@ export default function App() {
       const finalXPMult = xpMult * allyBonusXP * themeXP;
 
       const friendshipGains = {};
+      const friendshipCandyMeterNext = { ...(prev.friendshipCandyMeter || {}) };
+      const friendshipCandyDrops = []; // { name, candyId, qty }
+      const friendshipCandyTotals = {}; // candyId → qty total a creditar
       const newTeam = prev.team.map((p, i) => {
         const isLead = (i === activeMemberIndex);
         let xpToAdd = 0;
@@ -7436,8 +7442,46 @@ export default function App() {
 
         // Amizade: líder ativo ganha mais; quem recebe EXP compartilhado ganha menos.
         if (p.instanceId && p.hp > 0) {
-          if (isLead) friendshipGains[p.instanceId] = FRIENDSHIP_GAIN.activeBattle;
-          else if (xpToAdd > 0) friendshipGains[p.instanceId] = FRIENDSHIP_GAIN.sharedBattle;
+          let gain = 0;
+          if (isLead) gain = FRIENDSHIP_GAIN.activeBattle;
+          else if (xpToAdd > 0) gain = FRIENDSHIP_GAIN.sharedBattle;
+
+          if (gain > 0) {
+            friendshipGains[p.instanceId] = gain;
+            const before = Number(prev.friendship?.[p.instanceId] || 0);
+            const after = before + gain;
+
+            // (a) Evolução por amizade ao cruzar o 3º coração.
+            if (before < FRIENDSHIP_EVO_THRESHOLD && after >= FRIENDSHIP_EVO_THRESHOLD) {
+              const evos = FRIENDSHIP_EVOLUTIONS[Number(p.id)];
+              if (evos && evos.length) {
+                const tod = getTimeOfDay();
+                const pick = evos.find(e => !e.time || e.time.includes(tod)) || evos[0];
+                if (pick && isEvolutionAllowedForRegion(p, pick.id, prev.activeRegion || 'kanto')) {
+                  setEvolutionPending({ ...p, targetEvolution: { id: pick.id }, teamIndex: i, candyPaid: true, fromFriendship: true });
+                }
+              }
+            }
+
+            // (b) Liberação de candies por amizade (drop automático em lote).
+            const baseId = Number(p.id) >= 10000 ? Number(p.id) % 10000 : Number(p.id);
+            const candyId = POKEMON_TO_CANDY[baseId];
+            if (candyId) {
+              const meter = (Number(friendshipCandyMeterNext[p.instanceId]) || 0) + gain;
+              if (meter >= FRIENDSHIP_CANDY_STEP) {
+                const batches = Math.floor(meter / FRIENDSHIP_CANDY_STEP);
+                friendshipCandyMeterNext[p.instanceId] = meter - batches * FRIENDSHIP_CANDY_STEP;
+                let qty = 0;
+                for (let b = 0; b < batches; b++) {
+                  qty += FRIENDSHIP_CANDY_MIN + Math.floor(Math.random() * (FRIENDSHIP_CANDY_MAX - FRIENDSHIP_CANDY_MIN + 1));
+                }
+                friendshipCandyTotals[candyId] = (friendshipCandyTotals[candyId] || 0) + qty;
+                friendshipCandyDrops.push({ name: p.name, candyId, qty });
+              } else {
+                friendshipCandyMeterNext[p.instanceId] = meter;
+              }
+            }
+          }
         }
 
         // Lucky Egg (Antiga Lógica Hold - Mantida para compatibilidade se necessário)
@@ -7553,12 +7597,25 @@ export default function App() {
         }
       }
 
+      // Captura os drops de amizade para o modal pós-update.
+      capturedFriendshipCandy = friendshipCandyDrops.length > 0 ? friendshipCandyDrops : null;
+
+      // Credita candies liberados por amizade sobre o inventário já processado.
+      const inventoryWithFriendshipCandy = Object.keys(friendshipCandyTotals).length > 0
+        ? { ...newInventory, candies: (() => {
+            const c = { ...((newInventory || {}).candies || {}) };
+            Object.entries(friendshipCandyTotals).forEach(([k, v]) => { c[k] = (c[k] || 0) + v; });
+            return c;
+          })() }
+        : newInventory;
+
       return {
         ...prev,
         currency: (prev.currency || 0) + (drops.currency || 0) + getTrainerCurrencyReward(currentEnemy.trainerReward || 0),
-        inventory: newInventory,
+        inventory: inventoryWithFriendshipCandy,
         team: newTeam,
         friendship: applyFriendshipGains(prev.friendship, friendshipGains),
+        friendshipCandyMeter: friendshipCandyMeterNext,
         worldFlags: [...newFlags, ...tempWorldFlags].filter((v, i, a) => a.indexOf(v) === i),
         badges: newBadges,
         gymDefeatCounts: newGymCounts,
@@ -7578,6 +7635,17 @@ export default function App() {
     });
 
     messages.forEach(m => addLog(m, 'drop'));
+
+    // Candies liberados por Amizade — modal em lote (ou toast se modais de drop desligados).
+    if (capturedFriendshipCandy && capturedFriendshipCandy.length > 0) {
+      capturedFriendshipCandy.forEach(d => {
+        const label = CANDY_FAMILIES[d.candyId]?.name || 'Candy';
+        addLog(`💞 ${d.name} liberou ${d.qty}x ${label} pela amizade!`, 'system');
+      });
+      if (gameState.settings?.showDropModals !== false) {
+        setTimeout(() => setFriendshipCandyModal({ drops: capturedFriendshipCandy }), 500);
+      }
+    }
 
     // Modal de vitória contra treinador/super chefe de rota (não é batalha VS/ginásio).
     if (currentEnemy.isTrainer && !currentEnemy.badgeToGive && !currentEnemy.challengeCategory && gameState.settings?.showBattleModals !== false) {
@@ -12499,6 +12567,54 @@ export default function App() {
           drop={rareDropModal}
           onClose={() => setRareDropModal(null)}
         />
+      )}
+
+      {friendshipCandyModal && (
+        <div
+          className="absolute inset-0 z-[100000] flex items-center justify-center p-4 cursor-default"
+          style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)' }}
+          onClick={() => setFriendshipCandyModal(null)}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <div
+            className="relative shadow-2xl flex flex-col rounded-3xl overflow-hidden"
+            style={{ background: 'linear-gradient(160deg,#3b0a2a 0%,#4a0f2e 100%)', border: '2px solid #f43f5e66', width: '100%', maxWidth: '340px' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="px-5 py-4 text-center" style={{ background: 'linear-gradient(135deg,#db2777,#f43f5e)' }}>
+              <p className="text-white/80 text-[9px] font-black uppercase tracking-widest">Vínculo recompensado</p>
+              <h3 className="text-white text-lg font-black uppercase">💞 Candies de Amizade</h3>
+            </div>
+            <div className="p-5 flex flex-col gap-2.5">
+              {friendshipCandyModal.drops.map((d, i) => {
+                const fam = CANDY_FAMILIES[d.candyId] || {};
+                const label = fam.name || 'Candy';
+                const spriteId = fam.spriteId;
+                return (
+                  <div key={i} className="flex items-center gap-3 bg-white/10 rounded-2xl p-3 border border-white/10">
+                    {spriteId && (
+                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${spriteId}.png`}
+                        className="w-10 h-10 object-contain shrink-0" alt=""
+                        onError={e => { e.target.style.visibility = 'hidden'; }} />
+                    )}
+                    <div className="flex-1 leading-tight">
+                      <p className="text-white font-black text-sm">{d.name}</p>
+                      <p className="text-pink-200 text-[10px] font-bold">liberou candies pela amizade ❤️</p>
+                    </div>
+                    <span className="text-white font-black text-lg shrink-0">+{d.qty}</span>
+                  </div>
+                );
+              })}
+              <p className="text-pink-200/70 text-[9px] font-bold text-center mt-1">Use-os para evoluir esta espécie.</p>
+              <button
+                onClick={() => setFriendshipCandyModal(null)}
+                className="mt-1 w-full py-3 rounded-2xl font-black uppercase text-xs tracking-widest bg-white text-rose-600 active:scale-95 transition-transform"
+              >
+                Coletar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {recipeFoundModal && (

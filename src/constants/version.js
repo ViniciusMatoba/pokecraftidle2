@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.29.1';
-export const VERSION = '2.29.1';
-export const APP_VERSION_DATE = '02/09/2026 11:54';
+export const APP_VERSION = '2.30.0';
+export const VERSION = '2.30.0';
+export const APP_VERSION_DATE = '02/09/2026 12:08';
 export const CHANGELOG = [
+  '## [V2.30.0] - 02/09/2026 12:08',
+  '### Amizade — Etapa 2 + Bordas Globais',
+  '- **Candies por Amizade**: usar o Pokémon libera lotes de candies da sua espécie automaticamente, com modal avisando (drop em lote, não de 1 em 1).',
+  '- **Evolução por Amizade**: ao atingir o 3º coração, espécies como Golbat→Crobat, Chansey→Blissey, Riolu→Lucario, Pichu→Pikachu e Eevee→Espeon (dia)/Umbreon (noite) podem evoluir pelo vínculo.',
+  '- **Conquistas novas**: "Amigo de Verdade" (1) e "Melhores Amigos" (10 Pokémon com amizade máxima).',
+  '- **Borda de amizade máxima (5❤️)**: anel rosa especial no card.',
+  '- **Bordas Globais**: 10 bordas cosméticas desbloqueadas ao coletar conquistas (Coroa de Kanto, Aura Cintilante, Marca Alfa, etc.), aplicáveis em qualquer Pokémon pelo botão "Borda" no detalhe — substitui a borda de maestria.',
+  '',
   '## [V2.29.1] - 02/09/2026 11:54',
   '### Economia: piso de recompensa por treinador',
   '- **Cada treinador derrotado paga no mínimo 400 coins** (preço de 1 Poké Bola).',

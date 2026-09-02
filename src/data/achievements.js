@@ -2,6 +2,7 @@
 // Progresso derivado de playerStats + caughtData. Coleta marca em claimedAchievements.
 
 import { POKEDEX } from './pokedex';
+import { getMaxFriendshipCount } from './friendship';
 
 export const ACHIEVEMENTS = [
   // ── Combate ────────────────────────────────────────────────────────────
@@ -31,6 +32,8 @@ export const ACHIEVEMENTS = [
   { id: 'ach_evo_10',    category: 'special', title: 'Evolucionista',      description: 'Evolua 10 Pokémon',              stat: 'evolutionsDone', target: 10,  icon: 'rare-candy.png',      reward: { currency: 25000,  items: { great_ball: 5 } } },
   { id: 'ach_evo_50',    category: 'special', title: 'Mestre da Evolução',  description: 'Evolua 50 Pokémon',             stat: 'evolutionsDone', target: 50,  icon: 'rare-candy.png',      reward: { currency: 80000,  items: { exp_candy_l: 2 } } },
   { id: 'ach_evo_150',   category: 'special', title: 'Arquiteto da Vida',  description: 'Evolua 150 Pokémon',             stat: 'evolutionsDone', target: 150, icon: 'rare-candy.png',      reward: { currency: 200000, materials: { stardust: 15 } } },
+  { id: 'ach_besties_1', category: 'special', title: 'Amigo de Verdade',   description: 'Tenha 1 Pokémon com amizade máxima (5❤️)',  stat: 'maxFriendship', target: 1,  icon: 'soothe-bell.png', reward: { currency: 25000,  items: { ultra_ball: 5 } } },
+  { id: 'ach_besties_10',category: 'special', title: 'Melhores Amigos',    description: 'Tenha 10 Pokémon com amizade máxima (5❤️)', stat: 'maxFriendship', target: 10, icon: 'soothe-bell.png', reward: { currency: 120000, materials: { stardust: 12 } } },
 ];
 
 const ALL_TYPES = ['Normal', 'Fire', 'Water', 'Grass', 'Electric', 'Ice', 'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'];
@@ -49,6 +52,7 @@ export const getAchievementProgress = (gameState = {}, ach = {}) => {
       });
       return ALL_TYPES.filter(t => types.has(t)).length;
     }
+    case 'maxFriendship':    return getMaxFriendshipCount(gameState);
     case 'trainersDefeated': return Math.max(Number(stats.trainersDefeated || 0), Number(gameState.trainerBattleWins || 0));
     default: return Number(stats[ach.stat] || 0);
   }
