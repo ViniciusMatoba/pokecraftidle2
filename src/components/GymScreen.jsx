@@ -429,6 +429,8 @@ const GymScreen = ({ gameState, onChallengeGym, onChallenge, onClose, initialSec
   const hasBadge = (badgeId, order) => hasProgressBadge(gameState, badgeId, order) || worldFlags.includes(badgeId);
 
   const gymLocked = (gym) => {
+    // Trava estrita: 1º ginásio de Kanto exige vencer o Rival inicial (Vilã→Rival→Ginásio).
+    if (gym.id === 'brock' && !worldFlags.includes('rival_1_defeated')) return true;
     if (gym.id === 'brock' && !worldFlags.includes('viridian_forest_cleared')) return true;
     return badgeCount < gym.unlockAfterBadges;
   };

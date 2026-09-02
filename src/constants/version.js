@@ -1,7 +1,27 @@
-export const APP_VERSION = '2.17.0';
-export const VERSION = '2.17.0';
-export const APP_VERSION_DATE = '01/09/2026 15:26';
+export const APP_VERSION = '2.20.0';
+export const VERSION = '2.20.0';
+export const APP_VERSION_DATE = '02/09/2026 06:37';
 export const CHANGELOG = [
+  '## [V2.20.0] - 02/09/2026 06:37',
+  '### Modais de Treinador (aparição e vitória) com frases temáticas',
+  '- **Modal de aparição**: ao aparecer um treinador de rota ou Super Chefe (👑), abre um modal com o sprite e uma frase temática (por classe de treinador ou do líder), como se o personagem falasse.',
+  '- **Modal de vitória**: após derrotá-lo, abre um modal com o sprite, uma frase de derrota e os itens ganhos (moedas e Pokébolas).',
+  '- **Pausa de encontros**: enquanto qualquer um dos modais está aberto, nenhum novo encontro (Pokémon selvagem ou treinador) acontece até você fechar.',
+  '- **Controles**: ambos os modais têm botão de fechar e opção "🔕 Não mostrar mais" (por dispositivo).',
+  '',
+  '## [V2.19.0] - 02/09/2026 06:25',
+  '### Líderes como Super Chefes de Rota + Pokébolas, Starters e sprites maiores',
+  '- **Super Chefes = Líderes de Ginásio**: cada Líder que você derrota passa a aparecer como revanche (👑 Super Chefe) nas rotas de farm da sua região — cobre todas as 9 regiões (Kanto a Paldea) e libera progressivamente conforme você conquista as insígnias.',
+  '- **Recompensa em Pokébolas**: derrotar treinadores agora dá Pokébolas; Super Chefes dão bastante (+10 Poké, +4 Great, +2 Ultra) além de ~3.5× moedas.',
+  '- **Starters mais comuns**: o spawn dos Pokémon iniciais foi bem aumentado para facilitar o farm de candies de evolução.',
+  '- **Sprites maiores**: Pokémon e treinadores na área de batalha ficaram ainda maiores.',
+  '',
+  '## [V2.18.0] - 02/09/2026 06:02',
+  '### Conclusão do MODO VS estrito + Super Chefes funcionais',
+  '- **Super Chefes de Rota funcionando**: agora realmente aparecem (1 por região, spawn raro em rotas de farm) com equipe forte (+5 níveis, 3-4 Pokémon) e recompensa massiva de moedas (~3.5×).',
+  '- **Trava estrita Vilã→Rival**: no MODO VS, os cards de Rival das regiões com Equipe Vilã (Hoenn, Unova, Kalos, Alola, Galar, Paldea) só liberam após vencer a Vilã da fase — com aviso "Vença a Equipe Vilã".',
+  '- **Trava de Ginásio (Kanto)**: o 1º ginásio (Brock) agora exige vencer o Rival inicial, reforçando a sequência Vilã→Rival→Ginásio (nas demais regiões a sequência já é garantida pelos gates de rota).',
+  '',
   '## [V2.17.0] - 01/09/2026 15:26',
   '### MODO VS Sequencial Estrito + Treinadores Regionais & Super Chefes',
   '- **Sequência Estrita MODO VS**: A progressão e o atalho da jornada agora exigem obrigatoriamente a ordem de dificuldade: Equipe Vilã → Rival → Ginásio.',

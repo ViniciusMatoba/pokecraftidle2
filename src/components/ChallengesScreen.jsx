@@ -833,7 +833,7 @@ const FUTURE_REGION_LEGENDARIES = [
   },
 ];
 
-const CHALLENGES = [
+export const CHALLENGES = [
   // RIVAIS
   {
     region: 'kanto',
@@ -3100,7 +3100,22 @@ const ChallengesScreen = ({
     }
   }, [filterCategories]);
 
+  // Trava estrita Vilã→Rival: onde a região tem Equipe Vilã antes do Rival,
+  // o Rival só libera após vencer a Vilã da fase.
+  const REGION_RIVAL_GATE = {
+    hoenn: 'hoenn_villain_1_cleared',
+    unova: 'unova_villain_1_cleared',
+    kalos: 'kalos_villain_1_cleared',
+    alola: 'alola_villain_1_cleared',
+    galar: 'galar_villain_1_cleared',
+    paldea: 'paldea_villain_1_cleared',
+  };
+  const rivalGateFlag = (challenge) =>
+    challenge.category === 'rival' ? REGION_RIVAL_GATE[challenge.region] : null;
+
   const isUnlocked = (challenge) => {
+    const gate = rivalGateFlag(challenge);
+    if (gate && !hasProgressRequirement(gameState, gate)) return false;
     if (!challenge.requiresFlag) return true;
     return hasProgressRequirement(gameState, challenge.requiresFlag);
   };
@@ -3246,11 +3261,11 @@ const ChallengesScreen = ({
                     {!unlocked && (
                       <div className="flex flex-col items-end gap-1">
                         <span className="text-white/40 text-xl">LOCK</span>
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); handleRequirementClick(challenge.requiresFlag); }}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleRequirementClick(rivalGateFlag(challenge) || challenge.requiresFlag); }}
                           className="text-[7px] font-black text-red-400 uppercase bg-black/40 px-2 py-1 rounded-lg border border-red-900/50 hover:bg-black/60 transition-all"
                         >
-                          REQ: {flagNames[challenge.requiresFlag] || challenge.requiresFlag}
+                          REQ: {rivalGateFlag(challenge) && !hasProgressRequirement(gameState, rivalGateFlag(challenge)) ? 'Vença a Equipe Vilã' : (flagNames[challenge.requiresFlag] || challenge.requiresFlag)}
                         </button>
                       </div>
                     )}

@@ -45,6 +45,8 @@ import { MoveCategoryIcon, StatusBadges, QuickInventory, TrainerCard, BadgeSVG }
 import OfflineProgressModal from './components/OfflineProgressModal';
 import { calculateOfflineProgress, applyOfflineProgress } from './utils/offlineProgress';
 import { GYMS, ELITE_FOUR } from './data/gyms';
+import { CHALLENGES } from './components/ChallengesScreen';
+import { getTrainerIntroPhrase, getTrainerDefeatPhrase } from './data/trainerPhrases';
 import { auth, db, trackEvent } from './firebase';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { doc, getDoc, getDocFromServer, setDoc, deleteField, serverTimestamp, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
@@ -403,6 +405,36 @@ const getRegionLevelCap = (badges = [], region = 'kanto') => {
 const RECIPE_MODAL_HIDE_KEY = 'pokecraft_hide_recipe_modal';
 const isRecipeModalHidden = () => { try { return localStorage.getItem(RECIPE_MODAL_HIDE_KEY) === 'true'; } catch { return false; } };
 const hideRecipeModalForever = () => { try { localStorage.setItem(RECIPE_MODAL_HIDE_KEY, 'true'); } catch {} };
+
+// Flags "não exibir mais" dos modais de treinador (por dispositivo).
+const readFlag = (k) => { try { return localStorage.getItem(k) === 'true'; } catch { return false; } };
+const writeFlag = (k) => { try { localStorage.setItem(k, 'true'); } catch {} };
+const TRAINER_ENCOUNTER_HIDE_KEY = 'pokecraft_hide_trainer_encounter';
+const TRAINER_VICTORY_HIDE_KEY = 'pokecraft_hide_trainer_victory';
+const isTrainerEncounterHidden = () => readFlag(TRAINER_ENCOUNTER_HIDE_KEY);
+const isTrainerVictoryHidden = () => readFlag(TRAINER_VICTORY_HIDE_KEY);
+
+// Super Chefes de Rota = LÍDERES DE GINÁSIO já derrotados (rematch nas rotas).
+// Kanto vem de GYMS; demais regiões vêm de CHALLENGES (líderes têm campo `badge`).
+const getRegionGymLeaders = (region = 'kanto') => {
+  if (region === 'kanto') {
+    return GYMS.map(g => ({ name: g.name, sprite: g.sprite, team: g.team, flag: g.badge }));
+  }
+  return CHALLENGES
+    .filter(c =>
+      c.region === region && c.category === region &&
+      !/_elite_|champion|_e4_/i.test(c.id || '') &&
+      !/elite four|campe/i.test(c.name || '') &&
+      (c.team || []).length > 0)
+    .map(c => ({ name: c.name, sprite: c.sprite, team: c.team, flag: c.unlockFlag || c.badge }));
+};
+
+// Líderes já derrotados da região ativa (aptos a virar Super Chefe de rota).
+const getDefeatedRegionLeaders = (gameState = {}) => {
+  const region = gameState.activeRegion || 'kanto';
+  const flags = new Set([...(gameState.worldFlags || []), ...(gameState.badges || []).map(String)]);
+  return getRegionGymLeaders(region).filter(l => l.flag && flags.has(l.flag) && (l.team || []).length > 0);
+};
 
 const getLevelGapXpMultiplier = (pokemonLevel = 1, enemyLevel = 1) => {
   const levelGap = Math.max(0, (pokemonLevel || 1) - (enemyLevel || 1));
@@ -1178,6 +1210,9 @@ export default function App() {
   const [showMegaIntroModal, setShowMegaIntroModal] = useState(false); // Sycamore mega evolution intro
   const [showLegendaryModal, setShowLegendaryModal] = useState(null);  // { professor, professorName, region, accentColor, title, message, legendaries, shownFlag, secondaryFlag, secondaryLegendaries, secondaryMessage }
   const [showGymVictoryModal, setShowGymVictoryModal] = useState(null); // { leaderName, badge, badgeImg, reward }
+  const [trainerEncounter, setTrainerEncounter] = useState(null); // modal de aparição de treinador/super chefe
+  const [trainerVictory, setTrainerVictory] = useState(null);     // modal de vitória contra treinador/super chefe
+  const battleModalPausedRef = useRef(false);                     // pausa o loop de batalha enquanto há modal de aparição
   const [previewStarter, setPreviewStarter] = useState(null);
   const [activeQuestModal, setActiveQuestModal] = useState(null);
   const [pendingQuest, setPendingQuest] = useState(null);
@@ -3200,6 +3235,55 @@ export default function App() {
         instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9)
       });
       addLog(`⚠️ EMBOSCADA! ${teamData.name} ${reason}`, 'enemy');
+      if (!isTrainerEncounterHidden()) {
+        battleModalPausedRef.current = true;
+        setTrainerEncounter({
+          name: teamData.name, sprite: teamData.sprite, isSuperBoss: false,
+          phrase: getTrainerIntroPhrase({ trainerName: teamData.name }),
+        });
+      }
+      return;
+    }
+
+    // SUPER CHEFE DE ROTA = Líder de Ginásio já derrotado (rematch raro na rota)
+    const defeatedLeaders = getDefeatedRegionLeaders(gameState);
+    if (defeatedLeaders.length > 0 && route.type === 'farm' && Math.random() < 0.008) {
+      const leader = defeatedLeaders[Math.floor(Math.random() * defeatedLeaders.length)];
+      const teamIds = (leader.team || []).map(t => Number(t.id ?? t)).filter(Boolean).slice(0, 4);
+      const sbLvl = Math.max(10, (route.enemies?.[0]?.level || 5) + 8);
+      const sbMult = 1.25; // Super Chefes (líderes) são bem mais fortes
+      const sbHP = (b, l) => Math.ceil((((2 * (b || 50) * l) / 100) + l + 10) * sbMult);
+      const sbStat = (b, l) => Math.ceil((((2 * (b || 10) * l) / 100) + 5) * sbMult);
+      const sbTeam = teamIds.map(id => {
+        const d = POKEDEX[id] || POKEDEX[19];
+        return { id: Number(id), level: sbLvl, name: d?.name };
+      });
+      const lead = POKEDEX[teamIds[0]] || POKEDEX[19];
+      const sbMaxHp = sbHP(lead.maxHp || lead.hp, sbLvl);
+      setCurrentEnemy({
+        ...lead, id: Number(teamIds[0]), name: lead.name, pokemonName: lead.name,
+        level: sbLvl, hp: sbMaxHp, maxHp: sbMaxHp,
+        attack: sbStat(lead.attack, sbLvl), defense: sbStat(lead.defense, sbLvl),
+        spAtk: sbStat(lead.spAtk, sbLvl), spDef: sbStat(lead.spDef, sbLvl), speed: sbStat(lead.speed, sbLvl),
+        isShiny: false, status: [],
+        stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 },
+        isTrainer: true, isSuperBoss: true, superBossTitle: `Líder ${leader.name} (Rematch)`, rewardMult: 3.5,
+        trainerName: leader.name, trainerSprite: leader.sprite,
+        trainerReward: Math.floor(sbLvl * 50 * 3.5),
+        opponentTeam: sbTeam, opponentTeamIndex: 0,
+        spawnTime: Date.now(),
+        instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+      });
+      setBattleLog([]);
+      isProcessingVictory.current = false;
+      addLog(`👑 SUPER CHEFE DE ROTA: Líder ${leader.name} apareceu para uma revanche! Recompensa massiva se vencer!`, 'system');
+      if (!isTrainerEncounterHidden()) {
+        battleModalPausedRef.current = true;
+        setTrainerEncounter({
+          name: leader.name, sprite: leader.sprite, isSuperBoss: true,
+          phrase: getTrainerIntroPhrase({ trainerName: leader.name, isSuperBoss: true }),
+        });
+      }
       return;
     }
 
@@ -3252,10 +3336,13 @@ export default function App() {
       });
       setBattleLog([]);
       isProcessingVictory.current = false;
-      if (trainer.isSuperBoss) {
-        addLog(`👑 SUPER CHEFE DE ROTA: ${trainer.name} quer batalhar!`, 'system');
-      } else {
-        addLog(`⚔️ ${trainer.name} quer batalhar!`, 'system');
+      addLog(`⚔️ ${trainer.name} quer batalhar!`, 'system');
+      if (!isTrainerEncounterHidden()) {
+        battleModalPausedRef.current = true;
+        setTrainerEncounter({
+          name: trainer.name, sprite: trainer.sprite, isSuperBoss: false,
+          phrase: getTrainerIntroPhrase({ trainerName: trainer.name }),
+        });
       }
       return;
     }
@@ -4158,8 +4245,8 @@ export default function App() {
     // FIM DA REGRA DE EXAUSTAO
     
     const viewsAllowingBattle = ['battles', 'pokemon_management', 'pokedex', 'menu', 'vs'];
-    const isPaused = activeBuildingModal !== null;
-    
+    const isPaused = activeBuildingModal !== null || battleModalPausedRef.current;
+
     if (!currentEnemy || !viewsAllowingBattle.includes(currentViewRef.current) || isPaused || currentEnemy.hp <= 0) {
       return 1200 * speedMultiplier;
     }
@@ -7158,6 +7245,22 @@ export default function App() {
         newInventory.candies[candId] = (newInventory.candies[candId] || 0) + qty;
       });
 
+      // Recompensa de Pokébolas ao derrotar treinadores (Super Chefes dão bastante).
+      if (currentEnemy.isTrainer) {
+        const ballGain = currentEnemy.isSuperBoss ? 10 : 2;
+        const rewItems = { ...(newInventory.items || {}) };
+        rewItems.pokeballs = (rewItems.pokeballs || 0) + ballGain;
+        if (currentEnemy.isSuperBoss) {
+          rewItems.great_ball = (rewItems.great_ball || 0) + 4;
+          rewItems.ultra_ball = (rewItems.ultra_ball || 0) + 2;
+        }
+        newInventory.items = rewItems;
+        const ballMsg = currentEnemy.isSuperBoss
+          ? `🎁 Super Chefe derrotado! +${ballGain} Pokébolas, +4 Great Balls, +2 Ultra Balls!`
+          : `🎁 +${ballGain} Pokébolas do treinador!`;
+        setTimeout(() => addLog(ballMsg, 'drop'), 0);
+      }
+
       const currentRouteData = ROUTES[prev.currentRoute];
       if (currentRouteData) {
         if (currentRouteData.unlocks) {
@@ -7430,6 +7533,28 @@ export default function App() {
     });
 
     messages.forEach(m => addLog(m, 'drop'));
+
+    // Modal de vitória contra treinador/super chefe de rota (não é batalha VS/ginásio).
+    if (currentEnemy.isTrainer && !currentEnemy.badgeToGive && !currentEnemy.challengeCategory && !isTrainerVictoryHidden()) {
+      const BALL_IMG = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
+      battleModalPausedRef.current = true; // pausa encontros até fechar o modal
+      const coins = getTrainerCurrencyReward(currentEnemy.trainerReward || 0);
+      const balls = currentEnemy.isSuperBoss
+        ? [
+            { img: `${BALL_IMG}poke-ball.png`,  label: 'Pokébola',   qty: 10 },
+            { img: `${BALL_IMG}great-ball.png`, label: 'Great Ball', qty: 4 },
+            { img: `${BALL_IMG}ultra-ball.png`, label: 'Ultra Ball', qty: 2 },
+          ]
+        : [{ img: `${BALL_IMG}poke-ball.png`, label: 'Pokébola', qty: 2 }];
+      setTimeout(() => setTrainerVictory({
+        name: currentEnemy.trainerName || 'Treinador',
+        sprite: currentEnemy.trainerSprite,
+        isSuperBoss: !!currentEnemy.isSuperBoss,
+        phrase: getTrainerDefeatPhrase(currentEnemy),
+        coins, balls,
+      }), 700);
+    }
+
     // Modal de receita encontrada — só aparece se for nova e não houver um modal aberto
     const newRecipes = foundRecipes?.filter(r => r.isNew);
     if (newRecipes?.length > 0 && !recipeFoundModal && !isRecipeModalHidden()) {
@@ -10528,6 +10653,87 @@ export default function App() {
                   Continuar explorando por ora
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: Aparição de Treinador / Super Chefe ─────────────────────── */}
+      {trainerEncounter && (
+        <div className="absolute inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-xl animate-fadeIn">
+          <div className={`w-full max-w-[400px] bg-white rounded-[3rem] shadow-2xl overflow-hidden border-b-[12px] ${trainerEncounter.isSuperBoss ? 'border-amber-400' : 'border-blue-500'} animate-bounceIn relative`}>
+            <div className={`bg-gradient-to-br ${trainerEncounter.isSuperBoss ? 'from-amber-600 to-red-700' : 'from-blue-600 to-indigo-800'} px-8 py-8 flex flex-col items-center text-center`}>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/70 mb-3">
+                {trainerEncounter.isSuperBoss ? '👑 Super Chefe de Rota' : '⚔️ Um treinador apareceu!'}
+              </p>
+              <div className="w-28 h-28 rounded-[2rem] bg-white/20 backdrop-blur-md flex items-center justify-center border-2 border-white/30 shadow-inner mb-4">
+                <img src={trainerEncounter.sprite} className="w-24 h-24 object-contain drop-shadow-lg" alt={trainerEncounter.name} onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'; }} />
+              </div>
+              <h3 className="text-white font-black text-2xl uppercase italic tracking-tighter leading-none">{trainerEncounter.name}</h3>
+            </div>
+            <div className="px-6 py-5">
+              <div className="rounded-2xl bg-slate-100 border-2 border-slate-200 px-4 py-3 mb-4">
+                <p className="text-sm font-bold text-slate-700 italic leading-relaxed text-center">"{trainerEncounter.phrase}"</p>
+              </div>
+              <button
+                onClick={() => { battleModalPausedRef.current = false; setTrainerEncounter(null); }}
+                className={`w-full py-4 rounded-2xl font-black uppercase text-sm tracking-widest text-white shadow-lg active:scale-95 transition-all ${trainerEncounter.isSuperBoss ? 'bg-gradient-to-r from-amber-500 to-red-600' : 'bg-gradient-to-r from-blue-600 to-indigo-700'}`}
+              >
+                ⚔️ Batalhar!
+              </button>
+              <button
+                onClick={() => { writeFlag(TRAINER_ENCOUNTER_HIDE_KEY); battleModalPausedRef.current = false; setTrainerEncounter(null); }}
+                className="w-full mt-2 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-600 active:scale-95 transition-all"
+              >
+                🔕 Não mostrar mais
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: Vitória contra Treinador / Super Chefe ──────────────────── */}
+      {trainerVictory && (
+        <div className="absolute inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-xl animate-fadeIn">
+          <div className={`w-full max-w-[400px] bg-white rounded-[3rem] shadow-2xl overflow-hidden border-b-[12px] ${trainerVictory.isSuperBoss ? 'border-amber-400' : 'border-emerald-500'} animate-bounceIn relative`}>
+            <div className={`bg-gradient-to-br ${trainerVictory.isSuperBoss ? 'from-amber-600 to-red-700' : 'from-emerald-600 to-teal-700'} px-8 py-8 flex flex-col items-center text-center`}>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/70 mb-3">
+                {trainerVictory.isSuperBoss ? '👑 Super Chefe Derrotado!' : '🏆 Treinador Derrotado!'}
+              </p>
+              <div className="w-24 h-24 rounded-[2rem] bg-white/20 backdrop-blur-md flex items-center justify-center border-2 border-white/30 shadow-inner mb-4">
+                <img src={trainerVictory.sprite} className="w-20 h-20 object-contain drop-shadow-lg grayscale-[0.3]" alt={trainerVictory.name} onError={e => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'; }} />
+              </div>
+              <h3 className="text-white font-black text-xl uppercase italic tracking-tighter leading-none">{trainerVictory.name}</h3>
+            </div>
+            <div className="px-6 py-5">
+              <div className="rounded-2xl bg-slate-100 border-2 border-slate-200 px-4 py-3 mb-4">
+                <p className="text-sm font-bold text-slate-700 italic leading-relaxed text-center">"{trainerVictory.phrase}"</p>
+              </div>
+              <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center mb-2">Recompensas</p>
+              <div className="flex items-center justify-center gap-3 flex-wrap mb-4">
+                <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" className="w-5 h-5 object-contain" alt="" />
+                  <span className="text-sm font-black text-amber-600">{trainerVictory.coins.toLocaleString()}</span>
+                </div>
+                {trainerVictory.balls.map(b => (
+                  <div key={b.label} className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2" title={b.label}>
+                    <img src={b.img} className="w-5 h-5 object-contain" alt={b.label} />
+                    <span className="text-sm font-black text-slate-700">+{b.qty}</span>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => { battleModalPausedRef.current = false; setTrainerVictory(null); }}
+                className={`w-full py-4 rounded-2xl font-black uppercase text-sm tracking-widest text-white shadow-lg active:scale-95 transition-all ${trainerVictory.isSuperBoss ? 'bg-gradient-to-r from-amber-500 to-red-600' : 'bg-gradient-to-r from-emerald-600 to-teal-700'}`}
+              >
+                Continuar
+              </button>
+              <button
+                onClick={() => { writeFlag(TRAINER_VICTORY_HIDE_KEY); battleModalPausedRef.current = false; setTrainerVictory(null); }}
+                className="w-full mt-2 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-600 active:scale-95 transition-all"
+              >
+                🔕 Não mostrar mais
+              </button>
             </div>
           </div>
         </div>

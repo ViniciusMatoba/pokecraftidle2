@@ -2,6 +2,10 @@
 // Afeta Pokemon que aparecem, cor do background e musica.
 
 import { getPokemonRarity, RARITY_WEIGHTS } from './pokemonDifficulty';
+import { STARTER_IDS, baseSpeciesId } from '../data/rarityClassification';
+
+// Peso de spawn reforçado para iniciais — facilita farmar candies p/ evolução.
+const STARTER_SPAWN_WEIGHT = 50;
 
 export const getTimeOfDay = () => {
   const hour = new Date().getHours();
@@ -167,7 +171,9 @@ export const getTimeAdjustedEnemyPool = (route, period = getTimeOfDay(), pokedex
     // Peso base: usa spawnWeight explícito da rota; senão deriva da raridade da
     // espécie (comum aparece muito, raro pouco) — diferenciação para todos.
     const rarityWeight = RARITY_WEIGHTS[getPokemonRarity(entry, pokedex)] || RARITY_WEIGHTS.common;
-    const baseWeight = entry.spawnWeight || rarityWeight;
+    let baseWeight = entry.spawnWeight || rarityWeight;
+    // Iniciais aparecem bem mais para viabilizar o farm de candies de evolução.
+    if (STARTER_IDS.has(baseSpeciesId(entry.id))) baseWeight = Math.max(baseWeight, STARTER_SPAWN_WEIGHT);
     const spawnWeight = Math.max(1, Math.round(baseWeight * multiplier));
     unique.set(Number(entry.id), { ...entry, spawnWeight, timeMultiplier: multiplier });
   });
