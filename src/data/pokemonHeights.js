@@ -33,12 +33,14 @@ export const POKEMON_HEIGHTS_M = {
   919:0.2, 179:0.6, 187:0.4, 191:0.3, 293:0.6, 425:0.4,
 };
 
-// Escala do sprite (0.65×–1.4×) a partir da altura real, com curva logarítmica:
-// ~0.3m → 0.65×, ~1.5m → ~1.0×, ≥8m → 1.4×. IDs sem altura ficam em 1.0.
-const MIN_SCALE = 0.65;
-const MAX_SCALE = 1.4;
-const H_LO = Math.log(0.3);
-const H_HI = Math.log(8);
+// Escala do sprite a partir da altura real (linear em log), com bastante
+// contraste e faixa 0.6×–1.5×. Referências:
+//   Caterpie 0.3m → 0.6× · Bulbasaur 0.7m → ~0.75× · Nidoking 1.4m → ~0.98×
+//   Snorlax 2.1m → ~1.12× · Gyarados 6.5m → ~1.49× · Onix/Wailord → 1.5×.
+const MIN_SCALE = 0.6;
+const MAX_SCALE = 1.5;
+const SCALE_A = 0.8685; // intercepto
+const SCALE_B = 0.332;  // inclinação por unidade de ln(altura)
 
 export const getSpriteScale = (idOrPokemon) => {
   const id = typeof idOrPokemon === 'object' && idOrPokemon !== null
@@ -48,6 +50,6 @@ export const getSpriteScale = (idOrPokemon) => {
   const baseId = id >= 10000 ? id % 10000 : id; // formas herdam a base
   const h = POKEMON_HEIGHTS_M[baseId];
   if (!h) return 1; // sem altura conhecida → tamanho base
-  const t = Math.min(1, Math.max(0, (Math.log(h) - H_LO) / (H_HI - H_LO)));
-  return Math.round((MIN_SCALE + t * (MAX_SCALE - MIN_SCALE)) * 100) / 100;
+  const raw = SCALE_A + SCALE_B * Math.log(h);
+  return Math.round(Math.min(MAX_SCALE, Math.max(MIN_SCALE, raw)) * 100) / 100;
 };

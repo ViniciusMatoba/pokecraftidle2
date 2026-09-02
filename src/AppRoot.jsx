@@ -3204,7 +3204,7 @@ export default function App() {
     const hasTrainers = route.trainers && route.trainers.length > 0;
 
     // EMBOSCADA VILA
-    if (Math.random() < 0.01 && route.type === 'farm') {
+    if (Math.random() < 0.004 && route.type === 'farm') {
       // Só equipes vilãs da região atual (Kanto → Rocket, Sinnoh → Galáctica, etc.)
       const allowedVillains = REGION_VILLAINS[gameState.activeRegion || 'kanto'] || ['rocket'];
       const teamKeys = Object.keys(VILLAIN_TEAMS).filter(k => allowedVillains.includes(k));
@@ -3243,6 +3243,7 @@ export default function App() {
         trainerSprite: teamData.sprite,
         trainerReward: Math.floor(150 * teamData.rewardMult),
         isVillainAmbush: true,
+        villainTeamName: teamData.name,
         villainColor: teamData.color,
         instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9)
       });
@@ -3259,7 +3260,7 @@ export default function App() {
 
     // SUPER CHEFE DE ROTA = Líder de Ginásio já derrotado (rematch raro na rota)
     const defeatedLeaders = getDefeatedRegionLeaders(gameState);
-    if (defeatedLeaders.length > 0 && route.type === 'farm' && Math.random() < 0.008) {
+    if (defeatedLeaders.length > 0 && route.type === 'farm' && Math.random() < 0.003) {
       const leader = defeatedLeaders[Math.floor(Math.random() * defeatedLeaders.length)];
       const teamIds = (leader.team || []).map(t => Number(t.id ?? t)).filter(Boolean).slice(0, 4);
       const sbLvl = Math.max(10, (route.enemies?.[0]?.level || 5) + 8);
@@ -3300,7 +3301,7 @@ export default function App() {
     }
 
     // Chance de encontrar um treinador reduzida (favorecendo pokemons selvagens)
-    const effectiveTrainerChance = Math.min(0.015, trainerChance); 
+    const effectiveTrainerChance = Math.min(0.006, trainerChance); 
     if (hasTrainers && Math.random() < effectiveTrainerChance) {
       const trainer = route.trainers[Math.floor(Math.random() * route.trainers.length)];
       const trainerPokeRef = trainer.team[0] || { id: 19, level: 5 };

@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.23.0';
-export const VERSION = '2.23.0';
-export const APP_VERSION_DATE = '02/09/2026 07:30';
+export const APP_VERSION = '2.24.0';
+export const VERSION = '2.24.0';
+export const APP_VERSION_DATE = '02/09/2026 07:47';
 export const CHANGELOG = [
+  '## [V2.24.0] - 02/09/2026 07:47',
+  '### Menos encontros de treinador, frases icônicas e sprites com mais contraste',
+  '- **Frequência reduzida (~60%)**: emboscadas de vilão, treinadores de rota e Super Chefes aparecem bem menos.',
+  '- **Frases marcantes**: equipes vilãs (Rocket, Aqua, Magma, Galáctica, Plasma, Flare, Skull, Yell, Star) e líderes de ginásio de Kanto agora usam falas icônicas do anime/jogos na aparição e na derrota.',
+  '- **Sprites proporcionais recalibrados**: mais contraste entre pequenos e grandes (faixa 0.6×–1.5×) — ex.: Bulbasaur ficou menor e a diferença para Nidoking/Snorlax/Onix ficou bem mais visível.',
+  '',
   '## [V2.23.0] - 02/09/2026 07:30',
   '### Sprites proporcionais ao tamanho da Pokédex',
   '- **Novo**: Na batalha, os sprites agora têm tamanho proporcional à ALTURA real do Pokémon (base Pokédex, sem influência de stats) — de 0.65× (pequenos como Caterpie/Diglett) a 1.4× (gigantes como Onix/Wailord/Gyarados).',

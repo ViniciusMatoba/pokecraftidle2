@@ -54,14 +54,47 @@ const classFromName = (name = '') => {
   return null;
 };
 
+// Frases marcantes das EQUIPES VILÃS (anime/jogos), por nome de exibição.
+export const VILLAIN_TEAM_PHRASES = {
+  'Equipe Rocket': { intro: ['Preparem-se para encrenca! E façam ficar em dobro!', 'A Equipe Rocket decola à velocidade da luz!'], defeat: ['A Equipe Rocket foi nocauteada de novo!', 'Isso não vai ficar assim!'] },
+  'Equipe Rainbow Rocket': { intro: ['Todos os vilões reunidos! Você não tem a menor chance!'], defeat: ['Impossível... derrotados mesmo unidos!'] },
+  'Equipe Aqua': { intro: ['O mar deve cobrir toda a terra! Saia do caminho!'], defeat: ['As marés viraram contra nós...'] },
+  'Equipe Magma': { intro: ['A terra deve se expandir para a humanidade prosperar!'], defeat: ['Nosso plano virou cinzas!'] },
+  'Equipe Galáctica': { intro: ['Um novo mundo sem espírito nascerá! Não vou deixar você atrapalhar!'], defeat: ['O caos que buscávamos... falhou.'] },
+  'Equipe Plasma': { intro: ['Vamos libertar os Pokémon de humanos como você!'], defeat: ['Nem a libertação nos salvou da derrota...'] },
+  'Equipe Flare': { intro: ['Só os escolhidos merecem um mundo belo!'], defeat: ['Que deselegante... perder assim.'] },
+  'Equipe Skull': { intro: ['Yo! A Equipe Skull manda nessa área, mano!'], defeat: ['Aff, levamos um esculacho...'] },
+  'Equipe Yell': { intro: ['Vamos torcer... pela sua derrota!'], defeat: ['Buááá, perdemos a torcida!'] },
+  'Equipe Star': { intro: ['Hora do show! A Equipe Star vai brilhar!'], defeat: ['Nossa estrela apagou hoje...'] },
+};
+
+// Frases marcantes de LÍDERES DE GINÁSIO (Kanto + adicione outras regiões depois).
+export const LEADER_PHRASES = {
+  'Brock':     { intro: ['Sou Brock! Minha vontade é firme como a pedra de Pewter!'], defeat: ['Reconheço seu poder. Sua determinação é sólida como rocha.'] },
+  'Misty':     { intro: ['Sou a sereia aquática de Cerulean! Prepare-se para se molhar!'], defeat: ['Suas ondas foram mais fortes que as minhas...'] },
+  'Lt. Surge': { intro: ['Vou te fritar como no exército, criança!'], defeat: ['Você tem faísca de verdade, soldado!'] },
+  'Surge':     { intro: ['Vou te fritar como no exército, criança!'], defeat: ['Você tem faísca de verdade, soldado!'] },
+  'Erika':     { intro: ['Bem-vindo. Detestaria machucá-lo... mas vou vencer.'], defeat: ['Que graça a sua vitória. Reconheço minha derrota.'] },
+  'Koga':      { intro: ['Fu-ha-ha! Veneno e névoa serão a sua ruína!'], defeat: ['Impressionante... você enxergou através da névoa.'] },
+  'Sabrina':   { intro: ['Eu já previ sua derrota com meus poderes psíquicos.'], defeat: ['Minha previsão... falhou. Que curioso.'] },
+  'Blaine':    { intro: ['Hah! Resolva o enigma das minhas chamas... ou queime!'], defeat: ['Você apagou meu fogo. Muito bem jogado!'] },
+  'Giovanni':  { intro: ['Sou o líder da Equipe Rocket! Ajoelhe-se diante do meu poder!'], defeat: ['Ha! Você venceu. A Equipe Rocket se dissolve... por ora.'] },
+};
+
 export const getTrainerIntroPhrase = (enemy = {}) => {
-  if (enemy.isSuperBoss) return pick(SUPER_BOSS_PHRASES.intro);
-  const cls = classFromName(enemy.trainerName || enemy.name || '');
+  const name = enemy.trainerName || enemy.name || '';
+  const villain = enemy.villainTeamName || name;
+  if (enemy.isSuperBoss) return pick(LEADER_PHRASES[name]?.intro || SUPER_BOSS_PHRASES.intro);
+  if (VILLAIN_TEAM_PHRASES[villain]) return pick(VILLAIN_TEAM_PHRASES[villain].intro);
+  const cls = classFromName(name);
   return pick((cls && TRAINER_CLASS_PHRASES[cls]?.intro) || GENERIC_TRAINER_PHRASES.intro);
 };
 
 export const getTrainerDefeatPhrase = (enemy = {}) => {
-  if (enemy.isSuperBoss) return pick(SUPER_BOSS_PHRASES.defeat);
-  const cls = classFromName(enemy.trainerName || enemy.name || '');
+  const name = enemy.trainerName || enemy.name || '';
+  const villain = enemy.villainTeamName || name;
+  if (enemy.isSuperBoss) return pick(LEADER_PHRASES[name]?.defeat || SUPER_BOSS_PHRASES.defeat);
+  if (VILLAIN_TEAM_PHRASES[villain]) return pick(VILLAIN_TEAM_PHRASES[villain].defeat);
+  const cls = classFromName(name);
   return pick((cls && TRAINER_CLASS_PHRASES[cls]?.defeat) || GENERIC_TRAINER_PHRASES.defeat);
 };
