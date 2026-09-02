@@ -1,7 +1,11 @@
-export const APP_VERSION = '2.22.0';
-export const VERSION = '2.22.0';
-export const APP_VERSION_DATE = '02/09/2026 07:07';
+export const APP_VERSION = '2.22.1';
+export const VERSION = '2.22.1';
+export const APP_VERSION_DATE = '02/09/2026 07:16';
 export const CHANGELOG = [
+  '## [V2.22.1] - 02/09/2026 07:16',
+  '### Fix real do tamanho dos sprites na batalha',
+  '- **Corrigido**: os sprites da área de batalha não aumentavam porque a `<img>` dimensionava contra um container interno sem tamanho (caía no tamanho natural ~96px). Agora o container interno preenche a área e os sprites realmente aumentam (~224px), com posições ajustadas.',
+  '',
   '## [V2.22.0] - 02/09/2026 07:07',
   '### Sprites maiores, modal de missão e correções de região',
   '- **Sprites de batalha**: aumentados de novo (área maior e Pokémon/treinadores em w-60) e reposicionados.',

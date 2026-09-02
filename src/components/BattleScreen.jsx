@@ -548,14 +548,14 @@ const BattleScreen = ({
         )}
 
         {/* SPRITE INIMIGO - Quadrante Superior Direito */}
-        <div ref={enemySpriteRef} className="absolute top-3 right-2 z-10 w-60 h-60 flex items-center justify-center">
+        <div ref={enemySpriteRef} className="absolute top-2 right-1 z-10 w-56 h-56 flex items-center justify-center">
           {statReactions.filter(r => r.target === 'enemy').map(r => (
             <div key={r.id} className={`absolute z-30 stat-arrow-${r.change}`}>
               {r.change === 'up' ? '▲' : '▼'}
               <span className="text-[8px] ml-0.5">{r.stat.toUpperCase()}</span>
             </div>
           ))}
-          <div className="relative">
+          <div className="relative w-full h-full flex items-center justify-center">
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none z-20 whitespace-nowrap">
               {(floatingTexts || []).filter(f => !f.target || f.target === 'enemy').map(f => <span key={f.id} className="block text-center font-black text-lg animate-floatUp" style={{ color: f.color, textShadow: '2px 2px 0 #000' }}>{f.text}</span>)}
             </div>
@@ -659,7 +659,7 @@ const BattleScreen = ({
         </div>
 
         {/* SPRITE JOGADOR - Quadrante Inferior Esquerdo */}
-        <div ref={playerSpriteRef} className="absolute bottom-0 left-1 z-10 w-60 h-60 flex items-center justify-center">
+        <div ref={playerSpriteRef} className="absolute bottom-0 left-0 z-10 w-56 h-56 flex items-center justify-center">
           {statReactions.filter(r => r.target === 'player').map(r => (
             <div key={r.id} className={`absolute z-30 stat-arrow-${r.change}`}>
               {r.change === 'up' ? '▲' : '▼'}
@@ -667,7 +667,7 @@ const BattleScreen = ({
             </div>
           ))}
           {activePoke && (
-            <div className="relative">
+            <div className="relative w-full h-full flex items-center justify-center">
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none z-20 whitespace-nowrap">
                 {(floatingTexts || []).filter(f => f.target === 'player').map(f => <span key={f.id} className="block text-center font-black text-lg animate-floatUp" style={{ color: f.color, textShadow: '2px 2px 0 #000' }}>{f.text}</span>)}
               </div>
