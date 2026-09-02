@@ -1,7 +1,11 @@
-export const APP_VERSION = '2.32.0';
-export const VERSION = '2.32.0';
-export const APP_VERSION_DATE = '02/09/2026 15:55';
+export const APP_VERSION = '2.32.1';
+export const VERSION = '2.32.1';
+export const APP_VERSION_DATE = '02/09/2026 16:07';
 export const CHANGELOG = [
+  '## [V2.32.1] - 02/09/2026 16:07',
+  '### Ajuste: sprite do detalhe menor e centralizado',
+  '- O sprite animado no detalhe do Pokémon ficou grande demais; reduzido para um tamanho equilibrado e centralizado no topo.',
+  '',
   '## [V2.32.0] - 02/09/2026 15:55',
   '### Animação de arremesso de Pokébola nas rotas',
   '- A **auto-captura** nas rotas agora mostra a **animação de arremesso** da Pokébola (como na raid), com chacoalho e resultado.',
