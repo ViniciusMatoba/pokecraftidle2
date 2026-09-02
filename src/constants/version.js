@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.22.1';
-export const VERSION = '2.22.1';
-export const APP_VERSION_DATE = '02/09/2026 07:16';
+export const APP_VERSION = '2.23.0';
+export const VERSION = '2.23.0';
+export const APP_VERSION_DATE = '02/09/2026 07:30';
 export const CHANGELOG = [
+  '## [V2.23.0] - 02/09/2026 07:30',
+  '### Sprites proporcionais ao tamanho da Pokédex',
+  '- **Novo**: Na batalha, os sprites agora têm tamanho proporcional à ALTURA real do Pokémon (base Pokédex, sem influência de stats) — de 0.65× (pequenos como Caterpie/Diglett) a 1.4× (gigantes como Onix/Wailord/Gyarados).',
+  '- **Ajuste de tamanho base**: reduzido o tamanho geral dos sprites (estavam grandes demais) e reposicionados.',
+  '- Cobertura de alturas: Gen 1 completa + casos notáveis das demais gerações; Pokémon sem altura mapeada usam tamanho base (pode ser ampliado).',
+  '',
   '## [V2.22.1] - 02/09/2026 07:16',
   '### Fix real do tamanho dos sprites na batalha',
   '- **Corrigido**: os sprites da área de batalha não aumentavam porque a `<img>` dimensionava contra um container interno sem tamanho (caía no tamanho natural ~96px). Agora o container interno preenche a área e os sprites realmente aumentam (~224px), com posições ajustadas.',
