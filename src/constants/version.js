@@ -1,7 +1,29 @@
-export const APP_VERSION = '2.26.0';
-export const VERSION = '2.26.0';
-export const APP_VERSION_DATE = '02/09/2026 11:17';
+export const APP_VERSION = '2.28.0';
+export const VERSION = '2.28.0';
+export const APP_VERSION_DATE = '02/09/2026 11:38';
 export const CHANGELOG = [
+  '## [V2.28.0] - 02/09/2026 11:38',
+  '### Sistema de Amizade — Etapa 1 (corações)',
+  '- **Novo — Amizade por Pokémon**: cada Pokémon acumula amizade (0 a 5 ❤️) ao ser usado em batalha ou recebendo EXP compartilhado no time.',
+  '- Pokémon **ativo** ganha mais amizade por vitória; quem recebe **EXP compartilhado** ganha menos.',
+  '- **Corações** aparecem no card do Meu Time e do PC, com barra de progresso no detalhe do Pokémon.',
+  '- Próxima etapa: drops automáticos de candies por amizade + evoluções por felicidade (Golbat→Crobat, Eevee→Espeon/Umbreon...) + conquista "Melhores Amigos".',
+  '',
+  '## [V2.27.1] - 02/09/2026 11:33',
+  '### Economia: mais moedas nas rotas',
+  '- **Treinadores** agora pagam ~3,3× mais coins (multiplicador 0,03 → 0,10).',
+  '- **Batalhas selvagens** pagam ~4,4× mais coins (nível × 0,45 → × 2,0, piso mínimo de 5).',
+  '- Objetivo: sustentar a compra de Poké Bolas farmando nas rotas.',
+  '',
+  '## [V2.27.0] - 02/09/2026 11:25',
+  '### Conquistas Especiais (Etapa 2): Shiny, Alfa, Raid e Evolução',
+  '- **Nova seção "Conquistas • Especiais"** no menu de Missões, com 12 conquistas:',
+  '- **Shiny**: capturar 1 / 10 / 50 Pokémon Shiny.',
+  '- **Alfa**: capturar 1 / 10 / 25 Pokémon Alfa (raids).',
+  '- **Raid**: capturar 10 / 50 / 150 Pokémon em Raids.',
+  '- **Evolução**: evoluir 10 / 50 / 150 Pokémon.',
+  '- Recompensas em moedas, itens e materiais (poeira estelar, fragmentos de armadura, candies).',
+  '',
   '## [V2.26.0] - 02/09/2026 11:17',
   '### Conquistas + bordas de maestria de espécie (Etapa 1)',
   '- **Novo — Bordas de Maestria**: capturar a mesma espécie 25× / 100× / 250× dá uma borda 🥉 Bronze / 🥈 Prata / 🥇 Ouro (automática) no card daquele Pokémon no Meu Time e no PC.',

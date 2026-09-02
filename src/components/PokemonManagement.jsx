@@ -7,6 +7,7 @@ import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '.
 import { getTimeOfDay } from '../utils/timeSystem';
 import { getEvolutionCandyInfo } from '../utils/evolutionRequirements';
 import { getSpeciesMasteryTier, MASTERY_TIERS } from '../data/masteryBorders';
+import { getFriendshipView, FRIENDSHIP_MAX_HEARTS } from '../data/friendship';
 import { getCompatibleMegaStones, MEGA_STONE_ICONS, getMegaSprite } from '../data/megaEvolutions';
 import { ABILITY_ITEM_ID, getAbilityDescription, getAbilityLabel, getPokemonAbilityPool, setPokemonAbility } from '../data/abilities';
 import { getPokeballDef, POKEBALL_DEFS, ALL_BALL_IDS, BALL_EFFECT_LABELS } from '../data/pokeballs';
@@ -22,6 +23,28 @@ const STAT_LABELS = {
   defense: 'Defesa',
   spDef: 'Def. Esp.',
   speed: 'Velocidade',
+};
+
+// Fileira de corações de amizade (Etapa 1). `compact` mostra só ❤️ + nº; senão exibe 5 corações.
+const FriendshipHearts = ({ points = 0, compact = false }) => {
+  const { hearts, atMax } = getFriendshipView(points);
+  if (compact) {
+    if (hearts <= 0) return null;
+    return (
+      <span className="text-[10px] font-black not-italic text-pink-500" title={`Amizade ${hearts}/${FRIENDSHIP_MAX_HEARTS}`}>
+        ❤️{hearts}
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-0.5" title={`Amizade ${hearts}/${FRIENDSHIP_MAX_HEARTS}${atMax ? ' • Máximo!' : ''}`}>
+      {Array.from({ length: FRIENDSHIP_MAX_HEARTS }).map((_, i) => (
+        <span key={i} className="text-xs leading-none" style={{ filter: i < hearts ? 'none' : 'grayscale(1)', opacity: i < hearts ? 1 : 0.35 }}>
+          {i < hearts ? '❤️' : '🤍'}
+        </span>
+      ))}
+    </span>
+  );
 };
 
 const ABILITY_DESCRIPTIONS = {
@@ -874,6 +897,7 @@ const PokemonManagement = ({
                       <h4 className="font-black uppercase text-slate-800 text-sm italic leading-none flex items-baseline gap-2">
                         <span>{p.name}</span>
                         {(() => { const mt = getSpeciesMasteryTier(gameState.speciesMastery?.[p.id] || 0); return mt ? <span className="text-xs not-italic" title={`Maestria ${MASTERY_TIERS[mt].label}`}>{MASTERY_TIERS[mt].badge}</span> : null; })()}
+                        <FriendshipHearts points={gameState.friendship?.[p.instanceId] || 0} compact />
                         {p.isAlpha && (
                           <span className="text-red-500 text-xs font-black not-italic" title="Alpha">α</span>
                         )}
@@ -1005,6 +1029,7 @@ const PokemonManagement = ({
                            <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none flex items-center justify-center gap-1">
                              {p.name}
                              {(() => { const mt = getSpeciesMasteryTier(gameState.speciesMastery?.[p.id] || 0); return mt ? <span className="text-[10px] not-italic" title={`Maestria ${MASTERY_TIERS[mt].label}`}>{MASTERY_TIERS[mt].badge}</span> : null; })()}
+                             <FriendshipHearts points={gameState.friendship?.[p.instanceId] || 0} compact />
                              {p.isAlpha && (
                                <span className="text-red-500 text-[9px] font-black not-italic" title="Alpha">α</span>
                              )}
@@ -1256,6 +1281,25 @@ const PokemonManagement = ({
                         ))}
                      </div>
                   </div>
+
+                  {/* AMIZADE */}
+                  {(() => {
+                     const fv = getFriendshipView(gameState.friendship?.[_modalPoke.instanceId] || 0);
+                     return (
+                       <div className="bg-pink-50 p-4 rounded-3xl border border-pink-100 mb-4">
+                          <div className="flex items-center justify-between mb-2">
+                             <h4 className="font-black uppercase text-[8px] text-pink-400 tracking-widest">Amizade</h4>
+                             <FriendshipHearts points={fv.points} />
+                          </div>
+                          <div className="w-full bg-pink-100 h-2 rounded-full overflow-hidden">
+                             <div className="h-full bg-gradient-to-r from-pink-400 to-rose-500 transition-all" style={{ width: `${fv.pct}%` }}></div>
+                          </div>
+                          <p className="text-[8px] font-bold text-pink-400 mt-1.5 text-center">
+                             {fv.atMax ? 'Amizade máxima! ❤️' : `${fv.hearts}/${FRIENDSHIP_MAX_HEARTS} corações — batalhe e mantenha no time para aumentar`}
+                          </p>
+                       </div>
+                     );
+                  })()}
 
                   <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100 mb-6 group hover:border-pokeBlue/30 transition-colors">
                      <h4 className="font-black uppercase text-[8px] text-slate-400 mb-3 tracking-widest text-center">Estatísticas Reais</h4>

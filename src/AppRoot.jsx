@@ -65,6 +65,7 @@ import { REGION_ORDER, REGION_CHAMPION_FLAGS, REGION_BADGE_IDS, getPokemonRegion
 import { getMasteryPath, getEffectiveStat, getShinyMult } from './utils/gameHelpers';
 import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from './utils/pokemonSprites';
 import { getTrainerCurrencyReward } from './utils/economy';
+import { applyFriendshipGains, FRIENDSHIP_GAIN } from './data/friendship';
 import { getTypeEffectiveness } from './data/typeChart';
 import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
 import { getEvolutionCandyInfo } from './utils/evolutionRequirements';
@@ -2968,8 +2969,8 @@ export default function App() {
     const messages = [];
     const rareDrops = [];
 
-    // Moedas base — reduzido drasticamente para tornar a economia mais desafiadora
-    let coinAmount = Math.max(1, Math.floor((enemy.level || 5) * 0.45 * (enemy.isShiny ? 2 : 1)));
+    // Moedas base — ajustado para sustentar a compra de pokébolas nas rotas
+    let coinAmount = Math.max(5, Math.floor((enemy.level || 5) * 2.0 * (enemy.isShiny ? 2 : 1)));
     
     // Efeitos especiais de dano
     const now = Date.now();
@@ -4052,7 +4053,7 @@ export default function App() {
               inventory: { ...s.inventory, items: newItems },
               activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
               raidStats: { ...(s.raidStats || {}), captured: (s.raidStats?.captured || 0) + 1 },
-              playerStats: bumpPlayerStats(s.playerStats, { pokemonCaptured: 1, shinyCaptured: raid.isShiny ? 1 : 0, raidsCaptured: 1 }),
+              playerStats: bumpPlayerStats(s.playerStats, { pokemonCaptured: 1, shinyCaptured: raid.isShiny ? 1 : 0, raidsCaptured: 1, alphaCaptured: 1 }),
             };
           });
           return;
@@ -4081,7 +4082,7 @@ export default function App() {
           inventory: { ...s.inventory, items: newItems },
           activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
           raidStats: { ...(s.raidStats || {}), captured: (s.raidStats?.captured || 0) + 1 },
-          playerStats: bumpPlayerStats(s.playerStats, { pokemonCaptured: 1, shinyCaptured: raid.isShiny ? 1 : 0, raidsCaptured: 1 }),
+          playerStats: bumpPlayerStats(s.playerStats, { pokemonCaptured: 1, shinyCaptured: raid.isShiny ? 1 : 0, raidsCaptured: 1, alphaCaptured: 1 }),
         }));
         return;
       }
@@ -7417,6 +7418,7 @@ export default function App() {
       const themeXP = UI_THEMES[prev.prestige?.uiTheme || 'default']?.bonus?.xpMult || 1;
       const finalXPMult = xpMult * allyBonusXP * themeXP;
 
+      const friendshipGains = {};
       const newTeam = prev.team.map((p, i) => {
         const isLead = (i === activeMemberIndex);
         let xpToAdd = 0;
@@ -7429,6 +7431,12 @@ export default function App() {
           xpToAdd = Math.floor(baseXpGain * (effects.activeExpShare.xpShare || 0.5) * finalXPMult * levelScalingMult);
         } else if (p.hp > 0 && badgesCount > 0) {
           xpToAdd = Math.floor(baseXpGain * getRegionExpShareRate(finalBadges, activeRegion) * finalXPMult * levelScalingMult);
+        }
+
+        // Amizade: líder ativo ganha mais; quem recebe EXP compartilhado ganha menos.
+        if (p.instanceId && p.hp > 0) {
+          if (isLead) friendshipGains[p.instanceId] = FRIENDSHIP_GAIN.activeBattle;
+          else if (xpToAdd > 0) friendshipGains[p.instanceId] = FRIENDSHIP_GAIN.sharedBattle;
         }
 
         // Lucky Egg (Antiga Lógica Hold - Mantida para compatibilidade se necessário)
@@ -7549,6 +7557,7 @@ export default function App() {
         currency: (prev.currency || 0) + (drops.currency || 0) + getTrainerCurrencyReward(currentEnemy.trainerReward || 0),
         inventory: newInventory,
         team: newTeam,
+        friendship: applyFriendshipGains(prev.friendship, friendshipGains),
         worldFlags: [...newFlags, ...tempWorldFlags].filter((v, i, a) => a.indexOf(v) === i),
         badges: newBadges,
         gymDefeatCounts: newGymCounts,
@@ -12439,7 +12448,7 @@ export default function App() {
                         inventory: { ...s.inventory, items: newItems },
                         activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
                         raidStats:   { ...(s.raidStats || {}), captured: (s.raidStats?.captured || 0) + 1 },
-                        playerStats: bumpPlayerStats(s.playerStats, { pokemonCaptured: 1, raidsCaptured: 1 }),
+                        playerStats: bumpPlayerStats(s.playerStats, { pokemonCaptured: 1, raidsCaptured: 1, alphaCaptured: 1 }),
                       };
                     });
                     addLog(`🔴 ${raid.name} ALFA substituiu o Shiny no PC!`, 'system');
@@ -12464,7 +12473,7 @@ export default function App() {
                       inventory: { ...s.inventory, items: newItems },
                       activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
                       raidStats:   { ...(s.raidStats || {}), captured: (s.raidStats?.captured || 0) + 1 },
-                      playerStats: bumpPlayerStats(s.playerStats, { pokemonCaptured: 1, raidsCaptured: 1 }),
+                      playerStats: bumpPlayerStats(s.playerStats, { pokemonCaptured: 1, raidsCaptured: 1, alphaCaptured: 1 }),
                     }));
                     addLog(`🔴 ${raid.name} ALFA foi ao PC! Você manteve os dois.`, 'system');
                     showRaidRouteNotice(raid, 'captured');

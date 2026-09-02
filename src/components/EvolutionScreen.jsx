@@ -455,6 +455,9 @@ const EvolutionScreen = ({
                                   ? { ...candyInventory, items: { ...candyInventory?.items, exp_candy_s: prevCandyCount + duplicatesRemoved } }
                                   : candyInventory,
                                caughtData: { ...prev.caughtData, [evoData.id]: true },
+                               playerStats: willApply
+                                  ? { ...prev.playerStats, evolutionsDone: (Number(prev.playerStats?.evolutionsDone) || 0) + 1 }
+                                  : prev.playerStats,
                             };
                          });
                          addLog(`✨ Parabéns! Seu ${evolutionPending.name} evoluiu para ${nextPoke.name}!`, 'system');

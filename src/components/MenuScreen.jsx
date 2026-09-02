@@ -1117,12 +1117,13 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
         pct: Math.min(100, Math.round((progress / (a.target || 1)) * 100)),
         complete,
         claimed,
-        icon: a.category === 'combat' ? 'vs-seeker.png' : 'town-map.png',
+        icon: a.icon || (a.category === 'combat' ? 'vs-seeker.png' : 'town-map.png'),
       };
     });
     const claimAch = (id) => setGameState(prev => claimAchievement(prev, id).state);
     const combatAch = achievements.filter(a => a.category === 'combat');
     const collectionAch = achievements.filter(a => a.category === 'collection');
+    const specialAch = achievements.filter(a => a.category === 'special');
 
     return (
       <div className="animate-slideUp flex flex-col gap-4">
@@ -1185,6 +1186,12 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
             <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-500 mb-2 px-1">🏆 Conquistas • Coleção</p>
             <div className="flex flex-col gap-3">
               {collectionAch.map(a => <MissionCard key={a.id} mission={a} onClaim={() => claimAch(a.id)} />)}
+            </div>
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-500 mb-2 px-1">🏆 Conquistas • Especiais</p>
+            <div className="flex flex-col gap-3">
+              {specialAch.map(a => <MissionCard key={a.id} mission={a} onClaim={() => claimAch(a.id)} />)}
             </div>
           </div>
         </div>

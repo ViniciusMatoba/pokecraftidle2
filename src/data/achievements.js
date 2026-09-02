@@ -17,6 +17,20 @@ export const ACHIEVEMENTS = [
   { id: 'ach_distinct_500',  category: 'collection', title: 'Grande Colecionador',    description: 'Capture 500 espécies distintas',           stat: 'distinctCaught', target: 500, reward: { currency: 150000, materials: { stardust: 8 } } },
   { id: 'ach_types_18',      category: 'collection', title: 'Diversidade',            description: 'Capture ao menos 1 Pokémon de cada tipo',  stat: 'typesCaught',    target: 18,  reward: { currency: 40000,  items: { moon_stone: 1 } } },
   { id: 'ach_kanto_dex',     category: 'collection', title: 'Pokédex de Kanto',       description: 'Capture os 151 Pokémon de Kanto',          stat: 'kantoDex',       target: 151, reward: { currency: 100000, items: { exp_candy_l: 2 } } },
+
+  // ── Especiais (Etapa 2): Shiny / Alpha / Raid / Evolução ─────────────────
+  { id: 'ach_shiny_1',   category: 'special', title: 'Brilho Raro',        description: 'Capture seu 1º Pokémon Shiny',   stat: 'shinyCaptured',  target: 1,   icon: 'shiny-charm.png',     reward: { currency: 30000,  items: { ultra_ball: 5 } } },
+  { id: 'ach_shiny_10',  category: 'special', title: 'Caçador de Shiny',   description: 'Capture 10 Pokémon Shiny',       stat: 'shinyCaptured',  target: 10,  icon: 'shiny-charm.png',     reward: { currency: 90000,  materials: { stardust: 5 } } },
+  { id: 'ach_shiny_50',  category: 'special', title: 'Lenda Cintilante',   description: 'Capture 50 Pokémon Shiny',       stat: 'shinyCaptured',  target: 50,  icon: 'shiny-charm.png',     reward: { currency: 250000, materials: { stardust: 20 } } },
+  { id: 'ach_alpha_1',   category: 'special', title: 'Primeiro Alfa',      description: 'Capture seu 1º Pokémon Alfa',    stat: 'alphaCaptured',  target: 1,   icon: 'ability-capsule.png', reward: { currency: 40000,  materials: { armor_fragment: 3 } } },
+  { id: 'ach_alpha_10',  category: 'special', title: 'Dominador Alfa',     description: 'Capture 10 Pokémon Alfa',        stat: 'alphaCaptured',  target: 10,  icon: 'ability-capsule.png', reward: { currency: 120000, materials: { armor_fragment: 10 } } },
+  { id: 'ach_alpha_25',  category: 'special', title: 'Rei dos Alfas',      description: 'Capture 25 Pokémon Alfa',        stat: 'alphaCaptured',  target: 25,  icon: 'ability-capsule.png', reward: { currency: 300000, materials: { stardust: 15 } } },
+  { id: 'ach_raid_10',   category: 'special', title: 'Invasor de Raids',   description: 'Capture 10 Pokémon em Raids',    stat: 'raidsCaptured',  target: 10,  icon: 'wishing-piece.png',   reward: { currency: 35000,  items: { ultra_ball: 5 } } },
+  { id: 'ach_raid_50',   category: 'special', title: 'Veterano de Raids',  description: 'Capture 50 Pokémon em Raids',    stat: 'raidsCaptured',  target: 50,  icon: 'wishing-piece.png',   reward: { currency: 100000, materials: { stardust: 8 } } },
+  { id: 'ach_raid_150',  category: 'special', title: 'Mestre de Raids',    description: 'Capture 150 Pokémon em Raids',   stat: 'raidsCaptured',  target: 150, icon: 'wishing-piece.png',   reward: { currency: 300000, materials: { stardust: 25 } } },
+  { id: 'ach_evo_10',    category: 'special', title: 'Evolucionista',      description: 'Evolua 10 Pokémon',              stat: 'evolutionsDone', target: 10,  icon: 'rare-candy.png',      reward: { currency: 25000,  items: { great_ball: 5 } } },
+  { id: 'ach_evo_50',    category: 'special', title: 'Mestre da Evolução',  description: 'Evolua 50 Pokémon',             stat: 'evolutionsDone', target: 50,  icon: 'rare-candy.png',      reward: { currency: 80000,  items: { exp_candy_l: 2 } } },
+  { id: 'ach_evo_150',   category: 'special', title: 'Arquiteto da Vida',  description: 'Evolua 150 Pokémon',             stat: 'evolutionsDone', target: 150, icon: 'rare-candy.png',      reward: { currency: 200000, materials: { stardust: 15 } } },
 ];
 
 const ALL_TYPES = ['Normal', 'Fire', 'Water', 'Grass', 'Electric', 'Ice', 'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'];
