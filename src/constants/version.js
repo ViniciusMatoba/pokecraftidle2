@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.31.2';
-export const VERSION = '2.31.2';
-export const APP_VERSION_DATE = '02/09/2026 12:25';
+export const APP_VERSION = '2.32.0';
+export const VERSION = '2.32.0';
+export const APP_VERSION_DATE = '02/09/2026 15:55';
 export const CHANGELOG = [
+  '## [V2.32.0] - 02/09/2026 15:55',
+  '### Animação de arremesso de Pokébola nas rotas',
+  '- A **auto-captura** nas rotas agora mostra a **animação de arremesso** da Pokébola (como na raid), com chacoalho e resultado.',
+  '- **Enquanto a captura é incerta, nenhum outro Pokémon aparece** — o próximo só surge quando a animação termina.',
+  '- **1 tentativa por encontro na rota**: se a Pokébola falhar (auto ou manual), o Pokémon foge — sem repetir arremesso.',
+  '',
   '## [V2.31.2] - 02/09/2026 12:25',
   '### Detalhe do Pokémon: sprite animado e maior',
   '- No modal de detalhes do Pokémon (Meu Time / PC), o sprite agora é **animado** (mesmo estilo das batalhas) e com o **dobro do tamanho**.',

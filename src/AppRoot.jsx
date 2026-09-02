@@ -5483,18 +5483,11 @@ export default function App() {
   const handleCaptureDone = useCallback(() => {
     captureAnimatingRef.current = false;
     setCaptureEvent(null);
-    // Caso sucesso → spawn próximo inimigo
+    // Sucesso OU fuga (rota = 1 tentativa) → spawn do próximo inimigo
     if (captureSpawnRef.current) {
       captureSpawnRef.current = false;
       spawnEnemy();
       return;
-    }
-    // Caso falha → mostra diálogo de retry (battle continua pausada)
-    if (captureFailRetryRef.current) {
-      const retryData = captureFailRetryRef.current;
-      captureFailRetryRef.current = null;
-      captureConfirmRef.current = true;
-      setCaptureConfirmEvent({ ...retryData, isRetry: true });
     }
   }, [spawnEnemy]);
 
@@ -5534,8 +5527,10 @@ export default function App() {
       sfxCapture();
       sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
     } else {
-      // Após animação de falha, handleCaptureDone mostrará o diálogo de retry
-      captureFailRetryRef.current = { itemId, source };
+      // Rota = 1 tentativa por encontro: ao escapar, o Pokémon foge (sem retry).
+      setCurrentEnemy(null);
+      captureSpawnRef.current = true;
+      addLog(`💨 ${currentEnemy.name} escapou da ${ITEM_LABELS[itemId]?.name || 'Pokébola'} e fugiu!`, 'enemy');
     }
 
     // Rede de segurança: remove forma regional inválida (ex.: Rattata de Kanto
@@ -7715,53 +7710,61 @@ export default function App() {
     });
 
     setTimeout(() => {
-      setGameState(prev => {
-        const acConfig   = prev.autoCaptureConfig || {};
-        const routeConfig = acConfig.routeConfigs?.[prev.currentRoute] || acConfig;
+      // ── Decisão de AUTO-CAPTURA fora do setGameState, para ANIMAR o arremesso ──
+      // (1 tentativa por encontro: a decisão roda uma única vez, na vitória.)
+      const _st = gameStateRef.current || {};
+      const autoCapPlan = (() => {
+        if (!currentEnemy || currentEnemy.isTrainer || currentEnemy.isWildBoss) return null;
+        if (_st.currentRoute === 'tower') return null;
+        if (!_st.autoCapture || !_st.autoCaptureConfig?.enabled) return null;
+        if ((currentEnemy.types || [currentEnemy.type]).includes('Ghost') && !canCaptureGhostPokemon(_st)) return null;
+        const acConfig    = _st.autoCaptureConfig || {};
+        const routeConfig = acConfig.routeConfigs?.[_st.currentRoute] || acConfig;
         const captureMode = routeConfig.mode || 'shiny_only';
-        const ballPref    = routeConfig.ballPriority || 'auto';
-        const hpThresh    = routeConfig.hpThreshold || 30;
+        const alreadyHave = ownsSpecies(_st, currentEnemy.id);
+        const targetIds   = (routeConfig.targetIds || []).map(Number);
+        const shouldCapture =
+          captureMode === 'all'                    ? true :
+          captureMode === 'shiny_only'             ? currentEnemy.isShiny :
+          captureMode === 'not_caught'             ? !alreadyHave :
+          captureMode === 'not_caught_plus_shiny'  ? (!alreadyHave || currentEnemy.isShiny) :
+          captureMode === 'specific'               ? targetIds.includes(Number(currentEnemy.id)) :
+          captureMode === 'specific_plus_shiny'    ? (targetIds.includes(Number(currentEnemy.id)) || currentEnemy.isShiny) :
+          false;
+        if (!shouldCapture) return null;
+        const ballPref = routeConfig.ballPriority || 'auto';
+        const ballOrder = ballPref === 'auto'
+          ? ['ultra_ball', 'great_ball', 'pokeballs']
+          : [ballPref, 'ultra_ball', 'great_ball', 'pokeballs'];
+        const ballMultipliers = { ultra_ball: 2.0, great_ball: 1.5, pokeballs: 1.0, lure_ball: 3.0, moon_ball: 4.0 };
+        const selectedBall = ballOrder.find(b => (_st.inventory?.items?.[b] || 0) > 0);
+        if (!selectedBall) return null;
+        const mult = ballMultipliers[selectedBall] || 1.0;
+        const success = Math.random() < getCaptureRate(currentEnemy, mult, POKEDEX);
+        return { ball: selectedBall, success };
+      })();
 
-        // Verificar se deve tentar capturar este Pokémon
-        const hpPctEnemy  = ((currentEnemy.hp / currentEnemy.maxHp) * 100);
-        const shouldTry   = prev.autoCapture && prev.autoCaptureConfig?.enabled &&
-          !currentEnemy.isTrainer &&
-          !currentEnemy.isWildBoss &&
-          (!(currentEnemy.types || [currentEnemy.type]).includes('Ghost') || canCaptureGhostPokemon(prev)) &&
-          hpPctEnemy <= hpThresh;
+      // Dispara a animação de arremesso e bloqueia o próximo spawn até terminar.
+      if (autoCapPlan) {
+        captureAnimatingRef.current = true;
+        setCaptureEvent({
+          ballType: autoCapPlan.ball,
+          result: autoCapPlan.success ? 'success' : 'fail',
+          pokemonId: currentEnemy.id,
+          pokemonName: currentEnemy.name,
+          isShiny: currentEnemy.isShiny,
+        });
+        captureSpawnRef.current = true;
+        setCurrentEnemy(null);
+      }
 
-        if (shouldTry) {
-          // Verificar modo
-          const alreadyHave = ownsSpecies(prev, currentEnemy.id);
-
-          const targetIds = (routeConfig.targetIds || []).map(Number);
-          const shouldCapture =
-            captureMode === 'all'                    ? true :
-            captureMode === 'shiny_only'             ? currentEnemy.isShiny :
-            captureMode === 'not_caught'             ? !alreadyHave :
-            captureMode === 'not_caught_plus_shiny'  ? (!alreadyHave || currentEnemy.isShiny) :
-            captureMode === 'specific'               ? targetIds.includes(Number(currentEnemy.id)) :
-            captureMode === 'specific_plus_shiny'    ? (targetIds.includes(Number(currentEnemy.id)) || currentEnemy.isShiny) :
-            false;
-
-          if (shouldCapture) {
-            // Selecionar a melhor bola disponível
-            const ballOrder = ballPref === 'auto'
-              ? ['ultra_ball', 'great_ball', 'pokeballs']
-              : [ballPref, 'ultra_ball', 'great_ball', 'pokeballs'];
-
-            const ballMultipliers = {
-              ultra_ball: 2.0, great_ball: 1.5, pokeballs: 1.0,
-              lure_ball: 3.0, moon_ball: 4.0,
-            };
-
-            const selectedBall = ballOrder.find(b => (prev.inventory.items?.[b] || 0) > 0);
-
-            if (selectedBall) {
-              const mult      = ballMultipliers[selectedBall] || 1.0;
-              const catchRate = getCaptureRate(currentEnemy, mult, POKEDEX);
-
-              if (Math.random() < catchRate) {
+      setGameState(prev => {
+        if (!autoCapPlan) return prev;
+        const selectedBall = autoCapPlan.ball;
+        if (true) {
+          if (true) {
+            if (true) {
+              if (autoCapPlan.success) {
                 // CAPTURADO!
                 sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
                 
@@ -7873,6 +7876,10 @@ export default function App() {
         return prev;
       });
       isProcessingVictory.current = false;
+
+      // Houve auto-captura → a animação está tocando; o próximo Pokémon só aparece
+      // quando ela terminar (handleCaptureDone), garantindo "nada aparece enquanto incerto".
+      if (autoCapPlan) return;
 
       setGameState(st => {
         if (st.currentRoute === 'tower') {
