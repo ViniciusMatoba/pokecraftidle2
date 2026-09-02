@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.32.1';
-export const VERSION = '2.32.1';
-export const APP_VERSION_DATE = '02/09/2026 16:07';
+export const APP_VERSION = '2.32.2';
+export const VERSION = '2.32.2';
+export const APP_VERSION_DATE = '02/09/2026 16:18';
 export const CHANGELOG = [
+  '## [V2.32.2] - 02/09/2026 16:18',
+  '### Fix crítico: rota travando em "Procurando..."',
+  '- Corrigido: a animação de captura não montava quando o inimigo era removido, deixando o spawn travado em "Procurando..." e sem batalhas.',
+  '- A animação agora sempre conclui (libera o bloqueio de spawn) e é exibida sobre o Pokémon.',
+  '',
   '## [V2.32.1] - 02/09/2026 16:07',
   '### Ajuste: sprite do detalhe menor e centralizado',
   '- O sprite animado no detalhe do Pokémon ficou grande demais; reduzido para um tamanho equilibrado e centralizado no topo.',

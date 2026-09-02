@@ -5518,7 +5518,7 @@ export default function App() {
     });
 
     if (captureSuccess) {
-      setCurrentEnemy(null);
+      // Mantém currentEnemy durante a animação; handleCaptureDone spawna o próximo.
       captureSpawnRef.current = true;
       addLog(`✨ Capturado! ${currentEnemy.name} agora é seu!`, 'system');
       if (currentEnemy.isShiny) {
@@ -5528,7 +5528,7 @@ export default function App() {
       sessionRef.current.captures.push({ name: currentEnemy.name, id: currentEnemy.id, isShiny: currentEnemy.isShiny });
     } else {
       // Rota = 1 tentativa por encontro: ao escapar, o Pokémon foge (sem retry).
-      setCurrentEnemy(null);
+      // Mantém currentEnemy durante a animação; handleCaptureDone spawna o próximo.
       captureSpawnRef.current = true;
       addLog(`💨 ${currentEnemy.name} escapou da ${ITEM_LABELS[itemId]?.name || 'Pokébola'} e fugiu!`, 'enemy');
     }
@@ -7755,7 +7755,6 @@ export default function App() {
           isShiny: currentEnemy.isShiny,
         });
         captureSpawnRef.current = true;
-        setCurrentEnemy(null);
       }
 
       setGameState(prev => {

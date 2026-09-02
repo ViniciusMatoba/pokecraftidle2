@@ -318,7 +318,16 @@ const BattleScreen = ({
     return () => clearTimeout(t);
   }, [activePoke?.instanceId]);
 
-  if (!currentEnemy) return <div className="h-full flex items-center justify-center"><p className="font-black uppercase text-slate-400 animate-pulse text-sm">Procurando...</p></div>;
+  if (!currentEnemy) return (
+    <div className="h-full flex items-center justify-center relative">
+      {/* Mantém a animação de captura montada mesmo sem inimigo, garantindo que
+          onDone sempre dispara e o captureAnimatingRef seja liberado (evita travar em "Procurando"). */}
+      {captureEvent && (
+        <CaptureAnimation captureEvent={captureEvent} onDone={onCaptureDone} />
+      )}
+      <p className="font-black uppercase text-slate-400 animate-pulse text-sm">Procurando...</p>
+    </div>
+  );
 
   const getMoveDesc = (move) => {
     if (!move) return '';
