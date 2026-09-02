@@ -1,7 +1,23 @@
-export const APP_VERSION = '2.24.0';
-export const VERSION = '2.24.0';
-export const APP_VERSION_DATE = '02/09/2026 07:47';
+export const APP_VERSION = '2.26.0';
+export const VERSION = '2.26.0';
+export const APP_VERSION_DATE = '02/09/2026 11:17';
 export const CHANGELOG = [
+  '## [V2.26.0] - 02/09/2026 11:17',
+  '### Conquistas + bordas de maestria de espécie (Etapa 1)',
+  '- **Novo — Bordas de Maestria**: capturar a mesma espécie 25× / 100× / 250× dá uma borda 🥉 Bronze / 🥈 Prata / 🥇 Ouro (automática) no card daquele Pokémon no Meu Time e no PC.',
+  '- **Novo — Aba Conquistas**: no menu de Missões, conquistas permanentes de Combate (derrotar treinadores/vilões/chefes) e Coleção (capturar espécies distintas, Pokédex de Kanto, 1 de cada tipo), com recompensas de moedas e itens.',
+  '- Próxima etapa: conquistas de Shiny, Alpha, Raid e Evolução (dependem de novos contadores).',
+  '',
+  '## [V2.25.0] - 02/09/2026 11:02',
+  '### Liga/desliga dos modais de notificação (Menu → Configurações)',
+  '- **Novo**: Em Configurações há 3 chaves ON/OFF para os pop-ups: Batalhas (aparição/vitória de treinadores e chefes), Receitas novas, e Drops de itens/missões.',
+  '- Os botões "🔕 Não mostrar mais" dos modais agora desligam a categoria correspondente nas Configurações (e você pode religar lá a qualquer momento). Preferência salva no seu progresso.',
+  '',
+  '## [V2.24.1] - 02/09/2026 10:48',
+  '### Alturas completas (todos os Pokémon escalam) + fix do modal de Super Chefe',
+  '- **Sprites proporcionais para TODOS**: completei o mapa de alturas com a National Dex inteira (Gen 1–9, 1025 Pokémon). Antes só Gen 1 + notáveis escalavam, então Pokémon de outras gerações (seu time) ficavam no tamanho base — agora todos escalam pela altura real.',
+  '- **Fix (modal de aparição)**: Super Chefes de Rota (ex.: Brock) e emboscadas de vilão agora SEMPRE mostram o modal de aparição, mesmo que você tenha marcado "não mostrar mais" (essa opção passa a valer só para treinadores comuns).',
+  '',
   '## [V2.24.0] - 02/09/2026 07:47',
   '### Menos encontros de treinador, frases icônicas e sprites com mais contraste',
   '- **Frequência reduzida (~60%)**: emboscadas de vilão, treinadores de rota e Super Chefes aparecem bem menos.',

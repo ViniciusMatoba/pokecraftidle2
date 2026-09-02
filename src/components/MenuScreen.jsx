@@ -19,6 +19,7 @@ import {
 import { CANDY_FAMILIES, getCandyIconUrl } from '../data/candies';
 import { EXP_CANDIES } from '../data/raids';
 import { claimLoginReward, claimMissionReward, formatRewardSummary, getRetentionViewModel } from '../data/retention';
+import { ACHIEVEMENTS, getAchievementProgress, isAchievementClaimed, claimAchievement } from '../data/achievements';
 import { getJourneyGuide } from '../data/journeyGuide';
 import { ROUTES, inferRouteRegion, isRouteUnlocked } from '../data/routes';
 import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokemonSprites';
@@ -1042,7 +1043,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
       });
     };
 
-    const MissionCard = ({ mission, period }) => (
+    const MissionCard = ({ mission, period, onClaim }) => (
       <div className={`rounded-2xl border-2 p-4 shadow-sm relative overflow-hidden transition-all ${
         mission.claimed
           ? 'bg-emerald-50 border-emerald-200 opacity-70'
@@ -1086,7 +1087,7 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
             🎁 {formatRewardSummary(mission.reward)}
           </p>
           <button
-            onClick={() => claimMission(period, mission.id)}
+            onClick={() => (onClaim ? onClaim() : claimMission(period, mission.id))}
             disabled={!mission.complete || mission.claimed}
             className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all active:scale-95 ${
               mission.claimed
@@ -1104,6 +1105,24 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
 
     const readyMissions = [...model.dailyMissions, ...model.weeklyMissions].filter(m => m.complete && !m.claimed);
     const totalReady = readyMissions.length + (model.canClaimLogin ? 1 : 0);
+
+    // Conquistas (permanentes) — Combate e Coleção.
+    const achievements = ACHIEVEMENTS.map(a => {
+      const progress = getAchievementProgress(gameState, a);
+      const claimed = isAchievementClaimed(gameState, a.id);
+      const complete = progress >= a.target;
+      return {
+        ...a,
+        progress,
+        pct: Math.min(100, Math.round((progress / (a.target || 1)) * 100)),
+        complete,
+        claimed,
+        icon: a.category === 'combat' ? 'vs-seeker.png' : 'town-map.png',
+      };
+    });
+    const claimAch = (id) => setGameState(prev => claimAchievement(prev, id).state);
+    const combatAch = achievements.filter(a => a.category === 'combat');
+    const collectionAch = achievements.filter(a => a.category === 'collection');
 
     return (
       <div className="animate-slideUp flex flex-col gap-4">
@@ -1152,6 +1171,20 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
             <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 mb-2 px-1">Missoes Semanais</p>
             <div className="flex flex-col gap-3">
               {model.weeklyMissions.map(mission => <MissionCard key={mission.id} mission={mission} period="weekly" />)}
+            </div>
+          </div>
+
+          {/* ── CONQUISTAS (permanentes) ── */}
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-500 mb-2 px-1">🏆 Conquistas • Combate</p>
+            <div className="flex flex-col gap-3">
+              {combatAch.map(a => <MissionCard key={a.id} mission={a} onClaim={() => claimAch(a.id)} />)}
+            </div>
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-500 mb-2 px-1">🏆 Conquistas • Coleção</p>
+            <div className="flex flex-col gap-3">
+              {collectionAch.map(a => <MissionCard key={a.id} mission={a} onClaim={() => claimAch(a.id)} />)}
             </div>
           </div>
         </div>
@@ -1227,6 +1260,30 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
               ))}
             </div>
           </div>
+          {/* Modais de Notificacao */}
+          <div className="flex flex-col gap-3">
+            <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Modais de Notificação</p>
+            {[
+              { key: 'showBattleModals', label: '⚔️ Batalhas (treinadores / chefes)' },
+              { key: 'showRecipeModals', label: '📜 Receitas novas' },
+              { key: 'showDropModals',   label: '🎁 Drops de itens / missões' },
+            ].map(opt => {
+              const on = gameState.settings?.[opt.key] !== false;
+              return (
+                <div key={opt.key} className="flex items-center justify-between gap-2 bg-slate-50 rounded-xl px-3 py-2.5 border border-slate-100">
+                  <span className="text-[11px] font-bold text-slate-600 min-w-0 flex-1">{opt.label}</span>
+                  <div className="flex gap-1 shrink-0">
+                    <button onClick={() => setGameState(prev => ({ ...prev, settings: { ...prev.settings, [opt.key]: true } }))}
+                      className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all active:scale-95 ${on ? 'bg-emerald-500 text-white shadow' : 'bg-slate-200 text-slate-400'}`}>ON</button>
+                    <button onClick={() => setGameState(prev => ({ ...prev, settings: { ...prev.settings, [opt.key]: false } }))}
+                      className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all active:scale-95 ${!on ? 'bg-red-500 text-white shadow' : 'bg-slate-200 text-slate-400'}`}>OFF</button>
+                  </div>
+                </div>
+              );
+            })}
+            <p className="text-[9px] font-bold text-slate-400 italic px-2">Controla os pop-ups de aparição/vitória de treinadores, receitas novas e recompensas de itens/missões.</p>
+          </div>
+
           {/* Selecao de musica */}
           <div className="flex flex-col gap-3">
             <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Musica de Fundo</p>

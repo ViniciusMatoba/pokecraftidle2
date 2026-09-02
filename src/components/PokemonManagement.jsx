@@ -6,6 +6,7 @@ import { MOVE_TRANSLATIONS } from '../data/translations';
 import { getCandyIconUrl, CANDY_FAMILIES, CANDY_USES, POKEMON_TO_CANDY } from '../data/candies';
 import { getTimeOfDay } from '../utils/timeSystem';
 import { getEvolutionCandyInfo } from '../utils/evolutionRequirements';
+import { getSpeciesMasteryTier, MASTERY_TIERS } from '../data/masteryBorders';
 import { getCompatibleMegaStones, MEGA_STONE_ICONS, getMegaSprite } from '../data/megaEvolutions';
 import { ABILITY_ITEM_ID, getAbilityDescription, getAbilityLabel, getPokemonAbilityPool, setPokemonAbility } from '../data/abilities';
 import { getPokeballDef, POKEBALL_DEFS, ALL_BALL_IDS, BALL_EFFECT_LABELS } from '../data/pokeballs';
@@ -845,7 +846,13 @@ const PokemonManagement = ({
                 className={`bg-white p-4 rounded-3xl border-2 flex items-center gap-4 group cursor-grab active:cursor-grabbing hover:border-pokeBlue transition-all touch-none ${
                   dragTeamIndex === i ? 'border-pokeBlue shadow-lg scale-[0.98]' : 'border-slate-100'
                 }`}
-                style={p.isAlpha ? { boxShadow: '0 0 0 2px #ef4444, 0 0 16px rgba(239,68,68,0.45)' } : undefined}
+                style={(() => {
+                  const mt = getSpeciesMasteryTier(gameState.speciesMastery?.[p.id] || 0);
+                  const sh = [];
+                  if (p.isAlpha) sh.push('0 0 0 2px #ef4444, 0 0 16px rgba(239,68,68,0.45)');
+                  if (mt) sh.push(MASTERY_TIERS[mt].ring);
+                  return sh.length ? { boxShadow: sh.join(', ') } : undefined;
+                })()}
               >
                 <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center relative">
                   <img
@@ -866,6 +873,7 @@ const PokemonManagement = ({
                     <div>
                       <h4 className="font-black uppercase text-slate-800 text-sm italic leading-none flex items-baseline gap-2">
                         <span>{p.name}</span>
+                        {(() => { const mt = getSpeciesMasteryTier(gameState.speciesMastery?.[p.id] || 0); return mt ? <span className="text-xs not-italic" title={`Maestria ${MASTERY_TIERS[mt].label}`}>{MASTERY_TIERS[mt].badge}</span> : null; })()}
                         {p.isAlpha && (
                           <span className="text-red-500 text-xs font-black not-italic" title="Alpha">α</span>
                         )}
@@ -965,7 +973,13 @@ const PokemonManagement = ({
                         className={`flex-1 bg-white p-3 rounded-2xl border-2 flex flex-col items-center gap-2 group relative cursor-pointer hover:border-pokeGold transition-all ${
                           !isLegal ? 'opacity-50 grayscale border-red-100' : 'border-slate-100'
                         }`}
-                        style={p.isAlpha ? { boxShadow: '0 0 0 2px #ef4444, 0 0 14px rgba(239,68,68,0.5)' } : undefined}
+                        style={(() => {
+                          const mt = getSpeciesMasteryTier(gameState.speciesMastery?.[p.id] || 0);
+                          const sh = [];
+                          if (p.isAlpha) sh.push('0 0 0 2px #ef4444, 0 0 14px rgba(239,68,68,0.5)');
+                          if (mt) sh.push(MASTERY_TIERS[mt].ring);
+                          return sh.length ? { boxShadow: sh.join(', ') } : undefined;
+                        })()}
                       >
                          <img
                            src={getPokemonSpriteUrl(p)}
@@ -990,6 +1004,7 @@ const PokemonManagement = ({
                          <div className="text-center">
                            <p className="font-black uppercase text-slate-800 text-[10px] italic leading-none flex items-center justify-center gap-1">
                              {p.name}
+                             {(() => { const mt = getSpeciesMasteryTier(gameState.speciesMastery?.[p.id] || 0); return mt ? <span className="text-[10px] not-italic" title={`Maestria ${MASTERY_TIERS[mt].label}`}>{MASTERY_TIERS[mt].badge}</span> : null; })()}
                              {p.isAlpha && (
                                <span className="text-red-500 text-[9px] font-black not-italic" title="Alpha">α</span>
                              )}

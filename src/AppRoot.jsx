@@ -2384,8 +2384,8 @@ export default function App() {
     allMissions.forEach(m => {
       if (m.complete && !m.claimed && !completedMissionIdsRef.current.has(m.id)) {
         completedMissionIdsRef.current.add(m.id);
-        if (isMissionModalHidden()) {
-          // "Não mostrar mais" → mantém apenas um toast leve.
+        if (gameState.settings?.showDropModals === false) {
+          // Modal desligado nas Configurações → mantém apenas um toast leve.
           notify({ type: 'quest', title: '✅ Missão Concluída!', message: `"${m.title}" — abra Missões para coletar.`, duration: 6000 });
         } else {
           setMissionCompleteQueue(q => q.some(x => x.id === m.id) ? q : [...q, { id: m.id, period: m.period, title: m.title, reward: m.reward }]);
@@ -3248,11 +3248,12 @@ export default function App() {
         instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9)
       });
       addLog(`⚠️ EMBOSCADA! ${teamData.name} ${reason}`, 'enemy');
-      if (!isTrainerEncounterHidden()) {
+      // Modais de batalha controlados pela config (Menu → Configurações).
+      if (gameState.settings?.showBattleModals !== false) {
         battleModalPausedRef.current = true;
         setTrainerEncounter({
-          name: teamData.name, sprite: teamData.sprite, isSuperBoss: false,
-          phrase: getTrainerIntroPhrase({ trainerName: teamData.name }),
+          name: teamData.name, sprite: teamData.sprite, isSuperBoss: false, isVillain: true,
+          phrase: getTrainerIntroPhrase({ trainerName: teamData.name, villainTeamName: teamData.name }),
         });
       }
       return;
@@ -3290,7 +3291,8 @@ export default function App() {
       setBattleLog([]);
       isProcessingVictory.current = false;
       addLog(`👑 SUPER CHEFE DE ROTA: Líder ${leader.name} apareceu para uma revanche! Recompensa massiva se vencer!`, 'system');
-      if (!isTrainerEncounterHidden()) {
+      // Modais de batalha controlados pela config (Menu → Configurações).
+      if (gameState.settings?.showBattleModals !== false) {
         battleModalPausedRef.current = true;
         setTrainerEncounter({
           name: leader.name, sprite: leader.sprite, isSuperBoss: true,
@@ -3350,7 +3352,7 @@ export default function App() {
       setBattleLog([]);
       isProcessingVictory.current = false;
       addLog(`⚔️ ${trainer.name} quer batalhar!`, 'system');
-      if (!isTrainerEncounterHidden()) {
+      if (gameState.settings?.showBattleModals !== false) {
         battleModalPausedRef.current = true;
         setTrainerEncounter({
           name: trainer.name, sprite: trainer.sprite, isSuperBoss: false,
@@ -7568,7 +7570,7 @@ export default function App() {
     messages.forEach(m => addLog(m, 'drop'));
 
     // Modal de vitória contra treinador/super chefe de rota (não é batalha VS/ginásio).
-    if (currentEnemy.isTrainer && !currentEnemy.badgeToGive && !currentEnemy.challengeCategory && !isTrainerVictoryHidden()) {
+    if (currentEnemy.isTrainer && !currentEnemy.badgeToGive && !currentEnemy.challengeCategory && gameState.settings?.showBattleModals !== false) {
       const BALL_IMG = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
       battleModalPausedRef.current = true; // pausa encontros até fechar o modal
       const coins = getTrainerCurrencyReward(currentEnemy.trainerReward || 0);
@@ -7590,9 +7592,9 @@ export default function App() {
 
     // Modal de receita encontrada — só aparece se for nova e não houver um modal aberto
     const newRecipes = foundRecipes?.filter(r => r.isNew);
-    if (newRecipes?.length > 0 && !recipeFoundModal && !isRecipeModalHidden()) {
+    if (newRecipes?.length > 0 && !recipeFoundModal && gameState.settings?.showRecipeModals !== false) {
       setTimeout(() => setRecipeFoundModal(newRecipes[0]), 400);
-    } else if (rareDrops?.length > 0 && !rareDropModal && !recipeFoundModal) {
+    } else if (rareDrops?.length > 0 && !rareDropModal && !recipeFoundModal && gameState.settings?.showDropModals !== false) {
       const nextDrop = rareDrops.find(d => !isRareDropDismissed(d.type));
       if (nextDrop) setTimeout(() => setRareDropModal(nextDrop), 400);
     }
@@ -10731,7 +10733,7 @@ export default function App() {
                 <button onClick={closeCurrent} className="w-full mt-2 py-2.5 rounded-2xl font-black uppercase text-xs tracking-widest text-slate-500 bg-slate-100 active:scale-95">
                   Fechar
                 </button>
-                <button onClick={() => { writeFlag(MISSION_MODAL_HIDE_KEY); setMissionCompleteQueue([]); }} className="w-full mt-2 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-600 active:scale-95 transition-all">
+                <button onClick={() => { setGameState(prev => ({ ...prev, settings: { ...prev.settings, showDropModals: false } })); setMissionCompleteQueue([]); }} className="w-full mt-2 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-600 active:scale-95 transition-all">
                   🔕 Não mostrar mais
                 </button>
               </div>
@@ -10764,7 +10766,7 @@ export default function App() {
                 ⚔️ Batalhar!
               </button>
               <button
-                onClick={() => { writeFlag(TRAINER_ENCOUNTER_HIDE_KEY); battleModalPausedRef.current = false; setTrainerEncounter(null); }}
+                onClick={() => { setGameState(prev => ({ ...prev, settings: { ...prev.settings, showBattleModals: false } })); battleModalPausedRef.current = false; setTrainerEncounter(null); }}
                 className="w-full mt-2 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-600 active:scale-95 transition-all"
               >
                 🔕 Não mostrar mais
@@ -10811,7 +10813,7 @@ export default function App() {
                 Continuar
               </button>
               <button
-                onClick={() => { writeFlag(TRAINER_VICTORY_HIDE_KEY); battleModalPausedRef.current = false; setTrainerVictory(null); }}
+                onClick={() => { setGameState(prev => ({ ...prev, settings: { ...prev.settings, showBattleModals: false } })); battleModalPausedRef.current = false; setTrainerVictory(null); }}
                 className="w-full mt-2 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-600 active:scale-95 transition-all"
               >
                 🔕 Não mostrar mais
@@ -12582,7 +12584,7 @@ export default function App() {
                 Fechar
               </button>
               <button
-                onClick={() => { hideRecipeModalForever(); setRecipeFoundModal(null); }}
+                onClick={() => { setGameState(prev => ({ ...prev, settings: { ...prev.settings, showRecipeModals: false } })); setRecipeFoundModal(null); }}
                 className="w-full py-1.5 rounded-xl font-bold uppercase text-[9px] tracking-widest text-white/40 hover:text-white/60 active:scale-95 transition-all"
                 style={{ background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'pointer' }}
               >
