@@ -84,7 +84,7 @@ import { getCaptureRate, pickWeightedEncounter, getPokemonRarity } from './utils
 import { preloadAssets } from './utils/preloader';
 import { calculatePowerScore, getBadgeCount } from './utils/progress';
 import { migrateGameState, sanitizePokemonForm } from './utils/saveMigration';
-import { ensureRetentionState, getRetentionViewModel, RETENTION_DAILY_MISSIONS, RETENTION_WEEKLY_MISSIONS } from './data/retention';
+import { ensureRetentionState, getRetentionViewModel, RETENTION_DAILY_MISSIONS, RETENTION_WEEKLY_MISSIONS, claimMissionReward } from './data/retention';
 import { 
   TROPHIES, SHOP_TITLES, POKEDEX_FRAMES, UI_THEMES, 
   ALLIES, MINE_LEVELS, FISHING_RODS, POKECENTER_DONATIONS, GYM_BANNERS 
@@ -413,6 +413,14 @@ const TRAINER_ENCOUNTER_HIDE_KEY = 'pokecraft_hide_trainer_encounter';
 const TRAINER_VICTORY_HIDE_KEY = 'pokecraft_hide_trainer_victory';
 const isTrainerEncounterHidden = () => readFlag(TRAINER_ENCOUNTER_HIDE_KEY);
 const isTrainerVictoryHidden = () => readFlag(TRAINER_VICTORY_HIDE_KEY);
+const MISSION_MODAL_HIDE_KEY = 'pokecraft_hide_mission_modal';
+const isMissionModalHidden = () => readFlag(MISSION_MODAL_HIDE_KEY);
+
+// Equipes vilãs permitidas por região (emboscadas de rota devem ser temáticas).
+const REGION_VILLAINS = {
+  kanto: ['rocket'], johto: ['rocket'], hoenn: ['aqua', 'magma'], sinnoh: ['galactic'],
+  unova: ['plasma'], kalos: ['flare'], alola: ['skull'], galar: ['yell'], paldea: ['star'], hisui: ['rocket'],
+};
 
 // Super Chefes de Rota = LÍDERES DE GINÁSIO já derrotados (rematch nas rotas).
 // Kanto vem de GYMS; demais regiões vêm de CHALLENGES (líderes têm campo `badge`).
@@ -1212,6 +1220,7 @@ export default function App() {
   const [showGymVictoryModal, setShowGymVictoryModal] = useState(null); // { leaderName, badge, badgeImg, reward }
   const [trainerEncounter, setTrainerEncounter] = useState(null); // modal de aparição de treinador/super chefe
   const [trainerVictory, setTrainerVictory] = useState(null);     // modal de vitória contra treinador/super chefe
+  const [missionCompleteQueue, setMissionCompleteQueue] = useState([]); // fila de missões concluídas p/ modal
   const battleModalPausedRef = useRef(false);                     // pausa o loop de batalha enquanto há modal de aparição
   const [previewStarter, setPreviewStarter] = useState(null);
   const [activeQuestModal, setActiveQuestModal] = useState(null);
@@ -2375,12 +2384,12 @@ export default function App() {
     allMissions.forEach(m => {
       if (m.complete && !m.claimed && !completedMissionIdsRef.current.has(m.id)) {
         completedMissionIdsRef.current.add(m.id);
-        notify({
-          type: 'quest',
-          title: '✅ Missão Concluída!',
-          message: `"${m.title}" — abra Missões para coletar a recompensa.`,
-          duration: 7000,
-        });
+        if (isMissionModalHidden()) {
+          // "Não mostrar mais" → mantém apenas um toast leve.
+          notify({ type: 'quest', title: '✅ Missão Concluída!', message: `"${m.title}" — abra Missões para coletar.`, duration: 6000 });
+        } else {
+          setMissionCompleteQueue(q => q.some(x => x.id === m.id) ? q : [...q, { id: m.id, period: m.period, title: m.title, reward: m.reward }]);
+        }
       }
       // Remove do set quando for coletada (para poder notificar novamente no próximo ciclo)
       if (m.claimed) {
@@ -3196,9 +3205,12 @@ export default function App() {
 
     // EMBOSCADA VILA
     if (Math.random() < 0.01 && route.type === 'farm') {
-      const teamKeys = Object.keys(VILLAIN_TEAMS);
-      // Filtra por bioma se aplicável
-      const possibleTeams = teamKeys.filter(k => !VILLAIN_TEAMS[k].biome || VILLAIN_TEAMS[k].biome === route.biome);
+      // Só equipes vilãs da região atual (Kanto → Rocket, Sinnoh → Galáctica, etc.)
+      const allowedVillains = REGION_VILLAINS[gameState.activeRegion || 'kanto'] || ['rocket'];
+      const teamKeys = Object.keys(VILLAIN_TEAMS).filter(k => allowedVillains.includes(k));
+      // Filtra por bioma se aplicável; se nada casar, ignora o bioma (mantém a região correta).
+      const biomeTeams = teamKeys.filter(k => !VILLAIN_TEAMS[k].biome || VILLAIN_TEAMS[k].biome === route.biome);
+      const possibleTeams = biomeTeams.length > 0 ? biomeTeams : teamKeys;
       const chosenKey = possibleTeams[Math.floor(Math.random() * possibleTeams.length)] || 'rocket';
       const teamData = VILLAIN_TEAMS[chosenKey];
       
@@ -10677,6 +10689,55 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* ── MODAL: Missão Concluída (coletar direto) ───────────────────────── */}
+      {missionCompleteQueue.length > 0 && (() => {
+        const m = missionCompleteQueue[0];
+        const reward = m.reward || {};
+        const isUrl = (s) => typeof s === 'string' && s.startsWith('http');
+        const rewardEntries = [
+          ...(reward.currency ? [{ key: '__coins', qty: reward.currency, icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png', isCoins: true }] : []),
+          ...Object.entries(reward.items || {}).map(([k, q]) => ({ key: k, qty: q, icon: ITEM_LABELS[k]?.icon })),
+          ...Object.entries(reward.materials || {}).map(([k, q]) => ({ key: `mat_${k}`, qty: q, icon: ITEM_LABELS[k]?.icon })),
+        ];
+        const closeCurrent = () => setMissionCompleteQueue(q => q.slice(1));
+        const collect = () => {
+          setGameState(prev => claimMissionReward(prev, m.period, m.id).state);
+          addLog(`🎁 Missão "${m.title}" coletada!`, 'system');
+          closeCurrent();
+        };
+        return (
+          <div className="absolute inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-xl animate-fadeIn">
+            <div className="w-full max-w-[400px] bg-white rounded-[3rem] shadow-2xl overflow-hidden border-b-[12px] border-yellow-400 animate-bounceIn relative">
+              <div className="bg-gradient-to-br from-yellow-500 to-amber-600 px-8 py-7 flex flex-col items-center text-center">
+                <div className="text-5xl mb-2">✅</div>
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/80 mb-1">Missão Concluída</p>
+                <h3 className="text-white font-black text-xl uppercase italic tracking-tighter leading-tight">{m.title}</h3>
+              </div>
+              <div className="px-6 py-5">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center mb-2">Recompensa</p>
+                <div className="flex items-center justify-center gap-2 flex-wrap mb-4">
+                  {rewardEntries.map(r => (
+                    <div key={r.key} className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+                      {isUrl(r.icon) ? <img src={r.icon} className="w-5 h-5 object-contain" alt="" /> : <span className="text-base">{r.icon || '🎁'}</span>}
+                      <span className="text-sm font-black text-slate-700">{r.isCoins ? r.qty.toLocaleString() : `×${r.qty}`}</span>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={collect} className="w-full py-4 rounded-2xl font-black uppercase text-sm tracking-widest text-white shadow-lg active:scale-95 transition-all bg-gradient-to-r from-yellow-500 to-amber-600">
+                  🎁 Coletar Recompensa
+                </button>
+                <button onClick={closeCurrent} className="w-full mt-2 py-2.5 rounded-2xl font-black uppercase text-xs tracking-widest text-slate-500 bg-slate-100 active:scale-95">
+                  Fechar
+                </button>
+                <button onClick={() => { writeFlag(MISSION_MODAL_HIDE_KEY); setMissionCompleteQueue([]); }} className="w-full mt-2 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-600 active:scale-95 transition-all">
+                  🔕 Não mostrar mais
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── MODAL: Aparição de Treinador / Super Chefe ─────────────────────── */}
       {trainerEncounter && (

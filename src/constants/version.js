@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.21.1';
-export const VERSION = '2.21.1';
-export const APP_VERSION_DATE = '02/09/2026 06:48';
+export const APP_VERSION = '2.22.0';
+export const VERSION = '2.22.0';
+export const APP_VERSION_DATE = '02/09/2026 07:07';
 export const CHANGELOG = [
+  '## [V2.22.0] - 02/09/2026 07:07',
+  '### Sprites maiores, modal de missão e correções de região',
+  '- **Sprites de batalha**: aumentados de novo (área maior e Pokémon/treinadores em w-60) e reposicionados.',
+  '- **Missão concluída = modal**: ao concluir uma missão, agora abre um modal com a recompensa e botões para "🎁 Coletar Recompensa" na hora, "Fechar" e "🔕 Não mostrar mais".',
+  '- **Fix (Rota 22)**: corrigido gate incorreto que exigia a Insígnia da Terra (8º ginásio) numa rota inicial de nível baixo — agora libera cedo normalmente.',
+  '- **Fix (Emboscadas de vilão por região)**: emboscadas de rota agora só trazem a equipe vilã da região correta (Kanto → Rocket, Sinnoh → Galáctica, etc.) — sem mais Equipe Galáctica em Kanto.',
+  '',
   '## [V2.21.1] - 02/09/2026 06:48',
   '### Ajustes de candies',
   '- **Drop ao derrotar**: chance de candy da família ao derrotar Pokémon selvagem aumentada de 15% para 30% (45% com maestria alta).',

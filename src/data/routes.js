@@ -673,7 +673,6 @@ const ROUTE_VS_REQUIREMENT_GATES = {
   route_16: ['soul_badge'],
   route_19_20: ['marsh_badge'],
   route_21: ['volcano_badge'],
-  route_22: ['earth_badge'],
   victory_road_kanto: ['earth_badge'],
 
   // Johto
