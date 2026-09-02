@@ -1,7 +1,21 @@
-export const APP_VERSION = '2.30.0';
-export const VERSION = '2.30.0';
-export const APP_VERSION_DATE = '02/09/2026 12:08';
+export const APP_VERSION = '2.31.2';
+export const VERSION = '2.31.2';
+export const APP_VERSION_DATE = '02/09/2026 12:25';
 export const CHANGELOG = [
+  '## [V2.31.2] - 02/09/2026 12:25',
+  '### Detalhe do Pokémon: sprite animado e maior',
+  '- No modal de detalhes do Pokémon (Meu Time / PC), o sprite agora é **animado** (mesmo estilo das batalhas) e com o **dobro do tamanho**.',
+  '- Pokémon de Gen 6+ (sem GIF animado) usam automaticamente o sprite estático.',
+  '',
+  '## [V2.31.1] - 02/09/2026 12:20',
+  '### Modal de encontro mostra a equipe adversária',
+  '- Os modais de aparição de **treinador, equipe vilã e super chefe** nas rotas agora exibem os **Pokémon e níveis** do adversário antes da batalha.',
+  '',
+  '## [V2.31.0] - 02/09/2026 12:17',
+  '### Raids: candy da espécie + botão Coletar direto',
+  '- **Duplicatas de Raid** agora dão o **candy da espécie da raid** (escala pelas estrelas: 5/8/12/18/25) em vez de EXP Candy.',
+  '- **Botão "🎁 Coletar" direto**: ao terminar a raid, dá para coletar as recompensas na hora (na notice e no botão flutuante da rota) sem precisar abrir a tela da raid.',
+  '',
   '## [V2.30.0] - 02/09/2026 12:08',
   '### Amizade — Etapa 2 + Bordas Globais',
   '- **Candies por Amizade**: usar o Pokémon libera lotes de candies da sua espécie automaticamente, com modal avisando (drop em lote, não de 1 em 1).',

@@ -3256,6 +3256,7 @@ export default function App() {
         setTrainerEncounter({
           name: teamData.name, sprite: teamData.sprite, isSuperBoss: false, isVillain: true,
           phrase: getTrainerIntroPhrase({ trainerName: teamData.name, villainTeamName: teamData.name }),
+          enemyTeam: [{ id: Number(base.id), level: lvl }],
         });
       }
       return;
@@ -3299,6 +3300,7 @@ export default function App() {
         setTrainerEncounter({
           name: leader.name, sprite: leader.sprite, isSuperBoss: true,
           phrase: getTrainerIntroPhrase({ trainerName: leader.name, isSuperBoss: true }),
+          enemyTeam: sbTeam.map(t => ({ id: Number(t.id), level: t.level })),
         });
       }
       return;
@@ -3359,6 +3361,7 @@ export default function App() {
         setTrainerEncounter({
           name: trainer.name, sprite: trainer.sprite, isSuperBoss: false,
           phrase: getTrainerIntroPhrase({ trainerName: trainer.name }),
+          enemyTeam: (trainer.team || [trainerPokeRef]).map(t => ({ id: Number(t.id ?? t), level: t.level || lvl })),
         });
       }
       return;
@@ -4017,21 +4020,30 @@ export default function App() {
 
       // ── Lógica de Alpha ──
       if (raid.isAlpha) {
-        // Já tem um alfa da mesma espécie → converte em candy
+        // Já tem um alfa da mesma espécie → converte em candy da espécie da raid
         const alreadyHasAlpha = ownedSameSpecies.some(p => p.isAlpha);
         if (alreadyHasAlpha) {
-          const candyMap = { 1: 'exp_candy_xs', 2: 'exp_candy_s', 3: 'exp_candy_m', 4: 'exp_candy_l', 5: 'exp_candy_xl' };
-          const candyId = candyMap[raid.stars] || 'exp_candy_s';
-          const candyQty = raid.stars >= 4 ? 2 : 1;
-          addLog(`📦 Você já possui um ${raid.name} Alfa! Recebeu ${candyQty}x EXP Candy no lugar.`, 'system');
+          const RAID_CANDY_BY_STARS = { 1: 5, 2: 8, 3: 12, 4: 18, 5: 25 };
+          const speciesCandyId = POKEMON_TO_CANDY[Number(raid.pokemonId)];
+          const candyQty = RAID_CANDY_BY_STARS[raid.stars] || 8;
+          const candyLabel = speciesCandyId ? CANDY_FAMILIES[speciesCandyId]?.name || 'Candy' : 'EXP Candy';
+          addLog(`🍬 Você já possui um ${raid.name} Alfa! Recebeu ${candyQty}x ${candyLabel} no lugar.`, 'system');
           showRaidRouteNotice(raid, 'captured');
-          setGameState(s => ({
-            ...s,
-            inventory: { ...s.inventory, items: { ...newItems, [candyId]: (newItems[candyId] || 0) + candyQty } },
-            activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
-            raidStats: { ...(s.raidStats || {}), captured: (s.raidStats?.captured || 0) + 1 },
-            playerStats: bumpPlayerStats(s.playerStats, { raidsCaptured: 1 }),
-          }));
+          setGameState(s => {
+            const inv = { ...s.inventory, items: newItems };
+            if (speciesCandyId) {
+              inv.candies = { ...(inv.candies || {}), [speciesCandyId]: (inv.candies?.[speciesCandyId] || 0) + candyQty };
+            } else {
+              inv.items = { ...newItems, exp_candy_m: (newItems.exp_candy_m || 0) + candyQty };
+            }
+            return {
+              ...s,
+              inventory: inv,
+              activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
+              raidStats: { ...(s.raidStats || {}), captured: (s.raidStats?.captured || 0) + 1 },
+              playerStats: bumpPlayerStats(s.playerStats, { raidsCaptured: 1 }),
+            };
+          });
           return;
         }
 
@@ -4092,13 +4104,14 @@ export default function App() {
       // ── Lógica normal (não alfa) ──
       const alreadyOwns = ownedSameSpecies.length > 0;
       if (alreadyOwns && !raid.isShiny) {
-        // Duplicata: converte em EXP Candy e desbloqueia Nature
-        const candyMap = { 1: 'exp_candy_xs', 2: 'exp_candy_s', 3: 'exp_candy_m', 4: 'exp_candy_l', 5: 'exp_candy_xl' };
-        const candyId = candyMap[raid.stars] || 'exp_candy_s';
-        const candyQty = raid.stars >= 4 ? 2 : 1;
+        // Duplicata: converte em candy da espécie da raid e desbloqueia Nature
+        const RAID_CANDY_BY_STARS = { 1: 5, 2: 8, 3: 12, 4: 18, 5: 25 };
+        const speciesCandyId = POKEMON_TO_CANDY[Number(raid.pokemonId)];
+        const candyQty = RAID_CANDY_BY_STARS[raid.stars] || 8;
+        const candyLabel = speciesCandyId ? CANDY_FAMILIES[speciesCandyId]?.name || 'Candy' : 'EXP Candy';
         const rolledNature = NATURE_LIST[Math.floor(Math.random() * NATURE_LIST.length)];
-        addLog(`📦 ${raid.name} já capturado! Recebeu ${candyQty}x ${candyId} e desbloqueou a Nature ${rolledNature}!`, 'system');
-        
+        addLog(`🍬 ${raid.name} já capturado! Recebeu ${candyQty}x ${candyLabel} e desbloqueou a Nature ${rolledNature}!`, 'system');
+
         const applyNatureToExisting = (list) => list.map(p => {
           if (isSameRaidPokemon(p)) {
             let updatedP = { ...p };
@@ -4112,15 +4125,23 @@ export default function App() {
         });
 
         showRaidRouteNotice(raid, 'captured');
-        setGameState(s => ({
+        setGameState(s => {
+          const inv = { ...s.inventory, items: newItems };
+          if (speciesCandyId) {
+            inv.candies = { ...(inv.candies || {}), [speciesCandyId]: (inv.candies?.[speciesCandyId] || 0) + candyQty };
+          } else {
+            inv.items = { ...newItems, exp_candy_m: (newItems.exp_candy_m || 0) + candyQty };
+          }
+          return {
           ...s,
           team: applyNatureToExisting(s.team),
           pc: applyNatureToExisting(s.pc || []),
-          inventory: { ...s.inventory, items: { ...newItems, [candyId]: (newItems[candyId] || 0) + candyQty } },
+          inventory: inv,
           activeRaid: { ...raid, phase: 'rewards', captured: true, catchAttemptsLeft: 0 },
           raidStats: { ...(s.raidStats || {}), captured: (s.raidStats?.captured || 0) + 1 },
           playerStats: bumpPlayerStats(s.playerStats, { raidsCaptured: 1 }),
-        }));
+          };
+        });
         return;
       }
 
@@ -10837,6 +10858,32 @@ export default function App() {
               <div className="rounded-2xl bg-slate-100 border-2 border-slate-200 px-4 py-3 mb-4">
                 <p className="text-sm font-bold text-slate-700 italic leading-relaxed text-center">"{trainerEncounter.phrase}"</p>
               </div>
+
+              {/* Prévia do time adversário (Pokémon + níveis) */}
+              {trainerEncounter.enemyTeam?.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 text-center mb-2">Equipe adversária</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {trainerEncounter.enemyTeam.map((mon, i) => {
+                      const d = POKEDEX[Number(mon.id)] || {};
+                      return (
+                        <div key={i} className="flex flex-col items-center bg-slate-50 border border-slate-200 rounded-2xl px-2 py-1.5 min-w-[62px]">
+                          <img
+                            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${Number(mon.id)}.png`}
+                            className="w-11 h-11 object-contain"
+                            alt={d.name || ''}
+                            style={{ imageRendering: 'pixelated' }}
+                            onError={e => { e.currentTarget.style.visibility = 'hidden'; }}
+                          />
+                          <span className="text-[8px] font-black text-slate-500 uppercase leading-tight truncate max-w-[56px]">{d.name || '???'}</span>
+                          <span className="text-[9px] font-black text-blue-600 leading-none">Nv. {mon.level}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={() => { battleModalPausedRef.current = false; setTrainerEncounter(null); }}
                 className={`w-full py-4 rounded-2xl font-black uppercase text-sm tracking-widest text-white shadow-lg active:scale-95 transition-all ${trainerEncounter.isSuperBoss ? 'bg-gradient-to-r from-amber-500 to-red-600' : 'bg-gradient-to-r from-blue-600 to-indigo-700'}`}
@@ -12341,36 +12388,51 @@ export default function App() {
                   <p className="text-slate-300 text-[11px] font-bold leading-snug mt-1">{raidRouteNotice.message}</p>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setRaidRouteNotice(null);
-                  if (gameState.activeRaid?.phase === 'ended') {
-                    setGameState(prev => ({ ...prev, activeRaid: null }));
-                  }
-                }}
-                className="min-h-[44px] w-full rounded-2xl bg-white px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-900 shadow-lg transition-all active:scale-95"
-              >
-                OK
-              </button>
+              {gameState.activeRaid?.phase === 'rewards' ? (
+                <button
+                  type="button"
+                  onClick={() => { setRaidRouteNotice(null); handleClaimRaidRewards(); }}
+                  className="min-h-[44px] w-full rounded-2xl px-4 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition-all active:scale-95"
+                  style={{ background: 'linear-gradient(135deg,#16a34a,#22c55e)' }}
+                >
+                  🎁 Coletar Recompensas
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRaidRouteNotice(null);
+                    if (gameState.activeRaid?.phase === 'ended') {
+                      setGameState(prev => ({ ...prev, activeRaid: null }));
+                    }
+                  }}
+                  className="min-h-[44px] w-full rounded-2xl bg-white px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-900 shadow-lg transition-all active:scale-95"
+                >
+                  OK
+                </button>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {gameState.activeRaid && gameState.activeRaid.phase !== 'ended' && !showRaidScreen && (
+      {gameState.activeRaid && gameState.activeRaid.phase !== 'ended' && !showRaidScreen && (() => {
+        const isRewards = gameState.activeRaid.phase === 'rewards';
+        return (
         <button
           type="button"
-          onClick={() => setShowRaidScreen(true)}
+          onClick={() => { if (isRewards) handleClaimRaidRewards(); else setShowRaidScreen(true); }}
           style={{
             position: 'absolute',
             bottom: '88px',
             right: '16px',
             zIndex: 8000,
-            background: gameState.activeRaid.isEvent
-              ? 'linear-gradient(135deg,#92400e,#d97706)'
-              : (RAID_STAR_COLOR[gameState.activeRaid.stars] || '#f59e0b'),
-            border: gameState.activeRaid.isEvent ? '2px solid #f59e0b' : 'none',
+            background: isRewards
+              ? 'linear-gradient(135deg,#16a34a,#22c55e)'
+              : (gameState.activeRaid.isEvent
+                ? 'linear-gradient(135deg,#92400e,#d97706)'
+                : (RAID_STAR_COLOR[gameState.activeRaid.stars] || '#f59e0b')),
+            border: (!isRewards && gameState.activeRaid.isEvent) ? '2px solid #f59e0b' : 'none',
             borderRadius: '50px',
             padding: '10px 16px',
             color: 'white',
@@ -12378,9 +12440,11 @@ export default function App() {
             fontSize: '13px',
             letterSpacing: '0.05em',
             textTransform: 'uppercase',
-            boxShadow: gameState.activeRaid.isEvent
-              ? '0 4px 20px #f59e0b66, 0 0 30px #d97706aa'
-              : '0 4px 20px rgba(0,0,0,0.4)',
+            boxShadow: isRewards
+              ? '0 4px 20px #16a34a88, 0 0 30px #22c55eaa'
+              : (gameState.activeRaid.isEvent
+                ? '0 4px 20px #f59e0b66, 0 0 30px #d97706aa'
+                : '0 4px 20px rgba(0,0,0,0.4)'),
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -12388,10 +12452,11 @@ export default function App() {
             animation: 'pulse 2s infinite',
           }}
         >
-          <span style={{ fontSize: '18px' }}>⚔️</span>
-          {gameState.activeRaid.isEvent ? `EVENTO ${gameState.activeRaid.stars}⭐` : `RAID ${gameState.activeRaid.stars}⭐`}
+          <span style={{ fontSize: '18px' }}>{isRewards ? '🎁' : '⚔️'}</span>
+          {isRewards ? 'COLETAR' : (gameState.activeRaid.isEvent ? `EVENTO ${gameState.activeRaid.stars}⭐` : `RAID ${gameState.activeRaid.stars}⭐`)}
         </button>
-      )}
+        );
+      })()}
 
       {/* ── RAID: Tela de Raid ────────────────────────────────────────────── */}
       {showRaidScreen && gameState.activeRaid && (

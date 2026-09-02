@@ -105,6 +105,30 @@ export const getPokemonSpriteUrl = (pokemonOrId, options = {}) => {
   return `${POKEAPI_SPRITE_BASE}/${isShiny ? 'shiny/' : ''}${spriteId}.png`;
 };
 
+// Base dos sprites ANIMADOS (Gen 5 B/W) — mesmos usados nas batalhas. Só existem
+// para Pokémon de Gen 1–5 (ids até ~649); para os demais, use o fallback estático.
+const GEN5_ANI_BASE = `${POKEAPI_SPRITE_BASE}/versions/generation-v/black-white/animated/`;
+
+/**
+ * URL do sprite animado (GIF) para o modal de detalhes. Reaproveita os overrides
+ * (mega/evento/Showdown) e cai no GIF Gen5; se não existir, o onError deve usar
+ * getPokemonSpriteUrl como fallback estático.
+ */
+export const getAnimatedSpriteUrl = (pokemonOrId, options = {}) => {
+  const pokemon = typeof pokemonOrId === 'object' && pokemonOrId !== null ? pokemonOrId : { id: pokemonOrId };
+
+  if (pokemon.isMega && pokemon.megaSprite) return pokemon.megaSprite;
+  if (pokemon.spriteUrl) return pokemon.spriteUrl;
+  if (pokemon.formKey && SHOWDOWN_FORM_KEYS.has(pokemon.formKey)) {
+    return getShowdownSpriteUrl(pokemon.formKey, Boolean(options.shiny ?? pokemon.isShiny));
+  }
+
+  const spriteId = getPokemonSpriteId(pokemon);
+  if (!spriteId) return `${POKEAPI_SPRITE_BASE}/0.png`;
+  const isShiny = Boolean(options.shiny ?? pokemon.isShiny);
+  return `${GEN5_ANI_BASE}${isShiny ? 'shiny/' : ''}${spriteId}.gif`;
+};
+
 export const getPokemonSpriteFallbackUrl = (pokemonOrId) => {
   const pokemon = typeof pokemonOrId === 'object' && pokemonOrId !== null ? pokemonOrId : { id: pokemonOrId };
   const id = Number(pokemon.pokemonId || pokemon.id);

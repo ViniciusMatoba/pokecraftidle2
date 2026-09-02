@@ -12,7 +12,7 @@ import { GLOBAL_BORDERS, getUnlockedGlobalBorders, getGlobalBorderById, getAssig
 import { getCompatibleMegaStones, MEGA_STONE_ICONS, getMegaSprite } from '../data/megaEvolutions';
 import { ABILITY_ITEM_ID, getAbilityDescription, getAbilityLabel, getPokemonAbilityPool, setPokemonAbility } from '../data/abilities';
 import { getPokeballDef, POKEBALL_DEFS, ALL_BALL_IDS, BALL_EFFECT_LABELS } from '../data/pokeballs';
-import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokemonSprites';
+import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl, getAnimatedSpriteUrl } from '../utils/pokemonSprites';
 import { getPokemonTmCompatibility } from '../data/tmCompatibility';
 
 import { GYM_LEVEL_CAPS } from '../data/constants';
@@ -1148,7 +1148,7 @@ const PokemonManagement = ({
                      : { background: `linear-gradient(160deg, ${c1}88 0%, ${c1} 60%, ${c1}dd 100%)` };
 
                  return (
-                   <div className="h-48 w-full shrink-0 relative overflow-hidden shadow-inner" style={bgStyle}>
+                   <div className="h-64 w-full shrink-0 relative overflow-hidden shadow-inner" style={bgStyle}>
                      <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                      <img src={typeIconUrl(t1)} className="absolute -left-4 bottom-2 w-28 h-28 opacity-10 pointer-events-none select-none invert" alt="" />
                      {t2 && <img src={typeIconUrl(t2)} className="absolute -right-2 top-2 w-24 h-24 opacity-10 pointer-events-none select-none invert" alt="" />}
@@ -1171,10 +1171,16 @@ const PokemonManagement = ({
                        ))}
                      </div>
                      <img
-                       src={getPokemonSpriteUrl(poke)}
-                       className={`absolute left-1/2 top-12 z-10 w-28 h-28 -translate-x-1/2 object-contain drop-shadow-2xl ${poke.isShiny ? 'drop-shadow-[0_0_20px_rgba(234,179,8,0.9)]' : ''} ${poke.isAlpha ? 'drop-shadow-[0_0_20px_rgba(239,68,68,0.9)]' : ''}`}
+                       src={getAnimatedSpriteUrl(poke)}
+                       className={`absolute left-1/2 top-6 z-10 w-56 h-56 -translate-x-1/2 object-contain drop-shadow-2xl ${poke.isShiny ? 'drop-shadow-[0_0_20px_rgba(234,179,8,0.9)]' : ''} ${poke.isAlpha ? 'drop-shadow-[0_0_20px_rgba(239,68,68,0.9)]' : ''}`}
+                        style={{ imageRendering: 'pixelated' }}
                         onError={e => {
-                          if (poke.isMega && poke.megaSprite && !e.target.dataset.triedBase) {
+                          // GIF animado indisponível (Gen 6+/formas) → cai para o sprite estático.
+                          if (!e.target.dataset.triedStatic) {
+                            e.target.dataset.triedStatic = '1';
+                            e.target.style.imageRendering = 'auto';
+                            e.target.src = getPokemonSpriteUrl(poke);
+                          } else if (poke.isMega && poke.megaSprite && !e.target.dataset.triedBase) {
                             e.target.dataset.triedBase = '1';
                             e.target.src = getPokemonSpriteFallbackUrl(poke);
                           }
