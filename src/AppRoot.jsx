@@ -3983,6 +3983,7 @@ export default function App() {
       let newPoke = assignRandomAbility({
         instanceId: `raid_caught_${Date.now()}`,
         id: raid.pokemonId,
+        capturedRegion: gameState.activeRegion || 'kanto',
         formKey: raid.formKey || null,
         formSpriteId: raid.formSpriteId || null,
         name: raid.name,

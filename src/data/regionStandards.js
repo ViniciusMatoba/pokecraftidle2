@@ -111,23 +111,26 @@ export const isPokemonAllowedInRegion = (pokemonId, activeRegion = 'kanto') => {
 };
 
 /**
- * Rule: A Pokemon is only legal if:
- * a) Its originRegion matches currentRegion.
- * b) OR the player has the champion flag for the currentRegion.
+ * Regra de legalidade de um Pokémon na região ativa:
+ * A1) É NATIVO da região atual (origem na Pokédex Nacional) — sempre legal,
+ *     independentemente de onde foi capturado (ex.: Pinsir #127 é sempre legal em Kanto).
+ * A2) OU foi capturado na região atual (`capturedRegion`).
+ * B ) OU o jogador é Campeão da região atual (libera estrangeiros).
  */
 export const isPokemonLegal = (pokemon, activeRegion = 'kanto', worldFlags = []) => {
   if (!pokemon) return false;
 
-  // Normalize input: allow passing just ID for backward compatibility,
-  // but prioritize the pokemon object's properties.
+  // Normaliza a entrada: aceita só o ID por compatibilidade, mas prioriza o objeto.
   const pokemonId = typeof pokemon === 'object' ? pokemon.id : pokemon;
   const capturedRegion = typeof pokemon === 'object' ? pokemon.capturedRegion : null;
 
-  // Rule A: Matches current region (Priority: capturedRegion > National Dex Origin)
-  const pokemonRegion = capturedRegion || getPokemonRegion(pokemonId);
-  if (pokemonRegion === activeRegion) return true;
+  // A1: Nativo da região atual (origem na Pokédex Nacional).
+  if (getPokemonRegion(pokemonId) === activeRegion) return true;
 
-  // Rule B: Player is Champion of the current region
+  // A2: Capturado na região atual.
+  if (capturedRegion && capturedRegion === activeRegion) return true;
+
+  // B: Jogador é Campeão da região atual.
   const championFlag = REGION_CHAMPION_FLAGS[activeRegion];
   if (championFlag && worldFlags.includes(championFlag)) return true;
 

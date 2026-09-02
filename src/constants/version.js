@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.28.0';
-export const VERSION = '2.28.0';
-export const APP_VERSION_DATE = '02/09/2026 11:38';
+export const APP_VERSION = '2.28.1';
+export const VERSION = '2.28.1';
+export const APP_VERSION_DATE = '02/09/2026 11:45';
 export const CHANGELOG = [
+  '## [V2.28.1] - 02/09/2026 11:45',
+  '### Fix: trava regional bloqueava Pokémon nativos',
+  '- **Corrigido**: Pokémon nativos da região atual (ex.: Pinsir em Kanto) ficavam com cadeado "não é da região" quando o `capturedRegion` estava ausente/divergente.',
+  '- Nova regra: um Pokémon **nativo** da região (pela Pokédex Nacional) é sempre utilizável ali, independentemente de onde foi capturado.',
+  '- **Raiz corrigida**: capturas em **Raid** agora gravam o `capturedRegion` (antes não gravavam).',
+  '',
   '## [V2.28.0] - 02/09/2026 11:38',
   '### Sistema de Amizade — Etapa 1 (corações)',
   '- **Novo — Amizade por Pokémon**: cada Pokémon acumula amizade (0 a 5 ❤️) ao ser usado em batalha ou recebendo EXP compartilhado no time.',
