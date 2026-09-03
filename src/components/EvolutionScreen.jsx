@@ -310,7 +310,13 @@ const EvolutionScreen = ({
   activeRegion = 'kanto', isEvolutionAllowedForRegion, getEvolutionRegionLockMessage,
   gameState,
 }) => {
-  const [cinematic, setCinematic] = useState(null); // { fromId, toId, toName, isShiny }
+  const [cinematic, setCinematic] = useState(null); // { key, fromId, toId, toName, isShiny }
+  // Identidade do Pokémon pendente — usada para invalidar cinemáticas antigas.
+  const pendingKey = evolutionPending
+    ? `${evolutionPending.instanceId ?? ''}:${evolutionPending.id ?? ''}:${evolutionPending.teamIndex ?? ''}:${evolutionPending.pcIndex ?? ''}:${evolutionPending.targetEvolution?.id ?? ''}`
+    : '';
+  // Reset ao trocar de Pokémon pendente (belt-and-suspenders além da guarda por chave).
+  useEffect(() => { setCinematic(null); }, [pendingKey]);
   if (!evolutionPending) return null;
 
   const moveKey = (move) => String(typeof move === 'string' ? move : move?.name || '')
@@ -457,12 +463,13 @@ const EvolutionScreen = ({
     const candyReq = getEvolutionCandyInfo(evolutionPending, evoData, gameState?.inventory || {}, POKEDEX);
     const candyOk = evolutionPending.candyPaid || !candyReq.candyId || candyReq.cost <= 0 || candyReq.met;
     if (!regionOk || !candyOk) { performEvolution(); return; }
-    setCinematic({ fromId: Number(evolutionPending.id), toId: Number(evoData.id), toName: nextPoke.name, isShiny: !!evolutionPending.isShiny });
+    setCinematic({ key: pendingKey, fromId: Number(evolutionPending.id), toId: Number(evoData.id), toName: nextPoke.name, isShiny: !!evolutionPending.isShiny });
   };
 
-  // Cinemática ativa → substitui a tela de confirmação até concluir.
-  if (cinematic) {
-    return <EvolutionCinematic {...cinematic} onDone={performEvolution} />;
+  // Cinemática ativa E correspondente ao Pokémon pendente atual → substitui a tela de confirmação.
+  // A checagem de chave impede reusar uma cinemática antiga (ex.: sprites do Charizard numa nova evolução).
+  if (cinematic && cinematic.key === pendingKey) {
+    return <EvolutionCinematic {...cinematic} onDone={() => { setCinematic(null); performEvolution(); }} />;
   }
 
   // ── MODO ESCOLHA ──────────────────────────────────────────────────────────

@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.33.0';
-export const VERSION = '2.33.0';
-export const APP_VERSION_DATE = '03/09/2026 05:59';
+export const APP_VERSION = '2.33.1';
+export const VERSION = '2.33.1';
+export const APP_VERSION_DATE = '03/09/2026 06:19';
 export const CHANGELOG = [
+  '## [V2.33.1] - 03/09/2026 06:19',
+  '### Fix: animação de evolução reaproveitando o Pokémon anterior',
+  '- Corrigido: após uma evolução, a próxima disparava sozinha (sem botão) e mostrava a animação da evolução anterior.',
+  '- A cinemática agora é validada por chave do Pokémon pendente — sempre mostra o botão e os sprites corretos.',
+  '',
   '## [V2.33.0] - 03/09/2026 05:59',
   '### Animação de evolução estilo clássico',
   '- Ao evoluir, uma nova cinemática mostra a forma atual **piscando e se transformando** na evoluída (silhuetas acelerando → flash → revelação em cores com estrelas), como nos jogos.',
