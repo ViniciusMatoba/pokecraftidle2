@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.41.0';
-export const VERSION = '2.41.0';
-export const APP_VERSION_DATE = '03/09/2026 07:32';
+export const APP_VERSION = '2.41.1';
+export const VERSION = '2.41.1';
+export const APP_VERSION_DATE = '03/09/2026 08:05';
 export const CHANGELOG = [
+  '## [V2.41.1] - 03/09/2026 08:05',
+  '### Coerência das equipes vilãs',
+  '- **Equipe Star**: removidos Koraidon e Miraidon (lendários-capa) do pool de recrutas — agora usa Pokémon comuns de Paldea (Maschiff, Mabosstiff, Grafaiai, Varoom, Bombirdier...).',
+  '- **Equipe Aqua**: roster canônico de Hoenn (Carvanha, Sharpedo, Wailmer, Wailord, Poochyena, Mightyena, Corphish, Crawdaunt...) no lugar de Pokémon de água genéricos.',
+  '- Demais equipes avaliadas e mantidas (já coerentes por tipo).',
+  '',
   '## [V2.41.0] - 03/09/2026 07:32',
   '### QoL de Box/PC + fix da recompensa de treinadores',
   '- **Fix**: treinadores de rota davam sempre 400 coins (piso). Agora a recompensa **escala pelo nível** (ex.: Nv.20 ~600, Nv.44 ~1.320, Nv.60 ~1.800). Vilões idem.',

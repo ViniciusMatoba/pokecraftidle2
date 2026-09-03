@@ -14,7 +14,7 @@ export const VILLAIN_TEAMS = {
     gruntName: "Recruta da Equipe Aqua",
     sprite: "https://play.pokemonshowdown.com/sprites/trainers/aquagrunt.png",
     spriteF: "https://play.pokemonshowdown.com/sprites/trainers/aquagruntf.png",
-    pokemonPool: [72, 73, 86, 87, 90, 91, 54, 55, 60, 61, 116, 117],
+    pokemonPool: [318, 319, 320, 321, 261, 262, 341, 342, 41, 42, 72, 73],
     color: "#2563eb",
     reasons: ["quer expandir os oceanos!", "acha que você é da Magma!", "está protegendo a água!"],
     rewardMult: 1.6,
@@ -96,7 +96,7 @@ export const VILLAIN_TEAMS = {
     gruntName: "Recruta da Equipe Star",
     sprite: "https://play.pokemonshowdown.com/sprites/trainers/giacomo.png",
     spriteF: "https://play.pokemonshowdown.com/sprites/trainers/penny.png",
-    pokemonPool: [954, 955, 963, 964, 935, 936, 919, 920, 948, 949, 1007, 1008],
+    pokemonPool: [954, 955, 963, 964, 935, 936, 919, 920, 948, 949, 942, 943, 944, 945, 965, 962],
     color: "#0ea5e9",
     reasons: ["representa sua base da Equipe Star!", "foi recrutado por Penny!", "está treinando Pokémon da academia!"],
     rewardMult: 1.7
