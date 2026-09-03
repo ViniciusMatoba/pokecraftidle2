@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.32.2';
-export const VERSION = '2.32.2';
-export const APP_VERSION_DATE = '02/09/2026 16:18';
+export const APP_VERSION = '2.33.0';
+export const VERSION = '2.33.0';
+export const APP_VERSION_DATE = '03/09/2026 05:59';
 export const CHANGELOG = [
+  '## [V2.33.0] - 03/09/2026 05:59',
+  '### Animação de evolução estilo clássico',
+  '- Ao evoluir, uma nova cinemática mostra a forma atual **piscando e se transformando** na evoluída (silhuetas acelerando → flash → revelação em cores com estrelas), como nos jogos.',
+  '- Vale para todas as evoluções (nível, pedra e por amizade). A validação de candy/região continua antes da animação.',
+  '',
   '## [V2.32.2] - 02/09/2026 16:18',
   '### Fix crítico: rota travando em "Procurando..."',
   '- Corrigido: a animação de captura não montava quando o inimigo era removido, deixando o spawn travado em "Procurando..." e sem batalhas.',
