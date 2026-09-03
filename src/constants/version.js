@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.44.0';
-export const VERSION = '2.44.0';
-export const APP_VERSION_DATE = '03/09/2026 12:03';
+export const APP_VERSION = '2.44.1';
+export const VERSION = '2.44.1';
+export const APP_VERSION_DATE = '03/09/2026 15:47';
 export const CHANGELOG = [
+  '## [V2.44.1] - 03/09/2026 15:47',
+  '### Fix: campo `rate` das rotas era ignorado (raros apareciam demais)',
+  '- Várias rotas (região de Hisui e especiais) definem a frequência por um campo **`rate`** (ex.: Gible 0.20, Duskull 0.10), mas o motor de encontro **ignorava** esse campo — a frequência caía na heurística de raridade. Resultado: Pokémon comuns pela heurística apareciam MUITO acima do previsto (ex.: um mon virava 50% do spawn quando o autor queria 20%) e os raros ficavam suprimidos.',
+  '- Agora `pickWeightedEncounter` e `getTimeAdjustedEnemyPool` **honram `rate`** com prioridade de intenção do autor (acima da heurística). O boost de iniciais também não sobrepõe mais um `rate` explícito.',
+  '- **Raids — tiers altos menos frequentes**: a distribuição de estrelas foi ajustada para que o tier mais alto (que contém os Pokémon mais raros) apareça bem menos: 5★ de 35%→20%, 4★/3★ topo de cada faixa de 25%→20%. A seleção já pesava por raridade dentro do tier desde a v2.42.',
+  '- **Raids — muito mais variedade por estrela (BST + raridade)**: o tier de cada Pokémon agora combina PODER (BST) e RARIDADE da espécie (média ponderada 60/40), em vez de só BST. Antes o 5★ era quase só pseudo-lendários (Kanto 5★ = só Dragonite); agora cada tier tem dezenas de opções por região (ex.: Kanto 5★ passou de 1 para 6 espécies), e o pool acumula regiões anteriores conforme você progride. Um raro de BST médio pode subir de tier; um comum forte não vira pseudo-lendário.',
+  '',
   '## [V2.44.0] - 03/09/2026 12:03',
   '### Temporadas do Chefe Mundial + modal de recompensas da Raid',
   '- **Temporadas semanais**: o Chefe Mundial agora é o MESMO para todos os jogadores a cada semana (rotação determinística por tempo, sem backend), com tema, modificador e fraqueza exibidos, e contagem para o fim da temporada.',

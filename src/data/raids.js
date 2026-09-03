@@ -422,13 +422,29 @@ export const TYPE_SHARD_DROPS = {
   Fairy:    ['shiny_stone_shard', 'moon_stone_shard'],
 };
 
-// Converte Base Stat Total (BST) em tier de estrelas para raids
-const bstToStars = (bst) => {
-  if (bst < 295) return 1;
-  if (bst < 400) return 2;
+// Tier de estrelas combina PODER (BST) e RARIDADE da espécie — dá variedade em
+// cada tier e coerência (um raro de BST médio pode subir; um comum forte não vira
+// pseudo-lendário). Antes era só BST (5★ ≥575), o que deixava tiers altos quase
+// vazios (ex.: Kanto 5★ só tinha Dragonite). O blend enche cada tier de opções.
+const RARITY_STAR = { common: 1, uncommon: 2, rare: 3, very_rare: 4, super_rare: 5, legendary: 5 };
+
+const bstStarBand = (bst) => {
+  if (bst < 310) return 1;
+  if (bst < 410) return 2;
   if (bst < 490) return 3;
-  if (bst < 575) return 4;
+  if (bst < 560) return 4;
   return 5;
+};
+
+const bstOf = (base = {}) =>
+  (base.hp || 45) + (base.attack || 45) + (base.defense || 45) +
+  (base.spAtk || 45) + (base.spDef || 45) + (base.speed || 45);
+
+// Estrelas = média ponderada (BST 60% + raridade 40%), arredondada e limitada a 1–5.
+const computeRaidStars = (id, base = {}, pokedex = {}) => {
+  const powerStar = bstStarBand(bstOf(base));
+  const rarStar = RARITY_STAR[getPokemonRarity({ id }, pokedex)] || 2;
+  return Math.max(1, Math.min(5, Math.round(powerStar * 0.6 + rarStar * 0.4)));
 };
 
 // Nível base por tier de estrelas — por região, alinhado com GYM_LEVEL_CAPS.
@@ -475,9 +491,7 @@ const buildDynamicRaidPool = (regions, pokedex, maxStars, worldFlags = [], prima
       const base = pokedex[id];
       if (!base) continue;
       if (!isLegendaryUnlockedForRaid(id, worldFlags)) continue;
-      const bst = (base.hp || 45) + (base.attack || 45) + (base.defense || 45) +
-                  (base.spAtk || 45) + (base.spDef || 45) + (base.speed || 45);
-      const stars = bstToStars(bst);
+      const stars = computeRaidStars(id, base, pokedex);
       if (stars > maxStars) continue;
       entries.push({ id, stars, level: getStarBaseLevel(primaryRegion, stars), name: base.name });
     }
@@ -546,10 +560,11 @@ export const RAID_MAX_STARS_BY_BADGES = (badgeCount) => {
 export const getRaidStarWeights = (maxStars) => {
   const table = {
     1: [{ stars: 1, w: 1.0 }],
-    2: [{ stars: 1, w: 0.70 }, { stars: 2, w: 0.30 }],
-    3: [{ stars: 1, w: 0.25 }, { stars: 2, w: 0.50 }, { stars: 3, w: 0.25 }],
-    4: [{ stars: 2, w: 0.30 }, { stars: 3, w: 0.45 }, { stars: 4, w: 0.25 }],
-    5: [{ stars: 3, w: 0.20 }, { stars: 4, w: 0.45 }, { stars: 5, w: 0.35 }],
+    2: [{ stars: 1, w: 0.75 }, { stars: 2, w: 0.25 }],
+    3: [{ stars: 1, w: 0.35 }, { stars: 2, w: 0.45 }, { stars: 3, w: 0.20 }],
+    4: [{ stars: 2, w: 0.38 }, { stars: 3, w: 0.42 }, { stars: 4, w: 0.20 }],
+    // Tier mais alto (contém os Pokémon mais raros) é bem menos frequente.
+    5: [{ stars: 3, w: 0.40 }, { stars: 4, w: 0.40 }, { stars: 5, w: 0.20 }],
   };
   return table[maxStars] || table[5];
 };

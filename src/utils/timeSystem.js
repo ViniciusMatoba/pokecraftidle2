@@ -174,14 +174,18 @@ export const getTimeAdjustedEnemyPool = (route, period = getTimeOfDay(), pokedex
     // Peso base: usa spawnWeight explícito da rota; senão deriva da raridade da
     // espécie (comum aparece muito, raro pouco) — diferenciação para todos.
     const rarityWeight = RARITY_WEIGHTS[getPokemonRarity(entry, pokedex)] || RARITY_WEIGHTS.common;
-    // `rarity` explícito manda; `spawnWeight` genérico (sem `rarity`) não pode
-    // deixar uma espécie intrinsecamente rara comum — usa o menor dos dois.
+    // Prioridade: `rate` explícito da rota (frequência relativa do autor) > `rarity`
+    // explícito > `spawnWeight` genérico limitado pela raridade > raridade da espécie.
     let baseWeight;
-    if (entry.rarity) baseWeight = entry.spawnWeight || rarityWeight;
+    if (Number(entry.rate) > 0) baseWeight = entry.rate * 100;
+    else if (entry.rarity) baseWeight = entry.spawnWeight || rarityWeight;
     else if (entry.spawnWeight) baseWeight = Math.min(entry.spawnWeight, rarityWeight);
     else baseWeight = rarityWeight;
     // Iniciais aparecem bem mais para viabilizar o farm de candies de evolução.
-    if (STARTER_IDS.has(baseSpeciesId(entry.id))) baseWeight = Math.max(baseWeight, STARTER_SPAWN_WEIGHT);
+    // (Não sobrepõe um `rate` explícito do autor — a frequência da rota manda.)
+    if (!(Number(entry.rate) > 0) && STARTER_IDS.has(baseSpeciesId(entry.id))) {
+      baseWeight = Math.max(baseWeight, STARTER_SPAWN_WEIGHT);
+    }
     const spawnWeight = Math.max(1, Math.round(baseWeight * multiplier));
     unique.set(Number(entry.id), { ...entry, spawnWeight, timeMultiplier: multiplier });
   });

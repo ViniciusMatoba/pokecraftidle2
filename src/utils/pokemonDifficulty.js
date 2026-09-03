@@ -123,11 +123,12 @@ export const pickWeightedEncounter = (pool = [], pokedex = {}) => {
   const weighted = pool.map(entry => {
     const rarity = getPokemonRarity(entry, pokedex);
     const rarityWeight = RARITY_WEIGHTS[rarity] || RARITY_WEIGHTS.common;
-    // Regra: um `rarity` explícito na rota manda; um `spawnWeight` genérico de
-    // builder (sem `rarity`) NÃO pode tornar uma espécie intrinsecamente rara
-    // comum — usa o menor entre o peso do builder e o peso da raridade.
+    // Prioridade: `rate` explícito da rota (frequência relativa do autor) manda >
+    // `rarity` explícito > `spawnWeight` genérico limitado pela raridade > raridade.
+    // `rate` (0–1) é a intenção direta do autor e não pode ser anulada pela heurística.
     let weight;
-    if (entry.rarity) weight = entry.spawnWeight || rarityWeight;
+    if (Number(entry.rate) > 0) weight = entry.spawnWeight || (entry.rate * 100);
+    else if (entry.rarity) weight = entry.spawnWeight || rarityWeight;
     else if (entry.spawnWeight) weight = Math.min(entry.spawnWeight, rarityWeight);
     else weight = rarityWeight;
     return { entry, weight: Math.max(1, weight) };
