@@ -174,6 +174,12 @@ export const DEFAULT_GAME_STATE = {
   shinyCapturedCount: 0,
   trainerBattleWins: 0,
   bossLastDamage: 0,
+  // Temporadas do Chefe Mundial
+  bossAllTimeBest: 0,                 // recorde all-time de dano numa luta
+  bossSeasonBest: {},                 // { [seasonId]: melhorDanoNaTemporada }
+  claimedBossTiers: {},               // { [seasonId]: ['bronze','silver',...] }
+  claimedBossChests: {},              // { [seasonId]: { rank, chestId, at } }
+  lastSeenBossSeason: null,           // último seasonNumber visto (para detectar virada)
   playerStats: {
     startedAt: null,
     playTimeMs: 0,

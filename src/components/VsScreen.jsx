@@ -4,7 +4,7 @@ import ChallengesScreen from './ChallengesScreen';
 import BossScreen from './BossScreen';
 import { getUnlockedRegions, REGION_LABELS } from '../data/regionStandards';
 
-const VsScreen = ({ gameState, powerScore = 0, onChallengeGym, onChallenge, onClose, setCurrentView, initialTab, setVsInitialTab, initialCategory, setVsInitialCategory, initialRegion, setVsInitialRegion }) => {
+const VsScreen = ({ gameState, setGameState, notify, powerScore = 0, onChallengeGym, onChallenge, onClose, setCurrentView, initialTab, setVsInitialTab, initialCategory, setVsInitialCategory, initialRegion, setVsInitialRegion }) => {
   const normalizeTab = (tab) => tab === 'johto' ? 'gyms' : (tab || 'challenges');
   const [activeTab, setActiveTab] = useState(normalizeTab(initialTab)); // 'challenges', 'gyms', 'legendary'
   const [region, setRegion] = useState(initialRegion || (initialCategory === 'johto' ? 'johto' : 'kanto'));
@@ -153,6 +153,8 @@ const VsScreen = ({ gameState, powerScore = 0, onChallengeGym, onChallenge, onCl
           {activeTab === 'boss' && (
             <BossScreen
               gameState={gameState}
+              setGameState={setGameState}
+              notify={notify}
               powerScore={powerScore}
               onChallengeBoss={(bossData) => onChallenge(bossData, 'boss')}
             />

@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.43.1';
-export const VERSION = '2.43.1';
-export const APP_VERSION_DATE = '03/09/2026 11:49';
+export const APP_VERSION = '2.44.0';
+export const VERSION = '2.44.0';
+export const APP_VERSION_DATE = '03/09/2026 12:03';
 export const CHANGELOG = [
+  '## [V2.44.0] - 03/09/2026 12:03',
+  '### Temporadas do Chefe Mundial + modal de recompensas da Raid',
+  '- **Temporadas semanais**: o Chefe Mundial agora é o MESMO para todos os jogadores a cada semana (rotação determinística por tempo, sem backend), com tema, modificador e fraqueza exibidos, e contagem para o fim da temporada.',
+  '- **Recompensas por tier** (Bronze→Mestre) conforme o melhor dano na temporada — coins, poeira estelar, itens e bordas globais (💥 Algoz do Chefe, 🔱 Soberano da Fenda).',
+  '- **Ranking por temporada**: reseta toda semana (subcoleção própria no Firestore) e mantém um recorde all-time. Baú de fim de temporada por posição no ranking.',
+  '- **Fix Raid**: ao coletar as recompensas da raid pela tela da rota, agora aparece um modal listando os itens ganhos (ícone + quantidade), em vez de só uma mensagem genérica.',
+  '',
   '## [V2.43.1] - 03/09/2026 11:49',
   '### Fix: Pikachu na Floresta de Viridian',
   '- O filtro de horário/evoluídos (`getTimeAdjustedEnemyPool`) descartava espécies evoluídas em rotas iniciais **sem respeitar `forceSpawn`** — por isso o Pikachu (evolui de Pichu) sumia do modal de encontros da Floresta de Viridian **e do spawn real**. Agora `forceSpawn` é exceção em ambos os filtros (evoluídos e corte de preview por horário).',

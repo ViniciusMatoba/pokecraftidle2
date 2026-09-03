@@ -33,6 +33,12 @@ export const GLOBAL_BORDERS = [
     ring: '0 0 0 3px #e11d48, 0 0 0 6px #fecdd3, 0 0 26px 5px rgba(225,29,72,0.9)' },
   { id: 'dex_shiny',     name: 'Mestre Shiny',      color: '#eab308', emoji: '🌟',
     ring: '0 0 0 3px #eab308, 0 0 0 6px #fef9c3, 0 0 26px 5px rgba(234,179,8,0.9)' },
+
+  // ── Bordas das Temporadas do Chefe Mundial (via gameState.unlockedBorders) ──
+  { id: 'boss_vanquisher', name: 'Algoz do Chefe',    color: '#f97316', emoji: '💥',
+    ring: '0 0 0 3px #f97316, 0 0 0 6px #431407, 0 0 24px 5px rgba(249,115,22,0.9)' },
+  { id: 'boss_sovereign',  name: 'Soberano da Fenda', color: '#e11d48', emoji: '🔱',
+    ring: '0 0 0 3px #e11d48, 0 0 0 6px #4c0519, 0 0 28px 6px rgba(225,29,72,0.95)' },
 ];
 
 export const getGlobalBorderById = (id) => GLOBAL_BORDERS.find(b => b.id === id) || null;

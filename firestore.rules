@@ -39,8 +39,15 @@ service cloud.firestore {
       allow write: if isOwner(uid);
     }
 
-    // Rankings do Boss: qualquer autenticado le, so o dono escreve.
+    // Rankings do Boss (recorde all-time): qualquer autenticado le, so o dono escreve.
     match /bossRankings/{uid} {
+      allow read: if isAuth();
+      allow write: if isOwner(uid);
+    }
+
+    // Rankings por temporada do Chefe Mundial: leitura publica autenticada,
+    // cada jogador escreve apenas o proprio score da temporada.
+    match /bossSeasonRankings/{seasonId}/scores/{uid} {
       allow read: if isAuth();
       allow write: if isOwner(uid);
     }

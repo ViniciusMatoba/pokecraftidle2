@@ -70,6 +70,7 @@ import { isSpotlightBoosted, SPOTLIGHT_SHINY_MULT, SPOTLIGHT_CANDY_MULT } from '
 import { getTypeEffectiveness } from './data/typeChart';
 import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
 import { REGION_STARTER_IDS } from './data/rarityClassification';
+import { getActiveBossSeason } from './data/worldBossSeasons';
 import { getEvolutionCandyInfo } from './utils/evolutionRequirements';
 import { calcExpeditionDuration, calcExpeditionDrops, calcExpeditionXP, EXPEDITION_BIOMES } from './data/expeditions';
 import { calcHarvestDrops, calcGrowthTime, calcCombinedCaretakerBonus, PLANTABLE_ITEMS, HOUSE_PURCHASE_COST } from './data/house';
@@ -107,6 +108,32 @@ import { subscribeToFriendRequests } from './services/friends';
 
 const RAID_SPAWN_STORAGE_KEY = 'pokecraftidle_next_raid_at';
 const RAID_STAR_COLOR = { 1: '#94a3b8', 2: '#22c55e', 3: '#3b82f6', 4: '#a855f7', 5: '#f59e0b' };
+
+// Ícones/nomes específicos de recompensas de raid não cobertos por ITEM_LABELS
+// (ITEM_LABELS usa ids singulares; raids usam pokeballs/great_ball/ultra_ball etc.).
+const RAID_REWARD_META = {
+  currency:      { icon: '💰', name: 'Moedas' },
+  pokeballs:     { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',  name: 'Poké Ball' },
+  great_ball:    { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png', name: 'Great Ball' },
+  ultra_ball:    { icon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png', name: 'Ultra Ball' },
+  exp_candy_xs:  { icon: '/items/exp_candy_xs.webp', name: 'EXP Candy XS' },
+  exp_candy_s:   { icon: '/items/exp_candy_s.webp',  name: 'EXP Candy S' },
+  exp_candy_m:   { icon: '/items/exp_candy_m.webp',  name: 'EXP Candy M' },
+  exp_candy_l:   { icon: '/items/exp_candy_l.webp',  name: 'EXP Candy L' },
+  exp_candy_xl:  { icon: '/items/exp_candy_xl.webp', name: 'EXP Candy XL' },
+  ability_capsule: { icon: '🔷', name: 'Cápsula de Habilidade' },
+};
+
+const humanizeRewardId = (id) => String(id).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+// Resolve a lista bruta de recompensas da raid em { icon, name, qty } para exibição.
+const resolveRaidRewards = (rewards = []) => (rewards || []).map(r => {
+  const isTm = String(r.id || '').startsWith('tm_');
+  const meta = RAID_REWARD_META[r.id] || ITEM_LABELS[r.id];
+  const icon = meta?.icon || (isTm ? '💿' : '🎁');
+  const name = meta?.name || (isTm ? `TM ${humanizeRewardId(String(r.id).slice(3))}` : humanizeRewardId(r.id));
+  return { key: r.id, icon, name, qty: r.quantity || 1 };
+});
 
 const bumpPlayerStats = (stats = {}, increments = {}) => {
   const now = Date.now();
@@ -1394,7 +1421,7 @@ export default function App() {
     setBattleLog(prev => [{ msg: cleanBattleText(msg), type, id: Date.now() + Math.random() }, ...prev].slice(0, 8));
   }, []);
 
-  const showRaidRouteNotice = useCallback((raid, status = 'ended') => {
+  const showRaidRouteNotice = useCallback((raid, status = 'ended', rewards = null) => {
     if (!raid) return;
     const messages = {
       rewards: {
@@ -1434,6 +1461,7 @@ export default function App() {
       stars: raid.stars,
       pokemonId: raid.pokemonId,
       formKey: raid.formKey || null,
+      rewards: rewards || null,
       ...(messages[status] || messages.failed),
     });
   }, []);
@@ -2438,11 +2466,36 @@ export default function App() {
         updatedAt: serverTimestamp()
       }, { merge: true });
 
+      // 1b. Ranking POR TEMPORADA (reseta a cada semana) — subcoleção própria.
+      const season = getActiveBossSeason();
+      const seasonRef = doc(db, "bossSeasonRankings", season.seasonId, "scores", user.uid);
+      const seasonSnap = await getDoc(seasonRef);
+      const seasonData = seasonSnap.exists() ? seasonSnap.data() : {};
+      const seasonBestDamage = Math.max(seasonData.bestDamage || 0, damage);
+      const seasonBestScore = Math.max(seasonData.bestScore || 0, score);
+      await setDoc(seasonRef, {
+        name: gameState.trainer?.name || "Treinador",
+        avatar: gameState.trainer?.avatar || gameState.trainer?.sprite || null,
+        seasonNumber: season.seasonNumber,
+        bestDamage: seasonBestDamage,
+        lastDamage: damage,
+        bestScore: seasonBestScore,
+        lastScore: score,
+        attempts: (seasonData.attempts || 0) + 1,
+        powerScore: powerScore || 0,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
       // Atualiza localmente para exibição imediata no card do Boss.
       setGameState(prev => ({
         ...prev,
         bossTotalDamage: Math.max(prev.bossTotalDamage || 0, damage),
-        bossLastDamage: damage
+        bossLastDamage: damage,
+        bossAllTimeBest: Math.max(prev.bossAllTimeBest || 0, damage),
+        bossSeasonBest: {
+          ...(prev.bossSeasonBest || {}),
+          [season.seasonId]: Math.max((prev.bossSeasonBest || {})[season.seasonId] || 0, damage),
+        },
       }));
         
       if (damage > currentBest) {
@@ -4266,7 +4319,9 @@ export default function App() {
           newInventory.candies[r.id] = (newInventory.candies[r.id] || 0) + (r.quantity || 1);
         }
       });
-      showRaidRouteNotice(raid, 'claimed');
+      // Lista de exibição das recompensas ganhas (mostrada no modal do aviso).
+      const claimedRewardsDisplay = resolveRaidRewards(rewards);
+      showRaidRouteNotice(raid, 'claimed', claimedRewardsDisplay);
       // Agenda próxima raid
       localStorage.setItem(RAID_SPAWN_STORAGE_KEY, String(Date.now() + RAID_SPAWN_INTERVAL_MS));
       return {
@@ -5807,9 +5862,9 @@ export default function App() {
       const base = POKEDEX[teamMember.id];
       if (!base) return;
 
-      const lvl = 100; 
+      const lvl = 100;
       const hpMult = 250000; // HP virtualmente inesgotavel: o desafio termina pelo timer de 120s
-      const statMult = 2.0; // +100% em ATK/DEF para tornar o boss realmente intimidador
+      const statMult = battleData.statMult || 2.0; // temporada pode reforçar o boss
 
       const baseHp = Math.ceil((((2 * (base.maxHp || base.hp || 50) * lvl) / 100) + lvl + 10));
       const maxHp = Math.max(99999999, baseHp * hpMult);
@@ -9470,6 +9525,8 @@ export default function App() {
         <Suspense fallback={<div className="h-full flex items-center justify-center bg-slate-900 text-white font-black uppercase tracking-[0.3em] animate-pulse">Carregando Desafios...</div>}>
           <VsScreen
             gameState={gameState}
+            setGameState={setGameState}
+            notify={notify}
             powerScore={powerScore}
             onChallengeGym={(gymData) => {
               handleChallengeGym(gymData);
@@ -12462,6 +12519,27 @@ export default function App() {
                   <p className="text-slate-300 text-[11px] font-bold leading-snug mt-1">{raidRouteNotice.message}</p>
                 </div>
               </div>
+              {raidRouteNotice.rewards?.length > 0 && (
+                <div className="rounded-2xl border border-white/10 bg-black/30 p-2">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-emerald-300/80 mb-1.5 px-1">Recompensas recebidas</p>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {raidRouteNotice.rewards.map((rw, i) => {
+                      const isImg = typeof rw.icon === 'string' && (rw.icon.startsWith('http') || rw.icon.startsWith('/'));
+                      return (
+                        <div key={`${rw.key}_${i}`} className="flex items-center gap-1.5 rounded-xl bg-white/5 border border-white/5 px-2 py-1.5">
+                          {isImg
+                            ? <img src={rw.icon} alt="" className="h-6 w-6 object-contain shrink-0" style={{ imageRendering: 'pixelated' }} onError={e => { e.currentTarget.replaceWith(Object.assign(document.createElement('span'), { textContent: '🎁', className: 'text-lg' })); }} />
+                            : <span className="text-lg shrink-0">{rw.icon}</span>}
+                          <div className="min-w-0">
+                            <p className="text-[10px] font-black text-white leading-none truncate">×{rw.qty >= 1000 ? rw.qty.toLocaleString('pt-BR') : rw.qty}</p>
+                            <p className="text-[8px] font-bold text-white/50 leading-tight truncate">{rw.name}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               {gameState.activeRaid?.phase === 'rewards' ? (
                 <button
                   type="button"
