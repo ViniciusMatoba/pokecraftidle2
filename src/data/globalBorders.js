@@ -23,13 +23,26 @@ export const GLOBAL_BORDERS = [
     ring: '0 0 0 3px #6366f1, 0 0 0 6px #1e1b4b, 0 0 22px 4px rgba(99,102,241,0.85)' },
   { id: 'boss_hunter',    name: 'Caçador de Chefes', achievement: 'ach_bosses_50',    color: '#f97316', emoji: '⚔️',
     ring: '0 0 0 3px #f97316, 0 0 0 6px #7c2d12, 0 0 22px 4px rgba(249,115,22,0.85)' },
+
+  // ── Bordas da Trilha da Pokédex (desbloqueadas via gameState.unlockedBorders) ──
+  { id: 'dex_wanderer',  name: 'Andarilho da Dex',  color: '#0891b2', emoji: '🧭',
+    ring: '0 0 0 3px #0891b2, 0 0 0 6px #cffafe, 0 0 22px 4px rgba(8,145,178,0.85)' },
+  { id: 'dex_collector', name: 'Colecionador Épico', color: '#7c3aed', emoji: '📗',
+    ring: '0 0 0 3px #7c3aed, 0 0 0 6px #ede9fe, 0 0 22px 4px rgba(124,58,237,0.85)' },
+  { id: 'dex_master',    name: 'Lenda da Pokédex',  color: '#e11d48', emoji: '📕',
+    ring: '0 0 0 3px #e11d48, 0 0 0 6px #fecdd3, 0 0 26px 5px rgba(225,29,72,0.9)' },
 ];
 
 export const getGlobalBorderById = (id) => GLOBAL_BORDERS.find(b => b.id === id) || null;
 
-// Uma borda é desbloqueada quando sua conquista foi COLETADA (claimedAchievements).
-export const isGlobalBorderUnlocked = (gameState, border) =>
-  !!border && (gameState?.claimedAchievements || []).includes(border.achievement);
+// Uma borda é desbloqueada quando sua conquista foi COLETADA (claimedAchievements)
+// ou quando foi concedida por outra trilha (gameState.unlockedBorders — ex.: Pokédex).
+export const isGlobalBorderUnlocked = (gameState, border) => {
+  if (!border) return false;
+  if (border.achievement && (gameState?.claimedAchievements || []).includes(border.achievement)) return true;
+  if ((gameState?.unlockedBorders || []).includes(border.id)) return true;
+  return false;
+};
 
 export const getUnlockedGlobalBorders = (gameState = {}) =>
   GLOBAL_BORDERS.filter(b => isGlobalBorderUnlocked(gameState, b));

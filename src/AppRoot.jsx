@@ -9912,6 +9912,7 @@ export default function App() {
             dexLimit={getUnlockedDexLimit(gameState)}
             routes={processedRoutes}
             gameState={gameState}
+            setGameState={setGameState}
             onGoToRoute={(routeId) => {
               setGameState(prev => ({
                 ...prev,

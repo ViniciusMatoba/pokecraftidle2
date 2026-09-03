@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.34.0';
-export const VERSION = '2.34.0';
-export const APP_VERSION_DATE = '03/09/2026 06:23';
+export const APP_VERSION = '2.35.0';
+export const VERSION = '2.35.0';
+export const APP_VERSION_DATE = '03/09/2026 06:39';
 export const CHANGELOG = [
+  '## [V2.35.0] - 03/09/2026 06:39',
+  '### Pokédex como trilha de progresso (Etapa 1)',
+  '- **Nova aba "Progresso"** na Pokédex: barra da Dex Nacional e **% por região**.',
+  '- **Marcos coletáveis**: Dex Nacional (100/251/500/750/1025) e **cada região completa** dão recompensas (moeda, itens, materiais).',
+  '- **Bordas exclusivas** desbloqueadas por marcos: 🧭 Andarilho (251), 📗 Colecionador Épico (500), 📕 Lenda da Pokédex (1025).',
+  '- Títulos de coleção continuam automáticos no card do treinador.',
+  '- Próxima etapa: Shiny Dex (rastreamento shiny por espécie).',
+  '',
   '## [V2.34.0] - 03/09/2026 06:23',
   '### Treinadores e vilões mais desafiadores',
   '- **Treinadores de rota** agora têm o time escalado por progresso (2 Pokémon cedo, até 4 no fim da região), completando com Pokémon do bioma da rota no nível dela.',
