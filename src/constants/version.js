@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.36.0';
-export const VERSION = '2.36.0';
-export const APP_VERSION_DATE = '03/09/2026 06:45';
+export const APP_VERSION = '2.37.0';
+export const VERSION = '2.37.0';
+export const APP_VERSION_DATE = '03/09/2026 06:51';
 export const CHANGELOG = [
+  '## [V2.37.0] - 03/09/2026 06:51',
+  '### Destaque da Semana',
+  '- Toda semana um **Pokémon ou uma rota em destaque** (igual para todos, rotaciona sozinho): **✨ Shiny ×2** e **🍬 Candy ×2** para a espécie/rota destacada.',
+  '- **Banner na Cidade** mostra o destaque atual, os bônus e o contador até a próxima troca (com botão "Ir" quando é rota).',
+  '',
   '## [V2.36.0] - 03/09/2026 06:45',
   '### Shiny Dex (Etapa 2 da trilha da Pokédex)',
   '- Nova contagem de **espécies distintas em shiny** na aba Progresso, com marcos coletáveis: 10 / 25 / 50 / 100.',

@@ -66,6 +66,7 @@ import { getMasteryPath, getEffectiveStat, getShinyMult } from './utils/gameHelp
 import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from './utils/pokemonSprites';
 import { getTrainerCurrencyReward } from './utils/economy';
 import { applyFriendshipGains, FRIENDSHIP_GAIN, FRIENDSHIP_EVO_THRESHOLD, FRIENDSHIP_EVOLUTIONS, FRIENDSHIP_CANDY_STEP, FRIENDSHIP_CANDY_MIN, FRIENDSHIP_CANDY_MAX } from './data/friendship';
+import { isSpotlightBoosted, SPOTLIGHT_SHINY_MULT, SPOTLIGHT_CANDY_MULT } from './data/weeklySpotlight';
 import { getTypeEffectiveness } from './data/typeChart';
 import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
 import { getEvolutionCandyInfo } from './utils/evolutionRequirements';
@@ -2995,11 +2996,13 @@ export default function App() {
     const candyId = POKEMON_TO_CANDY[Number(enemy.id)];
     if (candyId) {
        const mastery = (gameState.speciesMastery || {})[Number(enemy.id)] || 0;
-       const bonusChance = mastery > 50 ? 0.45 : 0.30;
+       // Destaque da Semana: mais chance e quantidade de candy da espécie/rota destacada.
+       const candyBoosted = isSpotlightBoosted(enemy.id, gameState.currentRoute);
+       const bonusChance = Math.min(0.9, (mastery > 50 ? 0.45 : 0.30) * (candyBoosted ? SPOTLIGHT_CANDY_MULT : 1));
        if (Math.random() < bonusChance) {
-         const qty = 1;
-         drops.candies = { [candyId]: qty }; 
-         messages.push(`Candy 1x ${CANDY_FAMILIES[candyId].name}`);
+         const qty = candyBoosted ? 2 : 1;
+         drops.candies = { [candyId]: qty };
+         messages.push(`Candy ${qty}x ${CANDY_FAMILIES[candyId].name}`);
        }
     }
 
@@ -3536,7 +3539,11 @@ export default function App() {
     const masteryCount = (gameState.speciesMastery || {})[pokeId] || (gameState.speciesMastery || {})[base.id] || 0;
     
     // ⛏️ PROTECTED: Spawn Rates — base 1/4000, reduz com maestria
-    const shinyRateDivisor = masteryCount >= 200 ? 1000 : masteryCount >= 100 ? 2000 : 4000;
+    let shinyRateDivisor = masteryCount >= 200 ? 1000 : masteryCount >= 100 ? 2000 : 4000;
+    // Destaque da Semana: chance de shiny ×2 (divisor / 2) para a espécie/rota destacada.
+    if (isSpotlightBoosted(pokeId, gameState.currentRoute)) {
+      shinyRateDivisor = Math.max(1, Math.ceil(shinyRateDivisor / SPOTLIGHT_SHINY_MULT));
+    }
     const isShiny = Math.floor(Math.random() * shinyRateDivisor) === 0;
     const isBossSpawn = !isShiny && Math.floor(Math.random() * 500) === 0; // Boss (não capturável)
     const isStarterSpawn = !isShiny && !isBossSpawn && Math.floor(Math.random() * 2048) === 0; // Starter raro

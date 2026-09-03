@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TrainerCard } from './CommonUI';
 import { HOUSE_PURCHASE_COST } from '../data/house';
+import { getActiveSpotlight, msUntilNextRotation } from '../data/weeklySpotlight';
 
 const CityScreen = ({
   gameState,
@@ -303,6 +304,45 @@ const CityScreen = ({
   return (
     <div className="h-full flex flex-col animate-fadeIn pb-24 relative overflow-y-auto custom-scrollbar">
       <div className="relative p-4 md:p-6 flex flex-col gap-4 md:gap-6">
+        {/* ── Destaque da Semana ── */}
+        {(() => {
+          const sp = getActiveSpotlight();
+          const ms = msUntilNextRotation();
+          const days = Math.floor(ms / 86400000);
+          const hours = Math.floor((ms % 86400000) / 3600000);
+          const countdown = days > 0 ? `${days}d ${hours}h` : `${hours}h`;
+          const isRoute = sp.type === 'route';
+          const routeName = isRoute ? (ROUTES?.[sp.routeId]?.name || sp.name) : null;
+          const goRoute = () => {
+            if (!isRoute) return;
+            setGameState(prev => ({ ...prev, currentRoute: sp.routeId, lastFarmingRoute: sp.routeId }));
+            setCurrentView('battles');
+          };
+          return (
+            <div className="rounded-3xl p-4 shadow-xl border-b-4 border-fuchsia-800 relative overflow-hidden"
+              style={{ background: 'linear-gradient(120deg,#7c3aed 0%,#db2777 60%,#f59e0b 130%)' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center shrink-0 shadow-inner">
+                  {isRoute
+                    ? <span className="text-3xl">🗺️</span>
+                    : <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${sp.id}.png`} alt={sp.name} className="w-12 h-12 object-contain" style={{ imageRendering: 'pixelated' }} />}
+                </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-[9px] font-black uppercase tracking-[0.25em] text-white/80">✨ Destaque da Semana</p>
+                  <h3 className="text-white font-black text-lg uppercase italic leading-none truncate">{isRoute ? routeName : sp.name}</h3>
+                  <p className="text-[10px] font-bold text-white/85 mt-1">✨ Shiny ×2 · 🍬 Candy ×2 · troca em {countdown}</p>
+                </div>
+                {isRoute && (
+                  <button onClick={goRoute}
+                    className="shrink-0 bg-white text-fuchsia-700 font-black uppercase text-[10px] tracking-widest px-3 py-2 rounded-xl active:scale-95 transition-transform shadow">
+                    Ir
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })()}
+
         <TrainerCard
           trainer={gameState.trainer}
           badges={gameState.badges || []}
