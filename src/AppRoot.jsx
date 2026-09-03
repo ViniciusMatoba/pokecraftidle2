@@ -87,6 +87,8 @@ import { preloadAssets } from './utils/preloader';
 import { calculatePowerScore, getBadgeCount } from './utils/progress';
 import { migrateGameState, sanitizePokemonForm } from './utils/saveMigration';
 import { ensureRetentionState, getRetentionViewModel, RETENTION_DAILY_MISSIONS, RETENTION_WEEKLY_MISSIONS, claimMissionReward } from './data/retention';
+import { ACHIEVEMENTS, isAchievementComplete, isAchievementClaimed } from './data/achievements';
+import { DEX_REWARDS, isDexRewardComplete, isDexRewardClaimed } from './data/dexRewards';
 import { 
   TROPHIES, SHOP_TITLES, POKEDEX_FRAMES, UI_THEMES, 
   ALLIES, MINE_LEVELS, FISHING_RODS, POKECENTER_DONATIONS, GYM_BANNERS 
@@ -4698,6 +4700,10 @@ export default function App() {
           raidDmgToApply = Math.floor(playerDmg * 0.8);
 
           addFloat(`-${playerDmg}`, eff > 1 ? '#fbbf24' : eff < 1 ? '#94a3b8' : '#ef4444');
+          // Feedback visual de efetividade (float além do log).
+          if (eff > 2) addFloat('SUPER EFETIVO!!', '#f59e0b');
+          else if (eff > 1) addFloat('Super Efetivo!', '#f59e0b');
+          else if (eff > 0 && eff < 1) addFloat('Pouco efetivo', '#94a3b8');
           if (eff > 1) addLog("💥 É super efetivo!", 'system');
           if (eff > 0 && eff < 1) addLog("💢 Não é muito efetivo!", 'system');
           if (eff === 0) addLog("🚫 Não afetou o inimigo!", 'system');
@@ -9798,10 +9804,11 @@ export default function App() {
       );
       case 'menu': {
         const _missionModel = getRetentionViewModel(gameState);
+        const _achReady = ACHIEVEMENTS.filter(a => isAchievementComplete(gameState, a) && !isAchievementClaimed(gameState, a.id)).length;
         const _missionsReadyCount = [
           ..._missionModel.dailyMissions,
           ..._missionModel.weeklyMissions,
-        ].filter(m => m.complete && !m.claimed).length + (_missionModel.canClaimLogin ? 1 : 0);
+        ].filter(m => m.complete && !m.claimed).length + (_missionModel.canClaimLogin ? 1 : 0) + _achReady;
         return (
         <MenuScreen
           {...props}

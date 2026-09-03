@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.39.0';
-export const VERSION = '2.39.0';
-export const APP_VERSION_DATE = '03/09/2026 07:11';
+export const APP_VERSION = '2.40.0';
+export const VERSION = '2.40.0';
+export const APP_VERSION_DATE = '03/09/2026 07:20';
 export const CHANGELOG = [
+  '## [V2.40.0] - 03/09/2026 07:20',
+  '### Quick wins',
+  '- **Reivindicar tudo**: botão no menu de Missões coleta de uma vez login + missões prontas + conquistas prontas.',
+  '- **Badge de novidade**: o indicador do menu agora conta também as conquistas prontas para coletar.',
+  '- **Feedback de batalha**: floats de "Super Efetivo!" / "Pouco efetivo" durante o combate, além do log.',
+  '',
   '## [V2.39.0] - 03/09/2026 07:11',
   '### Alphas selvagens + auto-captura de Raid sem abrir a tela',
   '- **Novo — Alpha selvagem**: ~1% de chance de o Pokémon selvagem aparecer como **Alfa** (stats reforçados + **aura vermelha**), capturável normalmente e contando para as conquistas de Alfa.',

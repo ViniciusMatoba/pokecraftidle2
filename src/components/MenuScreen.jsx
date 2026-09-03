@@ -1125,20 +1125,44 @@ const MenuScreen = ({ gameState, setCurrentView, setGameState, user, onSave, onE
     const collectionAch = achievements.filter(a => a.category === 'collection');
     const specialAch = achievements.filter(a => a.category === 'special');
 
+    const achReady = achievements.filter(a => a.complete && !a.claimed);
+    const grandTotalReady = totalReady + achReady.length;
+
+    // Reivindicar tudo: login + missões prontas + conquistas prontas numa tacada.
+    const claimAll = () => {
+      const missionsToClaim = [
+        ...model.dailyMissions.filter(m => m.complete && !m.claimed).map(m => ['daily', m.id]),
+        ...model.weeklyMissions.filter(m => m.complete && !m.claimed).map(m => ['weekly', m.id]),
+      ];
+      const achToClaim = achReady.map(a => a.id);
+      setGameState(prev => {
+        let s = prev;
+        if (model.canClaimLogin) { const r = claimLoginReward(s); if (r.claimed) s = r.state; }
+        missionsToClaim.forEach(([period, id]) => { const r = claimMissionReward(s, period, id); if (r && r.claimed) s = r.state; });
+        achToClaim.forEach(id => { s = claimAchievement(s, id).state; });
+        return s;
+      });
+    };
+
     return (
       <div className="animate-slideUp flex flex-col gap-4">
         {/* Banner de alerta quando há recompensas prontas */}
-        {totalReady > 0 && (
-          <div className="rounded-2xl p-4 bg-red-500 text-white flex items-center gap-3 shadow-lg animate-pulse">
-            <span className="text-2xl shrink-0">🎁</span>
-            <div className="flex-1">
+        {grandTotalReady > 0 && (
+          <div className="rounded-2xl p-4 bg-red-500 text-white flex items-center gap-3 shadow-lg">
+            <span className="text-2xl shrink-0 animate-pulse">🎁</span>
+            <div className="flex-1 min-w-0">
               <p className="font-black uppercase text-sm leading-none">
-                {totalReady === 1 ? '1 recompensa pronta!' : `${totalReady} recompensas prontas!`}
+                {grandTotalReady === 1 ? '1 recompensa pronta!' : `${grandTotalReady} recompensas prontas!`}
               </p>
-              <p className="text-[10px] font-bold text-white/80 mt-1">
-                {readyMissions.map(m => m.title).concat(model.canClaimLogin ? ['Login Diário'] : []).join(' • ')}
+              <p className="text-[10px] font-bold text-white/80 mt-1 truncate">
+                {readyMissions.map(m => m.title).concat(model.canClaimLogin ? ['Login Diário'] : []).concat(achReady.map(a => a.title)).join(' • ')}
               </p>
             </div>
+            <button
+              onClick={claimAll}
+              className="shrink-0 bg-white text-red-600 font-black uppercase text-[10px] tracking-widest px-3 py-2 rounded-xl active:scale-95 transition-transform shadow">
+              Coletar tudo
+            </button>
           </div>
         )}
 
