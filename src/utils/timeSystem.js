@@ -171,7 +171,12 @@ export const getTimeAdjustedEnemyPool = (route, period = getTimeOfDay(), pokedex
     // Peso base: usa spawnWeight explícito da rota; senão deriva da raridade da
     // espécie (comum aparece muito, raro pouco) — diferenciação para todos.
     const rarityWeight = RARITY_WEIGHTS[getPokemonRarity(entry, pokedex)] || RARITY_WEIGHTS.common;
-    let baseWeight = entry.spawnWeight || rarityWeight;
+    // `rarity` explícito manda; `spawnWeight` genérico (sem `rarity`) não pode
+    // deixar uma espécie intrinsecamente rara comum — usa o menor dos dois.
+    let baseWeight;
+    if (entry.rarity) baseWeight = entry.spawnWeight || rarityWeight;
+    else if (entry.spawnWeight) baseWeight = Math.min(entry.spawnWeight, rarityWeight);
+    else baseWeight = rarityWeight;
     // Iniciais aparecem bem mais para viabilizar o farm de candies de evolução.
     if (STARTER_IDS.has(baseSpeciesId(entry.id))) baseWeight = Math.max(baseWeight, STARTER_SPAWN_WEIGHT);
     const spawnWeight = Math.max(1, Math.round(baseWeight * multiplier));

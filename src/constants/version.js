@@ -1,7 +1,19 @@
-export const APP_VERSION = '2.41.2';
-export const VERSION = '2.41.2';
-export const APP_VERSION_DATE = '03/09/2026 08:09';
+export const APP_VERSION = '2.43.0';
+export const VERSION = '2.43.0';
+export const APP_VERSION_DATE = '03/09/2026 11:22';
 export const CHANGELOG = [
+  '## [V2.43.0] - 03/09/2026 11:22',
+  '### Inicial por região + Destaque Semanal multi-região',
+  '- **Spawn raro de inicial agora respeita a região ativa**: em Johto cai Chikorita/Cyndaquil/Totodile, em Hoenn Treecko/Torchic/Mudkip, etc. — antes só saíam os iniciais de Kanto em qualquer região. Kanto mantém o Pikachu no sorteio.',
+  '- **Destaque da Semana cobre as 9 regiões**: a rotação agora inclui espécies e rotas de Johto→Paldea (Bagon, Gible, Deino, Goomy, Jangmo-o, Dreepy, Frigibax e habitats regionais), não mais só Kanto.',
+  '',
+  '## [V2.42.0] - 03/09/2026 11:18',
+  '### Raridade real de encontros (rotas + raids)',
+  '- **Linha pseudo-lendária inteira agora é escassa**: Dratini/Larvitar/Bagon/Beldum/Gible/Deino/Goomy/Jangmo-o/Dreepy/Frigibax (base→raro), suas formas do meio (Dragonair/Pupitar/Shelgon/Metang/Gabite/Zweilous/Sliggoo/Hakamo-o/Drakloak/Arctibax → muito raro) e as finais mantêm super-raro.',
+  '- **Fix crítico**: as rotas de cobertura de Pokédex (todas as 9 regiões) fixavam um peso de spawn uniforme que anulava a raridade — Dragonair e cia. apareciam com frequência de comum. Agora a **raridade da espécie dirige a frequência** em toda rota: comuns aparecem muito, evoluídos/fortes/raros aparecem pouco.',
+  '- **Raids com raridade**: dentro de um mesmo tier de estrelas, espécies mais raras (pseudo-lendários, iniciais, lendários) aparecem menos que as comuns do mesmo tier.',
+  '- Um `rarity` explícito escrito à mão numa rota continua tendo prioridade; a correção só impede que um peso genérico de builder torne uma espécie intrinsecamente rara comum.',
+  '',
   '## [V2.41.2] - 03/09/2026 08:09',
   '### Pikachu nos spawns raros de inicial',
   '- O encontro raro de Pokémon inicial nas rotas agora inclui o **Pikachu** (antes só Bulbasaur/Charmander/Squirtle).',

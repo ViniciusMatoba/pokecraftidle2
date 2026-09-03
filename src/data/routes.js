@@ -1734,10 +1734,12 @@ const splitRegionalDex = (start, end) => {
 
 const uniqueIds = (ids) => [...new Set(ids.map(Number).filter(Boolean))];
 
-const withDrops = (ids, level, drops, spawnWeight = 60) =>
+// NÃO fixa spawnWeight: deixa a raridade da espécie (comum→raro) dirigir a
+// frequência de encontro, para que toda rota tenha comuns e raros distintos.
+// O 4º argumento é mantido por compatibilidade das chamadas, mas ignorado.
+const withDrops = (ids, level, drops, _legacySpawnWeight) =>
   pk(uniqueIds(ids), level).map((pokemon, index) => ({
     ...pokemon,
-    spawnWeight,
     drop: drops[index % drops.length],
   }));
 

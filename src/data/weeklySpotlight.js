@@ -5,20 +5,40 @@
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const EPOCH = Date.UTC(2024, 0, 1); // Segunda-feira 00:00 UTC — alinha as semanas.
 
-// Lista curada (alterna espécie/rota). routeId deve existir em routes.js.
+// Lista curada multi-região (alterna espécie/rota, cobre as 9 regiões).
+// routeId deve existir em routes.js — as rotas `${region}_dex_field_N` são
+// geradas para todas as regiões, então servem de destino garantido.
 export const SPOTLIGHTS = [
+  // ── Kanto ──
   { type: 'species', id: 147, name: 'Dratini' },
   { type: 'route',   routeId: 'route_24_25', name: 'Rotas 24 e 25' },
+  // ── Johto ──
   { type: 'species', id: 246, name: 'Larvitar' },
-  { type: 'route',   routeId: 'route_9_10', name: 'Rotas 9 e 10' },
-  { type: 'species', id: 133, name: 'Eevee' },
-  { type: 'route',   routeId: 'route_12_15', name: 'Rotas 12 a 15' },
+  { type: 'route',   routeId: 'johto_dex_field_2', name: 'Habitat Regional Johto II' },
+  // ── Hoenn ──
+  { type: 'species', id: 371, name: 'Bagon' },
+  { type: 'route',   routeId: 'hoenn_dex_field_2', name: 'Habitat Regional Hoenn II' },
+  // ── Sinnoh ──
   { type: 'species', id: 443, name: 'Gible' },
-  { type: 'route',   routeId: 'route_7_8', name: 'Rotas 7 e 8' },
+  { type: 'route',   routeId: 'sinnoh_dex_field_2', name: 'Habitat Regional Sinnoh II' },
+  // ── Unova ──
+  { type: 'species', id: 633, name: 'Deino' },
+  { type: 'route',   routeId: 'unova_dex_field_3', name: 'Reserva Regional Unova III' },
+  // ── Kalos ──
+  { type: 'species', id: 704, name: 'Goomy' },
+  { type: 'route',   routeId: 'kalos_dex_field_2', name: 'Habitat Regional Kalos II' },
+  // ── Alola ──
+  { type: 'species', id: 782, name: 'Jangmo-o' },
+  { type: 'route',   routeId: 'alola_dex_field_2', name: 'Habitat Regional Alola II' },
+  // ── Galar ──
+  { type: 'species', id: 885, name: 'Dreepy' },
+  { type: 'route',   routeId: 'galar_dex_field_2', name: 'Habitat Regional Galar II' },
+  // ── Paldea ──
+  { type: 'species', id: 996, name: 'Frigibax' },
+  { type: 'route',   routeId: 'paldea_dex_field_2', name: 'Habitat Regional Paldea II' },
+  // ── Extras Kanto/Sinnoh (variedade) ──
+  { type: 'species', id: 133, name: 'Eevee' },
   { type: 'species', id: 447, name: 'Riolu' },
-  { type: 'route',   routeId: 'route_5_6', name: 'Rotas 5 e 6' },
-  { type: 'species', id: 374, name: 'Beldum' },
-  { type: 'route',   routeId: 'route_3', name: 'Rota 3' },
 ];
 
 export const getActiveSpotlight = (now = Date.now()) => {

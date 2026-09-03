@@ -69,6 +69,7 @@ import { applyFriendshipGains, FRIENDSHIP_GAIN, FRIENDSHIP_EVO_THRESHOLD, FRIEND
 import { isSpotlightBoosted, SPOTLIGHT_SHINY_MULT, SPOTLIGHT_CANDY_MULT } from './data/weeklySpotlight';
 import { getTypeEffectiveness } from './data/typeChart';
 import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
+import { REGION_STARTER_IDS } from './data/rarityClassification';
 import { getEvolutionCandyInfo } from './utils/evolutionRequirements';
 import { calcExpeditionDuration, calcExpeditionDrops, calcExpeditionXP, EXPEDITION_BIOMES } from './data/expeditions';
 import { calcHarvestDrops, calcGrowthTime, calcCombinedCaretakerBonus, PLANTABLE_ITEMS, HOUSE_PURCHASE_COST } from './data/house';
@@ -3554,7 +3555,9 @@ export default function App() {
 
     let finalBase = { ...base };
     if (isStarterSpawn) {
-      const starterIds = [1, 4, 7, 25]; // Bulbasaur, Charmander, Squirtle e Pikachu (inicial icônico)
+      // Inicial raro por região: cada região sorteia entre os SEUS iniciais.
+      const starterRegion = gameState.activeRegion || 'kanto';
+      const starterIds = REGION_STARTER_IDS[starterRegion] || REGION_STARTER_IDS.kanto;
       const randomStarterId = starterIds[Math.floor(Math.random() * starterIds.length)];
       const starterBase = POKEDEX[randomStarterId];
       if (starterBase) {

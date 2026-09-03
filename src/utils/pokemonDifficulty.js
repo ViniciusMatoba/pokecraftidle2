@@ -1,6 +1,8 @@
 import {
   STARTER_IDS,
   PSEUDO_LEGENDARY_IDS,
+  PSEUDO_LEGENDARY_BASE_IDS,
+  PSEUDO_LEGENDARY_MID_IDS,
   ULTRA_BEAST_IDS,
   PARADOX_IDS,
   LEGENDARY_IDS,
@@ -101,6 +103,9 @@ export const getPokemonRarity = (entry = {}, pokedex = {}) => {
   // 3) Listas especiais (todas as gerações).
   if (LEGENDARY_IDS.has(baseId)) return 'legendary';
   if (PSEUDO_LEGENDARY_IDS.has(baseId)) return 'super_rare';
+  // Linha evolutiva pseudo-lendária inteira é escassa (base < meio < final).
+  if (PSEUDO_LEGENDARY_MID_IDS.has(baseId)) return 'very_rare';
+  if (PSEUDO_LEGENDARY_BASE_IDS.has(baseId)) return 'rare';
   if (ULTRA_BEAST_IDS.has(baseId)) return 'super_rare';
   if (PARADOX_IDS.has(baseId)) return 'super_rare';
   if (STARTER_IDS.has(baseId)) return 'super_rare';
@@ -117,10 +122,15 @@ export const pickWeightedEncounter = (pool = [], pokedex = {}) => {
   if (!pool.length) return null;
   const weighted = pool.map(entry => {
     const rarity = getPokemonRarity(entry, pokedex);
-    return {
-      entry,
-      weight: Math.max(1, entry.spawnWeight || RARITY_WEIGHTS[rarity] || RARITY_WEIGHTS.common),
-    };
+    const rarityWeight = RARITY_WEIGHTS[rarity] || RARITY_WEIGHTS.common;
+    // Regra: um `rarity` explícito na rota manda; um `spawnWeight` genérico de
+    // builder (sem `rarity`) NÃO pode tornar uma espécie intrinsecamente rara
+    // comum — usa o menor entre o peso do builder e o peso da raridade.
+    let weight;
+    if (entry.rarity) weight = entry.spawnWeight || rarityWeight;
+    else if (entry.spawnWeight) weight = Math.min(entry.spawnWeight, rarityWeight);
+    else weight = rarityWeight;
+    return { entry, weight: Math.max(1, weight) };
   });
   const total = weighted.reduce((sum, item) => sum + item.weight, 0);
   let roll = Math.random() * total;

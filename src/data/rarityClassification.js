@@ -18,6 +18,21 @@ export const STARTER_IDS = new Set([
   906, 909, 912,  // Paldea
 ]);
 
+// Iniciais icônicos por região (formas base) para o spawn raro de inicial nas
+// rotas — cada região sorteia entre os SEUS iniciais. Kanto inclui Pikachu.
+export const REGION_STARTER_IDS = {
+  kanto:  [1, 4, 7, 25],       // Bulbasaur, Charmander, Squirtle, Pikachu
+  johto:  [152, 155, 158],     // Chikorita, Cyndaquil, Totodile
+  hoenn:  [252, 255, 258],     // Treecko, Torchic, Mudkip
+  sinnoh: [387, 390, 393],     // Turtwig, Chimchar, Piplup
+  unova:  [495, 498, 501],     // Snivy, Tepig, Oshawott
+  kalos:  [650, 653, 656],     // Chespin, Fennekin, Froakie
+  alola:  [722, 725, 728],     // Rowlet, Litten, Popplio
+  galar:  [810, 813, 816],     // Grookey, Scorbunny, Sobble
+  paldea: [906, 909, 912],     // Sprigatito, Fuecoco, Quaxly
+  hisui:  [722, 155, 501],     // Rowlet, Cyndaquil, Oshawott (iniciais de Hisui)
+};
+
 // Pseudo-lendários (formas finais, BST 600) → super_rare.
 export const PSEUDO_LEGENDARY_IDS = new Set([
   149, // Dragonite
@@ -30,6 +45,34 @@ export const PSEUDO_LEGENDARY_IDS = new Set([
   784, // Kommo-o
   887, // Dragapult
   998, // Baxcalibur
+]);
+
+// Formas BASE das linhas pseudo-lendárias → rare (a linha inteira é escassa).
+export const PSEUDO_LEGENDARY_BASE_IDS = new Set([
+  147, // Dratini
+  246, // Larvitar
+  371, // Bagon
+  374, // Beldum
+  443, // Gible
+  633, // Deino
+  704, // Goomy
+  782, // Jangmo-o
+  885, // Dreepy
+  996, // Frigibax
+]);
+
+// Formas INTERMEDIÁRIAS das linhas pseudo-lendárias → very_rare.
+export const PSEUDO_LEGENDARY_MID_IDS = new Set([
+  148, // Dragonair
+  247, // Pupitar
+  372, // Shelgon
+  375, // Metang
+  444, // Gabite
+  634, // Zweilous
+  705, // Sliggoo
+  783, // Hakamo-o
+  886, // Drakloak
+  997, // Arctibax
 ]);
 
 // Ultra Beasts (Gen 7) → super_rare.

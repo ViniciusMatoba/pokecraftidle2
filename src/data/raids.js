@@ -1,4 +1,5 @@
 import { REGION_DEX_RANGES } from './regionStandards.js';
+import { getPokemonRarity, RARITY_WEIGHTS } from '../utils/pokemonDifficulty.js';
 
 // ── Configurações de Raid ──────────────────────────────────────────────────
 export const EXP_CANDIES = {
@@ -605,7 +606,19 @@ export const pickRaidPokemon = (region = 'kanto', maxStars = 5, previousRegions 
   let tierPool = eligible.filter(p => p.stars === chosenStars);
   if (!tierPool.length) tierPool = eligible;
 
-  return tierPool[Math.floor(Math.random() * tierPool.length)];
+  // Dentro do mesmo tier, espécies mais raras (pseudo-lendários, iniciais,
+  // lendários) aparecem menos que as comuns — peso pela raridade da espécie.
+  const weightedTier = tierPool.map(p => ({
+    p,
+    w: Math.max(1, RARITY_WEIGHTS[getPokemonRarity({ id: p.id }, pokedex)] || RARITY_WEIGHTS.common),
+  }));
+  const totalTierWeight = weightedTier.reduce((sum, e) => sum + e.w, 0);
+  let tierRand = Math.random() * totalTierWeight;
+  for (const e of weightedTier) {
+    tierRand -= e.w;
+    if (tierRand <= 0) return e.p;
+  }
+  return weightedTier[weightedTier.length - 1].p;
 };
 
 export const createRaid = (region = 'kanto', pokedex = {}, badgeCount = 0, worldFlags = []) => {
