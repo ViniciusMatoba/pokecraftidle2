@@ -570,6 +570,23 @@ export const getRaidStarWeights = (maxStars) => {
 };
 
 
+// ── Rotação / anti-repetição de raids ──────────────────────────────────────
+// Memória de sessão dos últimos Pokémon que surgiram em raid, para NÃO repetir
+// sempre os mesmos. A cada raid, evita os recentes (quando há alternativas),
+// forçando rotação de espécies dentro do tier sorteado.
+const RECENT_RAID_MEMORY = 8;
+let _recentRaidIds = [];
+export const recordRecentRaid = (id) => {
+  const n = Number(id);
+  if (!n) return;
+  _recentRaidIds = [n, ..._recentRaidIds.filter(x => x !== n)].slice(0, RECENT_RAID_MEMORY);
+};
+
+// Peso de variedade: comprime a escala de raridade (raiz quadrada) para que MAIS
+// espécies do tier apareçam — os raros ainda saem menos, mas sem monopólio dos comuns.
+const varietyWeight = (id, pokedex) =>
+  Math.max(1, Math.sqrt(RARITY_WEIGHTS[getPokemonRarity({ id }, pokedex)] || RARITY_WEIGHTS.common));
+
 export const pickRaidPokemon = (region = 'kanto', maxStars = 5, previousRegions = [], pokedex = {}, worldFlags = []) => {
   const allRegions = [...new Set([region, ...previousRegions])];
 
@@ -621,12 +638,14 @@ export const pickRaidPokemon = (region = 'kanto', maxStars = 5, previousRegions 
   let tierPool = eligible.filter(p => p.stars === chosenStars);
   if (!tierPool.length) tierPool = eligible;
 
-  // Dentro do mesmo tier, espécies mais raras (pseudo-lendários, iniciais,
-  // lendários) aparecem menos que as comuns — peso pela raridade da espécie.
-  const weightedTier = tierPool.map(p => ({
-    p,
-    w: Math.max(1, RARITY_WEIGHTS[getPokemonRarity({ id: p.id }, pokedex)] || RARITY_WEIGHTS.common),
-  }));
+  // Anti-repetição: remove os Pokémon vistos recentemente em raid, desde que
+  // sobrem alternativas suficientes — força rotação de espécies dentro do tier.
+  const fresh = tierPool.filter(p => !_recentRaidIds.includes(Number(p.id)));
+  const rotationPool = fresh.length >= 2 ? fresh : tierPool;
+
+  // Dentro do tier, peso de VARIEDADE (raridade comprimida): mais espécies
+  // aparecem, mas os mais raros ainda saem um pouco menos que os comuns.
+  const weightedTier = rotationPool.map(p => ({ p, w: varietyWeight(p.id, pokedex) }));
   const totalTierWeight = weightedTier.reduce((sum, e) => sum + e.w, 0);
   let tierRand = Math.random() * totalTierWeight;
   for (const e of weightedTier) {
@@ -650,6 +669,9 @@ export const createRaid = (region = 'kanto', pokedex = {}, badgeCount = 0, world
     : pickRaidPokemon(region, maxStars, previousRegions, pokedex, worldFlags);
 
   if (!template) return null;
+
+  // Registra na memória de rotação para as próximas raids evitarem repetir.
+  recordRecentRaid(template.id);
 
   const base = pokedex[template.id] || {};
   // Variância de nível: +/- 2 níveis para maior aleatoriedade dentro da categoria

@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.44.1';
-export const VERSION = '2.44.1';
-export const APP_VERSION_DATE = '03/09/2026 15:47';
+export const APP_VERSION = '2.44.2';
+export const VERSION = '2.44.2';
+export const APP_VERSION_DATE = '03/09/2026 16:01';
 export const CHANGELOG = [
+  '## [V2.44.2] - 03/09/2026 16:01',
+  '### Raids — rotação e variação (não repetir sempre os mesmos)',
+  '- **Anti-repetição**: as raids agora lembram os últimos 8 Pokémon que surgiram e os evitam na próxima (quando há alternativas), forçando rotação de espécies dentro do tier — não cai mais sempre no mesmo.',
+  '- **Peso de variedade**: dentro do tier, a escala de raridade foi comprimida (raiz quadrada), então MUITO mais espécies do tier aparecem de fato; os mais raros ainda saem um pouco menos, sem o monopólio dos comuns.',
+  '',
   '## [V2.44.1] - 03/09/2026 15:47',
   '### Fix: campo `rate` das rotas era ignorado (raros apareciam demais)',
   '- Várias rotas (região de Hisui e especiais) definem a frequência por um campo **`rate`** (ex.: Gible 0.20, Duskull 0.10), mas o motor de encontro **ignorava** esse campo — a frequência caía na heurística de raridade. Resultado: Pokémon comuns pela heurística apareciam MUITO acima do previsto (ex.: um mon virava 50% do spawn quando o autor queria 20%) e os raros ficavam suprimidos.',
