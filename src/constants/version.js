@@ -1,7 +1,11 @@
-export const APP_VERSION = '2.43.0';
-export const VERSION = '2.43.0';
-export const APP_VERSION_DATE = '03/09/2026 11:22';
+export const APP_VERSION = '2.43.1';
+export const VERSION = '2.43.1';
+export const APP_VERSION_DATE = '03/09/2026 11:49';
 export const CHANGELOG = [
+  '## [V2.43.1] - 03/09/2026 11:49',
+  '### Fix: Pikachu na Floresta de Viridian',
+  '- O filtro de horário/evoluídos (`getTimeAdjustedEnemyPool`) descartava espécies evoluídas em rotas iniciais **sem respeitar `forceSpawn`** — por isso o Pikachu (evolui de Pichu) sumia do modal de encontros da Floresta de Viridian **e do spawn real**. Agora `forceSpawn` é exceção em ambos os filtros (evoluídos e corte de preview por horário).',
+  '',
   '## [V2.43.0] - 03/09/2026 11:22',
   '### Inicial por região + Destaque Semanal multi-região',
   '- **Spawn raro de inicial agora respeita a região ativa**: em Johto cai Chikorita/Cyndaquil/Totodile, em Hoenn Treecko/Torchic/Mudkip, etc. — antes só saíam os iniciais de Kanto em qualquer região. Kanto mantém o Pikachu no sorteio.',

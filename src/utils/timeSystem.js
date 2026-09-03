@@ -165,9 +165,12 @@ export const getTimeAdjustedEnemyPool = (route, period = getTimeOfDay(), pokedex
 
   baseEnemies.forEach(entry => {
     if (!entry || entry.id === undefined) return;
-    if (blockEarlyEvolutions && isEvolvedSpecies(entry.id, pokedex)) return;
+    // `forceSpawn` (ex.: Pikachu na Floresta de Viridian) é exceção canônica:
+    // aparece mesmo sendo espécie evoluída numa rota inicial, e não é escondido
+    // do preview pelo corte de multiplicador de horário.
+    if (blockEarlyEvolutions && !entry.forceSpawn && isEvolvedSpecies(entry.id, pokedex)) return;
     const multiplier = getTimeMultiplier(entry, period, route, pokedex);
-    if (options.preview && multiplier < 0.45) return;
+    if (options.preview && !entry.forceSpawn && multiplier < 0.45) return;
     // Peso base: usa spawnWeight explícito da rota; senão deriva da raridade da
     // espécie (comum aparece muito, raro pouco) — diferenciação para todos.
     const rarityWeight = RARITY_WEIGHTS[getPokemonRarity(entry, pokedex)] || RARITY_WEIGHTS.common;
