@@ -3554,7 +3554,7 @@ export default function App() {
 
     let finalBase = { ...base };
     if (isStarterSpawn) {
-      const starterIds = [1, 4, 7];
+      const starterIds = [1, 4, 7, 25]; // Bulbasaur, Charmander, Squirtle e Pikachu (inicial icônico)
       const randomStarterId = starterIds[Math.floor(Math.random() * starterIds.length)];
       const starterBase = POKEDEX[randomStarterId];
       if (starterBase) {

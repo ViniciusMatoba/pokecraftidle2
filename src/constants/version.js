@@ -1,7 +1,11 @@
-export const APP_VERSION = '2.41.1';
-export const VERSION = '2.41.1';
-export const APP_VERSION_DATE = '03/09/2026 08:05';
+export const APP_VERSION = '2.41.2';
+export const VERSION = '2.41.2';
+export const APP_VERSION_DATE = '03/09/2026 08:09';
 export const CHANGELOG = [
+  '## [V2.41.2] - 03/09/2026 08:09',
+  '### Pikachu nos spawns raros de inicial',
+  '- O encontro raro de Pokémon inicial nas rotas agora inclui o **Pikachu** (antes só Bulbasaur/Charmander/Squirtle).',
+  '',
   '## [V2.41.1] - 03/09/2026 08:05',
   '### Coerência das equipes vilãs',
   '- **Equipe Star**: removidos Koraidon e Miraidon (lendários-capa) do pool de recrutas — agora usa Pokémon comuns de Paldea (Maschiff, Mabosstiff, Grafaiai, Varoom, Bombirdier...).',
