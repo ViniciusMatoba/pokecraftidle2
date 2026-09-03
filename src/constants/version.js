@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.33.1';
-export const VERSION = '2.33.1';
-export const APP_VERSION_DATE = '03/09/2026 06:19';
+export const APP_VERSION = '2.34.0';
+export const VERSION = '2.34.0';
+export const APP_VERSION_DATE = '03/09/2026 06:23';
 export const CHANGELOG = [
+  '## [V2.34.0] - 03/09/2026 06:23',
+  '### Treinadores e vilões mais desafiadores',
+  '- **Treinadores de rota** agora têm o time escalado por progresso (2 Pokémon cedo, até 4 no fim da região), completando com Pokémon do bioma da rota no nível dela.',
+  '- **Emboscadas de equipe vilã** passam a vir com 2–3 Pokémon (antes era só 1 grunt).',
+  '- O modal de encontro mostra o time completo do adversário.',
+  '',
   '## [V2.33.1] - 03/09/2026 06:19',
   '### Fix: animação de evolução reaproveitando o Pokémon anterior',
   '- Corrigido: após uma evolução, a próxima disparava sozinha (sem botão) e mostrava a animação da evolução anterior.',

@@ -3205,6 +3205,9 @@ export default function App() {
     const trainerChance = route.trainerChance || 0.03;
     const hasTrainers = route.trainers && route.trainers.length > 0;
 
+    // Nº de insígnias na região atual — usado para escalar o tamanho dos times inimigos.
+    const spawnBadgeCount = getRegionBadgeCount(gameState.badges || [], gameState.activeRegion || 'kanto');
+
     // EMBOSCADA VILA
     if (Math.random() < 0.004 && route.type === 'farm') {
       // Só equipes vilãs da região atual (Kanto → Rocket, Sinnoh → Galáctica, etc.)
@@ -3229,9 +3232,17 @@ export default function App() {
 
       const maxHp = calcHP(base.maxHp || base.hp, lvl);
 
+      // Time da emboscada: 2–3 Pokémon da equipe vilã, escalados ao nível da rota.
+      const villainTeamSize = spawnBadgeCount >= 4 ? 3 : 2;
+      const villainTeam = [{ id: Number(base.id), level: lvl }];
+      const villainPool = (teamData.pokemonPool || []).map(Number).filter(Boolean);
+      while (villainTeam.length < villainTeamSize && villainPool.length > 0) {
+        villainTeam.push({ id: villainPool[Math.floor(Math.random() * villainPool.length)], level: lvl });
+      }
+
       setCurrentEnemy({
         ...base, id: Number(base.id),
-        level: lvl, 
+        level: lvl,
         hp: maxHp, maxHp,
         attack: calcStat(base.attack, lvl),
         defense: calcStat(base.defense, lvl),
@@ -3247,6 +3258,7 @@ export default function App() {
         isVillainAmbush: true,
         villainTeamName: teamData.name,
         villainColor: teamData.color,
+        opponentTeam: villainTeam, opponentTeamIndex: 0,
         instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9)
       });
       addLog(`⚠️ EMBOSCADA! ${teamData.name} ${reason}`, 'enemy');
@@ -3256,7 +3268,7 @@ export default function App() {
         setTrainerEncounter({
           name: teamData.name, sprite: teamData.sprite, isSuperBoss: false, isVillain: true,
           phrase: getTrainerIntroPhrase({ trainerName: teamData.name, villainTeamName: teamData.name }),
-          enemyTeam: [{ id: Number(base.id), level: lvl }],
+          enemyTeam: villainTeam,
         });
       }
       return;
@@ -3326,7 +3338,21 @@ export default function App() {
       const calcStat = (b, l) => Math.ceil((((2 * (b || 10) * l) / 100) + 5) * baseMult);
 
       const maxHp = calcHP(trainerPoke.maxHp || trainerPoke.hp, lvl);
-      
+
+      // Time do treinador escalado por progresso (2 cedo → até 4 no fim da região),
+      // completando com Pokémon do pool da rota quando faltar, no nível da rota.
+      const trainerBaseTeam = (trainer.team && trainer.team.length ? trainer.team : [trainerPokeRef])
+        .map(t => ({ id: Number(t.id ?? t), level: t.level || lvl }));
+      const trainerTargetSize = Math.min(4, 2 + Math.floor(spawnBadgeCount / 3));
+      const trainerPool = (route.enemies || []).map(e => Number(e.id)).filter(Boolean);
+      const trainerTeamFull = [...trainerBaseTeam];
+      while (trainerTeamFull.length < trainerTargetSize) {
+        const srcId = trainerPool.length
+          ? trainerPool[Math.floor(Math.random() * trainerPool.length)]
+          : trainerBaseTeam[Math.floor(Math.random() * trainerBaseTeam.length)].id;
+        trainerTeamFull.push({ id: srcId, level: lvl });
+      }
+
       setCurrentEnemy({
         ...trainerPoke,
         name: trainerPoke.name || 'PokÒ©mon',
@@ -3349,7 +3375,7 @@ export default function App() {
         trainerReward: trainer.reward || 100,
         isRocket: trainer.isRocket || false,
         spawnTime: Date.now(),
-        opponentTeam: trainer.team || [trainerPokeRef],
+        opponentTeam: trainerTeamFull,
         opponentTeamIndex: 0,
         instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9)
       });
@@ -3361,7 +3387,7 @@ export default function App() {
         setTrainerEncounter({
           name: trainer.name, sprite: trainer.sprite, isSuperBoss: false,
           phrase: getTrainerIntroPhrase({ trainerName: trainer.name }),
-          enemyTeam: (trainer.team || [trainerPokeRef]).map(t => ({ id: Number(t.id ?? t), level: t.level || lvl })),
+          enemyTeam: trainerTeamFull,
         });
       }
       return;
