@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TrainerCard } from './CommonUI';
 import { HOUSE_PURCHASE_COST } from '../data/house';
 import { getActiveSpotlight, msUntilNextRotation } from '../data/weeklySpotlight';
+import TrophyRoom from './TrophyRoom';
 
 const CityScreen = ({
   gameState,
@@ -31,6 +32,7 @@ const CityScreen = ({
 }) => {
   const [activeOakModal, setActiveOakModal] = useState(false);
   const [oakTipIndex, setOakTipIndex] = useState(0);
+  const [showTrophyRoom, setShowTrophyRoom] = useState(false);
 
   const starterInfo = [
     { 
@@ -342,6 +344,14 @@ const CityScreen = ({
             </div>
           );
         })()}
+
+        <button
+          onClick={() => setShowTrophyRoom(true)}
+          className="w-full rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-black uppercase text-xs tracking-widest text-white shadow-lg active:scale-95 transition-transform border-b-4 border-amber-700"
+          style={{ background: 'linear-gradient(135deg,#b45309,#f59e0b)' }}>
+          🏆 Sala de Troféus
+        </button>
+        {showTrophyRoom && <TrophyRoom gameState={gameState} onClose={() => setShowTrophyRoom(false)} />}
 
         <TrainerCard
           trainer={gameState.trainer}

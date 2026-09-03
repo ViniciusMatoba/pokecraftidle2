@@ -16,7 +16,7 @@ import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl, getAnimatedSpriteUrl 
 import { getPokemonTmCompatibility } from '../data/tmCompatibility';
 
 import { GYM_LEVEL_CAPS } from '../data/constants';
-import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER, isPokemonLegal } from '../data/regionStandards';
+import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER, REGION_BADGE_IDS, isPokemonLegal } from '../data/regionStandards';
 
 const STAT_LABELS = {
   attack: 'Ataque',
@@ -559,18 +559,28 @@ const PokemonManagement = ({
       const isChampion = (gameState.worldFlags || []).includes(`region_champion_${activeRegion}`) || 
                         (gameState.worldFlags || []).includes(REGION_CHAMPION_FLAGS[activeRegion]);
 
-      let reason = "Este Pokémon não pode ser usado nesta região no momento.";
-      if (poke.level > (GYM_LEVEL_CAPS[activeRegion]?.[Object.values(GYM_LEVEL_CAPS[activeRegion]).length - 1] || 100)) {
-         reason = "Nível muito alto para o seu limite atual de insígnias.";
-      } else if (!isChampion && getDexRegion(poke.id) !== activeRegion && activeRegion !== 'kanto') {
-         // Kanto permite tudo se for campeão, mas outras regiões podem ter restrições.
-         // Mantemos a lógica de validateTeamAccess para o grosso das regras.
-         // Se validateTeamAccess retornou falso, já parou acima.
+      // Motivo REAL do bloqueio: nível (cap por insígnias atuais) vs região (estrangeiro).
+      const regionBadgeIds = REGION_BADGE_IDS[activeRegion] || [];
+      const badgeCount = (gameState.badges || []).filter(id => regionBadgeIds.includes(id)).length;
+      const caps = GYM_LEVEL_CAPS[activeRegion] || {};
+      const currentCap = Object.values(caps)[badgeCount] || 100;
+      const legal = isPokemonLegal(poke, activeRegion, gameState.worldFlags || []);
+      const regionLabel = REGION_LABELS[activeRegion] || activeRegion;
+
+      let title = 'Acesso Negado';
+      let reason;
+      if (legal && poke.level > currentCap) {
+        title = 'Nível acima do limite';
+        reason = `${poke.name} é Nv.${poke.level}, mas seu limite atual em ${regionLabel} é Nv.${currentCap}. Conquiste mais insígnias para elevar o limite e poder usá-lo.`;
+      } else if (!legal) {
+        reason = `${poke.name} não é de ${regionLabel}. Pokémon estrangeiros só podem ser usados após vencer a Liga desta região.`;
+      } else {
+        reason = 'Este Pokémon não pode ser usado nesta região no momento.';
       }
 
       showConfirm({
-        title: 'Acesso Negado',
-        message: `Regra Regional: ${reason}`,
+        title,
+        message: reason,
         onConfirm: closeConfirm
       });
       return;

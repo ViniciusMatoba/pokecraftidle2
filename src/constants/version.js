@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.37.0';
-export const VERSION = '2.37.0';
-export const APP_VERSION_DATE = '03/09/2026 06:51';
+export const APP_VERSION = '2.38.0';
+export const VERSION = '2.38.0';
+export const APP_VERSION_DATE = '03/09/2026 07:04';
 export const CHANGELOG = [
+  '## [V2.38.0] - 03/09/2026 07:04',
+  '### Sala de Troféus + fix de mensagem de bloqueio',
+  '- **Nova Sala de Troféus** (botão na Cidade): painel de conclusão com **% geral** e barras de Pokédex, Shiny Dex, Conquistas, Marcos da Dex, Insígnias, Bordas, Títulos e Maestrias.',
+  '- **Fix**: ao bloquear um Pokémon por **nível acima do limite de insígnias**, a mensagem agora diz o motivo certo (antes dizia incorretamente "não pode ser usado nesta região").',
+  '',
   '## [V2.37.0] - 03/09/2026 06:51',
   '### Destaque da Semana',
   '- Toda semana um **Pokémon ou uma rota em destaque** (igual para todos, rotaciona sozinho): **✨ Shiny ×2** e **🍬 Candy ×2** para a espécie/rota destacada.',
