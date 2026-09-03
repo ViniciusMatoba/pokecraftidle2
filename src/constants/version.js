@@ -1,7 +1,12 @@
-export const APP_VERSION = '2.38.0';
-export const VERSION = '2.38.0';
-export const APP_VERSION_DATE = '03/09/2026 07:04';
+export const APP_VERSION = '2.39.0';
+export const VERSION = '2.39.0';
+export const APP_VERSION_DATE = '03/09/2026 07:11';
 export const CHANGELOG = [
+  '## [V2.39.0] - 03/09/2026 07:11',
+  '### Alphas selvagens + auto-captura de Raid sem abrir a tela',
+  '- **Novo — Alpha selvagem**: ~1% de chance de o Pokémon selvagem aparecer como **Alfa** (stats reforçados + **aura vermelha**), capturável normalmente e contando para as conquistas de Alfa.',
+  '- **Auto-captura de Raid** agora arremessa as Pokébolas **automaticamente sem precisar abrir a tela da raid** (basta o modo automático estar ligado).',
+  '',
   '## [V2.38.0] - 03/09/2026 07:04',
   '### Sala de Troféus + fix de mensagem de bloqueio',
   '- **Nova Sala de Troféus** (botão na Cidade): painel de conclusão com **% geral** e barras de Pokédex, Shiny Dex, Conquistas, Marcos da Dex, Insígnias, Bordas, Títulos e Maestrias.',

@@ -584,7 +584,7 @@ const BattleScreen = ({
                   target.src = getPokemonSpriteFallbackUrl(currentEnemy);
                 }
               }}
-              className={`w-full h-full object-contain drop-shadow-xl transition-all duration-500 ${showTrainer && currentEnemy.isTrainer ? 'scale-110' : currentEnemy.isWildBoss ? 'scale-125 animate-float' : 'animate-float'} ${currentEnemy.isShiny && !showTrainer ? 'drop-shadow-[0_0_16px_rgba(234,179,8,1)]' : ''} ${currentEnemy.hp <= 0 ? 'opacity-0 scale-0' : 'opacity-100'}`}
+              className={`w-full h-full object-contain drop-shadow-xl transition-all duration-500 ${showTrainer && currentEnemy.isTrainer ? 'scale-110' : currentEnemy.isWildBoss ? 'scale-125 animate-float' : 'animate-float'} ${currentEnemy.isShiny && !showTrainer ? 'drop-shadow-[0_0_16px_rgba(234,179,8,1)]' : ''} ${currentEnemy.isAlpha && !showTrainer ? 'drop-shadow-[0_0_18px_rgba(239,68,68,0.95)]' : ''} ${currentEnemy.hp <= 0 ? 'opacity-0 scale-0' : 'opacity-100'}`}
             />
           </div>
         </div>

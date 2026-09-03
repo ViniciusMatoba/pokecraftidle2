@@ -3547,6 +3547,7 @@ export default function App() {
     const isShiny = Math.floor(Math.random() * shinyRateDivisor) === 0;
     const isBossSpawn = !isShiny && Math.floor(Math.random() * 500) === 0; // Boss (não capturável)
     const isStarterSpawn = !isShiny && !isBossSpawn && Math.floor(Math.random() * 2048) === 0; // Starter raro
+    const isAlphaSpawn = !isBossSpawn && Math.random() < 0.01; // Alpha selvagem raro (~1%), aura vermelha
 
     let finalBase = { ...base };
     if (isStarterSpawn) {
@@ -3619,13 +3620,13 @@ export default function App() {
     };
     const specialBg = legendaryBgs[Number(finalBase.id)] || null;
 
-    setCurrentEnemy({ 
-      ...finalBase, 
+    let wildEnemy = {
+      ...finalBase,
       id: Number(finalBase.id),
-      level, 
-      maxHp, 
-      hp: maxHp, 
-      isShiny, 
+      level,
+      maxHp,
+      hp: maxHp,
+      isShiny,
       isWildBoss: isBossSpawn,
       spawnTime: Date.now(),
       status: [],
@@ -3639,7 +3640,12 @@ export default function App() {
       moves: finalMoves,
       background: specialBg,
       locationName: isBossSpawn ? `Chefe: ${route.name}` : null
-    });
+    };
+    if (isAlphaSpawn) {
+      wildEnemy = applyAlphaUpgrade(wildEnemy, finalBase, isShiny);
+      addLog(`🔴 Um Pokémon ALFA selvagem apareceu! ${finalBase.name || ''}`, 'system');
+    }
+    setCurrentEnemy(wildEnemy);
     setBattleLog([]);
     isProcessingVictory.current = false;
     if (isBossSpawn) {
@@ -4212,6 +4218,23 @@ export default function App() {
       }));
     }
   }, [gameState, showRaidRouteNotice, addLog, setPendingAlphaCapture]);
+
+  // Auto-captura de Raid SEM precisar abrir a tela: enquanto a raid está em
+  // fase de captura, modo automático e a tela fechada, arremessa sozinho.
+  useEffect(() => {
+    const raid = gameState.activeRaid;
+    const cfg = raidCaptureConfig;
+    if (!raid || raid.phase !== 'capture') return;
+    if (!cfg || cfg.mode !== 'capture') return;
+    if ((raid.catchAttemptsLeft || 0) <= 0) return;
+    if (showRaidScreen) return; // tela aberta → o loop da própria RaidScreen cuida
+    const t = setTimeout(() => {
+      const order = [cfg.ballType, 'ultra_ball', 'great_ball', 'pokeballs'].filter(Boolean);
+      const ball = order.find(b => (gameState.inventory?.items?.[b] || 0) > 0);
+      if (ball) handleRaidCatchAttempt(ball);
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [gameState.activeRaid?.phase, gameState.activeRaid?.catchAttemptsLeft, raidCaptureConfig, showRaidScreen, gameState.inventory?.items, handleRaidCatchAttempt]);
 
   const handleClaimRaidRewards = useCallback(() => {
     setGameState(prev => {
@@ -5650,7 +5673,7 @@ export default function App() {
           team: teamUpdate,
           pc: pcUpdate,
           shinyCapturedCount: (prev.shinyCapturedCount || 0) + (capturedEnemy.isShiny ? 1 : 0),
-          playerStats: bumpPlayerStats(prev.playerStats, { pokemonCaptured: 1, shinyCaptured: capturedEnemy.isShiny ? 1 : 0 }),
+          playerStats: bumpPlayerStats(prev.playerStats, { pokemonCaptured: 1, shinyCaptured: capturedEnemy.isShiny ? 1 : 0, alphaCaptured: capturedEnemy.isAlpha ? 1 : 0 }),
           ...questUpdate
         };
       }
@@ -5671,7 +5694,7 @@ export default function App() {
         caughtData: newCaughtData,
         speciesMastery: newMastery,
         shinyCapturedCount: (prev.shinyCapturedCount || 0) + (capturedEnemy.isShiny ? 1 : 0),
-        playerStats: bumpPlayerStats(prev.playerStats, { pokemonCaptured: 1, shinyCaptured: capturedEnemy.isShiny ? 1 : 0 }),
+        playerStats: bumpPlayerStats(prev.playerStats, { pokemonCaptured: 1, shinyCaptured: capturedEnemy.isShiny ? 1 : 0, alphaCaptured: capturedEnemy.isAlpha ? 1 : 0 }),
         ...questUpdate
       };
     });
