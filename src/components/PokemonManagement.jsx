@@ -17,6 +17,10 @@ import { getPokemonTmCompatibility } from '../data/tmCompatibility';
 
 import { GYM_LEVEL_CAPS } from '../data/constants';
 import { getPokemonRegion, getUnlockedRegions, REGION_LABELS, REGION_CHAMPION_FLAGS, REGION_ORDER, REGION_BADGE_IDS, isPokemonLegal } from '../data/regionStandards';
+import { getPokemonRarity } from '../utils/pokemonDifficulty';
+
+const RELEASE_CANDY_BY_RARITY = { common: 1, uncommon: 2, rare: 3, very_rare: 5, super_rare: 8, legendary: 12 };
+const releaseStatSum = (p) => (p.attack||0)+(p.defense||0)+(p.spAtk||0)+(p.spDef||0)+(p.speed||0)+(p.maxHp||0);
 
 const STAT_LABELS = {
   attack: 'Ataque',
@@ -249,6 +253,84 @@ const PokemonManagement = ({
   const [pcSort, setPcSort] = useState('number');
   const [pcRegion, setPcRegion] = useState('usable');
   const [pcShinyOnly, setPcShinyOnly] = useState(false);
+  const [pcAlphaOnly, setPcAlphaOnly] = useState(false);
+  const [pcLockedOnly, setPcLockedOnly] = useState(false);
+
+  // ── Release / Travar (QoL de Box) ──────────────────────────────────────────
+  const releaseCandyQty = (p) => (RELEASE_CANDY_BY_RARITY[getPokemonRarity({ id: p.id }, POKEDEX)] || 1) * (p.isShiny ? 2 : 1);
+
+  const toggleLock = (instanceId) => setGameState(prev => ({
+    ...prev,
+    pc: (prev.pc || []).map(p => p.instanceId === instanceId ? { ...p, locked: !p.locked } : p),
+    team: (prev.team || []).map(p => p.instanceId === instanceId ? { ...p, locked: !p.locked } : p),
+  }));
+
+  const doReleaseOne = (instanceId) => setGameState(prev => {
+    const poke = (prev.pc || []).find(p => p.instanceId === instanceId);
+    if (!poke || poke.locked) return prev;
+    const cid = POKEMON_TO_CANDY[Number(poke.id)];
+    const qty = releaseCandyQty(poke);
+    const inv = { ...prev.inventory, candies: { ...(prev.inventory?.candies || {}) } };
+    if (cid) inv.candies[cid] = (inv.candies[cid] || 0) + qty;
+    addLog(`👋 ${poke.name} foi solto${cid ? ` — +${qty} ${CANDY_FAMILIES[cid]?.name || 'Candy'}` : ''}.`, 'system');
+    return { ...prev, pc: prev.pc.filter(p => p.instanceId !== instanceId), inventory: inv };
+  });
+
+  const requestReleaseOne = (poke) => {
+    if (!poke) return;
+    if (poke.locked) { showConfirm?.({ title: 'Pokémon travado', message: `${poke.name} está travado (🔒). Destrave antes de soltar.`, onConfirm: closeConfirm }); return; }
+    showConfirm?.({
+      type: 'danger', title: 'Soltar Pokémon',
+      message: `Soltar ${poke.name}? Ação irreversível — você recebe candies da espécie.`,
+      confirmLabel: 'Soltar', cancelLabel: 'Cancelar',
+      onConfirm: () => { closeConfirm?.(); doReleaseOne(poke.instanceId); setActivePokemonDetails(null); },
+      onCancel: closeConfirm,
+    });
+  };
+
+  // Duplicatas soltáveis: por espécie, protege shiny/alpha/travados; mantém 1 melhor dos demais.
+  const computeBulkRelease = (pc = []) => {
+    const bySpecies = {};
+    pc.forEach(p => { const k = Number(p.id); (bySpecies[k] = bySpecies[k] || []).push(p); });
+    const toRelease = [];
+    Object.values(bySpecies).forEach(group => {
+      const hasProtected = group.some(p => p.isShiny || p.isAlpha || p.locked);
+      const releasable = group.filter(p => !p.isShiny && !p.isAlpha && !p.locked);
+      if (hasProtected) {
+        toRelease.push(...releasable);
+      } else if (releasable.length > 1) {
+        const sorted = [...releasable].sort((a, b) => (b.level || 0) - (a.level || 0) || releaseStatSum(b) - releaseStatSum(a));
+        toRelease.push(...sorted.slice(1));
+      }
+    });
+    return toRelease;
+  };
+
+  const requestBulkRelease = () => {
+    const toRelease = computeBulkRelease(gameState.pc || []);
+    if (toRelease.length === 0) {
+      showConfirm?.({ title: 'Nada a soltar', message: 'Não há duplicatas soltáveis. Shiny, Alpha e travados são sempre protegidos.', onConfirm: closeConfirm });
+      return;
+    }
+    const candyTotal = toRelease.reduce((s, p) => s + releaseCandyQty(p), 0);
+    showConfirm?.({
+      type: 'danger', title: 'Soltar duplicatas',
+      message: `Soltar ${toRelease.length} Pokémon duplicados (mantendo o melhor de cada espécie)? Protegidos: shiny, alpha e travados. Você recebe ~${candyTotal} candies. Ação irreversível.`,
+      confirmLabel: `Soltar ${toRelease.length}`, cancelLabel: 'Cancelar',
+      onConfirm: () => {
+        closeConfirm?.();
+        setGameState(prev => {
+          const list = computeBulkRelease(prev.pc || []);
+          const rids = new Set(list.map(p => p.instanceId));
+          const inv = { ...prev.inventory, candies: { ...(prev.inventory?.candies || {}) } };
+          list.forEach(p => { const cid = POKEMON_TO_CANDY[Number(p.id)]; if (cid) inv.candies[cid] = (inv.candies[cid] || 0) + releaseCandyQty(p); });
+          addLog(`👋 ${list.length} Pokémon duplicados soltos por candies!`, 'system');
+          return { ...prev, pc: (prev.pc || []).filter(p => !rids.has(p.instanceId)), inventory: inv };
+        });
+      },
+      onCancel: closeConfirm,
+    });
+  };
   const [showTeamReorder, setShowTeamReorder] = useState(false);
   const [moveSwapMode, setMoveSwapMode] = useState(null); // { activeIdx, currentMove }
   const [showNatureModal, setShowNatureModal] = useState(false);
@@ -290,6 +372,8 @@ const PokemonManagement = ({
       .map((p, idx) => ({ ...p, originalIndex: idx }))
       .filter(p => {
         if (pcShinyOnly && !p.isShiny) return false;
+        if (pcAlphaOnly && !p.isAlpha) return false;
+        if (pcLockedOnly && !p.locked) return false;
         const term = pcSearch.toLowerCase();
         let matchesRegion;
         if (pcRegion === 'all') {
@@ -313,7 +397,7 @@ const PokemonManagement = ({
         if (pcSort === 'number-desc') return b.id - a.id;
         return a.id - b.id;
       });
-  }, [gameState.pc, gameState.worldFlags, pcSearch, pcRegion, pcSort, pcShinyOnly, activeRegion]);
+  }, [gameState.pc, gameState.worldFlags, pcSearch, pcRegion, pcSort, pcShinyOnly, pcAlphaOnly, pcLockedOnly, activeRegion]);
 
   const navigatePc = (direction) => {
     if (!activePokemonDetails || activePokemonDetails.location !== 'pc') return;
@@ -984,6 +1068,25 @@ const PokemonManagement = ({
                   >
                     ✨ Shinys
                   </button>
+                  <button
+                    onClick={() => setPcAlphaOnly(!pcAlphaOnly)}
+                    className={`rounded-xl py-2.5 px-4 text-xs font-bold transition-all ${pcAlphaOnly ? 'bg-red-100 text-red-700 border-2 border-red-400' : 'bg-slate-50 text-slate-400 border-2 border-transparent'}`}
+                  >
+                    🔴 Alfas
+                  </button>
+                  <button
+                    onClick={() => setPcLockedOnly(!pcLockedOnly)}
+                    className={`rounded-xl py-2.5 px-4 text-xs font-bold transition-all ${pcLockedOnly ? 'bg-blue-100 text-blue-700 border-2 border-blue-400' : 'bg-slate-50 text-slate-400 border-2 border-transparent'}`}
+                  >
+                    🔒 Travados
+                  </button>
+                  <button
+                    onClick={requestBulkRelease}
+                    className="rounded-xl py-2.5 px-4 text-xs font-black uppercase tracking-wider transition-all bg-rose-50 text-rose-600 border-2 border-rose-200 hover:bg-rose-100 active:scale-95"
+                    title="Solta duplicatas (mantém o melhor de cada espécie; shiny/alpha/travados protegidos)"
+                  >
+                    👋 Soltar duplicatas
+                  </button>
                </div>
             </div>
 
@@ -1029,6 +1132,7 @@ const PokemonManagement = ({
                           return sh.length ? { boxShadow: sh.join(', ') } : undefined;
                         })()}
                       >
+                         {p.locked && <div className="absolute top-1 left-1 z-10 text-[11px] leading-none" title="Travado (protegido de soltar)">🔒</div>}
                          <img
                            src={getPokemonSpriteUrl(p)}
                            onError={e => {
@@ -2257,6 +2361,27 @@ const PokemonManagement = ({
                   ) : (
                     <button onClick={() => { if (!activePokemonDetails.pokemon.onExpedition) moveToTeam(activePokemonDetails.index, activePokemonDetails.pokemon?.instanceId); }} disabled={activePokemonDetails.pokemon.onExpedition} className="w-full h-14 bg-gradient-to-r from-pokeBlue to-blue-600 text-white rounded-2xl shadow-lg flex items-center justify-center gap-3 font-black uppercase text-xs hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">Adicionar ao Time</button>
                   )}
+
+                  {/* Travar / Soltar */}
+                  <div className="flex gap-3 mt-3">
+                    <button
+                      onClick={() => {
+                        const id = activePokemonDetails.pokemon?.instanceId;
+                        toggleLock(id);
+                        setActivePokemonDetails(d => d && d.pokemon?.instanceId === id ? { ...d, pokemon: { ...d.pokemon, locked: !d.pokemon.locked } } : d);
+                      }}
+                      className={`flex-1 h-12 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all active:scale-95 border-2 ${activePokemonDetails.pokemon?.locked ? 'bg-blue-50 text-blue-600 border-blue-300' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
+                      {activePokemonDetails.pokemon?.locked ? '🔒 Travado' : '🔓 Travar'}
+                    </button>
+                    {activePokemonDetails.location === 'pc' && (
+                      <button
+                        onClick={() => requestReleaseOne(activePokemonDetails.pokemon)}
+                        disabled={activePokemonDetails.pokemon?.locked || activePokemonDetails.pokemon?.onExpedition}
+                        className="flex-1 h-12 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all active:scale-95 bg-rose-50 text-rose-600 border-2 border-rose-200 hover:bg-rose-100 disabled:opacity-40 disabled:cursor-not-allowed">
+                        👋 Soltar
+                      </button>
+                    )}
+                  </div>
                </div>
             </div>
          </div>

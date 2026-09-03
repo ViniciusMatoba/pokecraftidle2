@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.40.0';
-export const VERSION = '2.40.0';
-export const APP_VERSION_DATE = '03/09/2026 07:20';
+export const APP_VERSION = '2.41.0';
+export const VERSION = '2.41.0';
+export const APP_VERSION_DATE = '03/09/2026 07:32';
 export const CHANGELOG = [
+  '## [V2.41.0] - 03/09/2026 07:32',
+  '### QoL de Box/PC + fix da recompensa de treinadores',
+  '- **Fix**: treinadores de rota davam sempre 400 coins (piso). Agora a recompensa **escala pelo nível** (ex.: Nv.20 ~600, Nv.44 ~1.320, Nv.60 ~1.800). Vilões idem.',
+  '- **Soltar Pokémon**: solte individuais (no detalhe) ou **duplicatas em massa** (mantém o melhor de cada espécie) — vira candy. Shiny, Alfa e Travados sempre protegidos.',
+  '- **🔒 Travar/Favoritar** um Pokémon (protege de soltar) e novos filtros na PC: Alfas e Travados.',
+  '',
   '## [V2.40.0] - 03/09/2026 07:20',
   '### Quick wins',
   '- **Reivindicar tudo**: botão no menu de Missões coleta de uma vez login + missões prontas + conquistas prontas.',

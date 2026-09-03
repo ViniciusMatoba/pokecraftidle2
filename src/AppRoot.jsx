@@ -3259,7 +3259,7 @@ export default function App() {
         isTrainer: true,
         trainerName: teamData.gruntName,
         trainerSprite: teamData.sprite,
-        trainerReward: Math.floor(150 * teamData.rewardMult),
+        trainerReward: Math.round(lvl * 180 * (teamData.rewardMult || 1)),
         isVillainAmbush: true,
         villainTeamName: teamData.name,
         villainColor: teamData.color,
@@ -3377,7 +3377,8 @@ export default function App() {
         rewardMult: trainer.rewardMult || (trainer.isSuperBoss ? 3.5 : 1),
         trainerName: trainer.name,
         trainerSprite: trainer.sprite,
-        trainerReward: trainer.reward || 100,
+        // Recompensa escalada pelo NÍVEL do treinador (progressão por rota) + variação.
+        trainerReward: Math.max(trainer.reward || 0, Math.round(lvl * 150 * (trainer.rewardMult || (trainer.isSuperBoss ? 3.5 : 1)))),
         isRocket: trainer.isRocket || false,
         spawnTime: Date.now(),
         opponentTeam: trainerTeamFull,
