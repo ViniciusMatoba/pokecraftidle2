@@ -31,6 +31,8 @@ export const GLOBAL_BORDERS = [
     ring: '0 0 0 3px #7c3aed, 0 0 0 6px #ede9fe, 0 0 22px 4px rgba(124,58,237,0.85)' },
   { id: 'dex_master',    name: 'Lenda da Pokédex',  color: '#e11d48', emoji: '📕',
     ring: '0 0 0 3px #e11d48, 0 0 0 6px #fecdd3, 0 0 26px 5px rgba(225,29,72,0.9)' },
+  { id: 'dex_shiny',     name: 'Mestre Shiny',      color: '#eab308', emoji: '🌟',
+    ring: '0 0 0 3px #eab308, 0 0 0 6px #fef9c3, 0 0 26px 5px rgba(234,179,8,0.9)' },
 ];
 
 export const getGlobalBorderById = (id) => GLOBAL_BORDERS.find(b => b.id === id) || null;

@@ -141,6 +141,7 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 15
             };
             const nationalRewards = DEX_REWARDS.filter(r => r.kind === 'national');
             const regionRewards = DEX_REWARDS.filter(r => r.kind === 'region');
+            const shinyRewards = DEX_REWARDS.filter(r => r.kind === 'shiny_dex');
             return (
               <div className="flex flex-col gap-4">
                 {/* Dex Nacional */}
@@ -150,6 +151,10 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 15
                     <span className="text-[11px] font-black text-pokeRed">{view.national}/{view.nationalMax} ({view.nationalPct}%)</span>
                   </div>
                   <Bar pct={view.nationalPct} color="#ef4444" />
+                  <div className="flex items-center justify-between mt-3">
+                    <p className="text-[11px] font-black uppercase tracking-widest text-amber-500">✨ Shiny Dex</p>
+                    <span className="text-[11px] font-black text-amber-500">{view.shinyDex} espécies</span>
+                  </div>
                 </div>
 
                 {/* Progresso por região */}
@@ -173,6 +178,14 @@ const PokedexScreen = ({ POKEDEX, caughtData, team = [], box = [], dexLimit = 15
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-500 mb-2 px-1">🏅 Marcos Nacionais</p>
                   <div className="grid grid-cols-1 gap-2.5">
                     {nationalRewards.map(r => <RewardCard key={r.id} r={r} />)}
+                  </div>
+                </div>
+
+                {/* Recompensas — Shiny */}
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-500 mb-2 px-1">✨ Shiny Dex</p>
+                  <div className="grid grid-cols-1 gap-2.5">
+                    {shinyRewards.map(r => <RewardCard key={r.id} r={r} />)}
                   </div>
                 </div>
 

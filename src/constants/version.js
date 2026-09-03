@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.35.0';
-export const VERSION = '2.35.0';
-export const APP_VERSION_DATE = '03/09/2026 06:39';
+export const APP_VERSION = '2.36.0';
+export const VERSION = '2.36.0';
+export const APP_VERSION_DATE = '03/09/2026 06:45';
 export const CHANGELOG = [
+  '## [V2.36.0] - 03/09/2026 06:45',
+  '### Shiny Dex (Etapa 2 da trilha da Pokédex)',
+  '- Nova contagem de **espécies distintas em shiny** na aba Progresso, com marcos coletáveis: 10 / 25 / 50 / 100.',
+  '- Recompensas em moeda/materiais + **borda exclusiva 🌟 Mestre Shiny** (50 espécies).',
+  '- Seus shinies atuais (time/PC) já contam automaticamente — sem perder progresso.',
+  '',
   '## [V2.35.0] - 03/09/2026 06:39',
   '### Pokédex como trilha de progresso (Etapa 1)',
   '- **Nova aba "Progresso"** na Pokédex: barra da Dex Nacional e **% por região**.',

@@ -197,6 +197,21 @@ export const migrateGameState = (savedState = {}, options = {}) => {
     regional_pc: Object.fromEntries(Object.entries(mergeRegionalLists(loaded.regional_pc, loaded.regionalPc)).map(([k, v]) => [k, asArray(v).map(cleanPoke)])),
     stages: loaded.stages || DEFAULT_GAME_STATE.stages,
     caughtData: loaded.caughtData || DEFAULT_GAME_STATE.caughtData,
+    // Shiny Dex: espécies distintas já capturadas em shiny (persistido + derivado do time/PC/regionais).
+    shinyCaughtData: (() => {
+      const s = { ...(loaded.shinyCaughtData || {}) };
+      const add = (list) => asArray(list).forEach(p => {
+        if (p && p.isShiny) {
+          const bid = Number(p.id) >= 10000 ? Number(p.id) % 10000 : Number(p.id);
+          if (bid) s[bid] = true;
+        }
+      });
+      add(loaded.team); add(loaded.pc);
+      Object.values(loaded.regional_teams || loaded.regionalTeams || {}).forEach(add);
+      Object.values(loaded.regional_pc || loaded.regionalPc || {}).forEach(add);
+      asArray(loaded.house?.caretakers).forEach(p => { if (p && p.isShiny) { const bid = Number(p.id) >= 10000 ? Number(p.id) % 10000 : Number(p.id); if (bid) s[bid] = true; } });
+      return s;
+    })(),
     speciesMastery: loaded.speciesMastery || DEFAULT_GAME_STATE.speciesMastery,
     expeditions: loaded.expeditions || DEFAULT_GAME_STATE.expeditions,
     expeditionProgress: loaded.expeditionProgress || DEFAULT_GAME_STATE.expeditionProgress,

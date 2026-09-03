@@ -14,6 +14,12 @@ export const DEX_REWARDS = [
   { id: 'dex_nat_750',  kind: 'national', target: 750,          title: 'Quase Lá',                reward: { currency: 250000,  materials: { stardust: 15 } } },
   { id: 'dex_nat_1025', kind: 'national', target: NATIONAL_MAX, title: 'Lenda da Pokédex',        reward: { currency: 1000000, materials: { stardust: 50 } }, border: 'dex_master' },
 
+  // ── Shiny Dex (espécies distintas capturadas em shiny) ─────────────────────
+  { id: 'dex_shiny_10',  kind: 'shiny_dex', target: 10,  title: 'Caçador de Shiny',   reward: { currency: 50000,  items: { ultra_ball: 5 } } },
+  { id: 'dex_shiny_25',  kind: 'shiny_dex', target: 25,  title: 'Colecionador Shiny',  reward: { currency: 120000, materials: { stardust: 10 } } },
+  { id: 'dex_shiny_50',  kind: 'shiny_dex', target: 50,  title: 'Mestre Shiny',        reward: { currency: 250000, materials: { stardust: 20 } }, border: 'dex_shiny' },
+  { id: 'dex_shiny_100', kind: 'shiny_dex', target: 100, title: 'Lenda Cintilante',    reward: { currency: 600000, materials: { stardust: 40 } } },
+
   // ── Conclusão por região (uma por região) ─────────────────────────────────
   ...REGION_ORDER.filter(r => r !== 'hisui').map(r => {
     const range = REGION_DEX_RANGES[r];
@@ -32,7 +38,21 @@ export const DEX_REWARDS = [
 export const getDexCaughtIds = (gameState = {}) =>
   Object.keys(gameState.caughtData || {}).map(Number).filter(Boolean);
 
+// Espécies distintas em shiny: persistido (shinyCaughtData) ∪ shinies no time/PC.
+export const getShinyDexIds = (gameState = {}) => {
+  const set = new Set(Object.keys(gameState.shinyCaughtData || {}).map(Number).filter(Boolean));
+  const add = (list) => (list || []).forEach(p => {
+    if (p && p.isShiny) {
+      const bid = Number(p.id) >= 10000 ? Number(p.id) % 10000 : Number(p.id);
+      if (bid) set.add(bid);
+    }
+  });
+  add(gameState.team); add(gameState.pc);
+  return set;
+};
+
 export const getDexRewardProgress = (gameState = {}, r = {}) => {
+  if (r.kind === 'shiny_dex') return getShinyDexIds(gameState).size;
   const ids = getDexCaughtIds(gameState);
   if (r.kind === 'national') return ids.filter(id => id >= 1 && id <= NATIONAL_MAX).length;
   if (r.kind === 'region') {
@@ -83,5 +103,6 @@ export const getDexProgressView = (gameState = {}) => {
     const have = range ? ids.filter(id => id >= range.min && id <= range.max).length : 0;
     return { region: r, label: REGION_LABELS[r] || r, have, size, pct: size ? Math.round((have / size) * 100) : 0 };
   });
-  return { national, nationalMax: NATIONAL_MAX, nationalPct: Math.round((national / NATIONAL_MAX) * 100), regions };
+  const shinyDex = getShinyDexIds(gameState).size;
+  return { national, nationalMax: NATIONAL_MAX, nationalPct: Math.round((national / NATIONAL_MAX) * 100), regions, shinyDex };
 };
