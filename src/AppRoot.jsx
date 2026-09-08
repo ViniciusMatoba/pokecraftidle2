@@ -5844,18 +5844,23 @@ export default function App() {
   }, [isManualActing, currentEnemy, handleBattleTick]);
 
   const startKeyBattle = useCallback((battleData) => {
-    // Rival com "inicial-contra": 1 inicial BASE do tipo com vantagem sobre o
-    // inicial que o jogador escolheu na região (grama→fogo→água→grama).
-    let resolvedTeam = battleData.team;
-    if (battleData.counterStarterRegion) {
+    // Rival com "inicial-contra": injeta como ás (no fim do time) o inicial do
+    // tipo com vantagem sobre o que o jogador escolheu (grama→fogo→água→grama),
+    // no estágio evolutivo definido por counterStarter.stage (base/mid/final).
+    let resolvedTeam = Array.isArray(battleData.team) ? [...battleData.team] : [];
+    if (battleData.counterStarterRegion && battleData.counterStarter) {
       const reg = battleData.counterStarterRegion;
       const tri = (REGION_STARTER_IDS[reg] || []).slice(0, 3);
       const chosen = Number(gameState.selectedStarters?.[reg]);
-      const idx = tri.indexOf(chosen);
-      if (idx >= 0) {
-        const counterId = tri[(idx + 1) % 3];
-        resolvedTeam = [{ id: counterId, level: battleData.rivalLevel || 12 }];
+      let idx = tri.indexOf(chosen);
+      if (idx < 0) idx = 0; // fallback: assume grama → contra fogo
+      let starterId = tri[(idx + 1) % 3];
+      const steps = battleData.counterStarter.stage === 'final' ? 2 : battleData.counterStarter.stage === 'mid' ? 1 : 0;
+      for (let i = 0; i < steps; i++) {
+        const evo = POKEDEX[starterId]?.evolution;
+        if (evo && evo.id) starterId = Number(evo.id); else break;
       }
+      resolvedTeam.push({ id: starterId, level: battleData.counterStarter.level || 12 });
     }
 
     const teamMember = (resolvedTeam && resolvedTeam.length > 0) ? resolvedTeam[0] : null;

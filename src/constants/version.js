@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.45.0';
-export const VERSION = '2.45.0';
-export const APP_VERSION_DATE = '08/09/2026 08:15';
+export const APP_VERSION = '2.45.1';
+export const VERSION = '2.45.1';
+export const APP_VERSION_DATE = '08/09/2026 12:09';
 export const CHANGELOG = [
+  '## [V2.45.1] - 08/09/2026 12:09',
+  '### Fix de níveis na progressão de Johto (Modo VS)',
+  '- **Rocket Mahogany** (atrás da 5ª insígnia): time estava em nível 24-26, muito abaixo do esperado. Corrigido para 33-36.',
+  '- **Rival do Túnel de Goldenrod** (atrás da 6ª insígnia): estava em 30-36 — e mais fraco que o Rival de Mahogany (36-38) que vem antes. Corrigido para 40-44 (curva volta a subir).',
+  '- Restante de Johto (8 ginásios, cadeia Rocket, Elite Four e Campeão Lance 60-64) auditado e confirmado coerente.',
+  '### Inicial consistente do Rival (Johto)',
+  '- O Rival agora usa **um único inicial** — o do tipo com vantagem sobre o que você escolheu — como **ás** em TODAS as lutas, evoluindo com a progressão (base → meio → final). Antes o inicial dele trocava de tipo entre as lutas (Quilava numa, Feraligatr noutra) e numa delas nem tinha inicial.',
+  '',
   '## [V2.45.0] - 08/09/2026 08:15',
   '### Cofre Regional (recomeço de economia por região)',
   '- Ao **entrar numa nova região** (Johto em diante), seu **dinheiro e Poké/Great/Ultra Balls ficam guardados no Cofre Regional** e você recebe um **kit inicial** de 5.000 moedas + 25 Poké Balls — o começo de cada região volta a exigir gestão de recursos, em vez de trivializar com o estoque acumulado.',

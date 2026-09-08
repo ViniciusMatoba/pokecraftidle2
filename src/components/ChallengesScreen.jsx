@@ -1074,11 +1074,10 @@ export const CHALLENGES = [
     reward: 12000,
     unlockFlag: 'johto_rival_1_defeated',
     requiresFlag: 'johto_started',
-    // Time resolvido em runtime: 1 inicial base do tipo com vantagem sobre o
-    // inicial que o jogador escolheu em Johto (grama→fogo→água→grama).
+    // Inicial-contra resolvido em runtime (base/mid/final conforme a progressão).
     counterStarterRegion: 'johto',
-    rivalLevel: 12,
-    team: [{ id: 155, level: 12 }], // fallback caso selectedStarters.johto falte
+    counterStarter: { stage: 'base', level: 12 },
+    team: [],
     background: "url('/bg_new_bark_town.webp') center/cover no-repeat",
     location: 'New Bark Town',
   },
@@ -1088,7 +1087,8 @@ export const CHALLENGES = [
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/silver.png',
     quote: '"Você perdeu tempo aqui na torre. Eu já estou muito à frente!"',
     reward: 12500, unlockFlag: 'johto_rival_sprout_defeated', requiresFlag: 'johto_rival_1_defeated',
-    team: [{ id: 92, level: 12 }, { id: 41, level: 12 }, { id: 156, level: 14 }],
+    counterStarterRegion: 'johto', counterStarter: { stage: 'base', level: 14 },
+    team: [{ id: 92, level: 12 }, { id: 41, level: 12 }],
     background: "url('/bg_violet_city.webp') center/cover no-repeat",
     location: 'Sprout Tower - Violet City',
   },
@@ -1142,10 +1142,10 @@ export const CHALLENGES = [
     reward: 13000,
     unlockFlag: 'johto_rival_azalea_defeated',
     requiresFlag: 'hive_badge',
+    counterStarterRegion: 'johto', counterStarter: { stage: 'mid', level: 18 },
     team: [
       { id: 92, level: 14 },  // Gastly
       { id: 41, level: 16 },  // Zubat
-      { id: 156, level: 18 }, // Quilava (exemplo)
     ],
     background: "url('/bg_violet_city.webp') center/cover no-repeat",
     location: 'Azalea Town - Saida',
@@ -1161,11 +1161,11 @@ export const CHALLENGES = [
     reward: 15000,
     unlockFlag: 'johto_rival_ecruteak_defeated',
     requiresFlag: 'plain_badge',
+    counterStarterRegion: 'johto', counterStarter: { stage: 'mid', level: 24 },
     team: [
       { id: 93, level: 20 },  // Haunter
       { id: 81, level: 20 },  // Magnemite
       { id: 42, level: 22 },  // Golbat
-      { id: 159, level: 24 }, // Croconaw
     ],
     background: "url('/bg_ecruteak_city.webp') center/cover no-repeat",
     location: 'Burned Tower - Ecruteak',
@@ -1182,9 +1182,9 @@ export const CHALLENGES = [
     unlockFlag: 'johto_rocket_mahogany_cleared',
     requiresFlag: 'storm_badge',
     team: [
-      { id: 42, level: 24 },  // Golbat
-      { id: 110, level: 24 }, // Weezing
-      { id: 198, level: 26 }, // Murkrow
+      { id: 42, level: 33 },  // Golbat
+      { id: 110, level: 34 }, // Weezing
+      { id: 198, level: 36 }, // Murkrow
     ],
     background: "url('/bg_radio_tower_interior.webp') center/cover no-repeat",
     location: 'Esconderijo Rocket - Mahogany',
@@ -1195,7 +1195,8 @@ export const CHALLENGES = [
     sprite: 'https://play.pokemonshowdown.com/sprites/trainers/silver.png',
     quote: '"Também estou atrás da Equipe Rocket. Fique fora do meu caminho!"',
     reward: 16000, unlockFlag: 'johto_rival_mahogany_defeated', requiresFlag: 'johto_rocket_mahogany_cleared',
-    team: [{ id: 169, level: 36 }, { id: 94, level: 37 }, { id: 182, level: 37 }, { id: 215, level: 38 }],
+    counterStarterRegion: 'johto', counterStarter: { stage: 'final', level: 38 },
+    team: [{ id: 169, level: 36 }, { id: 94, level: 37 }, { id: 215, level: 38 }],
     background: "url('/bg_ice_path.webp') center/cover no-repeat",
     location: 'Mahogany Town - Rota 44',
   },
@@ -1210,13 +1211,13 @@ export const CHALLENGES = [
     reward: 18000,
     unlockFlag: 'johto_rival_tunnel_defeated',
     requiresFlag: 'mineral_badge',
+    counterStarterRegion: 'johto', counterStarter: { stage: 'final', level: 44 },
     team: [
-      { id: 169, level: 32 }, // Crobat
-      { id: 82, level: 30 },  // Magneton
-      { id: 93, level: 32 },  // Haunter
-      { id: 130, level: 32 }, // Gyarados
-      { id: 215, level: 34 }, // Sneasel
-      { id: 160, level: 36 }, // Feraligatr
+      { id: 82, level: 40 },  // Magneton
+      { id: 93, level: 40 },  // Haunter
+      { id: 130, level: 41 }, // Gyarados
+      { id: 215, level: 42 }, // Sneasel
+      { id: 169, level: 42 }, // Crobat
     ],
     background: "url('/bg_goldenrod_city.webp') center/cover no-repeat",
     location: 'Tunel Subterraneo - Goldenrod',
@@ -1395,7 +1396,8 @@ export const CHALLENGES = [
     reward: 18000,
     unlockFlag: 'johto_rival_victory_defeated',
     requiresFlag: 'rising_badge',
-    team: [{ id: 169, level: 55 }, { id: 94, level: 55 }, { id: 65, level: 56 }, { id: 160, level: 58 }],
+    counterStarterRegion: 'johto', counterStarter: { stage: 'final', level: 58 },
+    team: [{ id: 169, level: 55 }, { id: 94, level: 55 }, { id: 65, level: 56 }],
     background: "url('/bg_victory_road_johto.webp') center/cover no-repeat",
     location: 'Victory Road Johto',
   },
