@@ -1,7 +1,15 @@
-export const APP_VERSION = '2.45.1';
-export const VERSION = '2.45.1';
-export const APP_VERSION_DATE = '08/09/2026 12:09';
+export const APP_VERSION = '2.45.2';
+export const VERSION = '2.45.2';
+export const APP_VERSION_DATE = '08/09/2026 12:20';
 export const CHANGELOG = [
+  '## [V2.45.2] - 08/09/2026 12:20',
+  '### Auditoria de progressão + inicial consistente do Rival em TODAS as regiões',
+  '- O Rival agora usa **um único inicial** (o do tipo com vantagem sobre o que você escolheu) como ás em TODAS as regiões, evoluindo com a progressão — antes cada região tinha iniciais hardcoded, às vezes 2-3 iniciais no mesmo time ou de tipos trocados.',
+  '- **Hoenn**: removida a regressão em que o Rival voltava a usar Combusken (nível 45) depois de já ter Blaziken; agora evolui corretamente até a forma final.',
+  '- **Sinnoh**: corrigido o Rival inicial que trazia dois iniciais (Chimchar + Piplup) no mesmo time.',
+  '- **Unova, Kalos, Alola, Galar, Hisui, Paldea**: iniciais hardcoded dos rivais substituídos pelo inicial-contra dinâmico (via builder).',
+  '- Níveis de todas as regiões auditados: monotônicos e coerentes com as insígnias.',
+  '',
   '## [V2.45.1] - 08/09/2026 12:09',
   '### Fix de níveis na progressão de Johto (Modo VS)',
   '- **Rocket Mahogany** (atrás da 5ª insígnia): time estava em nível 24-26, muito abaixo do esperado. Corrigido para 33-36.',

@@ -4,6 +4,25 @@ import { TYPE_COLOR_HEX } from '../data/gyms';
 import { BadgeSVG } from './CommonUI';
 import { getUnlockedRegions, REGION_LABELS } from '../data/regionStandards';
 import { getTrainerCurrencyReward } from '../utils/economy';
+import { REGION_STARTER_IDS } from '../data/rarityClassification';
+import { POKEDEX } from '../data/pokedex';
+
+// Conjunto de TODOS os ids das linhas de iniciais de uma região (base+meio+final,
+// das 3 linhas). Usado para remover iniciais hardcoded dos times de rival — o
+// inicial do rival passa a ser injetado dinamicamente (o que vence o do jogador).
+const regionStarterLineIds = (region) => {
+  const set = new Set();
+  (REGION_STARTER_IDS[region] || []).slice(0, 3).forEach(baseId => {
+    let id = Number(baseId);
+    for (let i = 0; i < 3 && id; i++) {
+      set.add(id);
+      const evo = POKEDEX[id]?.evolution;
+      id = evo && evo.id ? Number(evo.id) : 0;
+    }
+  });
+  return set;
+};
+const stageForLevel = (level) => (level < 18 ? 'base' : level < 36 ? 'mid' : 'final');
 
 const _BASE = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
 const fixBgPath = (bg) => bg ? bg.replace(/url\(['"]?(\/[^'"]+)['"]?\)/g, (_, p) => `url('${_BASE}${p}')`) : bg;
@@ -273,15 +292,19 @@ const buildFutureRegionChallenges = () => Object.entries(FUTURE_REGION_CHALLENGE
     { suffix: 'rival_mid', name: `Rival - ${cfg.label} II`, level: 38, req: cfg.badges[2], ids: [cfg.leaders[2][3][0], cfg.leaders[3][3][0], cfg.leaders[4][3][0]] },
     { suffix: 'rival_victory', name: `Rival - Victory Road ${cfg.label}`, level: 70, req: cfg.badges[7], ids: [cfg.leaders[5][3][0], cfg.leaders[6][3][0], cfg.leaders[7][3][0]] },
   ];
+  const starterLineIds = regionStarterLineIds(region);
   const rivalBattles = rivalEntries.map((entry, i) => {
     const unlockFlag = entry.unlock || `${region}_${entry.suffix}_defeated`;
     const prevUnlock = i === 0 ? null : (rivalEntries[i - 1].unlock || `${region}_${rivalEntries[i - 1].suffix}_defeated`);
+    // Remove iniciais hardcoded do time; o inicial-contra é injetado como ás.
+    const nonStarterIds = (entry.ids || []).filter(id => !starterLineIds.has(Number(id)));
     return {
       region, id: `${region}_${entry.suffix}`, category: 'rival', name: entry.name || `Rival - ${cfg.label} ${i + 1}`,
       subtitle: 'Rivalidade Regional', sprite: cfg.rivalSprite,
       quote: '"Vamos testar se você esta pronto para o proximo passo."',
       reward: entry.level * 900, unlockFlag, requiresFlag: i === 0 ? entry.req : (entry.req || prevUnlock),
-      team: team(entry.ids, entry.level), background: cfg.bg, location: `${cfg.label} - Jornada`,
+      counterStarterRegion: region, counterStarter: { stage: stageForLevel(entry.level), level: entry.level },
+      team: team(nonStarterIds, entry.level), background: cfg.bg, location: `${cfg.label} - Jornada`,
     };
   });
 
@@ -2812,6 +2835,23 @@ export const CHALLENGES = [
   ...FUTURE_REGION_CHALLENGES,
   ...FUTURE_REGION_LEGENDARIES,
 ];
+
+// Consistência do inicial do Rival (regiões hand-authored: Hoenn e Sinnoh) —
+// Johto já foi tratado por entrada e as regiões procedurais pelo builder. Remove
+// iniciais hardcoded do time do rival e marca a injeção do inicial-contra como ás,
+// no estágio evolutivo do nível do rival. Idempotente (pula quem já tem counterStarter).
+['hoenn', 'sinnoh'].forEach(region => {
+  const lineIds = regionStarterLineIds(region);
+  CHALLENGES.forEach(c => {
+    if (c.category !== 'rival' || c.region !== region || c.counterStarter) return;
+    const teamArr = Array.isArray(c.team) ? c.team : [];
+    const starterSlot = teamArr.find(t => lineIds.has(Number(t.id)));
+    const aceLevel = starterSlot ? starterSlot.level : Math.max(10, ...teamArr.map(t => t.level || 10));
+    c.team = teamArr.filter(t => !lineIds.has(Number(t.id)));
+    c.counterStarterRegion = region;
+    c.counterStarter = { stage: stageForLevel(aceLevel), level: aceLevel };
+  });
+});
 
 // Mapa canônico { pokeId → flag `${nome}_defeated` } de TODO lendário com desafio
 // no Modo VS. Usado para gatear o spawn de lendários nas rotas: só aparecem para
