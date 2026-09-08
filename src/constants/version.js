@@ -1,7 +1,11 @@
-export const APP_VERSION = '2.46.0';
-export const VERSION = '2.46.0';
-export const APP_VERSION_DATE = '08/09/2026 12:35';
+export const APP_VERSION = '2.46.1';
+export const VERSION = '2.46.1';
+export const APP_VERSION_DATE = '08/09/2026 16:10';
 export const CHANGELOG = [
+  '## [V2.46.1] - 08/09/2026 16:10',
+  '### Fix: conteúdo cortado nas bordas de modais',
+  '- Modais que tinham rolagem interna mas cresciam além da tela (cortando o conteúdo no topo/fundo) agora têm limite de altura + rolagem: **Seletor de Título**, **Info do Poder PS** e **Substituir Golpe (TM)**.',
+  '',
   '## [V2.46.0] - 08/09/2026 12:35',
   '### 🔗 Cadeia de Captura (loop de gameplay)',
   '- Capturas consecutivas na MESMA rota constroem uma **cadeia** que escala: **chance de shiny** (×1 → até ×6), **drops, candy e moedas** (+1% por elo, até +100%).',

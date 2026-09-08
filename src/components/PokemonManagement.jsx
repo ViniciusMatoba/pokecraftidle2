@@ -1973,8 +1973,8 @@ const PokemonManagement = ({
                   {/* MODAL DE SUBSTITUICAO PARA TM */}
                   {tmReplaceMode && createPortal((
                     <div className="fixed inset-0 z-[10000] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-                      <div className="w-full max-w-[360px] bg-slate-900 border border-white/10 shadow-2xl rounded-[1.5rem] overflow-hidden flex flex-col" style={{ backgroundColor: '#0f172a' }}>
-                        <div className="flex justify-between items-start gap-3 border-b border-white/10" style={{ padding: '16px 16px 12px 20px' }}>
+                      <div className="w-full max-w-[360px] max-h-[85dvh] bg-slate-900 border border-white/10 shadow-2xl rounded-[1.5rem] overflow-hidden flex flex-col" style={{ backgroundColor: '#0f172a' }}>
+                        <div className="flex justify-between items-start gap-3 border-b border-white/10 shrink-0" style={{ padding: '16px 16px 12px 20px' }}>
                           <div className="text-left min-w-0">
                             <h4 className="text-white font-black uppercase text-[13px] leading-none">Escolha um Slot</h4>
                             <p className="text-slate-400 text-[9px] font-bold uppercase mt-1 leading-tight">
@@ -1983,7 +1983,7 @@ const PokemonManagement = ({
                           </div>
                           <button onClick={() => setTmReplaceMode(null)} className="text-white bg-white/10 w-10 h-10 rounded-full font-black text-xs shrink-0 active:scale-95">x</button>
                         </div>
-                        <div className="p-4 space-y-2">
+                        <div className="p-4 space-y-2 overflow-y-auto custom-scrollbar flex-1 min-h-0">
                           {(activePokemonDetails.pokemon.moves || []).map((move, idx) => {
                             const moveData = getMoveData(move);
                             return (

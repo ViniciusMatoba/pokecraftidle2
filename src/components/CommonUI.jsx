@@ -528,7 +528,7 @@ export const TrainerCard = ({
             onClick={() => setShowTitlePicker(false)}
           >
             <div 
-              className="w-full max-w-[400px] bg-[#0f172a] rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col animate-bounceIn overflow-hidden" 
+              className="w-full max-w-[400px] max-h-[88dvh] bg-[#0f172a] rounded-[2.5rem] border-4 border-slate-800 shadow-2xl flex flex-col animate-bounceIn overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="bg-slate-800/50 px-6 py-5 flex items-center justify-between border-b border-white/5">
@@ -631,15 +631,15 @@ export const TrainerCard = ({
           onClick={() => setShowPsInfo(false)}
         >
           <div 
-            className="w-full max-w-sm bg-slate-900 rounded-[2.5rem] border-4 border-slate-700 overflow-hidden flex flex-col animate-bounceIn" 
+            className="w-full max-w-sm max-h-[88dvh] bg-slate-900 rounded-[2.5rem] border-4 border-slate-700 overflow-hidden flex flex-col animate-bounceIn"
             onClick={(e) => e.stopPropagation()}
           >
-             <div className="bg-red-600 p-6 text-center">
+             <div className="bg-red-600 p-6 text-center shrink-0">
                 <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${psRank.item}.png`} className="w-16 h-16 mx-auto mb-2 drop-shadow-lg" alt="" />
                 <h3 className="text-white text-2xl font-black uppercase italic leading-none">Poder PS</h3>
                 <p className="text-white/70 text-[10px] font-black uppercase mt-1 tracking-widest">{psRank.label} Rank</p>
              </div>
-             <div className="p-6 space-y-4">
+             <div className="p-6 space-y-4 overflow-y-auto custom-scrollbar">
                 <p className="text-white/60 text-xs font-medium leading-relaxed text-center">
                   O Power Score representa sua força total somando Pokémon, Pokédex, Insígnias e feitos heroicos.
                 </p>
