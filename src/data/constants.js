@@ -174,6 +174,10 @@ export const DEFAULT_GAME_STATE = {
   shinyCapturedCount: 0,
   trainerBattleWins: 0,
   bossLastDamage: 0,
+  // Cofre Regional — dinheiro/bolas das regiões anteriores ficam guardados ao
+  // entrar numa nova região e são liberados ao vencer a Liga daquela região.
+  regionVault: { currency: 0, pokeballs: 0, great_ball: 0, ultra_ball: 0 },
+  regionVaultLockedFor: null,         // região cujo início trancou o cofre (null = destrancado)
   // Temporadas do Chefe Mundial
   bossAllTimeBest: 0,                 // recorde all-time de dano numa luta
   bossSeasonBest: {},                 // { [seasonId]: melhorDanoNaTemporada }

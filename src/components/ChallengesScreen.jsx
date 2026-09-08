@@ -1074,11 +1074,11 @@ export const CHALLENGES = [
     reward: 12000,
     unlockFlag: 'johto_rival_1_defeated',
     requiresFlag: 'johto_started',
-    team: [
-      { id: 153, level: 6 },
-      { id: 156, level: 6 },
-      { id: 159, level: 6 },
-    ],
+    // Time resolvido em runtime: 1 inicial base do tipo com vantagem sobre o
+    // inicial que o jogador escolheu em Johto (grama→fogo→água→grama).
+    counterStarterRegion: 'johto',
+    rivalLevel: 12,
+    team: [{ id: 155, level: 12 }], // fallback caso selectedStarters.johto falte
     background: "url('/bg_new_bark_town.webp') center/cover no-repeat",
     location: 'New Bark Town',
   },
@@ -2810,6 +2810,16 @@ export const CHALLENGES = [
   ...FUTURE_REGION_CHALLENGES,
   ...FUTURE_REGION_LEGENDARIES,
 ];
+
+// Mapa canônico { pokeId → flag `${nome}_defeated` } de TODO lendário com desafio
+// no Modo VS. Usado para gatear o spawn de lendários nas rotas: só aparecem para
+// captura depois de derrotados no VS. Derivado das próprias entradas de desafio,
+// então a flag sempre casa com a que a vitória grava.
+export const LEGENDARY_VS_UNLOCK = Object.fromEntries(
+  CHALLENGES
+    .filter(c => c.category === 'legendary' && c.unlockFlag && c.team && c.team[0] && c.team[0].id)
+    .map(c => [Number(c.team[0].id), c.unlockFlag])
+);
 
 const CATEGORY_CONFIG = {
   rocket:    { label: 'Viloes',        color: '#dc2626', emoji: 'R'   },

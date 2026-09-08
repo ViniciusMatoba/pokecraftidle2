@@ -1,7 +1,17 @@
-export const APP_VERSION = '2.44.2';
-export const VERSION = '2.44.2';
-export const APP_VERSION_DATE = '03/09/2026 16:01';
+export const APP_VERSION = '2.45.0';
+export const VERSION = '2.45.0';
+export const APP_VERSION_DATE = '08/09/2026 08:15';
 export const CHANGELOG = [
+  '## [V2.45.0] - 08/09/2026 08:15',
+  '### Cofre Regional (recomeço de economia por região)',
+  '- Ao **entrar numa nova região** (Johto em diante), seu **dinheiro e Poké/Great/Ultra Balls ficam guardados no Cofre Regional** e você recebe um **kit inicial** de 5.000 moedas + 25 Poké Balls — o começo de cada região volta a exigir gestão de recursos, em vez de trivializar com o estoque acumulado.',
+  '- Ao **vencer a Liga daquela região**, o Cofre é **liberado**: tudo volta somado ao que você juntou. Kanto é isento (jornada inicial). Um card na cidade mostra quanto está guardado e a condição de resgate.',
+  '',
+  '### Lendários: batalha mais difícil + desbloqueio unificado',
+  '- Os Lendários (aba Lendários do Modo VS) agora lutam em **nível 100**, com **HP muito maior** (fôlego ×3,2 vs ×1,15 de um chefe comum) e **stats mais fortes** (×1,6) — um desafio real de pós-Liga, em vez de cair em poucos golpes. O nível 100 também libera os melhores golpes do learnset do Lendário.',
+  '- **Desbloqueio unificado**: TODO lendário que tem desafio no Modo VS agora só aparece nas rotas para captura **depois de derrotado no VS** (antes só 11 espécies seguiam essa regra; Kyogre, Groudon, Dialga, etc. apareciam sem exigir a vitória). Míticos sem desafio VS seguem como spawns ultra-raros.',
+  '- **Fix rival de Johto (New Bark)**: antes ele usava os 3 iniciais em formas evoluídas. Agora tem **1 único inicial base**, do tipo com **vantagem sobre o inicial que você escolheu** (grama→fogo→água→grama).',
+  '',
   '## [V2.44.2] - 03/09/2026 16:01',
   '### Raids — rotação e variação (não repetir sempre os mesmos)',
   '- **Anti-repetição**: as raids agora lembram os últimos 8 Pokémon que surgiram e os evitam na próxima (quando há alternativas), forçando rotação de espécies dentro do tier — não cai mais sempre no mesmo.',

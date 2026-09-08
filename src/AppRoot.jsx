@@ -71,6 +71,7 @@ import { getTypeEffectiveness } from './data/typeChart';
 import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
 import { REGION_STARTER_IDS } from './data/rarityClassification';
 import { getActiveBossSeason } from './data/worldBossSeasons';
+import { LEGENDARY_VS_UNLOCK } from './components/ChallengesScreen';
 import { getEvolutionCandyInfo } from './utils/evolutionRequirements';
 import { calcExpeditionDuration, calcExpeditionDrops, calcExpeditionXP, EXPEDITION_BIOMES } from './data/expeditions';
 import { calcHarvestDrops, calcGrowthTime, calcCombinedCaretakerBonus, PLANTABLE_ITEMS, HOUSE_PURCHASE_COST } from './data/house';
@@ -108,6 +109,10 @@ import { subscribeToFriendRequests } from './services/friends';
 
 const RAID_SPAWN_STORAGE_KEY = 'pokecraftidle_next_raid_at';
 const RAID_STAR_COLOR = { 1: '#94a3b8', 2: '#22c55e', 3: '#3b82f6', 4: '#a855f7', 5: '#f59e0b' };
+
+// Cofre Regional — kit inicial ao entrar numa nova região (o resto fica trancado).
+const REGION_VAULT_STARTER_CURRENCY = 5000;
+const REGION_VAULT_STARTER_BALLS = 25;
 
 // Ícones/nomes específicos de recompensas de raid não cobertos por ITEM_LABELS
 // (ITEM_LABELS usa ids singulares; raids usam pokeballs/great_ball/ultra_ball etc.).
@@ -2535,6 +2540,66 @@ export default function App() {
     }, 15_000); // 15s de debounce
   }, [saveToCloud]);
 
+  // ── COFRE REGIONAL ──────────────────────────────────────────────────────────
+  // Ao ENTRAR numa nova região (não-Kanto) ainda não vencida: guarda dinheiro e
+  // Poké/Great/Ultra Balls no cofre e entrega um kit inicial (5.000 + 25 Poké).
+  // Ao virar CAMPEÃO da região que trancou: devolve tudo. Kanto é isento.
+  useEffect(() => {
+    if (!isFullyLoadedRef.current) return;
+    setGameState(prev => {
+      const region = prev.activeRegion || 'kanto';
+      const flags = prev.worldFlags || [];
+      const championFlag = region === 'kanto' ? 'champion' : `${region}_champion`;
+      const isChampion = flags.includes(championFlag);
+      const lockedFor = prev.regionVaultLockedFor || null;
+      const items = prev.inventory?.items || {};
+
+      // LIBERAR: já é campeão da região que trancou → devolve o cofre.
+      if (lockedFor && lockedFor === region && isChampion) {
+        const v = prev.regionVault || {};
+        addLog(`🔓 Cofre Regional liberado! +${(v.currency || 0).toLocaleString('pt-BR')} moedas e suas Pokébolas guardadas voltaram.`, 'system');
+        return {
+          ...prev,
+          currency: (prev.currency || 0) + (v.currency || 0),
+          inventory: {
+            ...prev.inventory,
+            items: {
+              ...items,
+              pokeballs: (items.pokeballs || 0) + (v.pokeballs || 0),
+              great_ball: (items.great_ball || 0) + (v.great_ball || 0),
+              ultra_ball: (items.ultra_ball || 0) + (v.ultra_ball || 0),
+            },
+          },
+          regionVault: { currency: 0, pokeballs: 0, great_ball: 0, ultra_ball: 0 },
+          regionVaultLockedFor: null,
+        };
+      }
+
+      // TRANCAR: entrou numa região não-Kanto ainda não vencida e ainda não trancada.
+      if (region !== 'kanto' && !isChampion && lockedFor !== region) {
+        const v = prev.regionVault || { currency: 0, pokeballs: 0, great_ball: 0, ultra_ball: 0 };
+        addLog(`🔒 Cofre Regional: seu dinheiro e Pokébolas foram guardados. Vença a Liga de ${region} para resgatar. Kit inicial: 5.000 moedas + 25 Poké Balls.`, 'system');
+        return {
+          ...prev,
+          currency: REGION_VAULT_STARTER_CURRENCY,
+          inventory: {
+            ...prev.inventory,
+            items: { ...items, pokeballs: REGION_VAULT_STARTER_BALLS, great_ball: 0, ultra_ball: 0 },
+          },
+          regionVault: {
+            currency: (v.currency || 0) + (prev.currency || 0),
+            pokeballs: (v.pokeballs || 0) + (items.pokeballs || 0),
+            great_ball: (v.great_ball || 0) + (items.great_ball || 0),
+            ultra_ball: (v.ultra_ball || 0) + (items.ultra_ball || 0),
+          },
+          regionVaultLockedFor: region,
+        };
+      }
+
+      return prev; // nada a fazer
+    });
+  }, [gameState.activeRegion, gameState.worldFlags, gameState.regionVaultLockedFor, addLog]);
+
   // 3. beforeunload + visibilitychange — salva com lastSeenAt antes de fechar/minimizar
   useEffect(() => {
     const saveLocal = () => {
@@ -3473,25 +3538,17 @@ export default function App() {
       888, 889, 890, 891, 892, 893, 894, 895, 896, 897, 898, 905, // Gen 8
       1001, 1002, 1003, 1004, 1007, 1008, 1010, 1024 // Gen 9
     ]);
-    // Lendários com boss real no modo VS — exigem flag _defeated para spawnar na rota
-    const LEGENDARY_BOSS_IDS = new Set([
-      144, 145, 146, 150,           // Kanto: Articuno, Zapdos, Moltres, Mewtwo
-      243, 244, 245, 249, 250, 251, // Johto: Raikou, Entei, Suicune, Lugia, Ho-Oh, Celebi
-      384,                          // Hoenn: Rayquaza
-    ]);
     const todayStr = new Date().toISOString().split('T')[0];
     const currentFlagsForLegendary = gameState.worldFlags || [];
 
     enemyPool = enemyPool.filter(e => {
       const id = Number(e.id);
       if (LEGENDARY_IDS.has(id)) {
-        // 1. Lendários com boss no VS exigem flag de derrota; sem boss são gatados apenas por raridade
-        if (LEGENDARY_BOSS_IDS.has(id)) {
-          const baseData = POKEDEX[id];
-          const pokemonName = baseData?.name?.toLowerCase().replace(/ /g, '_').replace(/-/g, '_') || '';
-          const defeatFlag = `${pokemonName}_defeated`;
-          if (!currentFlagsForLegendary.includes(defeatFlag)) return false;
-        }
+        // 1. TODO lendário que tem desafio no Modo VS só é liberado para captura na
+        //    rota depois de derrotado no VS (a flag `${nome}_defeated` fica na worldFlags).
+        //    Lendários/míticos sem desafio VS não são gateados (continuam ultra-raros).
+        const requiredFlag = LEGENDARY_VS_UNLOCK[id];
+        if (requiredFlag && !currentFlagsForLegendary.includes(requiredFlag)) return false;
         // 2. Raridade extrema (0.05%) — válido para todos os lendários
         if (Math.random() > 0.0005) return false;
         // 3. Limite diário (1 por dia por espécie)
@@ -5787,15 +5844,33 @@ export default function App() {
   }, [isManualActing, currentEnemy, handleBattleTick]);
 
   const startKeyBattle = useCallback((battleData) => {
-    const teamMember = (battleData.team && battleData.team.length > 0) ? battleData.team[0] : null;
+    // Rival com "inicial-contra": 1 inicial BASE do tipo com vantagem sobre o
+    // inicial que o jogador escolheu na região (grama→fogo→água→grama).
+    let resolvedTeam = battleData.team;
+    if (battleData.counterStarterRegion) {
+      const reg = battleData.counterStarterRegion;
+      const tri = (REGION_STARTER_IDS[reg] || []).slice(0, 3);
+      const chosen = Number(gameState.selectedStarters?.[reg]);
+      const idx = tri.indexOf(chosen);
+      if (idx >= 0) {
+        const counterId = tri[(idx + 1) % 3];
+        resolvedTeam = [{ id: counterId, level: battleData.rivalLevel || 12 }];
+      }
+    }
+
+    const teamMember = (resolvedTeam && resolvedTeam.length > 0) ? resolvedTeam[0] : null;
     if (!teamMember) return;
     const base = POKEDEX[teamMember.id];
     if (!base) return;
 
-    const lvl = teamMember.level || 5;
-    const baseMult = 1.15; // Bosses are stronger but balanced
-    const maxHp = Math.ceil((((2 * (base.maxHp || base.hp || 50) * lvl) / 100) + lvl + 10) * baseMult);
-    const getStat = (b) => Math.ceil((((2 * (b || 10) * lvl) / 100) + 5) * baseMult);
+    // Lendários (categoria 'legendary') são um desafio de fim de jogo: nível 100,
+    // muito mais fôlego (HP) e stats bem mais altos que um chefe comum.
+    const isLegendaryBattle = battleData.category === 'legendary';
+    const lvl = isLegendaryBattle ? Math.max(teamMember.level || 75, 100) : (teamMember.level || 5);
+    const hpMult = isLegendaryBattle ? 3.2 : 1.15;   // fôlego para uma luta longa
+    const statMult = isLegendaryBattle ? 1.6 : 1.15; // ataque/defesa realmente intimidadores
+    const maxHp = Math.ceil((((2 * (base.maxHp || base.hp || 50) * lvl) / 100) + lvl + 10) * hpMult);
+    const getStat = (b) => Math.ceil((((2 * (b || 10) * lvl) / 100) + 5) * statMult);
     
     const boss = {
       ...base,
@@ -5840,7 +5915,7 @@ export default function App() {
       unlockFlag: battleData.unlockFlag,
       badgeToGive: battleData.badgeToGive || (battleData.unlockFlag?.endsWith('_badge') ? battleData.unlockFlag : null),
       spawnTime: Date.now(),
-      opponentTeam: battleData.team,
+      opponentTeam: resolvedTeam,
       opponentTeamIndex: 0,
       background: battleData.background || null,
       locationName: battleData.location || battleData.name,
@@ -5851,7 +5926,7 @@ export default function App() {
     // BGM agora gerenciado pelas configurações
     addLog(`🚀 DESAFIO: ${battleData.name} iniciou a batalha!`, 'system');
     isProcessingVictory.current = false;
-  }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS]);
+  }, [setCurrentEnemy, setCurrentView, addLog, POKEDEX, MOVES, MOVE_TRANSLATIONS, gameState.selectedStarters]);
 
   const handleChallenge = useCallback((battleData, type) => {
     if (type === 'boss') {

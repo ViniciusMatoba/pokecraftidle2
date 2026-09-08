@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TrainerCard } from './CommonUI';
 import { HOUSE_PURCHASE_COST } from '../data/house';
 import { getActiveSpotlight, msUntilNextRotation } from '../data/weeklySpotlight';
+import { REGION_LABELS } from '../data/regionStandards';
 import TrophyRoom from './TrophyRoom';
 
 const CityScreen = ({
@@ -340,6 +341,28 @@ const CityScreen = ({
                     Ir
                   </button>
                 )}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* ── Cofre Regional ── */}
+        {gameState.regionVaultLockedFor && (gameState.regionVault?.currency > 0 || gameState.regionVault?.pokeballs > 0 || gameState.regionVault?.great_ball > 0 || gameState.regionVault?.ultra_ball > 0) && (() => {
+          const v = gameState.regionVault || {};
+          const regLabel = REGION_LABELS[gameState.regionVaultLockedFor] || gameState.regionVaultLockedFor;
+          const balls = (v.pokeballs || 0) + (v.great_ball || 0) + (v.ultra_ball || 0);
+          return (
+            <div className="rounded-3xl p-4 shadow-xl border-b-4 border-slate-700 relative overflow-hidden"
+              style={{ background: 'linear-gradient(120deg,#1e293b 0%,#334155 70%,#475569 130%)' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 shadow-inner">
+                  <span className="text-3xl">🔒</span>
+                </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-[9px] font-black uppercase tracking-[0.25em] text-amber-300/80">Cofre Regional</p>
+                  <h3 className="text-white font-black text-base uppercase italic leading-tight">💰 {(v.currency || 0).toLocaleString('pt-BR')} · 🔴 {balls} bolas</h3>
+                  <p className="text-[10px] font-bold text-white/70 mt-1">Vença a Liga de {regLabel} para resgatar</p>
+                </div>
               </div>
             </div>
           );
