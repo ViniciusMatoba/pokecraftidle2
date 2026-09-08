@@ -174,6 +174,8 @@ export const DEFAULT_GAME_STATE = {
   shinyCapturedCount: 0,
   trainerBattleWins: 0,
   bossLastDamage: 0,
+  // Cadeia de Captura (combo por rota)
+  catchChain: { routeId: null, count: 0, best: 0 },
   // Cofre Regional — dinheiro/bolas das regiões anteriores ficam guardados ao
   // entrar numa nova região e são liberados ao vencer a Liga daquela região.
   regionVault: { currency: 0, pokeballs: 0, great_ball: 0, ultra_ball: 0 },

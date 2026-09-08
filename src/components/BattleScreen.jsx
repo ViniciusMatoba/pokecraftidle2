@@ -4,6 +4,7 @@ import { StatusBadges } from './CommonUI';
 import { BATTLE_BACKGROUNDS, getRouteBg } from '../data/battleBackgrounds';
 import ActiveEffectsBar from './ActiveEffectsBar';
 import { MOVES } from '../data/moves';
+import { getChainShinyMult, getChainDropBonus, getChainTier } from '../data/catchChain';
 import { MOVE_TRANSLATIONS } from '../data/translations';
 import { TIME_CONFIG } from '../utils/timeSystem';
 import { WEATHER_TYPES } from '../data/weather';
@@ -394,8 +395,30 @@ const BattleScreen = ({
         </button>
       </div>
 
+      {/* ── Indicador de Cadeia de Captura ── */}
+      {gameState.catchChain?.routeId === gameState.currentRoute && gameState.catchChain?.count > 0 && (() => {
+        const c = gameState.catchChain.count;
+        const tier = getChainTier(c);
+        const shiny = getChainShinyMult(c);
+        const drop = Math.round(getChainDropBonus(c) * 100);
+        return (
+          <div className="mx-2 rounded-xl px-3 py-1.5 flex items-center justify-between border-b-2 shadow"
+            style={{ background: `linear-gradient(90deg, ${tier.color}22, ${tier.color}08)`, borderColor: `${tier.color}66` }}>
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-base">🔗</span>
+              <span className="text-sm font-black tabular-nums" style={{ color: tier.color }}>Cadeia ×{c}</span>
+              {tier.label && <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full" style={{ background: `${tier.color}22`, color: tier.color }}>{tier.label}</span>}
+            </div>
+            <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-tight text-slate-500 shrink-0">
+              <span>✨ ×{shiny.toFixed(2).replace(/\.00$/, '')}</span>
+              <span>🎁 +{drop}%</span>
+            </div>
+          </div>
+        );
+      })()}
+
       <ActiveEffectsBar activeEffects={gameState.activeEffects} />
-      
+
       <div className="relative overflow-hidden rounded-2xl shadow-xl flex-shrink-0" style={{ height: 360 }}>
 
         <div

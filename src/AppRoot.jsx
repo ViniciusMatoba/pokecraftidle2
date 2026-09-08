@@ -62,7 +62,7 @@ import {
   UNOVA_BADGE_IDS, KALOS_BADGE_IDS, ALOLA_BADGE_IDS, GALAR_BADGE_IDS, PALDEA_BADGE_IDS
 } from './data/constants';
 import { REGION_ORDER, REGION_CHAMPION_FLAGS, REGION_BADGE_IDS, getPokemonRegion, getUnlockedDexLimit as getRegionalDexLimit, isPokemonAllowedInRegion, isPokemonLegal } from './data/regionStandards';
-import { getMasteryPath, getEffectiveStat, getShinyMult } from './utils/gameHelpers';
+import { getMasteryPath, getEffectiveStat, getShinyMult, applyFamilyIvGain } from './utils/gameHelpers';
 import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from './utils/pokemonSprites';
 import { getTrainerCurrencyReward } from './utils/economy';
 import { applyFriendshipGains, FRIENDSHIP_GAIN, FRIENDSHIP_EVO_THRESHOLD, FRIENDSHIP_EVOLUTIONS, FRIENDSHIP_CANDY_STEP, FRIENDSHIP_CANDY_MIN, FRIENDSHIP_CANDY_MAX } from './data/friendship';
@@ -72,6 +72,7 @@ import { POKEMON_TO_CANDY, CANDY_FAMILIES, CANDY_USES } from './data/candies';
 import { REGION_STARTER_IDS } from './data/rarityClassification';
 import { getActiveBossSeason } from './data/worldBossSeasons';
 import { LEGENDARY_VS_UNLOCK } from './components/ChallengesScreen';
+import { getChainShinyMult, getChainDropBonus, applyCaptureToChain } from './data/catchChain';
 import { getEvolutionCandyInfo } from './utils/evolutionRequirements';
 import { calcExpeditionDuration, calcExpeditionDrops, calcExpeditionXP, EXPEDITION_BIOMES } from './data/expeditions';
 import { calcHarvestDrops, calcGrowthTime, calcCombinedCaretakerBonus, PLANTABLE_ITEMS, HOUSE_PURCHASE_COST } from './data/house';
@@ -2600,6 +2601,47 @@ export default function App() {
     });
   }, [gameState.activeRegion, gameState.worldFlags, gameState.regionVaultLockedFor, addLog]);
 
+  // ── CADEIA DE CAPTURA ───────────────────────────────────────────────────────
+  // Observa o total de capturas: cada captura nova em rota de farm soma na cadeia
+  // da rota atual (zera ao trocar de rota). Marcos concedem baús. Centraliza os
+  // dois caminhos de captura (manual e automática) num único ponto.
+  const lastCapturedForChainRef = useRef(null);
+  useEffect(() => {
+    const cur = gameState.playerStats?.pokemonCaptured || 0;
+    if (lastCapturedForChainRef.current === null) { lastCapturedForChainRef.current = cur; return; }
+    if (cur <= lastCapturedForChainRef.current) { lastCapturedForChainRef.current = cur; return; }
+    const gained = cur - lastCapturedForChainRef.current;
+    lastCapturedForChainRef.current = cur;
+    const routeId = gameState.currentRoute;
+    if (!routeId || ROUTES[routeId]?.type !== 'farm') return; // só rotas de farm
+
+    setGameState(prev => {
+      const { chain, rewards } = applyCaptureToChain(prev.catchChain || {}, routeId, gained);
+      let next = { ...prev, catchChain: chain };
+      if (rewards.length > 0) {
+        const inv = { ...next.inventory, items: { ...(next.inventory?.items || {}) }, materials: { ...(next.inventory?.materials || {}) } };
+        let currency = next.currency || 0;
+        rewards.forEach(rw => {
+          currency += rw.currency || 0;
+          Object.entries(rw.items || {}).forEach(([k, v]) => { inv.items[k] = (inv.items[k] || 0) + v; });
+          Object.entries(rw.materials || {}).forEach(([k, v]) => { inv.materials[k] = (inv.materials[k] || 0) + v; });
+        });
+        next = { ...next, currency, inventory: inv };
+        addLog(`🔗 MARCO DE CADEIA ×${chain.count}! Baú de recompensa recebido!`, 'system');
+        addFloat(`🔗 CADEIA ×${chain.count}!`, '#f59e0b', 'player');
+      }
+      return next;
+    });
+  }, [gameState.playerStats?.pokemonCaptured, gameState.currentRoute, addLog, addFloat, ROUTES]);
+
+  // Zera a cadeia ao trocar de rota (comprometimento com a rota atual).
+  useEffect(() => {
+    setGameState(prev => {
+      if (!prev.catchChain || prev.catchChain.routeId === gameState.currentRoute || prev.catchChain.count === 0) return prev;
+      return { ...prev, catchChain: { routeId: gameState.currentRoute, count: 0, best: prev.catchChain.best || 0 } };
+    });
+  }, [gameState.currentRoute]);
+
   // 3. beforeunload + visibilitychange — salva com lastSeenAt antes de fechar/minimizar
   useEffect(() => {
     const saveLocal = () => {
@@ -3092,6 +3134,10 @@ export default function App() {
     const messages = [];
     const rareDrops = [];
 
+    // Cadeia de Captura: bônus de coins/candy pela cadeia da rota atual.
+    const chainNow = (gameState.catchChain?.routeId === gameState.currentRoute) ? (gameState.catchChain?.count || 0) : 0;
+    const chainBonus = getChainDropBonus(chainNow); // 0 → +1.0
+
     // Moedas base — ajustado para sustentar a compra de pokébolas nas rotas
     let coinAmount = Math.max(5, Math.floor((enemy.level || 5) * 2.0 * (enemy.isShiny ? 2 : 1)));
     
@@ -3110,7 +3156,7 @@ export default function App() {
       coinMult *= 2;
     }
 
-    drops.currency = Math.floor(coinAmount * coinMult);
+    drops.currency = Math.floor(coinAmount * coinMult * (1 + chainBonus));
     messages.push(`💰 +${drops.currency} coins`);
 
     // CANDY DROP
@@ -3119,9 +3165,9 @@ export default function App() {
        const mastery = (gameState.speciesMastery || {})[Number(enemy.id)] || 0;
        // Destaque da Semana: mais chance e quantidade de candy da espécie/rota destacada.
        const candyBoosted = isSpotlightBoosted(enemy.id, gameState.currentRoute);
-       const bonusChance = Math.min(0.9, (mastery > 50 ? 0.45 : 0.30) * (candyBoosted ? SPOTLIGHT_CANDY_MULT : 1));
+       const bonusChance = Math.min(0.95, (mastery > 50 ? 0.45 : 0.30) * (candyBoosted ? SPOTLIGHT_CANDY_MULT : 1) + chainBonus * 0.3);
        if (Math.random() < bonusChance) {
-         const qty = candyBoosted ? 2 : 1;
+         const qty = (candyBoosted ? 2 : 1) + Math.floor(chainBonus + 0.0001);
          drops.candies = { [candyId]: qty };
          messages.push(`Candy ${qty}x ${CANDY_FAMILIES[candyId].name}`);
        }
@@ -3658,6 +3704,10 @@ export default function App() {
     if (isSpotlightBoosted(pokeId, gameState.currentRoute)) {
       shinyRateDivisor = Math.max(1, Math.ceil(shinyRateDivisor / SPOTLIGHT_SHINY_MULT));
     }
+    // Cadeia de Captura: quanto maior a cadeia na rota, maior a chance de shiny.
+    const chainForRoute = (gameState.catchChain?.routeId === gameState.currentRoute) ? (gameState.catchChain?.count || 0) : 0;
+    const chainShinyMult = getChainShinyMult(chainForRoute);
+    if (chainShinyMult > 1) shinyRateDivisor = Math.max(1, Math.round(shinyRateDivisor / chainShinyMult));
     const isShiny = Math.floor(Math.random() * shinyRateDivisor) === 0;
     const isBossSpawn = !isShiny && Math.floor(Math.random() * 500) === 0; // Boss (não capturável)
     const isStarterSpawn = !isShiny && !isBossSpawn && Math.floor(Math.random() * 2048) === 0; // Starter raro
@@ -5727,6 +5777,14 @@ export default function App() {
         return { ...prev, inventory: newInventory };
       }
 
+      // IVs por família: chance de reforçar um Pokémon já possuído da mesma linha.
+      const ivT = applyFamilyIvGain(prev.team, capturedEnemy.id);
+      const ivP = ivT.gained ? { list: prev.pc || [], gained: null } : applyFamilyIvGain(prev.pc || [], capturedEnemy.id);
+      const baseTeam = ivT.list;
+      const basePc = ivP.list;
+      const ivGained = ivT.gained || ivP.gained;
+      if (ivGained) addLog(`🧬 IV +${ivGained.amount}! ${ivGained.name} ficou mais forte (IV ${ivGained.total}/31) por capturar da mesma família.`, 'system');
+
       const newCaughtData = { ...(prev.caughtData || {}), [capturedEnemy.id]: true };
       const rolledNature = NATURE_LIST[Math.floor(Math.random() * NATURE_LIST.length)];
       const newPoke = assignRandomAbility({
@@ -5773,8 +5831,8 @@ export default function App() {
             return p;
           })
         });
-        const { newList: teamUpdate } = findAndReplace(prev.team);
-        const { newList: pcUpdate } = findAndReplace(prev.pc || []);
+        const { newList: teamUpdate } = findAndReplace(baseTeam);
+        const { newList: pcUpdate } = findAndReplace(basePc);
 
         // Duplicata → converte em candies da família (estilo "transferir" do GO).
         // Quantidade escala pela raridade pra compensar spawns raros.
@@ -5800,8 +5858,8 @@ export default function App() {
         };
       }
 
-      const newTeam = [...prev.team];
-      const newPC = [...(prev.pc || [])];
+      const newTeam = [...baseTeam];
+      const newPC = [...basePc];
       if (newTeam.length < 6) {
         newTeam.push(newPoke);
       } else {
@@ -7976,7 +8034,15 @@ export default function App() {
                 const alreadyCaught = ownsSpecies(prev, currentEnemy.id);
                 const newCaughtData = { ...(prev.caughtData || {}), [currentEnemy.id]: true };
                 const newMastery = processCaptureMastery({ ...currentEnemy, id: Number(currentEnemy.id) }, prev);
-                
+
+                // IVs por família: chance de reforçar um Pokémon já possuído da mesma linha.
+                const ivT2 = applyFamilyIvGain(prev.team, currentEnemy.id);
+                const ivP2 = ivT2.gained ? { list: prev.pc || [], gained: null } : applyFamilyIvGain(prev.pc || [], currentEnemy.id);
+                const baseTeam2 = ivT2.list;
+                const basePc2 = ivP2.list;
+                const ivGained2 = ivT2.gained || ivP2.gained;
+                if (ivGained2) addLog(`🧬 IV +${ivGained2.amount}! ${ivGained2.name} ficou mais forte (IV ${ivGained2.total}/31) por capturar da mesma família.`, 'system');
+
                 const { questUpdate, log: questLog } = updateQuestProgress(prev, 'capture');
                 if (questLog) addLog(questLog, 'drop');
                 if (questUpdate.inventory) newInventoryItems = questUpdate.inventory.items;
@@ -8022,13 +8088,13 @@ export default function App() {
                     }
                     return p;
                   });
-                  return { 
-                    ...prev, 
-                    team: findAndReplace(prev.team), 
-                    pc: findAndReplace(prev.pc || []), 
-                    inventory: { ...prev.inventory, items: newInventoryItems }, 
-                    speciesMastery: newMastery, 
-                    caughtData: newCaughtData, 
+                  return {
+                    ...prev,
+                    team: findAndReplace(baseTeam2),
+                    pc: findAndReplace(basePc2),
+                    inventory: { ...prev.inventory, items: newInventoryItems },
+                    speciesMastery: newMastery,
+                    caughtData: newCaughtData,
                     shinyCapturedCount: (prev.shinyCapturedCount || 0) + (currentEnemy.isShiny ? 1 : 0),
                     playerStats: bumpPlayerStats(prev.playerStats, {
                       pokemonCaptured: 1,
@@ -8040,8 +8106,8 @@ export default function App() {
                   // Primeira Captura
                   const rolledNature = NATURE_LIST[Math.floor(Math.random() * NATURE_LIST.length)];
                   const newPoke = sanitizePokemonForm(assignRandomAbility({ ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9), capturedRegion: prev.activeRegion || 'kanto', ball: selectedBall || 'pokeballs', equippedNature: rolledNature, unlockedNatures: [rolledNature] }, POKEDEX[Number(currentEnemy.id)]));
-                  const newTeam = [...prev.team];
-                  const newPC = [...(prev.pc || [])];
+                  const newTeam = [...baseTeam2];
+                  const newPC = [...basePc2];
                   if (newTeam.length < 6) newTeam.push(newPoke); else newPC.push(newPoke);
 
                   return { 

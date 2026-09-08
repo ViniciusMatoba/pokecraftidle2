@@ -1490,6 +1490,27 @@ const PokemonManagement = ({
                       )}
                     </button>
 
+                    {/* IVs (força extra por capturar da mesma família) */}
+                    {(() => {
+                      const iv = Math.max(0, Math.min(31, activePokemonDetails.pokemon.ivBonus || 0));
+                      const pct = (iv * 0.5).toFixed(1).replace(/\.0$/, '');
+                      return (
+                        <div className="w-full p-4 rounded-2xl border-2 border-fuchsia-100 bg-fuchsia-50/50 shadow-sm">
+                          <div className="flex justify-between items-center mb-2">
+                            <div>
+                              <h3 className="text-[11px] font-black uppercase text-slate-800">🧬 IVs</h3>
+                              <p className="text-[8px] font-black uppercase tracking-widest text-fuchsia-600">Capture da mesma família para subir</p>
+                            </div>
+                            <span className="text-sm font-black text-fuchsia-600 tabular-nums">{iv}/31</span>
+                          </div>
+                          <div className="h-2.5 w-full rounded-full bg-fuchsia-100 overflow-hidden">
+                            <div className="h-full rounded-full bg-gradient-to-r from-fuchsia-400 to-fuchsia-600" style={{ width: `${(iv / 31) * 100}%` }} />
+                          </div>
+                          <p className="text-[9px] font-bold text-slate-500 mt-1.5">Bônus de stats: <strong className="text-fuchsia-600">+{pct}%</strong> em todos os atributos</p>
+                        </div>
+                      );
+                    })()}
+
                     {/* HABILIDADES */}
                     <button
                       onClick={() => setShowAbilityModal(true)}

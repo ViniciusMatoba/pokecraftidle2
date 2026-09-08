@@ -1,7 +1,16 @@
-export const APP_VERSION = '2.45.2';
-export const VERSION = '2.45.2';
-export const APP_VERSION_DATE = '08/09/2026 12:20';
+export const APP_VERSION = '2.46.0';
+export const VERSION = '2.46.0';
+export const APP_VERSION_DATE = '08/09/2026 12:35';
 export const CHANGELOG = [
+  '## [V2.46.0] - 08/09/2026 12:35',
+  '### 🔗 Cadeia de Captura (loop de gameplay)',
+  '- Capturas consecutivas na MESMA rota constroem uma **cadeia** que escala: **chance de shiny** (×1 → até ×6), **drops, candy e moedas** (+1% por elo, até +100%).',
+  '- Trocar de rota **zera** a cadeia; capturas que falham não quebram (só não somam). **Marcos** (10/25/50/100/200) dão **baús** de recompensa.',
+  '- Indicador de cadeia na tela de batalha com o tier atual e os bônus ativos.',
+  '### 🧬 IVs por família evolutiva',
+  '- Ao **capturar** um Pokémon, há chance (35%) de **reforçar um Pokémon já possuído da mesma família** com **+1 a +3 IVs** (além dos candies) — deixando-o mais forte (cap 31, +0,5% de stats por ponto).',
+  '- Card de IVs no detalhe do Pokémon (barra 0/31 + bônus atual).',
+  '',
   '## [V2.45.2] - 08/09/2026 12:20',
   '### Auditoria de progressão + inicial consistente do Rival em TODAS as regiões',
   '- O Rival agora usa **um único inicial** (o do tipo com vantagem sobre o que você escolheu) como ás em TODAS as regiões, evoluindo com a progressão — antes cada região tinha iniciais hardcoded, às vezes 2-3 iniciais no mesmo time ou de tipos trocados.',
