@@ -1,7 +1,13 @@
-export const APP_VERSION = '2.46.1';
-export const VERSION = '2.46.1';
-export const APP_VERSION_DATE = '08/09/2026 16:10';
+export const APP_VERSION = '2.47.0';
+export const VERSION = '2.47.0';
+export const APP_VERSION_DATE = '21/09/2026 12:50';
 export const CHANGELOG = [
+  '## [V2.47.0] - 21/09/2026 12:50',
+  '### 🎞️ Sprites de batalha animados (pacote local, só em DEV)',
+  '- Novo sistema de sprites locais animados na tela de batalha: loader com fallback pra PokéAPI + animador de spritesheet (percorre os quadros da tira).',
+  '- Suporta formas base (frente do inimigo e costas do seu Pokémon) e megas (por megaShowdownId).',
+  '- **Só ativo em desenvolvimento** — o site publicado usa a PokéAPI normalmente (nenhum asset de terceiros é distribuído).',
+  '',
   '## [V2.46.1] - 08/09/2026 16:10',
   '### Fix: conteúdo cortado nas bordas de modais',
   '- Modais que tinham rolagem interna mas cresciam além da tela (cortando o conteúdo no topo/fundo) agora têm limite de altura + rolagem: **Seletor de Título**, **Info do Poder PS** e **Substituir Golpe (TM)**.',

@@ -1,6 +1,26 @@
+import * as pack from '../data/spritePack.js';
+
+// O pacote local (sprites do Indigo) vale SOMENTE em desenvolvimento (uso pessoal).
+// Em produção (site publicado) os registros ficam VAZIOS -> o jogo usa a PokéAPI,
+// e nenhuma arte de terceiros é referenciada/distribuída. (Defensivo: Set vazio se
+// o arquivo ainda não tiver o campo.)
+const USE_LOCAL_PACK = !!(import.meta.env && import.meta.env.DEV);
+const pick = (s) => (USE_LOCAL_PACK && s ? s : new Set());
+const LOCAL_SPRITE_IDS = pick(pack.LOCAL_SPRITE_IDS);
+const LOCAL_BACK_IDS = pick(pack.LOCAL_BACK_IDS);
+const LOCAL_MEGA_IDS = pick(pack.LOCAL_MEGA_IDS);       // frente, por megaShowdownId
+const LOCAL_MEGA_BACK_IDS = pick(pack.LOCAL_MEGA_BACK_IDS); // costas
+
 const POKEAPI_SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon';
 const PS_ANI_BASE  = 'https://play.pokemonshowdown.com/sprites/ani/';
 const PS_SHINY_BASE = 'https://play.pokemonshowdown.com/sprites/ani-shiny/';
+
+// Base URL do app (respeita o subpath do GitHub Pages).
+const APP_BASE = (import.meta.env && import.meta.env.BASE_URL) || '/';
+// Caminhos do sprite LOCAL (pacote pessoal) — só usados na batalha.
+const localSpriteUrl = (id) => `${APP_BASE}sprites/local/${id}.png`;
+const localBackUrl = (id) => `${APP_BASE}sprites/local/back/${id}.png`;
+const localMegaUrl = (slug, back) => `${APP_BASE}sprites/local/mega/${back ? 'back/' : ''}${slug}.png`;
 
 export const POKEMON_FORM_SPRITE_IDS = {
   // ── Hisui ────────────────────────────────────────────────────────────────
@@ -103,6 +123,43 @@ export const getPokemonSpriteUrl = (pokemonOrId, options = {}) => {
   }
 
   return `${POKEAPI_SPRITE_BASE}/${isShiny ? 'shiny/' : ''}${spriteId}.png`;
+};
+
+// Sprite só para a TELA DE BATALHA: usa o pacote local (Indigo) quando existe;
+// senão, cai exatamente no sprite normal da CDN. Cards/Pokédex NÃO usam isto —
+// continuam com getPokemonSpriteUrl (PokéAPI, tamanho certo).
+// Existe sprite local (pacote pessoal) pra este Pokemon na batalha?
+export const hasLocalBattleSprite = (pokemonOrId, options = {}) => {
+  const pokemon = typeof pokemonOrId === 'object' && pokemonOrId !== null ? pokemonOrId : { id: pokemonOrId };
+  if (options.shiny ?? pokemon.isShiny) return false;
+  if (pokemon.isMega) {
+    if (!pokemon.megaShowdownId) return false;
+    return (options.back ? LOCAL_MEGA_BACK_IDS : LOCAL_MEGA_IDS).has(pokemon.megaShowdownId);
+  }
+  if (pokemon.formKey) return false;
+  const id = getPokemonSpriteId(pokemon);
+  if (!id) return false;
+  return options.back ? LOCAL_BACK_IDS.has(id) : LOCAL_SPRITE_IDS.has(id);
+};
+
+export const getBattleSpriteUrl = (pokemonOrId, options = {}) => {
+  const pokemon = typeof pokemonOrId === 'object' && pokemonOrId !== null ? pokemonOrId : { id: pokemonOrId };
+  const isShiny = Boolean(options.shiny ?? pokemon.isShiny);
+  if (!isShiny) {
+    // Mega: usa a arte local por megaShowdownId (ex.: 'charizard-megax').
+    if (pokemon.isMega && pokemon.megaShowdownId) {
+      const set = options.back ? LOCAL_MEGA_BACK_IDS : LOCAL_MEGA_IDS;
+      if (set.has(pokemon.megaShowdownId)) return localMegaUrl(pokemon.megaShowdownId, options.back);
+    } else if (!pokemon.formKey && !pokemon.isMega) {
+      // Forma base: front (inimigo) e back (você).
+      const spriteId = getPokemonSpriteId(pokemon);
+      if (spriteId) {
+        if (options.back && LOCAL_BACK_IDS.has(spriteId)) return localBackUrl(spriteId);
+        if (!options.back && LOCAL_SPRITE_IDS.has(spriteId)) return localSpriteUrl(spriteId);
+      }
+    }
+  }
+  return getPokemonSpriteUrl(pokemonOrId, options);
 };
 
 // Base dos sprites ANIMADOS (Gen 5 B/W) — mesmos usados nas batalhas. Só existem

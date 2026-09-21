@@ -9,7 +9,8 @@ import { MOVE_TRANSLATIONS } from '../data/translations';
 import { TIME_CONFIG } from '../utils/timeSystem';
 import { WEATHER_TYPES } from '../data/weather';
 import { getPokeballDef } from '../data/pokeballs';
-import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from '../utils/pokemonSprites';
+import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl, getBattleSpriteUrl, hasLocalBattleSprite } from '../utils/pokemonSprites';
+import AnimatedBattleSprite from './AnimatedBattleSprite';
 import { getSpriteScale } from '../data/pokemonHeights';
 import CaptureAnimation from './CaptureAnimation';
 
@@ -593,11 +594,19 @@ const BattleScreen = ({
               {(floatingTexts || []).filter(f => !f.target || f.target === 'enemy').map(f => <span key={f.id} className="block text-center font-black text-lg animate-floatUp" style={{ color: f.color, textShadow: '2px 2px 0 #000' }}>{f.text}</span>)}
             </div>
             {shinyFlash && !showTrainer && <ShinySparkles />}
+            {(!(currentEnemy.isTrainer && showTrainer) && currentEnemy.id && !currentEnemy.sprite && hasLocalBattleSprite(currentEnemy)) ? (
+              <AnimatedBattleSprite
+                localSrc={getBattleSpriteUrl(currentEnemy)}
+                fallbackSrc={getPokemonSpriteFallbackUrl(currentEnemy)}
+                alt={currentEnemy.name || 'Pokémon'}
+                className={`w-full h-full object-contain drop-shadow-xl transition-all duration-500 ${currentEnemy.isWildBoss ? 'scale-125 animate-float' : 'animate-float'} ${currentEnemy.isShiny ? 'drop-shadow-[0_0_16px_rgba(234,179,8,1)]' : ''} ${currentEnemy.isAlpha ? 'drop-shadow-[0_0_18px_rgba(239,68,68,0.95)]' : ''} ${currentEnemy.hp <= 0 ? 'opacity-0 scale-0' : 'opacity-100'}`}
+              />
+            ) : (
             <img
               src={
-                currentEnemy.isTrainer && showTrainer 
-                  ? (currentEnemy.trainerSprite || 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png') 
-                  : (currentEnemy.sprite || (currentEnemy.id ? getPokemonSpriteUrl(currentEnemy) : 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'))
+                currentEnemy.isTrainer && showTrainer
+                  ? (currentEnemy.trainerSprite || 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png')
+                  : (currentEnemy.sprite || (currentEnemy.id ? getBattleSpriteUrl(currentEnemy) : 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png'))
               }
               alt={currentEnemy.name || "Pokémon"}
               onError={e => {
@@ -609,6 +618,7 @@ const BattleScreen = ({
               }}
               className={`w-full h-full object-contain drop-shadow-xl transition-all duration-500 ${showTrainer && currentEnemy.isTrainer ? 'scale-110' : currentEnemy.isWildBoss ? 'scale-125 animate-float' : 'animate-float'} ${currentEnemy.isShiny && !showTrainer ? 'drop-shadow-[0_0_16px_rgba(234,179,8,1)]' : ''} ${currentEnemy.isAlpha && !showTrainer ? 'drop-shadow-[0_0_18px_rgba(239,68,68,0.95)]' : ''} ${currentEnemy.hp <= 0 ? 'opacity-0 scale-0' : 'opacity-100'}`}
             />
+            )}
           </div>
         </div>
 
@@ -708,6 +718,14 @@ const BattleScreen = ({
               {ballAnim && (
                 <BallEntranceEffect effect={ballAnim.effect} color={ballAnim.color} glowColor={ballAnim.glowColor} />
               )}
+              {hasLocalBattleSprite(activePoke, { back: true }) ? (
+                <AnimatedBattleSprite
+                  localSrc={getBattleSpriteUrl(activePoke, { back: true })}
+                  fallbackSrc={getPokemonSpriteUrl(activePoke, { back: true })}
+                  alt="Player"
+                  className={`w-full h-full object-contain drop-shadow-xl ${activePoke.isShiny ? 'drop-shadow-[0_0_10px_rgba(234,179,8,0.9)]' : ''} ${activePoke.isMega ? 'drop-shadow-[0_0_14px_rgba(124,58,237,0.7)]' : ''} ${activePoke.isAlpha ? 'drop-shadow-[0_0_16px_rgba(239,68,68,0.9)]' : ''}`}
+                />
+              ) : (
               <img
                 src={
                   activePoke.isMega && activePoke.megaShowdownId
@@ -743,6 +761,7 @@ const BattleScreen = ({
                 className={`w-full h-full object-contain drop-shadow-xl ${activePoke.isShiny ? 'drop-shadow-[0_0_10px_rgba(234,179,8,0.9)]' : ''} ${activePoke.isMega ? 'drop-shadow-[0_0_14px_rgba(124,58,237,0.7)]' : ''} ${activePoke.isAlpha ? 'drop-shadow-[0_0_16px_rgba(239,68,68,0.9)]' : ''}`}
                 alt="Player"
               />
+              )}
             </div>
           )}
         </div>
