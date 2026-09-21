@@ -54,9 +54,3 @@ fix.cjs
 
 # Firebase
 .firebase/
-
-# Pacote de sprites pessoal — assets de terceiros, NUNCA commitar
-public/sprites/local/
-
-# Artefato de debug do importador
-tools/ignored-sprites.txt

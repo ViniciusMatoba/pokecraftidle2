@@ -1,12 +1,10 @@
-export const APP_VERSION = '2.47.0';
-export const VERSION = '2.47.0';
-export const APP_VERSION_DATE = '21/09/2026 12:50';
+export const APP_VERSION = '2.47.1';
+export const VERSION = '2.47.1';
+export const APP_VERSION_DATE = '21/09/2026 16:00';
 export const CHANGELOG = [
-  '## [V2.47.0] - 21/09/2026 12:50',
-  '### 🎞️ Sprites de batalha animados (pacote local, só em DEV)',
-  '- Novo sistema de sprites locais animados na tela de batalha: loader com fallback pra PokéAPI + animador de spritesheet (percorre os quadros da tira).',
-  '- Suporta formas base (frente do inimigo e costas do seu Pokémon) e megas (por megaShowdownId).',
-  '- **Só ativo em desenvolvimento** — o site publicado usa a PokéAPI normalmente (nenhum asset de terceiros é distribuído).',
+  '## [V2.47.1] - 21/09/2026 16:00',
+  '### Revert: pacote de sprites local (Indigo) removido',
+  '- Removida a integração de sprites locais na batalha; o jogo volta a usar exclusivamente PokéAPI/Showdown como antes.',
   '',
   '## [V2.46.1] - 08/09/2026 16:10',
   '### Fix: conteúdo cortado nas bordas de modais',
