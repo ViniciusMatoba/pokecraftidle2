@@ -1,5 +1,5 @@
 {
-  "version": "2.17.0",
-  "date": "01/09/2026 15:26",
-  "notes": "MODO VS Sequencial Estrito (Vilã -> Rival -> Ginásio), Treinadores Regionais e Super Chefes"
+  "version": "2.47.0",
+  "date": "21/09/2026 12:50",
+  "notes": "Sprites de batalha animados (pacote local só em DEV; site publicado usa PokeAPI)"
 }
