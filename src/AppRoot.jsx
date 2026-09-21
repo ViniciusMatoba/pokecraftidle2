@@ -62,7 +62,7 @@ import {
   UNOVA_BADGE_IDS, KALOS_BADGE_IDS, ALOLA_BADGE_IDS, GALAR_BADGE_IDS, PALDEA_BADGE_IDS
 } from './data/constants';
 import { REGION_ORDER, REGION_CHAMPION_FLAGS, REGION_BADGE_IDS, getPokemonRegion, getUnlockedDexLimit as getRegionalDexLimit, isPokemonAllowedInRegion, isPokemonLegal } from './data/regionStandards';
-import { getMasteryPath, getEffectiveStat, getShinyMult, applyFamilyIvGain } from './utils/gameHelpers';
+import { getMasteryPath, getEffectiveStat, getShinyMult, applyFamilyIvGain, rollIvs } from './utils/gameHelpers';
 import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl } from './utils/pokemonSprites';
 import { getTrainerCurrencyReward } from './utils/economy';
 import { applyFriendshipGains, FRIENDSHIP_GAIN, FRIENDSHIP_EVO_THRESHOLD, FRIENDSHIP_EVOLUTIONS, FRIENDSHIP_CANDY_STEP, FRIENDSHIP_CANDY_MIN, FRIENDSHIP_CANDY_MAX } from './data/friendship';
@@ -5790,6 +5790,7 @@ export default function App() {
       const newPoke = assignRandomAbility({
         ...capturedEnemy,
         id: Number(capturedEnemy.id),
+        ivs: capturedEnemy.ivs || rollIvs(), // 6 IVs (0–31); muitos perfeitos é raro
         hp: capturedEnemy.maxHp,
         xp: 0,
         instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
@@ -8105,7 +8106,7 @@ export default function App() {
                 } else {
                   // Primeira Captura
                   const rolledNature = NATURE_LIST[Math.floor(Math.random() * NATURE_LIST.length)];
-                  const newPoke = sanitizePokemonForm(assignRandomAbility({ ...currentEnemy, id: Number(currentEnemy.id), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9), capturedRegion: prev.activeRegion || 'kanto', ball: selectedBall || 'pokeballs', equippedNature: rolledNature, unlockedNatures: [rolledNature] }, POKEDEX[Number(currentEnemy.id)]));
+                  const newPoke = sanitizePokemonForm(assignRandomAbility({ ...currentEnemy, id: Number(currentEnemy.id), ivs: currentEnemy.ivs || rollIvs(), hp: currentEnemy.maxHp, xp: 0, instanceId: Date.now() + '-' + Math.random().toString(36).substr(2, 9), capturedRegion: prev.activeRegion || 'kanto', ball: selectedBall || 'pokeballs', equippedNature: rolledNature, unlockedNatures: [rolledNature] }, POKEDEX[Number(currentEnemy.id)]));
                   const newTeam = [...baseTeam2];
                   const newPC = [...basePc2];
                   if (newTeam.length < 6) newTeam.push(newPoke); else newPC.push(newPoke);

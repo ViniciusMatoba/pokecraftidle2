@@ -10,6 +10,7 @@ import { getSpeciesMasteryTier, MASTERY_TIERS } from '../data/masteryBorders';
 import { getFriendshipView, FRIENDSHIP_MAX_HEARTS, FRIENDSHIP_TIER_INFO, FRIENDSHIP_GAIN, FRIENDSHIP_MAX_POINTS, FRIENDSHIP_MAX_RING } from '../data/friendship';
 import { GLOBAL_BORDERS, getUnlockedGlobalBorders, getGlobalBorderById, getAssignedBorderRing } from '../data/globalBorders';
 import { getCompatibleMegaStones, MEGA_STONE_ICONS, getMegaSprite } from '../data/megaEvolutions';
+import { getIvRank, getPerfectIvCount, IV_STATS } from '../utils/gameHelpers';
 import { ABILITY_ITEM_ID, getAbilityDescription, getAbilityLabel, getPokemonAbilityPool, setPokemonAbility } from '../data/abilities';
 import { getPokeballDef, POKEBALL_DEFS, ALL_BALL_IDS, BALL_EFFECT_LABELS } from '../data/pokeballs';
 import { getPokemonSpriteFallbackUrl, getPokemonSpriteUrl, getAnimatedSpriteUrl } from '../utils/pokemonSprites';
@@ -1490,23 +1491,52 @@ const PokemonManagement = ({
                       )}
                     </button>
 
-                    {/* IVs (força extra por capturar da mesma família) */}
+                    {/* IVs — 6 stats (0–31). Nº de perfeitos (31) define a raridade/ranking. */}
                     {(() => {
-                      const iv = Math.max(0, Math.min(31, activePokemonDetails.pokemon.ivBonus || 0));
-                      const pct = (iv * 0.5).toFixed(1).replace(/\.0$/, '');
+                      const p = activePokemonDetails.pokemon;
+                      const rank = getIvRank(p); // { count, label, stars, color }
+                      const hasIvs = !!p.ivs;
+                      const LABELS = { hp: 'HP', attack: 'Atk', defense: 'Def', spAtk: 'SpA', spDef: 'SpD', speed: 'Vel' };
                       return (
-                        <div className="w-full p-4 rounded-2xl border-2 border-fuchsia-100 bg-fuchsia-50/50 shadow-sm">
-                          <div className="flex justify-between items-center mb-2">
+                        <div className="w-full p-4 rounded-2xl border-2 shadow-sm" style={{ borderColor: rank.color + '66', background: rank.color + '11' }}>
+                          <div className="flex justify-between items-center mb-2.5">
                             <div>
                               <h3 className="text-[11px] font-black uppercase text-slate-800">🧬 IVs</h3>
-                              <p className="text-[8px] font-black uppercase tracking-widest text-fuchsia-600">Capture da mesma família para subir</p>
+                              <p className="text-[9px] font-black uppercase tracking-widest" style={{ color: rank.color }}>{rank.label} · {rank.count}/6 perfeitos</p>
                             </div>
-                            <span className="text-sm font-black text-fuchsia-600 tabular-nums">{iv}/31</span>
+                            <span className="text-sm font-black tabular-nums" style={{ color: rank.color }} title={`${rank.count} IVs perfeitos`}>
+                              {'★'.repeat(rank.count)}{'☆'.repeat(6 - rank.count)}
+                            </span>
                           </div>
-                          <div className="h-2.5 w-full rounded-full bg-fuchsia-100 overflow-hidden">
-                            <div className="h-full rounded-full bg-gradient-to-r from-fuchsia-400 to-fuchsia-600" style={{ width: `${(iv / 31) * 100}%` }} />
-                          </div>
-                          <p className="text-[9px] font-bold text-slate-500 mt-1.5">Bônus de stats: <strong className="text-fuchsia-600">+{pct}%</strong> em todos os atributos</p>
+                          {hasIvs ? (
+                            <div className="grid grid-cols-3 gap-x-3 gap-y-1.5">
+                              {IV_STATS.map((k) => {
+                                const v = Math.max(0, Math.min(31, Number(p.ivs[k]) || 0));
+                                const perfect = v === 31;
+                                return (
+                                  <div key={k}>
+                                    <div className="flex justify-between text-[8px] font-black uppercase">
+                                      <span className="text-slate-500">{LABELS[k]}</span>
+                                      <span style={{ color: perfect ? rank.color : '#64748b' }}>{v}{perfect ? ' ★' : ''}</span>
+                                    </div>
+                                    <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden">
+                                      <div className="h-full rounded-full" style={{ width: `${(v / 31) * 100}%`, background: perfect ? rank.color : '#a855f7' }} />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            (() => {
+                              const iv = Math.max(0, Math.min(31, p.ivBonus || 0));
+                              return (
+                                <div className="h-2.5 w-full rounded-full bg-fuchsia-100 overflow-hidden">
+                                  <div className="h-full rounded-full bg-gradient-to-r from-fuchsia-400 to-fuchsia-600" style={{ width: `${(iv / 31) * 100}%` }} />
+                                </div>
+                              );
+                            })()
+                          )}
+                          <p className="text-[9px] font-bold text-slate-500 mt-2">Mais IVs perfeitos = mais raro e forte — e soma no <strong style={{ color: rank.color }}>Boss Global</strong>.</p>
                         </div>
                       );
                     })()}

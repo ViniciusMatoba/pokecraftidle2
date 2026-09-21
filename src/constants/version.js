@@ -1,7 +1,14 @@
-export const APP_VERSION = '2.47.1';
-export const VERSION = '2.47.1';
-export const APP_VERSION_DATE = '21/09/2026 16:00';
+export const APP_VERSION = '2.48.0';
+export const VERSION = '2.48.0';
+export const APP_VERSION_DATE = '21/09/2026 16:15';
 export const CHANGELOG = [
+  '## [V2.48.0] - 21/09/2026 16:15',
+  '### 🧬 IVs por stat (6 IVs) + raridade por perfeitos',
+  '- Pokémon capturados agora nascem com **6 IVs** (HP/Atk/Def/SpA/SpD/Vel, 0–31 cada). Ter muitos IVs **perfeitos (31)** é raro — como shiny/alpha.',
+  '- Novo **selo de ranking de IV** no card do Pokémon (nº de perfeitos, estrelas e barras por stat). Saves antigos seguem funcionando (modelo legado).',
+  '### 🏆 Poder de Coleção → Boss Global',
+  '- O poder do jogador (e o dano ao Boss) agora soma **espécies capturadas, insígnias, shinies, alphas e IVs perfeitos** — recompensando o tempo de jogo e a raridade.',
+  '',
   '## [V2.47.1] - 21/09/2026 16:00',
   '### Revert: pacote de sprites local (Indigo) removido',
   '- Removida a integração de sprites locais na batalha; o jogo volta a usar exclusivamente PokéAPI/Showdown como antes.',

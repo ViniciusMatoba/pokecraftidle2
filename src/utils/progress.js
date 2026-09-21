@@ -103,13 +103,59 @@ export const calculatePokemonPower = (pokemon = {}) => {
   return baseStats + shinyBonus;
 };
 
+// Conta quantos IVs perfeitos (31) o Pokémon tem (0–6). Compatível com o modelo
+// de 6 IVs (pokemon.ivs) e com o legado de um único ivBonus.
+export const IV_STAT_KEYS = ['hp', 'atk', 'def', 'spAtk', 'spDef', 'speed'];
+export const getPerfectIvCount = (pokemon = {}) => {
+  if (pokemon.ivs && typeof pokemon.ivs === 'object') {
+    return IV_STAT_KEYS.reduce((n, k) => n + (Number(pokemon.ivs[k]) === 31 ? 1 : 0), 0);
+  }
+  return Number(pokemon.ivBonus) === 31 ? 1 : 0; // legado
+};
+
+// Pesos do "Poder de Coleção" — recompensam o tempo de jogo e a raridade.
+export const COLLECTION_WEIGHTS = {
+  species: 150,   // por espécie diferente capturada (amplitude da Pokédex)
+  badge: 1000,    // por insígnia
+  shiny: 800,     // por Pokémon shiny
+  alpha: 1200,    // por Pokémon alpha
+  perfectIv: 120, // por IV perfeito (31) somado na coleção inteira
+};
+
+// Detalha o bônus de coleção que entra no dano ao Boss Global.
+export const calculateCollectionBonus = (gameState = {}, pokedex = {}) => {
+  const owned = collectPowerPokemon(gameState, pokedex);
+  let shiny = 0, alpha = 0, perfectIv = 0;
+  for (const p of owned) {
+    if (p.isShiny) shiny += 1;
+    if (p.isAlpha) alpha += 1;
+    perfectIv += getPerfectIvCount(p);
+  }
+  const species = Object.keys(gameState.caughtData || {}).length
+    || new Set(owned.map((p) => Number(p.id)).filter(Boolean)).size;
+  const badges = getBadgeCount(gameState);
+  const w = COLLECTION_WEIGHTS;
+  const counts = { species, badges, shiny, alpha, perfectIv };
+  const parts = {
+    species: species * w.species,
+    badges: badges * w.badge,
+    shiny: shiny * w.shiny,
+    alpha: alpha * w.alpha,
+    perfectIv: perfectIv * w.perfectIv,
+  };
+  const total = parts.species + parts.badges + parts.shiny + parts.alpha + parts.perfectIv;
+  return { counts, parts, total };
+};
+
 export const calculatePowerScore = (gameState = {}, pokedex = {}) => {
   const pokemonPower = collectPowerPokemon(gameState, pokedex).reduce(
     (sum, pokemon) => sum + calculatePokemonPower(pokemon),
     0
   );
 
-  return pokemonPower + (getBadgeCount(gameState) * 1000);
+  // Poder dos Pokémon + Poder de Coleção (espécies, insígnias, shiny, alpha, IVs perfeitos).
+  // O boss usa este powerScore (damage + powerScore*0.18), então tudo isso soma no dano.
+  return pokemonPower + calculateCollectionBonus(gameState, pokedex).total;
 };
 
 export const hasBadge = (gameState = {}, badgeId, order) => {
