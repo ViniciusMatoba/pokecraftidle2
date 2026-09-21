@@ -1,5 +1,5 @@
 {
-  "version": "2.47.0",
-  "date": "21/09/2026 12:50",
-  "notes": "Sprites de batalha animados (pacote local só em DEV; site publicado usa PokeAPI)"
+  "version": "2.48.0",
+  "date": "21/09/2026 16:15",
+  "notes": "IVs por stat (6) com raridade por perfeitos + Poder de Colecao no Boss Global"
 }
